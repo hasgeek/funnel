@@ -103,7 +103,7 @@ def newspace():
     return render_template('autoform.html', form=form, title="Create a new proposal space", submit="Create space")
 
 
-@app.route('/<name>')
+@app.route('/<name>/')
 def viewspace(name):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
@@ -178,6 +178,7 @@ def newsession(name):
 
 
 @app.route('/<name>/<slug>/edit', methods=['GET', 'POST'])
+@lastuser.requires_login
 def editsession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
