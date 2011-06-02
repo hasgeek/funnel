@@ -1,0 +1,35 @@
+{% extends "inc/layout.html" %}
+{% block titletags -%}
+  <title>{{ config['SITE_TITLE'] }}</title>
+  <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
+{%- endblock %}
+
+{% block heading %}
+<h1>{{ config['SITE_TITLE'] }}</h1>
+{% endblock %}
+{% block content %}
+<p>
+ The funnel is a space for proposals and voting on events. Pick an event to get started.
+</p>
+{% if spaces %}
+<ul class="cardset">
+  {% for space in spaces %}
+    <li>
+      <a href="{{ url_for('viewspace', name=space.name) }}">
+        <div class="title">
+          <h2>{{ space.title }}</h2>
+          <h3>{{ space.datelocation }}</h3>
+        </div>
+        <div class="body">
+          <p>{{ space.tagline }}</p>
+        </div>
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>
+  There are no discussion spaces at this time.
+</p>
+{% endif %}
+{% endblock %}

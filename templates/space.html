@@ -1,0 +1,60 @@
+{% extends "inc/layout.html" %}
+{% block title %}{{ space.title }}{% endblock %}
+{% block content %}
+
+{{ description }}
+
+<p>
+  <strong> Status:
+    {% if space.status == 0 -%}
+      Draft
+    {%- elif space.status == 1 -%}
+      Accepting submissions
+    {%- elif space.status == 2 -%}
+      Accepting votes
+    {%- elif space.status == 3 -%}
+      Submissions and voting closed, awaiting jury selection
+    {%- elif space.status == 4 -%}
+      Open for post-event feedback
+    {%- elif space.status == 5 -%}
+      Closed
+    {%- elif space.status == 6 -%}
+      Rejected
+    {%- endif -%}
+  </strong>
+</p>
+<h2>Session proposals</h2>
+{% if space.status == 1 -%}
+<p>
+  <a href="{{ url_for('newsession', name=space.name) }}">Propose a session &rarr;</a>
+</p>
+{% endif %}
+<table class="listing">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Title</th>
+      <th>Proposer</th>
+      <th>Track</th>
+      <th>Type</th>
+      <th>Level</th>
+    </tr>
+  </thead>
+  {% for proposal in proposals %}
+    <tr class="link">
+      {%- set link=url_for('viewsession', name=space.name, slug=proposal.urlname()) -%}
+      <td><a href="{{ link }}">{{ loop.index }}</a></td>
+      <td><a href="{{ link }}">{{ proposal.title }}</a></td>
+      <td><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
+      <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
+      <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
+      <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
+  {% else %}
+    <tr>
+      <td colspan="6">
+        <em>(No sessions have been submitted)</em>
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

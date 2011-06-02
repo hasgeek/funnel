@@ -1,0 +1,19 @@
+{% extends "inc/layout.html" %}
+{% block title %}Authorization error{% endblock %}
+{% block content %}
+<p>
+  An error occured when logging you in.
+</p>
+<dl class="infobox">
+  <dt>Error</dt>
+  <dd>{{ error }}</dd>
+  {% if error_description %}
+    <dt>Description</dt>
+    <dd>{{ error_description }}</dd>
+  {% endif %}
+  {% if error_uri %}
+    <dt>Error URI</dt>
+    <dd>{{ error_uri }}</dd>
+  {% endif %}
+</dl>
+{% endblock %}

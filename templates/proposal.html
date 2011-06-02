@@ -1,0 +1,44 @@
+{% extends "inc/layout.html" %}
+{% block title %}{{ proposal.title }}{% endblock %}
+{% block heading %}{# Inhibit display of page-level title #}{% endblock %}
+{% block content %}
+<p style="margin-top: 0; font-size: 80%;">
+  <a href="{{ url_for('viewspace', name=space.name) }}">&larr; Return to {{ space.title }}</a>
+  {% if proposal.user == g.user %}| <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname()) }}">Edit this &rarr;</a>{% endif %}
+</p>
+<div class="sheet">
+  <div class="section first">
+    <h1>{{ proposal.title }}</h1>
+    <p>
+      <em>by</em> {{ proposal.user.fullname }}<br/>
+    </p>
+    <p>
+      <strong>Track:</strong> {{ proposal.section.title }}<br/>
+      <strong>Session type:</strong> {{ proposal.session_type }}<br/>
+      <strong>Technical level:</strong> {{ proposal.technical_level }}<br/>
+    </p>
+    <h2>Objective</h2>
+    {{ proposal.objective_html|safe }}
+    <h2>Description</h2>
+    {{ proposal.description_html|safe }}
+    {% if proposal.requirements %}
+      <h2>Requirements</h2>
+      {{ proposal.requirements_html|safe }}
+    {% endif %}
+    {% if proposal.slides %}
+      <h2>Slides</h2>
+      <p>
+        <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
+      </p>
+    {% endif %}
+    {% if proposal.links %}
+      <h2>Links</h2>
+      <ul>
+        {% for link in proposal.links.split('\n') -%}
+          <li><a href="{{ link.strip() }}">{{ link.strip() }}</a></li>
+        {% endfor -%}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
