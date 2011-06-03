@@ -109,8 +109,9 @@ def viewspace(name):
     if not space:
         abort(404)
     description = Markup(space.description_html)
+    tracks = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by('created_at').all()
-    return render_template('space.html', space=space, description=description, proposals=proposals)
+    return render_template('space.html', space=space, description=description, tracks=tracks, proposals=proposals)
 
 
 @app.route('/<name>/edit', methods=['GET', 'POST'])

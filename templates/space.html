@@ -26,6 +26,14 @@
     {%- endif -%}
   </strong>
 </p>
+{% if tracks -%}
+  <h2 id="tracks">Tracks</h2>
+  <ol>
+    {% for track in tracks -%}
+      <li>{{ track.title }} &mdash; {{ track.description }}</li>
+    {% endfor -%}
+  </ol>
+{%- endif %}
 <h2 id="sessions">Session proposals</h2>
 {% if space.status == 1 -%}
 <p>
