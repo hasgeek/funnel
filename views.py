@@ -109,7 +109,7 @@ def viewspace(name):
     if not space:
         abort(404)
     description = Markup(space.description_html)
-    proposals = Proposal.query.filter_by(proposal_space=space).order_by('updated_at').all()
+    proposals = Proposal.query.filter_by(proposal_space=space).order_by('created_at').all()
     return render_template('space.html', space=space, description=description, proposals=proposals)
 
 
@@ -173,8 +173,9 @@ def newsession(name):
         db.session.add(proposal)
         db.session.commit()
         flash("Your new session has been saved", "info")
-        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname()), code=303)
-    return render_template('autoform.html', form=form, title="Submit a session proposal", submit="Submit session")
+        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
+    return render_template('autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
+        breadcrumbs = [(url_for('viewspace', name=space.name), space.title)])
 
 
 @app.route('/<name>/<slug>/edit', methods=['GET', 'POST'])
@@ -209,8 +210,10 @@ def editsession(name, slug):
         proposal.requirements_html = markdown(proposal.requirements)
         db.session.commit()
         flash("Your changes have been saved", "info")
-        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname()), code=303)
-    return render_template('autoform.html', form=form, title="Edit session proposal", submit="Save changes")
+        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
+    return render_template('autoform.html', form=form, title="Edit session proposal", submit="Save changes",
+        breadcrumbs = [(url_for('viewspace', name=space.name), space.title),
+                       (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)])
 
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
@@ -226,18 +229,105 @@ def viewsession(name, slug):
     if not proposal:
         abort(404)
     if proposal.proposal_space != space:
-        return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname()), code=301)
-    if slug != proposal.urlname():
-        return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname()), code=301)
+        return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
+    if slug != proposal.urlname:
+        return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
     # URL is okay. Show the proposal.
-    return render_template('proposal.html', space=space, proposal=proposal)
+    return render_template('proposal.html', space=space, proposal=proposal,
+        breadcrumbs = [(url_for('viewspace', name=space.name), space.title)])
+
+
+@app.route('/<name>/<slug>/voteup')
+def voteupsession(name, slug):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    proposal.vote(g.user, votedown=False)
+    db.session.commit()
+    flash("Your vote has been recorded", "info")
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
+
+
+@app.route('/<name>/<slug>/votedown')
+def votedownsession(name, slug):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    proposal.vote(g.user, votedown=True)
+    db.session.commit()
+    flash("Your vote has been recorded", "info")
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
+
+
+@app.route('/<name>/<slug>/cancelvote')
+def votecancelsession(name, slug):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    proposal.cancelvote(g.user)
+    db.session.commit()
+    flash("Your vote has been withdrawn", "info")
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
 
 
 @app.route('/<name>/<slug>/next')
 def nextsession(name, slug):
-    pass
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+
+    next = proposal.getnext()
+    if next:
+        return redirect(url_for('viewsession', name=space.name, slug=next.urlname))
+    else:
+        flash("You were at the last proposal", "info")
+        return redirect(url_for('viewspace', name=space.name))
 
 
 @app.route('/<name>/<slug>/prev')
 def prevsession(name, slug):
-    pass
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+
+    prev = proposal.getprev()
+    if prev:
+        return redirect(url_for('viewsession', name=space.name, slug=prev.urlname))
+    else:
+        flash("You were at the first proposal", "info")
+        return redirect(url_for('viewspace', name=space.name))

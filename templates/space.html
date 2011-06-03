@@ -8,7 +8,7 @@
 {{ description }}
 
 <p>
-  <strong> Status:
+  <strong>Status:
     {% if space.status == 0 -%}
       Draft
     {%- elif space.status == 1 -%}
@@ -26,7 +26,7 @@
     {%- endif -%}
   </strong>
 </p>
-<h2>Session proposals</h2>
+<h2 id="sessions">Session proposals</h2>
 {% if space.status == 1 -%}
 <p>
   <a href="{{ url_for('newsession', name=space.name) }}">Propose a session &rarr;</a>
@@ -41,20 +41,22 @@
       <th>Track</th>
       <th>Type</th>
       <th>Level</th>
+      <th>Submitted</th>
     </tr>
   </thead>
   {% for proposal in proposals %}
     <tr class="link">
-      {%- set link=url_for('viewsession', name=space.name, slug=proposal.urlname()) -%}
+      {%- set link=url_for('viewsession', name=space.name, slug=proposal.urlname) -%}
       <td><a href="{{ link }}">{{ loop.index }}</a></td>
       <td><a href="{{ link }}">{{ proposal.title }}</a></td>
       <td><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
       <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
       <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
       <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
+      <td><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e, %Y") }}</a></td>
   {% else %}
     <tr>
-      <td colspan="6">
+      <td colspan="7">
         <em>(No sessions have been submitted)</em>
       </td>
     </tr>

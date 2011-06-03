@@ -48,6 +48,14 @@
       {% block header %}{% endblock %}
     </header>
     <div id="main">
+      {%- if breadcrumbs %}
+        <ul class="breadcrumbs">
+          <li class="home"><a href="{{ url_for('index') }}">Home</a></li>
+          {% for url, title in breadcrumbs -%}
+          <li><a href="{{ url }}">{{ title }}</a></li>
+          {% endfor -%}
+        </ul>
+      {% endif -%}
       {% block flashmessages %}
       <div id="flash-messages">
         {%- for category, msg in get_flashed_messages(with_categories=true) %}

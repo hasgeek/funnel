@@ -2,21 +2,62 @@
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 {% block content %}
-<p style="margin-top: 0; font-size: 80%;">
+{#<p style="margin-top: 0; font-size: 80%;">
   <a href="{{ url_for('viewspace', name=space.name) }}">&larr; Return to {{ space.title }}</a>
-  {% if proposal.user == g.user %}| <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname()) }}">Edit this &rarr;</a>{% endif %}
-</p>
-<div class="sheet">
+  {% if proposal.user == g.user %}| <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this &rarr;</a>{% endif %}
+</p>#}
+<div class="infosheet">
+  <div class="leftear">
+    {%- if proposal.getprev() -%}
+      <a href="{{ url_for('prevsession', name=space.name, slug=proposal.urlname) }}" title="Previous">&lt;</a>
+    {%- else -%}
+      <span>&lt;</span>
+    {%- endif -%}
+  </div>
+  <div class="rightear">
+    {%- if proposal.getnext() -%}
+      <a href="{{ url_for('nextsession', name=space.name, slug=proposal.urlname) }}" title="Next">&gt;</a>
+    {%- else -%}
+      <span>&gt;</span>
+    {%- endif -%}
+  </div>
   <div class="section first">
+    <div class="votebox">
+      {%- set vote = proposal.getvote(g.user) %}
+      <div class="choices">
+        {%- if not vote %}
+          <a class="votechoice" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">&#x2714;</a>
+          <a class="votechoice" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">&#x2718;</a>
+        {%- elif vote.votedown %}
+          <a class="votechoice" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">&#x2714;</a>
+          <a class="votechoice selected" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">&#x2718;</a>
+        {%- else %}
+          <a class="votechoice selected" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">&#x2714;</a>
+          <a class="votechoice" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">&#x2718;</a>
+        {% endif -%}
+      </div>
+      <div class="label">
+        Score: {{ proposal.votecount }}
+      </div>
+    </div>
     <h1>{{ proposal.title }}</h1>
     <p>
-      <em>by</em> {{ proposal.user.fullname }}<br/>
+      <em>by</em> {{ proposal.user.fullname }} {% if proposal.user == g.user -%}
+        <small>(that’s you! <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this</a>?)</small>
+        {%- endif %}
     </p>
-    <p>
-      <strong>Track:</strong> {{ proposal.section.title }}<br/>
-      <strong>Session type:</strong> {{ proposal.session_type }}<br/>
-      <strong>Technical level:</strong> {{ proposal.technical_level }}<br/>
-    </p>
+  </div>
+  <div class="section">
+    <dl class="bar">
+      <dt>Track</dt>
+      <dd>{{ proposal.section.title }}</dd>
+      <dt>Session type</dt>
+      <dd>{{ proposal.session_type }}</dd>
+      <dt>Technical level</dt>
+      <dd>{{ proposal.technical_level }}</dd>
+    </dl>
+  </div>
+  <div class="section">
     <h2>Objective</h2>
     {{ proposal.objective_html|safe }}
     <h2>Description</h2>
@@ -26,19 +67,25 @@
       {{ proposal.requirements_html|safe }}
     {% endif %}
     {% if proposal.slides %}
-      <h2>Slides</h2>
-      <p>
-        <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
-      </p>
+        <h2>Slides</h2>
+        <p>
+          <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
+        </p>
     {% endif %}
     {% if proposal.links %}
-      <h2>Links</h2>
-      <ul>
-        {% for link in proposal.links.split('\n') -%}
-          <li><a href="{{ link.strip() }}">{{ link.strip() }}</a></li>
-        {% endfor -%}
-      </ul>
+        <h2>Links</h2>
+        <ul>
+          {% for link in proposal.links.split('\n') -%}
+            <li><a href="{{ link.strip() }}">{{ link.strip() }}</a></li>
+          {% endfor -%}
+        </ul>
     {% endif %}
+  </div>
+  <div class="section">
+    <h2 id="comments">Comments</h2>
+    <p>
+      <em>(Commenting is not yet supported)</em>
+    </p>
   </div>
 </div>
 {% endblock %}

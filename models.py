@@ -123,6 +123,10 @@ class Proposal(db.Model, BaseMixin):
 
     votecount = db.Column(db.Integer, default=0, nullable=False)
 
+    def __repr__(self):
+        return u'<Proposal "%s" in space "%s" by "%s">' % (self.title, self.proposal_space.title, self.user.fullname)
+
+    @property
     def urlname(self):
         return '%s-%s' % (self.id, self.name)
 
@@ -131,7 +135,7 @@ class Proposal(db.Model, BaseMixin):
         if not voteob:
             voteob = Vote(user=user, proposal=self, votedown=votedown)
             self.votecount += 1 if not votedown else -1
-            db.session.add(newvote)
+            db.session.add(voteob)
         else:
             if voteob.votedown != votedown:
                 self.votecount += 2 if not votedown else -2
@@ -143,6 +147,19 @@ class Proposal(db.Model, BaseMixin):
         if voteob:
             self.votecount += 1 if voteob.votedown else -1
             db.session.delete(voteob)
+
+    def getvote(self, user):
+        return Vote.query.filter_by(user=user, proposal=self).first()
+
+    def getnext(self):
+        return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
+            Proposal.id != self.id).filter(
+            Proposal.created_at > self.created_at).order_by('created_at').first()
+
+    def getprev(self):
+        return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
+            Proposal.id != self.id).filter(
+            Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
 
 
 class Vote(db.Model, BaseMixin):

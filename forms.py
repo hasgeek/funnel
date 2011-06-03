@@ -37,6 +37,7 @@ class ProposalForm(wtf.Form):
         description="What is the expected benefit for someone attending this?")
     session_type = wtf.RadioField('Session type', validators=[wtf.Required()], choices=[
         ('Lecture', 'Lecture'),
+        ('Demo', 'Demo'),
         ('Workshop', 'Workshop'),
         ('Discussion', 'Discussion'),
         ('Panel', 'Panel'),
@@ -51,7 +52,8 @@ class ProposalForm(wtf.Form):
     requirements = wtf.TextAreaField('Requirements',
         description="For workshops, what must participants bring to the session?")
     slides = wtf.html5.URLField('Slides',
-        description="Link to your slides. These can be just an outline initially")
+        description="Link to your slides. These can be just an outline initially. "\
+            "If you provide a Slideshare link, we'll embed slides in the page")
     links = wtf.TextAreaField('Links',
         description="Other links, one per line. Provide links to your profile and "\
             "slides and videos from your previous sessions; anything that'll help "\
