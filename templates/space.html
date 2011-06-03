@@ -41,6 +41,7 @@
       <th>Track</th>
       <th>Type</th>
       <th>Level</th>
+      <th>Score</th>
       <th>Submitted</th>
     </tr>
   </thead>
@@ -53,10 +54,11 @@
       <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
       <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
       <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
+      <td><a href="{{ link }}">{{ proposal.votecount }}</a></td>
       <td><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e, %Y") }}</a></td>
   {% else %}
     <tr>
-      <td colspan="7">
+      <td colspan="8">
         <em>(No sessions have been submitted)</em>
       </td>
     </tr>
