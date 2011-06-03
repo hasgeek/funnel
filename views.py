@@ -238,6 +238,7 @@ def viewsession(name, slug):
 
 
 @app.route('/<name>/<slug>/voteup')
+@lastuser.requires_login
 def voteupsession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
@@ -256,6 +257,7 @@ def voteupsession(name, slug):
 
 
 @app.route('/<name>/<slug>/votedown')
+@lastuser.requires_login
 def votedownsession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
@@ -274,6 +276,7 @@ def votedownsession(name, slug):
 
 
 @app.route('/<name>/<slug>/cancelvote')
+@lastuser.requires_login
 def votecancelsession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
