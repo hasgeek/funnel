@@ -314,10 +314,10 @@ footer #footer_content {
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
-  background-image: url('/static/img/logo.png?1306483736');
+  background-image: url('/static/img/logo.png?1307204443');
   background-repeat: no-repeat;
-  background-position: 100 100;
-  width: 100px;
+  background-position: 150 100;
+  width: 150px;
   height: 100px;
 }
 #logo a {
