@@ -1143,7 +1143,22 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 .infosheet .votebox .choices {
   font-size: 200%;
 }
+.infosheet .votebox .choices span.score {
+  font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
+  border: 1px solid #b7b7b7;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -o-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  border-radius: 3px;
+  padding: 0 3px;
+}
+.infosheet .votebox .choices span.indicator {
+  font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
+}
 .infosheet .votebox .choices a.votechoice {
+  font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
   border: 1px solid transparent;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -1151,18 +1166,17 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   -ms-border-radius: 3px;
   -khtml-border-radius: 3px;
   border-radius: 3px;
-  padding: 0 0.25em;
+  padding: 0 3px;
 }
 .infosheet .votebox .choices a.votechoice:hover {
-  border: 1px solid #e8e8e8;
+  border: 1px solid #b7b7b7;
   text-decoration: none;
 }
 .infosheet .votebox .choices a.votechoice:active, .infosheet .votebox .choices a.votechoice.selected {
-  border: 1px solid #b7b7b7;
+  background-color: #e8e8e8;
 }
 .infosheet .votebox .label {
-  margin-top: 0.9em;
-  font-size: 80%;
+  margin-top: 0.5em;
 }
 .infosheet .section {
   border-top: 1px solid #e8e8e8;
@@ -1176,6 +1190,17 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 }
 .infosheet .section h1 + p, .infosheet .section h1 + ul, .infosheet .section h1 + ol, .infosheet .section h2 + p, .infosheet .section h2 + ul, .infosheet .section h2 + ol {
   margin-top: 0.5em;
+}
+.infosheet .section .social {
+  position: relative;
+  margin: 1em 0;
+}
+.infosheet .section .social iframe {
+  display: inline-block;
+}
+.infosheet .section .social .facebooklike {
+  position: relative;
+  top: 1px;
 }
 .infosheet .section.bar {
   background-color: #e8e8e8;
