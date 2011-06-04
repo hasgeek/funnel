@@ -428,6 +428,12 @@ dl.bar dd {
   margin: 0 1em 0 0;
   text-indent: 0;
 }
+dl.bar dd:last-child {
+  -moz-box-flex: 0;
+  -webkit-box-flex: 0;
+  box-flex: 0;
+  margin: 0;
+}
 
 dl.infobox {
   margin-bottom: 0;
@@ -1170,6 +1176,10 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 }
 .infosheet .section h1 + p, .infosheet .section h1 + ul, .infosheet .section h1 + ol, .infosheet .section h2 + p, .infosheet .section h2 + ul, .infosheet .section h2 + ol {
   margin-top: 0.5em;
+}
+.infosheet .section.bar {
+  background-color: #e8e8e8;
+  padding: 1px 2em;
 }
 .infosheet .section.first {
   border-top: none;

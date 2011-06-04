@@ -47,7 +47,7 @@
         {%- endif %}
     </p>
   </div>
-  <div class="section">
+  <div class="section bar">
     <dl class="bar">
       <dt>Track</dt>
       <dd>{{ proposal.section.title }}</dd>
@@ -67,18 +67,18 @@
       {{ proposal.requirements_html|safe }}
     {% endif %}
     {% if proposal.slides %}
-        <h2>Slides</h2>
-        <p>
-          <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
-        </p>
+      <h2 id="slides">Slides</h2>
+      <p>
+        <a id="slides-link" href="{{ proposal.slides }}">{{ proposal.slides }}</a>
+      </p>
     {% endif %}
     {% if proposal.links %}
-        <h2>Links</h2>
-        <ul>
-          {% for link in proposal.links.split('\n') -%}
-            <li><a href="{{ link.strip() }}">{{ link.strip() }}</a></li>
-          {% endfor -%}
-        </ul>
+      <h2 id="links">Links</h2>
+      <ul>
+        {% for link in proposal.links.split('\n') -%}
+          <li><a href="{{ link.strip() }}">{{ link.strip() }}</a></li>
+        {% endfor -%}
+      </ul>
     {% endif %}
   </div>
   <div class="section">
@@ -88,4 +88,17 @@
     </p>
   </div>
 </div>
+{% endblock %}
+
+{% block footerscripts %}
+{% if proposal.slides %}
+<script type="text/javascript">
+  $(function() {
+    $("#slides-link").oembed();//null,
+      //{
+      //embedMethod: "append"
+      //});
+  });
+</script>
+{% endif %}
 {% endblock %}
