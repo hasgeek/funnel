@@ -49,7 +49,7 @@
       <th>Track</th>
       <th>Type</th>
       <th>Level</th>
-      <th class="num">Votes</th>
+      <th class="num">+1</th>
       <th>Submitted</th>
     </tr>
   </thead>
@@ -58,7 +58,7 @@
       {%- set link=url_for('viewsession', name=space.name, slug=proposal.urlname) -%}
       <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
       <td><a href="{{ link }}">{{ proposal.title }}</a></td>
-      <td><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
+      <td style="white-space: nowrap"><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
       <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
       <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
       <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
