@@ -40,7 +40,7 @@ if app.config['ADMINS']:
     mail_handler = logging.handlers.SMTPHandler(app.config['MAIL_SERVER'],
         app.config['DEFAULT_MAIL_SENDER'][1],
         app.config['ADMINS'],
-        'hasgeek-jobs failure',
+        'funnel failure',
         credentials = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD']))
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
