@@ -5,7 +5,8 @@ from flaskext.lastuser.sqlalchemy import UserBase
 from app import app
 from utils import makename
 
-__all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal']
+__all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
+           'VoteSpace', 'Vote', 'CommentSpace', 'Comment']
 
 db = SQLAlchemy(app)
 
@@ -19,6 +20,22 @@ class SPACESTATUS:
     FEEDBACK = 4
     CLOSED = 5
     REJECTED = 6
+
+
+class COMMENTSTATUS:
+    PUBLIC = 0
+    SCREENED = 1
+    HIDDEN = 2
+    SPAM = 3
+    DELETED = 4 # For when there are children to be preserved
+
+
+# What is this VoteSpace or CommentSpace attached to?
+class SPACETYPE:
+    PROPOSALSPACE = 0
+    PROPOSALSPACESECTION = 1
+    PROPOSAL = 2
+    COMMENT = 3
 
 
 # --- Mixins ------------------------------------------------------------------
@@ -58,6 +75,94 @@ class Tag(db.Model, BaseMixin):
                 return tag
 
 
+class VoteSpace(db.Model, BaseMixin):
+    __tablename__ = 'votespace'
+    type = db.Column(db.Integer, nullable=True)
+    count = db.Column(db.Integer, default=0, nullable=False)
+
+    def __init__(self, **kwargs):
+        super(VoteSpace, self).__init__(**kwargs)
+        self.count = 0
+
+    def vote(self, user, votedown=False):
+        voteob = Vote.query.filter_by(user=user, votespace=self).first()
+        if not voteob:
+            voteob = Vote(user=user, votespace=self, votedown=votedown)
+            self.count += 1 if not votedown else -1
+            db.session.add(voteob)
+        else:
+            if voteob.votedown != votedown:
+                self.count += 2 if not votedown else -2
+            voteob.votedown = votedown
+        return voteob
+
+    def cancelvote(self, user):
+        voteob = Vote.query.filter_by(user=user, votespace=self).first()
+        if voteob:
+            self.count += 1 if voteob.votedown else -1
+            db.session.delete(voteob)
+
+    def getvote(self, user):
+        return Vote.query.filter_by(user=user, votespace=self).first()
+
+
+class Vote(db.Model, BaseMixin):
+    __tablename__ = 'vote'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship(User, primaryjoin=user_id == User.id,
+        backref= db.backref('votes', cascade="all, delete-orphan"))
+    votespace_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votespace = db.relationship(VoteSpace, primaryjoin=votespace_id == VoteSpace.id,
+        backref = db.backref('votes', cascade="all, delete-orphan"))
+    votedown = db.Column(db.Boolean, default=False, nullable=False)
+
+    __table_args__ = ( db.UniqueConstraint("user_id", "votespace_id"), {} )
+
+
+class CommentSpace(db.Model, BaseMixin):
+    __tablename__ = 'commentspace'
+    type = db.Column(db.Integer, nullable=True)
+    count = db.Column(db.Integer, default=0, nullable=False)
+
+    def __init__(self, **kwargs):
+        super(CommentSpace, self).__init__(**kwargs)
+        self.count = 0
+
+
+class Comment(db.Model, BaseMixin):
+    __tablename__ = 'comment'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship(User, primaryjoin=user_id == User.id,
+        backref= db.backref('comments', cascade="all, delete-orphan"))
+    commentspace_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    commentspace = db.relationship(CommentSpace, primaryjoin=commentspace_id == CommentSpace.id,
+        backref = db.backref('comments', cascade="all, delete-orphan"))
+
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
+    children = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"))
+
+    message = db.Column(db.Text, nullable=False)
+    message_html = db.Column(db.Text, nullable=False)
+
+    status = db.Column(db.Integer, default=0, nullable=False)
+
+    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes = db.relationship(VoteSpace, uselist=False)
+
+    def __init__(self, **kwargs):
+        super(Comment, self).__init__(**kwargs)
+        self.votes = VoteSpace(type=SPACETYPE.COMMENT)
+
+    def delete(self):
+        """
+        Delete this comment.
+        """
+        if len(self.children) > 0:
+            self.status = COMMENTSTATUS.DELETED
+        else:
+            db.session.delete(self)
+
+
 class ProposalSpace(db.Model, BaseMixin):
     __tablename__ = 'proposal_space'
 
@@ -73,6 +178,17 @@ class ProposalSpace(db.Model, BaseMixin):
     website = db.Column(db.Unicode(250), nullable=True)
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
 
+    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes = db.relationship(VoteSpace, uselist=False)
+
+    comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    comments = db.relationship(CommentSpace, uselist=False)
+
+    def __init__(self, **kwargs):
+        super(ProposalSpace, self).__init__(**kwargs)
+        self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
+        self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
+
 
 class ProposalSpaceSection(db.Model, BaseMixin):
     __tablename__ = 'proposal_space_section'
@@ -87,6 +203,17 @@ class ProposalSpaceSection(db.Model, BaseMixin):
 
     __table_args__ = ( db.UniqueConstraint("proposal_space_id", "name"), {} )
 
+    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes = db.relationship(VoteSpace, uselist=False)
+
+    comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    comments = db.relationship(CommentSpace, uselist=False)
+
+    def __init__(self, **kwargs):
+        super(ProposalSpaceSection, self).__init__(**kwargs)
+        self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACESECTION)
+        self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACESECTION)
+
 
 proposal_tags = db.Table(
     'proposal_tags', db.Model.metadata,
@@ -100,6 +227,11 @@ class Proposal(db.Model, BaseMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref= db.backref('proposals', cascade="all, delete-orphan"))
+
+    speaker_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    speaker = db.relationship(User, primaryjoin=speaker_id == User.id,
+        backref= db.backref('speaker_at', cascade="all"))
+
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref = db.backref('proposals', cascade="all, delete-orphan"))
@@ -121,7 +253,16 @@ class Proposal(db.Model, BaseMixin):
     tags = db.relationship(Tag, secondary=proposal_tags)
     status = db.Column(db.Integer, default=0, nullable=False)
 
-    votecount = db.Column(db.Integer, default=0, nullable=False)
+    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes = db.relationship(VoteSpace, uselist=False)
+
+    comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    comments = db.relationship(CommentSpace, uselist=False)
+
+    def __init__(self, **kwargs):
+        super(Proposal, self).__init__(**kwargs)
+        self.votes = VoteSpace(type=SPACETYPE.PROPOSAL)
+        self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
 
     def __repr__(self):
         return u'<Proposal "%s" in space "%s" by "%s">' % (self.title, self.proposal_space.title, self.user.fullname)
@@ -129,27 +270,6 @@ class Proposal(db.Model, BaseMixin):
     @property
     def urlname(self):
         return '%s-%s' % (self.id, self.name)
-
-    def vote(self, user, votedown=False):
-        voteob = Vote.query.filter_by(user=user, proposal=self).first()
-        if not voteob:
-            voteob = Vote(user=user, proposal=self, votedown=votedown)
-            self.votecount += 1 if not votedown else -1
-            db.session.add(voteob)
-        else:
-            if voteob.votedown != votedown:
-                self.votecount += 2 if not votedown else -2
-            voteob.votedown = votedown
-        return voteob
-
-    def cancelvote(self, user):
-        voteob = Vote.query.filter_by(user=user, proposal=self).first()
-        if voteob:
-            self.votecount += 1 if voteob.votedown else -1
-            db.session.delete(voteob)
-
-    def getvote(self, user):
-        return Vote.query.filter_by(user=user, proposal=self).first()
 
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
@@ -160,26 +280,3 @@ class Proposal(db.Model, BaseMixin):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
             Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
-
-
-class Vote(db.Model, BaseMixin):
-    __tablename__ = 'vote'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref= db.backref('votes', cascade="all, delete-orphan"))
-    proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=False)
-    proposal = db.relationship(Proposal, primaryjoin=proposal_id == Proposal.id,
-        backref = db.backref('votes', cascade="all, delete-orphan"))
-    votedown = db.Column(db.Boolean, default=False, nullable=False)
-
-    __table_args__ = ( db.UniqueConstraint("user_id", "proposal_id"), {} )
-
-
-class Comment(db.Model, BaseMixin):
-    __tablename__ = 'comment'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref= db.backref('comments', cascade="all, delete-orphan"))
-    proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=False)
-    proposal = db.relationship(Proposal, primaryjoin=proposal_id == Proposal.id,
-        backref = db.backref('comments', cascade="all, delete-orphan"))

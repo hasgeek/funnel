@@ -9,7 +9,7 @@ from flaskext.lastuser.sqlalchemy import UserManager
 
 from app import app
 from models import *
-from forms import ProposalSpaceForm, SectionForm, ProposalForm
+from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm
 from utils import makename
 
 lastuser = LastUser(app)
@@ -166,6 +166,7 @@ def newsession(name):
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if form.validate_on_submit():
         proposal = Proposal(user=g.user, proposal_space=space)
+        proposal.votes.vote(g.user) # Vote up your own proposal by default
         form.populate_obj(proposal)
         proposal.name = makename(proposal.title)
         proposal.objective_html = markdown(proposal.objective)
@@ -234,7 +235,20 @@ def viewsession(name, slug):
     if slug != proposal.urlname:
         return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
     # URL is okay. Show the proposal.
+    comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
+    commentform = CommentForm()
+    if request.method == 'POST':
+        if request.form.get('form.id') == 'newcomment' and commentform.validate():
+            newcomment = Comment(user=g.user, commentspace=proposal.comments, message=commentform.message.data)
+            newcomment.message_html = markdown(newcomment.message)
+            db.session.add(newcomment)
+            db.session.commit()
+            flash("Your comment has been saved", "info")
+            # Redirect despite this being the same page because HTTP 303 is required to not break
+            # the browser Back button
+            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-"+str(newcomment.id), code=303)
     return render_template('proposal.html', space=space, proposal=proposal,
+        comments = comments, commentform = commentform,
         breadcrumbs = [(url_for('viewspace', name=space.name), space.title)])
 
 
@@ -251,7 +265,7 @@ def voteupsession(name, slug):
     proposal = Proposal.query.get(proposal_id)
     if not proposal:
         abort(404)
-    proposal.vote(g.user, votedown=False)
+    proposal.votes.vote(g.user, votedown=False)
     db.session.commit()
     flash("Your vote has been recorded", "info")
     return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
@@ -270,7 +284,7 @@ def votedownsession(name, slug):
     proposal = Proposal.query.get(proposal_id)
     if not proposal:
         abort(404)
-    proposal.vote(g.user, votedown=True)
+    proposal.votes.vote(g.user, votedown=True)
     db.session.commit()
     flash("Your vote has been recorded", "info")
     return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
@@ -289,7 +303,7 @@ def votecancelsession(name, slug):
     proposal = Proposal.query.get(proposal_id)
     if not proposal:
         abort(404)
-    proposal.cancelvote(g.user)
+    proposal.votes.cancelvote(g.user)
     db.session.commit()
     flash("Your vote has been withdrawn", "info")
     return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))

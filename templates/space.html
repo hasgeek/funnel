@@ -62,7 +62,7 @@
       <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
       <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
       <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
-      <td class="num"><a href="{{ link }}">{{ proposal.votecount }}</a></td>
+      <td class="num"><a href="{{ link }}">{{ proposal.votes.count }}</a></td>
       <td style="white-space: nowrap"><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e, %Y") }}</a></td>
   {% else %}
     <tr>

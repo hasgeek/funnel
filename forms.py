@@ -58,3 +58,6 @@ class ProposalForm(wtf.Form):
         description="Other links, one per line. Provide links to your profile and "\
             "slides and videos from your previous sessions; anything that'll help "\
             "folks decide if they want to attend your session")
+
+class CommentForm(wtf.Form):
+    message = wtf.TextAreaField('Add comment', validators=[wtf.Required()])
