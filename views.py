@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import urlparse
-from markdown import markdown
+from markdown import Markdown
 
 from flask import render_template, redirect, request, g, url_for, Markup, abort, flash
 from flaskext.lastuser import LastUser
@@ -14,6 +14,8 @@ from utils import makename
 
 lastuser = LastUser(app)
 lastuser.init_usermanager(UserManager(db, User))
+
+markdown = Markdown(safe_mode="escape").convert
 
 # --- Utilities ---------------------------------------------------------------
 
