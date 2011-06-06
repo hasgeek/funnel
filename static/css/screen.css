@@ -314,7 +314,7 @@ footer #footer_content {
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
-  background-image: url('/static/img/logo.png?1307208912');
+  background-image: url('/static/img/logo.png?1307240654');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 145px;
@@ -959,7 +959,7 @@ table.listing {
 }
 
 .listing tr.link:hover {
-  background: rgba(232, 232, 232, 0.8);
+  background: #d9e8f0;
 }
 
 ul.cardset {
