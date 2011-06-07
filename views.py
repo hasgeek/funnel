@@ -254,6 +254,7 @@ def viewsession(name, slug):
         if request.form.get('form.id') == 'newcomment' and commentform.validate():
             newcomment = Comment(user=g.user, commentspace=proposal.comments, message=commentform.message.data)
             newcomment.message_html = markdown(newcomment.message)
+            proposal.comments.count += 1
             db.session.add(newcomment)
             db.session.commit()
             flash("Your comment has been posted", "info")
