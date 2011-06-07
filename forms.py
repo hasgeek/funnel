@@ -29,6 +29,9 @@ class SectionForm(wtf.Form):
 
 
 class ProposalForm(wtf.Form):
+    speaking = wtf.RadioField("Are you speaking?", coerce=int,
+        choices=[(1, u"I will be speaking"),
+                 (0, u"I’m proposing a topic for someone to speak on")])
     title = wtf.TextField('Title', validators=[wtf.Required()],
         description="The title of your session")
     section = wtf.QuerySelectField('Track', get_label='title', validators=[wtf.Required()],

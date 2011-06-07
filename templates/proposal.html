@@ -50,9 +50,15 @@
     </div>
     <h1>{{ proposal.title }}</h1>
     <p>
-      by <strong>{{ proposal.user.fullname }}</strong> {% if proposal.user == g.user -%}
+      by <strong>{{ proposal.user.fullname }}</strong>
+      {% if proposal.user == proposal.speaker -%}
+        (speaking)
+      {%- else -%}
+        (proposing)
+      {%- endif %}
+      {% if proposal.user == g.user -%}
         <small>(that’s you! <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this</a>?)</small>
-        {%- endif %}
+      {%- endif %}
     </p>
     <!-- Social buttons -->
     <div class="social">
@@ -72,6 +78,13 @@
     </dl>
   </div>
   <div class="section">
+    {%- if not proposal.speaker -%}
+      <p>
+        <em>This is a proposal requesting for someone to speak on this topic.
+        If you’d like to speak, leave a comment.</em>
+      </p>
+    {%- endif -%}
+      
     <h2>Objective</h2>
     {{ proposal.objective_html|safe }}
     <h2>Description</h2>
@@ -106,25 +119,34 @@
         {%- for comment in comments %}
           <li id="comment-{{ comment.id }}">
             <div class="metadata">
-              {{ comment.user.fullname }} &mdash; {{ comment.created_at }}
+              {{ comment.user.fullname }} &mdash; {{ comment.created_at|age }}
             </div>
             {{ comment.message_html|safe }}
           </li>
         {% endfor -%}
       </ol>
     {% endif %}
-    <p>
-      <em>(Commenting is not supported yet)</em>
-    </p>
-    {#
     {% if not g.user -%}
       <p>
         <a href="{{ url_for('login') }}">Login with Twitter or Google to leave a comment &rarr;</a>
       </p>
     {% else -%}
-      {{ renderform(commentform, "newcomment", "Submit comment") }}
+      <form method="POST" id="newcomment">
+        <div class="hidden">
+          <input type="hidden" name="form.id" value="newcomment"/>
+          {{ commentform.csrf() }}
+        </div>
+        <p>
+          Leave a comment:
+        </p>
+        <p>
+          {{ commentform.message() }}
+        </p>
+        <p>
+          <input type="submit" value="Post comment"/>
+        </p>
+      </form>
     {% endif %}
-    #}
   </div>
 </div>
 {% endblock %}

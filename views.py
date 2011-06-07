@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import urlparse
+from datetime import datetime, timedelta
 from markdown import Markdown
 
 from flask import render_template, redirect, request, g, url_for, Markup, abort, flash
@@ -168,6 +169,10 @@ def newsession(name):
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if form.validate_on_submit():
         proposal = Proposal(user=g.user, proposal_space=space)
+        if form.speaking.data:
+            proposal.speaker = g.user
+        else:
+            proposal.speaker = None
         proposal.votes.vote(g.user) # Vote up your own proposal by default
         form.populate_obj(proposal)
         proposal.name = makename(proposal.title)
@@ -206,9 +211,15 @@ def editsession(name, slug):
         form.requirements.data = proposal.requirements
         form.slides.data = proposal.slides
         form.links.data = proposal.links
+        form.speaking.data = proposal.speaker == g.user
     if form.validate_on_submit():
         form.populate_obj(proposal)
         proposal.name = makename(proposal.title)
+        if form.speaking.data:
+            proposal.speaker = g.user
+        else:
+            if proposal.speaker == g.user:
+                proposal.speaker = None
         proposal.objective_html = markdown(proposal.objective)
         proposal.description_html = markdown(proposal.description)
         proposal.requirements_html = markdown(proposal.requirements)
@@ -245,7 +256,7 @@ def viewsession(name, slug):
             newcomment.message_html = markdown(newcomment.message)
             db.session.add(newcomment)
             db.session.commit()
-            flash("Your comment has been saved", "info")
+            flash("Your comment has been posted", "info")
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
             return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-"+str(newcomment.id), code=303)
@@ -351,3 +362,27 @@ def prevsession(name, slug):
     else:
         flash("You were at the first proposal", "info")
         return redirect(url_for('viewspace', name=space.name))
+
+
+@app.template_filter('age')
+def age(dt):
+    suffix = u"ago"
+    delta = datetime.utcnow() - dt
+    if delta.days == 0:
+        # < 1 day
+        if delta.seconds < 10:
+            return "seconds %s" % suffix
+        elif delta.seconds < 60:
+            return "%d seconds %s" % (delta.seconds, suffix)
+        elif delta.seconds < 120:
+            return "a minute %s" % suffix
+        elif delta.seconds < 3600: # < 1 hour
+            return "%d minutes %s" % (int(delta.seconds / 60), suffix)
+        elif delta.seconds < 7200: # < 2 hours
+            return "an hour %s" % suffix
+        else:
+            return "%d hours %s" % (int(delta.seconds / 3600), suffix)
+    elif delta.days == 1:
+        return u"a day %s" % suffix
+    else:
+        return u"%d days %s" % (delta.days, suffix)

@@ -1210,6 +1210,10 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   border-top: none;
 }
 
+.comments .metadata {
+  font-weight: bold;
+}
+
 /* Spam protection */
 .z {
   display: none;
