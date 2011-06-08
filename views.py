@@ -4,13 +4,13 @@ import urlparse
 from datetime import datetime, timedelta
 from markdown import Markdown
 
-from flask import render_template, redirect, request, g, url_for, Markup, abort, flash
+from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, jsonify
 from flaskext.lastuser import LastUser
 from flaskext.lastuser.sqlalchemy import UserManager
 
 from app import app
 from models import *
-from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm
+from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm
 from utils import makename
 
 lastuser = LastUser(app)
@@ -193,7 +193,7 @@ def editsession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
         abort(404)
-    proposal_id = slug.split('-')[0]
+    proposal_id = int(slug.split('-')[0])
     proposal = Proposal.query.get(proposal_id)
     if not proposal:
         abort(404)
@@ -248,24 +248,56 @@ def viewsession(name, slug):
     if slug != proposal.urlname:
         return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
     # URL is okay. Show the proposal.
-    comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
+    comments = sorted(Comment.query.filter_by(commentspace=proposal.comments, parent=None).order_by('created_at').all(),
+        key=lambda c:c.votes.count, reverse=True)
     commentform = CommentForm()
+    delcommentform = DeleteCommentForm()
     if request.method == 'POST':
         if request.form.get('form.id') == 'newcomment' and commentform.validate():
-            newcomment = Comment(user=g.user, commentspace=proposal.comments, message=commentform.message.data)
-            newcomment.message_html = markdown(newcomment.message)
-            proposal.comments.count += 1
-            db.session.add(newcomment)
+            if commentform.edit_id.data:
+                comment = Comment.query.get(int(commentform.edit_id.data))
+                if comment:
+                    if comment.user == g.user:
+                        comment.message = commentform.message.data
+                        comment.message_html = markdown(comment.message)
+                        flash("Your comment has been edited", "info")
+                    else:
+                        flash("You can only edit your own comments", "info")
+                else:
+                    flash("No such comment", "error")
+            else:
+                comment = Comment(user=g.user, commentspace=proposal.comments, message=commentform.message.data)
+                if commentform.parent_id.data:
+                    parent = Comment.query.get(int(commentform.parent_id.data))
+                    if parent and parent.commentspace == proposal.comments:
+                        comment.parent = parent
+                comment.message_html = markdown(comment.message)
+                proposal.comments.count += 1
+                comment.votes.vote(g.user) # Vote for your own comment
+                db.session.add(comment)
+                flash("Your comment has been posted", "info")
             db.session.commit()
-            flash("Your comment has been posted", "info")
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
-            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-"+str(newcomment.id), code=303)
+            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-"+str(comment.id), code=303)
+        elif request.form.get('form.id') == 'delcomment' and delcommentform.validate():
+            comment = Comment.query.get(int(delcommentform.comment_id.data))
+            if comment:
+                if comment.user == g.user:
+                    comment.delete()
+                    db.session.commit();
+                    flash("Your comment was deleted.", "info")
+                else:
+                    flash("You did not post that comment.", "error")
+            else:
+                flash("No such comment.", "error")
+            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
     return render_template('proposal.html', space=space, proposal=proposal,
-        comments = comments, commentform = commentform,
+        comments = comments, commentform = commentform, delcommentform = delcommentform,
         breadcrumbs = [(url_for('viewspace', name=space.name), space.title)])
 
 
+# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
 @app.route('/<name>/<slug>/voteup')
 @lastuser.requires_login
 def voteupsession(name, slug):
@@ -285,6 +317,7 @@ def voteupsession(name, slug):
     return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
 
 
+# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
 @app.route('/<name>/<slug>/votedown')
 @lastuser.requires_login
 def votedownsession(name, slug):
@@ -304,6 +337,7 @@ def votedownsession(name, slug):
     return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
 
 
+# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
 @app.route('/<name>/<slug>/cancelvote')
 @lastuser.requires_login
 def votecancelsession(name, slug):
@@ -321,6 +355,92 @@ def votecancelsession(name, slug):
     db.session.commit()
     flash("Your vote has been withdrawn", "info")
     return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
+
+
+@app.route('/<name>/<slug>/comments/<int:cid>/json')
+def jsoncomment(name, slug, cid):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    proposal_id = int(slug.split('-')[0])
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+
+    comment = Comment.query.get(cid)
+    if comment:
+        return jsonify(message=comment.message)
+    else:
+        return jsonify(message='')
+
+
+# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
+@app.route('/<name>/<slug>/comments/<int:cid>/voteup')
+@lastuser.requires_login
+def voteupcomment(name, slug, cid):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    comment = Comment.query.get(cid)
+    if not comment:
+        abort(404)
+    comment.votes.vote(g.user, votedown=False)
+    db.session.commit()
+    flash("Your vote has been recorded", "info")
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-%d" % cid)
+
+
+# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
+@app.route('/<name>/<slug>/comments/<int:cid>/votedown')
+@lastuser.requires_login
+def votedowncomment(name, slug, cid):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    comment = Comment.query.get(cid)
+    if not comment:
+        abort(404)
+    comment.votes.vote(g.user, votedown=True)
+    db.session.commit()
+    flash("Your vote has been recorded", "info")
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-%d" % cid)
+
+
+# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
+@app.route('/<name>/<slug>/comments/<int:cid>/cancelvote')
+@lastuser.requires_login
+def votecancelcomment(name, slug, cid):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    comment = Comment.query.get(cid)
+    if not comment:
+        abort(404)
+    comment.votes.cancelvote(g.user)
+    db.session.commit()
+    flash("Your vote has been withdrawn", "info")
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-%d" % cid)
 
 
 @app.route('/<name>/<slug>/next')

@@ -131,9 +131,9 @@ class CommentSpace(db.Model, BaseMixin):
 
 class Comment(db.Model, BaseMixin):
     __tablename__ = 'comment'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref= db.backref('comments', cascade="all, delete-orphan"))
+        backref= db.backref('comments', cascade="all"))
     commentspace_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     commentspace = db.relationship(CommentSpace, primaryjoin=commentspace_id == CommentSpace.id,
         backref = db.backref('comments', cascade="all, delete-orphan"))
@@ -159,8 +159,25 @@ class Comment(db.Model, BaseMixin):
         """
         if len(self.children) > 0:
             self.status = COMMENTSTATUS.DELETED
+            self.user = None
+            self.message = ''
+            self.message_html = ''
         else:
-            db.session.delete(self)
+            if self.parent and self.parent.is_deleted:
+                # If the parent is deleted, ask it to reconsider removing itself
+                parent = self.parent
+                parent.children.remove(self)
+                db.session.delete(self)
+                parent.delete()
+            else:
+                db.session.delete(self)
+
+    @property
+    def is_deleted(self):
+        return self.status == COMMENTSTATUS.DELETED
+
+    def sorted_children(self):
+        return sorted(self.children, key=lambda child: child.votes.count)
 
 
 class ProposalSpace(db.Model, BaseMixin):

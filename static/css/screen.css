@@ -338,6 +338,13 @@ p, blockquote, ul, ol, table, dl {
   margin-bottom: 1em;
 }
 
+blockquote {
+  margin-left: 0.25em;
+  border-left: 5px solid #e8e8e8;
+  padding-left: 0.25em;
+  color: #888;
+}
+
 h1 {
   font-size: 200%;
   color: #df5e0e;
@@ -1173,20 +1180,30 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   text-decoration: none;
 }
 .infosheet .votebox .choices a.votechoice:active, .infosheet .votebox .choices a.votechoice.selected {
-  background-color: #e8e8e8;
+  background-color: #d9e8f0;
+  color: #444444;
 }
 .infosheet .votebox .label {
   margin-top: 0.5em;
 }
 .infosheet .section {
-  border-top: 1px solid #e8e8e8;
   padding: 0 2em;
 }
 .infosheet .section h1 {
   margin: 0.5em 0 0 0;
 }
 .infosheet .section h2 {
-  margin: 0.66em 0 0 0;
+  font-size: 100%;
+  background: #d9e8f0;
+  padding: 0.25em 0.5em;
+  margin: 0 -0.5em;
+  color: #444444;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -o-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  border-radius: 3px;
 }
 .infosheet .section h1 + p, .infosheet .section h1 + ul, .infosheet .section h1 + ol, .infosheet .section h2 + p, .infosheet .section h2 + ul, .infosheet .section h2 + ol {
   margin-top: 0.5em;
@@ -1203,15 +1220,126 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   top: 1px;
 }
 .infosheet .section.bar {
-  background-color: #e8e8e8;
-  padding: 1px 2em;
+  position: relative;
+  color: white;
+  background-color: #df5e0e;
+  padding: 1px 3em;
+  margin: 1em -1em;
+  -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+  -o-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+}
+.infosheet .section.bar:before, .infosheet .section.bar:after {
+  display: block;
+  content: "";
+  position: absolute;
+  border-style: solid;
+  border-width: 0.5em 1em;
+  height: 0px;
+  width: 0px;
+  z-index: -1;
+}
+.infosheet .section.bar:before {
+  left: -1em;
+  bottom: -0.5em;
+  border-color: transparent #df5e0e transparent transparent;
+}
+.infosheet .section.bar:after {
+  right: -1em;
+  bottom: -0.5em;
+  border-color: transparent transparent transparent #df5e0e;
 }
 .infosheet .section.first {
   border-top: none;
 }
 
-.comments .metadata {
+.comments {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 1em;
+}
+.comments p, .comments blockquote, .comments ul, .comments ol, .comments table, .comments dl {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.comments li.comment {
+  position: relative;
+  padding: 0.5em 0.5em;
+  margin: 0;
+  min-height: 3em;
+}
+.comments div:target {
+  margin: -0.25em;
+  padding: 0.25em;
+  background-color: #ffffa2;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -o-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  border-radius: 3px;
+}
+.comments .collapse, .comments .uncollapse {
+  font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
+}
+.comments .comment-vote {
+  position: absolute;
+  text-align: center;
+  left: -2em;
+  width: 2em;
+  font-size: 80%;
+}
+.comments .comment-vote a {
+  color: #b7b7b7;
+}
+.comments .comment-vote a:hover {
+  text-decoration: none;
+  color: #816894;
+}
+.comments .comment-vote a.comment-vote-cancel {
+  color: #816894;
+}
+.comments .com-children {
+  margin-bottom: 0;
+}
+.comments .com-header, .comments .com-footer {
+  font-size: 80%;
+  color: #b7b7b7;
+}
+.comments .com-header .commenter, .comments .com-footer .commenter {
+  color: #444;
   font-weight: bold;
+}
+.comments .com-header .commenter.selected, .comments .com-footer .commenter.selected {
+  color: #444444;
+  background-color: #d9e8f0;
+  padding: 1px 0.25em;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -o-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  border-radius: 3px;
+}
+.comments .com-header a,
+.comments .com-footer a {
+  color: #b7b7b7;
+}
+.comments .com-footer a {
+  font-weight: bold;
+}
+.comments .com-header a:hover,
+.comments .com-footer a:hover {
+  color: #816894;
+  text-decoration: none;
+}
+
+.comments ul {
+  border-left: 1px dotted #b7b7b7;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 2em;
 }
 
 /* Spam protection */

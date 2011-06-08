@@ -63,4 +63,9 @@ class ProposalForm(wtf.Form):
             "folks decide if they want to attend your session")
 
 class CommentForm(wtf.Form):
-    message = wtf.TextAreaField('Add comment', validators=[wtf.Required()])
+    parent_id = wtf.HiddenField('Parent', default="", id="comment_parent_id")
+    edit_id = wtf.HiddenField('Edit', default="", id="comment_edit_id")
+    message = wtf.TextAreaField('Add comment', id="comment_message", validators=[wtf.Required()])
+
+class DeleteCommentForm(wtf.Form):
+    comment_id = wtf.HiddenField('Comment', validators=[wtf.Required()])

@@ -1,5 +1,6 @@
 {% extends "inc/layout.html" %}
 {% from "inc/forms.html" import renderform, ajaxform %}
+{% from "inc/comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 {% block content %}
@@ -28,14 +29,14 @@
       <div class="choices">
 
         {%- if not vote %}
-          <a class="votechoice" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-          <a class="votechoice" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+          <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
+          <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
         {%- elif vote.votedown %}
-          <a class="votechoice" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-          <a class="votechoice selected" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+          <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
+          <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">-1</a>
         {%- else %}
-          <a class="votechoice selected" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-          <a class="votechoice" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+          <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">+1</a>
+          <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
         {% endif %}
         <span class="indicator">&rarr;</span>
         <span class="score">
@@ -115,35 +116,42 @@
   <div class="section">
     <h2 id="comments">Comments</h2>
     {% if comments %}
-      <ol class="comments">
-        {%- for comment in comments %}
-          <li id="comment-{{ comment.id }}">
-            <div class="metadata">
-              {{ comment.user.fullname }} &mdash; {{ comment.created_at|age }}
-            </div>
-            {{ comment.message_html|safe }}
-          </li>
-        {% endfor -%}
-      </ol>
+      <ul class="comments">
+        {{ commenttree(comments, proposal, g.user, request.base_url) }}
+      </ul>
     {% endif %}
     {% if not g.user -%}
       <p>
         <a href="{{ url_for('login') }}">Login with Twitter or Google to leave a comment &rarr;</a>
       </p>
     {% else -%}
+      <p id="toplevel-comment" class="hidden">
+        <a href="#">Post a comment &rarr;</a>
+      </p>
       <form method="POST" id="newcomment">
         <div class="hidden">
           <input type="hidden" name="form.id" value="newcomment"/>
           {{ commentform.csrf() }}
+          {{ commentform.parent_id() }}
+          {{ commentform.edit_id() }}
         </div>
-        <p>
-          Leave a comment:
-        </p>
         <p>
           {{ commentform.message() }}
         </p>
         <p>
-          <input type="submit" value="Post comment"/>
+          <input id="comment-submit" type="submit" value="Post comment"/>
+        </p>
+      </form>
+      <form method="POST" id="delcomment" class="hidden">
+        <div class="hidden">
+          <input type="hidden" name="form.id" value="delcomment"/>
+          {{ delcommentform.csrf() }}
+          {{ delcommentform.comment_id() }}
+        </div>
+        <p>
+          Really delete this comment?
+          <input id="comment-delete-submit" type="submit" value="Delete"/>
+          or <a id="comment-delete-cancel" href="#">cancel</a>
         </p>
       </form>
     {% endif %}
@@ -152,13 +160,14 @@
 {% endblock %}
 
 {% block footerscripts %}
-{% if proposal.slides %}
 <script type="text/javascript">
   $(function() {
-    $("#slides-link").oembed();
+    commentsInit("{{ request.base_url }}"); // {# FIXME: Potential vulnerability if this isn't JS-encoded #}
+    {%- if proposal.slides %}
+      $("#slides-link").oembed();
+    {%- endif %}
   });
 </script>
-{% endif %}
 <script type="text/javascript" src="http://apis.google.com/js/plusone.js"></script>
 <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 {% endblock %}
