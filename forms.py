@@ -41,6 +41,7 @@ class ProposalForm(wtf.Form):
     session_type = wtf.RadioField('Session type', validators=[wtf.Required()], choices=[
         ('Lecture', 'Lecture'),
         ('Demo', 'Demo'),
+        ('Tutorial', 'Tutorial'),
         ('Workshop', 'Workshop'),
         ('Discussion', 'Discussion'),
         ('Panel', 'Panel'),
