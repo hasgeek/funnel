@@ -46,6 +46,7 @@
       <th class="num">#</th>
       <th>Title</th>
       <th>Proposer</th>
+      <th>Speaker</th>
       <th>Track</th>
       <th>Type</th>
       <th>Level</th>
@@ -59,14 +60,21 @@
       <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
       <td><a href="{{ link }}">{{ proposal.title }}</a></td>
       <td style="white-space: nowrap"><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
+      <td style="white-space: nowrap"><a href="{{ link }}">
+        {%- if proposal.speaker -%}
+          {{ proposal.speaker.fullname }}
+        {%- else -%}
+          <em>(open)</em>
+        {%- endif -%}
+      </td>
       <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
       <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
       <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
       <td class="num"><a href="{{ link }}">{{ proposal.votes.count }}</a></td>
-      <td style="white-space: nowrap"><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e, %Y") }}</a></td>
+      <td style="white-space: nowrap"><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e") }}</a></td>
   {% else %}
     <tr>
-      <td colspan="8">
+      <td colspan="9">
         <em>(No sessions have been submitted)</em>
       </td>
     </tr>
