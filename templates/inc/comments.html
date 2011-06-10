@@ -19,7 +19,7 @@
 {% macro commenttree(comments, document, currentuser, documenturl) %}
 {%- for comment in comments %}
   <li class="comment">
-    <div id="comment-{{ comment.id }}">
+    <div id="c{{ comment.id }}">
       {{ commentvote(comment, currentuser, documenturl+'/comments') }}
       <div class="com-header">
         <a class="collapse" href="#">[-]</a><a class="uncollapse hidden" href="#">[+]</a>
@@ -28,8 +28,8 @@
         {%- else -%}
           <span class="commenter {%- if comment.user == document.user %} selected{% endif %}">{{ comment.user.fullname }}</span>
           {{ comment.created_at|age }}
-          {%- if comment.updated_at != comment.created_at %}
-            (edited {{ comment.updated_at|age }})
+          {%- if comment.edited_at %}
+            (edited {{ comment.edited_at|age }})
           {%- endif %}
         {%- endif %}
       </div>
@@ -38,13 +38,13 @@
           {{ comment.message_html|safe }}
         {%- endif %}
         <div data-id="{{ comment.id }}" class="com-footer">
-          <a title="Permalink" class="comment-permalink" href="#comment-{{ comment.id }}">&#x266f;</a>
-          {% if comment.parent %}<a title="Parent" class="comment-parent" href="#comment-{{ comment.parent.id }}">&uarr;</a>{% endif %}
+          <a title="Permalink" class="comment-permalink" href="#c{{ comment.id }}">&#x266f;</a>
+          {% if comment.parent %}<a title="Parent" class="comment-parent" href="#c{{ comment.parent.id }}">&uarr;</a>{% endif %}
           {% if not comment.is_deleted %}
-            <a title="Reply" class="comment-reply" href="#comment-{{ comment.id }}">&#x21a9;</a>
+            <a title="Reply" class="comment-reply" href="#c{{ comment.id }}">&#x21a9;</a>
             {% if comment.user == currentuser -%}
-              <a title="Edit" class="comment-edit" href="#comment-{{ comment.id }}">&#x270E;</a>
-              <a title="Delete" class="comment-delete" href="#comment-{{ comment.id }}">&#x2718;</a>
+              <a title="Edit" class="comment-edit" href="#c{{ comment.id }}">&#x270E;</a>
+              <a title="Delete" class="comment-delete" href="#c{{ comment.id }}">&#x2718;</a>
             {%- endif %}
           {%- endif %}
         </div>

@@ -1301,6 +1301,10 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   color: #816894;
 }
 .comments .com-children {
+  border-left: 1px dotted #b7b7b7;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 2em;
   margin-bottom: 0;
 }
 .comments .com-header, .comments .com-footer {
@@ -1333,13 +1337,6 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 .comments .com-footer a:hover {
   color: #816894;
   text-decoration: none;
-}
-
-.comments ul {
-  border-left: 1px dotted #b7b7b7;
-  list-style: none;
-  margin-left: 0;
-  padding-left: 2em;
 }
 
 /* Spam protection */

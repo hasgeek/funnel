@@ -223,6 +223,7 @@ def editsession(name, slug):
         proposal.objective_html = markdown(proposal.objective)
         proposal.description_html = markdown(proposal.description)
         proposal.requirements_html = markdown(proposal.requirements)
+        proposal.edited_at = datetime.utcnow()
         db.session.commit()
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
@@ -260,6 +261,7 @@ def viewsession(name, slug):
                     if comment.user == g.user:
                         comment.message = commentform.message.data
                         comment.message_html = markdown(comment.message)
+                        comment.edited_at = datetime.utcnow()
                         flash("Your comment has been edited", "info")
                     else:
                         flash("You can only edit your own comments", "info")
@@ -279,7 +281,7 @@ def viewsession(name, slug):
             db.session.commit()
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
-            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-"+str(comment.id), code=303)
+            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c"+str(comment.id), code=303)
         elif request.form.get('form.id') == 'delcomment' and delcommentform.validate():
             comment = Comment.query.get(int(delcommentform.comment_id.data))
             if comment:
@@ -394,7 +396,7 @@ def voteupcomment(name, slug, cid):
     comment.votes.vote(g.user, votedown=False)
     db.session.commit()
     flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-%d" % cid)
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c%d" % cid)
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
@@ -417,7 +419,7 @@ def votedowncomment(name, slug, cid):
     comment.votes.vote(g.user, votedown=True)
     db.session.commit()
     flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-%d" % cid)
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c%d" % cid)
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
@@ -440,7 +442,7 @@ def votecancelcomment(name, slug, cid):
     comment.votes.cancelvote(g.user)
     db.session.commit()
     flash("Your vote has been withdrawn", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#comment-%d" % cid)
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c%d" % cid)
 
 
 @app.route('/<name>/<slug>/next')

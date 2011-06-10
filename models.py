@@ -149,6 +149,8 @@ class Comment(db.Model, BaseMixin):
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
 
+    edited_at = db.Column(db.DateTime, nullable=True)
+
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.COMMENT)
@@ -275,6 +277,8 @@ class Proposal(db.Model, BaseMixin):
 
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False)
+
+    edited_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
