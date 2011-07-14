@@ -20,7 +20,7 @@
   <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}"/>
 
   <!-- Stylesheets -->
-  <link href="{{ url_for('static', filename='css/screen.css') }}?v=3" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="{{ url_for('static', filename='css/screen.css') }}?v=4" media="screen, projection" rel="stylesheet" type="text/css" />
   <link href="{{ url_for('static', filename='css/print.css') }}?v=1" media="print" rel="stylesheet" type="text/css" />
   <!--[if IE]>
       <link href="{{ url_for('static', filename='css/ie.css') }}?v=1" media="screen, projection" rel="stylesheet" type="text/css" />
@@ -40,7 +40,7 @@
       <div id="logo"><a href="{{ url_for('index')|e }}">Home</a></div>
       <ul class="usertools">
         {% if g.user -%}
-          <li class="profile"><a href="{{ url_for('account') }}">{{ g.user.fullname }}</a></li>
+          <li class="profile"><a href="{{ config['LASTUSER_SERVER'] }}profile">{{ g.user.fullname }}</a></li>
           <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
           <li><a href="{{ url_for('login') }}">Login with Twitter or Google</a></li>

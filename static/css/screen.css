@@ -1351,8 +1351,10 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 }
 
 #hg-bar {
-  background: #eeeefa;
+  background: #e8e8e8;
   color: black;
+  border-bottom: 1px solid #df5e0e;
+  margin-bottom: 1em;
 }
 #hg-bar ul#hg-barlinks {
   *zoom: 1;
@@ -1376,22 +1378,25 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 }
 #hg-bar ul#hg-barlinks > li a {
   display: block;
-  padding: 0.4em 0.5em 0.5em;
+  padding: 0.4em 0.5em;
   text-decoration: none;
   background-color: inherit;
   color: black;
-  border-bottom: 2px solid transparent;
+  border-top: 2px solid transparent;
 }
 #hg-bar ul#hg-barlinks > li a:visited {
   text-decoration: none;
   background-color: inherit;
   color: black;
 }
+#hg-bar ul#hg-barlinks > li a.hg-submenu:after {
+  content: " ▾";
+}
 #hg-bar ul#hg-barlinks > li ul {
   position: absolute;
   left: 0;
   margin: 0;
-  background: #eeeefa;
+  background: #e8e8e8;
   color: black;
   list-style: none;
   z-index: 9999;
@@ -1408,6 +1413,8 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   -ms-border-bottom-right-radius: 6px;
   -khtml-border-bottom-right-radius: 6px;
   border-bottom-right-radius: 6px;
+  border: 1px solid #df5e0e;
+  border-top: none;
 }
 #hg-bar ul#hg-barlinks > li ul li {
   float: none;
@@ -1430,7 +1437,7 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 }
 #hg-bar ul#hg-barlinks > li ul li:hover > a {
   text-decoration: none;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   color: black;
 }
 #hg-bar ul#hg-barlinks > li ul li:last-child > a {
@@ -1456,7 +1463,7 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 }
 #hg-bar ul#hg-barlinks > li:hover > a, #hg-bar ul#hg-barlinks > li > a:active {
   text-decoration: none;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   color: black;
 }
 #hg-bar ul#hg-barlinks > li:hover > ul {
@@ -1466,7 +1473,7 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   margin-left: -0.5em;
 }
 #hg-bar ul#hg-barlinks > li.selected a {
-  border-bottom: 2px solid #df5e0e;
+  border-top: 2px solid #df5e0e;
   color: black;
   font-weight: bold;
 }
