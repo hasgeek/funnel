@@ -3,7 +3,7 @@
 import re
 
 _strip_re = re.compile(ur'[\'"`‘’“”′″‴]+')
-_punctuation_re = re.compile(ur'[\t !#$%&()*\-/<=>?@\[\\\]^_{|}:;,.…‒–—―]+')
+_punctuation_re = re.compile(ur'[\t +!#$%&()*\-/<=>?@\[\\\]^_{|}:;,.…‒–—―]+')
 
 def makename(text, delim=u'-', maxlength=50, filter=None):
     u"""
@@ -21,5 +21,7 @@ def makename(text, delim=u'-', maxlength=50, filter=None):
     u'hows-that'
     >>> makename(u'K & D')
     u'k-d'
+    >>> makename('billion+ pageviews')
+    u'billion-pageviews'
     """
     return unicode(delim.join([_strip_re.sub('', x) for x in _punctuation_re.split(text.lower()) if x != '']))
