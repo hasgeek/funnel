@@ -1,7 +1,7 @@
 HasGeek Funnel -- beta
 ======================
 
-Code for HasGeek's Funnel at http://funnel.hasgeek.in/
+Code for HasGeek's Funnel at http://funnel.hasgeek.com/
 
 You are welcome to contribute a patch or use this code to run your own funnel
 under the terms of the BSD license, specified in LICENSE.txt.
