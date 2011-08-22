@@ -50,7 +50,7 @@ class BaseMixin(object):
 
 class User(db.Model, UserBase):
     __tablename__ = 'user'
-    description = db.Column(db.Text, default='', nullable=False)
+    description = db.Column(db.Text, default=u'', nullable=False)
 
 
 class Tag(db.Model, BaseMixin):
@@ -191,9 +191,9 @@ class ProposalSpace(db.Model, BaseMixin):
     name = db.Column(db.Unicode(80), unique=True, nullable=False)
     title = db.Column(db.Unicode(80), nullable=False)
     tagline = db.Column(db.Unicode(250), nullable=False)
-    description = db.Column(db.Text, default='', nullable=False)
-    description_html = db.Column(db.Text, default='', nullable=False)
-    datelocation = db.Column(db.Unicode(50), default='', nullable=False)
+    description = db.Column(db.Text, default=u'', nullable=False)
+    description_html = db.Column(db.Text, default=u'', nullable=False)
+    datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     website = db.Column(db.Unicode(250), nullable=True)
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
 
@@ -217,7 +217,7 @@ class ProposalSpaceSection(db.Model, BaseMixin):
 
     name = db.Column(db.Unicode(80), nullable=False)
     title = db.Column(db.Unicode(80), nullable=False)
-    description = db.Column(db.Text, default='', nullable=False)
+    description = db.Column(db.Text, default=u'', nullable=False)
     public = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = ( db.UniqueConstraint("proposal_space_id", "name"), {} )
@@ -267,8 +267,8 @@ class Proposal(db.Model, BaseMixin):
     description_html = db.Column(db.Text, nullable=False)
     requirements = db.Column(db.Text, nullable=False)
     requirements_html = db.Column(db.Text, nullable=False)
-    slides = db.Column(db.Unicode(250), default='', nullable=False)
-    links = db.Column(db.Text, default='', nullable=False)
+    slides = db.Column(db.Unicode(250), default=u'', nullable=False)
+    links = db.Column(db.Text, default=u'', nullable=False)
     tags = db.relationship(Tag, secondary=proposal_tags)
     status = db.Column(db.Integer, default=0, nullable=False)
 
@@ -295,9 +295,9 @@ class Proposal(db.Model, BaseMixin):
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
-            Proposal.created_at > self.created_at).order_by('created_at').first()
+            Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
 
     def getprev(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
-            Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
+            Proposal.created_at > self.created_at).order_by('created_at').first()
