@@ -54,7 +54,7 @@ def favicon():
 @app.route('/login')
 @lastuser.login_handler
 def login():
-    return {'scope': 'id'}
+    return {'scope': 'id email'}
 
 
 @app.route('/logout')
@@ -112,9 +112,9 @@ def viewspace(name):
     if not space:
         abort(404)
     description = Markup(space.description_html)
-    tracks = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
-    return render_template('space.html', space=space, description=description, tracks=tracks, proposals=proposals)
+    return render_template('space.html', space=space, description=description, sections=sections, proposals=proposals)
 
 
 @app.route('/<name>/edit', methods=['GET', 'POST'])
@@ -287,6 +287,7 @@ def viewsession(name, slug):
             if comment:
                 if comment.user == g.user:
                     comment.delete()
+                    proposal.comments.count -= 1
                     db.session.commit();
                     flash("Your comment was deleted.", "info")
                 else:

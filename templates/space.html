@@ -26,11 +26,11 @@
     {%- endif -%}
   </strong>
 </p>
-{% if tracks -%}
-  <h2 id="tracks">Tracks</h2>
+{% if sections -%}
+  <h2 id="tracks">Sections</h2>
   <ol>
-    {% for track in tracks -%}
-      <li>{{ track.title }} &mdash; {{ track.description }}</li>
+    {% for section in sections -%}
+      <li>{{ section.title }} &mdash; {{ section.description }}</li>
     {% endfor -%}
   </ol>
 {%- endif %}
