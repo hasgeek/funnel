@@ -251,6 +251,10 @@ class Proposal(db.Model, BaseMixin):
     speaker = db.relationship(User, primaryjoin=speaker_id == User.id,
         backref= db.backref('speaker_at', cascade="all"))
 
+    email = db.Column(db.Unicode(80), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
+    bio_html = db.Column(db.Text, nullable=True)
+
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref = db.backref('proposals', cascade="all, delete-orphan"))

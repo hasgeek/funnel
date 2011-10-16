@@ -29,6 +29,9 @@ class SectionForm(wtf.Form):
 
 
 class ProposalForm(wtf.Form):
+    email = wtf.html5.EmailField('Your email address', validators=[wtf.Required()],
+        description="An email address we can contact you at. "\
+            "Not displayed anywhere")
     speaking = wtf.RadioField("Are you speaking?", coerce=int,
         choices=[(1, u"I will be speaking"),
                  (0, u"I’m proposing a topic for someone to speak on")])
@@ -55,13 +58,17 @@ class ProposalForm(wtf.Form):
         description = "A detailed description of the session")
     requirements = wtf.TextAreaField('Requirements',
         description="For workshops, what must participants bring to the session?")
-    slides = wtf.html5.URLField('Slides',
+    slides = wtf.html5.URLField('Slides', validators=[wtf.Optional(), wtf.URL()],
         description="Link to your slides. These can be just an outline initially. "\
             "If you provide a Slideshare link, we'll embed slides in the page")
     links = wtf.TextAreaField('Links',
         description="Other links, one per line. Provide links to your profile and "\
             "slides and videos from your previous sessions; anything that'll help "\
             "folks decide if they want to attend your session")
+    bio = wtf.TextAreaField('Speaker bio', validators=[wtf.Required()],
+        description="A brief outline of who you are and how you are qualified to be "\
+            "taking this session")
+
 
 class CommentForm(wtf.Form):
     parent_id = wtf.HiddenField('Parent', default="", id="comment_parent_id")

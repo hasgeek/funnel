@@ -90,10 +90,14 @@
     {{ proposal.objective_html|safe }}
     <h2>Description</h2>
     {{ proposal.description_html|safe }}
-    {% if proposal.requirements %}
+    {% if proposal.requirements -%}
       <h2>Requirements</h2>
       {{ proposal.requirements_html|safe }}
-    {% endif %}
+    {%- endif %}
+    {% if proposal.bio -%}
+      <h2>Speaker bio</h2>
+      {{ proposal.bio_html|safe }}
+    {%- endif %}
 {% if proposal.slides or proposal.links %}
   </div>
   <div class="section">

@@ -179,12 +179,14 @@ def newsession(name):
         proposal.objective_html = markdown(proposal.objective)
         proposal.description_html = markdown(proposal.description)
         proposal.requirements_html = markdown(proposal.requirements)
+        proposal.bio_html = markdown(proposal.bio)
         db.session.add(proposal)
         db.session.commit()
         flash("Your new session has been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
     return render_template('autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
-        breadcrumbs = [(url_for('viewspace', name=space.name), space.title)])
+        breadcrumbs = [(url_for('viewspace', name=space.name), space.title)], message=
+        Markup('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
 
 
 @app.route('/<name>/<slug>/edit', methods=['GET', 'POST'])
@@ -202,6 +204,7 @@ def editsession(name, slug):
     form = ProposalForm()
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if request.method == 'GET':
+        form.email.data = proposal.email
         form.title.data = proposal.title
         form.section.data = proposal.section
         form.objective.data = proposal.objective
@@ -211,6 +214,7 @@ def editsession(name, slug):
         form.requirements.data = proposal.requirements
         form.slides.data = proposal.slides
         form.links.data = proposal.links
+        form.bio.data = proposal.bio
         form.speaking.data = proposal.speaker == g.user
     if form.validate_on_submit():
         form.populate_obj(proposal)
@@ -223,13 +227,15 @@ def editsession(name, slug):
         proposal.objective_html = markdown(proposal.objective)
         proposal.description_html = markdown(proposal.description)
         proposal.requirements_html = markdown(proposal.requirements)
+        proposal.bio_html = markdown(proposal.bio)
         proposal.edited_at = datetime.utcnow()
         db.session.commit()
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
     return render_template('autoform.html', form=form, title="Edit session proposal", submit="Save changes",
         breadcrumbs = [(url_for('viewspace', name=space.name), space.title),
-                       (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)])
+                       (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)],
+        message = Markup('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
 
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
