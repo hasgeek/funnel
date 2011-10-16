@@ -167,6 +167,7 @@ def newsession(name):
         abort(403)
     form = ProposalForm()
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    form.email.data = g.user.email
     if form.validate_on_submit():
         proposal = Proposal(user=g.user, proposal_space=space)
         if form.speaking.data:
