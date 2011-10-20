@@ -116,6 +116,36 @@ def viewspace(name):
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=description, sections=sections, proposals=proposals)
 
+@app.route('/<name>/json')
+def viewspace_json(name):
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    description = Markup(space.description_html)
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
+    proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
+    return jsonify({
+        'space': {
+            'name': space.name,
+            'title': space.title,
+            'datelocation': space.datelocation,
+            'status': space.status,
+            },
+        'sections': [ {'name': s.name, 'title': s.title, 'description': s.description} for s in sections ],
+        'proposals': [ {
+            'id': proposal.id,
+            'name': proposal.urlname,
+            'title': proposal.title,
+            'url': url_for('viewsession', name=space.name, slug=proposal.urlname, _external=True),
+            'proposer': proposal.user.fullname,
+            'speaker': proposal.speaker.fullname if proposal.speaker else '(open)',
+            'section': proposal.section.title,
+            'type': proposal.session_type,
+            'level': proposal.technical_level,
+            'votes': proposal.votes.count,
+            'comments': proposal.comments.count,
+            'submitted': proposal.created_at.isoformat(),
+            } for proposal in proposals ]
+        })
+
 
 @app.route('/<name>/edit', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
