@@ -116,6 +116,7 @@ def viewspace(name):
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=description, sections=sections, proposals=proposals)
 
+
 @app.route('/<name>/json')
 def viewspace_json(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
@@ -197,7 +198,8 @@ def newsession(name):
         abort(403)
     form = ProposalForm()
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
-    form.email.data = g.user.email
+    if request.method == 'GET':
+        form.email.data = g.user.email
     if form.validate_on_submit():
         proposal = Proposal(user=g.user, proposal_space=space)
         if form.speaking.data:
