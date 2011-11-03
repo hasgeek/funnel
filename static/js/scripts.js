@@ -89,3 +89,10 @@ $(function() {
     };
   });
 });
+
+// Make all table columns on site sortable. See http://tablesorter.com/docs/.
+$(document).ready(function() 
+    { 
+        $("table").tablesorter(); 
+    } 
+); 
