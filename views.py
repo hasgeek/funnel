@@ -41,17 +41,18 @@ def get_next_url(referrer=False, external=False):
         return next_url or url_for('index')
 
 
-def jsonp(**kw):
+def jsonp(*args, **kw):
     """
     Returns a JSON response with a callback wrapper, if asked for.
     """
+    data = json.dumps(dict(*args, **kw),
+        indent=None if request.is_xhr else 2)
     if 'callback' in request.args and jsoncallback_re.search(request.args['callback']) is not None:
-        wrapper = u'%s(%%s)' % request.args['callback']
+        data = u'%s(' % request.args['callback'] + data + u')'
         mimetype = 'application/javascript'
     else:
-        wrapper = u'%s'
         mimetype = 'application/json'
-    return Response(wrapper % json.dumps(kw), mimetype=mimetype)
+    return Response(data, mimetype=mimetype)
     
 
 # --- Routes ------------------------------------------------------------------
