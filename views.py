@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import re
 import urlparse
 from datetime import datetime, timedelta
 from markdown import Markdown
 
-from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, jsonify
+from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, json, Response
 from flaskext.lastuser import LastUser
 from flaskext.lastuser.sqlalchemy import UserManager
 
@@ -17,6 +18,8 @@ lastuser = LastUser(app)
 lastuser.init_usermanager(UserManager(db, User))
 
 markdown = Markdown(safe_mode="escape").convert
+
+jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
 # --- Utilities ---------------------------------------------------------------
 
@@ -37,6 +40,19 @@ def get_next_url(referrer=False, external=False):
     else:
         return next_url or url_for('index')
 
+
+def jsonp(**kw):
+    """
+    Returns a JSON response with a callback wrapper, if asked for.
+    """
+    if 'callback' in request.args and jsoncallback_re.search(request.args['callback']) is not None:
+        wrapper = u'%s(%%s)' % request.args['callback']
+        mimetype = 'application/javascript'
+    else:
+        wrapper = u'%s'
+        mimetype = 'application/json'
+    return Response(wrapper % json.dumps(kw), mimetype=mimetype)
+    
 
 # --- Routes ------------------------------------------------------------------
 
@@ -123,7 +139,7 @@ def viewspace_json(name):
     description = Markup(space.description_html)
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
-    return jsonify({
+    return jsonp(**{
         'space': {
             'name': space.name,
             'title': space.title,
