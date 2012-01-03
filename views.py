@@ -428,9 +428,9 @@ def jsoncomment(name, slug, cid):
 
     comment = Comment.query.get(cid)
     if comment:
-        return jsonify(message=comment.message)
+        return jsonp(message=comment.message)
     else:
-        return jsonify(message='')
+        return jsonp(message='')
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
