@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flaskext.sqlalchemy import SQLAlchemy
-from flaskext.lastuser.sqlalchemy import UserBase
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.lastuser.sqlalchemy import UserBase
 from app import app
 from utils import makename
 

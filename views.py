@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 from markdown import Markdown
 
 from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, json, Response
-from flaskext.lastuser import LastUser
-from flaskext.lastuser.sqlalchemy import UserManager
+from flask.ext.lastuser import LastUser
+from flask.ext.lastuser.sqlalchemy import UserManager
 
 from app import app
 from models import *
