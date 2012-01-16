@@ -156,6 +156,7 @@ def viewspace_json(name):
             'url': url_for('viewsession', name=space.name, slug=proposal.urlname, _external=True),
             'proposer': proposal.user.fullname,
             'speaker': proposal.speaker.fullname if proposal.speaker else '(open)',
+            'email': proposal.email if g.lastuserinfo and 'siteadmin' in g.lastuserinfo.permissions else None,
             'section': proposal.section.title,
             'type': proposal.session_type,
             'level': proposal.technical_level,
