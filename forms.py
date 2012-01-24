@@ -37,7 +37,7 @@ class ProposalForm(wtf.Form):
                  (0, u"I’m proposing a topic for someone to speak on")])
     title = wtf.TextField('Title', validators=[wtf.Required()],
         description="The title of your session")
-    section = wtf.QuerySelectField('Track', get_label='title', validators=[wtf.Required()],
+    section = wtf.QuerySelectField('Section', get_label='title', validators=[wtf.Required()],
         widget=wtf.ListWidget(prefix_label=False), option_widget=wtf.RadioInput())
     objective = wtf.TextAreaField('Objective', validators=[wtf.Required()],
         description="What is the expected benefit for someone attending this?")
