@@ -135,7 +135,7 @@
       <form method="POST" id="newcomment">
         <div class="hidden">
           <input type="hidden" name="form.id" value="newcomment"/>
-          {{ commentform.csrf() }}
+          {{ commentform.hidden_tag() }}
           {{ commentform.parent_id() }}
           {{ commentform.edit_id() }}
         </div>
@@ -149,7 +149,7 @@
       <form method="POST" id="delcomment" class="hidden">
         <div class="hidden">
           <input type="hidden" name="form.id" value="delcomment"/>
-          {{ delcommentform.csrf() }}
+          {{ delcommentform.hidden_tag() }}
           {{ delcommentform.comment_id() }}
         </div>
         <p>
