@@ -12,6 +12,7 @@ db = SQLAlchemy(app)
 
 # --- Constants ---------------------------------------------------------------
 
+
 class SPACESTATUS:
     DRAFT = 0
     SUBMISSIONS = 1
@@ -27,7 +28,7 @@ class COMMENTSTATUS:
     SCREENED = 1
     HIDDEN = 2
     SPAM = 3
-    DELETED = 4 # For when there are children to be preserved
+    DELETED = 4  # For when there are children to be preserved
 
 
 # What is this VoteSpace or CommentSpace attached to?
@@ -110,13 +111,13 @@ class Vote(db.Model, BaseMixin):
     __tablename__ = 'vote'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref= db.backref('votes', cascade="all, delete-orphan"))
+        backref=db.backref('votes', cascade="all, delete-orphan"))
     votespace_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votespace = db.relationship(VoteSpace, primaryjoin=votespace_id == VoteSpace.id,
-        backref = db.backref('votes', cascade="all, delete-orphan"))
+        backref=db.backref('votes', cascade="all, delete-orphan"))
     votedown = db.Column(db.Boolean, default=False, nullable=False)
 
-    __table_args__ = ( db.UniqueConstraint("user_id", "votespace_id"), {} )
+    __table_args__ = (db.UniqueConstraint("user_id", "votespace_id"), {})
 
 
 class CommentSpace(db.Model, BaseMixin):
@@ -133,10 +134,10 @@ class Comment(db.Model, BaseMixin):
     __tablename__ = 'comment'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref= db.backref('comments', cascade="all"))
+        backref=db.backref('comments', cascade="all"))
     commentspace_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     commentspace = db.relationship(CommentSpace, primaryjoin=commentspace_id == CommentSpace.id,
-        backref = db.backref('comments', cascade="all, delete-orphan"))
+        backref=db.backref('comments', cascade="all, delete-orphan"))
 
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
     children = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"))
@@ -187,13 +188,14 @@ class ProposalSpace(db.Model, BaseMixin):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref = db.backref('spaces', cascade="all, delete-orphan"))
+        backref=db.backref('spaces', cascade="all, delete-orphan"))
     name = db.Column(db.Unicode(80), unique=True, nullable=False)
     title = db.Column(db.Unicode(80), nullable=False)
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = db.Column(db.Text, default=u'', nullable=False)
     description_html = db.Column(db.Text, default=u'', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
+    date = db.Column(db.Date, nullable=False)
     website = db.Column(db.Unicode(250), nullable=True)
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
 
@@ -213,14 +215,14 @@ class ProposalSpaceSection(db.Model, BaseMixin):
     __tablename__ = 'proposal_space_section'
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
-        backref = db.backref('sections', cascade="all, delete-orphan"))
+        backref=db.backref('sections', cascade="all, delete-orphan"))
 
     name = db.Column(db.Unicode(80), nullable=False)
     title = db.Column(db.Unicode(80), nullable=False)
     description = db.Column(db.Text, default=u'', nullable=False)
     public = db.Column(db.Boolean, default=False, nullable=False)
 
-    __table_args__ = ( db.UniqueConstraint("proposal_space_id", "name"), {} )
+    __table_args__ = (db.UniqueConstraint("proposal_space_id", "name"), {})
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
@@ -245,11 +247,11 @@ class Proposal(db.Model, BaseMixin):
     __tablename__ = 'proposal'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref= db.backref('proposals', cascade="all, delete-orphan"))
+        backref=db.backref('proposals', cascade="all, delete-orphan"))
 
     speaker_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     speaker = db.relationship(User, primaryjoin=speaker_id == User.id,
-        backref= db.backref('speaker_at', cascade="all"))
+        backref=db.backref('speaker_at', cascade="all"))
 
     email = db.Column(db.Unicode(80), nullable=True)
     bio = db.Column(db.Text, nullable=True)
@@ -257,7 +259,7 @@ class Proposal(db.Model, BaseMixin):
 
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
-        backref = db.backref('proposals', cascade="all, delete-orphan"))
+        backref=db.backref('proposals', cascade="all, delete-orphan"))
     name = db.Column(db.Unicode(250), nullable=False)
     title = db.Column(db.Unicode(250), nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)

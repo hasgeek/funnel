@@ -4,10 +4,12 @@ import flaskext.wtf as wtf
 
 from models import SPACESTATUS, ProposalSpaceSection
 
+
 class ProposalSpaceForm(wtf.Form):
     name = wtf.TextField('URL name', validators=[wtf.Required()])
     title = wtf.TextField('Title', validators=[wtf.Required()])
     datelocation = wtf.TextField('Date and Location', validators=[wtf.Required()])
+    date = wtf.DateField('Date (for sorting)', validators=[wtf.Required()])
     tagline = wtf.TextField('Tagline', validators=[wtf.Required()])
     description = wtf.TextAreaField('Description', validators=[wtf.Required()])
     status = wtf.SelectField('Status', coerce=int, choices=[
@@ -55,7 +57,7 @@ class ProposalForm(wtf.Form):
         ('Advanced', 'Advanced'),
         ])
     description = wtf.TextAreaField('Description', validators=[wtf.Required()],
-        description = "A detailed description of the session")
+        description="A detailed description of the session")
     requirements = wtf.TextAreaField('Requirements',
         description="For workshops, what must participants bring to the session?")
     slides = wtf.html5.URLField('Slides', validators=[wtf.Optional(), wtf.URL()],
@@ -74,6 +76,7 @@ class CommentForm(wtf.Form):
     parent_id = wtf.HiddenField('Parent', default="", id="comment_parent_id")
     edit_id = wtf.HiddenField('Edit', default="", id="comment_edit_id")
     message = wtf.TextAreaField('Add comment', id="comment_message", validators=[wtf.Required()])
+
 
 class DeleteCommentForm(wtf.Form):
     comment_id = wtf.HiddenField('Comment', validators=[wtf.Required()])

@@ -38,15 +38,15 @@
           {{ comment.message_html|safe }}
         {%- endif %}
         <div data-id="{{ comment.id }}" class="com-footer">
-          <a title="Permalink" class="comment-permalink" href="#c{{ comment.id }}">&#x266f;</a>
-          {% if comment.parent %}<a title="Parent" class="comment-parent" href="#c{{ comment.parent.id }}">&uarr;</a>{% endif %}
           {% if not comment.is_deleted %}
-            <a title="Reply" class="comment-reply" href="#c{{ comment.id }}">&#x21a9;</a>
+            <a title="Reply" class="comment-reply" href="#c{{ comment.id }}">[reply]</a>
             {% if comment.user == currentuser -%}
-              <a title="Edit" class="comment-edit" href="#c{{ comment.id }}">&#x270E;</a>
-              <a title="Delete" class="comment-delete" href="#c{{ comment.id }}">&#x2718;</a>
+              <a title="Edit" class="comment-edit" href="#c{{ comment.id }}">[edit]</a>
+              <a title="Delete" class="comment-delete" href="#c{{ comment.id }}">[delete]</a>
             {%- endif %}
           {%- endif %}
+          <a title="Permalink" class="comment-permalink" href="#c{{ comment.id }}">[link]</a>
+          {% if comment.parent %}<a title="Parent" class="comment-parent" href="#c{{ comment.parent.id }}">[parent]</a>{% endif %}
         </div>
       </div>
     </div>

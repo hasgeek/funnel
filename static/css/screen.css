@@ -1325,9 +1325,6 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
 .comments .com-footer a {
   color: #b7b7b7;
 }
-.comments .com-footer a {
-  font-weight: bold;
-}
 .comments .com-header a:hover,
 .comments .com-footer a:hover {
   color: #816894;

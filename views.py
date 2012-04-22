@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import re
-import urlparse
-from datetime import datetime, timedelta
+from datetime import datetime
 from markdown import Markdown
 
-from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, json, Response
+from flask import render_template, redirect, request, g, url_for, Markup, abort, flash
 from flask.ext.lastuser import LastUser
 from flask.ext.lastuser.sqlalchemy import UserManager
+from coaster.views import get_next_url, jsonp
 
 from app import app
 from models import *
@@ -16,51 +16,18 @@ from utils import makename
 
 lastuser = LastUser(app)
 lastuser.init_usermanager(UserManager(db, User))
+#lastuser.external_resource('email', 'http://iddev.hasgeek.in:7000/api/1/email', 'GET')
 
 markdown = Markdown(safe_mode="escape").convert
 
 jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
-# --- Utilities ---------------------------------------------------------------
-
-def get_next_url(referrer=False, external=False):
-    """
-    Get the next URL to redirect to. Don't return external URLs unless
-    explicitly asked for. This is to protect the site from being an unwitting
-    redirector to external URLs.
-    """
-    next_url = request.args.get('next', '')
-    if not external:
-        if next_url.startswith('http:') or next_url.startswith('https:') or next_url.startswith('//'):
-            # Do the domains match?
-            if urlparse.urlsplit(next_url).hostname != urlparse.urlsplit(request.url).hostname:
-                next_url = ''
-    if referrer:
-        return next_url or request.referrer or url_for('index')
-    else:
-        return next_url or url_for('index')
-
-
-def jsonp(*args, **kw):
-    """
-    Returns a JSON response with a callback wrapper, if asked for.
-    """
-    data = json.dumps(dict(*args, **kw),
-        indent=None if request.is_xhr else 2)
-    callback = request.args.get('callback', request.args.get('jsonp'))
-    if callback and jsoncallback_re.search(callback) is not None:
-        data = u'%s(' % callback + data + u');'
-        mimetype = 'application/javascript'
-    else:
-        mimetype = 'application/json'
-    return Response(data, mimetype=mimetype)
-    
-
 # --- Routes ------------------------------------------------------------------
+
 
 @app.route('/')
 def index():
-    spaces = ProposalSpace.query.filter(ProposalSpace.status >= 1 and ProposalSpace.status <= 4).all()
+    spaces = ProposalSpace.query.filter(ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by('date').all()
     return render_template('index.html', spaces=spaces)
 
 
@@ -102,6 +69,7 @@ def lastuser_error(error, error_description=None, error_uri=None):
 
 # --- Routes: account ---------------------------------------------------------
 
+
 @app.route('/account')
 def account():
     return "Coming soon"
@@ -138,7 +106,6 @@ def viewspace(name):
 @app.route('/<name>/json')
 def viewspace_json(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    description = Markup(space.description_html)
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return jsonp(**{
@@ -148,8 +115,8 @@ def viewspace_json(name):
             'datelocation': space.datelocation,
             'status': space.status,
             },
-        'sections': [ {'name': s.name, 'title': s.title, 'description': s.description} for s in sections ],
-        'proposals': [ {
+        'sections': [{'name': s.name, 'title': s.title, 'description': s.description} for s in sections],
+        'proposals': [{
             'id': proposal.id,
             'name': proposal.urlname,
             'title': proposal.title,
@@ -163,7 +130,7 @@ def viewspace_json(name):
             'votes': proposal.votes.count,
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat(),
-            } for proposal in proposals ]
+            } for proposal in proposals]
         })
 
 
@@ -173,14 +140,7 @@ def editspace(name):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
         abort(404)
-    form = ProposalSpaceForm()
-    if request.method == 'GET':
-        form.name.data = space.name
-        form.title.data = space.title
-        form.datelocation.data = space.datelocation
-        form.tagline.data = space.tagline
-        form.description.data = space.description
-        form.status.data = space.status
+    form = ProposalSpaceForm(obj=space)
     if form.validate_on_submit():
         form.populate_obj(space)
         space.description_html = markdown(space.description)
@@ -225,7 +185,7 @@ def newsession(name):
             proposal.speaker = g.user
         else:
             proposal.speaker = None
-        proposal.votes.vote(g.user) # Vote up your own proposal by default
+        proposal.votes.vote(g.user)  # Vote up your own proposal by default
         form.populate_obj(proposal)
         proposal.name = makename(proposal.title)
         proposal.objective_html = markdown(proposal.objective)
@@ -237,8 +197,9 @@ def newsession(name):
         flash("Your new session has been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
     return render_template('autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
-        breadcrumbs = [(url_for('viewspace', name=space.name), space.title)], message=
-        Markup('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
+        breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
+        message=Markup(
+            'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
 
 
 @app.route('/<name>/<slug>/edit', methods=['GET', 'POST'])
@@ -285,9 +246,10 @@ def editsession(name, slug):
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
     return render_template('autoform.html', form=form, title="Edit session proposal", submit="Save changes",
-        breadcrumbs = [(url_for('viewspace', name=space.name), space.title),
-                       (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)],
-        message = Markup('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
+        breadcrumbs=[(url_for('viewspace', name=space.name), space.title),
+                     (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)],
+        message=Markup(
+            'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
 
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
@@ -308,7 +270,7 @@ def viewsession(name, slug):
         return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
     # URL is okay. Show the proposal.
     comments = sorted(Comment.query.filter_by(commentspace=proposal.comments, parent=None).order_by('created_at').all(),
-        key=lambda c:c.votes.count, reverse=True)
+        key=lambda c: c.votes.count, reverse=True)
     commentform = CommentForm()
     delcommentform = DeleteCommentForm()
     if request.method == 'POST':
@@ -333,20 +295,21 @@ def viewsession(name, slug):
                         comment.parent = parent
                 comment.message_html = markdown(comment.message)
                 proposal.comments.count += 1
-                comment.votes.vote(g.user) # Vote for your own comment
+                comment.votes.vote(g.user)  # Vote for your own comment
                 db.session.add(comment)
                 flash("Your comment has been posted", "info")
             db.session.commit()
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
-            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c"+str(comment.id), code=303)
+            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname) + "#c" + str(comment.id),
+                code=303)
         elif request.form.get('form.id') == 'delcomment' and delcommentform.validate():
             comment = Comment.query.get(int(delcommentform.comment_id.data))
             if comment:
                 if comment.user == g.user:
                     comment.delete()
                     proposal.comments.count -= 1
-                    db.session.commit();
+                    db.session.commit()
                     flash("Your comment was deleted.", "info")
                 else:
                     flash("You did not post that comment.", "error")
@@ -354,8 +317,8 @@ def viewsession(name, slug):
                 flash("No such comment.", "error")
             return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
     return render_template('proposal.html', space=space, proposal=proposal,
-        comments = comments, commentform = commentform, delcommentform = delcommentform,
-        breadcrumbs = [(url_for('viewspace', name=space.name), space.title)])
+        comments=comments, commentform=commentform, delcommentform=delcommentform,
+        breadcrumbs=[(url_for('viewspace', name=space.name), space.title)])
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
@@ -455,7 +418,7 @@ def voteupcomment(name, slug, cid):
     comment.votes.vote(g.user, votedown=False)
     db.session.commit()
     flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c%d" % cid)
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname) + "#c%d" % cid)
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
@@ -478,7 +441,7 @@ def votedowncomment(name, slug, cid):
     comment.votes.vote(g.user, votedown=True)
     db.session.commit()
     flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c%d" % cid)
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname) + "#c%d" % cid)
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
@@ -501,7 +464,7 @@ def votecancelcomment(name, slug, cid):
     comment.votes.cancelvote(g.user)
     db.session.commit()
     flash("Your vote has been withdrawn", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname)+"#c%d" % cid)
+    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname) + "#c%d" % cid)
 
 
 @app.route('/<name>/<slug>/next')
@@ -558,9 +521,9 @@ def age(dt):
             return "%d seconds %s" % (delta.seconds, suffix)
         elif delta.seconds < 120:
             return "a minute %s" % suffix
-        elif delta.seconds < 3600: # < 1 hour
+        elif delta.seconds < 3600:  # < 1 hour
             return "%d minutes %s" % (int(delta.seconds / 60), suffix)
-        elif delta.seconds < 7200: # < 2 hours
+        elif delta.seconds < 7200:  # < 2 hours
             return "an hour %s" % suffix
         else:
             return "%d hours %s" % (int(delta.seconds / 3600), suffix)
@@ -568,3 +531,15 @@ def age(dt):
         return u"a day %s" % suffix
     else:
         return u"%d days %s" % (delta.days, suffix)
+
+
+#@app.route('/email')
+#@lastuser.requires_login
+#def show_email():
+#    return jsonp(lastuser.call_resource('email', all=1))
+
+
+#@app.route('/api/event', methods=['POST'])
+#@lastuser.resource_handler('event')
+#def api_event(token):
+#    return jsonp(token)
