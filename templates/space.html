@@ -63,8 +63,8 @@
       </tr>
       <tr>
         <td></td>
-        <td style="white-space: nowrap"><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
-        <td style="white-space: nowrap"><a href="{{ link }}">
+        <td><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
+        <td><a href="{{ link }}">
           {%- if proposal.speaker -%}
             {{ proposal.speaker.fullname }}
           {%- else -%}
@@ -76,7 +76,7 @@
         <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
         <td class="num"><a href="{{ link }}">{{ proposal.votes.count }}</a></td>
         <td class="num"><a href="{{ link }}">{{ proposal.comments.count }}</a></td>
-        <td style="white-space: nowrap"><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e") }}</a></td>
+        <td><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e") }}</a></td>
       </tr>
     <tbody>
   {% else %}
