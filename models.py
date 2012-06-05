@@ -49,12 +49,12 @@ class BaseMixin(object):
 
 # --- Models ------------------------------------------------------------------
 
-class User(db.Model, UserBase):
+class User(UserBase, db.Model):
     __tablename__ = 'user'
     description = db.Column(db.Text, default=u'', nullable=False)
 
 
-class Tag(db.Model, BaseMixin):
+class Tag(BaseMixin, db.Model):
     __tablename__ = 'tag'
     name = db.Column(db.Unicode(80), unique=True, nullable=False)
     title = db.Column(db.Unicode(80), unique=True, nullable=False)
@@ -76,7 +76,7 @@ class Tag(db.Model, BaseMixin):
                 return tag
 
 
-class VoteSpace(db.Model, BaseMixin):
+class VoteSpace(BaseMixin, db.Model):
     __tablename__ = 'votespace'
     type = db.Column(db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
@@ -107,7 +107,7 @@ class VoteSpace(db.Model, BaseMixin):
         return Vote.query.filter_by(user=user, votespace=self).first()
 
 
-class Vote(db.Model, BaseMixin):
+class Vote(BaseMixin, db.Model):
     __tablename__ = 'vote'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -120,7 +120,7 @@ class Vote(db.Model, BaseMixin):
     __table_args__ = (db.UniqueConstraint("user_id", "votespace_id"), {})
 
 
-class CommentSpace(db.Model, BaseMixin):
+class CommentSpace(BaseMixin, db.Model):
     __tablename__ = 'commentspace'
     type = db.Column(db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
@@ -130,7 +130,7 @@ class CommentSpace(db.Model, BaseMixin):
         self.count = 0
 
 
-class Comment(db.Model, BaseMixin):
+class Comment(BaseMixin, db.Model):
     __tablename__ = 'comment'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -183,7 +183,7 @@ class Comment(db.Model, BaseMixin):
         return sorted(self.children, key=lambda child: child.votes.count)
 
 
-class ProposalSpace(db.Model, BaseMixin):
+class ProposalSpace(BaseMixin, db.Model):
     __tablename__ = 'proposal_space'
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -211,7 +211,7 @@ class ProposalSpace(db.Model, BaseMixin):
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
 
 
-class ProposalSpaceSection(db.Model, BaseMixin):
+class ProposalSpaceSection(BaseMixin, db.Model):
     __tablename__ = 'proposal_space_section'
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
@@ -243,7 +243,7 @@ proposal_tags = db.Table(
     )
 
 
-class Proposal(db.Model, BaseMixin):
+class Proposal(BaseMixin, db.Model):
     __tablename__ = 'proposal'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
