@@ -11,7 +11,7 @@ from coaster.views import get_next_url, jsonp
 
 from app import app
 from models import *
-from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm
+from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm, ConfirmWithdrawForm
 from utils import makename
 
 lastuser = LastUser(app)
@@ -250,6 +250,40 @@ def editsession(name, slug):
                      (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)],
         message=Markup(
             'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
+
+@app.route('/<name>/<slug>/remove', methods=['GET', 'POST'])
+@lastuser.requires_login
+def removesession(name, slug):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    proposal_id = int(slug.split('-')[0])
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    if proposal.user != g.user:
+        abort(403)
+    form = ConfirmWithdrawForm()
+    if form.validate_on_submit():
+        if 'delete' in request.form:
+            comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
+            for comment in comments:
+                print comment.message
+                db.session.delete(comment)
+            db.session.delete(proposal.comments)
+            votes = Vote.query.filter_by(votespace=proposal.votes).all()
+            for vote in votes:
+                db.session.delete(vote)
+                print vote
+            db.session.delete(proposal.votes)
+            db.session.delete(proposal)
+            db.session.commit()
+            flash("Your proposal has been withdrawn", "info")
+            return redirect(url_for('viewspace', name=name))
+        else:
+            return redirect(url_for('viewsession', name=name, slug=slug))
+    return render_template('withdraw.html', form=form, title=u"Confirm withdraw",
+        message=u"Withdraw '%s' ?" % (proposal.title))
 
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
