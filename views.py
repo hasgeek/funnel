@@ -284,7 +284,7 @@ def deletesession(name, slug):
     return render_template('delete.html', form=form, title=u"Confirm delete",
         message=u"Do you really wish to delete your proposal '%s'? "
                 u"This will remove all votes and comments as well. This operation "
-                u"is permanenet and cannot be undone." % proposal.title)
+                u"is permanent and cannot be undone." % proposal.title)
 
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
