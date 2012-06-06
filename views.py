@@ -269,13 +269,11 @@ def deletesession(name, slug):
         if 'delete' in request.form:
             comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
             for comment in comments:
-                print comment.message
                 db.session.delete(comment)
             db.session.delete(proposal.comments)
             votes = Vote.query.filter_by(votespace=proposal.votes).all()
             for vote in votes:
                 db.session.delete(vote)
-                print vote
             db.session.delete(proposal.votes)
             db.session.delete(proposal)
             db.session.commit()
