@@ -11,7 +11,7 @@ from coaster.views import get_next_url, jsonp
 
 from app import app
 from models import *
-from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm, ConfirmWithdrawForm
+from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm
 from utils import makename
 
 lastuser = LastUser(app)
@@ -251,9 +251,10 @@ def editsession(name, slug):
         message=Markup(
             'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
 
-@app.route('/<name>/<slug>/remove', methods=['GET', 'POST'])
+
+@app.route('/<name>/<slug>/delete', methods=['GET', 'POST'])
 @lastuser.requires_login
-def removesession(name, slug):
+def deletesession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
         abort(404)
@@ -263,7 +264,7 @@ def removesession(name, slug):
         abort(404)
     if proposal.user != g.user:
         abort(403)
-    form = ConfirmWithdrawForm()
+    form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
             comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
@@ -278,12 +279,14 @@ def removesession(name, slug):
             db.session.delete(proposal.votes)
             db.session.delete(proposal)
             db.session.commit()
-            flash("Your proposal has been withdrawn", "info")
+            flash("Your proposal has been deleted", "info")
             return redirect(url_for('viewspace', name=name))
         else:
             return redirect(url_for('viewsession', name=name, slug=slug))
-    return render_template('withdraw.html', form=form, title=u"Confirm withdraw",
-        message=u"Withdraw '%s' ?" % (proposal.title))
+    return render_template('delete.html', form=form, title=u"Confirm delete",
+        message=u"Do you really wish to delete your proposal '%s'? "
+                u"This will remove all votes and comments as well. This operation "
+                u"is permanenet and cannot be undone." % proposal.title)
 
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])

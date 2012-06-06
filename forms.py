@@ -81,10 +81,11 @@ class CommentForm(wtf.Form):
 class DeleteCommentForm(wtf.Form):
     comment_id = wtf.HiddenField('Comment', validators=[wtf.Required()])
 
-class ConfirmWithdrawForm(wtf.Form):
+
+class ConfirmDeleteForm(wtf.Form):
     """
     Confirm a delete operation
     """
     # The labels on these widgets are not used. See delete.html.
-    delete = wtf.SubmitField(u"Withdraw")
+    delete = wtf.SubmitField(u"Delete")
     cancel = wtf.SubmitField(u"Cancel")

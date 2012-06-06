@@ -58,7 +58,7 @@
         (proposing)
       {%- endif %}
       {% if proposal.user == g.user -%}
-        <small>(that’s you! <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this</a>? | <a href="{{ url_for('removesession', name=space.name, slug=proposal.urlname) }}">Withdraw this?</a>)</small>
+        <small>(that’s you! <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this</a>? <a href="{{ url_for('deletesession', name=space.name, slug=proposal.urlname) }}">Delete this</a>?)</small>
       {%- endif %}
     </p>
     <!-- Social buttons -->
