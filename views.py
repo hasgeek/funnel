@@ -262,7 +262,7 @@ def deletesession(name, slug):
     proposal = Proposal.query.get(proposal_id)
     if not proposal:
         abort(404)
-    if proposal.user != g.user:
+    if not lastuser.has_permission('siteadmin') and proposal.user != g.user:
         abort(403)
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
