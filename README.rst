@@ -6,10 +6,13 @@ Code for HasGeek's Funnel at http://funnel.hasgeek.com/
 You are welcome to contribute a patch or use this code to run your own funnel
 under the terms of the BSD license, specified in LICENSE.txt.
 
-This code runs on `Python`_ with the `Flask`_ microframework. You will need
-a bunch of requirements that we haven't documented here, but look at the
-`lastuser`_ project for a list. Copy `settings-sample.py` to `settings.py`,
-edit as necessary, and start the server with::
+This code runs on `Python`_ with the `Flask`_ microframework. You will need a
+bunch of requirements that can be installed with::
+
+  $ pip install -r requirements.txt
+
+Copy `settings-sample.py` to `settings.py`, edit as necessary, and start the
+server with::
 
   $ python website.py
 
