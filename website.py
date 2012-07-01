@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from flaskext.assets import Environment, Bundle
+from flask.ext.assets import Environment, Bundle
 
 from app import app
 app.config.from_object(__name__)
