@@ -129,11 +129,12 @@ $(function() {
   });
 });
 
+// Enable markdown previews
+markdownPreview();
+
+// Make all table columns on site sortable. See http://tablesorter.com/docs/.
 $(document).ready(function()
     {
-        // Make all table columns on site sortable. See http://tablesorter.com/docs/.
         $("table").tablesorter();
-        // Enable markdown previews
-        markdownPreview();
     }
 );
