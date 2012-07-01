@@ -1,5 +1,5 @@
 {% extends "inc/layout.html" %}
-{% from "inc/forms.html" import renderform, ajaxform %}
+{% from "inc/forms.html" import renderfield %}
 {% from "inc/comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
@@ -140,7 +140,7 @@
           {{ commentform.edit_id() }}
         </div>
         <p>
-          {{ commentform.message() }}
+          {{ renderfield(commentform.message) }}
         </p>
         <p>
           <input id="comment-submit" type="submit" value="Post comment"/>

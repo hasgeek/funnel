@@ -81,6 +81,7 @@ def account():
 @lastuser.requires_permission('siteadmin')
 def newspace():
     form = ProposalSpaceForm()
+    form.description.flags.markdown = True
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user)
         form.populate_obj(space)
@@ -141,6 +142,7 @@ def editspace(name):
     if not space:
         abort(404)
     form = ProposalSpaceForm(obj=space)
+    form.description.flags.markdown = True
     if form.validate_on_submit():
         form.populate_obj(space)
         space.description_html = markdown(space.description)
@@ -176,6 +178,11 @@ def newsession(name):
     if space.status != SPACESTATUS.SUBMISSIONS:
         abort(403)
     form = ProposalForm()
+    # Set markdown flag to True for fields that need markdown conversion
+    markdown_attrs = ('description', 'objective', 'requirements', 'bio')
+    for name in markdown_attrs:
+        attr = getattr(form, name)
+        attr.flags.markdown = True
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if request.method == 'GET':
         form.email.data = g.user.email
@@ -188,10 +195,11 @@ def newsession(name):
         proposal.votes.vote(g.user)  # Vote up your own proposal by default
         form.populate_obj(proposal)
         proposal.name = makename(proposal.title)
-        proposal.objective_html = markdown(proposal.objective)
-        proposal.description_html = markdown(proposal.description)
-        proposal.requirements_html = markdown(proposal.requirements)
-        proposal.bio_html = markdown(proposal.bio)
+        # Set *_html attributes after converting markdown text
+        for name in markdown_attrs:
+            attr = getattr(proposal, name)
+            html_attr = name + '_html'
+            setattr(proposal, html_attr, markdown(attr))
         db.session.add(proposal)
         db.session.commit()
         flash("Your new session has been saved", "info")
@@ -216,6 +224,11 @@ def editsession(name, slug):
         abort(403)
     form = ProposalForm()
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    # Set markdown flag to True for fields that need markdown conversion
+    markdown_attrs = ('description', 'objective', 'requirements', 'bio')
+    for name in markdown_attrs:
+        attr = getattr(form, name)
+        attr.flags.markdown = True
     if request.method == 'GET':
         form.email.data = proposal.email
         form.title.data = proposal.title
@@ -237,10 +250,11 @@ def editsession(name, slug):
         else:
             if proposal.speaker == g.user:
                 proposal.speaker = None
-        proposal.objective_html = markdown(proposal.objective)
-        proposal.description_html = markdown(proposal.description)
-        proposal.requirements_html = markdown(proposal.requirements)
-        proposal.bio_html = markdown(proposal.bio)
+        # Set *_html attributes after converting markdown text
+        for name in markdown_attrs:
+            attr = getattr(proposal, name)
+            html_attr = name + '_html'
+            setattr(proposal, html_attr, markdown(attr))
         proposal.edited_at = datetime.utcnow()
         db.session.commit()
         flash("Your changes have been saved", "info")
@@ -307,6 +321,7 @@ def viewsession(name, slug):
     comments = sorted(Comment.query.filter_by(commentspace=proposal.comments, parent=None).order_by('created_at').all(),
         key=lambda c: c.votes.count, reverse=True)
     commentform = CommentForm()
+    commentform.message.flags.markdown = True
     delcommentform = DeleteCommentForm()
     if request.method == 'POST':
         if request.form.get('form.id') == 'newcomment' and commentform.validate():
