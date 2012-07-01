@@ -111,9 +111,9 @@
     {% if proposal.links %}
       <h2 id="links">Links</h2>
       <ul>
-        {% for link in proposal.links.split('\n') -%}
-          <li><a href="{{ link.strip() }}">{{ link.strip() }}</a></li>
-        {% endfor -%}
+        {% for link in links -%}
+          <li>{{ link }}</li>
+        {% endfor %}
       </ul>
     {% endif %}
   </div>

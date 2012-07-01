@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from markdown import Markdown
 
-from flask import render_template, redirect, request, g, url_for, Markup, abort, flash
+from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, escape
 from flask.ext.lastuser import LastUser
 from flask.ext.lastuser.sqlalchemy import UserManager
 from coaster.views import get_next_url, jsonp
@@ -21,6 +21,10 @@ lastuser.init_usermanager(UserManager(db, User))
 markdown = Markdown(safe_mode="escape").convert
 
 jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
+
+# From http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+url_re = re.compile(ur'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''')
+
 
 # --- Routes ------------------------------------------------------------------
 
@@ -287,6 +291,13 @@ def deletesession(name, slug):
                 u"is permanent and cannot be undone." % proposal.title)
 
 
+def urllink(m):
+    s = m.group(0)
+    if not (s.startswith('http://') or s.startswith('https://')):
+        s = 'http://' + s
+    return '<a href="%s" rel="nofollow" target="_blank">%s</a>' % (s, s)
+
+
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
 def viewsession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
@@ -351,9 +362,11 @@ def viewsession(name, slug):
             else:
                 flash("No such comment.", "error")
             return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
+    links = [Markup(url_re.sub(urllink, unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        breadcrumbs=[(url_for('viewspace', name=space.name), space.title)])
+        breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
+        links=links)
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
