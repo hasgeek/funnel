@@ -28,7 +28,11 @@ function markdownPreview() {
             $(write).attr('class', 'button-selected');
             $(preview).attr('class', 'button');
         } else if (action=="preview") {
-            var html_text = $(converter.makeHtml($(field).val()));
+            if ($(field).val() == "") {
+                var html_text = $('<p>').html("Nothing to preview");
+            } else {
+                var html_text = $(converter.makeHtml($(field).val()));
+            }
             $(preview).attr('class', 'button-selected');
             $(write).attr('class', 'button');
             if ($('#'+preview_id).length == 0) {
