@@ -1491,14 +1491,22 @@ ul.cardset li a .body, ul.cardset li a:hover .body, ul.cardset li a:active .body
   font-weight: bold;
 }
 /* markdown preview related */
-div.field div.preview-control {
+div.field.small div.markdown-field {
+  float: left;
+  width: 35em;
+}
+div.markdown-field .markdown-buttons {
+  float: left;
+  padding: 10px 0px;
+}
+div.field div.markdown-field div.preview-control {
   float: left;
   width: 100%;
 }
-div.field.small div.preview-control {
+div.field.small div.markdown-field div.preview-control {
   width: 35em;
 }
-div.preview-block, div.markdown-field a {
+div.preview-block, div.markdown-field div.markdown-buttons a {
   border: 1px solid #b7b7b7;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -1512,22 +1520,19 @@ div.preview-block {
   min-height: 10em;
   padding: 5px;
 }
-div.markdown-field{
-  float: right;
-  margin: 0 8% 5px 0;
-  font-size: 80%;
-}
-div.markdown-field a{
+div.markdown-field div.markdown-buttons a {
   padding: 3px;
   background: #DF5E0E;
   margin-bottom: 15px;
   text-decoration: none;
   color: #fff;
+  font-size: 80%;
 }
-div.markdown-field .button{
+div.markdown-buttons .button {
   opacity: 0.7;
+
 }
-div.markdown-field .button.selected{
+div.markdown-buttons .button.selected {
   opacity: 1;
 }
 
