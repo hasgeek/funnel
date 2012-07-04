@@ -135,6 +135,7 @@ def viewspace_json(name):
             'votes': proposal.votes.count,
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat(),
+            'confirmed': proposal.confirmed,
             } for proposal in proposals]
         })
 
