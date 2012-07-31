@@ -34,6 +34,9 @@ class ProposalForm(wtf.Form):
     email = wtf.html5.EmailField('Your email address', validators=[wtf.Required()],
         description="An email address we can contact you at. "\
             "Not displayed anywhere")
+    phone = wtf.TextField('Phone number', validators=[wtf.Required()],
+        description="A phone number we can call you at to discuss your proposal, if required. "
+            "Will not be displayed")
     speaking = wtf.RadioField("Are you speaking?", coerce=int,
         choices=[(1, u"I will be speaking"),
                  (0, u"I’m proposing a topic for someone to speak on")])
@@ -68,8 +71,7 @@ class ProposalForm(wtf.Form):
             "slides and videos from your previous sessions; anything that'll help "\
             "folks decide if they want to attend your session")
     bio = wtf.TextAreaField('Speaker bio', validators=[wtf.Required()],
-        description="A brief outline of who you are and how you are qualified to be "\
-            "taking this session")
+        description="Tell us why you are the best person to be taking this session")
 
 
 class CommentForm(wtf.Form):

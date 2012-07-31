@@ -254,6 +254,7 @@ class Proposal(BaseMixin, db.Model):
         backref=db.backref('speaker_at', cascade="all"))
 
     email = db.Column(db.Unicode(80), nullable=True)
+    phone = db.Column(db.Unicode(80), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     bio_html = db.Column(db.Text, nullable=True)
 
