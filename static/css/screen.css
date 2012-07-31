@@ -1389,7 +1389,7 @@ div.field.small div.preview-control {
   width: 35em;
 }
 
-div.preview-block, div.markdown-field a {
+div.preview-block, div.markdown-field a.button {
   border: 1px solid #b7b7b7;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -1406,30 +1406,39 @@ div.preview-block {
 }
 
 div.markdown-field {
-  float: right;
   margin: 0 8% 5px 0;
-  font-size: 80%;
 }
 
-div.markdown-field a {
+div.markdown-field a.button {
   padding: 3px;
   background: #DF5E0E;
   margin-bottom: 15px;
   text-decoration: none;
   color: #fff;
-}
-
-div.markdown-field .button {
   opacity: 0.7;
 }
-
-div.markdown-field .button.selected {
+div.markdown-field a.button.selected {
   opacity: 1;
 }
 
 /* Spam protection */
 .z {
   display: none;
+}
+
+/* Cookies */
+.cookies-required-alert,
+.no-cookies .cookies-required {
+  display: none;
+}
+
+.cookies-required,
+.no-cookies .cookies-required-alert {
+  display: block;
+}
+
+.no-cookies .cookies-required-alert {
+  margin-top: 1em;
 }
 
 .hg-h {

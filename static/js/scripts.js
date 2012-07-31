@@ -11,7 +11,7 @@ function radioHighlight(radioName, highlightClass) {
 
 function markdownPreview() {
     converter = new Showdown.converter();
-    $(".markdown-field .button").click(function() {
+    $(".markdown-field .button").click(function(e) {
         var field = $(this).closest('.markdown-field').parent().find('textarea');
         var action = $(this).attr('id').split('-')[1];
         var field_id = $(field).attr('id');
@@ -28,16 +28,17 @@ function markdownPreview() {
             $(write).attr('class', 'button-selected');
             $(preview).attr('class', 'button');
         } else if (action=="preview") {
-            if ($(field).val() == "") {
-                var html_text = $('<p>').html("Nothing to preview");
+            var html_text;
+            if ($(field).val() === "") {
+                html_text = $('<p>').html("Nothing to preview");
             } else {
-                var html_text = $(converter.makeHtml($(field).val()));
+                html_text = $(converter.makeHtml($(field).val()));
             }
             $(preview).attr('class', 'button-selected');
             $(write).attr('class', 'button');
-            if ($('#'+preview_id).length == 0) {
+            if ($('#'+preview_id).length === 0) {
                 var preview_control = $('<div>').attr('class', 'preview-control');
-                var preview = $('<div>').attr('id', preview_id).attr('class', 'preview-block');
+                preview = $('<div>').attr('id', preview_id).attr('class', 'preview-block');
                 $(preview).append(html_text);
                 $(preview_control).append(preview);
                 $(control).parent().append(preview_control);
@@ -49,6 +50,7 @@ function markdownPreview() {
                 $('#'+preview_id).show();
             }
         }
+        e.preventDefault();
     });
 }
 
