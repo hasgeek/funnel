@@ -228,7 +228,7 @@ def editsession(name, slug):
         abort(404)
     if proposal.user != g.user:
         abort(403)
-    form = ProposalForm()
+    form = ProposalForm(obj=proposal)
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     # Set markdown flag to True for fields that need markdown conversion
     markdown_attrs = ('description', 'objective', 'requirements', 'bio')
@@ -236,17 +236,6 @@ def editsession(name, slug):
         attr = getattr(form, name)
         attr.flags.markdown = True
     if request.method == 'GET':
-        form.email.data = proposal.email
-        form.title.data = proposal.title
-        form.section.data = proposal.section
-        form.objective.data = proposal.objective
-        form.session_type.data = proposal.session_type
-        form.technical_level.data = proposal.technical_level
-        form.description.data = proposal.description
-        form.requirements.data = proposal.requirements
-        form.slides.data = proposal.slides
-        form.links.data = proposal.links
-        form.bio.data = proposal.bio
         form.speaking.data = proposal.speaker == g.user
     if form.validate_on_submit():
         form.populate_obj(proposal)
