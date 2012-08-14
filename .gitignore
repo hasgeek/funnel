@@ -8,5 +8,4 @@ test.db
 .settings
 .sass-cache
 error.log
-sass
 .webassets-cache
