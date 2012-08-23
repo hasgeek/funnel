@@ -13,6 +13,7 @@ from app import app
 from models import *
 from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm
 from utils import makename
+import sendmail
 
 lastuser = LastUser(app)
 lastuser.init_usermanager(UserManager(db, User))
@@ -350,6 +351,8 @@ def viewsession(name, slug):
                 comment.votes.vote(g.user)  # Vote for your own comment
                 db.session.add(comment)
                 flash("Your comment has been posted", "info")
+                send_comment_mail(proposal, comment)
+
             db.session.commit()
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
@@ -373,6 +376,26 @@ def viewsession(name, slug):
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
         links=links)
+
+def send_comment_mail(proposal, comment):
+    # send email to the speaker and admins when a new comment is posted
+    from_address = app.config.get("FUNNEL_FROM_ADDRESS")
+    to = [proposal.email]
+    cc = app.config.get("FUNNEL_ADMINS", [])
+    url = request.url_root + proposal.urlname
+    subject = "New Comment - %s" % proposal.title
+    content = ("" + 
+        "Hello,\n\n" + 
+        "A new comment has been posted on the proposal:\n" + 
+        "%s\n" % url +
+        "\n" + 
+        comment.message +
+        "\n" + 
+        "-- " + comment.user.fullname + "\n" +
+        "\n" +
+        "Regards,\n" + 
+        "PyCon India Team\n")
+    sendmail.sendmail(from_address, to, subject, content, cc=cc)
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
