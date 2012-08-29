@@ -383,20 +383,9 @@ def send_comment_mail(proposal, comment):
     to = [proposal.email]
     cc = app.config.get("FUNNEL_ADMINS", [])
     url = request.url_root + proposal.urlname
-    subject = "New Comment - %s" % proposal.title
-    content = ("" + 
-        "Hello,\n\n" + 
-        "A new comment has been posted on the proposal:\n" + 
-        "%s\n" % url +
-        "\n" + 
-        comment.message +
-        "\n" + 
-        "-- " + comment.user.fullname + "\n" +
-        "\n" +
-        "Regards,\n" + 
-        "PyCon India Team\n")
+    subject = "[%s] New Comment - %s" % (proposal.proposal_space.name, proposal.title)
+    content = render_template("email/comment.html", comment=comment, proposal=proposal)
     sendmail.sendmail(from_address, to, subject, content, cc=cc)
-
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
 @app.route('/<name>/<slug>/voteup')
