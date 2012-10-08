@@ -11,7 +11,8 @@ from coaster.views import get_next_url, jsonp
 
 from app import app
 from models import *
-from forms import ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm
+from forms import (ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm,
+    ConfirmDeleteForm, ConfirmSessionForm)
 from utils import makename
 
 lastuser = LastUser(app)
@@ -24,7 +25,6 @@ jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
 # From http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 url_re = re.compile(ur'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''')
-
 
 # --- Routes ------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ def favicon():
 @app.route('/login')
 @lastuser.login_handler
 def login():
-    return {'scope': 'id email'}
+    return {'scope': 'id email organizations'}
 
 
 @app.route('/logout')
@@ -261,6 +261,25 @@ def editsession(name, slug):
             'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
 
 
+@app.route('/<name>/<slug>/confirm', methods=['POST'])
+@lastuser.requires_permission('siteadmin')
+def confirmsession(name, slug):
+    ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = int(slug.split('-')[0])
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    form = ConfirmSessionForm()
+    if form.validate_on_submit():
+        proposal.confirmed = not proposal.confirmed
+        db.session.commit()
+        if proposal.confirmed:
+            flash("This proposal has been confirmed.", 'success')
+        else:
+            flash("This session has been cancelled.", 'success')
+    return redirect(url_for('viewsession', name=name, slug=slug))
+
+
 @app.route('/<name>/<slug>/delete', methods=['GET', 'POST'])
 @lastuser.requires_login
 def deletesession(name, slug):
@@ -369,10 +388,11 @@ def viewsession(name, slug):
                 flash("No such comment.", "error")
             return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
     links = [Markup(url_re.sub(urllink, unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
+    confirmform = ConfirmSessionForm()
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
-        links=links)
+        links=links, confirmform=confirmform)
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST

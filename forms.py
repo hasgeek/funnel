@@ -91,3 +91,10 @@ class ConfirmDeleteForm(wtf.Form):
     # The labels on these widgets are not used. See delete.html.
     delete = wtf.SubmitField(u"Delete")
     cancel = wtf.SubmitField(u"Cancel")
+
+
+class ConfirmSessionForm(wtf.Form):
+    """
+    Dummy form for CSRF
+    """
+    pass
