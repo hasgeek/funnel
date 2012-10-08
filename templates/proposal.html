@@ -66,6 +66,16 @@
       <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="hasgeek">Tweet</a>
       <g:plusone size="medium"></g:plusone>
       <iframe class="facebooklike" src="http://www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
+      {% if 'siteadmin' in g.lastuserinfo.permissions %}
+        <form method="POST" action="{{ url_for('confirmsession', name=space.name, slug=proposal.urlname) }}" style="float: left">
+          {{ confirmform.hidden_tag() }}
+          {% if proposal.confirmed -%}
+            <button type="submit">Cancel Session</button>
+          {% else %}
+            <button type="submit">Confirm Session</button>
+          {% endif -%}
+        </form>
+      {% endif %}
     </div>
   </div>
   <div class="section bar">
@@ -85,7 +95,7 @@
         If you’d like to speak, leave a comment.</em>
       </p>
     {%- endif -%}
-      
+
     <h2>Objective</h2>
     {{ proposal.objective_html|safe }}
     <h2>Description</h2>
@@ -110,7 +120,7 @@
     {% endif %}
     {% if proposal.links %}
       <h2 id="links">Links</h2>
-      <ul>
+      <ul id="links-list">
         {% for link in links -%}
           <li>{{ link }}</li>
         {% endfor %}
@@ -169,6 +179,9 @@
     commentsInit("{{ request.base_url }}"); // {# FIXME: Potential vulnerability if this isn't JS-encoded #}
     {%- if proposal.slides %}
       $("#slides-link").oembed();
+    {%- endif %}
+    {%- if proposal.links %}
+      $("#links-list").oembed();
     {%- endif %}
   });
 </script>
