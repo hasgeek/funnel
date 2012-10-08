@@ -67,7 +67,7 @@
       <g:plusone size="medium"></g:plusone>
       <iframe class="facebooklike" src="http://www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
       {% if 'siteadmin' in g.lastuserinfo.permissions %}
-        <form method="POST" action="{{ url_for('confirmsession', name=space.name, slug=proposal.urlname) }}" style="float: left">
+        <form method="POST" action="{{ url_for('confirmsession', name=space.name, slug=proposal.urlname) }}" style="float: right">
           {{ confirmform.hidden_tag() }}
           {% if proposal.confirmed -%}
             <button type="submit">Cancel Session</button>
