@@ -410,7 +410,7 @@ def session_json(name, slug):
     if proposal.proposal_space != space:
         return redirect(url_for('viewspace', name=space.name))
     if slug != proposal.urlname:
-        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
+        return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
     return json.dumps({
             'id': proposal.id,
             'name': proposal.urlname,
