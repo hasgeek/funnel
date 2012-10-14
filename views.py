@@ -408,9 +408,9 @@ def session_json(name, slug):
     if not proposal:
         abort(404)
     if proposal.proposal_space != space:
-        return None
+        return redirect(url_for('viewspace', name=space.name))
     if slug != proposal.urlname:
-        return None
+        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
     return json.dumps({
             'id': proposal.id,
             'name': proposal.urlname,
@@ -426,7 +426,7 @@ def session_json(name, slug):
             'level': proposal.technical_level,
             'votes': proposal.votes.count,
             'comments': proposal.comments.count,
-            'submitted': proposal.created_at.isoformat(),
+            'submitted': proposal.created_at.isoformat('Z'),
             'confirmed': proposal.confirmed,
             })
 
