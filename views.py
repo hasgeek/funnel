@@ -411,6 +411,7 @@ def session_json(name, slug):
         return redirect(url_for('viewspace', name=space.name))
     if slug != proposal.urlname:
         return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
+    votes = Vote.query.filter_by(votespace=proposal.votes).all()
     return json.dumps({
             'id': proposal.id,
             'name': proposal.urlname,
@@ -425,6 +426,7 @@ def session_json(name, slug):
             'type': proposal.session_type,
             'level': proposal.technical_level,
             'votes': proposal.votes.count,
+            'voted_users': [{'name': vote.user.username, 'email': vote.user.email} for vote in votes],
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat('Z'),
             'confirmed': proposal.confirmed,
