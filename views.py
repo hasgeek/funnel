@@ -411,10 +411,12 @@ def session_json(name, slug):
         return redirect(url_for('viewspace', name=space.name))
     if slug != proposal.urlname:
         return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
-    votes_community = 0
-    votes_committee = 0
+    votes_community = None
+    votes_committee = None
     votes_count = None
     if lastuser.has_permission('siteadmin'):
+        votes_community = 0
+        votes_committee = 0
         votes_count = len(proposal.votes.votes)
         committee = set(request.args.getlist('c'))
         for vote in proposal.votes.votes:
