@@ -413,13 +413,15 @@ def session_json(name, slug):
         return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
     votes_community = 0
     votes_committee = 0
+    votes_count = None
     if lastuser.has_permission('siteadmin'):
+        votes_count = len(proposal.votes.votes)
         committee = set(request.args.getlist('c'))
         for vote in proposal.votes.votes:
             if vote.user.userid in committee:
-                votes_committee += 1
+                votes_committee += -1 if vote.votedown else +1
             else:
-                votes_community += 1
+                votes_community += -1 if vote.votedown else +1
     return jsonp(**{
             'id': proposal.id,
             'name': proposal.urlname,
@@ -441,6 +443,7 @@ def session_json(name, slug):
             'votes': proposal.votes.count,
             'votes_community': votes_community,
             'votes_committee': votes_committee,
+            'votes_count': votes_count,
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat() + 'Z',
             'confirmed': proposal.confirmed,
