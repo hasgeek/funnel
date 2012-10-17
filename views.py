@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from markdown import Markdown
 
-from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, escape, json
+from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, escape
 from flask.ext.lastuser import LastUser
 from flask.ext.lastuser.sqlalchemy import UserManager
 from coaster.views import get_next_url, jsonp
@@ -411,8 +411,7 @@ def session_json(name, slug):
         return redirect(url_for('viewspace', name=space.name))
     if slug != proposal.urlname:
         return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
-    votes = Vote.query.filter_by(votespace=proposal.votes).all()
-    return json.dumps({
+    return jsonp(**{
             'id': proposal.id,
             'name': proposal.urlname,
             'title': proposal.title,
