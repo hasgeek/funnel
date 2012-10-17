@@ -411,6 +411,15 @@ def session_json(name, slug):
         return redirect(url_for('viewspace', name=space.name))
     if slug != proposal.urlname:
         return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
+    votes_community = 0
+    votes_committee = 0
+    if lastuser.has_permission('siteadmin'):
+        committee = set(request.args.getlist('c'))
+        for vote in proposal.votes.votes:
+            if vote.user.userid in committee:
+                votes_committee += 1
+            else:
+                votes_community += 1
     return jsonp(**{
             'id': proposal.id,
             'name': proposal.urlname,
@@ -425,6 +434,8 @@ def session_json(name, slug):
             'type': proposal.session_type,
             'level': proposal.technical_level,
             'votes': proposal.votes.count,
+            'votes_community': votes_community,
+            'votes_committee': votes_committee,
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat() + 'Z',
             'confirmed': proposal.confirmed,
