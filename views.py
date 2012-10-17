@@ -426,9 +426,8 @@ def session_json(name, slug):
             'type': proposal.session_type,
             'level': proposal.technical_level,
             'votes': proposal.votes.count,
-            'voted_users': [{'name': vote.user.username, 'email': vote.user.email} for vote in votes] if lastuser.has_permission('siteadmin') else None,
             'comments': proposal.comments.count,
-            'submitted': proposal.created_at.isoformat('Z'),
+            'submitted': proposal.created_at.isoformat() + 'Z',
             'confirmed': proposal.confirmed,
             })
 
