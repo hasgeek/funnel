@@ -336,7 +336,6 @@ def viewsession(name, slug):
     except ValueError:
         abort(404)
     proposal = Proposal.query.get(proposal_id)
-    #print proposal.email
     if not proposal:
         abort(404)
     if proposal.proposal_space != space:
