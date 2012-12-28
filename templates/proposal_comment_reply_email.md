@@ -3,9 +3,7 @@
 
 {{ comment.message }}
 
-View it on [funnel][]  
+View it on [funnel]({{link}})  
  PS: Don’t reply to this email.   
  Copyright © 2010-12 HasGeek Media LLP and contributors. All content is
 licensed under CC BY-SA 3.0.
-
-  [funnel]: {{ link }}

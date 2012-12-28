@@ -13,8 +13,7 @@ from flask import (
     Markup,
     abort,
     flash,
-    escape,
-    )
+    escape)
 from flask.ext.lastuser import LastUser
 from flask.ext.lastuser.sqlalchemy import UserManager
 from flask.ext.mail import Message
