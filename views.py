@@ -4,7 +4,17 @@ import re
 from datetime import datetime
 from markdown import Markdown
 
-from flask import render_template, redirect, request, g, url_for, Markup, abort, flash, escape
+from flask import (
+    render_template,
+    redirect,
+    request,
+    g,
+    url_for,
+    Markup,
+    abort,
+    flash,
+    escape,
+    )
 from flask.ext.lastuser import LastUser
 from flask.ext.lastuser.sqlalchemy import UserManager
 from flask.ext.mail import Message
@@ -13,8 +23,14 @@ from coaster.views import get_next_url, jsonp
 from app import app
 from website import mail
 from models import *
-from forms import (ProposalSpaceForm, SectionForm, ProposalForm, CommentForm, DeleteCommentForm,
-    ConfirmDeleteForm, ConfirmSessionForm)
+from forms import (
+    ProposalSpaceForm,
+    SectionForm,
+    ProposalForm,
+    CommentForm,
+    DeleteCommentForm,
+    ConfirmDeleteForm,
+    ConfirmSessionForm)
 from utils import makename
 
 lastuser = LastUser(app)
@@ -326,6 +342,16 @@ def urllink(m):
     return '<a href="%s" rel="nofollow" target="_blank">%s</a>' % (s, s)
 
 
+def send_mail(recipients, body, subject):
+    try:
+        msg = Message(subject=subject, recipients=[recipients])
+        msg.body = body
+        msg.html = markdown(msg.body)
+        mail.send(msg)
+    except:
+        pass
+
+
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
 def viewsession(name, slug):
     space = ProposalSpace.query.filter_by(name=name).first()
@@ -363,35 +389,45 @@ def viewsession(name, slug):
                 else:
                     flash("No such comment", "error")
             else:
-                #check exception
-                recipients = set([proposal.email])
-                comment = Comment(user=g.user, commentspace=proposal.comments, message=commentform.message.data)
+                comment = Comment(user=g.user, commentspace=proposal.comments,
+                    message=commentform.message.data)
+                send_mail_info = []
                 if commentform.parent_id.data:
                     parent = Comment.query.get(int(commentform.parent_id.data))
-                    #recipients.add(proposal.email)
-                    recipients.add(parent.user.email)
+                    if parent.user.email:
+                        if parent.user.email == proposal.email:
+                            if not g.user.email == parent.user.email:  #check if parent comment is by proposal owner
+                                send_mail_info.append({'recipients': proposal.email,
+                                    'subject': "%s Funnel:%s" % (name, proposal.title),
+                                    'template': 'proposal_comment_reply_email.md'})
+                        else:  #send mail to parent comment owner & proposal owner
+                            if not parent.user.email == g.user.email:
+                                send_mail_info.append({'recipients': parent.user.email,
+                                    'subject': "%s Funnel:%s" % (name, proposal.title),
+                                    'template': 'proposal_comment_to_proposer_email.md'})
+                            if not proposal.email == g.user.email:
+                                send_mail_info.append({'recipients': proposal.email,
+                                    'subject': "%s Funnel:%s" % (name, proposal.title),
+                                    'template': 'proposal_comment_email.md'})
+
                     if parent and parent.commentspace == proposal.comments:
                         comment.parent = parent
-
+                else:  #for top level comment
+                    if not proposal.email == g.user.email:
+                        send_mail_info.append({'recipients': proposal.email,
+                            'subject': "%s Funnel:%s" % (name, proposal.title),
+                            'template': 'proposal_comment_email.md'})
                 comment.message_html = markdown(comment.message)
                 proposal.comments.count += 1
                 comment.votes.vote(g.user)  # Vote for your own comment
                 db.session.add(comment)
                 flash("Your comment has been posted", "info")
             db.session.commit()
-            to_redirect = url_for('viewsession', name=space.name, slug=proposal.urlname, _external=True) + "#c" + str(comment.id)
-            if recipients:
-                email_html = render_template('email.html', comment=comment, link=to_redirect, proposal=proposal)
-                msg = Message(subject="%s Funnel:%s" % (name, proposal.title), html=email_html)
-                if len(recipients) is 1:
-                    msg.add_recipient(recipients.pop())
-                    mail.send(msg)
-                else:
-                    with mail.connect() as conn:
-                        for recipient in recipients:
-                            msg.recipients = recipient
-                            conn.send(msg)
-
+            to_redirect = url_for('viewsession', name=space.name,
+                    slug=proposal.urlname, _external=True) + "#c" + str(comment.id)
+            for item in send_mail_info:
+                email_body = render_template(item.pop('template'), proposal=proposal, comment=comment, link=to_redirect)
+                send_mail(body=email_body, **item)
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
             return redirect(to_redirect, code=303)
@@ -684,20 +720,6 @@ def age(dt):
     else:
         return u"%d days %s" % (delta.days, suffix)
 
-
-#@app.route('/send_email/')
-#def send_email():
-#    msg = Message(subject="check email", recipients=['me@kracekumar.com', 'kracethekingmaker@gmail.com'],
-#     html='<h2> Welcome </h2>')
-#    print mail.send(msg)
-#    print mail.__dict__
-#    with mail.connect() as conn:
-#    for recipient in []:
-#        msg = Message(subject="Funnel:%s" % ("proposal.title"), recipients=recipient, html="email_html")
-#        mail.send(msg)
-#        print mail.__dict__
-#    return "done"
-#    return str(mail.send(msg))
 
 #@app.route('/email')
 #@lastuser.requires_login
