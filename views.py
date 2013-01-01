@@ -342,13 +342,10 @@ def urllink(m):
 
 
 def send_mail(recipients, body, subject):
-    try:
-        msg = Message(subject=subject, recipients=[recipients])
-        msg.body = body
-        msg.html = markdown(msg.body)
-        mail.send(msg)
-    except:
-        pass
+    msg = Message(subject=subject, recipients=[recipients])
+    msg.body = body
+    msg.html = markdown(msg.body)
+    mail.send(msg)
 
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
@@ -394,7 +391,7 @@ def viewsession(name, slug):
                 if commentform.parent_id.data:
                     parent = Comment.query.get(int(commentform.parent_id.data))
                     if parent.user.email:
-                        if parent.user.email == proposal.email:
+                        if parent.user.email == proposal.email: #check if parent comment & proposal owner are same
                             if not g.user.email == parent.user.email:  #check if parent comment is by proposal owner
                                 send_mail_info.append({'recipients': proposal.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
