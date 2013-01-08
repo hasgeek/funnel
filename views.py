@@ -121,25 +121,7 @@ def viewspace_json(name):
             'status': space.status,
             },
         'sections': [{'name': s.name, 'title': s.title, 'description': s.description} for s in sections],
-        'proposals': [{
-            'id': proposal.id,
-            'name': proposal.urlname,
-            'title': proposal.title,
-            'url': url_for('viewsession', name=space.name, slug=proposal.urlname, _external=True),
-            'proposer': proposal.user.fullname,
-            'userid': proposal.user.userid,
-            'username': proposal.user.username,
-            'speaker': proposal.speaker.fullname if proposal.speaker else None,
-            'email': proposal.email if lastuser.has_permission('siteadmin') else None,
-            'phone': proposal.phone if lastuser.has_permission('siteadmin') else None,
-            'section': proposal.section.title,
-            'type': proposal.session_type,
-            'level': proposal.technical_level,
-            'votes': proposal.votes.count,
-            'comments': proposal.comments.count,
-            'submitted': proposal.created_at.isoformat(),
-            'confirmed': proposal.confirmed,
-            } for proposal in proposals]
+        'proposals': [proposal_data(proposal) for proposal in proposals]
         })
 
 
@@ -397,22 +379,10 @@ def viewsession(name, slug):
         links=links, confirmform=confirmform)
 
 
-@app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
-def session_json(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-    if proposal.proposal_space != space:
-        return redirect(url_for('viewspace', name=space.name))
-    if slug != proposal.urlname:
-        return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
+def proposal_data(proposal):
+    """
+    Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
+    """
     votes_community = None
     votes_committee = None
     votes_count = None
@@ -426,11 +396,11 @@ def session_json(name, slug):
                 votes_committee += -1 if vote.votedown else +1
             else:
                 votes_community += -1 if vote.votedown else +1
-    return jsonp(**{
+    return {
             'id': proposal.id,
             'name': proposal.urlname,
             'title': proposal.title,
-            'url': url_for('viewsession', name=space.name, slug=proposal.urlname, _external=True),
+            'url': url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname, _external=True),
             'proposer': proposal.user.fullname,
             'speaker': proposal.speaker.fullname if proposal.speaker else None,
             'email': proposal.email if lastuser.has_permission('siteadmin') else None,
@@ -451,7 +421,26 @@ def session_json(name, slug):
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat() + 'Z',
             'confirmed': proposal.confirmed,
-            })
+            }
+
+
+@app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
+def session_json(name, slug):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    if proposal.proposal_space != space:
+        return redirect(url_for('viewspace', name=space.name))
+    if slug != proposal.urlname:
+        return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
+    return jsonp(proposal_data(proposal))
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
