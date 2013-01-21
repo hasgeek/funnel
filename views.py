@@ -176,6 +176,9 @@ def newsession(name):
         attr = getattr(form, name)
         attr.flags.markdown = True
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    if len(list(form.section.query.all())) == 0:
+        # Don't bother with sections when there aren't any
+        del form.section
     if request.method == 'GET':
         form.email.data = g.user.email
     if form.validate_on_submit():
@@ -216,6 +219,9 @@ def editsession(name, slug):
         abort(403)
     form = ProposalForm(obj=proposal)
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    if len(list(form.section.query.all())) == 0:
+        # Don't bother with sections when there aren't any
+        del form.section
     # Set markdown flag to True for fields that need markdown conversion
     markdown_attrs = ('description', 'objective', 'requirements', 'bio')
     for name in markdown_attrs:
