@@ -104,8 +104,10 @@ def viewspace(name):
         abort(404)
     description = Markup(space.description_html)
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
-    proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
-    return render_template('space.html', space=space, description=description, sections=sections, proposals=proposals)
+    confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
+    unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
+    return render_template('space.html', space=space, description=description, sections=sections,
+        confirmed=confirmed, unconfirmed=unconfirmed)
 
 
 @app.route('/<name>/json')
