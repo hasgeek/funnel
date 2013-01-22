@@ -80,8 +80,10 @@
   </div>
   <div class="section bar">
     <dl class="bar">
-      <dt>Section</dt>
-      <dd>{{ proposal.section.title }}</dd>
+      {%- if proposal.section %}
+        <dt>Section</dt>
+        <dd>{{ proposal.section.title }}</dd>
+      {%- endif %}
       <dt>Session type</dt>
       <dd>{{ proposal.session_type }}</dd>
       <dt>Technical level</dt>

@@ -1,5 +1,58 @@
 {% extends "inc/layout.html" %}
 {% block title %}{{ space.title }}{% endblock %}
+
+{%- macro proposal_table(proposals) %}
+  <table class="listing">
+    <thead>
+      <tr>
+        <th class="num">#</th>
+        <th>Proposer</th>
+        <th>Speaker</th>
+        <th>Section</th>
+        <th>Type</th>
+        <th>Level</th>
+        <th class="num">+1</th>
+        <th class="num">Comments</th>
+        <th>Submitted</th>
+      </tr>
+    </thead>
+    {% for proposal in proposals %}
+      <tbody class="link separator">
+        {%- set link=url_for('viewsession', name=space.name, slug=proposal.urlname) -%}
+        <tr>
+          <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
+          <td colspan="8"><a href="{{ link }}"><strong>{{ proposal.title }}</strong></a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
+          <td><a href="{{ link }}">
+            {%- if proposal.speaker -%}
+              {{ proposal.speaker.fullname }}
+            {%- else -%}
+              <em>(open)</em>
+            {%- endif -%}
+          </a></td>
+          <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
+          <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
+          <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
+          <td class="num"><a href="{{ link }}">{{ proposal.votes.count }}</a></td>
+          <td class="num"><a href="{{ link }}">{{ proposal.comments.count }}</a></td>
+          <td><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e") }}</a></td>
+        </tr>
+      <tbody>
+    {% else %}
+      <tbody>
+        <tr>
+          <td colspan="9">
+            <em>(No sessions have been submitted)</em>
+          </td>
+        </tr>
+      </tbody>
+    {% endfor %}
+  </table>
+{%- endmacro %}
+
 {% block content %}
 <p>
   {{ space.datelocation }}
@@ -40,53 +93,12 @@
   <a href="{{ url_for('newsession', name=space.name) }}">Propose a session &rarr;</a>
 </p>
 {% endif %}
-<table class="listing">
-  <thead>
-    <tr>
-      <th class="num">#</th>
-      <th>Proposer</th>
-      <th>Speaker</th>
-      <th>Section</th>
-      <th>Type</th>
-      <th>Level</th>
-      <th class="num">+1</th>
-      <th class="num">Comments</th>
-      <th>Submitted</th>
-    </tr>
-  </thead>
-  {% for proposal in proposals %}
-    <tbody class="link separator">
-      {%- set link=url_for('viewsession', name=space.name, slug=proposal.urlname) -%}
-      <tr>
-        <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
-        <td colspan="8"><a href="{{ link }}"><strong>{{ proposal.title }}</strong></a></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
-        <td><a href="{{ link }}">
-          {%- if proposal.speaker -%}
-            {{ proposal.speaker.fullname }}
-          {%- else -%}
-            <em>(open)</em>
-          {%- endif -%}
-        </a></td>
-        <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
-        <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
-        <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
-        <td class="num"><a href="{{ link }}">{{ proposal.votes.count }}</a></td>
-        <td class="num"><a href="{{ link }}">{{ proposal.comments.count }}</a></td>
-        <td><a href="{{ link }}">{{ proposal.created_at.strftime("%a, %b %e") }}</a></td>
-      </tr>
-    <tbody>
-  {% else %}
-    <tbody>
-      <tr>
-        <td colspan="9">
-          <em>(No sessions have been submitted)</em>
-        </td>
-      </tr>
-    </tbody>
-  {% endfor %}
-</table>
+{%- if confirmed %}
+  <h3>Confirmed sessions</h3>
+  {{ proposal_table(confirmed) }}
+{%- endif %}
+{%- if unconfirmed %}
+  {%- if confirmed %}<h3>Unconfirmed proposals</h3>{% endif %}
+  {{ proposal_table(unconfirmed) }}
+{%- endif %}
 {% endblock %}
