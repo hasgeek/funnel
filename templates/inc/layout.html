@@ -40,7 +40,7 @@
       <div id="logo"><a href="{{ url_for('index')|e }}">Home</a></div>
       <ul class="usertools">
         {% if g.user -%}
-          <li class="profile"><a href="{{ config['LASTUSER_SERVER'] }}profile">{{ g.user.fullname }}</a></li>
+          <li class="profile"><a href="{{ config['LASTUSER_SERVER'] }}/profile">{{ g.user.fullname }}</a></li>
           <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
           <li><a href="{{ url_for('login') }}">Login with Twitter or Google</a></li>
