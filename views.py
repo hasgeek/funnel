@@ -215,7 +215,7 @@ def editsession(name, slug):
     proposal = Proposal.query.get(proposal_id)
     if not proposal:
         abort(404)
-    if proposal.user != g.user:
+    if proposal.user != g.user and not lastuser.has_permission('siteadmin'):
         abort(403)
     form = ProposalForm(obj=proposal)
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
@@ -227,16 +227,20 @@ def editsession(name, slug):
     for name in markdown_attrs:
         attr = getattr(form, name)
         attr.flags.markdown = True
-    if request.method == 'GET':
+    if proposal.user != g.user:
+        del form.speaking
+    elif request.method == 'GET':
         form.speaking.data = proposal.speaker == g.user
     if form.validate_on_submit():
         form.populate_obj(proposal)
         proposal.name = makename(proposal.title)
-        if form.speaking.data:
-            proposal.speaker = g.user
-        else:
-            if proposal.speaker == g.user:
-                proposal.speaker = None
+        if proposal.user == g.user:
+            # Only allow the speaker to change this status
+            if form.speaking.data:
+                proposal.speaker = g.user
+            else:
+                if proposal.speaker == g.user:
+                    proposal.speaker = None
         # Set *_html attributes after converting markdown text
         for name in markdown_attrs:
             attr = getattr(proposal, name)
