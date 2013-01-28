@@ -43,7 +43,7 @@ def favicon():
 @app.route('/login')
 @lastuser.login_handler
 def login():
-    return {'scope': 'id email organizations'}
+    return {'scope': 'id email'}
 
 
 @app.route('/logout')
