@@ -417,7 +417,7 @@ def proposal_data(proposal):
             'speaker': proposal.speaker.fullname if proposal.speaker else None,
             'email': proposal.email if lastuser.has_permission('siteadmin') else None,
             'phone': proposal.phone if lastuser.has_permission('siteadmin') else None,
-            'section': proposal.section.title,
+            'section': proposal.section.title if proposal.section else None,
             'type': proposal.session_type,
             'level': proposal.technical_level,
             'objective': proposal.objective_html,
