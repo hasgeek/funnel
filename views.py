@@ -341,8 +341,8 @@ def urllink(m):
     return '<a href="%s" rel="nofollow" target="_blank">%s</a>' % (s, s)
 
 
-def send_mail(recipients, body, subject):
-    msg = Message(subject=subject, recipients=[recipients])
+def send_mail(sender, recipients, body, subject):
+    msg = Message(sender=sender, subject=subject, recipients=[recipients])
     msg.body = body
     msg.html = markdown(msg.body)
     mail.send(msg)
@@ -391,17 +391,17 @@ def viewsession(name, slug):
                 if commentform.parent_id.data:
                     parent = Comment.query.get(int(commentform.parent_id.data))
                     if parent.user.email:
-                        if parent.user.email == proposal.email: #check if parent comment & proposal owner are same
-                            if not g.user.email == parent.user.email:  #check if parent comment is by proposal owner
+                        if parent.user == proposal.user: #check if parent comment & proposal owner are same
+                            if not g.user == parent.user:  #check if parent comment is by proposal owner
                                 send_mail_info.append({'recipients': proposal.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
                                     'template': 'proposal_comment_reply_email.md'})
                         else:  #send mail to parent comment owner & proposal owner
-                            if not parent.user.email == g.user.email:
+                            if not parent.user == g.user:
                                 send_mail_info.append({'recipients': parent.user.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
                                     'template': 'proposal_comment_to_proposer_email.md'})
-                            if not proposal.email == g.user.email:
+                            if not proposal.user == g.user:
                                 send_mail_info.append({'recipients': proposal.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
                                     'template': 'proposal_comment_email.md'})
@@ -409,7 +409,7 @@ def viewsession(name, slug):
                     if parent and parent.commentspace == proposal.comments:
                         comment.parent = parent
                 else:  #for top level comment
-                    if not proposal.email == g.user.email:
+                    if not proposal.user == g.user:
                         send_mail_info.append({'recipients': proposal.email,
                             'subject': "%s Funnel:%s" % (name, proposal.title),
                             'template': 'proposal_comment_email.md'})
@@ -423,7 +423,7 @@ def viewsession(name, slug):
                     slug=proposal.urlname, _external=True) + "#c" + str(comment.id)
             for item in send_mail_info:
                 email_body = render_template(item.pop('template'), proposal=proposal, comment=comment, link=to_redirect)
-                send_mail(body=email_body, **item)
+                send_mail(sender=None, body=email_body, **item)
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
             return redirect(to_redirect, code=303)
