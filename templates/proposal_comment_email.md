@@ -1,4 +1,4 @@
-**{{ g.user.username }}** left a comment on your proposal -  **{{ proposal.title
+**{{ g.user.fullname }}** left a comment on your proposal -  **{{ proposal.title
 }}**.
 
 {{ comment.message }}
