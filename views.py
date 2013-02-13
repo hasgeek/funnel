@@ -341,8 +341,8 @@ def urllink(m):
     return '<a href="%s" rel="nofollow" target="_blank">%s</a>' % (s, s)
 
 
-def send_mail(sender, recipients, body, subject):
-    msg = Message(sender=sender, subject=subject, recipients=[recipients])
+def send_mail(sender, to, body, subject):
+    msg = Message(sender=sender, subject=subject, recipients=[to])
     msg.body = body
     msg.html = markdown(msg.body)
     mail.send(msg)
@@ -393,16 +393,16 @@ def viewsession(name, slug):
                     if parent.user.email:
                         if parent.user == proposal.user: #check if parent comment & proposal owner are same
                             if not g.user == parent.user:  #check if parent comment is by proposal owner
-                                send_mail_info.append({'recipients': proposal.email,
+                                send_mail_info.append({'to': proposal.user.email or proposal.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
                                     'template': 'proposal_comment_reply_email.md'})
                         else:  #send mail to parent comment owner & proposal owner
                             if not parent.user == g.user:
-                                send_mail_info.append({'recipients': parent.user.email,
+                                send_mail_info.append({'to': parent.user.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
                                     'template': 'proposal_comment_to_proposer_email.md'})
                             if not proposal.user == g.user:
-                                send_mail_info.append({'recipients': proposal.email,
+                                send_mail_info.append({'to': proposal.user.email or proposal.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
                                     'template': 'proposal_comment_email.md'})
 
@@ -410,7 +410,7 @@ def viewsession(name, slug):
                         comment.parent = parent
                 else:  #for top level comment
                     if not proposal.user == g.user:
-                        send_mail_info.append({'recipients': proposal.email,
+                        send_mail_info.append({'to': proposal.user.email or proposal.email,
                             'subject': "%s Funnel:%s" % (name, proposal.title),
                             'template': 'proposal_comment_email.md'})
                 comment.message_html = markdown(comment.message)
