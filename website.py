@@ -3,11 +3,13 @@
 
 import logging
 from flask.ext.assets import Environment, Bundle
+from flask.ext.mail import Mail
 
 from app import app
 app.config.from_object(__name__)
 try:
     app.config.from_object('settings')
+    mail = Mail(app)
 except ImportError:
     import sys
     print >> sys.stderr, "Please create a settings.py with the necessary settings. See settings-sample.py."
