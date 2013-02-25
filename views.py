@@ -366,6 +366,7 @@ def viewsession(name, slug):
     delcommentform = DeleteCommentForm()
     if request.method == 'POST':
         if request.form.get('form.id') == 'newcomment' and commentform.validate():
+            send_mail_info = []
             if commentform.edit_id.data:
                 comment = Comment.query.get(int(commentform.edit_id.data))
                 if comment:
@@ -381,7 +382,6 @@ def viewsession(name, slug):
             else:
                 comment = Comment(user=g.user, commentspace=proposal.comments,
                     message=commentform.message.data)
-                send_mail_info = []
                 if commentform.parent_id.data:
                     parent = Comment.query.get(int(commentform.parent_id.data))
                     if parent.user.email:
