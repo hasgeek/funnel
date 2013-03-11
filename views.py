@@ -3,6 +3,8 @@
 import re
 from datetime import datetime
 from markdown import Markdown
+import unicodecsv
+from cStringIO import StringIO
 
 from flask import (
     render_template,
@@ -13,7 +15,8 @@ from flask import (
     Markup,
     abort,
     flash,
-    escape)
+    escape,
+    Response)
 from flask.ext.lastuser import LastUser
 from flask.ext.lastuser.sqlalchemy import UserManager
 from flask.ext.mail import Message
@@ -42,6 +45,25 @@ jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
 # From http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 url_re = re.compile(ur'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''')
+
+proposal_headers = [
+    'id',
+    'title',
+    'url',
+    'proposer',
+    'speaker',
+    'email',
+    'phone',
+    'section',
+    'type',
+    'level',
+    'votes',
+    'votes_community',
+    'votes_committee',
+    'comments',
+    'submitted',
+    'confirmed'
+    ]
 
 # --- Routes ------------------------------------------------------------------
 
@@ -142,6 +164,19 @@ def viewspace_json(name):
         'sections': [{'name': s.name, 'title': s.title, 'description': s.description} for s in sections],
         'proposals': [proposal_data(proposal) for proposal in proposals]
         })
+
+
+@app.route('/<name>/csv')
+def viewspace_csv(name):
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
+    outfile = StringIO()
+    out = unicodecsv.writer(outfile, encoding='utf-8')
+    out.writerow(proposal_headers)
+    for proposal in proposals:
+        out.writerow(proposal_data_flat(proposal))
+    outfile.seek(0)
+    return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
 
 
 @app.route('/<name>/edit', methods=['GET', 'POST'])
@@ -485,6 +520,11 @@ def proposal_data(proposal):
             'submitted': proposal.created_at.isoformat() + 'Z',
             'confirmed': proposal.confirmed,
             }
+
+
+def proposal_data_flat(proposal):
+    data = proposal_data(proposal)
+    return [data[header] for header in proposal_headers]
 
 
 @app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
