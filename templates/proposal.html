@@ -84,8 +84,10 @@
         <dt>Section</dt>
         <dd>{{ proposal.section.title }}</dd>
       {%- endif %}
-      <dt>Session type</dt>
-      <dd>{{ proposal.session_type }}</dd>
+      {%- if proposal.session_type %}
+        <dt>Session type</dt>
+        <dd>{{ proposal.session_type }}</dd>
+      {%- endif %}
       <dt>Technical level</dt>
       <dd>{{ proposal.technical_level }}</dd>
     </dl>

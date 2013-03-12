@@ -268,7 +268,7 @@ class Proposal(BaseMixin, db.Model):
         backref="proposals")
     objective = db.Column(db.Text, nullable=False)
     objective_html = db.Column(db.Text, nullable=False)
-    session_type = db.Column(db.Unicode(40), nullable=False)
+    session_type = db.Column(db.Unicode(40), nullable=False, default=u'')
     technical_level = db.Column(db.Unicode(40), nullable=False)
     description = db.Column(db.Text, nullable=False)
     description_html = db.Column(db.Text, nullable=False)

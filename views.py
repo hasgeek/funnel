@@ -222,6 +222,7 @@ def newsession(name):
     if space.status != SPACESTATUS.SUBMISSIONS:
         abort(403)
     form = ProposalForm()
+    del form.session_type  # We don't use this anymore
     # Set markdown flag to True for fields that need markdown conversion
     markdown_attrs = ('description', 'objective', 'requirements', 'bio')
     for name in markdown_attrs:
@@ -270,6 +271,8 @@ def editsession(name, slug):
     if proposal.user != g.user and not lastuser.has_permission('siteadmin'):
         abort(403)
     form = ProposalForm(obj=proposal)
+    if not proposal.session_type:
+        del form.session_type  # Remove this if we're editing a proposal that had no session type
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
