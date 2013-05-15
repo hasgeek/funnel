@@ -1,0 +1,14 @@
+{% extends "inc/layout.html" %}
+{% block title %}{{ usergroup.title }} &mdash; {{ space.title }}{% endblock %}
+{% block content %}
+  <h2>Users</h2>
+  <ol>
+    {%- for user in usergroup.users %}
+      <li>{{ user.fullname }} {%- if user.username %} (~{{ user.username }}){% endif %}</li>
+    {% else %}
+      <li><em>(No users)</em></li>
+    {%- endfor %}
+  </ol>
+  <p>
+    <a href="{{ url_for('usergroup_edit', name=space.name, group=usergroup.name) }}">Edit this group &rarr;</a>
+{% endblock %}

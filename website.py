@@ -37,8 +37,3 @@ def init_for(env):
     baseframe.init_app(app, requires=[
         'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'baseframe-networkbar', 'funnel'
         ])
-
-if __name__ == '__main__':
-    models.db.create_all()
-    init_for('dev')
-    app.run('0.0.0.0', port=3000, debug=True)

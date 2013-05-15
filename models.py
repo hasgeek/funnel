@@ -6,7 +6,7 @@ from app import app
 from utils import makename
 
 __all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
-           'VoteSpace', 'Vote', 'CommentSpace', 'Comment']
+           'VoteSpace', 'Vote', 'CommentSpace', 'Comment', 'UserGroup']
 
 db = SQLAlchemy(app)
 
@@ -303,9 +303,26 @@ class Proposal(BaseMixin, db.Model):
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
-            Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
+                Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
 
     def getprev(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
-            Proposal.created_at > self.created_at).order_by('created_at').first()
+                Proposal.created_at > self.created_at).order_by('created_at').first()
+
+
+group_members = db.Table(
+    'group_members', db.Model.metadata,
+    db.Column('group_id', db.Integer, db.ForeignKey('user_group.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    )
+
+
+class UserGroup(BaseMixin, db.Model):
+    __tablename__ = 'user_group'
+    name = db.Column(db.Unicode(250), nullable=False)
+    title = db.Column(db.Unicode(250), nullable=False)
+    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
+        backref=db.backref('usergroups', cascade="all, delete-orphan"))
+    users = db.relationship(User, secondary=group_members)

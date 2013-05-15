@@ -2,8 +2,6 @@
 
 import flask.ext.wtf as wtf
 
-from models import SPACESTATUS, ProposalSpaceSection
-
 
 class ProposalSpaceForm(wtf.Form):
     name = wtf.TextField('URL name', validators=[wtf.Required()])
@@ -30,9 +28,16 @@ class SectionForm(wtf.Form):
     public = wtf.BooleanField('Public?')
 
 
+class UserGroupForm(wtf.Form):
+    name = wtf.TextField('URL name', validators=[wtf.Required()])
+    title = wtf.TextField('Title', validators=[wtf.Required()])
+    users = wtf.TextAreaField('Users', validators=[wtf.Required()],
+        description="Usernames or email addresses, one per line")
+
+
 class ProposalForm(wtf.Form):
     email = wtf.html5.EmailField('Your email address', validators=[wtf.Required()],
-        description="An email address we can contact you at. "\
+        description="An email address we can contact you at. "
             "Not displayed anywhere")
     phone = wtf.TextField('Phone number', validators=[wtf.Required()],
         description="A phone number we can call you at to discuss your proposal, if required. "
@@ -64,11 +69,11 @@ class ProposalForm(wtf.Form):
     requirements = wtf.TextAreaField('Requirements',
         description="For workshops, what must participants bring to the session?")
     slides = wtf.html5.URLField('Slides', validators=[wtf.Optional(), wtf.URL()],
-        description="Link to your slides. These can be just an outline initially. "\
+        description="Link to your slides. These can be just an outline initially. "
             "If you provide a Slideshare link, we'll embed slides in the page")
     links = wtf.TextAreaField('Links',
-        description="Other links, one per line. Provide links to your profile and "\
-            "slides and videos from your previous sessions; anything that'll help "\
+        description="Other links, one per line. Provide links to your profile and "
+            "slides and videos from your previous sessions; anything that'll help "
             "folks decide if they want to attend your session")
     bio = wtf.TextAreaField('Speaker bio', validators=[wtf.Required()],
         description="Tell us why you are the best person to be taking this session")

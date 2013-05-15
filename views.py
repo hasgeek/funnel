@@ -26,6 +26,7 @@ from models import *
 from forms import (
     ProposalSpaceForm,
     SectionForm,
+    UserGroupForm,
     ProposalForm,
     CommentForm,
     DeleteCommentForm,
@@ -205,6 +206,75 @@ def newsection(name):
         flash("Your new section has been added", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
     return render_template('autoform.html', form=form, title="New section", submit="Create section")
+
+
+@app.route('/<name>/users')
+@lastuser.requires_permission('siteadmin')
+def usergroup_list(name):
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    return render_template('usergroups.html', space=space, usergroups=space.usergroups)
+
+
+@app.route('/<name>/users/<group>')
+@lastuser.requires_permission('siteadmin')
+def usergroup_view(name, group):
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
+    return render_template('usergroup.html', space=space, usergroup=usergroup)
+
+
+@app.route('/<name>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
+@app.route('/<name>/users/<group>/edit', methods=['GET', 'POST'])
+@lastuser.requires_permission('siteadmin')
+def usergroup_edit(name, group):
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    form = UserGroupForm()
+    if group is not None:
+        usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
+        if request.method == 'GET':
+            form.name.data = usergroup.name
+            form.title.data = usergroup.title
+            form.users.data = '\r\n'.join([u.email or u.username for u in usergroup.users])
+    if form.validate_on_submit():
+        if group is None:
+            usergroup = UserGroup(proposal_space=space)
+        usergroup.name = form.name.data
+        usergroup.title = form.title.data
+        formdata = [line.strip() for line in
+            form.users.data.replace('\r', '\n').replace(',', '\n').split('\n') if line]
+        usersdata = lastuser.getusers(names=formdata)
+        users = []
+        for userdata in usersdata:
+            user = User.query.filter_by(userid=userdata['userid']).first()
+            if user is None:
+                user = User(userid=userdata['userid'], username=userdata['name'], fullname=userdata['title'])
+                db.session.add(user)
+            users.append(user)
+        usergroup.users = users
+        db.session.commit()
+        return redirect(url_for('usergroup_view', name=space.name, group=usergroup.name), code=303)
+    if group is None:
+        return render_template('autoform.html', form=form, title="New user group", submit="Create")
+    else:
+        return render_template('autoform.html', form=form, title="Edit user group", submit="Save")
+
+
+@app.route('/<name>/users/<group>/delete', methods=['GET', 'POST'])
+@lastuser.requires_permission('siteadmin')
+def usergroup_delete(name, group):
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
+    form = ConfirmDeleteForm()
+    if form.validate_on_submit():
+        if 'delete' in request.form:
+            db.session.delete(usergroup)
+            db.session.commit()
+            flash("Your user group has been deleted", "info")
+            return redirect(url_for('usergroup_list', name=name))
+        else:
+            return redirect(url_for('usergroup_view', name=name, group=group))
+    return render_template('delete.html', form=form, title=u"Confirm delete",
+        message=u"Do you really wish to delete user group '%s'?" % usergroup.title)
 
 
 @app.route('/<name>/new', methods=['GET', 'POST'])
@@ -417,12 +487,12 @@ def viewsession(name, slug):
                 if commentform.parent_id.data:
                     parent = Comment.query.get(int(commentform.parent_id.data))
                     if parent.user.email:
-                        if parent.user == proposal.user: #check if parent comment & proposal owner are same
-                            if not g.user == parent.user:  #check if parent comment is by proposal owner
+                        if parent.user == proposal.user:  # check if parent comment & proposal owner are same
+                            if not g.user == parent.user:  # check if parent comment is by proposal owner
                                 send_mail_info.append({'to': proposal.user.email or proposal.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
                                     'template': 'proposal_comment_reply_email.md'})
-                        else:  #send mail to parent comment owner & proposal owner
+                        else:  # send mail to parent comment owner & proposal owner
                             if not parent.user == g.user:
                                 send_mail_info.append({'to': parent.user.email,
                                     'subject': "%s Funnel:%s" % (name, proposal.title),
@@ -434,7 +504,7 @@ def viewsession(name, slug):
 
                     if parent and parent.commentspace == proposal.comments:
                         comment.parent = parent
-                else:  #for top level comment
+                else:  # for top level comment
                     if not proposal.user == g.user:
                         send_mail_info.append({'to': proposal.user.email or proposal.email,
                             'subject': "%s Funnel:%s" % (name, proposal.title),
@@ -481,18 +551,24 @@ def proposal_data(proposal):
     votes_community = None
     votes_committee = None
     votes_count = None
+    votes_groups = None
     if lastuser.has_permission('siteadmin'):
         votes_community = 0
         votes_committee = 0
         votes_count = len(proposal.votes.votes)
+        votes_groups = dict([(g.name, 0) for g in proposal.proposal_space.usergroups])
         committee = set(request.args.getlist('c'))
+        groupuserids = dict([(g.name, [u.userid for u in g.users]) for g in proposal.proposal_space.usergroups])
         for vote in proposal.votes.votes:
             if vote.user.userid in committee:
                 votes_committee += -1 if vote.votedown else +1
             else:
                 votes_community += -1 if vote.votedown else +1
-    return {
-            'id': proposal.id,
+            for groupname, userids in groupuserids.items():
+                if vote.user.userid in userids:
+                    votes_groups[groupname] += -1 if vote.votedown else +1
+
+    return {'id': proposal.id,
             'name': proposal.urlname,
             'title': proposal.title,
             'url': url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname, _external=True),
@@ -513,6 +589,7 @@ def proposal_data(proposal):
             'votes_community': votes_community,
             'votes_committee': votes_committee,
             'votes_count': votes_count,
+            'votes_groups': votes_groups,
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat() + 'Z',
             'confirmed': proposal.confirmed,
@@ -521,7 +598,7 @@ def proposal_data(proposal):
 
 def proposal_data_flat(proposal):
     data = proposal_data(proposal)
-    return [data[header] for header in proposal_headers]
+    return [data[header] for header in proposal_headers if header != 'votes_groups']
 
 
 @app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
