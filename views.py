@@ -17,13 +17,11 @@ from flask import (
     flash,
     escape,
     Response)
-from flask.ext.lastuser import LastUser
-from flask.ext.lastuser.sqlalchemy import UserManager
 from flask.ext.mail import Message
 from coaster.views import get_next_url, jsonp
 
 from app import app
-from website import mail
+from website import mail, lastuser
 from models import *
 from forms import (
     ProposalSpaceForm,
@@ -34,10 +32,6 @@ from forms import (
     ConfirmDeleteForm,
     ConfirmSessionForm)
 from utils import makename
-
-lastuser = LastUser(app)
-lastuser.init_usermanager(UserManager(db, User))
-#lastuser.external_resource('email', 'http://iddev.hasgeek.in:7000/api/1/email', 'GET')
 
 markdown = Markdown(safe_mode="escape").convert
 

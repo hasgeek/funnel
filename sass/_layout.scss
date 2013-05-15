@@ -1,12 +1,15 @@
+@import "compass";
+
 body {
     font-family: $font-default;
     font-size: 100%;
 }
 
-header, #main, footer {
+header, #main, footer, .container {
     max-width: 930px;
     margin-left: auto;
     margin-right: auto;
+    @include pie-clearfix;
 }
 
 header, #main {
