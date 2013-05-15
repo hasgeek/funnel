@@ -53,8 +53,6 @@ proposal_headers = [
     'type',
     'level',
     'votes',
-    'votes_community',
-    'votes_committee',
     'comments',
     'submitted',
     'confirmed'
@@ -164,12 +162,16 @@ def viewspace_json(name):
 @app.route('/<name>/csv')
 def viewspace_csv(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    if lastuser.has_permission('siteadmin'):
+        usergroups = [g.name for g in space.usergroups]
+    else:
+        usergroups = []
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     outfile = StringIO()
     out = unicodecsv.writer(outfile, encoding='utf-8')
-    out.writerow(proposal_headers)
+    out.writerow(proposal_headers + ['votes_' + group for group in usergroups])
     for proposal in proposals:
-        out.writerow(proposal_data_flat(proposal))
+        out.writerow(proposal_data_flat(proposal, usergroups))
     outfile.seek(0)
     return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
 
@@ -548,22 +550,13 @@ def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
-    votes_community = None
-    votes_committee = None
     votes_count = None
     votes_groups = None
     if lastuser.has_permission('siteadmin'):
-        votes_community = 0
-        votes_committee = 0
         votes_count = len(proposal.votes.votes)
         votes_groups = dict([(g.name, 0) for g in proposal.proposal_space.usergroups])
-        committee = set(request.args.getlist('c'))
         groupuserids = dict([(g.name, [u.userid for u in g.users]) for g in proposal.proposal_space.usergroups])
         for vote in proposal.votes.votes:
-            if vote.user.userid in committee:
-                votes_committee += -1 if vote.votedown else +1
-            else:
-                votes_community += -1 if vote.votedown else +1
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:
                     votes_groups[groupname] += -1 if vote.votedown else +1
@@ -586,8 +579,6 @@ def proposal_data(proposal):
             'links': proposal.links,
             'bio': proposal.bio_html,
             'votes': proposal.votes.count,
-            'votes_community': votes_community,
-            'votes_committee': votes_committee,
             'votes_count': votes_count,
             'votes_groups': votes_groups,
             'comments': proposal.comments.count,
@@ -596,9 +587,12 @@ def proposal_data(proposal):
             }
 
 
-def proposal_data_flat(proposal):
+def proposal_data_flat(proposal, groups=[]):
     data = proposal_data(proposal)
-    return [data[header] for header in proposal_headers if header != 'votes_groups']
+    cols = [data[header] for header in proposal_headers if header != 'votes_groups']
+    for name in groups:
+        cols.append(data['votes_groups'][name])
+    return cols
 
 
 @app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
