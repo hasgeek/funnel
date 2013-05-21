@@ -14,7 +14,7 @@ bunch of requirements that can be installed with::
 Copy `settings-sample.py` to `settings.py`, edit as necessary, and start the
 server with::
 
-  $ python website.py
+  $ python runserver.py
 
 WSGI is recommended for production. Enable ``mod_wsgi`` in Apache and make a
 ``VirtualHost`` with::
