@@ -36,3 +36,6 @@ DEFAULT_MAIL_SENDER = ('Bill Gate', 'test@example.com')
 ADMINS=[]
 #: Log file
 LOGFILE='error.log'
+
+#: Messages (text or HTML)
+WELCOME_MESSAGE = "The funnel is a space for proposals and voting on events. Pick an event to get started."
