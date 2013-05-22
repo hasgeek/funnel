@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
 <p>
- The funnel is a space for proposals and voting on events. Pick an event to get started.
+{{ config['WELCOME_MESSAGE'] }}
 </p>
 {% if spaces %}
 <ul class="cardset">
