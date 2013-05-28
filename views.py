@@ -2,7 +2,6 @@
 
 import re
 from datetime import datetime
-from markdown import Markdown
 import unicodecsv
 from cStringIO import StringIO
 
@@ -19,6 +18,7 @@ from flask import (
     Response)
 from flask.ext.mail import Message
 from coaster.views import get_next_url, jsonp
+from coaster.gfm import markdown
 
 from app import app
 from website import mail, lastuser
@@ -33,8 +33,6 @@ from forms import (
     ConfirmDeleteForm,
     ConfirmSessionForm)
 from utils import makename
-
-markdown = Markdown(safe_mode="escape").convert
 
 jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
