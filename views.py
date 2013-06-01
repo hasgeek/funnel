@@ -93,7 +93,7 @@ def lastuserauth():
 
 @app.route('/login/notify')
 @lastuser.notification_handler
-def lastusernotify():
+def lastusernotify(user):
     # Save the user object
     db.session.commit()
 
