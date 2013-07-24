@@ -4,6 +4,8 @@ import re
 from datetime import datetime
 import unicodecsv
 from cStringIO import StringIO
+from pytz import timezone, utc
+from pytz.exceptions import UnknownTimeZoneError
 
 from flask import (
     render_template,
@@ -17,6 +19,7 @@ from flask import (
     escape,
     Response)
 from flask.ext.mail import Message
+from coaster import getbool
 from coaster.views import get_next_url, jsonp
 from coaster.gfm import markdown
 
@@ -557,6 +560,16 @@ def proposal_data(proposal):
     """
     votes_count = None
     votes_groups = None
+    votes_bydate = dict([(g.name, {}) for g in proposal.proposal_space.usergroups])
+
+    if 'tz' in request.args:
+        try:
+            tz = timezone(request.args['tz'])
+        except UnknownTimeZoneError:
+            abort(400)
+    else:
+        tz = None
+
     if lastuser.has_permission('siteadmin'):
         votes_count = len(proposal.votes.votes)
         votes_groups = dict([(g.name, 0) for g in proposal.proposal_space.usergroups])
@@ -565,6 +578,12 @@ def proposal_data(proposal):
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:
                     votes_groups[groupname] += -1 if vote.votedown else +1
+                    if tz:
+                        date = tz.normalize(vote.updated_at.replace(tzinfo=utc).astimezone(tz)).strftime('%Y-%m-%d')
+                    else:
+                        date = vote.updated_at.strftime('%Y-%m-%d')
+                    votes_bydate[groupname].setdefault(date, 0)
+                    votes_bydate[groupname][date] += -1 if vote.votedown else +1
 
     return {'id': proposal.id,
             'name': proposal.urlname,
@@ -586,6 +605,7 @@ def proposal_data(proposal):
             'votes': proposal.votes.count,
             'votes_count': votes_count,
             'votes_groups': votes_groups,
+            'votes_bydate': votes_bydate,
             'comments': proposal.comments.count,
             'submitted': proposal.created_at.isoformat() + 'Z',
             'confirmed': proposal.confirmed,
@@ -594,7 +614,7 @@ def proposal_data(proposal):
 
 def proposal_data_flat(proposal, groups=[]):
     data = proposal_data(proposal)
-    cols = [data[header] for header in proposal_headers if header != 'votes_groups']
+    cols = [data[header] for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
     for name in groups:
         cols.append(data['votes_groups'][name])
     return cols
