@@ -7,7 +7,7 @@ from flask import Flask
 from flask.ext.mail import Mail
 from flask.ext.lastuser import Lastuser
 from flask.ext.lastuser.sqlalchemy import UserManager
-from baseframe import baseframe, assets, Version
+from baseframe import baseframe_bs3, assets, Version
 from ._version import __version__
 
 
@@ -38,6 +38,6 @@ def init_for(env):
     mail.init_app(app)
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
-    baseframe.init_app(app, requires=[
-        'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'baseframe-networkbar', 'funnel'
+    baseframe_bs3.init_app(app, requires=[
+        'baseframe-bs3', 'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'funnel'
         ])
