@@ -19,14 +19,12 @@ from flask import (
     escape,
     Response)
 from flask.ext.mail import Message
-from coaster import getbool
 from coaster.views import get_next_url, jsonp
 from coaster.gfm import markdown
 
-from app import app
-from website import mail, lastuser
-from models import *
-from forms import (
+from .. import app, mail, lastuser
+from ..models import *
+from ..forms import (
     ProposalSpaceForm,
     SectionForm,
     UserGroupForm,
@@ -35,7 +33,7 @@ from forms import (
     DeleteCommentForm,
     ConfirmDeleteForm,
     ConfirmSessionForm)
-from utils import makename
+from ..utils import makename
 
 jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 

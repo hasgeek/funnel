@@ -2,8 +2,8 @@
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.lastuser.sqlalchemy import UserBase
-from app import app
-from utils import makename
+from ..utils import makename
+from .. import app
 
 __all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
            'VoteSpace', 'Vote', 'CommentSpace', 'Comment', 'UserGroup']
