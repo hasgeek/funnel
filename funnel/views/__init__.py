@@ -120,7 +120,7 @@ def account():
 # --- Routes: spaces ----------------------------------------------------------
 
 @app.route('/new', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
+#@lastuser.requires_permission('siteadmin')
 def newspace():
     form = ProposalSpaceForm()
     form.description.flags.markdown = True
