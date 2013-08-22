@@ -40,7 +40,7 @@
 #logo {
     @include replace-text-with-dimensions('logo.png');
     // width: 80%;
-    // height: 100px;
+    height: 75px;
 }
 
 #hg-networkbar.navbar .navbar-brand{

@@ -112,11 +112,12 @@ body.bp .hide {
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
-  background-image: url('../img/logo.png?1377178358');
+  background-image: url('../img/logo.png?1377200986');
   background-repeat: no-repeat;
   background-position: 50% 50%;
-  width: 145px;
-  height: 100px;
+  width: 110px;
+  height: 75px;
+  height: 75px;
 }
 
 #hg-networkbar.navbar .navbar-brand {
@@ -125,11 +126,11 @@ body.bp .hide {
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
-  background-image: url('../img/logo.png?1377178358');
+  background-image: url('../img/logo.png?1377200986');
   background-repeat: no-repeat;
   background-position: 50% 50%;
-  width: 145px;
-  height: 100px;
+  width: 110px;
+  height: 75px;
   height: 48px;
   background-position: left center;
   background-size: auto 100%;
