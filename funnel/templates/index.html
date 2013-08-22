@@ -1,35 +1,42 @@
 {% extends "inc/layout.html" %}
-{% block titletags -%}
-  <title>{{ config['SITE_TITLE'] }}</title>
-  <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
-{%- endblock %}
 
-{% block heading %}
-<h1>{{ config['SITE_TITLE'] }}</h1>
-{% endblock %}
+{#{% block baseheadline -%}#}
+  {#{% block headline -%}#}
+    <!-- <h1>{{ self.title()|e }}</h1> -->
+  {#{%- endblock %}#}
+{#{%- endblock %}#}
+
+
 {% block content %}
-<p>
-{{ config['WELCOME_MESSAGE'] }}
-</p>
-{% if spaces %}
-<ul class="cardset">
-  {% for space in spaces %}
-    <li>
-      <a href="{{ url_for('viewspace', name=space.name) }}">
-        <div class="title">
-          <h2>{{ space.title }}</h2>
-          <h3>{{ space.datelocation }}</h3>
-        </div>
-        <div class="body">
-          <p>{{ space.tagline }}</p>
-        </div>
-      </a>
-    </li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>
-  There are no discussion spaces at this time.
-</p>
-{% endif %}
+  <div class="row">
+    <div class="col-md-12">
+      {% block heading %}
+        <h1>{{ config['SITE_TITLE'] }}</h1>
+      {% endblock %}
+      <p>
+        {{ config['WELCOME_MESSAGE'] }}
+      </p>
+    </div>
+  </div>
+  <br />
+  {% if spaces %}
+    <ul class="cardset row">
+      {% for space in spaces %}
+        <li class="col-md-4 col-sm-6">
+          <a href="{{ url_for('viewspace', name=space.name) }}">
+            <div class="card-title">
+              <h2>{{ space.title }}</h2>
+              <h3>{{ space.datelocation }}</h3>
+            </div>
+            <div class="card-body">
+              <p>{{ space.tagline }}</p>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>There are no discussion spaces at this time.</p>
+  {% endif %}
+
 {% endblock %}
