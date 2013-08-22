@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask.ext.wtf import Form
+from baseframe.forms import Form
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -84,7 +84,7 @@ class ProposalForm(Form):
 
 class CommentForm(Form):
     parent_id = wtforms.HiddenField('Parent', default="", id="comment_parent_id")
-    edit_id = wtforms.HiddenField('Edit', default="", id="comment_edit_id")
+    comment_edit_id = wtforms.HiddenField('Edit', default="", id="comment_edit_id")
     message = wtforms.TextAreaField('Add comment', id="comment_message", validators=[wtforms.validators.Required()])
 
 

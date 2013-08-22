@@ -151,7 +151,7 @@
           <input type="hidden" name="form.id" value="newcomment"/>
           {{ commentform.hidden_tag() }}
           {{ commentform.parent_id() }}
-          {{ commentform.edit_id() }}
+          {{ commentform.comment_edit_id() }}
         </div>
         <p>
           {{ renderfield(commentform.message) }}

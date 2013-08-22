@@ -477,8 +477,8 @@ def viewsession(name, slug):
     if request.method == 'POST':
         if request.form.get('form.id') == 'newcomment' and commentform.validate():
             send_mail_info = []
-            if commentform.edit_id.data:
-                comment = Comment.query.get(int(commentform.edit_id.data))
+            if commentform.comment_edit_id.data:
+                comment = Comment.query.get(int(commentform.comment_edit_id.data))
                 if comment:
                     if comment.user == g.user:
                         comment.message = commentform.message.data

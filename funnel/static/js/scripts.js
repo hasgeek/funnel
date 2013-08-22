@@ -74,7 +74,7 @@ function commentsInit(pageURL) {
     $(".comments .comment-reply").click(function() {
         var cfooter = $(this).parent();
         $('#newcomment input[name="parent_id"]').val(cfooter.attr('data-id'));
-        $('#newcomment input[name="edit_id"]').val('');
+        $('#newcomment input[name="comment_edit_id"]').val('');
         $("#toplevel-comment").removeClass('hidden');
         $("#comment-submit").val("Reply"); // i18n gotcha
         cfooter.after($("#newcomment"));
@@ -84,7 +84,7 @@ function commentsInit(pageURL) {
 
     $("#toplevel-comment a").click(function() {
         $('#newcomment input[name="parent_id"]').val('');
-        $('#newcomment input[name="edit_id"]').val('');
+        $('#newcomment input[name="comment_edit_id"]').val('');
         $("#comment-submit").val("Post comment"); // i18n gotcha
         $(this).parent().after($("#newcomment"));
         $(this).parent().addClass('hidden');
@@ -112,7 +112,7 @@ function commentsInit(pageURL) {
             $("#newcomment textarea").val(data.message);
             });
         $('#newcomment input[name="parent_id"]').val('');
-        $('#newcomment input[name="edit_id"]').val(cid);
+        $('#newcomment input[name="comment_edit_id"]').val(cid);
         $("#toplevel-comment").removeClass('hidden');
         $("#comment-submit").val("Save changes"); // i18n gotcha
         cfooter.after($("#newcomment"));
