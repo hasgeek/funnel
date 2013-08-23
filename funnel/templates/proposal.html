@@ -3,26 +3,32 @@
 {% from "inc/comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
+
+{% block baseheadline -%}
+  {% block headline -%}{%- endblock %}
+{%- endblock %}
+
 {% block content %}
+
+
 {#<p style="margin-top: 0; font-size: 80%;">
   <a href="{{ url_for('viewspace', name=space.name) }}">&larr; Return to {{ space.title }}</a>
   {% if proposal.user == g.user %}| <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this &rarr;</a>{% endif %}
 </p>#}
-<div class="infosheet">
+
+
+<div class="col-md-1">
   <div class="leftear">
     {%- if proposal.getprev() -%}
-      <a href="{{ url_for('prevsession', name=space.name, slug=proposal.urlname) }}" title="Previous">&lt;</a>
+      <a href="{{ url_for('prevsession', name=space.name, slug=proposal.urlname) }}" title="Previous"><i class="icon-chevron-left"></i></a>
     {%- else -%}
-      <span>&lt;</span>
+      <i class="icon-chevron-left"></i>
     {%- endif -%}
   </div>
-  <div class="rightear">
-    {%- if proposal.getnext() -%}
-      <a href="{{ url_for('nextsession', name=space.name, slug=proposal.urlname) }}" title="Next">&gt;</a>
-    {%- else -%}
-      <span>&gt;</span>
-    {%- endif -%}
-  </div>
+</div>
+    
+<div class="col-md-10">
+  <div class="infosheet">
   <div class="section first">
     <div class="votebox">
       {%- set vote = proposal.votes.getvote(g.user) %}
@@ -175,6 +181,18 @@
     {% endif %}
   </div>
 </div>
+</div>
+
+<div class="col-md-1">
+  <div class="rightear">
+    {%- if proposal.getnext() -%}
+      <a href="{{ url_for('nextsession', name=space.name, slug=proposal.urlname) }}" title="Next"><i class="icon-chevron-right"></i></a>
+    {%- else -%}
+      <i class="icon-chevron-right"></i>
+    {%- endif -%}
+  </div>
+</div>
+
 {% endblock %}
 
 {% block footerscripts %}

@@ -1,11 +1,8 @@
 {% extends "inc/layout.html" %}
 
-{#{% block baseheadline -%}#}
-  {#{% block headline -%}#}
-    <!-- <h1>{{ self.title()|e }}</h1> -->
-  {#{%- endblock %}#}
-{#{%- endblock %}#}
-
+{% block baseheadline -%}
+  {% block headline -%}{%- endblock %}
+{%- endblock %}
 
 {% block content %}
   <div class="row">

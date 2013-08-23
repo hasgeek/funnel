@@ -15,6 +15,11 @@
   </div>
 {% endblock %}
 
+{% block baseheadline -%}
+  {% block headline -%}
+    <h1>{{ self.title()|e }}</h1>
+  {%- endblock %}
+{%- endblock %}
 {% block basecontent -%}
   {% block content %}{% endblock %}
 {%- endblock %}

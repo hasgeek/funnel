@@ -183,7 +183,7 @@ def viewspace_csv(name):
 
 
 @app.route('/<name>/edit', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
+#@lastuser.requires_permission('siteadmin')
 def editspace(name):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
