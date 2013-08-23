@@ -1,3 +1,4 @@
+@charset "UTF-8";
 body.bp {
   line-height: 1.5;
   font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -142,6 +143,10 @@ ul, ol {
   margin-left: 30px;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+}
+
 h1 {
   margin-top: 0;
   margin-bottom: 20px;
@@ -236,6 +241,48 @@ dl.bar dd:last-child {
   -ms-box-flex: 0;
   box-flex: 0;
   margin: 0;
+}
+
+.breadcrumbs {
+  *zoom: 1;
+  list-style: none;
+  margin-top: -1em;
+  margin-bottom: 1em;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0;
+}
+.breadcrumbs:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.breadcrumbs li {
+  float: left;
+  padding: 0.25em 0.25em;
+  font-size: 80%;
+}
+.breadcrumbs li:before {
+  content: "→";
+  padding-right: 0.5em;
+}
+.breadcrumbs li:first-child:before {
+  content: "";
+  padding-right: 0;
+}
+.breadcrumbs li.home {
+  text-indent: -119988px;
+  overflow: hidden;
+  text-align: left;
+  background-image: url('../img/home.png?1377178358');
+  background-repeat: no-repeat;
+  background-position: 12 22;
+  width: 12px;
+  height: 22px;
+  padding: 0 0.2em 0 0;
+}
+.breadcrumbs li.home a {
+  display: block;
 }
 
 /* Form elements */
@@ -504,6 +551,48 @@ span.loading {
 }
 span.loading.hidden {
   display: none;
+}
+
+/* Tables */
+table.listing {
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.listing thead > tr > th, .listing tbody > tr > th, .listing tfoot > tr > th, .listing thead > tr > td, .listing tbody > tr > td, .listing tfoot > tr > td {
+  padding: 4px;
+}
+
+.listing tr:nth-of-type(even) {
+  background: #f6f6f6;
+}
+.listing tr:nth-of-type(even) a {
+  font-size: 12px;
+}
+
+.listing thead th {
+  background: #e8e8e8;
+  padding: 0.4em 1em 0.2em;
+}
+
+.listing tfoot th, .listing tfoot td {
+  background: #e8e8e8;
+}
+
+.listing th.num, .listing td.num {
+  text-align: right;
+}
+
+.listing tr.link a,
+.listing tbody.link a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.listing tr.link:hover,
+.listing tbody.link:hover tr {
+  background: #d9e8f0;
 }
 
 .infosheet {

@@ -86,6 +86,10 @@ ul, ol{
 //     color: #888;
 // }
 
+h1, h2, h3, h4, h5, h6{
+    font-weight: 600;
+}
+
 h1 {
     // font-size: 30px;
     // color: $color-title-h1;
@@ -237,37 +241,37 @@ dl.bar {
 //     height: 48px;
 // }
 
-// .breadcrumbs {
-//     @include pie-clearfix;
-//     list-style: none;
-//     margin: {
-//         top: -1em;
-//         bottom: 1em;
-//         left: 0;
-//         right: 0;
-//     }
-//     padding: 0;
-//     li {
-//         float: left;
-//         padding: 0.25em 0.25em;
-//         font-size: 80%;
-//         &:before {
-//             content: "→";
-//             padding-right: 0.5em;
-//         }
-//         &:first-child:before {
-//             content: "";
-//             padding-right: 0;
-//         }
-//         &.home {
-//             @include replace-text-with-dimensions('home.png', 12, 22);
-//             padding: 0 0.2em 0 0;
-//             a {
-//                 display: block;
-//             }
-//         }
-//     }
-// }
+.breadcrumbs {
+    @include pie-clearfix;
+    list-style: none;
+    margin: {
+        top: -1em;
+        bottom: 1em;
+        left: 0;
+        right: 0;
+    }
+    padding: 0;
+    li {
+        float: left;
+        padding: 0.25em 0.25em;
+        font-size: 80%;
+        &:before {
+            content: "→";
+            padding-right: 0.5em;
+        }
+        &:first-child:before {
+            content: "";
+            padding-right: 0;
+        }
+        &.home {
+            @include replace-text-with-dimensions('home.png', 12, 22);
+            padding: 0 0.2em 0 0;
+            a {
+                display: block;
+            }
+        }
+    }
+}
 
 // .usertools {
 //     list-style: none;
@@ -580,65 +584,61 @@ span.loading {
     }
 }
 
-// /* Tables */
-// table.listing {
-//     width: 100%;
-//     border-top: 1px solid $color-listing-outline;
-//     border-bottom: 1px solid $color-listing-outline;
-//     border-collapse: collapse;
-//     font-size: 85%;
-//     @include single-box-shadow(rgba(0, 0, 0, 0.1), 0, 1px, 2px);
-// }
-
+/* Tables */
+table.listing {
+    //width: 100%;
+    //font-size: 85%;
+    @include single-box-shadow(rgba(0, 0, 0, 0.1), 0, 1px, 2px);
+}
+.listing thead > tr > th, .listing tbody > tr > th, .listing tfoot > tr > th, .listing thead > tr > td, .listing tbody > tr > td, .listing tfoot > tr > td {
+    padding: 4px;
+}
 // .listing th, .listing td {
 //     padding: 0.2em 1em;
 //     text-align: left;
 //     vertical-align: top;
-//     border-left: 1px solid $color-listing-outline;
-//     border-right: 1px solid $color-listing-outline;
 // }
 
 // .listing td.separator,
 // .listing tbody.separator {
-//     border-bottom: 1px solid $color-listing-outline;
 // }
 
-// .listing tr:nth-of-type(even) {
-//     background: $color-listing-even;
-// }
+.listing tr:nth-of-type(even) {
+    background: $color-listing-even;
+    a{
+        font-size: 12px;
+    }
+}
 
-// .listing thead th {
-//     background: $color-listing-background;
-//     padding: 0.4em 1em 0.2em;
-// }
+.listing thead th {
+    background: $color-listing-background;
+    padding: 0.4em 1em 0.2em;
+}
 
-// .listing thead th, .listing thead td {
-//     border-bottom: 1px solid $color-listing-outline;
-// }
+// .listing thead th, .listing thead td {}
 
-// .listing tfoot th, .listing tfoot td {
-//     border-top: 1px solid $color-listing-outline;
-//     background: $color-listing-background;
-// }
+.listing tfoot th, .listing tfoot td {
+    background: $color-listing-background;
+}
 
-// .listing th.num, .listing td.num {
-//     text-align: right;
-// }
+.listing th.num, .listing td.num {
+    text-align: right;
+}
 
-// .listing tr.link a,
-// .listing tbody.link a {
-//     text-decoration: none;
-//     border-bottom: 0;
-//     display: block;
-//     margin: -0.2em -1em;
-//     padding: 0.2em 1em;
-//     color: inherit;
-// }
+.listing tr.link a,
+.listing tbody.link a {
+    text-decoration: none;
+    // border-bottom: 0;
+    // display: block;
+    // margin: -0.2em -1em;
+    // padding: 0.2em 1em;
+    color: inherit;
+}
 
-// .listing tr.link:hover,
-// .listing tbody.link:hover tr {
-//     background: $color-listing-hover;
-// }
+.listing tr.link:hover,
+.listing tbody.link:hover tr {
+    background: $color-listing-hover;
+}
 
 // ul.cardset {
 //     @include pie-clearfix;

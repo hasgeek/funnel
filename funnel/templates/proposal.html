@@ -4,13 +4,9 @@
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 
-{% block baseheadline -%}
-  {% block headline -%}{%- endblock %}
-{%- endblock %}
+{% block headline -%}{%- endblock %}
 
 {% block content %}
-
-
 {#<p style="margin-top: 0; font-size: 80%;">
   <a href="{{ url_for('viewspace', name=space.name) }}">&larr; Return to {{ space.title }}</a>
   {% if proposal.user == g.user %}| <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this &rarr;</a>{% endif %}
