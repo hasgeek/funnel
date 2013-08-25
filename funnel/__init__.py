@@ -22,7 +22,7 @@ version = Version(__version__)
 assets['jquery.oembed.js'][version] = 'js/libs/jquery.oembed.js'
 assets['showdown.js'][version] = 'js/libs/showdown.js'
 assets['funnel.js'][version] = 'js/scripts.js'
-assets['funnel.css'][version] = 'css/screen.css'
+assets['funnel.css'][version] = 'css/app.css'
 
 
 # --- Import rest of the app --------------------------------------------------

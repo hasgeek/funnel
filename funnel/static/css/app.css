@@ -152,10 +152,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-h2 {
-  color: #816894;
-}
-
 a, a:active, a:visited {
   text-decoration: none;
   color: #816894;
@@ -427,130 +423,9 @@ span.description {
   color: #666;
 }
 
-form {
-  margin-bottom: 1em;
-}
-
-input, textarea, select {
-  font-family: ff-meta-web-pro-1, ff-meta-web-pro-2, "Droid Sans", arial, sans-serif;
-}
-
-fieldset {
-  *zoom: 1;
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-fieldset:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
 textarea {
   width: 100%;
   height: 10em;
-}
-
-textarea, input[type="text"], input[type="password"], input[type="email"], input[type="url"], select {
-  padding: 5px;
-  color: #444;
-  border: 1px solid #b7b7b7;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
-  border-radius: 3px;
-}
-
-textarea, input[type="text"], input[type="password"], input[type="email"], input[type="url"] {
-  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
-  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
-}
-
-input[type="text"], input[type="email"], input[type="password"], input[type="url"] {
-  width: 250px;
-  height: 20px;
-  margin-bottom: 5px;
-  background: #fff;
-}
-
-input[type="url"] {
-  width: 500px;
-}
-
-input[name="title"] {
-  font-weight: bold;
-  font-size: 120%;
-  width: 500px;
-}
-
-select {
-  margin-bottom: 5px;
-}
-
-input[name="openid"] {
-  background: url('../img/openid.png?1377178358') 4px no-repeat;
-  width: 230px;
-  padding-left: 25px;
-}
-
-input[type="submit"] {
-  height: 27px;
-  border: 1px solid #b7b7b7;
-  font-family: ff-meta-web-pro-1, ff-meta-web-pro-2, "Droid Sans", arial, sans-serif;
-  font-size: 14px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
-  border-radius: 3px;
-  padding: 0 12px;
-  background: #e6e6e6;
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e6e6e6), color-stop(100%, #d6d6d6));
-  background-image: -webkit-linear-gradient(#e6e6e6, #d6d6d6);
-  background-image: -moz-linear-gradient(#e6e6e6, #d6d6d6);
-  background-image: -o-linear-gradient(#e6e6e6, #d6d6d6);
-  background-image: linear-gradient(#e6e6e6, #d6d6d6);
-  font-weight: bold;
-  color: #444;
-  vertical-align: text-bottom;
-}
-input[type="submit"]:hover {
-  background: #d6d6d6;
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #d6d6d6), color-stop(100%, #c6c6c6));
-  background-image: -webkit-linear-gradient(#d6d6d6, #c6c6c6);
-  background-image: -moz-linear-gradient(#d6d6d6, #c6c6c6);
-  background-image: -o-linear-gradient(#d6d6d6, #c6c6c6);
-  background-image: linear-gradient(#d6d6d6, #c6c6c6);
-}
-
-input[type="submit"].delete {
-  border: 1px solid #d47645;
-  background: #ff8e53;
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff8e53), color-stop(100%, #ee7e43));
-  background-image: -webkit-linear-gradient(#ff8e53, #ee7e43);
-  background-image: -moz-linear-gradient(#ff8e53, #ee7e43);
-  background-image: -o-linear-gradient(#ff8e53, #ee7e43);
-  background-image: linear-gradient(#ff8e53, #ee7e43);
-}
-input[type="submit"].delete:hover {
-  background: #ee7e43;
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff8e53), color-stop(100%, #dd6e33));
-  background-image: -webkit-linear-gradient(#ff8e53, #dd6e33);
-  background-image: -moz-linear-gradient(#ff8e53, #dd6e33);
-  background-image: -o-linear-gradient(#ff8e53, #dd6e33);
-  background-image: linear-gradient(#ff8e53, #dd6e33);
-}
-
-span.loading {
-  display: inline-block;
-  background: url('../img/ajax-loader.gif?1377178358') center no-repeat;
-  width: 16px;
-  height: 16px;
-}
-span.loading.hidden {
-  display: none;
 }
 
 /* Tables */

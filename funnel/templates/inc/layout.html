@@ -7,6 +7,8 @@
   <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
 {%- endblock %}
 
+{% block networkbar %}{{ networkbar(siteid=config['SITE_ID'], login=config['LASTUSER_CLIENT_ID'] and true or false) }}{% endblock %}
+
 {% block flashmessages %}
   <div id="flash-messages">
     {%- for category, msg in get_flashed_messages(with_categories=true) %}
