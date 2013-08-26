@@ -1,3 +1,9 @@
+@import "blueprint";
+
+//Recommended Blueprint configuration with scoping and semantic layout:
+body.bp {
+  @include blueprint-print(true); }
+
 @media print {
   * { background: transparent !important; color: #444 !important; text-shadow: none !important; }
   a, a:visited { color: #444 !important; text-decoration: underline; }
