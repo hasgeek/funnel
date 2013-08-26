@@ -6,7 +6,6 @@
 
 #logo {
     @include replace-text-with-dimensions('logo.png');
-    // width: 80%;
     height: 75px;
 }
 
@@ -93,20 +92,20 @@ dl.bar {
     }
 }
 
-// img.avatar {
-//     padding: 3px;
-//     border: 1px solid $color-outline;
-//     @include border-radius(3px);
-//     @include single-box-shadow(rgba(0, 0, 0, 0.1), 0, 1px, 2px);
-// }
+img.avatar {
+    padding: 3px;
+    border: 1px solid $color-outline;
+    @include border-radius(3px);
+    @include single-box-shadow(rgba(0, 0, 0, 0.1), 0, 1px, 2px);
+}
 
-// img.login_avatar {
-//     position: absolute;
-//     right: 1em;
-//     top: 1em;
-//     width: 48px;
-//     height: 48px;
-// }
+img.login_avatar {
+    position: absolute;
+    right: 1em;
+    top: 1em;
+    width: 48px;
+    height: 48px;
+}
 
 .breadcrumbs {
     @include pie-clearfix;
@@ -139,33 +138,6 @@ dl.bar {
         }
     }
 }
-
-// .usertools {
-//     list-style: none;
-//     position: absolute;
-//     right: 1.25em; // (100%/80% = 1.25)
-//     bottom: 0;
-//     margin: 0;
-//     font-size: 80%;
-//     li {
-//         float: left;
-//         padding: 0.25em 0.5em;
-//         border-right: 1px solid $color-outline-thin;
-//         a {
-//             text-decoration: none;
-//             border-bottom: 0;
-//         }
-//         &.profile {
-//             font-weight: bold;
-//         }
-//         &:last-child {
-//             border-right: 0;
-//             padding-right: 0;
-//         }
-//     }
-// }
-
-
 
 /* Form elements */
 @mixin small-field {
@@ -317,109 +289,40 @@ textarea {
     height: 10em;
 }
 
-// textarea, input[type="text"], input[type="password"], input[type="email"], input[type="url"], select {
-//     //display: block;
-//     padding: 5px;
-//     color: #444;
-//     border: 1px solid $color-outline;
-//     @include border-radius(3px);
-// }
+textarea{
+    //display: block;
+    padding: 5px;
+    color: #444;
+    border: 1px solid $color-outline;
+    @include border-radius(3px);
+}
 
-// textarea, input[type="text"], input[type="password"], input[type="email"], input[type="url"] {
-//     -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
-//        -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
-//             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
-//     }
+textarea{
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
+       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(255, 255, 255, 0.5) inset;
+}
+.field-title{
+    width: 100%;
+}
 
-// input[type="text"], input[type="email"], input[type="password"], input[type="url"] {
-//     width: 250px;
-//     height: 20px;
-//     margin-bottom: 5px;
-//     background: #fff;
-// }
-
-// input[type="url"] {
-//     width: 500px;
-// }
-
-// input[name="title"] {
-//     font-weight: bold;
-//     font-size: 120%;
-//     width: 500px;
-// }
-
-// select {
-//     margin-bottom: 5px;
-// }
-
-// input[name="openid"] {
-//     background: image-url("openid.png") 4px no-repeat;
-//     width: 230px;
-//     padding-left: 25px;
-// }
-
-// input[type="submit"] {
-//     height: 27px;
-//     border: 1px solid $color-outline;
-//     font-family: $font-button;
-//     font-size: 14px;
-//     @include border-radius(3px);
-//     padding: 0 12px;
-//     background: #e6e6e6;
-//     //@include linear-gradient(color-stops(#e6e6e6, #d6d6d6));
-//     @include background-image(linear-gradient(#e6e6e6, #d6d6d6));
-//     font-weight: bold;
-//     color: #444;
-//     vertical-align: text-bottom;
-//     &:hover {
-//         //text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-//         background: #d6d6d6;
-//         //@include linear-gradient(color-stops(#d6d6d6, #c6c6c6));
-//         @include background-image(linear-gradient(#d6d6d6, #c6c6c6));
-//         //color: #fff;
-//     }
-// }
-
-// input[type="submit"].delete {
-//     border: 1px solid #d47645;
-//     background: #ff8e53;
-//     //@include linear-gradient(color-stops(#ff8e53, #ee7e43));
-//     @include background-image(linear-gradient(#ff8e53, #ee7e43));
-//     &:hover {
-//         background: #ee7e43;
-//         //@include linear-gradient(color-stops(#ff8e53, #dd6e33));
-//         @include background-image(linear-gradient(#ff8e53, #dd6e33));
-//     }
-// }
-
-// span.loading {
-//     display: inline-block;
-//     background: image-url("ajax-loader.gif") center no-repeat;
-//     width: 16px;
-//     height: 16px;
-//     &.hidden {
-//         display: none;
-//     }
-// }
+span.loading {
+    display: inline-block;
+    background: image-url("ajax-loader.gif") center no-repeat;
+    width: 16px;
+    height: 16px;
+    &.hidden {
+        display: none;
+    }
+}
 
 /* Tables */
 table.listing {
-    //width: 100%;
-    //font-size: 85%;
     @include single-box-shadow(rgba(0, 0, 0, 0.1), 0, 1px, 2px);
 }
 .listing thead > tr > th, .listing tbody > tr > th, .listing tfoot > tr > th, .listing thead > tr > td, .listing tbody > tr > td, .listing tfoot > tr > td {
     padding: 4px;
 }
-// .listing th, .listing td {
-//     padding: 0.2em 1em;
-//     text-align: left;
-//     vertical-align: top;
-// }
-
-// .listing td.separator,
-// .listing tbody.separator {
-// }
 
 .listing tr:nth-of-type(even) {
     background: $color-listing-even;
@@ -446,10 +349,6 @@ table.listing {
 .listing tr.link a,
 .listing tbody.link a {
     text-decoration: none;
-    // border-bottom: 0;
-    // display: block;
-    // margin: -0.2em -1em;
-    // padding: 0.2em 1em;
     color: inherit;
 }
 
@@ -457,63 +356,6 @@ table.listing {
 .listing tbody.link:hover tr {
     background: $color-listing-hover;
 }
-
-// ul.cardset {
-//     @include pie-clearfix;
-//     list-style: none;
-//     margin: 1.5em 0 1em 0;
-//     padding: 0;
-
-//     li {
-//         background: #fff;
-//         vertical-align: top;
-//         margin: 0 0.5em 0.5em 0;
-//         padding: 0;
-//         width: 300px;
-//         border: 1px solid $color-card-border;
-//         display: block;
-//         float: left;
-//         @include border-radius(4px);
-//         -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 0, 0, 0.1) inset;
-//            -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 0, 0, 0.1) inset;
-//                 box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 0, 0, 0.1) inset;
-//         &:hover {
-//             background: #f6f6f6;
-//         }
-//         a, a:hover, a:active, a:visited {
-//             color: inherit;
-//             display: block;
-//             margin: 0;
-//             padding: 0;
-//             text-decoration: none;
-
-//             .title {
-//                 display: block;
-//                 padding: 0 1em;
-//                 height: 5.5em;
-//                 overflow: hidden;
-//                 h2 {
-//                     color: $color-title-h2;
-//                     margin: 0.5em 0 0 0;
-//                     font-size: 130%;
-//                 }
-//                 h3 {
-//                     margin: 0.5em 0 0 0;
-//                     font-size: 80%;
-//                     color: #666;
-//                     font-weight: normal;
-//                 }
-//             }
-//             .body {
-//                 display: block;
-//                 padding: 0 1em;
-//                 height: 7em;
-//                 overflow: hidden;
-//                 border-top: 1px solid $color-outline-thin;
-//             }
-//         }
-//     }
-// }
 
 .infosheet {    
     margin: 1em auto;
@@ -523,9 +365,6 @@ table.listing {
     @include box-shadow($color-shadow 0 1px 5px);//, rgba(0, 0, 0, 0.1) 0 0 20px inset);
     
     .votebox {
-        //position: absolute;
-        //top: 1em;
-        //right: 2em;
         float: right;
         text-align: center;
         padding-left: 1em;

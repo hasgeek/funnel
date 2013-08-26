@@ -1,5 +1,5 @@
 {% extends "inc/layout.html" %}
-{% from "inc/forms.html" import renderfield %}
+{% from "baseframe/forms.html" import renderfield_bs3 %}
 {% from "inc/comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
@@ -145,10 +145,10 @@
           {{ commentform.edit_id() }}
         </div>
         <p>
-          {{ renderfield(commentform.message) }}
+          {{ renderfield_bs3(commentform.message) }}
         </p>
         <p>
-          <input id="comment-submit" type="submit" value="Post comment"/>
+          <input id="comment-submit" class="btn" type="submit" value="Post comment"/>
         </p>
       </form>
       <form method="POST" id="delcomment" class="hidden">
@@ -159,8 +159,8 @@
         </div>
         <p>
           Really delete this comment?
-          <input id="comment-delete-submit" type="submit" value="Delete"/>
-          or <a id="comment-delete-cancel" href="#">cancel</a>
+          <input id="comment-delete-submit" class="btn btn-danger" type="submit" value="Delete"/>
+          or <a id="comment-delete-cancel" class="btn" href="#">cancel</a>
         </p>
       </form>
     {% endif %}
