@@ -11,19 +11,8 @@
   <a href="{{ url_for('viewspace', name=space.name) }}">&larr; Return to {{ space.title }}</a>
   {% if proposal.user == g.user %}| <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this &rarr;</a>{% endif %}
 </p>#}
-
-
-<div class="col-md-1">
-  <div class="leftear">
-    {%- if proposal.getprev() -%}
-      <a href="{{ url_for('prevsession', name=space.name, slug=proposal.urlname) }}" title="Previous"><i class="icon-chevron-left"></i></a>
-    {%- else -%}
-      <i class="icon-chevron-left"></i>
-    {%- endif -%}
-  </div>
-</div>
     
-<div class="col-md-10">
+<div class="col-md-10 col-sm-10 col-xs-12 col-sm-push-1 col-md-push-1">
   <div class="infosheet">
   <div class="section first">
     <div class="votebox">
@@ -179,7 +168,17 @@
 </div>
 </div>
 
-<div class="col-md-1">
+<div class="col-md-1 col-sm-1 col-xs-6 col-sm-pull-10 col-md-pull-10">
+  <div class="leftear">
+    {%- if proposal.getprev() -%}
+      <a href="{{ url_for('prevsession', name=space.name, slug=proposal.urlname) }}" title="Previous"><i class="icon-chevron-left"></i></a>
+    {%- else -%}
+      <i class="icon-chevron-left"></i>
+    {%- endif -%}
+  </div>
+</div>
+
+<div class="col-md-1 col-sm-1 col-xs-6">
   <div class="rightear">
     {%- if proposal.getnext() -%}
       <a href="{{ url_for('nextsession', name=space.name, slug=proposal.urlname) }}" title="Next"><i class="icon-chevron-right"></i></a>
@@ -188,6 +187,7 @@
     {%- endif -%}
   </div>
 </div>
+
 
 {% endblock %}
 

@@ -1,5 +1,5 @@
 {% extends "baseframe.html" %}
-{% from "baseframe/components.html" import networkbar with context %}
+{% from "baseframe/components.html" import responsive_networkbar with context %}
 {% from "baseframe/forms.html" import renderfield, renderform %}
 
 {% block titletags -%}
@@ -7,7 +7,7 @@
   <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
 {%- endblock %}
 
-{% block networkbar %}{{ networkbar(siteid=config['SITE_ID'], login=config['LASTUSER_CLIENT_ID'] and true or false) }}{% endblock %}
+{% block networkbar %}{{ responsive_networkbar(siteid=config['SITE_ID'], login=config['LASTUSER_CLIENT_ID'] and true or false) }}{% endblock %}
 
 {% block flashmessages %}
   <div id="flash-messages">
