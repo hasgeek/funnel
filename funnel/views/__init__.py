@@ -33,7 +33,7 @@ from ..forms import (
     DeleteCommentForm,
     ConfirmDeleteForm,
     ConfirmSessionForm)
-from ..utils import makename
+from coaster import make_name
 
 jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
@@ -314,7 +314,7 @@ def newsession(name):
             proposal.speaker = None
         proposal.votes.vote(g.user)  # Vote up your own proposal by default
         form.populate_obj(proposal)
-        proposal.name = makename(proposal.title)
+        proposal.name = make_name(proposal.title)
         # Set *_html attributes after converting markdown text
         for name in markdown_attrs:
             attr = getattr(proposal, name)
@@ -360,7 +360,7 @@ def editsession(name, slug):
         form.speaking.data = proposal.speaker == g.user
     if form.validate_on_submit():
         form.populate_obj(proposal)
-        proposal.name = makename(proposal.title)
+        proposal.name = make_name(proposal.title)
         if proposal.user == g.user:
             # Only allow the speaker to change this status
             if form.speaking.data:

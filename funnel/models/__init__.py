@@ -2,7 +2,7 @@
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.lastuser.sqlalchemy import UserBase
-from ..utils import makename
+from coaster import make_name
 from .. import app
 
 __all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
@@ -65,7 +65,7 @@ class Tag(BaseMixin, db.Model):
         if tag:
             return tag
         else:
-            name = makename(tagname)
+            name = make_name(tagname)
             # Is this name already in use? If yes, return it
             tag = cls.query.filter_by(name=name).first()
             if tag:
