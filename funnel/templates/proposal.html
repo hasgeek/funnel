@@ -74,10 +74,12 @@
       {%- if proposal.section %}
         <dt>Section</dt>
         <dd>{{ proposal.section.title }}</dd>
+        <br class="hide-desktop">
       {%- endif %}
       {%- if proposal.session_type %}
         <dt>Session type</dt>
         <dd>{{ proposal.session_type }}</dd>
+        <br class="hide-desktop">
       {%- endif %}
       <dt>Technical level</dt>
       <dd>{{ proposal.technical_level }}</dd>
@@ -110,16 +112,18 @@
     {% if proposal.slides %}
       <h2 id="slides">Slides</h2>
       <p>
-        <a id="slides-link" href="{{ proposal.slides }}">{{ proposal.slides }}</a>
+        <div class="embed-container">
+          <a id="slides-link" href="{{ proposal.slides }}">{{ proposal.slides }}</a>
+        </div>
       </p>
     {% endif %}
     {% if proposal.links %}
       <h2 id="links">Links</h2>
-      <ul id="links-list">
-        {% for link in links -%}
-          <li>{{ link }}</li>
-        {% endfor %}
-      </ul>
+        <ul id="links-list">
+          {% for link in links -%}
+            <li>{{ link }}</li>
+          {% endfor %}
+        </ul>
     {% endif %}
   </div>
   <div class="section">

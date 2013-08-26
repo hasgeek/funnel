@@ -181,56 +181,6 @@ a.loginbutton:hover {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
-dl dt {
-  font-weight: bold;
-  margin-top: 1em;
-}
-
-dl dd {
-  text-indent: 1em;
-  margin-bottom: 1em;
-}
-
-dl.bar {
-  display: block;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-box;
-  display: box;
-  margin: 1em 0;
-}
-dl.bar dt {
-  display: inline;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-box;
-  display: box;
-  margin: 0 0.5em 0 0;
-}
-dl.bar dt:after {
-  content: ":";
-}
-dl.bar dd {
-  display: inline;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-box;
-  display: box;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -ms-box-flex: 1;
-  box-flex: 1;
-  margin: 0 1em 0 0;
-  text-indent: 0;
-}
-dl.bar dd:last-child {
-  -webkit-box-flex: 0;
-  -moz-box-flex: 0;
-  -ms-box-flex: 0;
-  box-flex: 0;
-  margin: 0;
-}
-
 img.avatar {
   padding: 3px;
   border: 1px solid #b7b7b7;
@@ -515,7 +465,7 @@ table.listing {
 }
 
 .infosheet {
-  margin: 1em auto;
+  margin: 1em -15px;
   padding-bottom: 1em;
   border: 1px solid #afafaf;
   -webkit-border-radius: 4px;
@@ -523,9 +473,6 @@ table.listing {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
-  -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
-  box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
 }
 .infosheet .votebox {
   float: right;
@@ -570,7 +517,7 @@ table.listing {
   margin-top: 0.5em;
 }
 .infosheet .section {
-  padding: 0 2em;
+  padding: 0 1.2em;
 }
 .infosheet .section h1 {
   margin: 0.5em 0 0 0;
@@ -606,36 +553,193 @@ table.listing {
   position: relative;
   color: white;
   background-color: #df5e0e;
-  padding: 1px 3em;
-  margin: 1em -1em;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
-  -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
-  box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
-}
-.infosheet .section.bar:before, .infosheet .section.bar:after {
-  display: block;
-  content: "";
-  position: absolute;
-  border-style: solid;
-  border-width: 0.5em 1em;
-  height: 0px;
-  width: 0px;
-  z-index: -1;
-}
-.infosheet .section.bar:before {
-  left: -1em;
-  bottom: -0.5em;
-  border-color: transparent #df5e0e transparent transparent;
-}
-.infosheet .section.bar:after {
-  right: -1em;
-  bottom: -0.5em;
-  border-color: transparent transparent transparent #df5e0e;
+  padding: 1px 6px;
+  font-size: 0.8em;
+  text-align: -moz-center;
+  text-align: -webkit-center;
+  text-align: center;
 }
 .infosheet .section.first {
   border-top: none;
 }
+.infosheet .embed-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  /* 16/9 ratio */
+  padding-top: 30px;
+  /* IE6 workaround*/
+  height: 0;
+  overflow: hidden;
+}
+.infosheet .embed-container iframe, .infosheet .embed-container object, .infosheet .embed-container embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 
+@media screen and (min-width: 992px) {
+  #links-list > li > iframe {
+    width: 640px;
+    height: 360px;
+  }
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  #links-list > li > iframe {
+    width: 480px;
+    height: 270px;
+  }
+}
+@media screen and (min-width: 480px) and (max-width: 767px) {
+  #links-list > li > iframe {
+    width: 320px;
+    height: 180px;
+  }
+}
+@media screen and (max-width: 479px) {
+  #links-list > li > iframe {
+    width: 240px;
+    height: 135px;
+  }
+}
+@media screen and (max-width: 400px) {
+  #links-list > li > iframe {
+    width: 160px;
+    height: 90px;
+  }
+}
+@media screen and (min-width: 768px) {
+  .infosheet {
+    margin: 1em auto;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
+  }
+  .infosheet .section {
+    padding: 0 2em;
+  }
+  .infosheet .section.bar {
+    position: relative;
+    color: white;
+    background-color: #df5e0e;
+    padding: 1px 3em;
+    margin: 1em -1em;
+    font-size: 14px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+  }
+  .infosheet .section.bar:before, .infosheet .section.bar:after {
+    display: block;
+    content: "";
+    position: absolute;
+    border-style: solid;
+    border-width: 0.5em 1em;
+    height: 0px;
+    width: 0px;
+    z-index: -1;
+  }
+  .infosheet .section.bar:before {
+    left: -1em;
+    bottom: -0.5em;
+    border-color: transparent #df5e0e transparent transparent;
+  }
+  .infosheet .section.bar:after {
+    right: -1em;
+    bottom: -0.5em;
+    border-color: transparent transparent transparent #df5e0e;
+  }
+}
+dl dt {
+  font-weight: bold;
+  margin-top: 1em;
+}
+
+dl dd {
+  text-indent: 1em;
+  margin-bottom: 1em;
+}
+
+dl.bar {
+  margin: 1em 0;
+}
+dl.bar dt {
+  display: inline-block;
+  display: -webkit-inline-block;
+  display: -moz-inline-block;
+  display: -ms-inline-block;
+  margin: 0 0 0 0;
+}
+dl.bar dt:after {
+  content: ":";
+}
+dl.bar dd {
+  display: inline;
+  display: inline-block;
+  display: -webkit-inline-block;
+  display: -moz-inline-block;
+  display: -ms-inline-block;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-box-flex: 1;
+  box-flex: 1;
+  margin: 0 0 0 5px;
+  text-indent: 0;
+}
+dl.bar dd:last-child {
+  -webkit-box-flex: 0;
+  -moz-box-flex: 0;
+  -ms-box-flex: 0;
+  box-flex: 0;
+  margin: 0;
+}
+
+@media screen and (min-width: 768px) {
+  .hide-desktop {
+    display: none;
+  }
+
+  dl.bar {
+    display: block;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-box;
+    display: box;
+    margin: 1em 0;
+  }
+  dl.bar dt {
+    display: inline;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-box;
+    display: box;
+    margin: 0 0.5em 0 0;
+  }
+  dl.bar dt:after {
+    content: ":";
+  }
+  dl.bar dd {
+    display: inline;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-box;
+    display: box;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -ms-box-flex: 1;
+    box-flex: 1;
+    margin: 0 1em 0 0;
+    text-indent: 0;
+  }
+  dl.bar dd:last-child {
+    -webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    -ms-box-flex: 0;
+    box-flex: 0;
+    margin: 0;
+  }
+}
 .leftear, .rightear {
   margin: 2em 0;
   padding: 0;
