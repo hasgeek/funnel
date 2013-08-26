@@ -22,7 +22,7 @@ version = Version(__version__)
 assets['jquery.oembed.js'][version] = 'js/libs/jquery.oembed.js'
 assets['showdown.js'][version] = 'js/libs/showdown.js'
 assets['funnel.js'][version] = 'js/scripts.js'
-assets['funnel.css'][version] = 'css/screen.css'
+assets['funnel.css'][version] = 'css/app.css'
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -39,5 +39,5 @@ def init_for(env):
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
     baseframe.init_app(app, requires=[
-        'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'baseframe-networkbar', 'funnel'
+        'baseframe-bs3', 'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'funnel'
         ])
