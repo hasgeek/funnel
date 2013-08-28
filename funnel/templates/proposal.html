@@ -1,5 +1,5 @@
 {% extends "inc/layout.html" %}
-{% from "baseframe/forms.html" import renderfield_bs3 %}
+{% from "baseframe/forms.html" import renderfield %}
 {% from "inc/comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
@@ -149,7 +149,7 @@
           {{ commentform.comment_edit_id() }}
         </div>
         <p>
-          {{ renderfield_bs3(commentform.message) }}
+          {{ renderfield(commentform.message) }}
         </p>
         <p>
           <input id="comment-submit" class="btn" type="submit" value="Post comment"/>
