@@ -1,3 +1,3 @@
-{% from "baseframe/forms.html" import renderform_bs3, ajaxform %}
-{{ renderform_bs3(form, formid, submit, message) }}
+{% from "baseframe/forms.html" import renderform, ajaxform %}
+{{ renderform(form, formid, submit, message) }}
 {{ ajaxform(formid, request, True) }}
