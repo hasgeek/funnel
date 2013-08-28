@@ -132,7 +132,7 @@ def newspace():
         db.session.commit()
         flash("Your new space has been created", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="Create a new proposal space", submit="Create space")
+    return render_template('baseframe/autoform.html', form=form, title="Create a new proposal space", submit="Create space")
 
 
 @app.route('/<name>/')
@@ -823,39 +823,3 @@ def prevsession(name, slug):
     else:
         flash("You were at the first proposal", "info")
         return redirect(url_for('viewspace', name=space.name))
-
-
-@app.template_filter('age')
-def age(dt):
-    suffix = u"ago"
-    delta = datetime.utcnow() - dt
-    if delta.days == 0:
-        # < 1 day
-        if delta.seconds < 10:
-            return "seconds %s" % suffix
-        elif delta.seconds < 60:
-            return "%d seconds %s" % (delta.seconds, suffix)
-        elif delta.seconds < 120:
-            return "a minute %s" % suffix
-        elif delta.seconds < 3600:  # < 1 hour
-            return "%d minutes %s" % (int(delta.seconds / 60), suffix)
-        elif delta.seconds < 7200:  # < 2 hours
-            return "an hour %s" % suffix
-        else:
-            return "%d hours %s" % (int(delta.seconds / 3600), suffix)
-    elif delta.days == 1:
-        return u"a day %s" % suffix
-    else:
-        return u"%d days %s" % (delta.days, suffix)
-
-
-#@app.route('/email')
-#@lastuser.requires_login
-#def show_email():
-#    return jsonp(lastuser.call_resource('email', all=1))
-
-
-#@app.route('/api/event', methods=['POST'])
-#@lastuser.resource_handler('event')
-#def api_event(token):
-#    return jsonp(token)
