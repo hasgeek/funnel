@@ -19,7 +19,7 @@ from flask import (
     escape,
     Response)
 from flask.ext.mail import Message
-from coaster.views import get_next_url, jsonp
+from coaster.views import get_next_url, jsonp, load_models
 from coaster.gfm import markdown
 
 from .. import app, mail, lastuser
@@ -145,7 +145,7 @@ def viewspace(name):
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
     unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=description, sections=sections,
-        confirmed=confirmed, unconfirmed=unconfirmed)
+        confirmed=confirmed, unconfirmed=unconfirmed, is_siteadmin=lastuser.has_permission('siteadmin'))
 
 
 @app.route('/<name>/json')
@@ -214,6 +214,38 @@ def newsection(name):
         flash("Your new section has been added", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
     return render_template('autoform.html', form=form, title="New section", submit="Create section")
+
+
+@app.route('/<name>/<section>/edit', methods=['GET', 'POST'])
+@lastuser.requires_permission('siteadmin')
+@load_models(
+    (ProposalSpace, {'name': 'name'}, 'space'),
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+def edit_section(space, section):
+    form = SectionForm(obj=section)
+    if form.validate_on_submit():
+        form.populate_obj(section)
+        db.session.commit()
+        flash("Your section has been edited", "info")
+        return redirect(url_for('viewspace', name=space.name), code=303)
+    return render_template('autoform.html', form=form, title="Edit section", submit="Edit section")
+
+
+@app.route('/<name>/<section>/delete', methods=['GET', 'POST'])
+@lastuser.requires_permission('siteadmin')
+@load_models(
+    (ProposalSpace, {'name': 'name'}, 'space'),
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+def delete_section(space, section):
+    form = ConfirmDeleteForm()
+    if form.validate_on_submit():
+        if 'delete' in request.form:
+            db.session.delete(section)
+            db.session.commit()
+            flash("Your section has been deleted", "info")
+        return redirect(url_for('viewspace', name=space.name), code=303)
+    return render_template('delete.html', form=form, title=u"Confirm delete",
+        message=u"Do you really wish to delete section '%s'?" % section.title)
 
 
 @app.route('/<name>/users')
