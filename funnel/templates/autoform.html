@@ -2,9 +2,7 @@
 {% from "baseframe/forms.html" import ajaxform %}
 
 {% block content %}
- <div class="row">
-   {{ renderform(form, formid, submit, message) }}
- </div> 
+  {{ renderform(form, formid, submit, message) }}
 {% endblock %}
 
 {% block footerscripts %}
