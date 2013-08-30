@@ -132,7 +132,7 @@ def newspace():
         db.session.commit()
         flash("Your new space has been created", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="Create a new proposal space", submit="Create space")
+    return render_template('baseframe/autoform.html', form=form, title="Create a new proposal space", submit="Create space")
 
 
 @app.route('/<name>/')
@@ -196,7 +196,7 @@ def editspace(name):
         db.session.commit()
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="Edit proposal space", submit="Save changes")
+    return render_template('baseframe/autoform.html', form=form, title="Edit proposal space", submit="Save changes")
 
 
 @app.route('/<name>/newsection', methods=['GET', 'POST'])
@@ -213,7 +213,7 @@ def newsection(name):
         db.session.commit()
         flash("Your new section has been added", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="New section", submit="Create section")
+    return render_template('baseframe/autoform.html', form=form, title="New section", submit="Create section")
 
 
 @app.route('/<name>/users')
@@ -262,9 +262,9 @@ def usergroup_edit(name, group):
         db.session.commit()
         return redirect(url_for('usergroup_view', name=space.name, group=usergroup.name), code=303)
     if group is None:
-        return render_template('autoform.html', form=form, title="New user group", submit="Create")
+        return render_template('baseframe/autoform.html', form=form, title="New user group", submit="Create")
     else:
-        return render_template('autoform.html', form=form, title="Edit user group", submit="Save")
+        return render_template('baseframe/autoform.html', form=form, title="Edit user group", submit="Save")
 
 
 @app.route('/<name>/users/<group>/delete', methods=['GET', 'POST'])
@@ -324,7 +324,7 @@ def newsession(name):
         db.session.commit()
         flash("Your new session has been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
-    return render_template('autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
+    return render_template('baseframe/autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
         breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
         message=Markup(
             'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
@@ -377,7 +377,7 @@ def editsession(name, slug):
         db.session.commit()
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
-    return render_template('autoform.html', form=form, title="Edit session proposal", submit="Save changes",
+    return render_template('baseframe/autoform.html', form=form, title="Edit session proposal", submit="Save changes",
         breadcrumbs=[(url_for('viewspace', name=space.name), space.title),
                      (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)],
         message=Markup(

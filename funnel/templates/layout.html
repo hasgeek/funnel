@@ -36,6 +36,16 @@
 {%- endblock %}
 
 {% block layoutscripts -%}
+  {% block footerscripts %}{% endblock %}
+  <script type="text/javascript">
+    $(function() {
+      {%- for field in form -%}
+        {%- if field.type == 'RadioField' or field.type == 'QuerySelectField' %}
+          radioHighlight('{{ field.name }}', 'selected');
+        {%- endif -%}
+      {%- endfor %}
+    });
+  </script>
 
   <!--[if lt IE 7 ]>
     <script src="{{ url_for('static', filename='js/libs/dd_belatedpng.js') }}"></script>
@@ -54,6 +64,4 @@
      })(document, 'script');
     </script>
   {% endif -%}
-
-  {% block footerscripts %}{% endblock %}
 {% endblock %}
