@@ -19,7 +19,7 @@ from flask import (
     escape,
     Response)
 from flask.ext.mail import Message
-from coaster.views import get_next_url, jsonp, load_models
+from coaster.views import get_next_url, jsonp, load_models, load_model
 from coaster.gfm import markdown
 
 from .. import app, mail, lastuser
@@ -221,7 +221,7 @@ def newsection(name):
 @load_models(
     (ProposalSpace, {'name': 'name'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
-def edit_section(space, section):
+def section_edit(space, section):
     form = SectionForm(obj=section)
     if form.validate_on_submit():
         form.populate_obj(section)
@@ -236,7 +236,7 @@ def edit_section(space, section):
 @load_models(
     (ProposalSpace, {'name': 'name'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
-def delete_section(space, section):
+def section_delete(space, section):
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
@@ -246,6 +246,23 @@ def delete_section(space, section):
         return redirect(url_for('viewspace', name=space.name), code=303)
     return render_template('delete.html', form=form, title=u"Confirm delete",
         message=u"Do you really wish to delete section '%s'?" % section.title)
+
+
+@app.route('/<name>/sections')
+@lastuser.requires_permission('siteadmin')
+@load_model(ProposalSpace, {'name': 'name'}, 'space')
+def sections_list(space):
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
+    return render_template('sections.html', space=space, sections=sections)
+
+
+@app.route('/<name>/sections/<section>')
+@lastuser.requires_permission('siteadmin')
+@load_models(
+    (ProposalSpace, {'name': 'name'}, 'space'),
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+def section_view(space, section):
+    return render_template('section.html', space=space, section=section)
 
 
 @app.route('/<name>/users')
