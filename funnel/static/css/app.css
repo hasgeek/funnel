@@ -551,6 +551,12 @@ table.listing {
 .infosheet .section .social iframe {
   display: inline-block;
 }
+.infosheet .section .social iframe .twitter-share-button {
+  width: 80px;
+}
+.infosheet .section .social iframe #___plusone_0 {
+  width: 65px;
+}
 .infosheet .section .social .facebooklike {
   position: relative;
   top: 1px;
@@ -909,8 +915,6 @@ dl.bar dd:last-child {
 }
 
 form#newcomment #field-comment_message {
-  margin-left: -15px;
-  margin-right: -15px;
   margin-bottom: -15px;
 }
 form#newcomment #field-comment_message .control-label {
@@ -922,6 +926,7 @@ form#newcomment #field-comment_message .help-required {
 }
 form#newcomment #comment-submit {
   margin-top: 20px;
+  margin-left: 15px;
 }
 form#newcomment label.col-md-2, form#newcomment .controls.col-md-8 {
   width: 100%;
@@ -930,6 +935,11 @@ form#newcomment label.col-md-2, form#newcomment .controls.col-md-8 {
 @media screen and (min-width: 768px) {
   form#newcomment #field-comment_message {
     margin-bottom: 0;
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+  form#newcomment #comment-submit {
+    margin-left: 0;
   }
 }
 /* markdown preview related */

@@ -376,6 +376,12 @@ table.listing {
             margin: 1em 0;
             iframe {
                 display: inline-block;
+                .twitter-share-button{
+                    width: 80px;
+                }
+                #___plusone_0{
+                    width: 65px;
+                }
             }
             .facebooklike {
                 position: relative;
@@ -710,8 +716,6 @@ dl.bar {
 }
 form#newcomment{
     #field-comment_message{
-        margin-left: -15px;
-        margin-right: -15px;
         margin-bottom: -15px;
         .control-label{
             width: auto !important;
@@ -723,6 +727,7 @@ form#newcomment{
     }
     #comment-submit{
         margin-top: 20px;
+        margin-left: 15px;
     }
     label.col-md-2, .controls.col-md-8{
         width: 100%;
@@ -732,9 +737,11 @@ form#newcomment{
     form#newcomment{
         #field-comment_message{        
             margin-bottom: 0;
+            margin-left: -15px;
+            margin-right: -15px;
         }
         #comment-submit{
-            //margin-top: 20px;
+            margin-left: 0;
         }
     }
 }
