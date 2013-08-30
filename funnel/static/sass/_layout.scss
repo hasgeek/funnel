@@ -76,7 +76,7 @@ img.login_avatar {
     list-style: none;
     margin: {
         top: -1em;
-        bottom: 1em;
+        bottom: -0.7em;
         left: 0;
         right: 0;
     }
@@ -99,6 +99,17 @@ img.login_avatar {
             a {
                 display: block;
             }
+        }
+    }
+}
+
+@media screen and (min-width: 768px){
+    .breadcrumbs {
+        margin: {
+            top: -1em;
+            bottom: 1em;
+            left: 0;
+            right: 0;
         }
     }
 }
