@@ -3,7 +3,7 @@
 {% block content %}
   <ol>
     {%- for section in sections %}
-      <li><a href="{{ url_for('section_view', name=space.name, section=section.name) }}">{{ section.title }}</a></li>
+      <li><a href="{{ url_for('section_view', space=space.name, section=section.name) }}">{{ section.title }}</a></li>
     {% else %}
       <li><em>(No sections)</em></li>
     {%- endfor %}
