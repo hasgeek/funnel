@@ -88,8 +88,8 @@
     {% for section in sections -%}
       <li>{{ section.title }} &mdash; {{ section.description }}
         {%- if is_siteadmin %}
-          <a href="{{url_for('section_edit', name=space.name, section=section.name)}} "> Edit,</a>
-          <a href="{{url_for('section_delete', name=space.name, section=section.name)}} "> Delete </a>
+          <a href="{{url_for('section_edit', name=space.name, section=section.name) }}"> Edit,</a>
+          <a href="{{url_for('section_delete', name=space.name, section=section.name) }}"> Delete </a>
         {%- endif %}</li>
     {% endfor -%}
   </ol>

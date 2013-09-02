@@ -216,10 +216,10 @@ def newsection(name):
     return render_template('autoform.html', form=form, title="New section", submit="Create section")
 
 
-@app.route('/<name>/<section>/edit', methods=['GET', 'POST'])
+@app.route('/<space>/<section>/edit', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 @load_models(
-    (ProposalSpace, {'name': 'name'}, 'space'),
+    (ProposalSpace, {'name': 'space'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
 def section_edit(space, section):
     form = SectionForm(obj=section)
@@ -231,10 +231,10 @@ def section_edit(space, section):
     return render_template('autoform.html', form=form, title="Edit section", submit="Edit section")
 
 
-@app.route('/<name>/<section>/delete', methods=['GET', 'POST'])
+@app.route('/<space>/<section>/delete', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 @load_models(
-    (ProposalSpace, {'name': 'name'}, 'space'),
+    (ProposalSpace, {'name': 'space'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
 def section_delete(space, section):
     form = ConfirmDeleteForm()
@@ -248,18 +248,18 @@ def section_delete(space, section):
         message=u"Do you really wish to delete section '%s'?" % section.title)
 
 
-@app.route('/<name>/sections')
+@app.route('/<space>/sections')
 @lastuser.requires_permission('siteadmin')
-@load_model(ProposalSpace, {'name': 'name'}, 'space')
+@load_model(ProposalSpace, {'name': 'space'}, 'space')
 def sections_list(space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
     return render_template('sections.html', space=space, sections=sections)
 
 
-@app.route('/<name>/sections/<section>')
+@app.route('/<space>/sections/<section>')
 @lastuser.requires_permission('siteadmin')
 @load_models(
-    (ProposalSpace, {'name': 'name'}, 'space'),
+    (ProposalSpace, {'name': 'space'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
 def section_view(space, section):
     return render_template('section.html', space=space, section=section)
