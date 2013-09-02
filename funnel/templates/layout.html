@@ -36,6 +36,7 @@
 {%- endblock %}
 
 {% block layoutscripts -%}
+  {% block footerscripts %}{% endblock %}
 
   <!--[if lt IE 7 ]>
     <script src="{{ url_for('static', filename='js/libs/dd_belatedpng.js') }}"></script>
@@ -54,6 +55,4 @@
      })(document, 'script');
     </script>
   {% endif -%}
-
-  {% block footerscripts %}{% endblock %}
 {% endblock %}

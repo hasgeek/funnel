@@ -1,6 +1,6 @@
-{% extends "inc/layout.html" %}
+{% extends "layout.html" %}
 {% from "baseframe/forms.html" import renderfield %}
-{% from "inc/comments.html" import commenttree %}
+{% from "comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 
@@ -15,33 +15,37 @@
 <div class="col-md-10 col-sm-10 col-xs-12 col-sm-push-1 col-md-push-1">
   <div class="infosheet">
   <div class="section first">
-    <div class="votebox">
-      {%- set vote = proposal.votes.getvote(g.user) %}
-      <div class="choices">
+    <div class="row">
+      <h1 class="col-xs-12 col-sm-8 col-md-8 col-lg-9">{{ proposal.title }}</h1>
+      <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3 votebox">
+        {%- set vote = proposal.votes.getvote(g.user) %}
+        <div class="choices">
 
-        {%- if not vote %}
-          <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-          <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
-        {%- elif vote.votedown %}
-          <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-          <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">-1</a>
-        {%- else %}
-          <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-          <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
-        {% endif %}
-        <span class="indicator">&rarr;</span>
-        <span class="score">
-          {%- if proposal.votes.count > 0 -%}
-            +
-          {%- endif -%}
-          {{ proposal.votes.count }}</span>
+          {%- if not vote %}
+            <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
+            <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+          {%- elif vote.votedown %}
+            <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
+            <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+          {%- else %}
+            <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">+1</a>
+            <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+          {% endif %}
+          <span class="indicator">&rarr;</span>
+          <span class="score">
+            {%- if proposal.votes.count > 0 -%}
+              +
+            {%- endif -%}
+            {{ proposal.votes.count }}</span>
+          </div>
+        <div class="label">
+          Vote on this proposal
         </div>
-      <div class="label">
-        Vote on this proposal
       </div>
-    </div>
-    <h1>{{ proposal.title }}</h1>
-    <p>
+    
+  </div>
+  <div class="row">
+    <p class="col-md-12">
       by <strong>{{ proposal.user.fullname }}</strong>
       {% if proposal.user == proposal.speaker -%}
         (speaking)
@@ -52,8 +56,10 @@
         <small>(that’s you! <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this</a>? <a href="{{ url_for('deletesession', name=space.name, slug=proposal.urlname) }}">Delete this</a>?)</small>
       {%- endif %}
     </p>
+  </div>
+  <div class="row">
     <!-- Social buttons -->
-    <div class="social">
+    <div class="social col-md-12">
       <a href="//twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{ config['TWITTER_ID'] }}">Tweet</a>
       <g:plusone size="medium"></g:plusone>
       <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
@@ -68,6 +74,7 @@
         </form>
       {% endif %}
     </div>
+  </div>
   </div>
   <div class="section bar">
     <dl class="bar">
@@ -152,7 +159,7 @@
           {{ renderfield(commentform.message) }}
         </p>
         <p>
-          <input id="comment-submit" class="btn" type="submit" value="Post comment"/>
+          <input id="comment-submit" class="btn btn-default" type="submit" value="Post comment"/>
         </p>
       </form>
       <form method="POST" id="delcomment" class="hidden">
