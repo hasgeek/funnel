@@ -86,7 +86,11 @@
   <h2 id="sections">Sections</h2>
   <ol>
     {% for section in sections -%}
-      <li>{{ section.title }} &mdash; {{ section.description }}</li>
+      <li>{{ section.title }} &mdash; {{ section.description }}
+        {%- if is_siteadmin %}
+          <a href="{{url_for('section_edit', space=space.name, section=section.name) }}"> Edit,</a>
+          <a href="{{url_for('section_delete', space=space.name, section=section.name) }}"> Delete </a>
+        {%- endif %}</li>
     {% endfor -%}
   </ol>
 {%- endif %}
