@@ -469,7 +469,7 @@ table.listing {
 
 @media screen and (min-width: 768px){
     .infosheet {    
-        margin: 0em auto;
+        margin: 0em auto 2em auto;
         @include box-shadow($color-shadow 0 1px 5px);//, rgba(0, 0, 0, 0.1) 0 0 20px inset);
         .votebox {
             .choices {
