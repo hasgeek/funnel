@@ -206,7 +206,7 @@ img.login_avatar {
   *zoom: 1;
   list-style: none;
   margin-top: -1em;
-  margin-bottom: -0.7em;
+  margin-bottom: 1em;
   margin-left: 0;
   margin-right: 0;
   padding: 0;
@@ -477,7 +477,7 @@ table.listing {
 }
 
 .infosheet {
-  margin: 1em -15px;
+  margin: -0.7em -15px 1em -15px;
   padding-bottom: 1em;
   border: 1px solid #afafaf;
   -webkit-border-radius: 4px;
@@ -494,7 +494,7 @@ table.listing {
 .infosheet .votebox .choices {
   font-size: 180%;
   margin-top: 10px;
-  text-align: left;
+  text-align: center;
 }
 .infosheet .votebox .choices span.score {
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
@@ -554,20 +554,21 @@ table.listing {
 }
 .infosheet .section .social {
   position: relative;
-  margin: 1em 0;
+  margin: 0.2em 0 -0.5em 0;
 }
 .infosheet .section .social iframe {
   display: inline-block;
 }
-.infosheet .section .social iframe .twitter-share-button {
-  width: 80px;
+.infosheet .section .social iframe.twitter-share-button {
+  width: 88px !important;
 }
-.infosheet .section .social iframe #___plusone_0 {
-  width: 65px;
-}
-.infosheet .section .social .facebooklike {
+.infosheet .section .social iframe.facebooklike {
   position: relative;
   top: 1px;
+  width: 120px !important;
+}
+.infosheet .section .social #___plusone_0 {
+  width: 70px !important;
 }
 .infosheet .section.bar {
   position: relative;
@@ -581,6 +582,7 @@ table.listing {
 }
 .infosheet .section.first {
   border-top: none;
+  text-align: center;
 }
 .infosheet .section.first h1 {
   margin-bottom: 10px;
@@ -647,6 +649,9 @@ table.listing {
   .infosheet .section {
     padding: 0 2em;
   }
+  .infosheet .section .social {
+    margin: 1em 0;
+  }
   .infosheet .section.bar {
     position: relative;
     color: white;
@@ -682,6 +687,7 @@ table.listing {
   .infosheet .section.first {
     margin-top: 8px;
     margin-bottom: 5px;
+    text-align: left;
   }
 }
 @media screen and (min-width: 768px) and (max-width: 992px) {

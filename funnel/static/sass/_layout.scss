@@ -76,7 +76,7 @@ img.login_avatar {
     list-style: none;
     margin: {
         top: -1em;
-        bottom: -0.7em;
+        bottom: 1em;
         left: 0;
         right: 0;
     }
@@ -322,7 +322,7 @@ table.listing {
 }
 
 .infosheet {    
-    margin: 1em -15px;
+    margin: -0.7em -15px 1em -15px;
     padding-bottom: 1em;
     border: 1px solid $color-sheet-border;
     @include border-radius(4px);
@@ -334,7 +334,7 @@ table.listing {
         .choices {
             font-size: 180%;
             margin-top: 10px;
-            text-align: left;
+            text-align: center;
             span.score {
                 font-family: $font-monospace;
                 border: 1px solid $color-outline;
@@ -384,19 +384,20 @@ table.listing {
         }
         .social {
             position: relative;
-            margin: 1em 0;
+            margin: 0.2em 0 -0.5em 0;
             iframe {
                 display: inline-block;
-                .twitter-share-button{
-                    width: 80px;
+                &.twitter-share-button{
+                    width: 88px !important;
                 }
-                #___plusone_0{
-                    width: 65px;
+                &.facebooklike {
+                    position: relative;
+                    top: 1px;
+                    width: 120px !important;
                 }
             }
-            .facebooklike {
-                position: relative;
-                top: 1px;
+            #___plusone_0{
+                width: 70px !important;
             }
         }
     }
@@ -412,6 +413,7 @@ table.listing {
     }
     .section.first {
         border-top: none;
+        text-align: center;
         h1{
             margin-bottom: 10px;
         }
@@ -479,6 +481,9 @@ table.listing {
 
         .section {
             padding: 0 2em;
+            .social {
+                margin: 1em 0;
+            }
         }
         .section.bar {
             position: relative;
@@ -514,6 +519,7 @@ table.listing {
         .section.first {
             margin-top: 8px;
             margin-bottom: 5px;
+            text-align: left;
         }
     }  
 }
