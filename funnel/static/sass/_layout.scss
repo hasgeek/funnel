@@ -103,6 +103,17 @@ img.login_avatar {
     }
 }
 
+@media screen and (min-width: 768px){
+    .breadcrumbs {
+        margin: {
+            top: -1em;
+            bottom: 1em;
+            left: 0;
+            right: 0;
+        }
+    }
+}
+
 /* Form elements */
 @mixin small-field {
     float: left;
@@ -265,6 +276,9 @@ span.loading {
         display: none;
     }
 }
+.listwidget ul > li.selected > label{
+    font-weight: bold !important;
+}
 
 /* Tables */
 table.listing {
@@ -308,7 +322,7 @@ table.listing {
 }
 
 .infosheet {    
-    margin: 1em -15px;
+    margin: -0.7em -15px 1em -15px;
     padding-bottom: 1em;
     border: 1px solid $color-sheet-border;
     @include border-radius(4px);
@@ -318,7 +332,9 @@ table.listing {
         text-align: center;
         padding-left: 1em;
         .choices {
-            font-size: 200%;
+            font-size: 180%;
+            margin-top: 10px;
+            text-align: center;
             span.score {
                 font-family: $font-monospace;
                 border: 1px solid $color-outline;
@@ -368,13 +384,20 @@ table.listing {
         }
         .social {
             position: relative;
-            margin: 1em 0;
+            margin: 0.2em 0 -0.5em 0;
             iframe {
                 display: inline-block;
+                &.twitter-share-button{
+                    width: 88px !important;
+                }
+                &.facebooklike {
+                    position: relative;
+                    top: 1px;
+                    width: 125px !important;
+                }
             }
-            .facebooklike {
-                position: relative;
-                top: 1px;
+            #___plusone_0{
+                width: 70px !important;
             }
         }
     }
@@ -390,6 +413,10 @@ table.listing {
     }
     .section.first {
         border-top: none;
+        text-align: center;
+        h1{
+            margin-bottom: 10px;
+        }
     }
     .embed-container {
         position: relative;
@@ -442,19 +469,31 @@ table.listing {
 
 @media screen and (min-width: 768px){
     .infosheet {    
-        margin: 1em auto;
+        margin: 0em auto 2em auto;
         @include box-shadow($color-shadow 0 1px 5px);//, rgba(0, 0, 0, 0.1) 0 0 20px inset);
+        .votebox {
+            .choices {
+                font-size: 200%;
+                margin-top: 10px;
+                text-align: right;
+            }
+        }
+
         .section {
             padding: 0 2em;
+            .social {
+                margin: 1em 0;
+            }
         }
         .section.bar {
             position: relative;
             color: $color-bar;
             background-color: $color-bar-background;
             padding: 1px 3em;
-            margin: 1em -1em;
+            margin: 0 -1em 1em -1em;
             //text-align: left;
             font-size: 14px;
+            text-align: left;
             @include box-shadow($color-shadow 0 1px 2px);
             &:before, &:after {
                 display: block;
@@ -477,7 +516,21 @@ table.listing {
                 border-color: transparent transparent transparent $color-bar-background;
             }
         }
+        .section.first {
+            margin-top: 8px;
+            margin-bottom: 5px;
+            text-align: left;
+        }
     }  
+}
+@media screen and (min-width: 768px) and (max-width: 992px){
+    .infosheet {
+        .votebox {
+            .choices {
+                font-size: 180%;
+            }
+        }
+    }
 }
 
 dl dt {
@@ -555,7 +608,7 @@ dl.bar {
 
 .leftear, .rightear {
     //font-weight: bold;
-    margin: 2em 0;
+    margin: 0;
     padding: 0;
     width: 4em;
     i {
@@ -598,6 +651,12 @@ dl.bar {
     a:hover {
         right: -5px;
         @include single-transition(right, 0.1s, linear);
+    }
+}
+
+@media screen and (min-width: 768px){
+    .leftear, .rightear {
+        margin: 2em 0;
     }
 }
 
@@ -670,6 +729,37 @@ dl.bar {
     .com-footer a:hover {
         color: $color-link;
         text-decoration: none;
+    }
+}
+form#newcomment{
+    #field-comment_message{
+        margin-bottom: -15px;
+        .control-label{
+            width: auto !important;
+            padding-bottom: 5px;
+        }
+        .help-required{
+            float: right;
+        }
+    }
+    #comment-submit{
+        margin-top: 20px;
+        margin-left: 15px;
+    }
+    label.col-md-2, .controls.col-md-8{
+        width: 100%;
+    }
+}
+@media screen and (min-width: 768px){
+    form#newcomment{
+        #field-comment_message{        
+            margin-bottom: 0;
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+        #comment-submit{
+            margin-left: 0;
+        }
     }
 }
 
