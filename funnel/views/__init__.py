@@ -19,7 +19,7 @@ from flask import (
     escape,
     Response)
 from flask.ext.mail import Message
-from coaster.views import get_next_url, jsonp
+from coaster.views import get_next_url, jsonp, load_models, load_model
 from coaster.gfm import markdown
 
 from .. import app, mail, lastuser
@@ -120,7 +120,7 @@ def account():
 # --- Routes: spaces ----------------------------------------------------------
 
 @app.route('/new', methods=['GET', 'POST'])
-#@lastuser.requires_permission('siteadmin')
+@lastuser.requires_permission('siteadmin')
 def newspace():
     form = ProposalSpaceForm()
     form.description.flags.markdown = True
@@ -132,7 +132,7 @@ def newspace():
         db.session.commit()
         flash("Your new space has been created", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="Create a new proposal space", submit="Create space")
+    return render_template('baseframe/autoform.html', form=form, title="Create a new proposal space", submit="Create space")
 
 
 @app.route('/<name>/')
@@ -145,7 +145,7 @@ def viewspace(name):
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
     unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=description, sections=sections,
-        confirmed=confirmed, unconfirmed=unconfirmed)
+        confirmed=confirmed, unconfirmed=unconfirmed, is_siteadmin=lastuser.has_permission('siteadmin'))
 
 
 @app.route('/<name>/json')
@@ -183,7 +183,7 @@ def viewspace_csv(name):
 
 
 @app.route('/<name>/edit', methods=['GET', 'POST'])
-#@lastuser.requires_permission('siteadmin')
+@lastuser.requires_permission('siteadmin')
 def editspace(name):
     space = ProposalSpace.query.filter_by(name=name).first()
     if not space:
@@ -196,7 +196,7 @@ def editspace(name):
         db.session.commit()
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="Edit proposal space", submit="Save changes")
+    return render_template('baseframe/autoform.html', form=form, title="Edit proposal space", submit="Save changes")
 
 
 @app.route('/<name>/newsection', methods=['GET', 'POST'])
@@ -213,7 +213,56 @@ def newsection(name):
         db.session.commit()
         flash("Your new section has been added", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="New section", submit="Create section")
+    return render_template('baseframe/autoform.html', form=form, title="New section", submit="Create section")
+
+
+@app.route('/<space>/<section>/edit', methods=['GET', 'POST'])
+@lastuser.requires_permission('siteadmin')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+def section_edit(space, section):
+    form = SectionForm(obj=section)
+    if form.validate_on_submit():
+        form.populate_obj(section)
+        db.session.commit()
+        flash("Your section has been edited", "info")
+        return redirect(url_for('viewspace', name=space.name), code=303)
+    return render_template('autoform.html', form=form, title="Edit section", submit="Edit section")
+
+
+@app.route('/<space>/<section>/delete', methods=['GET', 'POST'])
+@lastuser.requires_permission('siteadmin')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+def section_delete(space, section):
+    form = ConfirmDeleteForm()
+    if form.validate_on_submit():
+        if 'delete' in request.form:
+            db.session.delete(section)
+            db.session.commit()
+            flash("Your section has been deleted", "info")
+        return redirect(url_for('viewspace', name=space.name), code=303)
+    return render_template('delete.html', form=form, title=u"Confirm delete",
+        message=u"Do you really wish to delete section '%s'?" % section.title)
+
+
+@app.route('/<space>/sections')
+@lastuser.requires_permission('siteadmin')
+@load_model(ProposalSpace, {'name': 'space'}, 'space')
+def sections_list(space):
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
+    return render_template('sections.html', space=space, sections=sections)
+
+
+@app.route('/<space>/sections/<section>')
+@lastuser.requires_permission('siteadmin')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+def section_view(space, section):
+    return render_template('section.html', space=space, section=section)
 
 
 @app.route('/<name>/users')
@@ -262,9 +311,9 @@ def usergroup_edit(name, group):
         db.session.commit()
         return redirect(url_for('usergroup_view', name=space.name, group=usergroup.name), code=303)
     if group is None:
-        return render_template('autoform.html', form=form, title="New user group", submit="Create")
+        return render_template('baseframe/autoform.html', form=form, title="New user group", submit="Create")
     else:
-        return render_template('autoform.html', form=form, title="Edit user group", submit="Save")
+        return render_template('baseframe/autoform.html', form=form, title="Edit user group", submit="Save")
 
 
 @app.route('/<name>/users/<group>/delete', methods=['GET', 'POST'])
@@ -324,7 +373,7 @@ def newsession(name):
         db.session.commit()
         flash("Your new session has been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
-    return render_template('autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
+    return render_template('baseframe/autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
         breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
         message=Markup(
             'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
@@ -377,7 +426,7 @@ def editsession(name, slug):
         db.session.commit()
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
-    return render_template('autoform.html', form=form, title="Edit session proposal", submit="Save changes",
+    return render_template('baseframe/autoform.html', form=form, title="Edit session proposal", submit="Save changes",
         breadcrumbs=[(url_for('viewspace', name=space.name), space.title),
                      (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)],
         message=Markup(
@@ -823,39 +872,3 @@ def prevsession(name, slug):
     else:
         flash("You were at the first proposal", "info")
         return redirect(url_for('viewspace', name=space.name))
-
-
-@app.template_filter('age')
-def age(dt):
-    suffix = u"ago"
-    delta = datetime.utcnow() - dt
-    if delta.days == 0:
-        # < 1 day
-        if delta.seconds < 10:
-            return "seconds %s" % suffix
-        elif delta.seconds < 60:
-            return "%d seconds %s" % (delta.seconds, suffix)
-        elif delta.seconds < 120:
-            return "a minute %s" % suffix
-        elif delta.seconds < 3600:  # < 1 hour
-            return "%d minutes %s" % (int(delta.seconds / 60), suffix)
-        elif delta.seconds < 7200:  # < 2 hours
-            return "an hour %s" % suffix
-        else:
-            return "%d hours %s" % (int(delta.seconds / 3600), suffix)
-    elif delta.days == 1:
-        return u"a day %s" % suffix
-    else:
-        return u"%d days %s" % (delta.days, suffix)
-
-
-#@app.route('/email')
-#@lastuser.requires_login
-#def show_email():
-#    return jsonp(lastuser.call_resource('email', all=1))
-
-
-#@app.route('/api/event', methods=['POST'])
-#@lastuser.resource_handler('event')
-#def api_event(token):
-#    return jsonp(token)

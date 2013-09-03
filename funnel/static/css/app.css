@@ -244,6 +244,14 @@ img.login_avatar {
   display: block;
 }
 
+@media screen and (min-width: 768px) {
+  .breadcrumbs {
+    margin-top: -1em;
+    margin-bottom: 1em;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
 /* Form elements */
 div.field {
   *zoom: 1;
@@ -422,6 +430,10 @@ span.loading.hidden {
   display: none;
 }
 
+.listwidget ul > li.selected > label {
+  font-weight: bold !important;
+}
+
 /* Tables */
 table.listing {
   -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -465,7 +477,7 @@ table.listing {
 }
 
 .infosheet {
-  margin: 1em -15px;
+  margin: -0.7em -15px 1em -15px;
   padding-bottom: 1em;
   border: 1px solid #afafaf;
   -webkit-border-radius: 4px;
@@ -480,7 +492,9 @@ table.listing {
   padding-left: 1em;
 }
 .infosheet .votebox .choices {
-  font-size: 200%;
+  font-size: 180%;
+  margin-top: 10px;
+  text-align: center;
 }
 .infosheet .votebox .choices span.score {
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
@@ -540,14 +554,21 @@ table.listing {
 }
 .infosheet .section .social {
   position: relative;
-  margin: 1em 0;
+  margin: 0.2em 0 -0.5em 0;
 }
 .infosheet .section .social iframe {
   display: inline-block;
 }
-.infosheet .section .social .facebooklike {
+.infosheet .section .social iframe.twitter-share-button {
+  width: 88px !important;
+}
+.infosheet .section .social iframe.facebooklike {
   position: relative;
   top: 1px;
+  width: 125px !important;
+}
+.infosheet .section .social #___plusone_0 {
+  width: 70px !important;
 }
 .infosheet .section.bar {
   position: relative;
@@ -561,6 +582,10 @@ table.listing {
 }
 .infosheet .section.first {
   border-top: none;
+  text-align: center;
+}
+.infosheet .section.first h1 {
+  margin-bottom: 10px;
 }
 .infosheet .embed-container {
   position: relative;
@@ -611,21 +636,30 @@ table.listing {
 }
 @media screen and (min-width: 768px) {
   .infosheet {
-    margin: 1em auto;
+    margin: 0em auto 2em auto;
     -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
     -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
     box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
   }
+  .infosheet .votebox .choices {
+    font-size: 200%;
+    margin-top: 10px;
+    text-align: right;
+  }
   .infosheet .section {
     padding: 0 2em;
+  }
+  .infosheet .section .social {
+    margin: 1em 0;
   }
   .infosheet .section.bar {
     position: relative;
     color: white;
     background-color: #df5e0e;
     padding: 1px 3em;
-    margin: 1em -1em;
+    margin: 0 -1em 1em -1em;
     font-size: 14px;
+    text-align: left;
     -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
     -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
     box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
@@ -649,6 +683,16 @@ table.listing {
     right: -1em;
     bottom: -0.5em;
     border-color: transparent transparent transparent #df5e0e;
+  }
+  .infosheet .section.first {
+    margin-top: 8px;
+    margin-bottom: 5px;
+    text-align: left;
+  }
+}
+@media screen and (min-width: 768px) and (max-width: 992px) {
+  .infosheet .votebox .choices {
+    font-size: 180%;
   }
 }
 dl dt {
@@ -741,7 +785,7 @@ dl.bar dd:last-child {
   }
 }
 .leftear, .rightear {
-  margin: 2em 0;
+  margin: 0;
   padding: 0;
   width: 4em;
 }
@@ -799,6 +843,11 @@ dl.bar dd:last-child {
   transition: right 0.1s linear;
 }
 
+@media screen and (min-width: 768px) {
+  .leftear, .rightear {
+    margin: 2em 0;
+  }
+}
 .comments {
   list-style: none;
   margin-left: 0;
@@ -879,6 +928,31 @@ dl.bar dd:last-child {
   text-decoration: none;
 }
 
+form#newcomment #field-comment_message {
+  margin-bottom: -15px;
+}
+form#newcomment #field-comment_message .control-label {
+  width: auto !important;
+  padding-bottom: 5px;
+}
+form#newcomment #field-comment_message .help-required {
+  float: right;
+}
+form#newcomment #field-comment_message > .col-md-2, form#newcomment #field-comment_message > .col-md-8 {
+  width: 100%;
+}
+form#newcomment #comment-submit {
+  margin-top: 5px;
+}
+
+@media screen and (min-width: 768px) {
+  form#newcomment #field-comment_message > .col-md-2, form#newcomment #field-comment_message > .col-md-8 {
+    padding: 0;
+  }
+  form#newcomment #comment-submit {
+    margin-top: 15px;
+  }
+}
 /* markdown preview related */
 div.field div.preview-control {
   float: left;
