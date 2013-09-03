@@ -9,7 +9,7 @@
     {% for error in form.csrf_token.errors %}<div class="error">{{ error }}</div>{% endfor %}
   {% endif %}
   <input class="btn btn-danger" type="submit" name="delete" value="Delete"/>
-  <input class="btn" type="submit" name="cancel" value="Cancel"/>
+  <input class="btn btn-default" type="submit" name="cancel" value="Cancel"/>
 </form>
 
 {% endblock %}
