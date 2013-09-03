@@ -938,22 +938,19 @@ form#newcomment #field-comment_message .control-label {
 form#newcomment #field-comment_message .help-required {
   float: right;
 }
-form#newcomment #comment-submit {
-  margin-top: 20px;
-  margin-left: 15px;
-}
-form#newcomment label.col-md-2, form#newcomment .controls.col-md-8 {
+form#newcomment #field-comment_message > .col-md-2, form#newcomment #field-comment_message > .col-md-8 {
   width: 100%;
+}
+form#newcomment #comment-submit {
+  margin-top: 5px;
 }
 
 @media screen and (min-width: 768px) {
-  form#newcomment #field-comment_message {
-    margin-bottom: 0;
-    margin-left: -15px;
-    margin-right: -15px;
+  form#newcomment #field-comment_message > .col-md-2, form#newcomment #field-comment_message > .col-md-8 {
+    padding: 0;
   }
   form#newcomment #comment-submit {
-    margin-left: 0;
+    margin-top: 15px;
   }
 }
 /* markdown preview related */
