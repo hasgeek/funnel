@@ -3,6 +3,7 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.lastuser.sqlalchemy import UserBase
 from coaster import make_name
+from coaster.sqlalchemy import MarkdownColumn
 from .. import app
 
 __all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
@@ -255,9 +256,7 @@ class Proposal(BaseMixin, db.Model):
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
-    bio = db.Column(db.Text, nullable=True)
-    bio_html = db.Column(db.Text, nullable=True)
-
+    bio = MarkdownColumn(db, 'bio')
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
@@ -266,14 +265,11 @@ class Proposal(BaseMixin, db.Model):
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
-    objective = db.Column(db.Text, nullable=False)
-    objective_html = db.Column(db.Text, nullable=False)
+    objective = MarkdownColumn(db, 'objective')
     session_type = db.Column(db.Unicode(40), nullable=False, default=u'')
     technical_level = db.Column(db.Unicode(40), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    description_html = db.Column(db.Text, nullable=False)
-    requirements = db.Column(db.Text, nullable=False)
-    requirements_html = db.Column(db.Text, nullable=False)
+    description = MarkdownColumn(db, 'description')
+    requirements = MarkdownColumn(db, 'requirements')
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     tags = db.relationship(Tag, secondary=proposal_tags)
