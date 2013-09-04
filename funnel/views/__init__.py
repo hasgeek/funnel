@@ -199,7 +199,7 @@ def editspace(name):
     return render_template('baseframe/autoform.html', form=form, title="Edit proposal space", submit="Save changes")
 
 
-@app.route('/<name>/newsection', methods=['GET', 'POST'])
+@app.route('/<name>/sections/new', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 def newsection(name):
     space = ProposalSpace.query.filter_by(name=name).first()
@@ -216,7 +216,7 @@ def newsection(name):
     return render_template('baseframe/autoform.html', form=form, title="New section", submit="Create section")
 
 
-@app.route('/<space>/<section>/edit', methods=['GET', 'POST'])
+@app.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
@@ -228,10 +228,10 @@ def section_edit(space, section):
         db.session.commit()
         flash("Your section has been edited", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="Edit section", submit="Edit section")
+    return render_template('baseframe/autoform.html', form=form, title="Edit section", submit="Edit section")
 
 
-@app.route('/<space>/<section>/delete', methods=['GET', 'POST'])
+@app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
