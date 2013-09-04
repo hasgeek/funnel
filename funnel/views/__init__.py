@@ -228,7 +228,7 @@ def section_edit(space, section):
         db.session.commit()
         flash("Your section has been edited", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('autoform.html', form=form, title="Edit section", submit="Edit section")
+    return render_template('baseframe/autoform.html', form=form, title="Edit section", submit="Edit section")
 
 
 @app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'])
