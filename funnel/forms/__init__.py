@@ -10,7 +10,8 @@ class ProposalSpaceForm(Form):
     name = wtforms.TextField('URL name', validators=[wtforms.validators.Required()])
     title = wtforms.TextField('Title', validators=[wtforms.validators.Required()])
     datelocation = wtforms.TextField('Date and Location', validators=[wtforms.validators.Required()])
-    date = wtforms.DateField('Date (for sorting)', validators=[wtforms.validators.Required()])
+    date = wtforms.DateField('Date (for sorting)',
+            validators=[wtforms.validators.Required('Enter a valid date in YYYY-MM-DD format.')])
     tagline = wtforms.TextField('Tagline', validators=[wtforms.validators.Required()])
     description = wtforms.TextAreaField('Description', validators=[wtforms.validators.Required()])
     status = wtforms.SelectField('Status', coerce=int, choices=[
