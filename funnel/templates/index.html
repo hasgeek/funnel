@@ -12,6 +12,7 @@
       {% endblock %}
       <p>
         {{ config['WELCOME_MESSAGE'] }}
+        <a href="{{url_for('newspace')}}" style="float:right">New space</a>
       </p>
     </div>
   </div>
@@ -33,7 +34,9 @@
       {% endfor %}
     </ul>
   {% else %}
-    <p>There are no discussion spaces at this time.</p>
+    <p>There are no discussion spaces at this time.
+        <a href="{{url_for('newspace')}}">Create a one</a>.
+    </p>
   {% endif %}
 
 {% endblock %}
