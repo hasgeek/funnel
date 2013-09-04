@@ -74,7 +74,7 @@ class ProposalForm(Form):
     slides = wtforms.fields.html5.URLField('Slides', validators=[wtforms.validators.Optional(), wtforms.validators.URL()],
         description="Link to your slides. These can be just an outline initially. "
             "If you provide a Slideshare link, we'll embed slides in the page")
-    links = MarkdownField('Links',
+    links = wtforms.TextAreaField('Links',
         description="Other links, one per line. Provide links to your profile and "
             "slides and videos from your previous sessions; anything that'll help "
             "folks decide if they want to attend your session")
