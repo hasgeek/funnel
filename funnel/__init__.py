@@ -39,5 +39,5 @@ def init_for(env):
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
     baseframe.init_app(app, requires=[
-        'baseframe-bs3', 'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'funnel'
+        'baseframe-bs3', 'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'funnel', 'codemirror'
         ])
