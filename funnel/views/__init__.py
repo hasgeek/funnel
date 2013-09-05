@@ -63,7 +63,7 @@ def get_proposal_id(slug):
         proposal_id = int(slug.split('-')[0])
     except ValueError:
         abort(404)
-    return slug
+    return proposal_id
 
 # --- Routes ------------------------------------------------------------------
 
