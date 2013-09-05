@@ -256,7 +256,7 @@ class Proposal(BaseMixin, db.Model):
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
-    bio = MarkdownColumn(db, 'bio')
+    bio = MarkdownColumn(db, 'bio', nullable=True)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
@@ -265,11 +265,11 @@ class Proposal(BaseMixin, db.Model):
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
-    objective = MarkdownColumn(db, 'objective')
+    objective = MarkdownColumn(db, 'objective', nullable=False)
     session_type = db.Column(db.Unicode(40), nullable=False, default=u'')
     technical_level = db.Column(db.Unicode(40), nullable=False)
-    description = MarkdownColumn(db, 'description')
-    requirements = MarkdownColumn(db, 'requirements')
+    description = MarkdownColumn(db, 'description', nullable=False)
+    requirements = MarkdownColumn(db, 'requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     tags = db.relationship(Tag, secondary=proposal_tags)
