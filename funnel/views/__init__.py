@@ -131,11 +131,9 @@ def account():
 @lastuser.requires_permission('siteadmin')
 def newspace():
     form = ProposalSpaceForm()
-    form.description.flags.markdown = True
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user)
         form.populate_obj(space)
-        space.description_html = markdown(space.description)
         db.session.add(space)
         db.session.commit()
         flash("Your new space has been created", "info")
@@ -146,11 +144,10 @@ def newspace():
 @app.route('/<name>/')
 def viewspace(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    description = Markup(space.description_html)
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
     unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
-    return render_template('space.html', space=space, description=description, sections=sections,
+    return render_template('space.html', space=space, description=space.description, sections=sections,
         confirmed=confirmed, unconfirmed=unconfirmed, is_siteadmin=lastuser.has_permission('siteadmin'))
 
 
@@ -193,10 +190,8 @@ def viewspace_csv(name):
 def editspace(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
     form = ProposalSpaceForm(obj=space)
-    form.description.flags.markdown = True
     if form.validate_on_submit():
         form.populate_obj(space)
-        space.description_html = markdown(space.description)
         db.session.commit()
         flash("Your changes have been saved", "info")
         return redirect(url_for('viewspace', name=space.name), code=303)
@@ -494,7 +489,6 @@ def viewsession(name, slug):
                 if comment:
                     if comment.user == g.user:
                         comment.message = commentform.message.data
-                        comment.message_html = markdown(comment.message)
                         comment.edited_at = datetime.utcnow()
                         flash("Your comment has been edited", "info")
                     else:
@@ -529,7 +523,6 @@ def viewsession(name, slug):
                         send_mail_info.append({'to': proposal.user.email or proposal.email,
                             'subject': "%s Funnel:%s" % (name, proposal.title),
                             'template': 'proposal_comment_email.md'})
-                comment.message_html = markdown(comment.message)
                 proposal.comments.count += 1
                 comment.votes.vote(g.user)  # Vote for your own comment
                 db.session.add(comment)
@@ -606,12 +599,12 @@ def proposal_data(proposal):
             'section': proposal.section.title if proposal.section else None,
             'type': proposal.session_type,
             'level': proposal.technical_level,
-            'objective': proposal.objective_html,
-            'description': proposal.description_html,
-            'requirements': proposal.requirements_html,
+            'objective': proposal.objective.html,
+            'description': proposal.description.html,
+            'requirements': proposal.requirements.html,
             'slides': proposal.slides,
             'links': proposal.links,
-            'bio': proposal.bio_html,
+            'bio': proposal.bio.html,
             'votes': proposal.votes.count,
             'votes_count': votes_count,
             'votes_groups': votes_groups,

@@ -143,8 +143,7 @@ class Comment(BaseMixin, db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
     children = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"))
 
-    message = db.Column(db.Text, nullable=False)
-    message_html = db.Column(db.Text, nullable=False)
+    message = MarkdownColumn(db, 'message', nullable=False)
 
     status = db.Column(db.Integer, default=0, nullable=False)
 
@@ -165,7 +164,6 @@ class Comment(BaseMixin, db.Model):
             self.status = COMMENTSTATUS.DELETED
             self.user = None
             self.message = ''
-            self.message_html = ''
         else:
             if self.parent and self.parent.is_deleted:
                 # If the parent is deleted, ask it to reconsider removing itself
@@ -193,8 +191,7 @@ class ProposalSpace(BaseMixin, db.Model):
     name = db.Column(db.Unicode(80), unique=True, nullable=False)
     title = db.Column(db.Unicode(80), nullable=False)
     tagline = db.Column(db.Unicode(250), nullable=False)
-    description = db.Column(db.Text, default=u'', nullable=False)
-    description_html = db.Column(db.Text, default=u'', nullable=False)
+    description = MarkdownColumn(db, 'description', default=u'', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=False)
     website = db.Column(db.Unicode(250), nullable=True)

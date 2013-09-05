@@ -35,7 +35,7 @@
       </div>
       <div class="com-body">
         {% if not comment.is_deleted -%}
-          {{ comment.message_html|safe }}
+          {{ comment.message }}
         {%- endif %}
         <div data-id="{{ comment.id }}" class="com-footer">
           {% if not comment.is_deleted %}
