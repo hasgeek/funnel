@@ -57,6 +57,14 @@ proposal_headers = [
     'confirmed'
     ]
 
+# helper function
+def get_proposal_id(slug):
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    return slug
+
 # --- Routes ------------------------------------------------------------------
 
 
@@ -137,9 +145,7 @@ def newspace():
 
 @app.route('/<name>/')
 def viewspace(name):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
     description = Markup(space.description_html)
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
@@ -185,9 +191,7 @@ def viewspace_csv(name):
 @app.route('/<name>/edit', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 def editspace(name):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
     form = ProposalSpaceForm(obj=space)
     form.description.flags.markdown = True
     if form.validate_on_submit():
@@ -202,9 +206,7 @@ def editspace(name):
 @app.route('/<name>/sections/new', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 def newsection(name):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
     form = SectionForm()
     if form.validate_on_submit():
         section = ProposalSpaceSection(proposal_space=space)
@@ -370,13 +372,9 @@ def newsession(name):
 @app.route('/<name>/<slug>/edit', methods=['GET', 'POST'])
 @lastuser.requires_login
 def editsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    proposal_id = int(slug.split('-')[0])
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     if proposal.user != g.user and not lastuser.has_permission('siteadmin'):
         abort(403)
     form = ProposalForm(obj=proposal)
@@ -415,10 +413,8 @@ def editsession(name, slug):
 @lastuser.requires_permission('siteadmin')
 def confirmsession(name, slug):
     ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = int(slug.split('-')[0])
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     form = ConfirmSessionForm()
     if form.validate_on_submit():
         proposal.confirmed = not proposal.confirmed
@@ -433,13 +429,9 @@ def confirmsession(name, slug):
 @app.route('/<name>/<slug>/delete', methods=['GET', 'POST'])
 @lastuser.requires_login
 def deletesession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    proposal_id = int(slug.split('-')[0])
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     if not lastuser.has_permission('siteadmin') and proposal.user != g.user:
         abort(403)
     form = ConfirmDeleteForm()
@@ -481,16 +473,9 @@ def send_mail(sender, to, body, subject):
 
 @app.route('/<name>/<slug>', methods=['GET', 'POST'])
 def viewsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     if proposal.proposal_space != space:
         return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
     if slug != proposal.urlname:
@@ -647,16 +632,9 @@ def proposal_data_flat(proposal, groups=[]):
 
 @app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
 def session_json(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     if proposal.proposal_space != space:
         return redirect(url_for('viewspace', name=space.name))
     if slug != proposal.urlname:
@@ -668,16 +646,9 @@ def session_json(name, slug):
 @app.route('/<name>/<slug>/voteup')
 @lastuser.requires_login
 def voteupsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     proposal.votes.vote(g.user, votedown=False)
     db.session.commit()
     flash("Your vote has been recorded", "info")
@@ -688,16 +659,9 @@ def voteupsession(name, slug):
 @app.route('/<name>/<slug>/votedown')
 @lastuser.requires_login
 def votedownsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     proposal.votes.vote(g.user, votedown=True)
     db.session.commit()
     flash("Your vote has been recorded", "info")
@@ -708,16 +672,9 @@ def votedownsession(name, slug):
 @app.route('/<name>/<slug>/cancelvote')
 @lastuser.requires_login
 def votecancelsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     proposal.votes.cancelvote(g.user)
     db.session.commit()
     flash("Your vote has been withdrawn", "info")
@@ -726,14 +683,9 @@ def votecancelsession(name, slug):
 
 @app.route('/<name>/<slug>/comments/<int:cid>/json')
 def jsoncomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    proposal_id = int(slug.split('-')[0])
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     comment = Comment.query.get(cid)
     if comment:
         return jsonp(message=comment.message)
@@ -745,19 +697,10 @@ def jsoncomment(name, slug, cid):
 @app.route('/<name>/<slug>/comments/<int:cid>/voteup')
 @lastuser.requires_login
 def voteupcomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-    comment = Comment.query.get(cid)
-    if not comment:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
+    comment = Comment.query.get_or_404(cid)
     comment.votes.vote(g.user, votedown=False)
     db.session.commit()
     flash("Your vote has been recorded", "info")
@@ -768,19 +711,10 @@ def voteupcomment(name, slug, cid):
 @app.route('/<name>/<slug>/comments/<int:cid>/votedown')
 @lastuser.requires_login
 def votedowncomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-    comment = Comment.query.get(cid)
-    if not comment:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
+    comment = Comment.query.get_or_404(cid)
     comment.votes.vote(g.user, votedown=True)
     db.session.commit()
     flash("Your vote has been recorded", "info")
@@ -791,19 +725,10 @@ def votedowncomment(name, slug, cid):
 @app.route('/<name>/<slug>/comments/<int:cid>/cancelvote')
 @lastuser.requires_login
 def votecancelcomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-    comment = Comment.query.get(cid)
-    if not comment:
-        abort(404)
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
+    comment = Comment.query.get_or_404(cid)
     comment.votes.cancelvote(g.user)
     db.session.commit()
     flash("Your vote has been withdrawn", "info")
@@ -812,17 +737,9 @@ def votecancelcomment(name, slug, cid):
 
 @app.route('/<name>/<slug>/next')
 def nextsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     next = proposal.getnext()
     if next:
         return redirect(url_for('viewsession', name=space.name, slug=next.urlname))
@@ -833,17 +750,9 @@ def nextsession(name, slug):
 
 @app.route('/<name>/<slug>/prev')
 def prevsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-
+    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    proposal_id = get_proposal_id(slug)
+    proposal = Proposal.query.get_or_404(proposal_id)
     prev = proposal.getprev()
     if prev:
         return redirect(url_for('viewsession', name=space.name, slug=prev.urlname))
