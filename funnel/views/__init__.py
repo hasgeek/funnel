@@ -63,7 +63,7 @@ proposal_headers = [
 @app.route('/')
 def index():
     spaces = ProposalSpace.query.filter(ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()
-    return render_template('index.html', spaces=spaces)
+    return render_template('index.html', spaces=spaces, siteadmin=lastuser.has_permission('siteadmin'))
 
 
 @app.route('/favicon.ico')
@@ -145,7 +145,7 @@ def viewspace(name):
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
     unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=description, sections=sections,
-        confirmed=confirmed, unconfirmed=unconfirmed, is_siteadmin=lastuser.has_permission('siteadmin'))
+        confirmed=confirmed, unconfirmed=unconfirmed, siteadmin=lastuser.has_permission('siteadmin'))
 
 
 @app.route('/<name>/json')

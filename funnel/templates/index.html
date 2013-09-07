@@ -12,7 +12,7 @@
       {% endblock %}
       <p>
         {{ config['WELCOME_MESSAGE'] }}
-        <a href="{{url_for('newspace')}}" style="float:right">New space</a>
+        {% if siteadmin %}<a href="{{url_for('newspace')}}" style="float:right">New space</a>{% endif %}
       </p>
     </div>
   </div>
