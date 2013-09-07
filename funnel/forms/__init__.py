@@ -13,7 +13,7 @@ class ProposalSpaceForm(Form):
     date = wtforms.DateField('Date (for sorting)',
             validators=[wtforms.validators.Required('Enter a valid date in YYYY-MM-DD format.')])
     tagline = wtforms.TextField('Tagline', validators=[wtforms.validators.Required()])
-    description = wtforms.TextAreaField('Description', validators=[wtforms.validators.Required()])
+    description = MarkdownField('Description', validators=[wtforms.validators.Required()])
     status = wtforms.SelectField('Status', coerce=int, choices=[
         (0, 'Draft'),
         (1, 'Open'),
