@@ -141,7 +141,7 @@ def viewspace(name):
     if not space:
         abort(404)
     description = Markup(space.description_html)
-    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
     unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=description, sections=sections,
@@ -151,7 +151,7 @@ def viewspace(name):
 @app.route('/<name>/json')
 def viewspace_json(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return jsonp(**{
         'space': {
