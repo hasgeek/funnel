@@ -33,7 +33,8 @@ from ..forms import (
     DeleteCommentForm,
     ConfirmDeleteForm,
     ConfirmSessionForm)
-from coaster import make_name
+from coaster.utils import make_name
+from coaster.views import requestargs
 
 jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
@@ -665,6 +666,55 @@ def proposal_data_flat(proposal, groups=[]):
     for name in groups:
         cols.append(data['votes_groups'][name])
     return cols
+
+
+@app.route('/<name>/<slug>/feedback', methods=['POST'])
+@requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
+def session_feedback(name, slug, id_type, userid, content, presentation, min_scale=0, max_scale=2):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    if proposal.proposal_space != space:
+        return redirect(url_for('viewspace', name=space.name))
+    if slug != proposal.urlname:
+        return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
+
+    # Process feedback
+    if not min_scale <= content <= max_scale:
+        abort(400)
+    if not min_scale <= presentation <= max_scale:
+        abort(400)
+    if id_type != 'email':
+        abort(400)
+
+    # Was feedback already submitted?
+    feedback = ProposalFeedback.query.filter_by(
+        proposal=proposal,
+        auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
+        id_type=id_type,
+        userid=userid).first()
+    if feedback is not None:
+        return "Dupe\n", 403
+    else:
+        feedback = ProposalFeedback(
+            proposal=proposal,
+            auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
+            id_type=id_type,
+            userid=userid,
+            min_scale=min_scale,
+            max_scale=max_scale,
+            content=content,
+            presentation=presentation)
+        db.session.add(feedback)
+        db.session.commit()
+        return "Saved\n", 201
 
 
 @app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
