@@ -13,7 +13,7 @@ class ProposalSpaceForm(Form):
     date = wtforms.DateField('Date (for sorting)',
             validators=[wtforms.validators.Required('Enter a valid date in YYYY-MM-DD format.')])
     tagline = wtforms.TextField('Tagline', validators=[wtforms.validators.Required()])
-    description = wtforms.TextAreaField('Description', validators=[wtforms.validators.Required()])
+    description = MarkdownField('Description', validators=[wtforms.validators.Required()])
     status = wtforms.SelectField('Status', coerce=int, choices=[
         (0, 'Draft'),
         (1, 'Open'),
@@ -86,7 +86,7 @@ class ProposalForm(Form):
 class CommentForm(Form):
     parent_id = wtforms.HiddenField('Parent', default="", id="comment_parent_id")
     comment_edit_id = wtforms.HiddenField('Edit', default="", id="comment_edit_id")
-    message = wtforms.TextAreaField('Add comment', id="comment_message", validators=[wtforms.validators.Required()])
+    message = MarkdownField('Add comment', id="comment_message", validators=[wtforms.validators.Required()])
 
 
 class DeleteCommentForm(Form):

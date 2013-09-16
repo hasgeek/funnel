@@ -3,6 +3,7 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.lastuser.sqlalchemy import UserBase
 from coaster import make_name
+from coaster.sqlalchemy import MarkdownColumn, MarkdownComposite
 from .. import app
 
 __all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
@@ -142,8 +143,7 @@ class Comment(BaseMixin, db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
     children = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"))
 
-    message = db.Column(db.Text, nullable=False)
-    message_html = db.Column(db.Text, nullable=False)
+    message = MarkdownColumn(db, 'message', nullable=False)
 
     status = db.Column(db.Integer, default=0, nullable=False)
 
@@ -153,6 +153,7 @@ class Comment(BaseMixin, db.Model):
     edited_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
+        kwargs['message'] = MarkdownComposite(kwargs.get('message', ''))
         super(Comment, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.COMMENT)
 
@@ -164,7 +165,6 @@ class Comment(BaseMixin, db.Model):
             self.status = COMMENTSTATUS.DELETED
             self.user = None
             self.message = ''
-            self.message_html = ''
         else:
             if self.parent and self.parent.is_deleted:
                 # If the parent is deleted, ask it to reconsider removing itself
@@ -192,8 +192,7 @@ class ProposalSpace(BaseMixin, db.Model):
     name = db.Column(db.Unicode(80), unique=True, nullable=False)
     title = db.Column(db.Unicode(80), nullable=False)
     tagline = db.Column(db.Unicode(250), nullable=False)
-    description = db.Column(db.Text, default=u'', nullable=False)
-    description_html = db.Column(db.Text, default=u'', nullable=False)
+    description = MarkdownColumn(db, 'description', default=u'', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=False)
     website = db.Column(db.Unicode(250), nullable=True)
@@ -206,6 +205,7 @@ class ProposalSpace(BaseMixin, db.Model):
     comments = db.relationship(CommentSpace, uselist=False)
 
     def __init__(self, **kwargs):
+        kwargs['description'] = MarkdownComposite(kwargs.get('description', ''))
         super(ProposalSpace, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
@@ -255,9 +255,7 @@ class Proposal(BaseMixin, db.Model):
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
-    bio = db.Column(db.Text, nullable=True)
-    bio_html = db.Column(db.Text, nullable=True)
-
+    bio = MarkdownColumn(db, 'bio', nullable=True)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
@@ -266,14 +264,11 @@ class Proposal(BaseMixin, db.Model):
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
-    objective = db.Column(db.Text, nullable=False)
-    objective_html = db.Column(db.Text, nullable=False)
+    objective = MarkdownColumn(db, 'objective', nullable=False)
     session_type = db.Column(db.Unicode(40), nullable=False, default=u'')
     technical_level = db.Column(db.Unicode(40), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    description_html = db.Column(db.Text, nullable=False)
-    requirements = db.Column(db.Text, nullable=False)
-    requirements_html = db.Column(db.Text, nullable=False)
+    description = MarkdownColumn(db, 'description', nullable=False)
+    requirements = MarkdownColumn(db, 'requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     tags = db.relationship(Tag, secondary=proposal_tags)
@@ -289,6 +284,8 @@ class Proposal(BaseMixin, db.Model):
     edited_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
+        for k in ('bio', 'objective', 'description', 'requirements'):
+            kwargs[k] = MarkdownComposite(kwargs.get(k, ''))
         super(Proposal, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSAL)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
