@@ -143,7 +143,7 @@ class Comment(BaseMixin, db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
     children = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"))
 
-    message = MarkdownColumn(db, 'message', nullable=False)
+    message = MarkdownColumn('message', nullable=False)
 
     status = db.Column(db.Integer, default=0, nullable=False)
 
@@ -192,7 +192,7 @@ class ProposalSpace(BaseMixin, db.Model):
     name = db.Column(db.Unicode(80), unique=True, nullable=False)
     title = db.Column(db.Unicode(80), nullable=False)
     tagline = db.Column(db.Unicode(250), nullable=False)
-    description = MarkdownColumn(db, 'description', default=u'', nullable=False)
+    description = MarkdownColumn('description', default=u'', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=False)
     website = db.Column(db.Unicode(250), nullable=True)
@@ -255,7 +255,7 @@ class Proposal(BaseMixin, db.Model):
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
-    bio = MarkdownColumn(db, 'bio', nullable=True)
+    bio = MarkdownColumn('bio', nullable=True)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
@@ -264,11 +264,11 @@ class Proposal(BaseMixin, db.Model):
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
-    objective = MarkdownColumn(db, 'objective', nullable=False)
+    objective = MarkdownColumn('objective', nullable=False)
     session_type = db.Column(db.Unicode(40), nullable=False, default=u'')
     technical_level = db.Column(db.Unicode(40), nullable=False)
-    description = MarkdownColumn(db, 'description', nullable=False)
-    requirements = MarkdownColumn(db, 'requirements', nullable=False)
+    description = MarkdownColumn('description', nullable=False)
+    requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     tags = db.relationship(Tag, secondary=proposal_tags)
