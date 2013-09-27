@@ -33,7 +33,8 @@ from ..forms import (
     DeleteCommentForm,
     ConfirmDeleteForm,
     ConfirmSessionForm)
-from coaster import make_name
+from coaster.utils import make_name
+from coaster.views import requestargs
 
 jsoncallback_re = re.compile(r'^[a-z$_][0-9a-z$_]*$', re.I)
 
@@ -71,7 +72,7 @@ def get_proposal_id(slug):
 @app.route('/')
 def index():
     spaces = ProposalSpace.query.filter(ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()
-    return render_template('index.html', spaces=spaces)
+    return render_template('index.html', spaces=spaces, siteadmin=lastuser.has_permission('siteadmin'))
 
 
 @app.route('/favicon.ico')
@@ -144,7 +145,7 @@ def newspace():
 @app.route('/<name>/')
 def viewspace(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
     unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=space.description, sections=sections,
@@ -154,7 +155,7 @@ def viewspace(name):
 @app.route('/<name>/json')
 def viewspace_json(name):
     space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    sections = ProposalSpaceSection.query.filter_by(proposal_space=space).order_by('title').all()
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return jsonp(**{
         'space': {
@@ -334,11 +335,18 @@ def usergroup_delete(name, group):
 @app.route('/<name>/new', methods=['GET', 'POST'])
 @lastuser.requires_login
 def newsession(name):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
     if space.status != SPACESTATUS.SUBMISSIONS:
         abort(403)
     form = ProposalForm()
     del form.session_type  # We don't use this anymore
+    # Set markdown flag to True for fields that need markdown conversion
+    markdown_attrs = ('description', 'objective', 'requirements', 'bio')
+    for name in markdown_attrs:
+        attr = getattr(form, name)
+        attr.flags.markdown = True
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
@@ -354,6 +362,11 @@ def newsession(name):
         proposal.votes.vote(g.user)  # Vote up your own proposal by default
         form.populate_obj(proposal)
         proposal.name = make_name(proposal.title)
+        # Set *_html attributes after converting markdown text
+        for name in markdown_attrs:
+            attr = getattr(proposal, name)
+            html_attr = name + '_html'
+            setattr(proposal, html_attr, markdown(attr))
         db.session.add(proposal)
         db.session.commit()
         flash("Your new session has been saved", "info")
@@ -379,6 +392,11 @@ def editsession(name, slug):
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
+    # Set markdown flag to True for fields that need markdown conversion
+    markdown_attrs = ('description', 'objective', 'requirements', 'bio')
+    for name in markdown_attrs:
+        attr = getattr(form, name)
+        attr.flags.markdown = True
     if proposal.user != g.user:
         del form.speaking
     elif request.method == 'GET':
@@ -393,6 +411,11 @@ def editsession(name, slug):
             else:
                 if proposal.speaker == g.user:
                     proposal.speaker = None
+        # Set *_html attributes after converting markdown text
+        for name in markdown_attrs:
+            attr = getattr(proposal, name)
+            html_attr = name + '_html'
+            setattr(proposal, html_attr, markdown(attr))
         proposal.edited_at = datetime.utcnow()
         db.session.commit()
         flash("Your changes have been saved", "info")
@@ -621,6 +644,55 @@ def proposal_data_flat(proposal, groups=[]):
     for name in groups:
         cols.append(data['votes_groups'][name])
     return cols
+
+
+@app.route('/<name>/<slug>/feedback', methods=['POST'])
+@requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
+def session_feedback(name, slug, id_type, userid, content, presentation, min_scale=0, max_scale=2):
+    space = ProposalSpace.query.filter_by(name=name).first()
+    if not space:
+        abort(404)
+    try:
+        proposal_id = int(slug.split('-')[0])
+    except ValueError:
+        abort(404)
+    proposal = Proposal.query.get(proposal_id)
+    if not proposal:
+        abort(404)
+    if proposal.proposal_space != space:
+        return redirect(url_for('viewspace', name=space.name))
+    if slug != proposal.urlname:
+        return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
+
+    # Process feedback
+    if not min_scale <= content <= max_scale:
+        abort(400)
+    if not min_scale <= presentation <= max_scale:
+        abort(400)
+    if id_type != 'email':
+        abort(400)
+
+    # Was feedback already submitted?
+    feedback = ProposalFeedback.query.filter_by(
+        proposal=proposal,
+        auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
+        id_type=id_type,
+        userid=userid).first()
+    if feedback is not None:
+        return "Dupe\n", 403
+    else:
+        feedback = ProposalFeedback(
+            proposal=proposal,
+            auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
+            id_type=id_type,
+            userid=userid,
+            min_scale=min_scale,
+            max_scale=max_scale,
+            content=content,
+            presentation=presentation)
+        db.session.add(feedback)
+        db.session.commit()
+        return "Saved\n", 201
 
 
 @app.route('/<name>/<slug>/json', methods=['GET', 'POST'])

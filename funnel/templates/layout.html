@@ -1,21 +1,7 @@
-{% extends "baseframe.html" %}
+{% extends "baseframe.html" -%}
 {% from "baseframe/components.html" import responsive_networkbar with context %}
-{% from "baseframe/forms.html" import renderfield, renderform %}
-
-{% block titletags -%}
-  <title>{{ config['SITE_TITLE'] }}</title>
-  <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
-{%- endblock %}
 
 {% block networkbar %}{{ responsive_networkbar(siteid=config['SITE_ID'], login=config['LASTUSER_CLIENT_ID'] and true or false) }}{% endblock %}
-
-{% block flashmessages %}
-  <div id="flash-messages">
-    {%- for category, msg in get_flashed_messages(with_categories=true) %}
-      <div class="flash flash-{{ category }}"><div class="flashmessage">{{ msg }}</div></div>
-    {%- endfor %}
-  </div>
-{% endblock %}
 
 {% block baseheadline -%}
   {%- if breadcrumbs %}
@@ -31,28 +17,7 @@
     <h1>{{ self.title()|e }}</h1>
   {%- endblock %}
 {%- endblock %}
+
 {% block basecontent -%}
   {% block content %}{% endblock %}
 {%- endblock %}
-
-{% block layoutscripts -%}
-  {% block footerscripts %}{% endblock %}
-
-  <!--[if lt IE 7 ]>
-    <script src="{{ url_for('static', filename='js/libs/dd_belatedpng.js') }}"></script>
-    <script> DD_belatedPNG.fix('img, .png_bg'); </script>
-  <![endif]-->
-
-  {% if config['GA_CODE'] and not config['DEBUG'] %}
-    <script type="text/javascript">
-     var _gaq = [['_setAccount', '{{ config['GA_CODE'] }}'], ['_trackPageview']];
-     (function(d, t) {
-      var g = d.createElement(t),
-          s = d.getElementsByTagName(t)[0];
-      g.async = true;
-      g.src = ('https:' == location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      s.parentNode.insertBefore(g, s);
-     })(document, 'script');
-    </script>
-  {% endif -%}
-{% endblock %}

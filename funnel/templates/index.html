@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 
+{% block titletags -%}
+  <title>{{ config['SITE_TITLE'] }}</title>
+  <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
+{%- endblock %}
+
 {% block baseheadline -%}
   {% block headline -%}{%- endblock %}
 {%- endblock %}
@@ -12,7 +17,7 @@
       {% endblock %}
       <p>
         {{ config['WELCOME_MESSAGE'] }}
-        <a href="{{url_for('newspace')}}" style="float:right">New space</a>
+        {% if siteadmin %}<a href="{{url_for('newspace')}}" style="float:right">New space</a>{% endif %}
       </p>
     </div>
   </div>
