@@ -342,11 +342,6 @@ def newsession(name):
         abort(403)
     form = ProposalForm()
     del form.session_type  # We don't use this anymore
-    # Set markdown flag to True for fields that need markdown conversion
-    markdown_attrs = ('description', 'objective', 'requirements', 'bio')
-    for name in markdown_attrs:
-        attr = getattr(form, name)
-        attr.flags.markdown = True
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
@@ -362,11 +357,6 @@ def newsession(name):
         proposal.votes.vote(g.user)  # Vote up your own proposal by default
         form.populate_obj(proposal)
         proposal.name = make_name(proposal.title)
-        # Set *_html attributes after converting markdown text
-        for name in markdown_attrs:
-            attr = getattr(proposal, name)
-            html_attr = name + '_html'
-            setattr(proposal, html_attr, markdown(attr))
         db.session.add(proposal)
         db.session.commit()
         flash("Your new session has been saved", "info")
@@ -392,11 +382,6 @@ def editsession(name, slug):
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
-    # Set markdown flag to True for fields that need markdown conversion
-    markdown_attrs = ('description', 'objective', 'requirements', 'bio')
-    for name in markdown_attrs:
-        attr = getattr(form, name)
-        attr.flags.markdown = True
     if proposal.user != g.user:
         del form.speaking
     elif request.method == 'GET':
@@ -411,11 +396,6 @@ def editsession(name, slug):
             else:
                 if proposal.speaker == g.user:
                     proposal.speaker = None
-        # Set *_html attributes after converting markdown text
-        for name in markdown_attrs:
-            attr = getattr(proposal, name)
-            html_attr = name + '_html'
-            setattr(proposal, html_attr, markdown(attr))
         proposal.edited_at = datetime.utcnow()
         db.session.commit()
         flash("Your changes have been saved", "info")
@@ -485,7 +465,7 @@ def urllink(m):
 def send_mail(sender, to, body, subject):
     msg = Message(sender=sender, subject=subject, recipients=[to])
     msg.body = body
-    msg.html = markdown(msg.body)
+    msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
     mail.send(msg)
 
 
@@ -502,7 +482,6 @@ def viewsession(name, slug):
     comments = sorted(Comment.query.filter_by(commentspace=proposal.comments, parent=None).order_by('created_at').all(),
         key=lambda c: c.votes.count, reverse=True)
     commentform = CommentForm()
-    commentform.message.flags.markdown = True
     delcommentform = DeleteCommentForm()
     if request.method == 'POST':
         if request.form.get('form.id') == 'newcomment' and commentform.validate():
