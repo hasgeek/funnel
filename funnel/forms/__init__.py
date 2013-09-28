@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from baseframe.forms import Form, MarkdownField
+from baseframe.forms import Form
+from baseframe.forms.sqlalchemy import MarkdownField
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -86,7 +87,7 @@ class ProposalForm(Form):
 class CommentForm(Form):
     parent_id = wtforms.HiddenField('Parent', default="", id="comment_parent_id")
     comment_edit_id = wtforms.HiddenField('Edit', default="", id="comment_edit_id")
-    message = wtforms.TextAreaField('Add comment', id="comment_message", validators=[wtforms.validators.Required()])
+    message = MarkdownField('Add comment', id="comment_message", validators=[wtforms.validators.Required()])
 
 
 class DeleteCommentForm(Form):
