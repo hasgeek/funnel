@@ -101,16 +101,16 @@
     {%- endif -%}
 
     <h2>Objective</h2>
-    {{ proposal.objective_html|safe }}
+    {{ proposal.objective }}
     <h2>Description</h2>
-    {{ proposal.description_html|safe }}
+    {{ proposal.description }}
     {% if proposal.requirements -%}
       <h2>Requirements</h2>
-      {{ proposal.requirements_html|safe }}
+      {{ proposal.requirements }}
     {%- endif %}
     {% if proposal.bio -%}
       <h2>Speaker bio</h2>
-      {{ proposal.bio_html|safe }}
+      {{ proposal.bio }}
     {%- endif %}
 {% if proposal.slides or proposal.links %}
   </div>
