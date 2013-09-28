@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from baseframe.forms import Form
-from baseframe.forms.sqlalchemy import MarkdownField
+from baseframe.forms import Form, MarkdownField
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField

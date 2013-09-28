@@ -83,7 +83,7 @@ def favicon():
 @app.route('/login')
 @lastuser.login_handler
 def login():
-    return {'scope': 'id email'}
+    return {'scope': 'id email phone'}
 
 
 @app.route('/logout')
@@ -348,6 +348,7 @@ def newsession(name):
         del form.section
     if request.method == 'GET':
         form.email.data = g.user.email
+        form.phone.data = g.user.phone
     if form.validate_on_submit():
         proposal = Proposal(user=g.user, proposal_space=space)
         if form.speaking.data:

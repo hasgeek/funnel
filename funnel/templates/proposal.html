@@ -104,11 +104,11 @@
     {{ proposal.objective }}
     <h2>Description</h2>
     {{ proposal.description }}
-    {% if proposal.requirements -%}
+    {% if proposal.requirements.text -%}
       <h2>Requirements</h2>
       {{ proposal.requirements }}
     {%- endif %}
-    {% if proposal.bio -%}
+    {% if proposal.bio.text -%}
       <h2>Speaker bio</h2>
       {{ proposal.bio }}
     {%- endif %}

@@ -3,7 +3,7 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.lastuser.sqlalchemy import UserBase
 from coaster import make_name
-from coaster.sqlalchemy import MarkdownColumn, MarkdownComposite
+from coaster.sqlalchemy import MarkdownColumn
 from .. import app
 
 __all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
@@ -158,7 +158,6 @@ class Comment(BaseMixin, db.Model):
     edited_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
-        kwargs['message'] = MarkdownComposite(kwargs.get('message', ''))
         super(Comment, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.COMMENT)
 
@@ -210,7 +209,6 @@ class ProposalSpace(BaseMixin, db.Model):
     comments = db.relationship(CommentSpace, uselist=False)
 
     def __init__(self, **kwargs):
-        kwargs['description'] = MarkdownComposite(kwargs.get('description', ''))
         super(ProposalSpace, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
@@ -289,8 +287,6 @@ class Proposal(BaseMixin, db.Model):
     edited_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
-        for k in ('bio', 'objective', 'description', 'requirements'):
-            kwargs[k] = MarkdownComposite(kwargs.get(k, ''))
         super(Proposal, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSAL)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
