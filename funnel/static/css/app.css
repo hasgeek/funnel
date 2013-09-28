@@ -184,7 +184,7 @@ table.listing {
   font-size: 100%;
   font-weight: bold;
   background: #d9e8f0;
-  padding: 0.25em 0.5em;
+  padding: 0 0.5em;
   margin: 0 -0.5em;
   color: #444444;
   -webkit-border-radius: 3px;
@@ -572,9 +572,6 @@ dl.bar dd:last-child {
   text-decoration: none;
 }
 
-form#newcomment #field-comment_message {
-  margin-bottom: -15px;
-}
 form#newcomment #field-comment_message .control-label {
   width: auto !important;
   padding-bottom: 5px;

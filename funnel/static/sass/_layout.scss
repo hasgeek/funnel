@@ -158,7 +158,7 @@ table.listing {
             font-size: 100%;
             font-weight: bold;
             background: $color-section-heading-background;
-            padding: 0.25em 0.5em;
+            padding: 0 0.5em;
             margin: 0 -0.5em;
             color: $color-section-heading;
             @include border-radius(3px);
@@ -517,7 +517,7 @@ dl.bar {
 }
 form#newcomment{
     #field-comment_message{
-        margin-bottom: -15px;
+        // margin-bottom: -15px;
         .control-label{
             width: auto !important;
             padding-bottom: 5px;
