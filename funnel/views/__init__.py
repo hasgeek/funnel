@@ -21,6 +21,7 @@ from flask import (
 from flask.ext.mail import Message
 from coaster.views import get_next_url, jsonp, load_models, load_model
 from coaster.gfm import markdown
+from baseframe import _
 
 from .. import app, mail, lastuser
 from ..models import *
@@ -58,13 +59,6 @@ proposal_headers = [
     'confirmed'
     ]
 
-# helper function
-def get_proposal_id(slug):
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    return proposal_id
 
 # --- Routes ------------------------------------------------------------------
 
@@ -89,7 +83,7 @@ def login():
 @app.route('/logout')
 @lastuser.logout_handler
 def logout():
-    flash("You are now logged out", category='info')
+    flash(_("You are now logged out"), category='info')
     return get_next_url()
 
 
@@ -118,33 +112,28 @@ def lastuser_error(error, error_description=None, error_uri=None):
         error_description=error_description,
         error_uri=error_uri)
 
-# --- Routes: account ---------------------------------------------------------
-
-
-@app.route('/account')
-def account():
-    return "Coming soon"
-
 
 # --- Routes: spaces ----------------------------------------------------------
 
 @app.route('/new', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
-def newspace():
-    form = ProposalSpaceForm()
+def space_new():
+    form = ProposalSpaceForm(model=ProposalSpace)
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user)
         form.populate_obj(space)
         db.session.add(space)
         db.session.commit()
-        flash("Your new space has been created", "info")
-        return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('baseframe/autoform.html', form=form, title="Create a new proposal space", submit="Create space")
+        flash(_("Your new space has been created"), 'info')
+        return redirect(space.url_for(), code=303)
+    return render_template('baseframe/autoform.html', form=form, title=_("Create a new proposal space"), submit=_("Create space"))
 
 
-@app.route('/<name>/')
-def viewspace(name):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+@app.route('/<space>/')
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission='view', addlperms=lastuser.permissions)
+def space_view(space):
+    description = Markup(space.description_html)
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
     unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
@@ -152,9 +141,10 @@ def viewspace(name):
         confirmed=confirmed, unconfirmed=unconfirmed, is_siteadmin=lastuser.has_permission('siteadmin'))
 
 
-@app.route('/<name>/json')
-def viewspace_json(name):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+@app.route('/<space>/json')
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission='view', addlperms=lastuser.permissions)
+def space_view_json(space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return jsonp(**{
@@ -169,9 +159,10 @@ def viewspace_json(name):
         })
 
 
-@app.route('/<name>/csv')
-def viewspace_csv(name):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
+@app.route('/<space>/csv')
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission='view', addlperms=lastuser.permissions)
+def space_view_csv(space):
     if lastuser.has_permission('siteadmin'):
         usergroups = [g.name for g in space.usergroups]
     else:
@@ -186,104 +177,139 @@ def viewspace_csv(name):
     return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
 
 
-@app.route('/<name>/edit', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
-def editspace(name):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    form = ProposalSpaceForm(obj=space)
+@app.route('/<space>/edit', methods=['GET', 'POST'])
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission=('edit-space', 'siteadmin'), addlperms=lastuser.permissions)
+def space_edit(space):
+    form = ProposalSpaceForm(obj=space, model=ProposalSpace)
     if form.validate_on_submit():
         form.populate_obj(space)
         db.session.commit()
-        flash("Your changes have been saved", "info")
-        return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('baseframe/autoform.html', form=form, title="Edit proposal space", submit="Save changes")
+        flash(_("Your changes have been saved"), 'info')
+        return redirect(space.url_for(), code=303)
+    return render_template('baseframe/autoform.html', form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
 
-@app.route('/<name>/sections/new', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
-def newsection(name):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    form = SectionForm()
+@app.route('/<space>/sections/new', methods=['GET', 'POST'])
+@lastuser.requires_login
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission=('new-section', 'siteadmin'), addlperms=lastuser.permissions)
+def section_new(space):
+    form = SectionForm(model=ProposalSpaceSection, parent=space)
     if form.validate_on_submit():
         section = ProposalSpaceSection(proposal_space=space)
         form.populate_obj(section)
         db.session.add(section)
         db.session.commit()
-        flash("Your new section has been added", "info")
-        return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('baseframe/autoform.html', form=form, title="New section", submit="Create section")
+        flash(_("Your new section has been added"), 'info')
+        return redirect(space.url_for(), code=303)
+    return render_template('baseframe/autoform.html', form=form, title=_("New section"), submit=_("Create section"),
+        breadcrumbs=[(space.url_for(), space.title), (space.url_for('sections'), _("Sections"))])
 
 
 @app.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
+@lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
+    permission=('edit-section', 'siteadmin'), addlperms=lastuser.permissions)
 def section_edit(space, section):
-    form = SectionForm(obj=section)
+    form = SectionForm(obj=section, model=ProposalSpaceSection, parent=space)
     if form.validate_on_submit():
         form.populate_obj(section)
         db.session.commit()
-        flash("Your section has been edited", "info")
-        return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('baseframe/autoform.html', form=form, title="Edit section", submit="Edit section")
+        flash(_("Your section has been edited"), 'info')
+        return redirect(space.url_for(), code=303)
+    return render_template('baseframe/autoform.html', form=form, title=_("Edit section"), submit=_("Save changes"),
+        breadcrumbs=[
+            (space.url_for(), space.title),
+            (space.url_for('sections'), _("Sections")),
+            (section.url_for(), section.title)])
 
 
 @app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
+@lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
+    permission=('delete-section', 'siteadmin'), addlperms=lastuser.permissions)
 def section_delete(space, section):
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
             db.session.delete(section)
             db.session.commit()
-            flash("Your section has been deleted", "info")
-        return redirect(url_for('viewspace', name=space.name), code=303)
-    return render_template('delete.html', form=form, title=u"Confirm delete",
-        message=u"Do you really wish to delete section '%s'?" % section.title)
+            flash(_("Your section has been deleted"), 'info')
+        return redirect(space.url_for(), code=303)
+    return render_template('delete.html', form=form, title=_(u"Confirm delete"),
+        message=_(u"Do you really wish to delete section ‘{title}’?").format(title=section.title),
+        breadcrumbs=[
+            (space.url_for(), space.title),
+            (space.url_for('sections'), _("Sections")),
+            (section.url_for(), section.title)])
+
 
 
 @app.route('/<space>/sections')
-@lastuser.requires_permission('siteadmin')
-@load_model(ProposalSpace, {'name': 'space'}, 'space')
-def sections_list(space):
+@lastuser.requires_login
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
+def section_list(space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
-    return render_template('sections.html', space=space, sections=sections)
+    return render_template('sections.html', space=space, sections=sections,
+        breadcrumbs=[
+            (space.url_for(), space.title),
+            (space.url_for('sections'), _("Sections"))])
 
 
 @app.route('/<space>/sections/<section>')
-@lastuser.requires_permission('siteadmin')
+@lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'))
+    (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
+    permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
 def section_view(space, section):
-    return render_template('section.html', space=space, section=section)
+    return render_template('section.html', space=space, section=section,
+        breadcrumbs=[
+            (space.url_for(), space.title),
+            (space.url_for('sections'), _("Sections")),
+            (section.url_for(), section.title)])
 
 
-@app.route('/<name>/users')
-@lastuser.requires_permission('siteadmin')
-def usergroup_list(name):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    return render_template('usergroups.html', space=space, usergroups=space.usergroups)
+@app.route('/<space>/users')
+@lastuser.requires_login
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+def usergroup_list(space):
+    return render_template('usergroups.html', space=space, usergroups=space.usergroups,
+        breadcrumbs=[
+            (space.url_for(), space.title),
+            (space.url_for('usergroups'), _("Users"))])
 
 
-@app.route('/<name>/users/<group>')
-@lastuser.requires_permission('siteadmin')
-def usergroup_view(name, group):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
-    return render_template('usergroup.html', space=space, usergroup=usergroup)
+
+@app.route('/<space>/users/<group>')
+@lastuser.requires_login
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
+    permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+def usergroup_view(space, usergroup):
+    return render_template('usergroup.html', space=space, usergroup=usergroup,
+        breadcrumbs=[
+            (space.url_for(), space.title),
+            (space.url_for('usergroups'), _("Users")),
+            (usergroup.url_for(), usergroup.title)])
 
 
-@app.route('/<name>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
-@app.route('/<name>/users/<group>/edit', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
-def usergroup_edit(name, group):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    form = UserGroupForm()
+@app.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
+@app.route('/<space>/users/<group>/edit', methods=['GET', 'POST'])
+@lastuser.requires_login
+@load_model(ProposalSpace, {'name': 'space'}, 'space', kwargs=True,
+    permission=('new-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+def usergroup_edit(space, kwargs):
+    group = kwargs.get('group')
+    form = UserGroupForm(model=UserGroup, parent=space)
     if group is not None:
         usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
         if request.method == 'GET':
@@ -307,40 +333,52 @@ def usergroup_edit(name, group):
             users.append(user)
         usergroup.users = users
         db.session.commit()
-        return redirect(url_for('usergroup_view', name=space.name, group=usergroup.name), code=303)
+        return redirect(usergroup.url_for(), code=303)
     if group is None:
-        return render_template('baseframe/autoform.html', form=form, title="New user group", submit="Create")
+        return render_template('baseframe/autoform.html', form=form, title=_("New user group"), submit=_("Create user group"),
+            breadcrumbs=[
+                (space.url_for(), space.title),
+                (space.url_for('usergroups'), _("Users"))])
+
     else:
-        return render_template('baseframe/autoform.html', form=form, title="Edit user group", submit="Save")
+        return render_template('baseframe/autoform.html', form=form, title=_("Edit user group"), submit=_("Save changes"),
+            breadcrumbs=[
+                (space.url_for(), space.title),
+                (space.url_for('usergroups'), _("Users")),
+                (usergroup.url_for(), usergroup.title)])
 
 
-@app.route('/<name>/users/<group>/delete', methods=['GET', 'POST'])
-@lastuser.requires_permission('siteadmin')
-def usergroup_delete(name, group):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
+@app.route('/<space>/users/<group>/delete', methods=['GET', 'POST'])
+@lastuser.requires_login
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
+    permission=('delete-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+def usergroup_delete(space, usergroup):
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
             db.session.delete(usergroup)
             db.session.commit()
-            flash("Your user group has been deleted", "info")
-            return redirect(url_for('usergroup_list', name=name))
+            flash(_("Your user group has been deleted"), 'info')
+            return redirect(space.url_for('usergroups'))
         else:
-            return redirect(url_for('usergroup_view', name=name, group=group))
-    return render_template('delete.html', form=form, title=u"Confirm delete",
-        message=u"Do you really wish to delete user group '%s'?" % usergroup.title)
+            return redirect(usergroup.url_for())
+    return render_template('delete.html', form=form, title=_(u"Confirm delete"),
+        message=_(u"Do you really wish to delete user group ‘{title}’?").format(title=usergroup.title),
+        breadcrumbs=[
+            (space.url_for(), space.title),
+            (space.url_for('usergroups'), _("Users")),
+            (usergroup.url_for(), usergroup.title)])
 
 
-@app.route('/<name>/new', methods=['GET', 'POST'])
+@app.route('/<space>/new', methods=['GET', 'POST'])
 @lastuser.requires_login
-def newsession(name):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    if space.status != SPACESTATUS.SUBMISSIONS:
-        abort(403)
-    form = ProposalForm()
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    permission='new-proposal', addlperms=lastuser.permissions)
+def proposal_new(space):
+    form = ProposalForm(model=Proposal, parent=space)
     del form.session_type  # We don't use this anymore
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if len(list(form.section.query.all())) == 0:
@@ -360,23 +398,23 @@ def newsession(name):
         proposal.name = make_name(proposal.title)
         db.session.add(proposal)
         db.session.commit()
-        flash("Your new session has been saved", "info")
-        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
-    return render_template('baseframe/autoform.html', form=form, title="Submit a session proposal", submit="Submit session",
-        breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
+        flash(_("Your new session has been saved"), 'info')
+        return redirect(proposal.url_for(), code=303)
+    return render_template('baseframe/autoform.html', form=form, title=_("Submit a session proposal"),
+        submit=_("Submit proposal"),
+        breadcrumbs=[(space.url_for(), space.title)],
         message=Markup(
-            'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
+            _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<name>/<slug>/edit', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>/edit', methods=['GET', 'POST'])
 @lastuser.requires_login
-def editsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
-    if proposal.user != g.user and not lastuser.has_permission('siteadmin'):
-        abort(403)
-    form = ProposalForm(obj=proposal)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission=('edit-proposal', 'siteadmin'), addlperms=lastuser.permissions)
+def proposal_edit(space, proposal):
+    form = ProposalForm(obj=proposal, model=Proposal, parent=space)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
@@ -399,40 +437,40 @@ def editsession(name, slug):
                     proposal.speaker = None
         proposal.edited_at = datetime.utcnow()
         db.session.commit()
-        flash("Your changes have been saved", "info")
-        return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
-    return render_template('baseframe/autoform.html', form=form, title="Edit session proposal", submit="Save changes",
-        breadcrumbs=[(url_for('viewspace', name=space.name), space.title),
-                     (url_for('viewsession', name=space.name, slug=proposal.urlname), proposal.title)],
+        flash(_("Your changes have been saved"), 'info')
+        return redirect(proposal.url_for(), code=303)
+    return render_template('baseframe/autoform.html', form=form, title=_("Edit session proposal"), submit=_("Save changes"),
+        breadcrumbs=[(space.url_for(), space.title),
+                     (proposal.url_for(), proposal.title)],
         message=Markup(
-            'This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'))
+            _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<name>/<slug>/confirm', methods=['POST'])
-@lastuser.requires_permission('siteadmin')
-def confirmsession(name, slug):
-    ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
+@app.route('/<space>/<proposal>/confirm', methods=['POST'])
+@lastuser.requires_login
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission=('confirm-proposal', 'siteadmin'), addlperms=lastuser.permissions)
+def proposal_confirm(space, proposal):
     form = ConfirmSessionForm()
     if form.validate_on_submit():
         proposal.confirmed = not proposal.confirmed
         db.session.commit()
         if proposal.confirmed:
-            flash("This proposal has been confirmed.", 'success')
+            flash(_("This proposal has been confirmed."), 'success')
         else:
-            flash("This session has been cancelled.", 'success')
-    return redirect(url_for('viewsession', name=name, slug=slug))
+            flash(_("This session has been cancelled."), 'success')
+    return redirect(proposal.url_for())
 
 
-@app.route('/<name>/<slug>/delete', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>/delete', methods=['GET', 'POST'])
 @lastuser.requires_login
-def deletesession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
-    if not lastuser.has_permission('siteadmin') and proposal.user != g.user:
-        abort(403)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission=('delete-proposal', 'siteadmin'), addlperms=lastuser.permissions)
+def proposal_delete(space, proposal):
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
@@ -446,14 +484,14 @@ def deletesession(name, slug):
             db.session.delete(proposal.votes)
             db.session.delete(proposal)
             db.session.commit()
-            flash("Your proposal has been deleted", "info")
-            return redirect(url_for('viewspace', name=name))
+            flash(_("Your proposal has been deleted"), "info")
+            return redirect(space.url_for())
         else:
-            return redirect(url_for('viewsession', name=name, slug=slug))
-    return render_template('delete.html', form=form, title=u"Confirm delete",
-        message=u"Do you really wish to delete your proposal '%s'? "
+            return redirect(proposal.url_for())
+    return render_template('delete.html', form=form, title=_(u"Confirm delete"),
+        message=_(u"Do you really wish to delete your proposal ‘{title}’? "
                 u"This will remove all votes and comments as well. This operation "
-                u"is permanent and cannot be undone." % proposal.title)
+                u"is permanent and cannot be undone.").format(title=proposal.title))
 
 
 def urllink(m):
@@ -470,34 +508,33 @@ def send_mail(sender, to, body, subject):
     mail.send(msg)
 
 
-@app.route('/<name>/<slug>', methods=['GET', 'POST'])
-def viewsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
+@app.route('/<space>/<proposal>', methods=['GET', 'POST'])
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='view', addlperms=lastuser.permissions)
+def proposal_view(space, proposal):
     if proposal.proposal_space != space:
-        return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
-    if slug != proposal.urlname:
-        return redirect(url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname), code=301)
-    # URL is okay. Show the proposal.
+        return redirect(proposal.url_for(), code=301)
+
     comments = sorted(Comment.query.filter_by(commentspace=proposal.comments, parent=None).order_by('created_at').all(),
         key=lambda c: c.votes.count, reverse=True)
-    commentform = CommentForm()
+    commentform = CommentForm(model=Comment)
     delcommentform = DeleteCommentForm()
     if request.method == 'POST':
-        if request.form.get('form.id') == 'newcomment' and commentform.validate():
+        if request.form.get('form.id') == 'newcomment' and commentform.validate() and 'new-comment' in g.permissions:
             send_mail_info = []
             if commentform.comment_edit_id.data:
                 comment = Comment.query.get(int(commentform.comment_edit_id.data))
                 if comment:
-                    if comment.user == g.user:
+                    if 'edit-comment' in comment.permissions(g.user, g.permissions):
                         comment.message = commentform.message.data
                         comment.edited_at = datetime.utcnow()
-                        flash("Your comment has been edited", "info")
+                        flash(_("Your comment has been edited"), 'info')
                     else:
-                        flash("You can only edit your own comments", "info")
+                        flash(_("You can only edit your own comments"), 'info')
                 else:
-                    flash("No such comment", "error")
+                    flash(_("No such comment"), 'error')
             else:
                 comment = Comment(user=g.user, commentspace=proposal.comments,
                     message=commentform.message.data)
@@ -507,16 +544,16 @@ def viewsession(name, slug):
                         if parent.user == proposal.user:  # check if parent comment & proposal owner are same
                             if not g.user == parent.user:  # check if parent comment is by proposal owner
                                 send_mail_info.append({'to': proposal.user.email or proposal.email,
-                                    'subject': "%s Funnel:%s" % (name, proposal.title),
+                                    'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
                                     'template': 'proposal_comment_reply_email.md'})
                         else:  # send mail to parent comment owner & proposal owner
                             if not parent.user == g.user:
                                 send_mail_info.append({'to': parent.user.email,
-                                    'subject': "%s Funnel:%s" % (name, proposal.title),
+                                    'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
                                     'template': 'proposal_comment_to_proposer_email.md'})
                             if not proposal.user == g.user:
                                 send_mail_info.append({'to': proposal.user.email or proposal.email,
-                                    'subject': "%s Funnel:%s" % (name, proposal.title),
+                                    'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
                                     'template': 'proposal_comment_email.md'})
 
                     if parent and parent.commentspace == proposal.comments:
@@ -524,15 +561,14 @@ def viewsession(name, slug):
                 else:  # for top level comment
                     if not proposal.user == g.user:
                         send_mail_info.append({'to': proposal.user.email or proposal.email,
-                            'subject': "%s Funnel:%s" % (name, proposal.title),
+                            'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
                             'template': 'proposal_comment_email.md'})
                 proposal.comments.count += 1
                 comment.votes.vote(g.user)  # Vote for your own comment
                 db.session.add(comment)
-                flash("Your comment has been posted", "info")
+                flash(_("Your comment has been posted"), 'info')
             db.session.commit()
-            to_redirect = url_for('viewsession', name=space.name,
-                    slug=proposal.urlname, _external=True) + "#c" + str(comment.id)
+            to_redirect = comment.url_for(proposal=proposal, _external=True)
             for item in send_mail_info:
                 email_body = render_template(item.pop('template'), proposal=proposal, comment=comment, link=to_redirect)
                 send_mail(sender=None, body=email_body, **item)
@@ -542,21 +578,21 @@ def viewsession(name, slug):
         elif request.form.get('form.id') == 'delcomment' and delcommentform.validate():
             comment = Comment.query.get(int(delcommentform.comment_id.data))
             if comment:
-                if comment.user == g.user:
+                if 'delete-comment' in comment.permissions(g.user, g.permissions):
                     comment.delete()
                     proposal.comments.count -= 1
                     db.session.commit()
-                    flash("Your comment was deleted.", "info")
+                    flash(_("Your comment was deleted"), 'info')
                 else:
-                    flash("You did not post that comment.", "error")
+                    flash(_("You did not post that comment"), 'error')
             else:
-                flash("No such comment.", "error")
-            return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname), code=303)
+                flash(_("No such comment"), 'error')
+            return redirect(proposal.url_for(), code=303)
     links = [Markup(url_re.sub(urllink, unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
     confirmform = ConfirmSessionForm()
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        breadcrumbs=[(url_for('viewspace', name=space.name), space.title)],
+        breadcrumbs=[(space.url_for(), space.title)],
         links=links, confirmform=confirmform)
 
 
@@ -592,9 +628,9 @@ def proposal_data(proposal):
                     votes_bydate[groupname][date] += -1 if vote.votedown else +1
 
     return {'id': proposal.id,
-            'name': proposal.urlname,
+            'name': proposal.url_name,
             'title': proposal.title,
-            'url': url_for('viewsession', name=proposal.proposal_space.name, slug=proposal.urlname, _external=True),
+            'url': proposal.url_for(_external=True),
             'proposer': proposal.user.fullname,
             'speaker': proposal.speaker.fullname if proposal.speaker else None,
             'email': proposal.email if lastuser.has_permission('siteadmin') else None,
@@ -626,24 +662,13 @@ def proposal_data_flat(proposal, groups=[]):
     return cols
 
 
-@app.route('/<name>/<slug>/feedback', methods=['POST'])
+@app.route('/<space>/<proposal>/feedback', methods=['POST'])
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='view', addlperms=lastuser.permissions)
 @requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
-def session_feedback(name, slug, id_type, userid, content, presentation, min_scale=0, max_scale=2):
-    space = ProposalSpace.query.filter_by(name=name).first()
-    if not space:
-        abort(404)
-    try:
-        proposal_id = int(slug.split('-')[0])
-    except ValueError:
-        abort(404)
-    proposal = Proposal.query.get(proposal_id)
-    if not proposal:
-        abort(404)
-    if proposal.proposal_space != space:
-        return redirect(url_for('viewspace', name=space.name))
-    if slug != proposal.urlname:
-        return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
-
+def session_feedback(space, proposal, id_type, userid, content, presentation, min_scale=0, max_scale=2):
     # Process feedback
     if not min_scale <= content <= max_scale:
         abort(400)
@@ -675,63 +700,64 @@ def session_feedback(name, slug, id_type, userid, content, presentation, min_sca
         return "Saved\n", 201
 
 
-@app.route('/<name>/<slug>/json', methods=['GET', 'POST'])
-def session_json(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
-    if proposal.proposal_space != space:
-        return redirect(url_for('viewspace', name=space.name))
-    if slug != proposal.urlname:
-        return redirect(url_for('session_json', name=space.name, slug=proposal.urlname))
+@app.route('/<space>/<proposal>/json', methods=['GET', 'POST'])
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='view', addlperms=lastuser.permissions)
+def proposal_json(space, proposal):
     return jsonp(proposal_data(proposal))
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<name>/<slug>/voteup')
+@app.route('/<space>/<proposal>/voteup')
 @lastuser.requires_login
-def voteupsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='vote-proposal', addlperms=lastuser.permissions)
+def proposal_voteup(space, proposal):
     proposal.votes.vote(g.user, votedown=False)
     db.session.commit()
-    flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
+    flash(_("Your vote has been recorded"), 'info')
+    return redirect(proposal.url_for())
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<name>/<slug>/votedown')
+@app.route('/<space>/<proposal>/votedown')
 @lastuser.requires_login
-def votedownsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='vote-proposal', addlperms=lastuser.permissions)
+def proposal_votedown(space, proposal):
     proposal.votes.vote(g.user, votedown=True)
     db.session.commit()
-    flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
+    flash(_("Your vote has been recorded"), 'info')
+    return redirect(proposal.url_for())
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<name>/<slug>/cancelvote')
+@app.route('/<space>/<proposal>/cancelvote')
 @lastuser.requires_login
-def votecancelsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='vote-proposal', addlperms=lastuser.permissions)
+def proposal_cancelvote(space, proposal):
     proposal.votes.cancelvote(g.user)
     db.session.commit()
-    flash("Your vote has been withdrawn", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname))
+    flash(_("Your vote has been withdrawn"), 'info')
+    return redirect(proposal.url_for())
 
 
-@app.route('/<name>/<slug>/comments/<int:cid>/json')
-def jsoncomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
-    comment = Comment.query.get(cid)
+@app.route('/<space>/<proposal>/comments/<int:comment>/json')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    (Comment, {'id': 'comment'}, 'comment'),
+    permission='view', addlperms=lastuser.permissions)
+def comment_json(space, proposal, comment):
     if comment:
         return jsonp(message=comment.message)
     else:
@@ -739,68 +765,73 @@ def jsoncomment(name, slug, cid):
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<name>/<slug>/comments/<int:cid>/voteup')
+@app.route('/<space>/<proposal>/comments/<int:comment>/voteup')
 @lastuser.requires_login
-def voteupcomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
-    comment = Comment.query.get_or_404(cid)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    (Comment, {'id': 'comment'}, 'comment'),
+    permission='vote-comment', addlperms=lastuser.permissions)
+def comment_voteup(space, proposal, comment):
     comment.votes.vote(g.user, votedown=False)
     db.session.commit()
-    flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname) + "#c%d" % cid)
+    flash(_("Your vote has been recorded"), 'info')
+    return redirect(comment.url_for(proposal=proposal))
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<name>/<slug>/comments/<int:cid>/votedown')
+@app.route('/<space>/<proposal>/comments/<int:comment>/votedown')
 @lastuser.requires_login
-def votedowncomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
-    comment = Comment.query.get_or_404(cid)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    (Comment, {'id': 'comment'}, 'comment'),
+    permission='vote-comment', addlperms=lastuser.permissions)
+def comment_votedown(space, proposal, comment):
     comment.votes.vote(g.user, votedown=True)
     db.session.commit()
-    flash("Your vote has been recorded", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname) + "#c%d" % cid)
+    flash(_("Your vote has been recorded"), 'info')
+    return redirect(comment.url_for(proposal=proposal))
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<name>/<slug>/comments/<int:cid>/cancelvote')
+@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote')
 @lastuser.requires_login
-def votecancelcomment(name, slug, cid):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
-    comment = Comment.query.get_or_404(cid)
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    (Comment, {'id': 'comment'}, 'comment'),
+    permission='vote-comment', addlperms=lastuser.permissions)
+def comment_cancelvote(space, proposal, comment):
     comment.votes.cancelvote(g.user)
     db.session.commit()
-    flash("Your vote has been withdrawn", "info")
-    return redirect(url_for('viewsession', name=space.name, slug=proposal.urlname) + "#c%d" % cid)
+    flash(_("Your vote has been withdrawn"), 'info')
+    return redirect(comment.url_for(proposal=proposal))
 
 
-@app.route('/<name>/<slug>/next')
-def nextsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
+@app.route('/<space>/<proposal>/next')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='view', addlperms=lastuser.permissions)
+def proposal_next(space, proposal):
     next = proposal.getnext()
     if next:
-        return redirect(url_for('viewsession', name=space.name, slug=next.urlname))
+        return redirect(next.url_for())
     else:
-        flash("You were at the last proposal", "info")
-        return redirect(url_for('viewspace', name=space.name))
+        flash(_("You were at the last proposal"), 'info')
+        return redirect(space.url_for())
 
 
-@app.route('/<name>/<slug>/prev')
-def prevsession(name, slug):
-    space = ProposalSpace.query.filter_by(name=name).first_or_404()
-    proposal_id = get_proposal_id(slug)
-    proposal = Proposal.query.get_or_404(proposal_id)
+@app.route('/<space>/<proposal>/prev')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='view', addlperms=lastuser.permissions)
+def proposal_prev(space, proposal):
     prev = proposal.getprev()
     if prev:
-        return redirect(url_for('viewsession', name=space.name, slug=prev.urlname))
+        return redirect(prev.url_for())
     else:
-        flash("You were at the first proposal", "info")
-        return redirect(url_for('viewspace', name=space.name))
+        flash(_("You were at the first proposal"), 'info')
+        return redirect(space.url_for())

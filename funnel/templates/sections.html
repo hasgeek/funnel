@@ -3,12 +3,12 @@
 {% block content %}
   <ol>
     {%- for section in sections %}
-      <li><a href="{{ url_for('section_view', space=space.name, section=section.name) }}">{{ section.title }}</a></li>
+      <li><a href="{{ section.url_for('edit') }}">{{ section.title }}</a> &mdash; {{ section.description }}</li>
     {% else %}
-      <li><em>(No sections)</em></li>
+      <li><em>{% trans %}(No sections){% endtrans %}</em></li>
     {%- endfor %}
   </ol>
   <p>
-    <a href="{{ url_for('newsection', name=space.name) }}">Add new section &rarr;</a>
+    <a class="btn btn-info" href="{{ space.url_for('new-section') }}">{% trans %}Add new section{% endtrans %}</a>
   </p>
 {% endblock %}

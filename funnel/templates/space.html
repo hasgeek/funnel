@@ -7,19 +7,19 @@
       <thead>
         <tr>
           <th class="num">#</th>
-          <th>Proposer</th>
-          <th>Speaker</th>
-          <th>Section</th>
-          <th>Type</th>
-          <th>Level</th>
-          <th class="num">+1</th>
-          <th class="num">Comments</th>
-          <th>Submitted</th>
+          <th>{% trans %}Proposer{% endtrans %}</th>
+          <th>{% trans %}Speaker{% endtrans %}</th>
+          <th>{% trans %}Section{% endtrans %}</th>
+          <th>{% trans %}Type{% endtrans %}</th>
+          <th>{% trans %}Level{% endtrans %}</th>
+          <th class="num">{% trans %}+1{% endtrans %}</th>
+          <th class="num">{% trans %}Comments{% endtrans %}</th>
+          <th>{% trans %}Submitted{% endtrans %}</th>
         </tr>
       </thead>
       {% for proposal in proposals %}
         <tbody class="link">
-          {%- set link=url_for('viewsession', name=space.name, slug=proposal.urlname) -%}
+          {%- set link=proposal.url_for() -%}
           <tr>
             <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
             <td colspan="8"><a href="{{ link }}"><strong>{{ proposal.title }}</strong></a></td>
@@ -31,7 +31,7 @@
               {%- if proposal.speaker -%}
                 {{ proposal.speaker.fullname }}
               {%- else -%}
-                <em>(open)</em>
+                <em>{% trans %}(open){% endtrans %}</em>
               {%- endif -%}
             </a></td>
             <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
@@ -46,7 +46,7 @@
         <tbody>
           <tr>
             <td colspan="9">
-              <em>(No sessions have been submitted)</em>
+              <em>{% trans %}(No sessions have been submitted){% endtrans %}</em>
             </td>
           </tr>
         </tbody>
@@ -66,46 +66,42 @@
 <p>
   <strong>Status:
     {% if space.status == 0 -%}
-      Draft
+      {% trans %}Draft{% endtrans %}
     {%- elif space.status == 1 -%}
-      Accepting submissions
+      {% trans %}Accepting submissions{% endtrans %}
     {%- elif space.status == 2 -%}
-      Accepting votes
+      {% trans %}Accepting votes{% endtrans %}
     {%- elif space.status == 3 -%}
-      Submissions and voting closed, awaiting jury selection
+      {% trans %}Submissions and voting closed, awaiting jury selection{% endtrans %}
     {%- elif space.status == 4 -%}
-      Open for post-event feedback
+      {% trans %}Open for post-event feedback{% endtrans %}
     {%- elif space.status == 5 -%}
-      Closed
+      {% trans %}Closed{% endtrans %}
     {%- elif space.status == 6 -%}
-      Rejected
+      {% trans %}Rejected{% endtrans %}
     {%- endif -%}
   </strong>
 </p>
 {% if sections -%}
-  <h2 id="sections">Sections</h2>
+  <h2 id="sections">{% trans %}Sections{% endtrans %}</h2>
   <ol>
     {% for section in sections -%}
-      <li>{{ section.title }} &mdash; {{ section.description }}
-        {%- if is_siteadmin %}
-          <a href="{{url_for('section_edit', space=space.name, section=section.name) }}"> Edit,</a>
-          <a href="{{url_for('section_delete', space=space.name, section=section.name) }}"> Delete </a>
-        {%- endif %}</li>
+      <li>{{ section.title }} &mdash; {{ section.description }}</li>
     {% endfor -%}
   </ol>
 {%- endif %}
-<h2 id="sessions">Session proposals</h2>
+<h2 id="sessions">{% trans %}Session proposals{% endtrans %}</h2>
 {% if space.status == 1 -%}
 <p>
-  <a href="{{ url_for('newsession', name=space.name) }}">Propose a session &rarr;</a>
+  <a class="btn btn-primary" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
 </p>
 {% endif %}
 {%- if confirmed %}
-  <h3>Confirmed sessions</h3>
+  <h3>{% trans %}Confirmed sessions{% endtrans %}</h3>
   {{ proposal_table(confirmed) }}
 {%- endif %}
 {%- if unconfirmed %}
-  {%- if confirmed %}<h3>Unconfirmed proposals</h3>{% endif %}
+  {%- if confirmed %}<h3>{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
   {{ proposal_table(unconfirmed) }}
 {%- endif %}
 {% endblock %}

@@ -540,9 +540,8 @@ dl.bar dd:last-child {
 .comments .com-children {
   border-left: 1px dotted #b7b7b7;
   list-style: none;
-  margin-left: 0;
   padding-left: 2em;
-  margin-bottom: 0;
+  margin: 0.5em 0 -0.5em 0;
 }
 .comments .com-header, .comments .com-footer {
   font-size: 80%;

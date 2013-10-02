@@ -3,12 +3,12 @@
 {% block content %}
   <ol>
     {%- for group in usergroups %}
-      <li><a href="{{ url_for('usergroup_view', name=space.name, group=group.name) }}">{{ group.title }}</a></li>
+      <li><a href="{{ group.url_for() }}">{{ group.title }}</a></li>
     {% else %}
-      <li><em>(No user groups)</em></li>
+      <li><em>{% trans %}(No user groups){% endtrans %}</em></li>
     {%- endfor %}
   </ol>
   <p>
-    <a href="{{ url_for('usergroup_new', name=space.name) }}">Add new group &rarr;</a>
+    <a class="btn btn-info" href="{{ space.url_for('new-usergroup') }}">{% trans %}Add new group{% endtrans %}</a>
   </p>
 {% endblock %}

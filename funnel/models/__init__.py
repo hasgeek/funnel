@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask import url_for
 from flask.ext.lastuser.sqlalchemy import UserBase
-from coaster import make_name
-from coaster.sqlalchemy import MarkdownColumn
-from .. import app
+from coaster.sqlalchemy import BaseMixin, BaseNameMixin, BaseScopedNameMixin, BaseIdNameMixin, MarkdownColumn
+from coaster.db import db
 
-__all__ = ['db', 'SPACESTATUS', 'User', 'Tag', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
+__all__ = ['db', 'SPACESTATUS', 'User', 'ProposalSpace', 'ProposalSpaceSection', 'Proposal',
            'VoteSpace', 'Vote', 'CommentSpace', 'Comment', 'UserGroup', 'FEEDBACK_AUTH_TYPE', 'ProposalFeedback']
-
-db = SQLAlchemy(app)
 
 
 # --- Constants ---------------------------------------------------------------
@@ -21,7 +18,7 @@ class SPACESTATUS:
     JURY = 3
     FEEDBACK = 4
     CLOSED = 5
-    REJECTED = 6
+    WITHDRAWN = 6
 
 
 class COMMENTSTATUS:
@@ -45,41 +42,11 @@ class FEEDBACK_AUTH_TYPE:
     HGAUTH = 1
 
 
-# --- Mixins ------------------------------------------------------------------
-
-class BaseMixin(object):
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=db.func.now(), nullable=False)
-    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now(), nullable=False)
-
-
 # --- Models ------------------------------------------------------------------
 
 class User(UserBase, db.Model):
     __tablename__ = 'user'
     description = db.Column(db.Text, default=u'', nullable=False)
-
-
-class Tag(BaseMixin, db.Model):
-    __tablename__ = 'tag'
-    name = db.Column(db.Unicode(80), unique=True, nullable=False)
-    title = db.Column(db.Unicode(80), unique=True, nullable=False)
-
-    @classmethod
-    def gettag(cls, tagname):
-        tag = cls.query.filter_by(title=tagname).first()
-        if tag:
-            return tag
-        else:
-            name = make_name(tagname)
-            # Is this name already in use? If yes, return it
-            tag = cls.query.filter_by(name=name).first()
-            if tag:
-                return tag
-            else:
-                tag = Tag(name=name, title=tagname)
-                db.session.add(tag)
-                return tag
 
 
 class VoteSpace(BaseMixin, db.Model):
@@ -186,19 +153,42 @@ class Comment(BaseMixin, db.Model):
     def sorted_children(self):
         return sorted(self.children, key=lambda child: child.votes.count)
 
+    def permissions(self, user, inherited=None):
+        perms = super(Comment, self).permissions(user, inherited)
+        if user is not None and user == self.user:
+            perms.update([
+                'edit-comment',
+                'delete-comment'
+                ])
+        return perms
 
-class ProposalSpace(BaseMixin, db.Model):
+    def url_for(self, action='view', proposal=None, _external=False):
+        if action == 'view':
+            return proposal.url_for() + "#c%d" % self.id
+        elif action == 'json':
+            return url_for('comment_json', space=proposal.proposal_space.name, proposal=proposal.url_name,
+                comment=self.id, _external=_external)
+        elif action == 'voteup':
+            return url_for('comment_voteup', space=proposal.proposal_space.name, proposal=proposal.url_name,
+                comment=self.id, _external=_external)
+        elif action == 'votedown':
+            return url_for('comment_votedown', space=proposal.proposal_space.name, proposal=proposal.url_name,
+                comment=self.id, _external=_external)
+        elif action == 'cancelvote':
+            return url_for('comment_cancelvote', space=proposal.proposal_space.name, proposal=proposal.url_name,
+                comment=self.id, _external=_external)
+
+
+class ProposalSpace(BaseNameMixin, db.Model):
     __tablename__ = 'proposal_space'
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('spaces', cascade="all, delete-orphan"))
-    name = db.Column(db.Unicode(80), unique=True, nullable=False)
-    title = db.Column(db.Unicode(80), nullable=False)
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=True)
     website = db.Column(db.Unicode(250), nullable=True)
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
 
@@ -213,15 +203,52 @@ class ProposalSpace(BaseMixin, db.Model):
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
 
+    def permissions(self, user, inherited=None):
+        perms = super(ProposalSpace, self).permissions(user, inherited)
+        perms.add('view')
+        if user is not None:
+            if self.status == SPACESTATUS.SUBMISSIONS:
+                perms.add('new-proposal')
+            if user == self.user:
+                perms.update([
+                    'edit-space',
+                    'delete-space',
+                    'view-section',
+                    'new-section',
+                    'view-usergroup',
+                    'new-usergroup',
+                    'confirm-proposal',
+                    ])
+        return perms
 
-class ProposalSpaceSection(BaseMixin, db.Model):
+    def url_for(self, action='view', _external=False):
+        if action == 'view':
+            return url_for('space_view', space=self.name, _external=_external)
+        elif action == 'json':
+            return url_for('space_view_json', space=self.name, _external=_external)
+        elif action == 'csv':
+            return url_for('space_view_csv', space=self.name, _external=_external)
+        elif action == 'edit':
+            return url_for('space_edit', space=self.name, _external=_external)
+        elif action == 'sections':
+            return url_for('section_list', space=self.name, _external=_external)
+        elif action == 'new-section':
+            return url_for('section_new', space=self.name, _external=_external)
+        elif action == 'usergroups':
+            return url_for('usergroup_list', space=self.name, _external=_external)
+        elif action == 'new-usergroup':
+            return url_for('usergroup_new', space=self.name, _external=_external)
+        elif action == 'new-proposal':
+            return url_for('proposal_new', space=self.name, _external=_external)
+
+
+class ProposalSpaceSection(BaseScopedNameMixin, db.Model):
     __tablename__ = 'proposal_space_section'
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('sections', cascade="all, delete-orphan"))
+    parent = db.synonym('proposal_space')
 
-    name = db.Column(db.Unicode(80), nullable=False)
-    title = db.Column(db.Unicode(80), nullable=False)
     description = db.Column(db.Text, default=u'', nullable=False)
     public = db.Column(db.Boolean, default=False, nullable=False)
 
@@ -238,15 +265,27 @@ class ProposalSpaceSection(BaseMixin, db.Model):
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACESECTION)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACESECTION)
 
+    def permissions(self, user, inherited=None):
+        perms = super(ProposalSpaceSection, self).permissions(user, inherited)
+        if user is not None and user == self.proposal_space.user:
+            perms.update([
+                'edit-section',
+                'delete-section',
+                ])
+        return perms
 
-proposal_tags = db.Table(
-    'proposal_tags', db.Model.metadata,
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-    db.Column('proposal_id', db.Integer, db.ForeignKey('proposal.id')),
-    )
+    def url_for(self, action='view', _external=False):
+        if action == 'view':
+            return url_for('section_view', space=self.proposal_space.name, section=self.name, _external=_external)
+        elif action == 'edit':
+            return url_for('section_edit', space=self.proposal_space.name, section=self.name, _external=_external)
+        elif action == 'delete':
+            return url_for('section_delete', space=self.proposal_space.name, section=self.name, _external=_external)
+        elif action == 'usergroups':
+            return url_for('usergroup_list', space=self.proposal_space.name, section=self.name, _external=_external)
 
 
-class Proposal(BaseMixin, db.Model):
+class Proposal(BaseIdNameMixin, db.Model):
     __tablename__ = 'proposal'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -262,8 +301,6 @@ class Proposal(BaseMixin, db.Model):
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
-    name = db.Column(db.Unicode(250), nullable=False)
-    title = db.Column(db.Unicode(250), nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
@@ -274,7 +311,6 @@ class Proposal(BaseMixin, db.Model):
     requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
-    tags = db.relationship(Tag, secondary=proposal_tags)
     status = db.Column(db.Integer, default=0, nullable=False)
     confirmed = db.Column(db.Boolean, default=False, nullable=False)
 
@@ -294,10 +330,6 @@ class Proposal(BaseMixin, db.Model):
     def __repr__(self):
         return u'<Proposal "%s" in space "%s" by "%s">' % (self.title, self.proposal_space.title, self.user.fullname)
 
-    @property
-    def urlname(self):
-        return '%s-%s' % (self.id, self.name)
-
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
@@ -308,6 +340,42 @@ class Proposal(BaseMixin, db.Model):
             Proposal.id != self.id).filter(
                 Proposal.created_at > self.created_at).order_by('created_at').first()
 
+    def permissions(self, user, inherited=None):
+        perms = super(Proposal, self).permissions(user, inherited)
+        if user is not None:
+            perms.update([
+                'vote-proposal',
+                'new-comment',
+                'vote-comment',
+                ])
+            if user == self.user:
+                perms.update([
+                    'view-proposal',
+                    'edit-proposal',
+                    'delete-proposal',
+                    ])
+        return perms
+
+    def url_for(self, action='view', _external=False):
+        if action == 'view':
+            return url_for('proposal_view', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'edit':
+            return url_for('proposal_edit', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'confirm':
+            return url_for('proposal_confirm', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'delete':
+            return url_for('proposal_delete', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'voteup':
+            return url_for('proposal_voteup', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'votedown':
+            return url_for('proposal_votedown', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'cancelvote':
+            return url_for('proposal_cancelvote', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'next':
+            return url_for('proposal_next', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'prev':
+            return url_for('proposal_prev', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+
 
 group_members = db.Table(
     'group_members', db.Model.metadata,
@@ -316,14 +384,37 @@ group_members = db.Table(
     )
 
 
-class UserGroup(BaseMixin, db.Model):
+class UserGroup(BaseScopedNameMixin, db.Model):
     __tablename__ = 'user_group'
-    name = db.Column(db.Unicode(250), nullable=False)
-    title = db.Column(db.Unicode(250), nullable=False)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('usergroups', cascade="all, delete-orphan"))
+    parent = db.synonym('proposal_space')
     users = db.relationship(User, secondary=group_members)
+
+    # TODO: Add flags and setup permissions to allow admins access to proposals and votes
+    # public = db.Column(Boolean, nullable=False, default=True)
+    # admin = db.Column(Boolean, nullable=False, default=False, indexed=True)
+
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
+
+    def permissions(self, user, inherited=None):
+        perms = super(UserGroup, self).permissions(user, inherited)
+        if user is not None and user == self.proposal_space.user:
+            perms.update([
+                'view-usergroup',
+                'edit-usergroup',
+                'delete-usergroup',
+                ])
+        return perms
+
+    def url_for(self, action='view', _external=False):
+        if action == 'view':
+            return url_for('usergroup_view', space=self.proposal_space.name, group=self.name, _external=_external)
+        elif action == 'edit':
+            return url_for('usergroup_edit', space=self.proposal_space.name, group=self.name, _external=_external)
+        elif action == 'delete':
+            return url_for('usergroup_delete', space=self.proposal_space.name, group=self.name, _external=_external)
 
 
 class ProposalFeedback(BaseMixin, db.Model):

@@ -35,6 +35,8 @@ from .models import db
 
 def init_for(env):
     coaster.app.init_app(app, env)
+    db.init_app(app)
+    db.app = app
     mail.init_app(app)
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))

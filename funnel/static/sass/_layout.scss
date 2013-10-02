@@ -487,9 +487,8 @@ dl.bar {
     .com-children {
         border-left: 1px dotted $color-outline;
         list-style: none;
-        margin-left: 0;
         padding-left: 2em;
-        margin-bottom: 0;
+        margin: 0.5em 0 -0.5em 0;
     }
     .com-header, .com-footer {
         font-size: 80%;

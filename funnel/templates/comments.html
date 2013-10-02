@@ -2,17 +2,17 @@
   <div class="comment-vote">
     {%- set comvote = comment.votes.getvote(currentuser) %}
     {%- if not comvote -%}
-      <a class="comment-vote-up" title="Vote up" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
+      <a class="comment-vote-up" title="{% trans %}Vote up{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
       <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-down" title="Vote down" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
+      <a class="comment-vote-down" title="{% trans %}Vote down{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
     {%- elif not comvote.votedown -%}
-      <a class="comment-vote-cancel" title="Withdraw vote" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25b2;</a><br/>
+      <a class="comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25b2;</a><br/>
       <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-down" title="Vote down" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
+      <a class="comment-vote-down" title="{% trans %}Vote down{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
     {%- else -%}
-      <a class="comment-vote-up" title="Vote up" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
+      <a class="comment-vote-up" title="{% trans %}Vote up{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
       <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-cancel" title="Withdraw vote" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25bc;</a><br/>
+      <a class="comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25bc;</a><br/>
     {%- endif %}
   </div>
 {% endmacro %}
@@ -24,12 +24,12 @@
       <div class="com-header">
         <a class="collapse" href="#">[-]</a><a class="uncollapse hidden" href="#">[+]</a>
         {% if comment.is_deleted -%}
-          <span class="commenter">[deleted]</span>
+          <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
         {%- else -%}
           <span class="commenter {%- if comment.user == document.user %} selected{% endif %}">{{ comment.user.fullname }}</span>
           {{ comment.created_at|age }}
           {%- if comment.edited_at %}
-            (edited {{ comment.edited_at|age }})
+            ({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})
           {%- endif %}
         {%- endif %}
       </div>
@@ -39,14 +39,14 @@
         {%- endif %}
         <div data-id="{{ comment.id }}" class="com-footer">
           {% if not comment.is_deleted %}
-            <a title="Reply" class="comment-reply" href="#c{{ comment.id }}">[reply]</a>
-            {% if comment.user == currentuser -%}
-              <a title="Edit" class="comment-edit" href="#c{{ comment.id }}">[edit]</a>
-              <a title="Delete" class="comment-delete" href="#c{{ comment.id }}">[delete]</a>
-            {%- endif %}
+            {% if g.user %}<a title="{% trans %}Reply{% endtrans %}" class="comment-reply" href="#c{{ comment.id }}">[reply]</a>{% endif %}
+            {%- with cperms = comment.permissions(g.user, g.permissions) %}
+              {% if 'edit-comment' in cperms %}<a title="{% trans %}Edit{% endtrans %}" class="comment-edit" href="#c{{ comment.id }}">[{% trans %}edit{% endtrans %}]</a>{% endif %}
+              {% if 'delete-comment' in cperms %}<a title="{% trans %}Delete{% endtrans %}" class="comment-delete" href="#c{{ comment.id }}">[{% trans %}delete{% endtrans %}]</a>{% endif %}
+            {%- endwith %}
           {%- endif %}
-          <a title="Permalink" class="comment-permalink" href="#c{{ comment.id }}">[link]</a>
-          {% if comment.parent %}<a title="Parent" class="comment-parent" href="#c{{ comment.parent.id }}">[parent]</a>{% endif %}
+          <a title="Permalink" class="comment-permalink" href="#c{{ comment.id }}">[{% trans %}link{% endtrans %}]</a>
+          {% if comment.parent %}<a title="{% trans %}Parent{% endtrans %}" class="comment-parent" href="#c{{ comment.parent.id }}">[{% trans %}parent{% endtrans %}]</a>{% endif %}
         </div>
       </div>
     </div>
