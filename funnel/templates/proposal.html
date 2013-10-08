@@ -41,16 +41,17 @@
   </div>
   <div class="row">
     <p class="col-md-12">
-      {% trans %}by{% endtrans%} <strong>{{ proposal.user.fullname }}</strong>
-      {% if proposal.user == proposal.speaker -%}
-        ({% trans %}speaking{% endtrans %})
-      {%- else -%}
-        ({% trans %}proposing{% endtrans %})
-        {%- if proposal.speaker %}
-          <strong>{{ proposal.speaker.fullname }}</strong> (speaking)
+      {% trans %}by{% endtrans%}
+      {%- if proposal.speaker %}
+        <strong>{{ proposal.speaker.fullname }}</strong>
+        {%- if proposal.speaker != proposal.user %}
+          ({% trans %}via{% endtrans %} {{ proposal.user.fullname }})
         {%- endif %}
+      {%- else %}
+        <strong>{{ proposal.user.fullname }}</strong>
+        ({% trans %}proposing{% endtrans %})
       {%- endif %}
-      {% trans %}on{% endtrans %} {{ proposal.created_at.strftime("%A, %B %e, %Y") }}
+      {% trans %}on{% endtrans %} {{ proposal.datetime.strftime("%A, %B %e, %Y") }}
       {%- if proposal.user == g.user %}
         <small>({% trans %}that’s you!{% endtrans %} <a href="{{ proposal.url_for('edit') }}">{% trans %}Edit this{% endtrans %}</a>? <a href="{{ proposal.url_for('delete') }}">{% trans %}Delete this{% endtrans %}</a>?)</small>
       {%- endif %}

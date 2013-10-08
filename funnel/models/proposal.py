@@ -57,6 +57,14 @@ class Proposal(BaseIdNameMixin, db.Model):
     def __repr__(self):
         return u'<Proposal "%s" in space "%s" by "%s">' % (self.title, self.proposal_space.title, self.user.fullname)
 
+    @property
+    def owner(self):
+        return self.speaker or self.user  
+
+    @property
+    def datetime(self):
+        return self.created_at  # Until proposals have a workflow-driven datetime
+
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
@@ -75,12 +83,15 @@ class Proposal(BaseIdNameMixin, db.Model):
                 'new-comment',
                 'vote-comment',
                 ])
-            if user == self.user:
+            if user == self.owner:
                 perms.update([
                     'view-proposal',
                     'edit-proposal',
                     'delete-proposal',
+                    'transfer-proposal',
                     ])
+                if self.speaker != self.user:
+                    perms.add('decline-proposal')  # Decline speaking
         return perms
 
     def url_for(self, action='view', _external=False):

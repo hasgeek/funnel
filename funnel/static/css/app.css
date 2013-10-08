@@ -28,6 +28,10 @@
   text-indent: -1000px;
 }
 
+.nav {
+  margin-bottom: 10px;
+}
+
 .breadcrumbs {
   *zoom: 1;
   list-style: none;
@@ -91,9 +95,6 @@ table.listing {
 
 .listing tr:nth-of-type(even) {
   background: #f6f6f6;
-}
-.listing tr:nth-of-type(even) a {
-  font-size: 12px;
 }
 
 .listing thead th {
