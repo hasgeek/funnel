@@ -44,6 +44,7 @@ def usergroup_edit(space, kwargs):
     form = UserGroupForm(model=UserGroup, parent=space)
     if group is not None:
         usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
+        form.edit_id = usergroup.id
         if request.method == 'GET':
             form.name.data = usergroup.name
             form.title.data = usergroup.title
@@ -57,7 +58,7 @@ def usergroup_edit(space, kwargs):
             form.users.data.replace('\r', '\n').replace(',', '\n').split('\n') if line]
         usersdata = lastuser.getusers(names=formdata)
         users = []
-        for userdata in usersdata:
+        for userdata in usersdata or []:
             user = User.query.filter_by(userid=userdata['userid']).first()
             if user is None:
                 user = User(userid=userdata['userid'], username=userdata['name'], fullname=userdata['title'])

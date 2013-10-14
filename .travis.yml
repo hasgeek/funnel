@@ -5,7 +5,7 @@ python:
 install:
   - pip install -r requirements.txt --use-mirrors
 # command to run tests
-script: nosetests
+script: nosetests tests
 notifications:
   email: false
   irc: "irc.freenode.net#hasgeek-dev"
