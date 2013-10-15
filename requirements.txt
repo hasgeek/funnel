@@ -1,11 +1,8 @@
 Flask
 Flask-Assets
 Flask-Mail
-Flask-Sqlalchemy
-jsmin
-Flask-Wtf
-Flask-OpenID
-Flask-Oauth
+Flask-SQLAlchemy
+Flask-WTF
 pytz
 unicodecsv
 git+https://github.com/hasgeek/coaster.git
