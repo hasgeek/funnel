@@ -7,7 +7,6 @@
       <thead>
         <tr>
           <th class="num">#</th>
-          <th>{% trans %}Proposer{% endtrans %}</th>
           <th>{% trans %}Speaker{% endtrans %}</th>
           <th>{% trans %}Section{% endtrans %}</th>
           <th>{% trans %}Type{% endtrans %}</th>
@@ -26,12 +25,14 @@
           </tr>
           <tr>
             <td></td>
-            <td><a href="{{ link }}">{{ proposal.user.fullname }}</a></td>
             <td><a href="{{ link }}">
               {%- if proposal.speaker -%}
                 {{ proposal.speaker.fullname }}
+                {%- if proposal.user != proposal.speaker %}
+                  <small>(via {{ proposal.user.fullname }})</small>
+                {%- endif %}
               {%- else -%}
-                <em>{% trans %}(open){% endtrans %}</em>
+                {{ proposal.user.fullname }} <em>{% trans %}(proposing){% endtrans %}</em>
               {%- endif -%}
             </a></td>
             <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
