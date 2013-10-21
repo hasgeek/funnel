@@ -67,9 +67,9 @@
         <form method="POST" action="{{ proposal.url_for('confirm') }}" style="float: right">
           {{ confirmform.hidden_tag() }}
           {% if proposal.confirmed -%}
-            <button class="btn btn-warning" type="submit">{% trans %}Cancel Session{% endtrans %}</button>
+            <button class="btn btn-xs btn-warning" type="submit">{% trans %}Cancel Session{% endtrans %}</button>
           {% else %}
-            <button class="btn btn-warning" type="submit">{% trans %}Confirm Session{% endtrans %}</button>
+            <button class="btn btn-xs btn-warning" type="submit">{% trans %}Confirm Session{% endtrans %}</button>
           {% endif -%}
         </form>
       {% endif %}
