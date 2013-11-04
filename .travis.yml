@@ -4,8 +4,9 @@ python:
 # command to install dependencies
 install:
   - pip install -r requirements.txt --use-mirrors
+  - pip install nose coverage
 # command to run tests
-#script: python runtests.py 
+script: nosetests funnel tests
 notifications:
   email: false
   irc: "irc.freenode.net#hasgeek-dev"

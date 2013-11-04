@@ -35,9 +35,11 @@ from .models import db
 
 def init_for(env):
     coaster.app.init_app(app, env)
+    db.init_app(app)
+    db.app = app
     mail.init_app(app)
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
     baseframe.init_app(app, requires=[
-        'baseframe-bs3', 'jquery', 'jquery.form', 'jquery.oembed', 'showdown', 'funnel', 'codemirror'
+        'jquery.form', 'jquery.oembed', 'showdown', 'codemirror-markdown', 'pygments', 'baseframe-bs3', 'funnel',
         ])

@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
-{% block title %}Section &mdash; <a href="{{ url_for('viewspace', name=space.name) }}"> {{ space.title }} </a>{% endblock %}
+{% block title %}{{ section.title }} &mdash; {{ space.title }}{% endblock %}
 {% block content %}
-  <h2>{{ section.title }}</h2>
   <p>
     {{ section.description }}
   </p>

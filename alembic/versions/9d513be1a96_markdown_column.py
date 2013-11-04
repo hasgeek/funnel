@@ -1,14 +1,14 @@
 """Migrations for using MarkdownComposite 
 
 Revision ID: 9d513be1a96
-Revises: 4b630fb42760
+Revises: 5290f9238875
 Create Date: 2013-09-05 16:01:17.681404
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '9d513be1a96'
-down_revision = '4b630fb42760'
+down_revision = '5290f9238875'
 
 from alembic import op
 import sqlalchemy as sa

@@ -20,6 +20,9 @@
   text-indent: -1000px;
 }
 
+.nav {
+    margin-bottom: 10px;
+}
 
 .breadcrumbs {
     @include pie-clearfix;
@@ -74,9 +77,9 @@ table.listing {
 
 .listing tr:nth-of-type(even) {
     background: $color-listing-even;
-    a{
-        font-size: 12px;
-    }
+    // a{
+    //     font-size: 12px;
+    // }
 }
 
 .listing thead th {
@@ -158,7 +161,7 @@ table.listing {
             font-size: 100%;
             font-weight: bold;
             background: $color-section-heading-background;
-            padding: 0.25em 0.5em;
+            padding: 0 0.5em;
             margin: 0 -0.5em;
             color: $color-section-heading;
             @include border-radius(3px);
@@ -487,9 +490,8 @@ dl.bar {
     .com-children {
         border-left: 1px dotted $color-outline;
         list-style: none;
-        margin-left: 0;
         padding-left: 2em;
-        margin-bottom: 0;
+        margin: 0.5em 0 -0.5em 0;
     }
     .com-header, .com-footer {
         font-size: 80%;
@@ -517,7 +519,7 @@ dl.bar {
 }
 form#newcomment{
     #field-comment_message{
-        margin-bottom: -15px;
+        // margin-bottom: -15px;
         .control-label{
             width: auto !important;
             padding-bottom: 5px;

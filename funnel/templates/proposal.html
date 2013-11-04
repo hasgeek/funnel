@@ -7,11 +7,6 @@
 {% block headline -%}{%- endblock %}
 
 {% block content %}
-{#<p style="margin-top: 0; font-size: 80%;">
-  <a href="{{ url_for('viewspace', name=space.name) }}">&larr; Return to {{ space.title }}</a>
-  {% if proposal.user == g.user %}| <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this &rarr;</a>{% endif %}
-</p>#}
-    
 <div class="col-md-10 col-sm-10 col-xs-12 col-sm-push-1 col-md-push-1">
   <div class="infosheet">
   <div class="section first">
@@ -22,14 +17,14 @@
         <div class="choices">
 
           {%- if not vote %}
-            <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-            <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+            <a class="votechoice" title="{% trans %}Vote up{% endtrans %}" href="{{ proposal.url_for('voteup') }}">+1</a>
+            <a class="votechoice" title="{% trans %}Vote down{% endtrans %}" href="{{ proposal.url_for('votedown') }}">-1</a>
           {%- elif vote.votedown %}
-            <a class="votechoice" title="Vote up" href="{{ url_for('voteupsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-            <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+            <a class="votechoice" title="{% trans %}Vote up{% endtrans %}" href="{{ proposal.url_for('voteup') }}">+1</a>
+            <a class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ proposal.url_for('votecancel') }}">-1</a>
           {%- else %}
-            <a class="votechoice selected" title="Withdraw vote" href="{{ url_for('votecancelsession', name=space.name, slug=proposal.urlname) }}">+1</a>
-            <a class="votechoice" title="Vote down" href="{{ url_for('votedownsession', name=space.name, slug=proposal.urlname) }}">-1</a>
+            <a class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ proposal.url_for('votecancel') }}">+1</a>
+            <a class="votechoice" title="{% trans %}Vote down{% endtrans %}" href="{{ proposal.url_for('votedown') }}">-1</a>
           {% endif %}
           <span class="indicator">&rarr;</span>
           <span class="score">
@@ -39,21 +34,26 @@
             {{ proposal.votes.count }}</span>
           </div>
         <div class="label">
-          Vote on this proposal
+          {% trans %}Vote on this proposal{% endtrans %}
         </div>
       </div>
     
   </div>
   <div class="row">
     <p class="col-md-12">
-      by <strong>{{ proposal.user.fullname }}</strong>
-      {% if proposal.user == proposal.speaker -%}
-        (speaking)
-      {%- else -%}
-        (proposing)
+      {% trans %}by{% endtrans%}
+      {%- if proposal.speaker %}
+        <strong>{{ proposal.speaker.fullname }}</strong>
+        {%- if proposal.speaker != proposal.user %}
+          ({% trans %}via{% endtrans %} {{ proposal.user.fullname }})
+        {%- endif %}
+      {%- else %}
+        <strong>{{ proposal.user.fullname }}</strong>
+        ({% trans %}proposing{% endtrans %})
       {%- endif %}
-      {% if proposal.user == g.user -%}
-        <small>(that’s you! <a href="{{ url_for('editsession', name=space.name, slug=proposal.urlname) }}">Edit this</a>? <a href="{{ url_for('deletesession', name=space.name, slug=proposal.urlname) }}">Delete this</a>?)</small>
+      {% trans %}on{% endtrans %} {{ proposal.datetime.strftime("%A, %B %e, %Y") }}
+      {%- if proposal.user == g.user %}
+        <small>({% trans %}that’s you!{% endtrans %} <a href="{{ proposal.url_for('edit') }}">{% trans %}Edit this{% endtrans %}</a>? <a href="{{ proposal.url_for('delete') }}">{% trans %}Delete this{% endtrans %}</a>?)</small>
       {%- endif %}
     </p>
   </div>
@@ -64,12 +64,12 @@
       <g:plusone size="medium"></g:plusone>
       <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
       {% if 'siteadmin' in g.lastuserinfo.permissions %}
-        <form method="POST" action="{{ url_for('confirmsession', name=space.name, slug=proposal.urlname) }}" style="float: right">
+        <form method="POST" action="{{ proposal.url_for('confirm') }}" style="float: right">
           {{ confirmform.hidden_tag() }}
           {% if proposal.confirmed -%}
-            <button class="btn btn-warning" type="submit">Cancel Session</button>
+            <button class="btn btn-xs btn-warning" type="submit">{% trans %}Cancel Session{% endtrans %}</button>
           {% else %}
-            <button class="btn btn-warning" type="submit">Confirm Session</button>
+            <button class="btn btn-xs btn-warning" type="submit">{% trans %}Confirm Session{% endtrans %}</button>
           {% endif -%}
         </form>
       {% endif %}
@@ -79,37 +79,37 @@
   <div class="section bar">
     <dl class="bar">
       {%- if proposal.section %}
-        <dt>Section</dt>
+        <dt>{% trans %}Section{% endtrans %}</dt>
         <dd>{{ proposal.section.title }}</dd>
         <br class="hide-desktop">
       {%- endif %}
       {%- if proposal.session_type %}
-        <dt>Session type</dt>
+        <dt>{% trans %}Session type{% endtrans %}</dt>
         <dd>{{ proposal.session_type }}</dd>
         <br class="hide-desktop">
       {%- endif %}
-      <dt>Technical level</dt>
+      <dt>{% trans %}Technical level{% endtrans %}</dt>
       <dd>{{ proposal.technical_level }}</dd>
     </dl>
   </div>
   <div class="section">
     {%- if not proposal.speaker -%}
       <p>
-        <em>This is a proposal requesting for someone to speak on this topic.
-        If you’d like to speak, leave a comment.</em>
+        <em>{% trans %}This is a proposal requesting for someone to speak on this topic.
+        If you’d like to speak, leave a comment.{% endtrans %}</em>
       </p>
     {%- endif -%}
 
-    <h2>Objective</h2>
+    <h2>{% trans %}Objective{% endtrans %}</h2>
     {{ proposal.objective }}
-    <h2>Description</h2>
+    <h2>{% trans %}Description{% endtrans %}</h2>
     {{ proposal.description }}
-    {% if proposal.requirements -%}
-      <h2>Requirements</h2>
+    {% if proposal.requirements.text -%}
+      <h2>{% trans %}Requirements{% endtrans %}</h2>
       {{ proposal.requirements }}
     {%- endif %}
-    {% if proposal.bio -%}
-      <h2>Speaker bio</h2>
+    {% if proposal.bio.text -%}
+      <h2>{% trans %}Speaker bio{% endtrans %}</h2>
       {{ proposal.bio }}
     {%- endif %}
 {% if proposal.slides or proposal.links %}
@@ -117,7 +117,7 @@
   <div class="section">
 {% endif %}
     {% if proposal.slides %}
-      <h2 id="slides">Slides</h2>
+      <h2 id="slides">{% trans %}Slides{% endtrans %}</h2>
       <p>
         <div class="embed-container">
           <a id="slides-link" href="{{ proposal.slides }}">{{ proposal.slides }}</a>
@@ -125,7 +125,7 @@
       </p>
     {% endif %}
     {% if proposal.links %}
-      <h2 id="links">Links</h2>
+      <h2 id="links">{% trans %}Links{% endtrans %}</h2>
         <ul id="links-list">
           {% for link in links -%}
             <li>{{ link }}</li>
@@ -134,7 +134,7 @@
     {% endif %}
   </div>
   <div class="section">
-    <h2 id="comments">Comments</h2>
+    <h2 id="comments">{% trans %}Comments{% endtrans %}</h2>
     {% if comments %}
       <ul class="comments">
         {{ commenttree(comments, proposal, g.user, request.base_url) }}
@@ -142,11 +142,11 @@
     {% endif %}
     {% if not g.user -%}
       <p>
-        <a href="{{ url_for('login') }}">Login with Twitter or Google to leave a comment &rarr;</a>
+        <a class="btn btn-info" href="{{ url_for('login') }}">{% trans %}Login with Twitter or Google to leave a comment{% endtrans %}</a>
       </p>
     {% else -%}
       <p id="toplevel-comment" class="hidden">
-        <a href="#">Post a comment &rarr;</a>
+        <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>
       </p>
       <form method="POST" id="newcomment">
         <div class="hidden">
@@ -159,7 +159,7 @@
           {{ renderfield(commentform.message) }}
         </p>
         <p>
-          <input id="comment-submit" class="btn btn-default" type="submit" value="Post comment"/>
+          <input id="comment-submit" class="btn btn-primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
         </p>
       </form>
       <form method="POST" id="delcomment" class="hidden">
@@ -169,9 +169,9 @@
           {{ delcommentform.comment_id() }}
         </div>
         <p>
-          Really delete this comment?
-          <input id="comment-delete-submit" class="btn btn-danger" type="submit" value="Delete"/>
-          or <button id="comment-delete-cancel" class="btn btn-default" href="#">cancel</button>
+          {% trans %}Really delete this comment?{% endtrans %}
+          <input id="comment-delete-submit" class="btn btn-xs btn-danger" type="submit" value="{% trans %}Delete{% endtrans %}"/>
+          or <button id="comment-delete-cancel" class="btn btn-xs btn-default" href="#">{% trans %}Cancel{% endtrans %}</button>
         </p>
       </form>
     {% endif %}
@@ -182,7 +182,7 @@
 <div class="col-md-1 col-sm-1 col-xs-6 col-sm-pull-10 col-md-pull-10">
   <div class="leftear">
     {%- if proposal.getprev() -%}
-      <a href="{{ url_for('prevsession', name=space.name, slug=proposal.urlname) }}" title="Previous"><i class="icon-chevron-left"></i></a>
+      <a href="{{ proposal.url_for('prev') }}" title="{% trans %}Previous{% endtrans %}"><i class="icon-chevron-left"></i></a>
     {%- else -%}
       <i class="icon-chevron-left"></i>
     {%- endif -%}
@@ -192,7 +192,7 @@
 <div class="col-md-1 col-sm-1 col-xs-6">
   <div class="rightear">
     {%- if proposal.getnext() -%}
-      <a href="{{ url_for('nextsession', name=space.name, slug=proposal.urlname) }}" title="Next"><i class="icon-chevron-right"></i></a>
+      <a href="{{ proposal.url_for('next') }}" title="{% trans %}Next{% endtrans %}"><i class="icon-chevron-right"></i></a>
     {%- else -%}
       <i class="icon-chevron-right"></i>
     {%- endif -%}
@@ -205,7 +205,7 @@
 {% block footerscripts %}
 <script type="text/javascript">
   $(function() {
-    commentsInit("{{ request.base_url }}"); // {# FIXME: Potential vulnerability if this isn't JS-encoded #}
+    commentsInit({{ request.base_url|tojson }});
     {%- if proposal.slides %}
       $("#slides-link").oembed();
     {%- endif %}
