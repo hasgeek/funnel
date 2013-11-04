@@ -10,3 +10,4 @@ from .section import *
 from .usergroup import *
 from .proposal import *
 from .feedback import *
+from .venue import *
