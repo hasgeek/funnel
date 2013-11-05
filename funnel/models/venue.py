@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseNameMixin, BaseScopedNameMixin
+from . import db, BaseScopedNameMixin, MarkdownColumn
 from .space import ProposalSpace
 
 
 __all__ = ['Venue', 'Room']
 
 
-class Venue(BaseNameMixin, db.Model):
+class Venue(BaseScopedNameMixin, db.Model):
     __tablename__ = 'venue'
 
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, backref=db.backref('venues', cascade='all, delete-orphan'))
     parent = db.synonym('proposal_space')
-    description = db.Column(db.UnicodeText, default=u'', nullable=False)
+    description = MarkdownColumn(u'description', default=u'', nullable=False)
     address1 = db.Column(db.Unicode(160), default=u'', nullable=False)
     address2 = db.Column(db.Unicode(160), default=u'', nullable=False)
     city = db.Column(db.Unicode(30), default=u'', nullable=False)
@@ -39,7 +39,7 @@ class Room(BaseScopedNameMixin, db.Model):
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
     venue = db.relationship(Venue, backref=db.backref('rooms', cascade='all, delete-orphan'))
     parent = db.synonym('venue')
-    description = db.Column(db.UnicodeText, default=u'', nullable=False)
+    description = MarkdownColumn(u'description', default=u'', nullable=False)
 
     __table_args__ = (db.UniqueConstraint('name', 'venue_id'),)
 
