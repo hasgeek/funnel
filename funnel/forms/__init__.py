@@ -6,3 +6,4 @@ from .proposal import *
 from .section import *
 from .space import *
 from .usergroup import *
+from .venue import *

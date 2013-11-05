@@ -31,7 +31,7 @@ class Venue(BaseNameMixin, db.Model):
             return url_for('venue_delete', space=self.proposal_space.name, venue=self.name, _external=_external)
         elif action == 'edit':
             return url_for('venue_edit', space=self.proposal_space.name, venue=self.name, _external=_external)
-
+    
 
 class Room(BaseScopedNameMixin, db.Model):
     __tablename__ = 'room'
