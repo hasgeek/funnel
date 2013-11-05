@@ -64,6 +64,9 @@
 {#-    {%- if sections %}{% for section in sections %}
       <li><a href="#section-{{ section.name }}" data-toggle="tab">{{ section.title }}</a></li>
     {% endfor %}{% endif %} #}
+    {%- if space.venues %}
+      <li><a href="#venue" data-toggle="tab">{% trans %}Venue{% endtrans %}</a></li>
+    {%- endif %}
   </ul>
   <div class="tab-content section">
     <div class="tab-pane active" id="info">
@@ -107,5 +110,30 @@
         {{ proposal_table(unconfirmed) }}
       {%- endif %}
     </div>
+
+    <div class="tab-pane" id="venue">
+      {%- for venue in space.venues %}
+        <h3>{{ venue.title}}</h3>
+          {%- if g.user and 'edit-space' in space.permissions(g.user) %}
+            <a href="{{venue.url_for('edit')}}">Edit,</a><a href="{{venue.url_for('delete')}}">Delete</a>,
+            <a href="{{venue.url_for('new-room')}}">New Room</a>
+          {%- endif %}
+          <p>{{ venue.address1 }}<br/>{{ venue.address2 }}</p>
+          <p>{{ venue.description }}</p>
+          <h4> Rooms </h4>
+          {%- for room in venue.rooms %}
+            <p>{{ room.title }}</p>
+            <p>{{ room.description|striptags }}</p>
+            {%- if g.user and 'edit-space' in space.permissions(g.user) %}
+              <a href="{{room.url_for('edit')}}">Edit,</a><a href="{{room.url_for('delete')}}">Delete</a>
+            {%- endif %}
+          {%- endfor %}
+          
+          
+
+      {%- endfor %}
+    </div>
   </div>
+
+  
 {% endblock %}

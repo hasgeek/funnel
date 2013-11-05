@@ -83,3 +83,4 @@ class ProposalSpace(BaseNameMixin, db.Model):
             return url_for('usergroup_new', space=self.name, _external=_external)
         elif action == 'new-proposal':
             return url_for('proposal_new', space=self.name, _external=_external)
+        
