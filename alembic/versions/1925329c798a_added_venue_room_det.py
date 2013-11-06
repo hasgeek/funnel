@@ -34,6 +34,7 @@ def upgrade():
     sa.Column('name', sa.Unicode(length=250), nullable=False),
     sa.Column('title', sa.Unicode(length=250), nullable=False),
     sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
+    sa.UniqueConstraint('proposal_space_id', 'name'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('room',
@@ -47,7 +48,7 @@ def upgrade():
     sa.Column('title', sa.Unicode(length=250), nullable=False),
     sa.ForeignKeyConstraint(['venue_id'], ['venue.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name','venue_id')
+    sa.UniqueConstraint('venue_id','name')
     )
     ### end Alembic commands ###
 

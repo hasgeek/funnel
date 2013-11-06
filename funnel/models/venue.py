@@ -24,6 +24,8 @@ class Venue(BaseScopedNameMixin, db.Model):
     latitude = db.Column(db.Numeric(8, 5), nullable=True)
     longitude = db.Column(db.Numeric(8, 5), nullable=True)
 
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
+
     def url_for(self, action='new', _external=False):
         if action == 'new-room':
             return url_for('room_new', space=self.proposal_space.name, venue=self.name, _external=_external)
@@ -41,7 +43,7 @@ class Room(BaseScopedNameMixin, db.Model):
     parent = db.synonym('venue')
     description = MarkdownColumn(u'description', default=u'', nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('name', 'venue_id'),)
+    __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
 
     def url_for(self, action='new', _external=False):
         if action == 'delete':
