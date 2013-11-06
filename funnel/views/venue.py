@@ -6,23 +6,27 @@ from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
 from funnel import app, lastuser
-from funnel.models import db, ProposalSpace, Venue, Room
-from funnel.forms.venue import VenueForm, RoomForm
+from funnel.models import db, ProposalSpace, Venue, VenueRoom
+from funnel.forms.venue import VenueForm, VenueRoomForm
+
+RESERVED_VENUE = ['new']
+RESERVED_VENUEROOM = ['new', 'edit', 'delete']
 
 
 @app.route('/<space>/venues/new', methods=['GET', 'POST'])
 @lastuser.requires_login
-@load_model(ProposalSpace, {'name': 'space'}, 'space', permission='edit-space')
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission=('new-venue', 'siteadmin'), addlperms=lastuser.permissions)
 def venue_new(space):
     form = VenueForm()
     if form.validate_on_submit():
         venue = Venue()
         form.populate_obj(venue)
         venue.proposal_space = space
-        venue.make_name()
+        venue.make_name(reserved=RESERVED_VENUE)
         db.session.add(venue)
         db.session.commit()
-        flash(_("You have added a new venue to the event"), u'success')
+        flash(_(u"You have added a new venue to the event"), 'success')
         return render_redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=space.url_for(), ajax=False)
 
@@ -32,15 +36,14 @@ def venue_new(space):
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    permission='edit-space')
+    permission=('edit-venue', 'siteadmin'), addlperms=lastuser.permissions)
 def venue_edit(space, venue):
     form = VenueForm(obj=venue)
     if form.validate_on_submit():
         form.populate_obj(venue)
-        venue.proposal_space = space
-        venue.make_name()
+        venue.make_name(reserved=RESERVED_VENUE)
         db.session.commit()
-        flash(_("Saved changes to this venue"), u'success')
+        flash(_(u"Saved changes to this venue"), 'success')
         return render_redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Edit venue"), submit=_("Edit"), cancel_url=space.url_for(), ajax=False)
 
@@ -49,11 +52,12 @@ def venue_edit(space, venue):
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'), permission='edit-space')
+    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
+    permission=('delete-venue', 'siteadmin'), addlperms=lastuser.permissions)
 def venue_delete(space, venue):
     return render_delete_sqla(venue, db, title=u"Confirm delete",
-        message=_("Delete venue '{title}'? This cannot be undone".format(title=venue.title)),
-        success=_("You have deleted venue {title}".format(title=venue.title)),
+        message=_(u"Delete venue “{title}”? This cannot be undone".format(title=venue.title)),
+        success=_(u"You have deleted venue “{title}”".format(title=venue.title)),
         next=space.url_for())
 
 
@@ -61,17 +65,18 @@ def venue_delete(space, venue):
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'), permission='edit-space')
-def room_new(space, venue):
-    form = RoomForm()
+    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
+    permission=('new-venue', 'siteadmin'), addlperms=lastuser.permissions)
+def venueroom_new(space, venue):
+    form = VenueRoomForm()
     if form.validate_on_submit():
-        room = Room()
+        room = VenueRoom()
         form.populate_obj(room)
         room.venue = venue
-        room.make_name()
+        room.make_name(reserved=RESERVED_VENUEROOM)
         db.session.add(room)
         db.session.commit()
-        flash(_("You have added a room at this venue"), u'success')
+        flash(_(u"You have added a room at this venue"), 'success')
         return render_redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("New room"), submit=_("Create"), cancel_url=space.url_for(), ajax=False)
 
@@ -81,16 +86,15 @@ def room_new(space, venue):
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    (Room, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission='edit-space')
-def room_edit(space, venue, room):
-    form = RoomForm(obj=room)
+    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
+    permission=('edit-venue', 'siteadmin'), addlperms=lastuser.permissions)
+def venueroom_edit(space, venue, room):
+    form = VenueRoomForm(obj=room)
     if form.validate_on_submit():
         form.populate_obj(room)
-        room.venue = venue
-        room.make_name()
+        room.make_name(reserved=RESERVED_VENUEROOM)
         db.session.commit()
-        flash(_("Saved changes to this room"), u'success')
+        flash(_(u"Saved changes to this room"), 'success')
         return render_redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Edit room"), submit=_("Edit"), cancel_url=space.url_for(), ajax=False)
 
@@ -100,10 +104,10 @@ def room_edit(space, venue, room):
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    (Room, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission='edit-space')
-def room_delete(space, venue, room):
+    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
+    permission=('delete-venue', 'siteadmin'), addlperms=lastuser.permissions)
+def venueroom_delete(space, venue, room):
     return render_delete_sqla(room, db, title=u"Confirm delete",
-        message=_("Delete room '{title}'? This cannot be undone".format(title=room.title)),
-        success=_("You have deleted room '{title}'".format(title=room.title)),
+        message=_(u"Delete room “{title}”? This cannot be undone".format(title=room.title)),
+        success=_(u"You have deleted room “{title}”".format(title=room.title)),
         next=space.url_for())

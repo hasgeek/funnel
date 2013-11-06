@@ -61,6 +61,9 @@ class ProposalSpace(BaseNameMixin, db.Model):
                     'view-usergroup',
                     'new-usergroup',
                     'confirm-proposal',
+                    'new-venue',
+                    'edit-venue',
+                    'delete-venue',
                     ])
         return perms
 
