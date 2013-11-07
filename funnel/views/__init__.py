@@ -7,3 +7,4 @@ from .section import *
 from .usergroup import *
 from .proposal import *
 from .commentvote import *
+from .venue import *
