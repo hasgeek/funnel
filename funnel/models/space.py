@@ -70,6 +70,8 @@ class ProposalSpace(BaseNameMixin, db.Model):
     def url_for(self, action='view', _external=False):
         if action == 'view':
             return url_for('space_view', space=self.name, _external=_external)
+        elif action == 'new-proposal':
+            return url_for('proposal_new', space=self.name, _external=_external)
         elif action == 'json':
             return url_for('space_view_json', space=self.name, _external=_external)
         elif action == 'csv':
@@ -84,5 +86,7 @@ class ProposalSpace(BaseNameMixin, db.Model):
             return url_for('usergroup_list', space=self.name, _external=_external)
         elif action == 'new-usergroup':
             return url_for('usergroup_new', space=self.name, _external=_external)
-        elif action == 'new-proposal':
-            return url_for('proposal_new', space=self.name, _external=_external)
+        elif action == 'venues':
+            return url_for('venue_list', space=self.name, _external=_external)
+        elif action == 'new-venue':
+            return url_for('venue_new', space=self.name, _external=_external)

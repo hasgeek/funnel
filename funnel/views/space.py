@@ -51,6 +51,25 @@ def space_view_json(space):
             'status': space.status,
             },
         'sections': [{'name': s.name, 'title': s.title, 'description': s.description} for s in sections],
+        'venues': [{
+            'name': venue.name,
+            'title': venue.title,
+            'description': venue.description.html,
+            'address1': venue.address1,
+            'address2': venue.address2,
+            'city': venue.city,
+            'state': venue.state,
+            'postcode': venue.postcode,
+            'country': venue.country,
+            'latitude': venue.latitude,
+            'longitude': venue.longitude
+            } for venue in space.venues],
+        'rooms': [{
+            'name': room.scoped_name,
+            'title': room.title,
+            'description': room.description.html,
+            'venue': venue.name
+        } for venue in space.venues for room in venue.rooms],
         'proposals': [proposal_data(proposal) for proposal in proposals]
         })
 

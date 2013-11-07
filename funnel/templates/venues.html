@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block title %}Venues &mdash; {{ space.title }}{% endblock %}
+{% block content %}
+  <ol>
+    {%- for venue in venues %}
+      <li>
+        <p>
+          <a href="{{ venue.url_for('edit') }}">{{ venue.title }}</a>
+          <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="icon-trash"></i></a>
+        </p>
+        {{ venue.description }}
+        {%- if venue.rooms %}
+          <ol>
+            {%- for room in venue.rooms %}
+              <li>
+                <p>
+                  <a href="{{ room.url_for('edit') }}">{{ room.title }}</a>
+                  <a href="{{ room.url_for('delete') }}"><i class="icon-trash"></i></a>
+                </p>
+                {{ room.description }}
+              </li>
+            {%- endfor %}
+          </ol>
+        {%- endif %}
+        <p><a href="{{ venue.url_for('new-room') }}" class="btn btn-info btn-xs">{% trans %}Add room{% endtrans %}</a></p>
+      </li>
+    {% else %}
+      <li><em>{% trans %}(No venues){% endtrans %}</em></li>
+    {%- endfor %}
+  </ol>
+  <p>
+    <a class="btn btn-info" href="{{ space.url_for('new-venue') }}">{% trans %}Add venue{% endtrans %}</a>
+  </p>
+{% endblock %}
+
+
+    <div class="tab-pane" id="venue">
+      {%- for venue in space.venues %}
+        <h3>{{ venue.title}}</h3>
+          {%- if 'edit-space' in g.permissions %}
+            <a href="{{venue.url_for('edit')}}">{% trans %}Edit, {% endtrans %}</a><a href="{{venue.url_for('delete')}}">{% trans %}Delete{% endtrans %}</a>,
+            <a href="{{venue.url_for('new-room')}}">{% trans %}New Room{% endtrans %}</a>
+          {%- endif %}
+          <p>{{ venue.address1 }}<br/>{{ venue.address2 }}</p>
+          <p>{{ venue.description }}</p>
+          <h4>{% trans %} Rooms {% endtrans %}</h4>
+          {%- for room in venue.rooms %}
+            <p>{{ room.title }}</p>
+            <p>{{ room.description }}</p>
+            {%- if 'edit-space' in g.permissions %}
+              <a href="{{room.url_for('edit')}}">{% trans %}Edit, {% endtrans %}</a><a href="{{room.url_for('delete')}}">{% trans %}Delete{% endtrans %}</a>
+            {%- endif %}
+          {%- endfor %}
+      {%- endfor %}
+    </div>

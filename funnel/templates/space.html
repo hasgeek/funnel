@@ -64,9 +64,6 @@
 {#-    {%- if sections %}{% for section in sections %}
       <li><a href="#section-{{ section.name }}" data-toggle="tab">{{ section.title }}</a></li>
     {% endfor %}{% endif %} #}
-    {%- if space.venues %}
-      <li><a href="#venue" data-toggle="tab">{% trans %}Venue{% endtrans %}</a></li>
-    {%- endif %}
   </ul>
   <div class="tab-content section">
     <div class="tab-pane active" id="info">
@@ -109,26 +106,6 @@
         {%- if confirmed %}<h3>{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
         {{ proposal_table(unconfirmed) }}
       {%- endif %}
-    </div>
-
-    <div class="tab-pane" id="venue">
-      {%- for venue in space.venues %}
-        <h3>{{ venue.title}}</h3>
-          {%- if 'edit-space' in g.permissions %}
-            <a href="{{venue.url_for('edit')}}">{% trans %}Edit, {% endtrans %}</a><a href="{{venue.url_for('delete')}}">{% trans %}Delete{% endtrans %}</a>,
-            <a href="{{venue.url_for('new-room')}}">{% trans %}New Room{% endtrans %}</a>
-          {%- endif %}
-          <p>{{ venue.address1 }}<br/>{{ venue.address2 }}</p>
-          <p>{{ venue.description }}</p>
-          <h4>{% trans %} Rooms {% endtrans %}</h4>
-          {%- for room in venue.rooms %}
-            <p>{{ room.title }}</p>
-            <p>{{ room.description }}</p>
-            {%- if 'edit-space' in g.permissions %}
-              <a href="{{room.url_for('edit')}}">{% trans %}Edit, {% endtrans %}</a><a href="{{room.url_for('delete')}}">{% trans %}Delete{% endtrans %}</a>
-            {%- endif %}
-          {%- endfor %}
-      {%- endfor %}
     </div>
   </div>
 {% endblock %}
