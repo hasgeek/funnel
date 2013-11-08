@@ -48,6 +48,7 @@ class Proposal(BaseIdNameMixin, db.Model):
     comments = db.relationship(CommentSpace, uselist=False)
 
     edited_at = db.Column(db.DateTime, nullable=True)
+    location = db.Column(db.Unicode(80), nullable=False)
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)

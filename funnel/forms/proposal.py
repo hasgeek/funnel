@@ -10,12 +10,6 @@ __all__ = ['ProposalForm']
 
 
 class ProposalForm(Form):
-    email = wtforms.fields.html5.EmailField(__("Your email address"), validators=[wtforms.validators.Required()],
-        description=__("An email address we can contact you at. "
-            "Not displayed anywhere"))
-    phone = wtforms.TextField(__("Phone number"), validators=[wtforms.validators.Required()],
-        description=__("A phone number we can call you at to discuss your proposal, if required. "
-            "Will not be displayed"))
     speaking = wtforms.RadioField(__("Are you speaking?"), coerce=int,
         choices=[(1, __(u"I will be speaking")),
                  (0, __(u"I’m proposing a topic for someone to speak on"))])
@@ -51,3 +45,11 @@ class ProposalForm(Form):
             "folks decide if they want to attend your session"))
     bio = MarkdownField(__("Speaker bio"), validators=[wtforms.validators.Required()],
         description=__("Tell us why you are the best person to be taking this session"))
+    email = wtforms.fields.html5.EmailField(__("Your email address"), validators=[wtforms.validators.Required()],
+        description=__("An email address we can contact you at. "
+            "Not displayed anywhere"))
+    phone = wtforms.TextField(__("Phone number"), validators=[wtforms.validators.Required()],
+        description=__("A phone number we can call you at to discuss your proposal, if required. "
+            "Will not be displayed"))
+    location = wtforms.TextField(__("Your location"), validators=[wtforms.validators.Required(), wtforms.validators.Length(max=80)],
+        description=__("Your location, to help plan for travel arrangement"))
