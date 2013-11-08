@@ -18,9 +18,9 @@ class Session(BaseScopedIdMixin, db.Model):
     description = MarkdownColumn('description', default=u'', nullable=False)
     speaker_bio = MarkdownColumn('speaker_bio', default=u'', nullable=False)
     proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=True)
-    start_datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    end_datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    start_datetime = db.Column(db.DateTime, nullable=False)
+    end_datetime = db.Column(db.DateTime, nullable=False)
     venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=False)
     is_break = db.Column(db.Boolean, default=False, nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('url_id', 'proposal_space_id'),)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)

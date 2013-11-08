@@ -35,7 +35,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
     sa.ForeignKeyConstraint(['venue_room_id'], ['venue_room.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('url_id','proposal_space_id')
+    sa.UniqueConstraint('proposal_space_id', 'url_id')
     )
     op.add_column('venue_room', sa.Column('bgcolor', sa.Unicode(length=6), nullable=True))
     ### end Alembic commands ###
