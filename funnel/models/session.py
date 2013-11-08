@@ -2,6 +2,7 @@
 
 from . import db, BaseScopedIdNameMixin, MarkdownColumn
 from .space import ProposalSpace
+from .proposal import Proposal
 
 
 __all__ = ['Session']
@@ -17,6 +18,8 @@ class Session(BaseScopedIdNameMixin, db.Model):
     description = MarkdownColumn('description', default=u'', nullable=False)
     speaker_bio = MarkdownColumn('speaker_bio', default=u'', nullable=False)
     proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=True)
+    proposal = db.relationship(Proposal,
+        backref=db.backref('session', uselist=False, cascade='all, delete-orphan'))
     start_datetime = db.Column(db.DateTime, nullable=False)
     end_datetime = db.Column(db.DateTime, nullable=False)
     venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=False)
