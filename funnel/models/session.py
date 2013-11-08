@@ -16,6 +16,7 @@ class Session(BaseScopedIdMixin, db.Model):
         backref=db.backref('sessions', cascade='all, delete-orphan'))
     parent = db.synonym('proposal_space')
     description = MarkdownColumn('description', default=u'', nullable=False)
+    speaker_bio = MarkdownColumn('speaker_bio', default=u'', nullable=False)
     proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=True)
     start_datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     end_datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

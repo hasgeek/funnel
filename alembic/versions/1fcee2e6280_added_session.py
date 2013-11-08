@@ -23,6 +23,8 @@ def upgrade():
     sa.Column('proposal_space_id', sa.Integer(), nullable=False),
     sa.Column('description_text', sa.UnicodeText(), nullable=False),
     sa.Column('description_html', sa.UnicodeText(), nullable=False),
+    sa.Column('speaker_bio_text', sa.UnicodeText(), nullable=False),
+    sa.Column('speaker_bio_html', sa.UnicodeText(), nullable=False),
     sa.Column('proposal_id', sa.Integer(), nullable=True),
     sa.Column('start_datetime', sa.DateTime(), nullable=False),
     sa.Column('end_datetime', sa.DateTime(), nullable=False),
