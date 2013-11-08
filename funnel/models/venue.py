@@ -44,6 +44,7 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
         backref=db.backref('rooms', cascade='all, delete-orphan', order_by='VenueRoom.name'))
     parent = db.synonym('venue')
     description = MarkdownColumn('description', default=u'', nullable=False)
+    bgcolor = db.Column(db.Unicode(6), nullable=True)
 
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
 
