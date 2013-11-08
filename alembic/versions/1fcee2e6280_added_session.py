@@ -31,6 +31,8 @@ def upgrade():
     sa.Column('venue_room_id', sa.Integer(), nullable=False),
     sa.Column('is_break', sa.Boolean(), nullable=False),
     sa.Column('url_id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.Unicode(length=250), nullable=False),
+    sa.Column('title', sa.Unicode(length=250), nullable=False),
     sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ),
     sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
     sa.ForeignKeyConstraint(['venue_room_id'], ['venue_room.id'], ),

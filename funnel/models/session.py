@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from . import db, BaseScopedIdMixin, MarkdownColumn
+from . import db, BaseScopedIdNameMixin, MarkdownColumn
 from .space import ProposalSpace
 
 
 __all__ = ['Session']
 
 
-class Session(BaseScopedIdMixin, db.Model):
+class Session(BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'session'
 
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
