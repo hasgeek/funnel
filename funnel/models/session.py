@@ -14,7 +14,7 @@ class Session(BaseScopedIdMixin, db.Model):
     proposal_id = db.Column(db.Integer, nullable=True)
     start_datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     end_datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'),
+    proposal_space_id = db.Column(db.Integer, 
     	backref=db.backref('sessions', cascade='all, delete-orphan', order_by='Session.start_datetime'),
     	nullable=False)
     venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=False)

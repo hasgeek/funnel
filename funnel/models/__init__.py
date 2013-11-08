@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from coaster.sqlalchemy import BaseMixin, BaseNameMixin, BaseScopedNameMixin, BaseIdNameMixin, MarkdownColumn
+from coaster.sqlalchemy import BaseMixin, BaseNameMixin, BaseScopedNameMixin, BaseScopedIdMixin, BaseIdNameMixin, MarkdownColumn
 from coaster.db import db
 
 from .user import *
@@ -11,4 +11,4 @@ from .usergroup import *
 from .proposal import *
 from .feedback import *
 from .venue import *
-from .schedule import *
+from .session import *
