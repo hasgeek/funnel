@@ -7,15 +7,14 @@ from pytz.exceptions import UnknownTimeZoneError
 
 from flask import g, render_template, redirect, request, Markup, abort, flash, escape
 from flask.ext.mail import Message
-from coaster.views import jsonp, load_models
+from coaster.utils import make_name
+from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
 from baseframe import _
 
 from .. import app, mail, lastuser
 from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote, ProposalFeedback, FEEDBACK_AUTH_TYPE
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ConfirmSessionForm
-from coaster.utils import make_name
-from coaster.views import requestargs
 
 # From http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 url_re = re.compile(ur'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''')

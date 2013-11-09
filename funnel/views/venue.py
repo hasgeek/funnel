@@ -5,9 +5,9 @@ from coaster.views import load_model, load_models
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
-from funnel import app, lastuser
-from funnel.models import db, ProposalSpace, Venue, VenueRoom
-from funnel.forms.venue import VenueForm, VenueRoomForm
+from .. import app, lastuser
+from ..models import db, ProposalSpace, Venue, VenueRoom
+from ..forms.venue import VenueForm, VenueRoomForm
 
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']
