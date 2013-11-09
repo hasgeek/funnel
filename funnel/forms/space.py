@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from coaster.utils import sorted_timezones
 from baseframe import __
 from baseframe.forms import Form, MarkdownField, ValidName
 from baseframe.forms.sqlalchemy import AvailableName
@@ -20,6 +21,9 @@ class ProposalSpaceForm(Form):
         description=__("This is displayed on the card on the homepage"))
     description = MarkdownField(__("Description"), validators=[wtforms.validators.Required()],
         description=__("Instructions for proposers, with Markdown formatting"))
+    timezone = wtforms.SelectField(__("Timezone"),
+        description=__("The timezone in which this event occurs"),
+        validators=[wtforms.validators.Required()], choices=sorted_timezones(), default=u'UTC')
     status = wtforms.SelectField(__("Status"), coerce=int, choices=[
         (0, __("Draft")),
         (1, __("Open")),

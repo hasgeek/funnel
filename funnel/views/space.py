@@ -2,7 +2,7 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response
+from flask import g, flash, redirect, render_template, Response, request
 from baseframe import _
 from coaster.views import load_model, jsonp
 
@@ -16,6 +16,7 @@ from .proposal import proposal_headers, proposal_data, proposal_data_flat
 @lastuser.requires_permission('siteadmin')
 def space_new():
     form = ProposalSpaceForm(model=ProposalSpace)
+    form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user)
         form.populate_obj(space)
@@ -97,6 +98,8 @@ def space_view_csv(space):
     permission=('edit-space', 'siteadmin'), addlperms=lastuser.permissions)
 def space_edit(space):
     form = ProposalSpaceForm(obj=space, model=ProposalSpace)
+    if request.method == 'GET' and not space.timezone:
+        form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
         form.populate_obj(space)
         db.session.commit()
