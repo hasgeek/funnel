@@ -45,11 +45,10 @@ def urllink(m):
 
 
 def send_mail(sender, to, body, subject):
-    if to and sender:
-        msg = Message(sender=sender, subject=subject, recipients=[to])
-        msg.body = body
-        msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
-        mail.send(msg)
+    msg = Message(sender=sender, subject=subject, recipients=[to])
+    msg.body = body
+    msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
+    mail.send(msg)
 
 
 def proposal_data(proposal):
@@ -306,7 +305,9 @@ def proposal_view(space, proposal):
             to_redirect = comment.url_for(proposal=proposal, _external=True)
             for item in send_mail_info:
                 email_body = render_template(item.pop('template'), proposal=proposal, comment=comment, link=to_redirect)
-                send_mail(sender=None, body=email_body, **item)
+                sender = None
+                if item.get('to') and sender:
+                    send_mail(sender=sender, body=email_body, **item)
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
             return redirect(to_redirect, code=303)
