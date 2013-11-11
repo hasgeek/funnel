@@ -45,7 +45,7 @@ def urllink(m):
 
 
 def send_mail(sender, to, body, subject):
-    if to:
+    if to and sender:
         msg = Message(sender=sender, subject=subject, recipients=[to])
         msg.body = body
         msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
