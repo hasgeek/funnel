@@ -305,9 +305,9 @@ def proposal_view(space, proposal):
             to_redirect = comment.url_for(proposal=proposal, _external=True)
             for item in send_mail_info:
                 email_body = render_template(item.pop('template'), proposal=proposal, comment=comment, link=to_redirect)
-                sender = g.user.email or None
-                if item.get('to') and sender:
-                    send_mail(sender=sender, body=email_body, **item)
+                if item.get('to'):
+                    # Sender is set to None to prevent revealing email.
+                    send_mail(sender=None, body=email_body, **item)
             # Redirect despite this being the same page because HTTP 303 is required to not break
             # the browser Back button
             return redirect(to_redirect, code=303)
