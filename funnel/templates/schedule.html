@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ space.title }}{% endblock %}
+{% block headline %}{% endblock %}
+{% block pageheaders %}
+  {% assets 'css_fullcalendar' -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets %}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+      <p>Drag me (not yet)</p>
+    </div>
+    <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+      <div id="calendar"></div>
+    </div>
+  </div>  
+{% endblock %}
+{% block footerscripts %}
+  {% assets "js_fullcalendar" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  <script type="text/javascript">
+    $(function() {
+      $('#calendar').fullCalendar({
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+        firstDay: 1, // Start from Monday
+        defaultView: 'agendaWeek',
+        allDaySlot: false,
+        slotMinutes: 15,
+        defaultEventMinutes: 45,
+        firstHour: 8,
+        slotEventOverlap: false,
+      {%- if space.date %}
+        year: {{ space.date.year|tojson }},
+        month: {{ (space.date.month - 1)|tojson }},
+        date: {{ space.date.day|tojson }},
+      {%- endif %}
+        columnFormat: {
+          month: 'ddd',    // Mon
+          week: 'ddd d', // Mon 31
+          day: 'dddd d'  // Monday 31
+        },
+        selectable: true,
+        editable: true,
+        droppable: true,
+        selectHelper: true, // TODO: Replace with function(start, end) returning DOM element
+        drop: function(date, allDay) {
+          // TODO: create session from proposal
+        },
+        eventClick: function(event, jsEvent, view) {
+          // TODO: popup session edit form
+        }
+      });
+    });
+  </script>
+{% endblock %}

@@ -7,7 +7,7 @@ from flask import Flask
 from flask.ext.mail import Mail
 from flask.ext.lastuser import Lastuser
 from flask.ext.lastuser.sqlalchemy import UserManager
-from baseframe import baseframe, assets, Version
+from baseframe import baseframe, assets, Version, Bundle
 from ._version import __version__
 
 
@@ -43,3 +43,9 @@ def init_for(env):
     baseframe.init_app(app, requires=[
         'jquery.form', 'jquery.oembed', 'showdown', 'codemirror-markdown', 'pygments', 'baseframe-bs3', 'funnel',
         ])
+    app.assets.register('js_fullcalendar',
+        Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js'),
+            output='js/fullcalendar.packed.js', filters='closure_js'))
+    app.assets.register('css_fullcalendar',
+        Bundle(assets.require('jquery.fullcalendar.css'),
+            output='css/fullcalendar.packed.css', filters='cssmin'))

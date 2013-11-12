@@ -8,3 +8,4 @@ from .usergroup import *
 from .proposal import *
 from .commentvote import *
 from .venue import *
+from .schedule import *

@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Venues &mdash; {{ space.title }}{% endblock %}
+{% block title %}{% trans %}Venues{% endtrans %} &mdash; {{ space.title }}{% endblock %}
 {% block content %}
   <ol>
     {%- for venue in venues %}

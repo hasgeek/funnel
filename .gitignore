@@ -12,3 +12,5 @@ error.log
 baseframe-packed.*
 instance/development.py
 .coverage
+*.packed.js
+*.packed.css

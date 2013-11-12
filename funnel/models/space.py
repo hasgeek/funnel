@@ -91,3 +91,5 @@ class ProposalSpace(BaseNameMixin, db.Model):
             return url_for('venue_list', space=self.name, _external=_external)
         elif action == 'new-venue':
             return url_for('venue_new', space=self.name, _external=_external)
+        elif action == 'schedule':
+            return url_for('schedule_view', space=self.name, _external=_external)
