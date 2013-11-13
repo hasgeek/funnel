@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import re
 from datetime import datetime
 from pytz import timezone, utc
 from pytz.exceptions import UnknownTimeZoneError
+from bleach import linkify
 
 from flask import g, render_template, redirect, request, Markup, abort, flash, escape
 from flask.ext.mail import Message
@@ -15,9 +15,6 @@ from baseframe import _
 from .. import app, mail, lastuser
 from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote, ProposalFeedback, FEEDBACK_AUTH_TYPE
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ConfirmSessionForm
-
-# From http://daringfireball.net/2010/07/improved_regex_for_matching_urls
-url_re = re.compile(ur'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''')
 
 proposal_headers = [
     'id',
@@ -35,13 +32,6 @@ proposal_headers = [
     'submitted',
     'confirmed'
     ]
-
-
-def urllink(m):
-    s = m.group(0)
-    if not (s.startswith('http://') or s.startswith('https://')):
-        s = 'http://' + s
-    return '<a href="%s" rel="nofollow" target="_blank">%s</a>' % (s, s)
 
 
 def send_mail(sender, to, body, subject):
@@ -324,7 +314,7 @@ def proposal_view(space, proposal):
             else:
                 flash(_("No such comment"), 'error')
             return redirect(proposal.url_for(), code=303)
-    links = [Markup(url_re.sub(urllink, unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
+    links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
     confirmform = ConfirmSessionForm()
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
