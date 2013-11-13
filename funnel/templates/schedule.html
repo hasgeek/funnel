@@ -9,11 +9,21 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
-      <p>Drag me (not yet)</p>
-    </div>
     <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
       <div id="calendar"></div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+      <div class="fc-header-title"><h2>{% trans %}Venues{% endtrans %}</h2></div>
+      {%- for venue in space.venues %}
+        <h3>{{ venue.title }}</h3>
+        {{ venue.description }}
+        {%- for room in venue.rooms %}
+          <h4>{{ loop.index }}. {{ room.title }}</h4>
+          {{ room.description }}
+        {%- endfor %}
+      {%- else %}
+        <p>{% trans %}This event does not have a venue{% endtrans %}</p>
+      {%- endfor %}
     </div>
   </div>  
 {% endblock %}
@@ -29,6 +39,7 @@
           center: 'title',
           right: 'month,agendaWeek,agendaDay'
         },
+        allDayDefault: false,
         firstDay: 1, // Start from Monday
         defaultView: 'agendaWeek',
         allDaySlot: false,
@@ -42,20 +53,14 @@
         date: {{ space.date.day|tojson }},
       {%- endif %}
         columnFormat: {
-          month: 'ddd',    // Mon
+          month: 'ddd',  // Mon
           week: 'ddd d', // Mon 31
           day: 'dddd d'  // Monday 31
         },
-        selectable: true,
-        editable: true,
-        droppable: true,
-        selectHelper: true, // TODO: Replace with function(start, end) returning DOM element
-        drop: function(date, allDay) {
-          // TODO: create session from proposal
-        },
-        eventClick: function(event, jsEvent, view) {
-          // TODO: popup session edit form
-        }
+        selectable: false,
+        editable: false,
+        droppable: false,
+        events: {{ space.url_for('json-schedule')|tojson }}
       });
     });
   </script>

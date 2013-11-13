@@ -3,6 +3,7 @@
 from . import db, BaseScopedIdNameMixin, MarkdownColumn
 from .space import ProposalSpace
 from .proposal import Proposal
+from .venue import VenueRoom
 
 
 __all__ = ['Session']
@@ -20,9 +21,10 @@ class Session(BaseScopedIdNameMixin, db.Model):
     proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=True, unique=True)
     proposal = db.relationship(Proposal,
         backref=db.backref('session', uselist=False, cascade='all, delete-orphan'))
-    start_datetime = db.Column(db.DateTime, nullable=False)
-    end_datetime = db.Column(db.DateTime, nullable=False)
-    venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=False)
+    start = db.Column(db.DateTime, nullable=False)
+    end = db.Column(db.DateTime, nullable=False)
+    venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=True)
+    venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
