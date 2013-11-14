@@ -95,6 +95,12 @@ var calendar = function() {
         // TODO: popup session edit form
     };
 
+    var onEventChange = function(event, jsEvent, ui, view) {
+        buttons.save.enable('Save');
+    };
+
+    config.eventDragStop = config.eventResizeStop = onEventChange;
+
     var init_buttons = function() {
         container.find('.fc-header-right').append('<span class="hg-fc-button save-schedule">Save</span>');
         buttons.save = container.find('.save-schedule');
