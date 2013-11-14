@@ -79,6 +79,8 @@ var calendar = function() {
 
         // assign it the date that was reported
         copiedEventObject.start = date;
+        copiedEventObject.end = new Date(date.getTime());
+        copiedEventObject.end.setMinutes(copiedEventObject.end.getMinutes() + config.defaultEventMinutes);
         copiedEventObject.allDay = allDay;
 
         // render the event on the calendar
