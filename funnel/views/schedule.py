@@ -6,6 +6,8 @@ from coaster.views import load_model
 from baseframe import _
 from .. import app, lastuser
 from ..models import ProposalSpace
+from datetime import timedelta
+import simplejson as json
 
 
 def session_data(sessions, timezone=None):
@@ -21,6 +23,20 @@ def session_data(sessions, timezone=None):
         } for session in sessions]
     return data
 
+def inactive_days(date_from, date_to):
+    inactive = range(0,7)
+    diff = date_to - date_from
+    while diff.total_seconds() >= 0:
+        day = date_from.weekday() + 1
+        if day == 7:
+            day = 0
+        inactive.remove(day)
+        date_from = date_from + timedelta(days=1)
+        diff = date_to - date_from
+    first_day=date_from.weekday() + 1
+    if first_day == 7:
+        first_day = 0
+    return dict(days=json.dumps(inactive), first_day=first_day)
 
 @app.route('/<space>/schedule')
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
@@ -48,7 +64,7 @@ def schedule_json(space):
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_edit(space):
-    return render_template('schedule_edit.html', space=space, venues=space.venues,
+    return render_template('schedule_edit.html', space=space, venues=space.venues, inactive=inactive_days(space.date, space.date_upto),
         breadcrumbs=[
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule")),

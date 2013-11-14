@@ -72,6 +72,8 @@
         defaultEventMinutes: 45,
         firstHour: 8,
         slotEventOverlap: false,
+        hiddenDays: {{ inactive.days }},
+        firstDay: {{ inactive.first_day }},
       {%- if space.date %}
         year: {{ space.date.year|tojson }},
         month: {{ (space.date.month - 1)|tojson }},
