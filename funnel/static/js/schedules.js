@@ -91,12 +91,14 @@ var calendar = function() {
         end = new Date(to);
         schedule_url = url;
 
-        //Configure calendar
-        config.hiddenDays = inactive_days_array(start, end);
-        config.firstDay = start.getDay();
-        config.year = start.getFullYear();
-        config.month = start.getMonth();
-        config.date = start.getDate();
+        //Configure calendar if from & to dates are set.
+        if(from != null && to != null) {
+            config.hiddenDays = inactive_days_array(start, end);
+            config.firstDay = start.getDay();
+            config.year = start.getFullYear();
+            config.month = start.getMonth();
+            config.date = start.getDate();
+        }
         container.fullCalendar(config);
     };
 
