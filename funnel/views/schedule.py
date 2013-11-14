@@ -8,6 +8,7 @@ from .. import app, lastuser
 from ..models import ProposalSpace
 from datetime import timedelta
 import simplejson as json
+from time import mktime
 
 
 def session_data(sessions, timezone=None):
@@ -25,7 +26,6 @@ def session_data(sessions, timezone=None):
 
 def inactive_days(date_from, date_to):
     inactive = range(0,7)
-    first_day = date_from.weekday() + 1
     while date_from <= date_to:
         day = date_from.weekday() + 1
         if day == 7:
@@ -33,9 +33,10 @@ def inactive_days(date_from, date_to):
         if day in inactive:
             inactive.remove(day)
         date_from = date_from + timedelta(days=1)
-    if first_day == 7:
-        first_day = 0
-    return dict(days=json.dumps(inactive), first_day=first_day)
+    return json.dumps(inactive)
+
+def date_js(d):
+    return mktime(d.timetuple()) * 1000
 
 @app.route('/<space>/schedule')
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
@@ -63,7 +64,8 @@ def schedule_json(space):
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_edit(space):
-    return render_template('schedule_edit.html', space=space, venues=space.venues, inactive=inactive_days(space.date, space.date_upto),
+    return render_template('schedule_edit.html', space=space, venues=space.venues,
+        from_date=date_js(space.date), to_date=date_js(space.date_upto),
         breadcrumbs=[
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule")),

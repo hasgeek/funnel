@@ -5,16 +5,9 @@
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
-  <style type="text/css">
-    .unscheduled { /* try to mimick the look of a real event */
-        margin: 10px 0;
-        padding: 2px 4px;
-        background: #3366CC;
-        color: #fff;
-        font-size: .85em;
-        cursor: pointer;
-        }
-  </style>
+  {% assets 'css/schedules.css' -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets %}
 {% endblock %}
 
 {% block content %}
@@ -36,81 +29,10 @@
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  <script type="text/javascript">
-    $(function() {
-      // Make proposals draggable
-      $('#proposals div.unscheduled').each(function() {
-        // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
-        // it doesn't need to have a start or end
-        var eventObject = {
-          title: $.trim($(this).text()) // use the element's text as the event title
-        };
-        
-        // store the Event Object in the DOM element so we can get to it later
-        $(this).data('eventObject', eventObject);
-        
-        // make the event draggable using jQuery UI
-        $(this).draggable({
-          zIndex: 999,
-          revert: true,      // will cause the event to go back to its
-          revertDuration: 0  //  original position after the drag
-        });
-        
-      });
-
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-        },
-        allDayDefault: false,
-        firstDay: 1, // Start from Monday
-        defaultView: 'agendaWeek',
-        allDaySlot: false,
-        slotMinutes: 15,
-        defaultEventMinutes: 45,
-        firstHour: 8,
-        slotEventOverlap: false,
-        hiddenDays: {{ inactive.days }},
-        firstDay: {{ inactive.first_day }},
-      {%- if space.date %}
-        year: {{ space.date.year|tojson }},
-        month: {{ (space.date.month - 1)|tojson }},
-        date: {{ space.date.day|tojson }},
-      {%- endif %}
-        columnFormat: {
-          month: 'ddd',  // Mon
-          week: 'ddd d', // Mon 31
-          day: 'dddd d'  // Monday 31
-        },
-        selectable: true,
-        editable: true,
-        droppable: true,
-        events: {{ space.url_for('json-schedule')|tojson }},
-        selectHelper: true, // TODO: Replace with function(start, end) returning DOM element
-        drop: function(date, allDay) {
-          // retrieve the dropped element's stored Event Object
-          var originalEventObject = $(this).data('eventObject');
-          
-          // we need to copy it, so that multiple events don't have a reference to the same object
-          var copiedEventObject = $.extend({}, originalEventObject);
-          
-          // assign it the date that was reported
-          copiedEventObject.start = date;
-          copiedEventObject.allDay = allDay;
-          
-          // render the event on the calendar
-          // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-          $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
-          
-          $(this).remove();
-          // TODO: create session from proposal in the backend
-        },
-        eventClick: function(event, jsEvent, view) {
-          // TODO: popup session edit form
-        }
-      });
-    });
-  </script>
+  {% assets "js/schedules.js" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script>
+      calendar.init("{{ space.url_for('json-schedule') }}", {{ from_date }}, {{ to_date }});
+    </script>
+  {%- endassets -%}
 {% endblock %}
