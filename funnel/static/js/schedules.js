@@ -1,5 +1,9 @@
+var date_diff = function(from, to) {
+    return (to.valueOf() - from.valueOf())/3600/24000;
+};
+
 var inactive_days_array = function(from, to) {
-    var diff = (to.valueOf() - from.valueOf())/3600/24000;
+    var diff = date_diff(from, to);
     if(diff >= 7) return [];
     else {
         var from_day = from.getDay(), to_day = to.getDay();
@@ -41,11 +45,7 @@ var calendar = function() {
     var start, end, schedule_url;
     // Default config for calendar
     var config = {
-        header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'month,agendaWeek,agendaDay'
-        },
+        header: {center: 'title'},
         allDayDefault: false,
         firstDay: 1, //Start from Monday, if not modified
         defaultView: 'agendaWeek',
@@ -99,6 +99,10 @@ var calendar = function() {
             config.month = start.getMonth();
             config.date = start.getDate();
         }
+
+        // Show previous & next buttons only if the difference between start & end dates is more than a week
+        if(date_diff(start, end) > 7) config.header.left = 'prev,next';
+        
         container.fullCalendar(config);
     };
 
