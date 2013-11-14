@@ -24,7 +24,8 @@ var proposals = function(){
             // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
             // it doesn't need to have a start or end
             var eventObject = {
-                title: $.trim($(this).text()) // use the element's text as the event title
+                title: $.trim($(this).text()), // use the element's text as the event title
+                saved: false
             };
             // store the Event Object in the DOM element so we can get to it later
             $(this).data('eventObject', eventObject);
@@ -85,7 +86,8 @@ var calendar = function() {
         container.fullCalendar('renderEvent', copiedEventObject, true);
 
         $(this).remove();
-        // TODO: create session from proposal in the backend
+        
+        buttons.save.enable('Save');
     };
     config.eventClick = function(event, jsEvent, view) {
         // TODO: popup session edit form
@@ -102,7 +104,43 @@ var calendar = function() {
         }, function() {
             $(this).removeClass('fc-state-hover');
         });
-    }
+        for(i in buttons) {
+            buttons[i].enable = function(value) {
+                $(this).removeClass('fc-state-disabled');
+                if(typeof value != 'undefined') {
+                    $(this).text(value);
+                }
+            };
+            buttons[i].disable = function(value) {
+                $(this).addClass('fc-state-disabled');
+                if(typeof value != 'undefined') {
+                    $(this).text(value);
+                }
+            };
+            buttons[i].disabled = function() {
+                $(this).hasClass('fc-state-disabled');
+            };
+        }
+        buttons.save.disable('Saved');
+        buttons.save.click(function() {
+            if(!buttons.save.disabled()) {
+                save_schedule();
+            }
+        });
+    };
+
+    var is_not_saved = function(event) {
+        return !event.saved;
+    };
+
+    var save_schedule = function() {
+        buttons.save.disable('Saving...');
+        var events = container.fullCalendar('clientEvents', is_not_saved);
+        for(i in events) {
+            events[i].saved = true;
+        }
+        buttons.save.disable('Saved');
+    };
 
     calendar.init = function(url, from, to) {
         //Initialise data for calendar
