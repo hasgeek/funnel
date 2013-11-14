@@ -43,6 +43,7 @@ var calendar = function() {
     var calendar = {};
     var container = $('#calendar');
     var start, end, schedule_url;
+    var buttons = {};
     // Default config for calendar
     var config = {
         header: {
@@ -89,6 +90,20 @@ var calendar = function() {
     config.eventClick = function(event, jsEvent, view) {
         // TODO: popup session edit form
     };
+
+    var init_buttons = function() {
+        container.find('.fc-header-right').append('<span class="hg-fc-button save-schedule">Save</span>');
+        buttons.save = container.find('.save-schedule');
+        container.find('.hg-fc-button').addClass(
+            'fc-button fc-state-default fc-corner-left fc-corner-right'
+            ).attr('unselectable', 'on');
+        container.find('.hg-fc-button').hover(function(){
+            $(this).addClass('fc-state-hover');
+        }, function() {
+            $(this).removeClass('fc-state-hover');
+        });
+    }
+
     calendar.init = function(url, from, to) {
         //Initialise data for calendar
         start = new Date(from);
@@ -105,9 +120,10 @@ var calendar = function() {
         }
 
         // Show previous & next buttons only if the difference between start & end dates is more than a week
-        if(date_diff(start, end) > 7) config.header.left = 'prev,next';
+        if(date_diff(start, end) >= 7) config.header.left = 'prev,next today';
 
         container.fullCalendar(config);
+        init_buttons();
     };
 
     return calendar;
