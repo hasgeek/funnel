@@ -45,7 +45,11 @@ var calendar = function() {
     var start, end, schedule_url;
     // Default config for calendar
     var config = {
-        header: {center: 'title'},
+        header: {
+            left: '',
+            center: 'title',
+            right: ''
+        },
         allDayDefault: false,
         firstDay: 1, //Start from Monday, if not modified
         defaultView: 'agendaWeek',
@@ -102,7 +106,7 @@ var calendar = function() {
 
         // Show previous & next buttons only if the difference between start & end dates is more than a week
         if(date_diff(start, end) > 7) config.header.left = 'prev,next';
-        
+
         container.fullCalendar(config);
     };
 
