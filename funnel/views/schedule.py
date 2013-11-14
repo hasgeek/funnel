@@ -25,15 +25,14 @@ def session_data(sessions, timezone=None):
 
 def inactive_days(date_from, date_to):
     inactive = range(0,7)
-    diff = date_to - date_from
-    while diff.total_seconds() >= 0:
+    first_day = date_from.weekday() + 1
+    while date_from <= date_to:
         day = date_from.weekday() + 1
         if day == 7:
             day = 0
-        inactive.remove(day)
+        if day in inactive:
+            inactive.remove(day)
         date_from = date_from + timedelta(days=1)
-        diff = date_to - date_from
-    first_day=date_from.weekday() + 1
     if first_day == 7:
         first_day = 0
     return dict(days=json.dumps(inactive), first_day=first_day)
