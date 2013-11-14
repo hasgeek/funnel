@@ -17,6 +17,7 @@ var inactive_days_array = function(from, to) {
 };
 
 var proposals = function(){
+    var proposals = {};
     var container = $('#proposals');
     var init = function() {
         // Make proposals draggable
@@ -41,7 +42,12 @@ var proposals = function(){
             });
         });
     }();
-    return {};
+
+    proposals.height = function(ht) {
+        container.find('.list').height(ht);
+    }
+
+    return proposals;
 }();
 
 var calendar = function() {
@@ -179,6 +185,9 @@ var calendar = function() {
 
         container.fullCalendar(config);
         init_buttons();
+
+        //Set height of proposals column for ease of use
+        proposals.height(container.find('.fc-content').height());
     };
 
     return calendar;

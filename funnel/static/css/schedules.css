@@ -1,4 +1,7 @@
-.unscheduled { /* try to mimick the look of a real event */
+#proposals .list{
+    overflow-y: auto;
+}
+#proposals .unscheduled { /* try to mimick the look of a real event */
     margin: 10px 0;
     padding: 2px 4px;
     background: #3366CC;
