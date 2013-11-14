@@ -25,7 +25,11 @@ var proposals = function(){
             // it doesn't need to have a start or end
             var eventObject = {
                 title: $.trim($(this).text()), // use the element's text as the event title
-                saved: false
+                saved: false,
+                data: {
+                    proposal_space_id: $(this).attr('data-proposal-space-id'),
+                    proposal_id: $(this).attr('data-proposal-id')
+                }
             };
             // store the Event Object in the DOM element so we can get to it later
             $(this).data('eventObject', eventObject);
@@ -82,6 +86,8 @@ var calendar = function() {
         copiedEventObject.end = new Date(date.getTime());
         copiedEventObject.end.setMinutes(copiedEventObject.end.getMinutes() + config.defaultEventMinutes);
         copiedEventObject.allDay = allDay;
+        copiedEventObject.data.start = copiedEventObject.start.valueOf();
+        copiedEventObject.data.end = copiedEventObject.end.valueOf();
 
         // render the event on the calendar
         // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
@@ -96,6 +102,9 @@ var calendar = function() {
     };
 
     var onEventChange = function(event, jsEvent, ui, view) {
+        event.data.start = event.start.valueOf();
+        event.end.start = event.end.valueOf();
+        event.saved = false;
         buttons.save.enable('Save');
     };
 

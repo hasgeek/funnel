@@ -19,7 +19,7 @@
       <div class="fc-header-title"><h2>{% trans %}Proposals{% endtrans %}</h2></div>
       {%- for proposal in space.proposals %}
         {%- if proposal.confirmed and not proposal.session %}
-          <div class="unscheduled">{{ proposal.title }}</div>
+          <div class="unscheduled" data-proposal-space-id="{{ space.id }}" data-proposal-id="{{ proposal.id }}">{{ proposal.title }}</div>
         {%- endif %}
       {%- endfor %}
     </div>
