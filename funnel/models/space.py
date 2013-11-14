@@ -32,6 +32,7 @@ class ProposalSpace(BaseNameMixin, db.Model):
     description = MarkdownColumn('description', default=u'', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
+    date_upto = db.Column(db.Date, nullable=True)
     website = db.Column(db.Unicode(250), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
