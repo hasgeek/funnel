@@ -9,3 +9,4 @@ from .proposal import *
 from .commentvote import *
 from .venue import *
 from .schedule import *
+from .session import *

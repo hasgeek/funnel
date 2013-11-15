@@ -20,12 +20,13 @@
       <div class="list">
         {%- for proposal in space.proposals %}
           {%- if proposal.confirmed and not proposal.session %}
-            <div class="unscheduled" data-proposal-space-id="{{ space.id }}" data-proposal-id="{{ proposal.id }}">{{ proposal.title }}</div>
+            <div class="unscheduled" data-session-create-url="{{ proposal.url_for('sessioncreate') }}">{{ proposal.title }}</div>
           {%- endif %}
         {%- endfor %}
       </div>
     </div>
-  </div>  
+  </div>
+  <div id="popup" class="modal fade"></div>
 {% endblock %}
 {% block footerscripts %}
   {% assets "js_fullcalendar" -%}
@@ -34,7 +35,7 @@
   {% assets "js/schedules.js" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     <script>
-      calendar.init("{{ space.url_for('json-schedule') }}", {{ from_date }}, {{ to_date }});
+      calendar.init({{ dict(schedule=space.url_for('json-schedule'))|tojson }}, {{ from_date }}, {{ to_date }});
     </script>
   {%- endassets -%}
 {% endblock %}

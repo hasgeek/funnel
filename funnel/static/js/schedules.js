@@ -27,10 +27,8 @@ var proposals = function(){
             var eventObject = {
                 title: $.trim($(this).text()), // use the element's text as the event title
                 saved: false,
-                data: {
-                    proposal_space_id: $(this).attr('data-proposal-space-id'),
-                    proposal_id: $(this).attr('data-proposal-id')
-                }
+                data: {},
+                session_form_url: $(this).attr('data-session-create-url')
             };
             // store the Event Object in the DOM element so we can get to it later
             $(this).data('eventObject', eventObject);
@@ -53,7 +51,7 @@ var proposals = function(){
 var calendar = function() {
     var calendar = {};
     var container = $('#calendar');
-    var start, end, schedule_url;
+    var start, end, urls;
     var buttons = {};
     // Default config for calendar
     var config = {
@@ -85,26 +83,26 @@ var calendar = function() {
         var originalEventObject = $(this).data('eventObject');
 
         // we need to copy it, so that multiple events don't have a reference to the same object
-        var copiedEventObject = $.extend({}, originalEventObject);
+        var event = $.extend({}, originalEventObject);
 
         // assign it the date that was reported
-        copiedEventObject.start = date;
-        copiedEventObject.end = new Date(date.getTime());
-        copiedEventObject.end.setMinutes(copiedEventObject.end.getMinutes() + config.defaultEventMinutes);
-        copiedEventObject.allDay = allDay;
-        copiedEventObject.data.start = copiedEventObject.start.valueOf();
-        copiedEventObject.data.end = copiedEventObject.end.valueOf();
+        event.start = date;
+        event.end = new Date(date.getTime());
+        event.end.setMinutes(event.end.getMinutes() + config.defaultEventMinutes);
+        event.allDay = allDay;
+        event.data.start = event.start.valueOf();
+        event.data.end = event.end.valueOf();
 
         // render the event on the calendar
         // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-        container.fullCalendar('renderEvent', copiedEventObject, true);
+        container.fullCalendar('renderEvent', event, true);
 
         $(this).remove();
-        
+        popup.open(event.session_form_url, event.data);
         buttons.save.enable('Save');
     };
     config.eventClick = function(event, jsEvent, view) {
-        // TODO: popup session edit form
+        popup.open(event.session_form_url, event.data);
     };
 
     var onEventChange = function(event, jsEvent, ui, view) {
@@ -115,6 +113,23 @@ var calendar = function() {
     };
 
     config.eventDragStop = config.eventResizeStop = onEventChange;
+
+    var popup = function() {
+        var popup = {};
+        var modal = $('#popup');
+        var options = {
+            backdrop: 'static',
+            keyboard: false
+        }
+        popup.open = function(url, data) {
+            options.remote = url;
+            if(typeof data != 'undefined') {
+                options.remote += '?' + $.param(data);
+            }
+            modal.removeData('modal').modal(options);
+        };
+        return popup;
+    }();
 
     var init_buttons = function() {
         container.find('.fc-header-right').append('<span class="hg-fc-button save-schedule">Save</span>');
@@ -165,11 +180,11 @@ var calendar = function() {
         buttons.save.disable('Saved');
     };
 
-    calendar.init = function(url, from, to) {
+    calendar.init = function(url_list, from, to) {
         //Initialise data for calendar
         start = new Date(from);
         end = new Date(to);
-        schedule_url = url;
+        urls = url_list;
 
         //Configure calendar if from & to dates are set.
         if(from != null && to != null) {

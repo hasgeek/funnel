@@ -114,3 +114,5 @@ class Proposal(BaseIdNameMixin, db.Model):
             return url_for('proposal_next', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'prev':
             return url_for('proposal_prev', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'sessioncreate':
+            return url_for('session_create', space=self.proposal_space.name, proposal=self.url_name, _external=_external)

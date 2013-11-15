@@ -9,3 +9,35 @@
     font-size: .85em;
     cursor: pointer;
 }
+#popup {
+    height: 100%;
+}
+.modal-dialog {
+    width: 70%;
+    height: 100%;
+    position: relative;
+}
+.modal-content{
+    height: 100%;
+}
+.modal-content>div {
+    z-index: 3001;
+    width: 100%;
+}
+.modal-header {
+    position: relative;
+}
+.modal-body {
+    position: absolute;
+    z-index: 3000 !important;
+    height: 70%;
+    top: 60px;
+    bottom: 80px;
+    overflow-y: auto;
+    border-bottom: 1px solid #e5e5e5;
+}
+.modal-footer {
+    position: absolute;
+    bottom: 0px;
+    border-top: transparent;
+}
