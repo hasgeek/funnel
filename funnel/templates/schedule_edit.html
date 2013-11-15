@@ -18,24 +18,40 @@
     <div id="proposals" class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
       <div class="fc-header-title"><h2>{% trans %}Proposals{% endtrans %}</h2></div>
       <div class="list">
-        {%- for proposal in space.proposals %}
-          {%- if proposal.confirmed and not proposal.session %}
-            <div class="unscheduled" data-session-create-url="{{ proposal.url_for('sessioncreate') }}">{{ proposal.title }}</div>
-          {%- endif %}
+        {%- for proposal in proposals['unscheduled'] %}
+            <div class="unscheduled" data-form-url="{{ proposal.form_url }}">{{ proposal.title }}</div>
         {%- endfor %}
       </div>
     </div>
   </div>
-  <div id="popup" class="modal fade"></div>
+  <div id="popup" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary save" >Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 {% block footerscripts %}
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {% assets "js/schedules.js" -%}
+    <script>
+      var urls = {{ dict(schedule=space.url_for('json-schedule'))|tojson }}, from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
+      var scheduled = {{ proposals['scheduled']|tojson }};
+    </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     <script>
-      calendar.init({{ dict(schedule=space.url_for('json-schedule'))|tojson }}, {{ from_date }}, {{ to_date }});
+      // calendar.init({{ dict(schedule=space.url_for('json-schedule'))|tojson }}, {{ from_date }}, {{ to_date }});
     </script>
   {%- endassets -%}
 {% endblock %}
