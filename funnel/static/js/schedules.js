@@ -27,11 +27,13 @@ $(function() {
                     success: function(result) {
                         if(result.status) {
                             events.update_obj_data(result.data);
+                            events.current.title = result.data.title;
                             events.current.saved = true;
                             if(events.current.unscheduled) {
                                 events.current.unscheduled.remove();
                                 events.current.unscheduled = null;
                             }
+                            calendar.update(events.current);
                             popup.hide();
                         }
                         else {
@@ -146,17 +148,24 @@ $(function() {
                 events.add_obj_data(event);
             },
             filters: {
-                unsaved: function(event) {return !event.saved;}
+                unsaved: function(event) {return !event.saved;},
+                get_by_id: function(event) {return event._id == calendar.temp.get_by_id;}
             },
-            events: function(filter) {
-                if(typeof filter == 'string') return this.container.fullCalendar('clientEvents', this.filters[filter]);
+            events: function(filter, args) {
+                if(typeof filter == 'string') {
+                    this.temp[filter] = args;
+                    var return_data = this.container.fullCalendar('clientEvents', this.filters[filter]);
+                    delete this.temp[filter];
+                    return return_data;
+                }
                 if(typeof filter == 'function') return this.container.fullCalendar('clientEvents', filter);
                 return this.container.fullCalendar('clientEvents');
             },
             init: function(scheduled) {
                 this.options.init(scheduled);
                 this.container.fullCalendar(this.options.config);
-            }
+            },
+            temp: {}
         };
         var obj = {};
         var buttons = {};
@@ -170,7 +179,11 @@ $(function() {
 
         obj.remove = function(event) {
             calendar.container.fullCalendar('removeEvents', event._id);
-        }
+        };
+
+        obj.update = function(event) {
+            calendar.container.fullCalendar('updateEvent', event);
+        };
 
         return obj;
 
@@ -206,7 +219,10 @@ $(function() {
                 event.saved = false;
                 events.update_time(event);
             },
-            onClick: function(event, jsEvent, view) {events.current = event;popup.open();},
+            onClick: function(event, jsEvent, view) {
+                events.current = event;
+                popup.open();
+            },
             save: function() {}
         };
 
