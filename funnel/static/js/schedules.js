@@ -205,9 +205,9 @@ $(function() {
             },
             onChange: function(event, jsEvent, ui, view) {
                 event.saved = false;
-                this.update_time(event);
+                events.update_time(event);
             },
-            onClick: function(event, jsEvent, view) {this.current = event;popup.open();},
+            onClick: function(event, jsEvent, view) {events.current = event;popup.open();},
             save: function() {}
         };
 
