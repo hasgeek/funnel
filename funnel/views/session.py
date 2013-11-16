@@ -13,7 +13,9 @@ from ..models import db, Proposal, ProposalSpace, Session, Venue, VenueRoom
 from ..forms import SessionForm
 
 def rooms_list(space):
-	return [(room.id, __("{venue} - {room}".format(venue=room.venue.name, room=room.name))) for room in space.rooms]
+	rooms = [(room.id, __("{venue} - {room}".format(venue=room.venue.name, room=room.name))) for room in space.rooms]
+	rooms = [(0, "Select Room")] + rooms
+	return rooms
 
 @app.route('/<space>/<proposal>/create_session', methods=['GET', 'POST'])
 @lastuser.requires_login
@@ -37,7 +39,7 @@ def session_create(proposal, space):
 		form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
 		form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
 		form.populate_obj(session)
-		session.venue_room_id = request.form.get('venue_room_id')
+		session.venue_room_id = request.form.get('venue_room_id') if request.form.get('venue_room_id') == 0 else None
 		session.make_id()
 		session.make_name()
 		db.session.add(session)
@@ -64,7 +66,7 @@ def session_edit(space, session):
 		form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
 		form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
 		form.populate_obj(session)
-		session.venue_room_id = request.form.get('venue_room_id')
+		session.venue_room_id = request.form.get('venue_room_id') if request.form.get('venue_room_id') == 0 else None
 		db.session.commit()
 		data = dict(id=session.id, title=session.title, modal_url=session.url_for('edit'))
 		return jsonify(status=True, data=data)
