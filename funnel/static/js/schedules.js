@@ -40,6 +40,7 @@ $(function() {
                             }
                             calendar.update(events.current);
                             popup.hide();
+                            toastr.success(events.current.title + ' has been saved.')
                         }
                         else {
                             popup.body().html(result.form);
@@ -51,6 +52,7 @@ $(function() {
                 if(events.current.unscheduled) {
                     calendar.remove(events.current);
                     events.current = null;
+                    toastr.info('You closed the popup. The proposal remains unscheduled.');
                 }
             },
             hide_save_button: function() {popup.container.find('.save').hide();},
