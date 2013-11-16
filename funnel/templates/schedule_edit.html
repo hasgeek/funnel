@@ -50,8 +50,5 @@
       var scheduled = {{ proposals['scheduled']|tojson }};
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    <script>
-      // calendar.init({{ dict(schedule=space.url_for('json-schedule'))|tojson }}, {{ from_date }}, {{ to_date }});
-    </script>
   {%- endassets -%}
 {% endblock %}
