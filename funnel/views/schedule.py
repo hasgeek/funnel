@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pytz import timezone as pytz_timezone, utc
-from flask import render_template, json, Markup, Response, request
+from flask import render_template, json, Markup, Response, request, jsonify
 from coaster.views import load_model, requestargs
 from baseframe import _
 from .. import app, lastuser
@@ -88,4 +88,4 @@ def schedule_update(space, sessions):
         s.start = datetime.fromtimestamp(int(session['start'])/1000)
         s.end = datetime.fromtimestamp(int(session['end'])/1000)
         db.session.commit()
-    return json.dumps(dict(status=True))
+    return jsonify(status=True)
