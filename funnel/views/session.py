@@ -28,7 +28,7 @@ def session_create(proposal, space):
 		form.description.data = proposal.description
 		form.speaker_bio.data = proposal.bio
 		form.title.data = proposal.title
-		return render_template('session_new.html', form=form, formid='session_new', space=space, proposal=proposal)
+		return render_template('session_form.html', form=form, formid='session_new', space=space, proposal=proposal)
 	if form.validate_on_submit():
 		session = Session()
 		session.parent = space
