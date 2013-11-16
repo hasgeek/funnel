@@ -42,7 +42,7 @@ def session_create(proposal, space):
 		db.session.add(session)
 		db.session.commit()
 		data = dict(id=session.id, title=session.title, modal_url=None)
-		return jsonify(status=True, data=json.dumps(data))
+		return jsonify(status=True, data=data)
 	return jsonify(
 		status=False,
 		form=render_template('session_form.html', form=form, formid='session_new', space=space, proposal=proposal))

@@ -7,7 +7,6 @@ from baseframe import _
 from .. import app, lastuser
 from ..models import ProposalSpace
 from datetime import timedelta
-import simplejson as json
 from time import mktime
 
 

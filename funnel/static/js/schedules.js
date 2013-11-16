@@ -193,7 +193,6 @@ $(function() {
                 if(typeof obj != 'object') return;
                 if(this.current) {
                     $.extend(this.current.obj_data, obj);
-                    console.log(this.current.obj_data);
                 }
             },
             update_time: function(event) {
