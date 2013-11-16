@@ -48,6 +48,10 @@ class ProposalSpace(BaseNameMixin, db.Model):
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
 
+    @property
+    def rooms(self):
+        return [room for venue in self.venues for room in venue.rooms]
+
     def permissions(self, user, inherited=None):
         perms = super(ProposalSpace, self).permissions(user, inherited)
         perms.add('view')

@@ -12,6 +12,9 @@ from .. import app, lastuser
 from ..models import db, Proposal, ProposalSpace, Session, Venue, VenueRoom
 from ..forms import SessionForm
 
+def rooms_list(space):
+	return [(room.id, __("{venue} - {room}".format(venue=room.venue.name, room=room.name))) for room in space.rooms]
+
 @app.route('/<space>/<proposal>/create_session', methods=['GET', 'POST'])
 @lastuser.requires_login
 @load_models(
@@ -20,9 +23,7 @@ from ..forms import SessionForm
     permission=('siteadmin'), addlperms=lastuser.permissions)
 def session_create(proposal, space):
 	form = SessionForm()
-	venues = [venue.id for venue in Venue.query.filter_by(proposal_space=space).all()]
-	rooms = VenueRoom.query.filter(VenueRoom.id.in_(venues)).all()
-	rooms = [(room.id, __("{venue} - {room}".format(venue=room.venue.name, room=room.name))) for room in rooms]
+	rooms = rooms_list(space)
 	form.venue_room_id.choices = rooms
 	if request.method == 'GET':
 		form.description.data = proposal.description
@@ -55,9 +56,7 @@ def session_create(proposal, space):
 	permission=('siteadmin'), addlperms=lastuser.permissions)
 def session_edit(space, session):
 	form = SessionForm(obj=session, model=Session)
-	venues = [venue.id for venue in Venue.query.filter_by(proposal_space=space).all()]
-	rooms = VenueRoom.query.filter(VenueRoom.id.in_(venues)).all()
-	rooms = [(room.id, __("{venue} - {room}".format(venue=room.venue.name, room=room.name))) for room in rooms]
+	rooms = rooms_list(space)
 	form.venue_room_id.choices = rooms
 	if request.method == 'GET':
 		return render_template('session_form.html', form=form, formid='session_edit')
