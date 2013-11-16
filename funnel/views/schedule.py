@@ -64,13 +64,15 @@ def schedule_edit(space):
                 modal_url=proposal.session.url_for('edit'),
                 start=date_js(proposal.session.start),
                 end=date_js(proposal.session.end),
+                venue_room_id=proposal.session.venue_room_id
                 ))
         elif proposal.confirmed:
             proposals['unscheduled'].append(dict(
                 title=proposal.title,
                 modal_url=proposal.url_for('sessioncreate')))
-    return render_template('schedule_edit.html', space=space, venues=space.venues, proposals=proposals,
+    return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
+        rooms={room.id: dict(title=room.title, vtitle=room.venue.title + " - " + room.title, bgcolor=room.bgcolor) for room in space.rooms},
         breadcrumbs=[
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule")),

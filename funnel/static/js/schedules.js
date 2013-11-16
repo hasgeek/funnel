@@ -1,3 +1,34 @@
+function hexToRgb(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(color) {
+    return "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
+}
+
+function invert(color) {
+    color = hexToRgb(color);
+    avg = (color.r + color.g + color.b) / 3;
+    avg = ((Math.round(avg / 256) + 1) % 2) * 255;
+    color = {r: avg, g: avg, b: avg};
+    return rgbToHex(color);
+}
 
 toastr.options = {
     positionClass: 'toast-bottom-left'
@@ -110,6 +141,8 @@ $(function() {
                     defaultEventMinutes: 45,
                     firstHour: 8,
                     slotEventOverlap: false,
+                    eventColor: "#CCCCCC",
+                    eventTextColor: "#333333",
                     columnFormat: {
                         month: 'ddd',  // Mon
                         week: 'ddd d', // Mon 31
@@ -258,6 +291,7 @@ $(function() {
                     obj_data = $.extend(obj_data, this.current.obj_data);                    
                     this.current.obj_data = obj_data;
                     this.update_time();
+                    this.update_properties();
                 };
             },
             update_obj_data: function(obj, event) {
@@ -265,7 +299,16 @@ $(function() {
                 if(typeof obj != 'object') return;
                 if(this.current) {
                     $.extend(this.current.obj_data, obj);
+                    this.update_properties();
                 }
+            },
+            update_properties: function(event) {
+                if(typeof event != 'undefined') this.current = event;
+                if(this.current.obj_data.venue_room_id) {
+                    this.current.color = '#' + ROOMS[this.current.obj_data.venue_room_id].bgcolor;
+                    this.current.textColor = invert(this.current.color);
+                }
+                else delete this.current.color
             },
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
@@ -337,6 +380,7 @@ $(function() {
                 unscheduled: null,
                 obj_data: scheduled[i]
             };
+            events.update_properties(scheduled[i]);
             delete scheduled[i].obj_data.modal_url;
         }
 

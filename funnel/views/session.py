@@ -39,12 +39,12 @@ def session_create(proposal, space):
 		form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
 		form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
 		form.populate_obj(session)
-		session.venue_room_id = request.form.get('venue_room_id') if request.form.get('venue_room_id') == 0 else None
+		session.venue_room_id = request.form.get('venue_room_id') if int(request.form.get('venue_room_id')) != 0 else None
 		session.make_id()
 		session.make_name()
 		db.session.add(session)
 		db.session.commit()
-		data = dict(id=session.id, title=session.title, modal_url=session.url_for('edit'))
+		data = dict(id=session.id, title=session.title, venue_room_id=session.venue_room_id, modal_url=session.url_for('edit'))
 		return jsonify(status=True, data=data)
 	return jsonify(
 		status=False,
@@ -66,9 +66,10 @@ def session_edit(space, session):
 		form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
 		form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
 		form.populate_obj(session)
-		session.venue_room_id = request.form.get('venue_room_id') if request.form.get('venue_room_id') == 0 else None
+		print request.form.get('venue_room_id')
+		session.venue_room_id = request.form.get('venue_room_id') if int(request.form.get('venue_room_id')) != 0 else None
 		db.session.commit()
-		data = dict(id=session.id, title=session.title, modal_url=session.url_for('edit'))
+		data = dict(id=session.id, title=session.title, venue_room_id=session.venue_room_id, modal_url=session.url_for('edit'))
 		return jsonify(status=True, data=data)
 	return jsonify(
 		status=False,

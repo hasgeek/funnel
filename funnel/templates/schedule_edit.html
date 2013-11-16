@@ -48,6 +48,7 @@
     <script>
       var UPDATE_URL = "{{ space.url_for('update-schedule') }}", from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
       var scheduled = {{ proposals['scheduled']|tojson }};
+      var ROOMS = {{ rooms|tojson }};
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
