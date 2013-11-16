@@ -212,7 +212,7 @@ $(function() {
                     button.setlabel(label);
                 };
                 button.disabled = function() {
-                    $(this).hasClass('fc-state-disabled');
+                    return $(this).hasClass('fc-state-disabled');
                 };
                 button.click(function() {
                     if(!button.disabled()) events.save();
