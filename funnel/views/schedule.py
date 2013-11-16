@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from pytz import timezone as pytz_timezone, utc
-from flask import render_template, json, Markup, Response
-from coaster.views import load_model
+from flask import render_template, json, Markup, Response, request
+from coaster.views import load_model, requestargs
 from baseframe import _
 from .. import app, lastuser
-from ..models import ProposalSpace
-from datetime import timedelta
+from ..models import db, ProposalSpace, Session
+from datetime import datetime
 from time import mktime
 
 
@@ -75,3 +75,17 @@ def schedule_edit(space):
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule")),
             (space.url_for('edit-schedule'), _("Edit"))])
+
+@app.route('/<space>/schedule/update', methods=['POST'])
+@lastuser.requires_login
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission=('siteadmin'), addlperms=lastuser.permissions)
+@requestargs('sessions')
+def schedule_update(space, sessions):
+    sessions = json.loads(sessions)
+    for session in sessions:
+        s = Session.query.filter_by(id=session['id']).first()
+        s.start = datetime.fromtimestamp(int(session['start'])/1000)
+        s.end = datetime.fromtimestamp(int(session['end'])/1000)
+        db.session.commit()
+    return json.dumps(dict(status=True))

@@ -1,3 +1,8 @@
+
+toastr.options = {
+    positionClass: 'toast-bottom-left'
+};
+
 $(function() {
     var popup = function() {
         var obj = {};
@@ -139,7 +144,7 @@ $(function() {
                         }
                     }
                     config.eventClick = events.onClick;
-                    config.eventResizeStop = config.eventDragStop = events.onChange;
+                    config.eventResize = config.eventDrop = events.onChange;
                 }
             },
             init_obj: {id: null, start: null, end: null, title: null},
@@ -153,9 +158,9 @@ $(function() {
             },
             events: function(filter, args) {
                 if(typeof filter == 'string') {
-                    this.temp[filter] = args;
-                    var return_data = this.container.fullCalendar('clientEvents', this.filters[filter]);
-                    delete this.temp[filter];
+                    calendar.temp[filter] = args;
+                    var return_data = calendar.container.fullCalendar('clientEvents', calendar.filters[filter]);
+                    delete calendar.temp[filter];
                     return return_data;
                 }
                 if(typeof filter == 'function') return this.container.fullCalendar('clientEvents', filter);
@@ -164,11 +169,15 @@ $(function() {
             init: function(scheduled) {
                 this.options.init(scheduled);
                 this.container.fullCalendar(this.options.config);
+                init_buttons();
+                init_autosave();
             },
             temp: {}
         };
         var obj = {};
         var buttons = {};
+
+        obj.events = calendar.events;
 
         obj.init = function(scheduled) {
             from_date = new Date(from_date);
@@ -185,12 +194,60 @@ $(function() {
             calendar.container.fullCalendar('updateEvent', event);
         };
 
+        var init_buttons = function() {
+            buttons.save = function() {
+                calendar.container.find('.fc-header-right').append('<span class="hg-fc-button save-schedule">Save</span>');
+                var button = calendar.container.find('.save-schedule');
+                button.enable = function(label) {
+                    $(this).removeClass('fc-state-disabled');
+                    button.setlabel(label);
+                };
+                button.setlabel = function(label) {
+                    if(typeof label == 'string') $(this).text(label);
+                }
+                button.disable = function(label) {
+                    $(this).addClass('fc-state-disabled');
+                    button.setlabel(label);
+                };
+                button.disabled = function() {
+                    $(this).hasClass('fc-state-disabled');
+                };
+                button.click(function() {
+                    if(!button.disabled()) events.save();
+                })
+                button.disable('Saved');
+                return button;
+            }();
+            calendar.container.find('.hg-fc-button')
+                .addClass('fc-button fc-state-default fc-corner-left fc-corner-right')
+                .attr('unselectable', 'on').hover(
+                    function(){
+                        $(this).addClass('fc-state-hover');
+                    }, function() {
+                        $(this).removeClass('fc-state-hover');
+                    }
+                );
+        };
+
+        var init_autosave = function() {
+            calendar.container.find('.fc-header-right')
+                .prepend('<label for="autosaver" class="fc-button fc-state-disabled fc-corner-right fc-corner-left"><input id="autosaver" class="autosave" type="checkbox"> Autosave</label> ');
+            var autosaver = calendar.container.find('.autosave');
+            autosaver.prop('checked', events.autosave);
+            autosaver.change(function() {
+                events.autosave = $(this).is(':checked');
+            });
+        };
+
+        obj.buttons = buttons;
+
         return obj;
 
     }();
     var events = function() {
         var events = {
             current: null,
+            autosave: true,
             init_obj: {id: null, start: null, end: null, title: null},
             add_obj_data: function(event) {
                 if(typeof event != 'undefined') this.current = event;
@@ -218,12 +275,30 @@ $(function() {
             onChange: function(event, jsEvent, ui, view) {
                 event.saved = false;
                 events.update_time(event);
+                calendar.buttons.save.enable('Save');
+                if(events.autosave) events.save();
             },
             onClick: function(event, jsEvent, view) {
                 events.current = event;
                 popup.open();
             },
-            save: function() {}
+            save: function() {
+                calendar.buttons.save.disable('Saving...');
+                var event_list = calendar.events('unsaved');
+                var e = [];
+                for(event in event_list) {
+                    e.push(event_list[event].obj_data);
+                }
+                $.ajax({
+                    url: UPDATE_URL,
+                    type: 'POST',
+                    data: [{name: 'sessions', value: JSON.stringify(e)}],
+                    success: function(result) {
+                        toastr.success(e.length + ' proposals saved.');
+                        calendar.buttons.save.disable('Saved');
+                    }
+                })
+            }
         };
 
         var unscheduled_events = {
@@ -254,6 +329,7 @@ $(function() {
                 end: new Date(scheduled[i].end),
                 modal_url: scheduled[i].modal_url,
                 title: scheduled[i].title,
+                saved: true,
                 unscheduled: null,
                 obj_data: scheduled[i]
             };

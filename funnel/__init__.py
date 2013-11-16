@@ -41,7 +41,7 @@ def init_for(env):
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
     baseframe.init_app(app, requires=[
-        'jquery.form', 'jquery.oembed', 'showdown', 'codemirror-markdown', 'pygments', 'baseframe-bs3', 'funnel',
+        'jquery.form', 'jquery.oembed', 'showdown', 'codemirror-markdown', 'pygments', 'toastr', 'baseframe-bs3', 'funnel',
         ])
     app.assets.register('js_fullcalendar',
         Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js'),
