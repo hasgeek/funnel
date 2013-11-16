@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import request, render_template, jsonify
 from coaster.views import load_models
 from coaster.utils import make_name
+import simplejson as json
 
 from .space import ProposalSpace
 from .. import app, lastuser
@@ -40,7 +41,8 @@ def session_create(proposal, space):
 		session.make_name()
 		db.session.add(session)
 		db.session.commit()
-		return jsonify(status=True, session_id=session.id, title=session.title, form_url=None)
+		data = dict(id=session.id, title=session.title, modal_url=None)
+		return jsonify(status=True, data=json.dumps(data))
 	return jsonify(
 		status=False,
-		form=render_template('session_new.html', form=form, formid='session_new', space=space, proposal=proposal))
+		form=render_template('session_form.html', form=form, formid='session_new', space=space, proposal=proposal))

@@ -14,24 +14,24 @@ $(function() {
                 backdrop: 'static',
                 keyboard: false
             },
-            pop: function() {
-                this.container.modal(this.options);
-            },
-            hide: function() {popup.container.modal('hide');},
+            pop: function() {this.container.modal(this.options);},
+            hide: function() {this.container.modal('hide');},
             save: function() {
-                popup.form('start').val(popup.event.obj_data.start);
-                popup.form('end').val(popup.event.obj_data.end);
+                popup.form('start').val(events.current.obj_data.start);
+                popup.form('end').val(events.current.obj_data.end);
                 var data = popup.form().serializeArray();
                 $.ajax({
-                    url: popup.event.form_url,
+                    url: events.current.modal_url,
                     type: 'POST',
                     data: data,
                     success: function(result) {
                         if(result.status) {
-                            popup.event.obj_data.id = result.session_id;
-                            popup.event.obj_data.title = result.title;
-                            popup.event.form_url = result.form_url;
-                            popup.event.saved = true;
+                            events.update_obj_data(result.data);
+                            events.current.saved = true;
+                            if(events.current.unscheduled) {
+                                events.current.unscheduled.remove();
+                                events.current.unscheduled = null;
+                            }
                             popup.hide();
                         }
                         else {
@@ -39,20 +39,31 @@ $(function() {
                         }
                     }
                 });
-            }
+            },
+            close: function() {
+                if(events.current.unscheduled) {
+                    calendar.remove(events.current);
+                    events.current = null;
+                }
+            },
+            hide_save_button: function() {popup.container.find('.save').hide();},
+            show_save_button: function() {popup.container.find('.save').show();}
         };
 
-        obj.open = function(event) {
-            popup.event = event;
-            $.get(event.form_url, event.form_data, function(result) {
+        obj.open = function() {
+            SHOW_SAVE_BUTTON = false;
+            $.get(events.current.modal_url, function(result) {
                 popup.body().html(result);
+                if(SHOW_SAVE_BUTTON) popup.show_save_button();
+                else popup.hide_save_button();
             });
-            popup.title().text(event.title);
+            popup.title().text(events.current.title);
             popup.body().html('Loading...');
             popup.pop();
         };
 
         obj.init = function() {
+            popup.container.find('.closebutton').click(popup.close);
             popup.container.find('.save').click(popup.save);
         };
 
@@ -60,10 +71,6 @@ $(function() {
     }();
 
     var calendar = function() {
-        var onEventChange = function(event, jsEvent, ui, view) {
-            event.saved = false;
-            calendar.helpers.add_obj_data(event);
-        };
         var calendar = {
             container: $('#calendar'),
             helpers: {
@@ -77,13 +84,6 @@ $(function() {
                         for(i=0; i <= 6; i++) {if(i == from_day) i = to_day;else inactive.push(i);}
                         return inactive;
                     }
-                },
-                add_obj_data: function(event) {
-                    obj_data = $.extend({}, this.init_obj);
-                    obj_data = $.extend(obj_data, event);
-                    obj_data.end = obj_data.end.valueOf();
-                    obj_data.start = obj_data.start.valueOf();
-                    event.obj_data = obj_data;
                 }
             },
             options: {
@@ -119,64 +119,105 @@ $(function() {
                         event.start = date;
                         event.end = new Date(date.getTime());
                         event.end.setMinutes(event.end.getMinutes() + calendar.options.config.defaultEventMinutes);
-                        source.remove();
+                        event.unscheduled = source;
                         calendar.add(event);
                         popup.open(event);
-                    },
-                    eventClick: function(event, jsEvent, view) {popup.open(event);},
-                    eventDragStop: onEventChange,
-                    eventResizeStop: onEventChange
-                }
-            },
-            init_weekdays: function() {
-                if(from_date != null) {
-                    this.options.config.year = from_date.getFullYear();
-                    this.options.config.month = from_date.getMonth();
-                    this.options.config.date = from_date.getDate();
-                    if(to_date != null) {
-                        this.options.config.hiddenDays = this.helpers.inactive_days(from_date, to_date);
-                        this.options.config.firstDay = from_date.getDay();
                     }
+                },
+                init: function(scheduled) {
+                    var config = calendar.options.config;
+                    config.events = scheduled;
+                    if(from_date != null) {
+                        config.year = from_date.getFullYear();
+                        config.month = from_date.getMonth();
+                        config.date = from_date.getDate();
+                        if(to_date != null) {
+                            config.hiddenDays = calendar.helpers.inactive_days(from_date, to_date);
+                            config.firstDay = from_date.getDay();
+                        }
+                    }
+                    config.eventClick = events.onClick;
+                    config.eventResizeStop = config.eventDragStop = events.onChange;
                 }
             },
             init_obj: {id: null, start: null, end: null, title: null},
             add: function(event) {
-                this.helpers.add_obj_data(event);
                 this.container.fullCalendar('renderEvent', event, true);
+                events.add_obj_data(event);
             },
-            init: function() {
-                this.init_weekdays();
+            filters: {
+                unsaved: function(event) {return !event.saved;}
+            },
+            events: function(filter) {
+                if(typeof filter == 'string') return this.container.fullCalendar('clientEvents', this.filters[filter]);
+                if(typeof filter == 'function') return this.container.fullCalendar('clientEvents', filter);
+                return this.container.fullCalendar('clientEvents');
+            },
+            init: function(scheduled) {
+                this.options.init(scheduled);
                 this.container.fullCalendar(this.options.config);
             }
         };
         var obj = {};
         var buttons = {};
 
-        obj.init = function(events) {
+        obj.init = function(scheduled) {
             from_date = new Date(from_date);
             to_date = new Date(to_date);
-            for(e in events) {
-                events[e].start = new Date(events[e].start);
-                events[e].end = new Date(events[e].end);
-                calendar.helpers.add_obj_data(events[e])
-            }
-            calendar.options.config.events = events;
-            calendar.init();
+            calendar.init(scheduled);
             popup.init();
         };
+
+        obj.remove = function(event) {
+            calendar.container.fullCalendar('removeEvents', event._id);
+        }
 
         return obj;
 
     }();
     var events = function() {
+        var events = {
+            current: null,
+            init_obj: {id: null, start: null, end: null, title: null},
+            add_obj_data: function(event) {
+                if(typeof event != 'undefined') this.current = event;
+                if(this.current) {
+                    obj_data = $.extend({}, this.init_obj);
+                    obj_data = $.extend(obj_data, this.current.obj_data);                    
+                    this.current.obj_data = obj_data;
+                    this.update_time();
+                };
+            },
+            update_obj_data: function(obj, event) {
+                if(typeof event != 'undefined') this.current = event;
+                if(typeof obj != 'object') return;
+                if(this.current) {
+                    $.extend(this.current.obj_data, obj);
+                    console.log(this.current.obj_data);
+                }
+            },
+            update_time: function(event) {
+                if(typeof event != 'undefined') this.current = event;
+                if(this.current) {
+                    this.current.obj_data.end = this.current.end.valueOf();
+                    this.current.obj_data.start = this.current.start.valueOf();
+                }
+            },
+            onChange: function(event, jsEvent, ui, view) {
+                event.saved = false;
+                this.update_time(event);
+            },
+            onClick: function(event, jsEvent, view) {this.current = event;popup.open();},
+            save: function() {}
+        };
+
         var unscheduled_events = {
             container: $('#proposals .list'),
             add: function(element) {
                 element.draggable(this.options.draggable);
                 element.data('info', {
                     saved: false,
-                    scheduled: false,
-                    form_url: element.attr('data-form-url'),
+                    modal_url: element.attr('data-form-url'),
                     title: $.trim(element.text())
                 });
             },
@@ -192,7 +233,20 @@ $(function() {
             unscheduled_events.add($(this));
         });
 
-        calendar.init(scheduled);
-        // var scheduled_events = 
+        for(i in scheduled) {
+            scheduled[i] = {
+                start: new Date(scheduled[i].start),
+                end: new Date(scheduled[i].end),
+                modal_url: scheduled[i].modal_url,
+                title: scheduled[i].title,
+                unscheduled: null,
+                obj_data: scheduled[i]
+            };
+            delete scheduled[i].obj_data.modal_url;
+        }
+
+        return events;
+
     }();
+    calendar.init(scheduled);
 });
