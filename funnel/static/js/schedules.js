@@ -40,7 +40,7 @@ $(function() {
                             }
                             calendar.update(events.current);
                             popup.hide();
-                            toastr.success(events.current.title + ' has been saved.')
+                            toastr.success('"' + events.current.title + '" has been saved.')
                         }
                         else {
                             popup.body().html(result.form);
@@ -296,7 +296,9 @@ $(function() {
                     type: 'POST',
                     data: [{name: 'sessions', value: JSON.stringify(e)}],
                     success: function(result) {
-                        toastr.success(e.length + ' proposals saved.');
+                        for(event in event_list) event_list[event].saved = true;
+                        if(e.length === 1) toastr.success('"' + e[0].title + '" saved.');
+                        else toastr.success(e.length + ' proposals saved.');
                         calendar.buttons.save.disable('Saved');
                     }
                 })
