@@ -41,8 +41,34 @@ def session_create(proposal, space):
 		session.make_name()
 		db.session.add(session)
 		db.session.commit()
-		data = dict(id=session.id, title=session.title, modal_url=None)
+		data = dict(id=session.id, title=session.title, modal_url=session.url_for('edit'))
 		return jsonify(status=True, data=data)
 	return jsonify(
 		status=False,
-		form=render_template('session_form.html', form=form, formid='session_new', space=space, proposal=proposal))
+		form=render_template('session_form.html', form=form, formid='session_new'))
+
+@app.route('/<space>/<session>/editsession', methods=['GET', 'POST'])
+@lastuser.requires_login
+@load_models(
+	(ProposalSpace, {'name': 'space'}, 'space'),
+	(Session, {'url_name': 'session'}, 'session'),
+	permission=('siteadmin'), addlperms=lastuser.permissions)
+def session_edit(space, session):
+	form = SessionForm(obj=session, model=Session)
+	venues = [venue.id for venue in Venue.query.filter_by(proposal_space=space).all()]
+	rooms = VenueRoom.query.filter(VenueRoom.id.in_(venues)).all()
+	rooms = [(room.id, __("{venue} - {room}".format(venue=room.venue.name, room=room.name))) for room in rooms]
+	form.venue_room_id.choices = rooms
+	if request.method == 'GET':
+		return render_template('session_form.html', form=form, formid='session_edit')
+	if form.validate_on_submit():
+		form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
+		form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
+		form.populate_obj(session)
+		session.venue_room_id = request.form.get('venue_room_id')
+		db.session.commit()
+		data = dict(id=session.id, title=session.title, modal_url=session.url_for('edit'))
+		return jsonify(status=True, data=data)
+	return jsonify(
+		status=False,
+		form=render_template('session_form.html', form=form, formid='session_edit'))

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from flask import url_for
 from . import db, BaseScopedIdNameMixin, MarkdownColumn
 from .space import ProposalSpace
 from .proposal import Proposal
@@ -28,3 +29,7 @@ class Session(BaseScopedIdNameMixin, db.Model):
     is_break = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
+
+    def url_for(self, action, _external=False):
+        if action == 'edit':
+            return url_for('session_edit', space=self.proposal_space.name, session=self.url_name, _external=_external)

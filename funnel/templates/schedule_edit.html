@@ -19,7 +19,7 @@
       <div class="fc-header-title"><h2>{% trans %}Proposals{% endtrans %}</h2></div>
       <div class="list">
         {%- for proposal in proposals['unscheduled'] %}
-            <div class="unscheduled" data-form-url="{{ proposal.form_url }}">{{ proposal.title }}</div>
+            <div class="unscheduled" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
         {%- endfor %}
       </div>
     </div>

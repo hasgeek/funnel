@@ -216,7 +216,7 @@ $(function() {
                 element.draggable(this.options.draggable);
                 element.data('info', {
                     saved: false,
-                    modal_url: element.attr('data-form-url'),
+                    modal_url: element.attr('data-modal-url'),
                     title: $.trim(element.text())
                 });
             },
