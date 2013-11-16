@@ -23,17 +23,6 @@ def session_data(sessions, timezone=None):
         } for session in sessions]
     return data
 
-def inactive_days(date_from, date_to):
-    inactive = range(0,7)
-    while date_from <= date_to:
-        day = date_from.weekday() + 1
-        if day == 7:
-            day = 0
-        if day in inactive:
-            inactive.remove(day)
-        date_from = date_from + timedelta(days=1)
-    return json.dumps(inactive)
-
 def date_js(d):
     return mktime(d.timetuple()) * 1000
 
