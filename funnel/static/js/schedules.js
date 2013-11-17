@@ -152,7 +152,20 @@ $(function() {
                     selectable: true,
                     editable: true,
                     droppable: true,
-                    selectHelper: true, // TODO: Replace with function(start, end) returning DOM element
+                    select: function(startDate, endDate, allDay, jsEvent, view) {
+                        $('body').append('<div id="dummy"></div>');
+                        var event = {
+                            saved: false,
+                            modal_url: NEW_SESSION_URL,
+                            start: startDate,
+                            end: endDate,
+                            title: "Add new session",
+                            unscheduled: $('body #dummy')
+                        };
+                        calendar.add(event);
+                        popup.open(event);
+                        calendar.container.fullCalendar('unselect');
+                    },
                     drop: function(date, allDay) {
                         // we need to clone it, else we will lose it when we remove the source's DOM element
                         var source = $(this);

@@ -76,6 +76,7 @@
   {% assets "js/schedules.js" -%}
     <script>
       var UPDATE_URL = "{{ space.url_for('update-schedule') }}";
+      var NEW_SESSION_URL = "{{ space.url_for('new-session') }}";
       var COLORS_UPDATE_URL = "{{ space.url_for('update-venue-colors') }}";
       var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
       var scheduled = {{ proposals['scheduled']|tojson }};
