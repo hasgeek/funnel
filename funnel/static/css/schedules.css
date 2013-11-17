@@ -4,8 +4,10 @@
 #proposals .unscheduled { /* try to mimick the look of a real event */
     margin: 10px 0;
     padding: 2px 4px;
-    background: #3366CC;
-    color: #fff;
+    background: #FFF;
+    color: #333;
+    border-radius: 3px;
+    border: 1px solid #333;
     font-size: .85em;
     cursor: pointer;
 }
