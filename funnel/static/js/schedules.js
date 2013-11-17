@@ -372,9 +372,11 @@ $(function() {
             },
             options: {
                 draggable: {
-                    zIndex: 999,
+                    zIndex: 5999,
                     revert: true,
-                    revertDuration: 0
+                    revertDuration: 0,
+                    helper: 'clone',
+                    appendTo: 'body'
                 }
             }
         };

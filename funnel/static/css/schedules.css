@@ -1,7 +1,7 @@
 #proposals .list{
     overflow-y: auto;
 }
-#proposals .unscheduled { /* try to mimick the look of a real event */
+#proposals .unscheduled, body>.unscheduled.ui-draggable { /* try to mimick the look of a real event */
     margin: 10px 0;
     padding: 2px 4px;
     background: #FFF;
