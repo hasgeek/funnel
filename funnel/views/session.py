@@ -53,7 +53,9 @@ def session_form(space, proposal=None, session=None):
 			session.make_name()
 			db.session.add(session)
 		db.session.commit()
-		data = dict(id=session.id, title=session.title, venue_room_id=session.venue_room_id, modal_url=session.url_for('edit'))
+		data = dict(
+			id=session.id, title=session.title,venue_room_id=session.venue_room_id,
+			is_break=session.is_break, modal_url=session.url_for('edit'))
 		return jsonify(status=True, data=data)
 	return jsonify(
 		status=False,

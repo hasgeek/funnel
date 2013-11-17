@@ -64,7 +64,8 @@ def schedule_edit(space):
             modal_url=session.url_for('edit'),
             start=date_js(session.start),
             end=date_js(session.end),
-            venue_room_id=session.venue_room_id
+            venue_room_id=session.venue_room_id,
+            is_break=session.is_break
             ) for session in space.sessions]
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,

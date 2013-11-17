@@ -202,7 +202,7 @@ $(function() {
                     config.eventResize = config.eventDrop = events.onChange;
                 }
             },
-            init_obj: {id: null, start: null, end: null, title: null},
+            init_obj: {id: null, start: null, end: null, title: null, is_break: null},
             add: function(event) {
                 this.container.fullCalendar('renderEvent', event, true);
                 events.add_obj_data(event);
@@ -330,12 +330,19 @@ $(function() {
             },
             update_properties: function(event) {
                 if(typeof event != 'undefined') this.current = event;
-                if(this.current.obj_data.venue_room_id) {
+                if(this.current.obj_data.is_break) {
+                    this.current.color = BREAK_EVENTS_COLOR;
+                    this.current.textColor = invert(this.current.color);
+                }
+                else if(this.current.obj_data.venue_room_id) {
                     this.current.color = ROOMS[this.current.obj_data.venue_room_id].bgcolor;
                     if(this.current.color.charAt(0) != "#") this.current.color = "#" + this.current.color;
                     this.current.textColor = invert(this.current.color);
                 }
-                else delete this.current.color
+                else {
+                    delete this.current.color;
+                    delete this.current.textColor;
+                }
             },
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
