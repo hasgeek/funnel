@@ -323,6 +323,8 @@ $(function() {
                 if(typeof obj != 'object') return;
                 if(this.current) {
                     $.extend(this.current.obj_data, obj);
+                    this.current.modal_url = this.current.obj_data.modal_url;
+                    delete this.current.obj_data.modal_url;
                     this.update_properties();
                 }
             },
