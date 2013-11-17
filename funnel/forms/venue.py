@@ -37,3 +37,4 @@ class VenueRoomForm(Form):
     title = wtforms.TextField(__("Name"), description=__("Name of the room"),
         validators=[wtforms.validators.Required(), wtforms.validators.length(max=250)])
     description = MarkdownField(__("Description"), description=__("An optional note about the room"))
+    bgcolor = wtforms.TextField(__("Event Color"), description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
