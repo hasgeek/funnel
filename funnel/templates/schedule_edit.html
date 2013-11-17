@@ -1,8 +1,12 @@
 {% extends "layout.html" %}
+{% from "baseframe/forms.html" import renderform, ajaxform, richtext_editor %}
 {% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ space.title }}{% endblock %}
 {% block headline %}{% endblock %}
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets %}
+  {% assets 'css/spectrum.css' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
   {% assets 'css/schedules.css' -%}
@@ -16,11 +20,33 @@
       <div id="calendar"></div>
     </div>
     <div id="proposals" class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
-      <div class="fc-header-title"><h2>{% trans %}Proposals{% endtrans %}</h2></div>
-      <div class="list">
-        {%- for proposal in proposals['unscheduled'] %}
-            <div class="unscheduled" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
-        {%- endfor %}
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#list" class="small" data-toggle="tab">Unscheduled Sessions</a></li>
+        <li><a href="#settings" class="small" data-toggle="tab">Settings</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="list tab-pane active" id="list">
+          {%- for proposal in proposals['unscheduled'] %}
+              <div class="unscheduled" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
+          {%- endfor %}
+        </div>
+        <div id="settings" class="tab-pane">
+          <h2>Room Colors</h2>
+          <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
+            {% for id in rooms %}
+              <p class="room-color" id="room-color-{{ id }}">
+                <label for="room-color-input-{{ id }}" class="h5">
+                  <input type="hidden" name="id" value="{{ id }}">
+                  {{ rooms[id].vtitle }} <input type="text" name="color" id="room-color-input-{{ id }}" value="{{ rooms[id].bgcolor }}" data-room-id="{{ id }}" data-color="{{ rooms[id].bgcolor }}">
+                </label>
+              </p>
+            {% endfor %}
+            <p>
+              <input type="submit" value="Save" class="btn btn-submit">
+              <input type="reset" value="Cancel" class="btn">
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -44,9 +70,14 @@
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  {% assets "js/libs/spectrum.js" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   {% assets "js/schedules.js" -%}
     <script>
-      var UPDATE_URL = "{{ space.url_for('update-schedule') }}", from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
+      var UPDATE_URL = "{{ space.url_for('update-schedule') }}";
+      var COLORS_UPDATE_URL = "{{ space.url_for('update-venue-colors') }}";
+      var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
       var scheduled = {{ proposals['scheduled']|tojson }};
       var ROOMS = {{ rooms|tojson }};
     </script>

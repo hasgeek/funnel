@@ -102,5 +102,7 @@ class ProposalSpace(BaseNameMixin, db.Model):
             return url_for('schedule_edit', space=self.name, _external=_external)
         elif action == 'update-schedule':
             return url_for('schedule_update', space=self.name, _external=_external)
+        elif action == 'update-venue-colors':
+            return url_for('update_venue_colors', space=self.name, _external=_external)
         elif action == 'json-schedule':
             return url_for('schedule_json', space=self.name, _external=_external)

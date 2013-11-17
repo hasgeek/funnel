@@ -2,12 +2,12 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request
+from flask import g, flash, redirect, render_template, Response, request, jsonify
 from baseframe import _
-from coaster.views import load_model, jsonp
+from coaster.views import load_model, jsonp, requestargs
 
 from .. import app, lastuser
-from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal
+from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, VenueRoom
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 
@@ -107,3 +107,14 @@ def space_edit(space):
         return redirect(space.url_for(), code=303)
     return render_template('baseframe/autoform.html', form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
+@app.route('/<space>/update_venue_colors', methods=['POST'])
+@load_model(ProposalSpace, {'name': 'space'}, 'space',
+    permission=('siteadmin'), addlperms=lastuser.permissions)
+@requestargs('id[]', 'color[]')
+def update_venue_colors(space, id, color):
+    colors = {int(id[i]):col.replace("#", "") for i, col in enumerate(color)}
+    for room in space.rooms:
+        if room.id in colors:
+            room.bgcolor = colors[room.id]
+    db.session.commit()
+    return jsonify(status=True)

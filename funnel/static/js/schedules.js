@@ -1,4 +1,5 @@
 function hexToRgb(hex) {
+    if(hex.charAt(0) != "#") hex = "#" + hex;
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, function(m, r, g, b) {
@@ -164,6 +165,12 @@ $(function() {
                         event.unscheduled = source;
                         calendar.add(event);
                         popup.open(event);
+                    },
+                    viewRender: function() {
+                        event_list = calendar.events();
+                        for(e in event_list) {
+                            events.update_properties(event_list[e]);
+                        }
                     }
                 },
                 init: function(scheduled) {
@@ -177,7 +184,7 @@ $(function() {
                             config.hiddenDays = calendar.helpers.inactive_days(from_date, to_date);
                             config.firstDay = from_date.getDay();
                         }
-                    }
+                    };
                     config.eventClick = events.onClick;
                     config.eventResize = config.eventDrop = events.onChange;
                 }
@@ -264,6 +271,10 @@ $(function() {
                 );
         };
 
+        obj.render = function() {
+            calendar.container.fullCalendar('render');
+        };
+
         var init_autosave = function() {
             calendar.container.find('.fc-header-right')
                 .prepend('<label for="autosaver" class="fc-button fc-state-disabled fc-corner-right fc-corner-left"><input id="autosaver" class="autosave" type="checkbox"> Autosave</label> ');
@@ -305,7 +316,8 @@ $(function() {
             update_properties: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current.obj_data.venue_room_id) {
-                    this.current.color = '#' + ROOMS[this.current.obj_data.venue_room_id].bgcolor;
+                    this.current.color = ROOMS[this.current.obj_data.venue_room_id].bgcolor;
+                    if(this.current.color.charAt(0) != "#") this.current.color = "#" + this.current.color;
                     this.current.textColor = invert(this.current.color);
                 }
                 else delete this.current.color
@@ -387,5 +399,44 @@ $(function() {
         return events;
 
     }();
+
+    var settings = function() {
+        var settings = {
+            container: $('#settings'),
+            color_form: $('#room_colors'),
+            init: function() {
+                this.color_form.find('input[type=text]').each(function() {
+                    $(this).spectrum({
+                        showInput: true,
+                        hide: function(color) {
+                            ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
+                            calendar.render();
+                        }
+                    });
+                });
+                this.color_form.find('input[type=reset]').click(function() {
+                    settings.color_form.find('input[type=text]').each(function() {
+                        ROOMS[$(this).attr('data-room-id')].bgcolor = $(this).attr('data-color');
+                        $(this).spectrum("set", $(this).attr('data-color'));
+                    });
+                    calendar.render();
+                });
+                this.color_form.submit(function() {
+                    var data = $(this).serializeArray();
+                    $.ajax({
+                        url: COLORS_UPDATE_URL,
+                        type: 'POST',
+                        data: data,
+                        success: function(result) {
+                            toastr.success("The colors have been updated for the rooms.")
+                        }
+                    });
+                });
+            }
+        };
+        return settings;
+    }();
+
+    settings.init();
     calendar.init(scheduled);
 });
