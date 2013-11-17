@@ -404,14 +404,17 @@ $(function() {
         var settings = {
             container: $('#settings'),
             color_form: $('#room_colors'),
+            onColorChange: function(color) {
+                ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
+                calendar.render();
+            },
             init: function() {
                 this.color_form.find('input[type=text]').each(function() {
                     $(this).spectrum({
-                        showInput: true,
-                        hide: function(color) {
-                            ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
-                            calendar.render();
-                        }
+                        showInitial: true,
+                        hide: settings.onColorChange,
+                        move: settings.onColorChange,
+                        change: settings.onColorChange
                     });
                 });
                 this.color_form.find('input[type=reset]').click(function() {
