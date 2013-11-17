@@ -53,23 +53,20 @@ def schedule_json(space):
     permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_edit(space):
     proposals = {
-        'unscheduled': [],
-        'scheduled': []
+        'unscheduled': [dict(
+            title=proposal.title,
+            modal_url=proposal.url_for('sessioncreate'))
+            for proposal in space.proposals
+            if proposal.confirmed and not proposal.session],
+        'scheduled': [dict(
+            id=session.id,
+            title=session.title,
+            modal_url=session.url_for('edit'),
+            start=date_js(session.start),
+            end=date_js(session.end),
+            venue_room_id=session.venue_room_id
+            ) for session in space.sessions]
         }
-    for proposal in space.proposals:
-        if proposal.session:
-            proposals['scheduled'].append(dict(
-                id=proposal.session.id,
-                title=proposal.session.title,
-                modal_url=proposal.session.url_for('edit'),
-                start=date_js(proposal.session.start),
-                end=date_js(proposal.session.end),
-                venue_room_id=proposal.session.venue_room_id
-                ))
-        elif proposal.confirmed:
-            proposals['unscheduled'].append(dict(
-                title=proposal.title,
-                modal_url=proposal.url_for('sessioncreate')))
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         rooms={room.id: dict(title=room.title, vtitle=room.venue.title + " - " + room.title, bgcolor=room.bgcolor) for room in space.rooms},
