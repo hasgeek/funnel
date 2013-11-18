@@ -112,7 +112,7 @@ def space_edit(space):
     permission=('siteadmin'), addlperms=lastuser.permissions)
 @requestargs('id[]', 'color[]')
 def update_venue_colors(space, id, color):
-    colors = {int(id[i]):col.replace("#", "") for i, col in enumerate(color)}
+    colors = {int(id[i]): col.replace("#", "") for i, col in enumerate(color)}
     for room in space.rooms:
         if room.id in colors:
             room.bgcolor = colors[room.id]
