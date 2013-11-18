@@ -35,7 +35,6 @@ def session_form(space, proposal=None, session=None):
             new = True
             session = Session()
         if proposal:
-            session.parent = space
             session.proposal = proposal
         form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
         form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
@@ -43,6 +42,7 @@ def session_form(space, proposal=None, session=None):
         if session.venue_room_id == 0:
             session.venue_room_id = None
         if new:
+            session.parent = space
             session.make_id()  # FIXME: This should not be required
             session.make_name()
             db.session.add(session)
