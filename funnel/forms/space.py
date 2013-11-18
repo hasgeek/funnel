@@ -41,6 +41,5 @@ class ProposalSpaceForm(Form):
             u"“Closed” and “Withdrawn” are hidden from homepage"))
 
     def validate_date_upto(self, date_upto):
-        diff = date_upto.data - self.date.data
-        if diff.total_seconds() < 0:
+        if self.date_upto.data < self.date.data:
             raise wtforms.ValidationError("End Date cannot be before Start Date")
