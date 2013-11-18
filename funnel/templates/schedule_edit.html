@@ -6,12 +6,6 @@
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
-  {% assets 'css/spectrum.css' -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets %}
-  {% assets 'css/schedules.css' -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets %}
 {% endblock %}
 
 {% block content %}
@@ -70,10 +64,7 @@
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  {% assets "js/libs/spectrum.js" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  {% assets "js/schedules.js" -%}
+  {% assets "js_schedules" -%}
     <script>
       var UPDATE_URL = "{{ space.url_for('update-schedule') }}";
       var NEW_SESSION_URL = "{{ space.url_for('new-session') }}";
