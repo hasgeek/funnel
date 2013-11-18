@@ -31,10 +31,6 @@ function invert(color) {
     return rgbToHex(color);
 }
 
-toastr.options = {
-    positionClass: 'toast-bottom-left'
-};
-
 $(function() {
     var popup = function() {
         var obj = {};

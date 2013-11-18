@@ -1,35 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import __
+from baseframe import _
 from datetime import datetime
 from flask import request, render_template, jsonify
 from coaster.views import load_models
-from coaster.utils import make_name
-import simplejson as json
 
-from .space import ProposalSpace
 from .. import app, lastuser
-from ..models import db, Proposal, ProposalSpace, Session, Venue, VenueRoom
+from ..models import db, Proposal, ProposalSpace, Session
 from ..forms import SessionForm
 
+
 def rooms_list(space):
-    rooms = [(room.id, __("{venue} - {room}".format(venue=room.venue.title, room=room.title))) for room in space.rooms]
-    rooms = [(0, "Select Room")] + rooms
-    return rooms
+    return [(0, _("Select Room"))] + [
+        (room.id, "{venue} - {room}".format(venue=room.venue.title, room=room.title)) for room in space.rooms]
+
 
 def session_form(space, proposal=None, session=None):
     if session:
-        print session.url_name, session.venue_room_id
         form = SessionForm(obj=session, model=Session)
     else:
         form = SessionForm()
-    rooms = rooms_list(space)
-    form.venue_room_id.choices = rooms
+    form.venue_room_id.choices = rooms_list(space)
     if not (session or proposal):
         form.is_break.data = True
-    if form.is_break.data:
-        form.description.validators = [];
-        form.speaker_bio.validators = [];
     if request.method == 'GET':
         if proposal:
             form.description.data = proposal.description
@@ -47,9 +40,10 @@ def session_form(space, proposal=None, session=None):
         form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
         form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
         form.populate_obj(session)
-        session.venue_room_id = request.form.get('venue_room_id') if int(request.form.get('venue_room_id')) != 0 else None
+        if session.venue_room_id == 0:
+            session.venue_room_id = None
         if new:
-            session.make_id()
+            session.make_id()  # FIXME: This should not be required
             session.make_name()
             db.session.add(session)
         db.session.commit()
@@ -61,28 +55,31 @@ def session_form(space, proposal=None, session=None):
         status=False,
         form=render_template('session_form.html', form=form, formid='session_new'))
 
+
 @app.route('/<space>/sessions/new', methods=['GET', 'POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    permission=('siteadmin'), addlperms=lastuser.permissions)
+    permission=('new-session', 'siteadmin'), addlperms=lastuser.permissions)
 def session_new(space):
     return session_form(space)
+
 
 @app.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal'}, 'proposal'),
-    permission=('siteadmin'), addlperms=lastuser.permissions)
+    permission=('new-session', 'siteadmin'), addlperms=lastuser.permissions)
 def proposal_schedule(space, proposal):
     return session_form(space, proposal=proposal)
+
 
 @app.route('/<space>/<session>/editsession', methods=['GET', 'POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Session, {'url_name': 'session'}, 'session'),
-    permission=('siteadmin'), addlperms=lastuser.permissions)
+    permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
 def session_edit(space, session):
     return session_form(space, session=session)

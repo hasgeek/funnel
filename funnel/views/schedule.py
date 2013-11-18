@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pytz import timezone as pytz_timezone, utc
-from flask import render_template, json, Markup, Response, request, jsonify
+from flask import render_template, json, Response, request, jsonify
 from coaster.views import load_model, requestargs
 from baseframe import _
 from .. import app, lastuser
@@ -23,10 +23,12 @@ def session_data(sessions, timezone=None):
         } for session in sessions]
     return data
 
+
 def date_js(d):
     if not d:
         return None
     return mktime(d.timetuple()) * 1000
+
 
 @app.route('/<space>/schedule')
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
@@ -54,40 +56,49 @@ def schedule_json(space):
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_edit(space):
+    timezone = space.timezone
+    if timezone:
+        if isinstance(timezone, basestring):
+            timezone = pytz_timezone(timezone)
     proposals = {
-        'unscheduled': [dict(
-            title=proposal.title,
-            modal_url=proposal.url_for('schedule'))
-            for proposal in space.proposals
-            if proposal.confirmed and not proposal.session],
-        'scheduled': [dict(
-            id=session.id,
-            title=session.title,
-            modal_url=session.url_for('edit'),
-            start=date_js(session.start),
-            end=date_js(session.end),
-            venue_room_id=session.venue_room_id,
-            is_break=session.is_break
-            ) for session in space.sessions]
+        'unscheduled': [{
+                'title': proposal.title,
+                'modal_url': proposal.url_for('schedule')
+            } for proposal in space.proposals if proposal.confirmed and not proposal.session],
+        'scheduled': [{
+                'id': session.id,
+                'title': session.title,
+                'modal_url': session.url_for('edit'),
+                'start': date_js(utc.localize(session.start).astimezone(timezone).replace(tzinfo=None) if timezone else session.start),
+                'end': date_js(utc.localize(session.end).astimezone(timezone).replace(tzinfo=None) if timezone else session.end),
+                'venue_room_id': session.venue_room_id,
+                'is_break': session.is_break
+            } for session in space.sessions]
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
-        rooms={room.id: dict(title=room.title, vtitle=room.venue.title + " - " + room.title, bgcolor=room.bgcolor) for room in space.rooms},
+        rooms=dict([(room.id, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
         breadcrumbs=[
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule")),
             (space.url_for('edit-schedule'), _("Edit"))])
 
+
 @app.route('/<space>/schedule/update', methods=['POST'])
 @lastuser.requires_login
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('siteadmin'), addlperms=lastuser.permissions)
-@requestargs('sessions')
+@requestargs(('sessions', json.loads))
 def schedule_update(space, sessions):
-    sessions = json.loads(sessions)
+    timezone = space.timezone
+    if timezone:
+        if isinstance(timezone, basestring):
+            timezone = pytz_timezone(timezone)
     for session in sessions:
+        start = datetime.fromtimestamp(int(session['start'])/1000)
+        end = datetime.fromtimestamp(int(session['end'])/1000)
         s = Session.query.filter_by(id=session['id']).first()
-        s.start = datetime.fromtimestamp(int(session['start'])/1000)
-        s.end = datetime.fromtimestamp(int(session['end'])/1000)
+        s.start = timezone.localize(start).astimezone(utc).replace(tzinfo=None) if timezone else start
+        s.end = timezone.localize(end).astimezone(utc).replace(tzinfo=None) if timezone else end
         db.session.commit()
     return jsonify(status=True)
