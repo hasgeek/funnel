@@ -31,6 +31,10 @@ function invert(color) {
     return rgbToHex(color);
 }
 
+toastr.options = {
+    positionClass: 'toast-bottom-right'
+};
+
 $(function() {
     var popup = function() {
         var obj = {};
@@ -68,10 +72,14 @@ $(function() {
                             }
                             calendar.update(events.current);
                             popup.hide();
-                            toastr.success('"' + events.current.title + '" has been saved.')
                         }
                         else {
                             popup.body().html(result.form);
+                        }
+                    },
+                    complete: function(xhr, type) {
+                        if(type == 'error' || type == 'timeout') {
+                            toastr.error('There was a problem in contacting the server. Please try again.');
                         }
                     }
                 });
@@ -80,7 +88,6 @@ $(function() {
                 if(events.current.unscheduled) {
                     calendar.remove(events.current);
                     events.current = null;
-                    toastr.info('You closed the popup. The proposal remains unscheduled.');
                 }
             },
             hide_save_button: function() {popup.container.find('.save').hide();},
@@ -89,14 +96,23 @@ $(function() {
 
         obj.open = function() {
             SHOW_SAVE_BUTTON = false;
-            $.get(events.current.modal_url, function(result) {
-                popup.body().html(result);
-                if(SHOW_SAVE_BUTTON) popup.show_save_button();
-                else popup.hide_save_button();
+            $.ajax({
+                url: events.current.modal_url,
+                type: 'GET',
+                success: function(result) {
+                    popup.title().text(events.current.title);
+                    popup.pop();
+                    popup.body().html(result);
+                    if(SHOW_SAVE_BUTTON) popup.show_save_button();
+                    else popup.hide_save_button();
+                },
+                complete: function(xhr, type) {
+                    if(type == 'error' || type == 'timeout') {
+                        popup.close();
+                        toastr.error('There was a problem in contacting the server. Please try again later.');
+                    }
+                }
             });
-            popup.title().text(events.current.title);
-            popup.body().html('Loading...');
-            popup.pop();
         };
 
         obj.init = function() {
@@ -371,9 +387,16 @@ $(function() {
                     data: [{name: 'sessions', value: JSON.stringify(e)}],
                     success: function(result) {
                         for(event in event_list) event_list[event].saved = true;
-                        if(e.length === 1) toastr.success('"' + e[0].title + '" saved.');
-                        else toastr.success(e.length + ' proposals saved.');
                         calendar.buttons.save.disable('Saved');
+                    },
+                    complete: function(xhr, type) {
+                        if(type == 'error' || type =='timeout') {
+                            calendar.buttons.save.enable('Save');
+                            toastr.error(
+                                'There was a problem in contacting the server. There are '
+                                + e.length + ' unsaved sessions. Please try again later.'
+                                );
+                        }
                     }
                 })
             },
@@ -455,7 +478,12 @@ $(function() {
                         type: 'POST',
                         data: data,
                         success: function(result) {
-                            toastr.success("The colors have been updated for the rooms.")
+                            toastr.success("The colors have been updated.")
+                        },
+                        complete: function(xhr, type) {
+                            if(type == 'error' || type == 'timeout') {
+                                toastr.error("There was a problem in contacting the server. Please try again later.");
+                            }
                         }
                     });
                 });
