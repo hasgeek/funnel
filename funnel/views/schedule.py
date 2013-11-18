@@ -57,7 +57,7 @@ def schedule_edit(space):
     proposals = {
         'unscheduled': [dict(
             title=proposal.title,
-            modal_url=proposal.url_for('sessioncreate'))
+            modal_url=proposal.url_for('schedule'))
             for proposal in space.proposals
             if proposal.confirmed and not proposal.session],
         'scheduled': [dict(
