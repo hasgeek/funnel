@@ -100,7 +100,7 @@ $(function() {
         };
 
         obj.init = function() {
-            popup.container.find('.closebutton').click(popup.close);
+            popup.container.find('.close').click(popup.close);
             popup.container.find('.save').click(popup.save);
         };
 
