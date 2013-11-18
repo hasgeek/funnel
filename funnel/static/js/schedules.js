@@ -226,6 +226,7 @@ $(function() {
                 this.container.fullCalendar(this.options.config);
                 init_buttons();
                 init_autosave();
+                events.height(this.container.find('.fc-content').height());
             },
             temp: {}
         };
@@ -379,6 +380,9 @@ $(function() {
                         calendar.buttons.save.disable('Saved');
                     }
                 })
+            },
+            height: function(ht) {
+                unscheduled_events.container.height(ht);
             }
         };
 
