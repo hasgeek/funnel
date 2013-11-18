@@ -69,13 +69,13 @@ def session_form(space, proposal=None, session=None):
 def session_new(space):
     return session_form(space)
 
-@app.route('/<space>/<proposal>/create_session', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal'}, 'proposal'),
     permission=('siteadmin'), addlperms=lastuser.permissions)
-def session_create(space, proposal):
+def proposal_schedule(space, proposal):
     return session_form(space, proposal=proposal)
 
 @app.route('/<space>/<session>/editsession', methods=['GET', 'POST'])
