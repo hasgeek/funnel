@@ -24,6 +24,8 @@ def session_data(sessions, timezone=None):
     return data
 
 def date_js(d):
+    if not d:
+        return None
     return mktime(d.timetuple()) * 1000
 
 @app.route('/<space>/schedule')
