@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from pytz import timezone as pytz_timezone, utc
 from baseframe import _
 from datetime import datetime
 from flask import request, render_template, jsonify
 from coaster.views import load_models
 
+from .helpers import localize_micro_timestamp
 from .. import app, lastuser
 from ..models import db, Proposal, ProposalSpace, Session
 from ..forms import SessionForm
@@ -36,8 +38,8 @@ def session_form(space, proposal=None, session=None):
             session = Session()
         if proposal:
             session.proposal = proposal
-        form.start.data = datetime.fromtimestamp(int(form.start.data)/1000)
-        form.end.data = datetime.fromtimestamp(int(form.end.data)/1000)
+        form.start.data = localize_micro_timestamp(form.start.data, from_tz=space.timezone)
+        form.end.data = localize_micro_timestamp(form.end.data, from_tz=space.timezone)
         form.populate_obj(session)
         if session.venue_room_id == 0:
             session.venue_room_id = None

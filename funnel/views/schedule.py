@@ -4,6 +4,7 @@ from pytz import timezone as pytz_timezone, utc
 from flask import render_template, json, Response, request, jsonify
 from coaster.views import load_model, requestargs
 from baseframe import _
+from .helpers import localize_micro_timestamp, localize_date
 from .. import app, lastuser
 from ..models import db, ProposalSpace, Session
 from datetime import datetime
@@ -56,10 +57,6 @@ def schedule_json(space):
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_edit(space):
-    timezone = space.timezone
-    if timezone:
-        if isinstance(timezone, basestring):
-            timezone = pytz_timezone(timezone)
     proposals = {
         'unscheduled': [{
                 'title': proposal.title,
@@ -69,8 +66,8 @@ def schedule_edit(space):
                 'id': session.id,
                 'title': session.title,
                 'modal_url': session.url_for('edit'),
-                'start': date_js(utc.localize(session.start).astimezone(timezone).replace(tzinfo=None) if timezone else session.start),
-                'end': date_js(utc.localize(session.end).astimezone(timezone).replace(tzinfo=None) if timezone else session.end),
+                'start': date_js(localize_date(session.start, to_tz=space.timezone)),
+                'end': date_js(localize_date(session.end, to_tz=space.timezone)),
                 'venue_room_id': session.venue_room_id,
                 'is_break': session.is_break
             } for session in space.sessions]
@@ -90,15 +87,11 @@ def schedule_edit(space):
     permission=('siteadmin'), addlperms=lastuser.permissions)
 @requestargs(('sessions', json.loads))
 def schedule_update(space, sessions):
-    timezone = space.timezone
-    if timezone:
-        if isinstance(timezone, basestring):
-            timezone = pytz_timezone(timezone)
     for session in sessions:
         start = datetime.fromtimestamp(int(session['start'])/1000)
         end = datetime.fromtimestamp(int(session['end'])/1000)
         s = Session.query.filter_by(id=session['id']).first()
-        s.start = timezone.localize(start).astimezone(utc).replace(tzinfo=None) if timezone else start
-        s.end = timezone.localize(end).astimezone(utc).replace(tzinfo=None) if timezone else end
+        s.start = localize_micro_timestamp(session['start'], from_tz=space.timezone)
+        s.end = localize_micro_timestamp(session['end'], from_tz=space.timezone)
         db.session.commit()
     return jsonify(status=True)
