@@ -23,9 +23,9 @@ def session_form(space, proposal=None, session=None):
     else:
         form = SessionForm()
     form.venue_room_id.choices = rooms_list(space)
-    if not (session or proposal):
-        form.is_break.data = True
     if request.method == 'GET':
+        if not (session or proposal):
+            form.is_break.data = True
         if proposal:
             form.description.data = proposal.description
             form.speaker_bio.data = proposal.bio
@@ -50,7 +50,7 @@ def session_form(space, proposal=None, session=None):
             db.session.add(session)
         db.session.commit()
         data = dict(
-            id=session.id, title=session.title,venue_room_id=session.venue_room_id,
+            id=session.id, title=session.title,scoped_name=session.venue_room.scoped_name if session.venue_room else None,
             is_break=session.is_break, modal_url=session.url_for('edit'))
         return jsonify(status=True, data=data)
     return jsonify(
