@@ -10,6 +10,9 @@ from baseframe.staticdata import country_codes
 __all__ = ['VenueForm', 'VenueRoomForm']
 
 
+valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
+
+
 class VenueForm(Form):
     title = wtforms.TextField(__("Name"),
         description=__("Name of the venue"),
@@ -42,6 +45,5 @@ class VenueRoomForm(Form):
         description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
 
     def validate_bgcolor(self, bgcolor):
-        valid = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
-        if not valid.match(bgcolor.data):
+        if not valid_color_re.match(bgcolor.data):
             raise wtforms.ValidationError("Please enter a valid color code")

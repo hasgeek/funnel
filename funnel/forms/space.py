@@ -4,7 +4,6 @@ from coaster.utils import sorted_timezones
 from baseframe import __
 from baseframe.forms import Form, MarkdownField, ValidName
 from baseframe.forms.sqlalchemy import AvailableName
-from sqlalchemy.orm import validates
 import wtforms
 import wtforms.fields.html5
 
@@ -15,10 +14,10 @@ class ProposalSpaceForm(Form):
     name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName()])
     title = wtforms.TextField(__("Title"), validators=[wtforms.validators.Required()])
     datelocation = wtforms.TextField(__("Date and Location"), validators=[wtforms.validators.Required()])
-    date = wtforms.DateField(__("Start Date (for sorting)"),
+    date = wtforms.DateField(__("Start date (for sorting)"),
         validators=[wtforms.validators.Required(__("Enter a valid date in YYYY-MM-DD format"))],
         description=__("In YYYY-MM-DD format"))
-    date_upto = wtforms.DateField(__("End Date (for sorting)"),
+    date_upto = wtforms.DateField(__("End date (for sorting)"),
         validators=[wtforms.validators.Required(__("Enter a valid date in YYYY-MM-DD format"))],
         description=__("In YYYY-MM-DD format"))
     tagline = wtforms.TextField(__("Tagline"), validators=[wtforms.validators.Required()],
@@ -42,4 +41,4 @@ class ProposalSpaceForm(Form):
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
-            raise wtforms.ValidationError("End Date cannot be before Start Date")
+            raise wtforms.ValidationError(_("End date cannot be before Start date"))

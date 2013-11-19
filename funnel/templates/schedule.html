@@ -46,14 +46,14 @@
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  <script type="text/javascript">
+    var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
+    var scheduled = {{ sessions|tojson }};
+    var ROOMS = {{ rooms|tojson }};
+    var BREAK_EVENTS_COLOR = "#999999";
+    var EDIT_EVENTS = false;
+  </script>
   {% assets "js_schedules" -%}
-    <script>
-      var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
-      var scheduled = {{ sessions|tojson }};
-      var ROOMS = {{ rooms|tojson }};
-      var BREAK_EVENTS_COLOR = "#999999";
-      var EDIT_EVENTS = false;
-    </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
 {% endblock %}
