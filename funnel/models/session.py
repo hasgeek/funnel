@@ -33,3 +33,5 @@ class Session(BaseScopedIdNameMixin, db.Model):
     def url_for(self, action, _external=False):
         if action == 'edit':
             return url_for('session_edit', space=self.proposal_space.name, session=self.url_name, _external=_external)
+        if action == 'view-popup':
+            return url_for('session_view_popup', space=self.proposal_space.name, session=self.url_name, _external=_external)

@@ -44,7 +44,7 @@
       </div>
     </div>
   </div>
-  <div id="popup" class="modal fade">
+  <div id="popup" class="modal fade editor">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -72,6 +72,7 @@
       var scheduled = {{ proposals['scheduled']|tojson }};
       var ROOMS = {{ rooms|tojson }};
       var BREAK_EVENTS_COLOR = "#229922";
+      var EDIT_EVENTS = true;
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}

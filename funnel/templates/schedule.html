@@ -14,54 +14,46 @@
     </div>
     <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
       <div class="fc-header-title"><h2>{% trans %}Venues{% endtrans %}</h2></div>
-      {%- for venue in space.venues %}
-        <h3>{{ venue.title }}</h3>
-        {{ venue.description }}
-        {%- for room in venue.rooms %}
-          <h4>{{ loop.index }}. {{ room.title }}</h4>
-          {{ room.description }}
+      <div id="rooms-list">
+        {%- for venue in space.venues %}
+          <h2 class="venue">{{ venue.title }}</h2>
+          <div class="venue_desc">{{ venue.description }}</div>
+          {%- for room in venue.rooms %}
+            <div class="room">
+              <div class="h4 title" data-bgcolor="#{{ room.bgcolor }}">{{ room.title }}</div>
+              <div class="desc">{{ room.description }}</div>
+            </div>
+          {%- endfor %}
+        {%- else %}
+          <p>{% trans %}This event does not have a venue{% endtrans %}</p>
         {%- endfor %}
-      {%- else %}
-        <p>{% trans %}This event does not have a venue{% endtrans %}</p>
-      {%- endfor %}
+      </div>
     </div>
-  </div>  
+  </div>
+  <div id="popup" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body"></div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 {% block footerscripts %}
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  <script type="text/javascript">
-    $(function() {
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-        },
-        allDayDefault: false,
-        firstDay: 1, // Start from Monday
-        defaultView: 'agendaWeek',
-        allDaySlot: false,
-        slotMinutes: 15,
-        defaultEventMinutes: 45,
-        firstHour: 8,
-        slotEventOverlap: false,
-      {%- if space.date %}
-        year: {{ space.date.year|tojson }},
-        month: {{ (space.date.month - 1)|tojson }},
-        date: {{ space.date.day|tojson }},
-      {%- endif %}
-        columnFormat: {
-          month: 'ddd',  // Mon
-          week: 'ddd d', // Mon 31
-          day: 'dddd d'  // Monday 31
-        },
-        selectable: false,
-        editable: false,
-        droppable: false,
-        events: {{ space.url_for('json-schedule')|tojson }}
-      });
-    });
-  </script>
+  {% assets "js_schedules" -%}
+    <script>
+      var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
+      var scheduled = {{ sessions|tojson }};
+      var ROOMS = {{ rooms|tojson }};
+      var BREAK_EVENTS_COLOR = "#229922";
+      var EDIT_EVENTS = false;
+    </script>
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
 {% endblock %}

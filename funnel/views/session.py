@@ -6,7 +6,7 @@ from datetime import datetime
 from flask import request, render_template, jsonify
 from coaster.views import load_models
 
-from .helpers import localize_micro_timestamp
+from .helpers import localize_micro_timestamp, localize_date
 from .. import app, lastuser
 from ..models import db, Proposal, ProposalSpace, Session
 from ..forms import SessionForm
@@ -76,6 +76,13 @@ def session_new(space):
 def proposal_schedule(space, proposal):
     return session_form(space, proposal=proposal)
 
+@app.route('/<space>/<session>/viewsession-popup', methods=['GET'])
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Session, {'url_name': 'session'}, 'session'),
+    permission=('view-session', 'siteadmin'), addlperms=lastuser.permissions)
+def session_view_popup(space, session):
+    return render_template('session_view_popup.html', session=session, timezone=space.timezone, localize_date=localize_date)
 
 @app.route('/<space>/<session>/editsession', methods=['GET', 'POST'])
 @lastuser.requires_login

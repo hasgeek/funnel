@@ -35,6 +35,9 @@ def date_js(d):
     permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_view(space):
     return render_template('schedule.html', space=space, venues=space.venues,
+        from_date=date_js(space.date), to_date=date_js(space.date_upto),
+        sessions=session_data(space.sessions, timezone=space.timezone, with_modal_url='view-popup'),
+        rooms=dict([(room.id, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
         breadcrumbs=[
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule"))])
@@ -76,9 +79,7 @@ def schedule_edit(space):
 @requestargs(('sessions', json.loads))
 def schedule_update(space, sessions):
     for session in sessions:
-        start = datetime.fromtimestamp(int(session['start'])/1000)
-        end = datetime.fromtimestamp(int(session['end'])/1000)
-        s = Session.query.filter_by(id=session['id']).first()
+        s = Session.query.filter_by(url_id=session['id']).first()
         s.start = localize_micro_timestamp(session['start'], from_tz=space.timezone)
         s.end = localize_micro_timestamp(session['end'], from_tz=space.timezone)
         db.session.commit()

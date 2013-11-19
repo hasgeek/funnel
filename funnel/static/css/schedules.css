@@ -1,4 +1,4 @@
-#proposals .list{
+#proposals .list, #rooms-list{
     overflow-y: auto;
 }
 #proposals .unscheduled, body>.unscheduled.ui-draggable { /* try to mimick the look of a real event */
@@ -9,6 +9,25 @@
     border-radius: 3px;
     border: 1px solid #333;
     font-size: .85em;
+    cursor: pointer;
+}
+#rooms-list .room {
+    padding: 3px 5px;
+}
+#rooms-list .venue_desc {
+    font-size: 0.9em;
+}
+#rooms-list .room .title {
+    border: 0px;
+    border-radius: 4px;
+    font-weight: 200;
+    padding: 2px 5px;
+}
+#rooms-list .room .desc {
+    padding: 1px 10px;
+    color: #777;
+}
+.fc-event {
     cursor: pointer;
 }
 #popup {
@@ -32,13 +51,19 @@
 .modal-body {
     position: absolute;
     z-index: 3000 !important;
-    height: 70%;
+    height: 80%;
     top: 60px;
-    bottom: 80px;
+    bottom: 0px;
     overflow-y: auto;
-    border-bottom: 1px solid #e5e5e5;
 }
-.modal-footer {
+
+.modal-body.editor {
+    border-bottom: 1px solid #e5e5e5;
+    bottom: 80px;
+    height: 70%;
+}
+
+#popup .modal-footer {
     position: absolute;
     bottom: 0px;
     border-top: transparent;
