@@ -6,7 +6,7 @@ from baseframe import _
 from .helpers import localize_micro_timestamp, localize_date
 from .. import app, lastuser
 from ..models import db, ProposalSpace, Session
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import mktime
 
 
@@ -47,7 +47,23 @@ def schedule_view(space):
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_json(space):
-    data = session_data(space.sessions, timezone=space.timezone)
+    data = {}
+    for session in space.sessions:
+        day = int(date_js(localize_date(session.start, to_tz=space.timezone).date()))
+        if day not in data:
+            data[day] = {}
+        slot = int(date_js(localize_date(session.start, to_tz=space.timezone)))
+        if slot not in data[day]:
+            data[day][slot] = []
+        data[day][slot].append({
+            "id": session.url_id,
+            "title": session.title,
+            "start": date_js(localize_date(session.start, to_tz=space.timezone)),
+            "end": date_js(localize_date(session.end, to_tz=space.timezone)),
+            "url": session.proposal.url_for() if session.proposal else None,
+            "venue_room_id": session.venue_room_id,
+            "is_break": session.is_break,
+        })
     return Response(json.dumps(data), mimetype='application/json')
 
 
