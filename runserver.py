@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import sys
 from funnel import app, models, init_for
 init_for('dev')

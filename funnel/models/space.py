@@ -32,6 +32,7 @@ class ProposalSpace(BaseNameMixin, db.Model):
     description = MarkdownColumn('description', default=u'', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
+    date_upto = db.Column(db.Date, nullable=True)
     website = db.Column(db.Unicode(250), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
@@ -46,6 +47,10 @@ class ProposalSpace(BaseNameMixin, db.Model):
         super(ProposalSpace, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
+
+    @property
+    def rooms(self):
+        return [room for venue in self.venues for room in venue.rooms]
 
     def permissions(self, user, inherited=None):
         perms = super(ProposalSpace, self).permissions(user, inherited)
@@ -95,5 +100,11 @@ class ProposalSpace(BaseNameMixin, db.Model):
             return url_for('schedule_view', space=self.name, _external=_external)
         elif action == 'edit-schedule':
             return url_for('schedule_edit', space=self.name, _external=_external)
+        elif action == 'update-schedule':
+            return url_for('schedule_update', space=self.name, _external=_external)
+        elif action == 'new-session':
+            return url_for('session_new', space=self.name, _external=_external)
+        elif action == 'update-venue-colors':
+            return url_for('update_venue_colors', space=self.name, _external=_external)
         elif action == 'json-schedule':
             return url_for('schedule_json', space=self.name, _external=_external)

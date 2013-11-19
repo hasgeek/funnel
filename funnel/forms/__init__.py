@@ -7,3 +7,4 @@ from .section import *
 from .space import *
 from .usergroup import *
 from .venue import *
+from .session import *

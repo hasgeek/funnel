@@ -23,6 +23,10 @@ assets['jquery.oembed.js'][version] = 'js/libs/jquery.oembed.js'
 assets['showdown.js'][version] = 'js/libs/showdown.js'
 assets['funnel.js'][version] = 'js/scripts.js'
 assets['funnel.css'][version] = 'css/app.css'
+assets['spectrum.js'][version] = 'js/libs/spectrum.js'
+assets['spectrum.css'][version] = 'css/spectrum.css'
+assets['schedules.css'][version] = 'css/schedules.css'
+assets['schedules.js'][version] = 'js/schedules.js'
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -41,11 +45,14 @@ def init_for(env):
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
     baseframe.init_app(app, requires=[
-        'jquery.form', 'jquery.oembed', 'showdown', 'codemirror-markdown', 'pygments', 'baseframe-bs3', 'funnel',
+        'jquery.form', 'jquery.oembed', 'showdown', 'codemirror-markdown', 'pygments', 'toastr', 'baseframe-bs3', 'funnel',
         ])
     app.assets.register('js_fullcalendar',
-        Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js'),
+        Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
             output='js/fullcalendar.packed.js', filters='closure_js'))
     app.assets.register('css_fullcalendar',
-        Bundle(assets.require('jquery.fullcalendar.css'),
+        Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css', 'schedules.css'),
             output='css/fullcalendar.packed.css', filters='cssmin'))
+    app.assets.register('js_schedules',
+        Bundle(assets.require('schedules.js'),
+            output='js/schedules.packed.js', filters='closure_js'))
