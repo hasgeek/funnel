@@ -411,8 +411,8 @@ $(function() {
                     this.current.color = BREAK_EVENTS_COLOR;
                     this.current.textColor = invert(this.current.color);
                 }
-                else if(this.current.obj_data.venue_room_id) {
-                    this.current.color = ROOMS[this.current.obj_data.venue_room_id].bgcolor;
+                else if(this.current.obj_data.scoped_name) {
+                    this.current.color = ROOMS[this.current.obj_data.scoped_name].bgcolor;
                     if(this.current.color.charAt(0) != "#") this.current.color = "#" + this.current.color;
                     this.current.textColor = invert(this.current.color);
                 }

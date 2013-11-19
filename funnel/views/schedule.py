@@ -17,7 +17,7 @@ def session_data(sessions, timezone=None, with_modal_url=False):
             "start": date_js(localize_date(session.start, to_tz=timezone)),
             "end": date_js(localize_date(session.end, to_tz=timezone)),
             "url": session.proposal.url_for() if session.proposal else None,
-            "venue_room_id": session.venue_room_id,
+            "scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
         }.items() + ({
             "modal_url": session.url_for(with_modal_url)
@@ -90,7 +90,7 @@ def schedule_edit(space):
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
-        rooms=dict([(room.id, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
+        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
         breadcrumbs=[
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule")),
