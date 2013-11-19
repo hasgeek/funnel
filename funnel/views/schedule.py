@@ -49,10 +49,10 @@ def schedule_view(space):
 def schedule_json(space):
     data = {}
     for session in space.sessions:
-        day = int(date_js(localize_date(session.start, to_tz=space.timezone).date()))
+        day = str(localize_date(session.start, to_tz=space.timezone).date())
         if day not in data:
             data[day] = {}
-        slot = int(date_js(localize_date(session.start, to_tz=space.timezone)))
+        slot = localize_date(session.start, to_tz=space.timezone).strftime('%H:%M')
         if slot not in data[day]:
             data[day][slot] = []
         data[day][slot].append({
@@ -64,7 +64,16 @@ def schedule_json(space):
             "venue_room_id": session.venue_room_id,
             "is_break": session.is_break,
         })
-    return Response(json.dumps(data), mimetype='application/json')
+    schedule = {'schedule': []}
+    for day in sorted(data):
+        daydata = {'day': day, 'slots': []}
+        for slot in sorted(data[day]):
+            daydata['slots'].append({
+                'slot': slot,
+                'sessions': data[day][slot]
+            })
+        schedule['schedule'].append(daydata)
+    return Response(json.dumps(schedule), mimetype='application/json')
 
 
 @app.route('/<space>/schedule/edit')
