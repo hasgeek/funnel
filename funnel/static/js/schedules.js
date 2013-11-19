@@ -204,8 +204,8 @@ $(function() {
                     defaultEventMinutes: 45,
                     firstHour: 8,
                     slotEventOverlap: false,
-                    eventColor: "#CCCCCC",
-                    eventTextColor: "#333333",
+                    eventColor: "#229922",
+                    eventTextColor: "#FFFFFF",
                     columnFormat: {
                         month: 'ddd',  // Mon
                         week: 'ddd d', // Mon 31
