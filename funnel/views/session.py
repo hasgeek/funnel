@@ -79,8 +79,7 @@ def proposal_schedule(space, proposal):
 @app.route('/<space>/<session>/viewsession-popup', methods=['GET'])
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Session, {'url_name': 'session'}, 'session'),
-    permission=('view-session', 'siteadmin'), addlperms=lastuser.permissions)
+    (Session, {'url_name': 'session'}, 'session'))
 def session_view_popup(space, session):
     return render_template('session_view_popup.html', session=session, timezone=space.timezone, localize_date=localize_date)
 
