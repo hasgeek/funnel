@@ -11,16 +11,16 @@ from time import mktime
 
 
 def session_data(sessions, timezone=None):
-    data = [{
+    return [{
             "id": session.url_id,
             "title": session.title,
             "start": date_js(localize_date(session.start, to_tz=timezone)),
             "end": date_js(localize_date(session.end, to_tz=timezone)),
             "url": session.proposal.url_for() if session.proposal else None,
+            "modal_url": session.url_for('edit'),
             "venue_room_id": session.venue_room_id,
             "is_break": session.is_break,
         } for session in sessions]
-    return data
 
 
 def date_js(d):
@@ -57,15 +57,7 @@ def schedule_edit(space):
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
             } for proposal in space.proposals if proposal.confirmed and not proposal.session],
-        'scheduled': [{
-                'id': session.id,
-                'title': session.title,
-                'modal_url': session.url_for('edit'),
-                'start': date_js(localize_date(session.start, to_tz=space.timezone)),
-                'end': date_js(localize_date(session.end, to_tz=space.timezone)),
-                'venue_room_id': session.venue_room_id,
-                'is_break': session.is_break
-            } for session in space.sessions]
+        'scheduled': session_data(space.sessions, timezone=space.timezone)
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
