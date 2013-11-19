@@ -23,9 +23,9 @@ def session_form(space, proposal=None, session=None):
     else:
         form = SessionForm()
     form.venue_room_id.choices = rooms_list(space)
-    if not (session or proposal):
-        form.is_break.data = True
     if request.method == 'GET':
+        if not (session or proposal):
+            form.is_break.data = True
         if proposal:
             form.description.data = proposal.description
             form.speaker_bio.data = proposal.bio
