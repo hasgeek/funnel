@@ -61,7 +61,7 @@ def schedule_json(space):
             "start": date_js(localize_date(session.start, to_tz=space.timezone)),
             "end": date_js(localize_date(session.end, to_tz=space.timezone)),
             "url": session.proposal.url_for() if session.proposal else None,
-            "venue_room_id": session.venue_room_id,
+            "venue_room": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
         })
     schedule = {'schedule': []}
