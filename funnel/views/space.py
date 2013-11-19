@@ -7,9 +7,10 @@ from baseframe import _
 from coaster.views import load_model, jsonp, requestargs
 
 from .. import app, lastuser
-from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, VenueRoom
+from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
+from .schedule import schedule_data
 
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -49,6 +50,9 @@ def space_view_json(space):
             'name': space.name,
             'title': space.title,
             'datelocation': space.datelocation,
+            'timezone': space.timezone,
+            'start': space.date.isoformat() if space.date else None,
+            'end': space.date_upto.isoformat() if space.date_upto else None,
             'status': space.status,
             },
         'sections': [{'name': s.name, 'title': s.title, 'description': s.description} for s in sections],
@@ -71,8 +75,9 @@ def space_view_json(space):
             'description': room.description.html,
             'venue': room.venue.name,
             'bgcolor': room.bgcolor,
-        } for room in space.rooms],
-        'proposals': [proposal_data(proposal) for proposal in proposals]
+            } for room in space.rooms],
+        'proposals': [proposal_data(proposal) for proposal in proposals],
+        'schedule': schedule_data(space),
         })
 
 
@@ -108,14 +113,15 @@ def space_edit(space):
         return redirect(space.url_for(), code=303)
     return render_template('baseframe/autoform.html', form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
+
 @app.route('/<space>/update_venue_colors', methods=['POST'])
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('siteadmin'), addlperms=lastuser.permissions)
 @requestargs('id[]', 'color[]')
 def update_venue_colors(space, id, color):
-    colors = {int(id[i]): col.replace("#", "") for i, col in enumerate(color)}
+    colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
     for room in space.rooms:
-        if room.id in colors:
-            room.bgcolor = colors[room.id]
+        if room.scoped_name in colors:
+            room.bgcolor = colors[room.scoped_name]
     db.session.commit()
     return jsonify(status=True)

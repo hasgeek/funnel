@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, json, Response, request, jsonify
-from coaster.views import load_model, requestargs
+from collections import defaultdict
+from flask import render_template, json, Response, jsonify
+from coaster.views import load_model, requestargs, jsonp
 from baseframe import _
 from .helpers import localize_micro_timestamp, localize_date
 from .. import app, lastuser
 from ..models import db, ProposalSpace, Session
-from datetime import datetime, timedelta
+from datetime import timedelta
 from time import mktime
 
 
@@ -16,18 +17,45 @@ def session_data(sessions, timezone=None, with_modal_url=False):
             "title": session.title,
             "start": date_js(localize_date(session.start, to_tz=timezone)),
             "end": date_js(localize_date(session.end, to_tz=timezone)),
-            "url": session.proposal.url_for() if session.proposal else None,
+            "url": session.proposal.url_for(_external=True) if session.proposal else None,
             "scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
-        }.items() + ({
+        }.items() + {
             "modal_url": session.url_for(with_modal_url)
-        }.items() if with_modal_url else {}.items())) for session in sessions]
+        }.items() if with_modal_url else {}.items()) for session in sessions]
 
 
 def date_js(d):
     if not d:
         return None
     return mktime(d.timetuple()) * 1000
+
+
+def schedule_data(space):
+    data = defaultdict(lambda: defaultdict(list))
+    for session in space.sessions:
+        day = str(localize_date(session.start, to_tz=space.timezone).date())
+        slot = localize_date(session.start, to_tz=space.timezone).strftime('%H:%M')
+        data[day][slot].append({
+            "id": session.url_id,
+            "title": session.title,
+            "start": session.start.isoformat()+'Z',
+            "end": session.end.isoformat()+'Z',
+            "url": session.proposal.url_for(_external=True) if session.proposal else None,
+            "proposal": session.proposal.id if session.proposal else None,
+            "room": session.venue_room.scoped_name if session.venue_room else None,
+            "is_break": session.is_break,
+            })
+    schedule = []
+    for day in sorted(data):
+        daydata = {'day': day, 'slots': []}
+        for slot in sorted(data[day]):
+            daydata['slots'].append({
+                'slot': slot,
+                'sessions': data[day][slot]
+                })
+        schedule.append(daydata)
+    return schedule
 
 
 @app.route('/<space>/schedule')
@@ -47,33 +75,7 @@ def schedule_view(space):
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_json(space):
-    data = {}
-    for session in space.sessions:
-        day = str(localize_date(session.start, to_tz=space.timezone).date())
-        if day not in data:
-            data[day] = {}
-        slot = localize_date(session.start, to_tz=space.timezone).strftime('%H:%M')
-        if slot not in data[day]:
-            data[day][slot] = []
-        data[day][slot].append({
-            "id": session.url_id,
-            "title": session.title,
-            "start": date_js(localize_date(session.start, to_tz=space.timezone)),
-            "end": date_js(localize_date(session.end, to_tz=space.timezone)),
-            "url": session.proposal.url_for() if session.proposal else None,
-            "venue_room": session.venue_room.scoped_name if session.venue_room else None,
-            "is_break": session.is_break,
-        })
-    schedule = {'schedule': []}
-    for day in sorted(data):
-        daydata = {'day': day, 'slots': []}
-        for slot in sorted(data[day]):
-            daydata['slots'].append({
-                'slot': slot,
-                'sessions': data[day][slot]
-            })
-        schedule['schedule'].append(daydata)
-    return Response(json.dumps(schedule), mimetype='application/json')
+    return jsonp(schedule=schedule_data(space))
 
 
 @app.route('/<space>/schedule/edit')
