@@ -69,7 +69,8 @@ def space_view_json(space):
             'name': room.scoped_name,
             'title': room.title,
             'description': room.description.html,
-            'venue': venue.name
+            'venue': room.venue.name,
+            'bgcolor': room.bgcolor,
         } for room in space.rooms],
         'proposals': [proposal_data(proposal) for proposal in proposals]
         })
