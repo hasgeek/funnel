@@ -19,6 +19,7 @@ def session_data(sessions, timezone=None, with_modal_url=False):
             "start": date_js(localize_date(session.start, to_tz=timezone)),
             "end": date_js(localize_date(session.end, to_tz=timezone)),
             "url": session.proposal.url_for(_external=True) if session.proposal else None,
+            "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
             "scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
         }.items() + {
@@ -43,6 +44,7 @@ def schedule_data(space):
             "start": session.start.isoformat()+'Z',
             "end": session.end.isoformat()+'Z',
             "url": session.proposal.url_for(_external=True) if session.proposal else None,
+            "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
             "room": room_data(session.venue_room) if session.venue_room else None,
             "is_break": session.is_break,

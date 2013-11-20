@@ -8,6 +8,14 @@ from .. import app, lastuser
 from ..models import db, ProposalSpace, ProposalSpaceSection
 from ..forms import SectionForm, ConfirmDeleteForm
 
+def section_data(section):
+    return {
+        'name': section.name,
+        'title': section.title,
+        'description': section.description,
+        'url': None,
+        'json_url': None
+        }
 
 @app.route('/<space>/sections')
 @lastuser.requires_login

@@ -12,6 +12,33 @@ from ..forms.venue import VenueForm, VenueRoomForm
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']
 
+def venue_data(venue):
+    return {
+        'name': venue.name,
+        'title': venue.title,
+        'description': venue.description.html,
+        'address1': venue.address1,
+        'address2': venue.address2,
+        'city': venue.city,
+        'state': venue.state,
+        'postcode': venue.postcode,
+        'country': venue.country,
+        'latitude': venue.latitude,
+        'longitude': venue.longitude,
+        'url': None,
+        'json_url': None,
+        }
+
+def room_data(room):
+    return {
+        'name': room.scoped_name,
+        'title': room.title,
+        'description': room.description.html,
+        'venue': room.venue.name,
+        'bgcolor': room.bgcolor,
+        'url': None,
+        'json_url': None,
+        }
 
 @app.route('/<space>/venues')
 @lastuser.requires_login
