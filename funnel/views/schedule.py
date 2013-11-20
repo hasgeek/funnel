@@ -40,8 +40,8 @@ def schedule_data(space):
         data[day][slot].append({
             "id": session.url_id,
             "title": session.title,
-            "start": session.start.isoformat()+'Z',
-            "end": session.end.isoformat()+'Z',
+            "start": localize_date(session.start, to_tz=space.timezone).isoformat()+'Z',
+            "end": localize_date(session.end, to_tz=space.timezone).isoformat()+'Z',
             "url": session.proposal.url_for(_external=True) if session.proposal else None,
             "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
