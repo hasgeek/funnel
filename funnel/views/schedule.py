@@ -44,7 +44,7 @@ def schedule_data(space):
             "end": session.end.isoformat()+'Z',
             "url": session.proposal.url_for(_external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
-            "room": room_data(session.venue_room),
+            "room": room_data(session.venue_room) if session.venue_room else None,
             "is_break": session.is_break,
             })
     schedule = []
