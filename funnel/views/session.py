@@ -50,7 +50,7 @@ def session_form(space, proposal=None, session=None):
             db.session.add(session)
         db.session.commit()
         data = dict(
-            id=session.id, title=session.title,scoped_name=session.venue_room.scoped_name if session.venue_room else None,
+            id=session.url_id, title=session.title,scoped_name=session.venue_room.scoped_name if session.venue_room else None,
             is_break=session.is_break, modal_url=session.url_for('edit'))
         return jsonify(status=True, data=data)
     return jsonify(
