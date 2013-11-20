@@ -77,6 +77,7 @@ def proposal_data(proposal):
             'name': proposal.url_name,
             'title': proposal.title,
             'url': proposal.url_for(_external=True),
+            'json_url': proposal.url_for('json', _external=True),
             'proposer': proposal.user.fullname,
             'speaker': proposal.speaker.fullname if proposal.speaker else None,
             'email': proposal.email if lastuser.has_permission('siteadmin') else None,

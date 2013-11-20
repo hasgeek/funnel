@@ -11,6 +11,8 @@ from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
+from .venue import venue_data, room_data
+from .section import section_data
 
 def space_data(space):
     return {
@@ -21,6 +23,8 @@ def space_data(space):
         'start': space.date.isoformat() if space.date else None,
         'end': space.date_upto.isoformat() if space.date_upto else None,
         'status': space.status,
+        'url': space.url_for(_external=True),
+        'json_url': space.url_for('json', _external=True),
         }
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -57,27 +61,9 @@ def space_view_json(space):
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return jsonp(**{
         'space': space_data(space),
-        'sections': [{'name': s.name, 'title': s.title, 'description': s.description} for s in sections],
-        'venues': [{
-            'name': venue.name,
-            'title': venue.title,
-            'description': venue.description.html,
-            'address1': venue.address1,
-            'address2': venue.address2,
-            'city': venue.city,
-            'state': venue.state,
-            'postcode': venue.postcode,
-            'country': venue.country,
-            'latitude': venue.latitude,
-            'longitude': venue.longitude
-            } for venue in space.venues],
-        'rooms': [{
-            'name': room.scoped_name,
-            'title': room.title,
-            'description': room.description.html,
-            'venue': room.venue.name,
-            'bgcolor': room.bgcolor,
-            } for room in space.rooms],
+        'sections': [section_data(s) for s in sections],
+        'venues': [venue_data(venue) for venue in space.venues],
+        'rooms': [room_data(room) for room in space.rooms],
         'proposals': [proposal_data(proposal) for proposal in proposals],
         'schedule': schedule_data(space),
         })

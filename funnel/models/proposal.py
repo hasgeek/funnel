@@ -98,6 +98,8 @@ class Proposal(BaseIdNameMixin, db.Model):
     def url_for(self, action='view', _external=False):
         if action == 'view':
             return url_for('proposal_view', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'json':
+            return url_for('proposal_json', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'edit':
             return url_for('proposal_edit', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'confirm':
