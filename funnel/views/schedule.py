@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from flask import render_template, json, Response, jsonify
+from flask import render_template, json, jsonify
 from coaster.views import load_model, requestargs, jsonp
 from baseframe import _
 from .helpers import localize_micro_timestamp, localize_date
 from .. import app, lastuser
 from ..models import db, ProposalSpace, Session
-from datetime import timedelta
 from time import mktime
-from .venue import room_data
+from .venue import venue_data, room_data
 
 
 def session_data(sessions, timezone=None, with_modal_url=False):
@@ -78,7 +77,9 @@ def schedule_view(space):
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_json(space):
-    return jsonp(schedule=schedule_data(space))
+    return jsonp(schedule=schedule_data(space),
+        venues=[venue_data(venue) for venue in space.venues],
+        rooms=[room_data(room) for room in space.rooms])
 
 
 @app.route('/<space>/schedule/edit')
