@@ -14,4 +14,4 @@ def index():
 
 @app.route('/json')
 def spaces_json():
-	return jsonp(**{'spaces': [space_data(space) for space in ProposalSpace.query.all()]})
+	return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.all()])
