@@ -38,8 +38,6 @@ def session_form(space, proposal=None, session=None):
             session = Session()
         if proposal:
             session.proposal = proposal
-        form.start.data = localize_micro_timestamp(form.start.data, from_tz=space.timezone)
-        form.end.data = localize_micro_timestamp(form.end.data, from_tz=space.timezone)
         form.populate_obj(session)
         if session.venue_room_id == 0:
             session.venue_room_id = None

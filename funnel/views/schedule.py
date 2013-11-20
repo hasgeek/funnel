@@ -9,16 +9,16 @@ from .. import app, lastuser
 from ..models import db, ProposalSpace, Session
 from time import mktime
 from .venue import venue_data, room_data
+from pytz import timezone
+from datetime import datetime
 
 
 def session_data(sessions, timezone=None, with_modal_url=False):
     return [dict({
             "id": session.url_id,
             "title": session.title,
-            "start": date_js(localize_date(session.start, to_tz=timezone)),
-            "end": date_js(localize_date(session.end, to_tz=timezone)),
-            "url": session.proposal.url_for(_external=True) if session.proposal else None,
-            "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
+            "start": session.start.isoformat()+'Z',
+            "end": session.end.isoformat()+'Z',
             "scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
         }.items() + {
@@ -67,7 +67,8 @@ def schedule_view(space):
     return render_template('schedule.html', space=space, venues=space.venues,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         sessions=session_data(space.sessions, timezone=space.timezone, with_modal_url='view-popup'),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
+        timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
+        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
         breadcrumbs=[
             (space.url_for(), space.title),
             (space.url_for('schedule'), _("Schedule"))])
@@ -96,6 +97,7 @@ def schedule_edit(space):
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
+        timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
         rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
         breadcrumbs=[
             (space.url_for(), space.title),
@@ -111,7 +113,7 @@ def schedule_edit(space):
 def schedule_update(space, sessions):
     for session in sessions:
         s = Session.query.filter_by(url_id=session['id']).first()
-        s.start = localize_micro_timestamp(session['start'], from_tz=space.timezone)
-        s.end = localize_micro_timestamp(session['end'], from_tz=space.timezone)
+        s.start = dateutil.parser.parse(session['start'])
+        s.end = dateutil.parser.parse(session['end'])
         db.session.commit()
     return jsonify(status=True)

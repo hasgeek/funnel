@@ -424,8 +424,8 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    this.current.obj_data.end = this.current.end.valueOf();
-                    this.current.obj_data.start = this.current.start.valueOf();
+                    this.current.obj_data.end = this.current.end.toISOString();
+                    this.current.obj_data.start = this.current.start.toISOString();
                 }
             },
             height: function(ht) {
@@ -506,6 +506,8 @@ $(function() {
                 unscheduled: null,
                 obj_data: scheduled[i]
             };
+            scheduled[i].start = new Date(scheduled[i].start.valueOf() + scheduled[i].start.getTimezoneOffset() * 60000 + TIMEZONE);
+            scheduled[i].end = new Date(scheduled[i].end.valueOf() + scheduled[i].end.getTimezoneOffset() * 60000 + TIMEZONE);
             events.update_properties(scheduled[i]);
             delete scheduled[i].obj_data.modal_url;
         }
