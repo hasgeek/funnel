@@ -113,7 +113,7 @@ def schedule_edit(space):
 def schedule_update(space, sessions):
     for session in sessions:
         s = Session.query.filter_by(url_id=session['id']).first()
-        s.start = dateutil.parser.parse(session['start'])
-        s.end = dateutil.parser.parse(session['end'])
+        s.start = session['start']
+        s.end = session['end']
         db.session.commit()
     return jsonify(status=True)
