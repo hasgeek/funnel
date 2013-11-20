@@ -12,6 +12,16 @@ from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 
+def space_data(space):
+    return {
+        'name': space.name,
+        'title': space.title,
+        'datelocation': space.datelocation,
+        'timezone': space.timezone,
+        'start': space.date.isoformat() if space.date else None,
+        'end': space.date_upto.isoformat() if space.date_upto else None,
+        'status': space.status,
+        }
 
 @app.route('/new', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
@@ -46,15 +56,7 @@ def space_view_json(space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return jsonp(**{
-        'space': {
-            'name': space.name,
-            'title': space.title,
-            'datelocation': space.datelocation,
-            'timezone': space.timezone,
-            'start': space.date.isoformat() if space.date else None,
-            'end': space.date_upto.isoformat() if space.date_upto else None,
-            'status': space.status,
-            },
+        'space': space_data(space),
         'sections': [{'name': s.name, 'title': s.title, 'description': s.description} for s in sections],
         'venues': [{
             'name': venue.name,
