@@ -35,7 +35,7 @@ def date_js(d):
 def schedule_data(space):
     data = defaultdict(lambda: defaultdict(list))
     for session in space.sessions:
-        day = str(session.start, to_tz=space.timezone).date())
+        day = str(localize_date(session.start, to_tz=space.timezone).date())
         slot = localize_date(session.start, to_tz=space.timezone).strftime('%H:%M')
         data[day][slot].append({
             "id": session.url_id,
