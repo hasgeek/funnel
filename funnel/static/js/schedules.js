@@ -40,6 +40,7 @@ $(function() {
     var settings = function() {
         var settings = {
             editable: EDIT_EVENTS,
+            timezone: TIMEZONE,
             container: $('#settings'),
             color_form: $('#room_colors'),
             onColorChange: function(color) {
@@ -424,8 +425,8 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    this.current.obj_data.end = this.current.end.toISOString();
-                    this.current.obj_data.start = this.current.start.toISOString();
+                    this.current.obj_data.end = events.from_space_timezone(this.current.end).toISOString();
+                    this.current.obj_data.start = events.from_space_timezone(this.current.start).toISOString();
                 }
             },
             height: function(ht) {
@@ -434,6 +435,14 @@ $(function() {
             onClick: function(event, jsEvent, view) {
                 events.current = event;
                 popup.open();
+            },
+            to_space_timezone: function(dt) {
+                dt = new Date(dt.valueOf() + dt.getTimezoneOffset() * 60000 + settings.timezone);
+                return dt;
+            },
+            from_space_timezone: function(dt) {
+                dt = new Date(dt.valueOf() - dt.getTimezoneOffset() * 60000 - settings.timezone);
+                return dt;
             }
         };
 
@@ -506,8 +515,8 @@ $(function() {
                 unscheduled: null,
                 obj_data: scheduled[i]
             };
-            scheduled[i].start = new Date(scheduled[i].start.valueOf() + scheduled[i].start.getTimezoneOffset() * 60000 + TIMEZONE);
-            scheduled[i].end = new Date(scheduled[i].end.valueOf() + scheduled[i].end.getTimezoneOffset() * 60000 + TIMEZONE);
+            scheduled[i].start = events.to_space_timezone(scheduled[i].start);
+            scheduled[i].end = events.to_space_timezone(scheduled[i].end);
             events.update_properties(scheduled[i]);
             delete scheduled[i].obj_data.modal_url;
         }
