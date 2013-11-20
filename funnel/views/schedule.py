@@ -9,6 +9,7 @@ from .. import app, lastuser
 from ..models import db, ProposalSpace, Session
 from datetime import timedelta
 from time import mktime
+from .venue import room_data
 
 
 def session_data(sessions, timezone=None, with_modal_url=False):
@@ -43,7 +44,7 @@ def schedule_data(space):
             "end": session.end.isoformat()+'Z',
             "url": session.proposal.url_for(_external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
-            "room": session.venue_room.scoped_name if session.venue_room else None,
+            "room": room_data(session.venue_room),
             "is_break": session.is_break,
             })
     schedule = []
