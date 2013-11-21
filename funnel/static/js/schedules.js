@@ -321,6 +321,7 @@ $(function() {
             to_date = new Date(to_date);
             calendar.init(scheduled);
             popup.init();
+            if(events.init_open) popup.open(events.init_open);
         };
 
         var init_buttons = function() {
@@ -385,12 +386,13 @@ $(function() {
         var events = {
             current: null,
             autosave: true,
+            init_open: null,
             init_obj: {id: null, start: null, end: null, title: null},
             add_obj_data: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
                     obj_data = $.extend({}, this.init_obj);
-                    obj_data = $.extend(obj_data, this.current.obj_data);                    
+                    obj_data = $.extend(obj_data, this.current.obj_data);
                     this.current.obj_data = obj_data;
                     this.update_time();
                     this.update_properties();
@@ -412,8 +414,8 @@ $(function() {
                     this.current.color = BREAK_EVENTS_COLOR;
                     this.current.textColor = invert(this.current.color);
                 }
-                else if(this.current.obj_data.scoped_name) {
-                    this.current.color = ROOMS[this.current.obj_data.scoped_name].bgcolor;
+                else if(this.current.obj_data.room_scoped_name) {
+                    this.current.color = ROOMS[this.current.obj_data.room_scoped_name].bgcolor;
                     if(this.current.color.charAt(0) != "#") this.current.color = "#" + this.current.color;
                     this.current.textColor = invert(this.current.color);
                 }
@@ -506,6 +508,11 @@ $(function() {
         }
 
         for(i in scheduled) {
+            if(!settings.editable && window.location.hash.replace('#', '') == scheduled[i].url_name) {
+                events.init_open = scheduled[i];
+                window.location.hash = "";
+            }
+            delete scheduled[i].url_name;
             scheduled[i] = {
                 start: new Date(scheduled[i].start),
                 end: new Date(scheduled[i].end),

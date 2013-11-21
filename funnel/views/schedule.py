@@ -21,8 +21,9 @@ def session_data(sessions, timezone=None, with_modal_url=False):
             "title": session.title,
             "start": session.start.isoformat()+'Z',
             "end": session.end.isoformat()+'Z',
-            "scoped_name": session.venue_room.scoped_name if session.venue_room else None,
+            "room_scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
+            "url_name": session.url_name,
         }.items() + {
             "modal_url": session.url_for(with_modal_url)
         }.items() if with_modal_url else {}.items()) for session in sessions]
@@ -44,7 +45,7 @@ def schedule_data(space):
             "title": session.title,
             "start": session.start.isoformat()+'Z',
             "end": session.end.isoformat()+'Z',
-            "url": session.proposal.url_for(_external=True) if session.proposal else None,
+            "url": session.url_for(_external=True),
             "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
             "room": session.venue_room.scoped_name if session.venue_room else None,
@@ -92,7 +93,7 @@ def session_ical(session):
     if session.description_text:
         event.add('description', session.description_text)
     if session.proposal:
-        event.add('url', session.proposal.url_for(_external=True))
+        event.add('url', session.url_for(_external=True))
         if session.proposal.section:
             event.add('categories', [session.proposal.section.title])
     return event

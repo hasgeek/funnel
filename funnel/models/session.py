@@ -30,8 +30,10 @@ class Session(BaseScopedIdNameMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
 
-    def url_for(self, action, _external=False):
-        if action == 'edit':
+    def url_for(self, action='view', _external=False):
+        if action == 'view':
+            return self.proposal_space.url_for('schedule', _external=_external) + u'#' + self.url_name
+        elif action == 'edit':
             return url_for('session_edit', space=self.proposal_space.name, session=self.url_name, _external=_external)
-        if action == 'view-popup':
+        elif action == 'view-popup':
             return url_for('session_view_popup', space=self.proposal_space.name, session=self.url_name, _external=_external)
