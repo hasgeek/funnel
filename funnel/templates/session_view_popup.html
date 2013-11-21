@@ -1,23 +1,44 @@
-{% if session.venue_room %}
-    <h3 class="pull-right" style="margin:0px 2px 2px 2px;">{{ session.venue_room.title }}</h3>
-{% endif %}
-<h3 style="margin:0px 2px 2px 2px;">{{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}</h3>
-{% if session.venue_room %}
-    <h2 class="pull-right" style="margin:0px 2px 2px 2px;">{{ session.venue_room.venue.title }}</h2>
-{% endif %}
-<h1 style="margin:0px 2px 2px 2px;">{{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}</h1>
-{% if session.proposal %}
-    {% if session.proposal.speaker %}
-        <h3 style="margin:0px 5px 2px 2px;">{% trans %}Speaker: {% endtrans %}{{ session.proposal.speaker.fullname }}</h3>
-        <a class="btn btn-primary btn-xs" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
-    {% endif %}
-{% endif %}
-<hr class="clearfix">
-{% if session.description_html %}
-    <h4>{% trans %}Description{% endtrans %}</h4>
-    {{ session.description_html|safe }}
-{% endif %}
-{% if session.speaker_bio_html %}
-    <h4>{% trans %}Speaker Bio{% endtrans %}</h4>
-    {{ session.speaker_bio_html|safe }}
-{% endif %}
+<div class="infosheet">
+    <div class="section first">
+        <div class="row">
+            <button type="button" class="close pull-right" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h1>{{ session.title }}</h1>
+            {% if session.proposal and session.proposal.speaker %}
+                <h4><small>by</small> {{ session.proposal.speaker.fullname }}</h4>
+            {% endif %}
+            <h3>
+                <small>at</small>
+                {{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}
+                <small>on</small>
+                {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
+            </h3>
+            {% if session.proposal and session.proposal.speaker %}
+                <a class="pull-right btn btn-info btn-xs" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
+            {% endif %}
+            {% if session.venue_room %}
+                <h4><small>in</small> {{ session.venue_room.title }} <small>{{ session.venue_room.venue.title }}</small></h4>
+            {% endif %}
+        </div>
+    </div>
+    <div class="section bar">
+        <dl class="bar">
+            {% if session.proposal %}
+                <br class="hide-desktop">
+                {% if session.proposal.section %}
+                    <dt>Section</dt><dd>{{ session.proposal.section.title }}</dd>
+                {% endif %}
+                <dt>Technical Level</dt><dd>{{ session.proposal.technical_level }}
+            {% endif %}
+        </dl>
+    </div>
+    <div class="section">
+        {% if session.description_html %}
+            <h2>{% trans %}Description{% endtrans %}</h2>
+            {{ session.description_html|safe }}
+        {% endif %}
+        {% if session.speaker_bio_html %}
+            <h2>{% trans %}Speaker Bio{% endtrans %}</h2>
+            {{ session.speaker_bio_html|safe }}
+        {% endif %}
+    </div>
+</div>
