@@ -154,6 +154,16 @@ $(function() {
                 type: 'GET',
                 success: function(result) {
                     popup.title().text(events.current.title);
+                    if(settings.editable) {
+                        if(events.current.obj_data.id) popup.title().text("Edit Session");
+                        else popup.title().text("Schedule Session");
+                    }
+                    else {
+                        popup.title().text(
+                            $.fullCalendar.formatDate(events.current.start, "d MMMM, yyyy H:mm")
+                            + " - " + $.fullCalendar.formatDate(events.current.end, "H:mm")
+                            );
+                    }
                     popup.pop();
                     popup.body().html(result);
                 },
