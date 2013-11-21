@@ -55,5 +55,7 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
     def url_for(self, action='new', _external=False):
         if action == 'delete':
             return url_for('venueroom_delete', space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)
+        if action == 'ical-schedule':
+            return url_for('schedule_room_ical', space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)
         elif action == 'edit':
             return url_for('venueroom_edit', space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)

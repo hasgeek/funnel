@@ -2,11 +2,11 @@
 
 from collections import defaultdict
 from flask import render_template, json, jsonify, request, Response
-from coaster.views import load_model, requestargs, jsonp
+from coaster.views import load_model, load_models, requestargs, jsonp
 from baseframe import _
 from .helpers import localize_micro_timestamp, localize_date
 from .. import app, lastuser
-from ..models import db, ProposalSpace, Session
+from ..models import db, ProposalSpace, Session, VenueRoom, Venue
 from time import mktime
 from .venue import venue_data, room_data
 from pytz import timezone, utc
@@ -62,6 +62,34 @@ def schedule_data(space):
     return schedule
 
 
+def session_ical(session):
+    event = Event()
+    event.add('summary', session.title)
+    event.add('uid', "/".join([session.proposal_space.name, session.url_name]) + '@' + request.host)
+    event.add('dtstart', utc.localize(session.start).astimezone(timezone(session.proposal_space.timezone)))
+    event.add('dtend', utc.localize(session.end).astimezone(timezone(session.proposal_space.timezone)))
+    event.add('dtstamp', utc.localize(datetime.now()).astimezone(timezone(session.proposal_space.timezone)))
+    event.add('created', utc.localize(session.created_at).astimezone(timezone(session.proposal_space.timezone)))
+    event.add('last-modified', utc.localize(session.updated_at).astimezone(timezone(session.proposal_space.timezone)))
+    if session.venue_room:
+        location = [session.venue_room.title + " - " + session.venue_room.venue.title]
+        if session.venue_room.venue.city:
+            location.append(session.venue_room.venue.city)
+        if session.venue_room.venue.country:
+            location[len(location) - 1] += ", " + session.venue_room.venue.country
+        else:
+            location.append(session.venue_room.venue.country)
+        event.add('location', "\n".join(location))
+        if session.venue_room.venue.latitude and session.venue_room.venue.longitude:
+            event.add('geo', (session.venue_room.venue.latitude, session.venue_room.venue.longitude))
+    if session.description_text:
+        event.add('description', session.description_text)
+    if session.proposal:
+        event.add('url', session.proposal.url_for(_external=True))
+        if session.proposal.section:
+            event.add('categories', [session.proposal.section.title])
+    return event
+
 @app.route('/<space>/schedule')
 @load_model(ProposalSpace, {'name': 'space'}, 'space',
     permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
@@ -85,44 +113,48 @@ def schedule_json(space):
         rooms=[room_data(room) for room in space.rooms])
 
 @app.route('/<space>/schedule/ical')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
-    permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
+@load_model(ProposalSpace, {'name': 'space'}, 'space',)
 def schedule_ical(space):
     cal = Calendar()
-    cal.add('prodid', "-//HasGeek Funnel for {event}//funnel.hasgeek.com//".format(event=space.title))
+    cal.add('prodid', "-//Schedule for {event}//funnel.hasgeek.com//".format(event=space.title))
     cal.add('version', "2.0")
-    cal.add('summary', "HasGeek Funnel for {event}".format(event=space.title))
+    cal.add('summary', "Schedule for {event}".format(event=space.title))
     # Last updated time for calendar needs to be set. Cannot figure out how.
     # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(proposal_space=space).first()
     # cal.add('last-modified', latest_session[0])
     cal.add('x-wr-calname', "{event}".format(event=space.title))
     for session in space.sessions:
-        event = Event()
-        event.add('summary', session.title)
-        event.add('uid', "/".join([space.name, session.url_name]) + '@' + request.host)
-        event.add('dtstart', utc.localize(session.start).astimezone(timezone(space.timezone)))
-        event.add('dtend', utc.localize(session.end).astimezone(timezone(space.timezone)))
-        event.add('dtstamp', utc.localize(datetime.now()).astimezone(timezone(space.timezone)))
-        event.add('created', utc.localize(session.created_at).astimezone(timezone(space.timezone)))
-        event.add('last-modified', utc.localize(session.updated_at).astimezone(timezone(space.timezone)))
-        if session.venue_room:
-            location = [session.venue_room.title + " - " + session.venue_room.venue.title]
-            if session.venue_room.venue.city:
-                location.append(session.venue_room.venue.city)
-            if session.venue_room.venue.country:
-                location[len(location) - 1] += ", " + session.venue_room.venue.country
-            else:
-                location.append(session.venue_room.venue.country)
-            event.add('location', "\n".join(location))
-            if session.venue_room.venue.latitude and session.venue_room.venue.longitude:
-                event.add('geo', (session.venue_room.venue.latitude, session.venue_room.venue.longitude))
-        if session.description_text:
-            event.add('description', session.description_text)
-        if session.proposal:
-            event.add('url', session.proposal.url_for(_external=True))
-            if session.proposal.section:
-                event.add('categories', [session.proposal.section.title])
-        cal.add_component(event)
+        cal.add_component(session_ical(session))
+    return Response(cal.to_ical(), mimetype='text/calendar')
+
+@app.route('/<space>/schedule/<venue>/<room>/ical')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
+    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),)
+def schedule_room_ical(space, venue, room):
+    cal = Calendar()
+    cal.add('prodid', "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
+        room=room.title,
+        venue=venue.title,
+        event=space.title,
+        ))
+    cal.add('version', "2.0")
+    cal.add('summary', "Schedule for room {room} at {venue} for {event}".format(
+        room=room.title,
+        venue=venue.title,
+        event=space.title,
+        ))
+    # Last updated time for calendar needs to be set. Cannot figure out how.
+    # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(proposal_space=space).first()
+    # cal.add('last-modified', latest_session[0])
+    cal.add('x-wr-calname', "{event} - {room} @ {venue}".format(
+        room=room.title,
+        venue=venue.title,
+        event=space.title,
+        ))
+    for session in room.sessions:
+        cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
 

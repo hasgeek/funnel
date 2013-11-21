@@ -21,7 +21,10 @@
           <div class="venue_desc">{{ venue.description }}</div>
           {%- for room in venue.rooms %}
             <div class="room">
-              <div class="h4 title" data-bgcolor="#{{ room.bgcolor }}">{{ room.title }}</div>
+              <div class="h4 title" data-bgcolor="#{{ room.bgcolor }}">
+                <a href="{{ room.url_for('ical-schedule', _external=True) }}" class="pull-right btn btn-xs btn-link">ICAL</a>
+                {{ room.title }}
+              </div>
               <div class="desc">{{ room.description }}</div>
             </div>
           {%- endfor %}
