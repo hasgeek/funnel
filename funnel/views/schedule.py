@@ -49,6 +49,13 @@ def schedule_data(space):
             "proposal": session.proposal.id if session.proposal else None,
             "room": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
+            "description_text": session.description_text,
+            "description": session.description,
+            "speaker_bio": session.speaker_bio,
+            "speaker_bio_text": session.speaker_bio_text,
+            "section_name": session.proposal.section.name if session.proposal else None,
+            "section_title": session.proposal.section.title if session.proposal else None,
+            "technical_level": session.proposal.technical_level if session.proposal else None,
             })
     schedule = []
     for day in sorted(data):
