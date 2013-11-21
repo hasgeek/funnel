@@ -49,12 +49,7 @@
     position: relative;
 }
 .modal-body {
-    position: absolute;
     z-index: 3000 !important;
-    height: 100%;
-    top:0px;
-    bottom: 0px;
-    overflow-y: auto;
 }
 .modal-body h1, .modal-body h2, .modal-body h3, .modal-body h4, .modal-body h5, .modal-body h6 {
     margin: 4px !important;
@@ -79,6 +74,9 @@
     overflow-x: hidden;
 }
 .editor .modal-body {
+    position: absolute;
+    height: 100%;
+    overflow-y: auto;
     border-bottom: 1px solid #e5e5e5;
     top: 60px;
     bottom: 80px;
