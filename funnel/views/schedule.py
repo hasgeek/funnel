@@ -48,6 +48,7 @@ def schedule_data(space):
             "url": session.url_for(_external=True),
             "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
+            "speaker": session.proposal.speaker.fullname if session.proposal and session.proposal.speaker else None,
             "room": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
             "description_text": session.description_text,
