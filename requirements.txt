@@ -5,6 +5,7 @@ Flask-SQLAlchemy
 Flask-WTF
 pytz
 unicodecsv
+icalendar
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
