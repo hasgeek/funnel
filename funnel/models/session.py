@@ -22,6 +22,7 @@ class Session(BaseScopedIdNameMixin, db.Model):
     proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=True, unique=True)
     proposal = db.relationship(Proposal,
         backref=db.backref('session', uselist=False, cascade='all, delete-orphan'))
+    speaker = db.Column(db.Unicode(200), default=u'', nullable=True)
     start = db.Column(db.DateTime, nullable=False)
     end = db.Column(db.DateTime, nullable=False)
     venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=True)
