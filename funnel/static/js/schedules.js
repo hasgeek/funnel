@@ -269,7 +269,7 @@ $(function() {
                 rooms_list.each(function() {
                     var bgcol = $(this).attr('data-bgcolor')
                     $(this).css({'background': bgcol, 'color': invert(bgcol)});
-                    $(this).find('a').css({'background': invert(bgcol), 'color': bgcol});
+                    $(this).find('a').css({'background': invert(bgcol), 'color': invert(invert(bgcol))});
                 });
             },
             temp: {}

@@ -22,7 +22,7 @@
           {%- for room in venue.rooms %}
             <div class="room">
               <h4 class="title" data-bgcolor="#{{ room.bgcolor }}">
-                <a href="{{ room.url_for('ical-schedule', _external=True) }}" class="pull-right small">Subscribe</a>
+                <a href="{{ room.url_for('ical-schedule', _external=True) }}" class="pull-right small">{% trans %}Subscribe{% endtrans %}</a>
                 {{ room.title }}
               </h4>
               <div class="desc">{{ room.description }}</div>
