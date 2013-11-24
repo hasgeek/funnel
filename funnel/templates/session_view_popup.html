@@ -3,8 +3,8 @@
         <div class="row">
             <button type="button" class="close pull-right" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h1>{{ session.title }}</h1>
-            {% if session.speaker %}
-                <h4><small>by</small> {{ session.speaker }}</h4>
+            {% if session.proposal and session.proposal.speaker %}
+                <h4><small>by</small> {{ session.proposal.speaker.fullname }}</h4>
             {% endif %}
             <h3>
                 <small>at</small>
@@ -12,7 +12,7 @@
                 <small>on</small>
                 {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
             </h3>
-            {% if session.proposal %}
+            {% if session.proposal and session.proposal.speaker %}
                 <a class="pull-right btn btn-info btn-xs" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
             {% endif %}
             {% if session.venue_room %}
