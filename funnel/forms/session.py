@@ -8,7 +8,7 @@ class SessionForm(Form):
     title = wtforms.TextField(__("Title"), validators=[wtforms.validators.Required()])
     venue_room_id = wtforms.SelectField(__("Room"), choices=[], coerce=int, validators=[wtforms.validators.Optional()])
     description = MarkdownField(__("Description"), validators=[wtforms.validators.Optional()])
-    speaker = MarkdownField(__("Speaker"), validators=[wtforms.validators.Optional()], description= __("This field will convert multiple lines input to a single line."))
+    speaker = TextField(__("Speaker"), validators=[wtforms.validators.Optional()])
     speaker_bio = MarkdownField(__("Speaker bio"), validators=[wtforms.validators.Optional()])
     is_break = wtforms.BooleanField(__("This session is a break period"), default=False)
     start = wtforms.HiddenField(__("Start Time"), validators=[wtforms.validators.Required()])
