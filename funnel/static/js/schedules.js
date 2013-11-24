@@ -267,8 +267,10 @@ $(function() {
                 $('#rooms-list').height(this.container.find('.fc-content').height());
                 var rooms_list = $('#rooms-list').find('.room .title');
                 rooms_list.each(function() {
-                    $(this).css({'background': $(this).attr('data-bgcolor'), 'color': invert($(this).attr('data-bgcolor'))});
-                })
+                    var bgcol = $(this).attr('data-bgcolor')
+                    $(this).css({'background': bgcol, 'color': invert(bgcol)});
+                    $(this).find('a').css({'background': invert(bgcol), 'color': bgcol});
+                });
             },
             temp: {}
         };
