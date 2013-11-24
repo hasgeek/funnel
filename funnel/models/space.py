@@ -109,4 +109,4 @@ class ProposalSpace(BaseNameMixin, db.Model):
         elif action == 'json-schedule':
             return url_for('schedule_json', space=self.name, _external=_external)
         elif action == 'ical-schedule':
-            return url_for('schedule_ical', space=self.name, _external=_external)
+            return url_for('schedule_ical', space=self.name, _external=_external).replace('http', 'webcal').replace('https', 'webcal')
