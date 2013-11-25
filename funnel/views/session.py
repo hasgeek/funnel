@@ -13,7 +13,7 @@ from ..forms import SessionForm
 
 
 def rooms_list(space):
-    return [(0, _("Select Room"))] + [
+    return [(u"", _("Select Room"))] + [
         (room.id, "{venue} - {room}".format(venue=room.venue.title, room=room.title)) for room in space.rooms]
 
 
@@ -39,8 +39,6 @@ def session_form(space, proposal=None, session=None):
         if proposal:
             session.proposal = proposal
         form.populate_obj(session)
-        if session.venue_room_id == 0:
-            session.venue_room_id = None
         if new:
             session.parent = space
             session.make_id()  # FIXME: This should not be required
