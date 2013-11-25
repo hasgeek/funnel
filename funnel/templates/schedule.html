@@ -10,7 +10,7 @@
 {% block content %}
   <div class="row">
     <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
-      <a href="{{ space.url_for('ical-schedule', _external=True) }}" class="pull-right btn btn-xs btn-primary">Subscribe to Calendar</a>
+      <a href="{{ space.url_for('ical-schedule', _external=True) }}" class="pull-right btn btn-xs btn-primary">Subscribe</a>
       <div id="calendar"></div>
     </div>
     <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
@@ -21,10 +21,10 @@
           <div class="venue_desc">{{ venue.description }}</div>
           {%- for room in venue.rooms %}
             <div class="room">
-              <div class="h4 title" data-bgcolor="#{{ room.bgcolor }}">
-                <a href="{{ room.url_for('ical-schedule', _external=True) }}" class="pull-right btn btn-xs btn-link">ICAL</a>
+              <h4 class="title" data-bgcolor="#{{ room.bgcolor }}">
+                <a href="{{ room.url_for('ical-schedule', _external=True) }}" class="pull-right small">{% trans %}Subscribe{% endtrans %}</a>
                 {{ room.title }}
-              </div>
+              </h4>
               <div class="desc">{{ room.description }}</div>
             </div>
           {%- endfor %}

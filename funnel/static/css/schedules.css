@@ -23,6 +23,18 @@
     font-weight: 200;
     padding: 2px 5px;
 }
+#rooms-list .room .title a {
+    margin-top: 3px;
+    margin-left: 5px;
+    padding: 1px 5px 3px;
+    opacity: 0.9;
+    font-size: 0.6em;
+    border-radius: 3px;
+}
+#rooms-list .room .title a:hover {
+    text-decoration: none;
+    opacity: 1;
+}
 #rooms-list .room .desc {
     padding: 1px 10px;
     color: #777;
