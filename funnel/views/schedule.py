@@ -10,7 +10,8 @@ from ..models import db, ProposalSpace, Session, VenueRoom, Venue
 from time import mktime
 from .venue import venue_data, room_data
 from pytz import timezone, utc
-from datetime import datetime
+from datetime import datetime, timedelta
+from icalendar import Calendar, Event, Alarm
 from icalendar import Calendar, Event
 from sqlalchemy import func
 
@@ -97,6 +98,15 @@ def session_ical(session):
         event.add('url', session.url_for(_external=True))
         if session.proposal.section:
             event.add('categories', [session.proposal.section.title])
+    alarm = Alarm()
+    alarm.add('trigger', timedelta(minutes=-10))
+    alarm.add('action', 'display')
+    desc = session.title
+    if session.venue_room:
+        desc += " in " + session.venue_room.title
+    desc += " in 10 minutes"
+    alarm.add('description', desc)
+    event.add_component(alarm)
     return event
 
 @app.route('/<space>/schedule')
