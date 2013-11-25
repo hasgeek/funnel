@@ -25,7 +25,7 @@ class Session(BaseScopedIdNameMixin, db.Model):
     speaker = db.Column(db.Unicode(200), default=u'', nullable=True)
     start = db.Column(db.DateTime, nullable=False)
     end = db.Column(db.DateTime, nullable=False)
-    venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=False)
+    venue_room_id = db.Column(db.Integer, db.ForeignKey('venue_room.id'), nullable=True)
     venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)
 
