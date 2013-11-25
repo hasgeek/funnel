@@ -93,8 +93,7 @@ $(function() {
             title: function() {return this.container.find('.modal-title')},
             body: function() {return this.container.find('.modal-body')},
             options: {
-                backdrop: 'static',
-                keyboard: false
+                backdrop: 'static'
             },
             pop: function() {this.container.modal(this.options);},
             hide: function() {this.container.modal('hide');},
