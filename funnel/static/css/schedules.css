@@ -42,7 +42,7 @@
 .fc-event {
     cursor: pointer;
 }
-#popup {
+#popup, #popup_subscribe {
     height: 100%;
 }
 .modal-dialog {
