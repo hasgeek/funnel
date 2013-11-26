@@ -35,5 +35,7 @@ class Session(BaseScopedIdNameMixin, db.Model):
             return self.proposal_space.url_for('schedule', _external=_external) + u'#' + self.url_name
         elif action == 'edit':
             return url_for('session_edit', space=self.proposal_space.name, session=self.url_name, _external=_external)
+        elif action == 'feedback':
+            return url_for('session_feedback', space=self.proposal_space.name, proposal=self.proposal.url_name, _external=_external)
         elif action == 'view-popup':
             return url_for('session_view_popup', space=self.proposal_space.name, session=self.url_name, _external=_external)
