@@ -14,7 +14,6 @@ from datetime import datetime, timedelta
 from icalendar import Calendar, Event, Alarm
 from icalendar import Calendar, Event
 from sqlalchemy import func
-from httpagentparser import detect
 
 
 def session_data(sessions, timezone=None, with_modal_url=False):
@@ -100,12 +99,12 @@ def session_ical(session):
         if session.proposal.section:
             event.add('categories', [session.proposal.section.title])
     alarm = Alarm()
-    alarm.add('trigger', timedelta(minutes=-10))
+    alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')
     desc = session.title
     if session.venue_room:
         desc += " in " + session.venue_room.title
-    desc += " in 10 minutes"
+    desc += " in 5 minutes"
     alarm.add('description', desc)
     event.add_component(alarm)
     return event
@@ -113,8 +112,7 @@ def session_ical(session):
 @app.route('/<space>/schedule')
 @load_model(ProposalSpace, {'name': 'space'}, 'space',)
 def schedule_view(space):
-    user_agent = detect(request.environ['HTTP_USER_AGENT'])
-    return render_template('schedule.html', space=space, venues=space.venues, user_agent=user_agent,
+    return render_template('schedule.html', space=space, venues=space.venues,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         sessions=session_data(space.sessions, timezone=space.timezone, with_modal_url='view-popup'),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
@@ -127,9 +125,8 @@ def schedule_view(space):
 @app.route('/<space>/schedule/subscribe')
 @load_model(ProposalSpace, {'name': 'space'}, 'space',)
 def schedule_subscribe(space):
-    user_agent = detect(request.environ['HTTP_USER_AGENT'])
-    return render_template('schedule_subscribe.html', space=space, venues=space.venues,
-        user_agent=user_agent, rooms=space.rooms)
+    return render_template('schedule_subscribe.html',
+        space=space, venues=space.venues, rooms=space.rooms)
 
 
 @app.route('/<space>/schedule/json')

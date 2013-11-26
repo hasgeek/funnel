@@ -5,14 +5,29 @@
                 <div class="section first">
                     <div class="row">
                         <button type="button" class="close pull-right" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h1>Subscribe to the {{ space.title }} schedule</h1>
+                        <h1>{% trans %}Subscribe to the {% endtrans %}{{ space.title }}{% trans %} schedule{% endtrans %}</h1>
                     </div>
                 </div>
                 <div class="section bar">
                     <dl class="bar"></dl>
                 </div>
                 <div class="section">
-                    Subscribe
+                    <h2>{% trans %}Complete Schedule{% endtrans %}</h2>
+                    <p>
+                        <a href="{{ space.url_for('ical-schedule', _external=True) }}" class="btn btn-xs btn-info">{% trans %}Subscribe{% endtrans %}</a>
+                        <a href="https://www.google.com/calendar/render?cid={{ space.url_for('ical-schedule', _external=True)|urlencode }}" target="_blank" class="btn btn-xs btn-info">{% trans %}Subscribe using Google Calendar{% endtrans %}</a>
+                    </p>
+                    <h2>{% trans %}Room Schedules{% endtrans %}</h2>
+                    {% for venue in space.venues %}
+                        <h3>{{ venue.title }}</h3>
+                        {% for room in venue.rooms %}
+                            <h6>{{ room.title }}</h6>
+                            <p>
+                                <a href="{{ room.url_for('ical-schedule', _external=True) }}" class="btn btn-xs btn-info">{% trans %}Subscribe{% endtrans %}</a>
+                                <a href="https://www.google.com/calendar/render?cid={{ room.url_for('ical-schedule', _external=True)|urlencode }}" target="_blank" class="btn btn-xs btn-info">{% trans %}Subscribe using Google Calendar{% endtrans %}</a>
+                            </p>
+                        {% endfor %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
