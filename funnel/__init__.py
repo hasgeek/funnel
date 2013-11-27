@@ -27,6 +27,7 @@ assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.css'][version] = 'css/schedules.css'
 assets['schedules.js'][version] = 'js/schedules.js'
+assets['screens.css'][version] = 'css/screens.css'
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -56,3 +57,6 @@ def init_for(env):
     app.assets.register('js_schedules',
         Bundle(assets.require('schedules.js'),
             output='js/schedules.packed.js', filters='closure_js'))
+    app.assets.register('css_screens',
+        Bundle(assets.require('screens.css'),
+            output='css/screens.packed.css', filters='cssmin'))

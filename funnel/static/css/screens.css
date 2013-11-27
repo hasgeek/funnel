@@ -1,0 +1,128 @@
+html {overflow: hidden}
+body{-webkit-user-select: none;moz-user-select: none;-ms-user-select: none;user-select: none;}
+.container {width: auto;padding: 0px;}
+#footerlogo {position: absolute;top: 10px; bottom: 10px; right: 5px;width: 300px;text-align: right;}
+#footerlogo img {max-height: 100%;}
+#root {min-height: 0;}
+footer {position: absolute;bottom:0px;width: 100%;}
+footer .footer-inner {background: inherit}
+
+body.room_updates {background: #000000; color: #FFF;}
+
+#room_updates {position: absolute;top: 1%;left: 0%;bottom: 0%;right: 0%}
+
+#room_updates #room {
+	position: absolute;
+	left: 10%;top: 0%;right:10%;
+	text-align: center;
+	padding: 0 2% 0 0;
+	font-size: 4.5em;
+	font-weight: 600;
+	border-bottom: 12px solid;
+}
+
+/*Common styles for all details on room updates page*/
+#room_updates .details {
+	position: absolute;
+	top: 22%;bottom: 15%;left: 5%;right: 5%;
+	text-align: center;
+	font-size: 4em;
+}
+
+#room_updates .details .nextlabel:after {
+	content: ':';
+}
+
+#room_updates .details .nextlabel, #room_updates .details .nextlabel+.time {
+	display: inline-block;
+}
+
+#room_updates .details .nextlabel, #room_updates .details .time {
+	color: #AAA;
+}
+
+#room_updates .details .title {
+	font-size: 1.4em;
+	line-height: 1.2em;
+	margin-top: 1%;
+	margin-bottom: 1%;
+	color: #EEE;
+	text-transform: uppercase;
+}
+
+#room_updates .details .speaker {
+	font-size: 1.4em;
+	color: #666;
+}
+
+/*Styles for next details on room updates page, if there is no current session*/
+#room_updates #next.details .nextlabel, #room_updates #next.details .time {
+	color: #EEE;
+	text-transform: uppercase;
+	font-size: 1.4em;
+}
+
+#room_updates #next.details .title {
+	text-transform: none;
+	color: #AAA;
+	font-size: 1.1em;
+}
+
+#room_updates #next.details .speaker {
+	font-size: 0.9em;
+}
+
+/*Styles for next details on room updates page, when there is a current section*/
+#room_updates #current+#next.details {
+	bottom: 0%; top: 86%;left: 0;right: 0;
+	background: #222;
+	color: #AAA;
+	font-size: 1.5em;
+	text-align: left;	
+}
+
+#room_updates #current+#next.details * {
+	color: inherit;
+}
+
+#room_updates #current+#next.details .nextlabel {
+	position: absolute;
+	left: 0;
+	width: 20%;
+	height: 100%;
+	background: #444;
+	color: #222;
+	font-size: 3.5em;
+	font-weight: 600;
+	text-align: center;
+}
+
+#room_updates #current+#next.details .nextlabel:after {
+	content: '';
+}
+
+#room_updates #current+#next.details .time {
+	margin-right: 1%;
+}
+
+#room_updates #current+#next.details .title {
+	color: #EEE;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+#room_updates #current+#next.details .timetitle, #room_updates #current+#next.details .speaker {
+	margin-left: 20%;
+	margin-right: 2%;
+	padding-left: 1%;
+}
+
+#room_updates #current+#next.details .timetitle {
+	margin-top: 1%;
+}
+
+#room_updates #current+#next.details .time, #room_updates #current+#next.details .time+.title {
+	display: inline;
+	font-size: 1.4em;
+	line-height: 1em;
+}
