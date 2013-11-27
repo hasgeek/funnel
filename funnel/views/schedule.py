@@ -13,7 +13,7 @@ from pytz import timezone, utc
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event, Alarm
 from icalendar import Calendar, Event
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 
 
 def session_data(sessions, timezone=None, with_modal_url=False):
@@ -183,6 +183,34 @@ def schedule_room_ical(space, venue, room):
         cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
+@app.route('/<space>/schedule/<venue>/<room>/updates')
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
+    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),)
+def schedule_room_updates(space, venue, room):
+    now = datetime.utcnow()
+    current = Session.query.filter(
+        Session.start <= now, Session.end >= now,
+        Session.proposal_space == space,
+        or_(Session.venue_room == room, Session.is_break == True)
+        ).first()
+    next = Session.query.filter(
+        Session.start > now,
+        or_(Session.venue_room == room, Session.is_break == True),
+        Session.proposal_space == space
+        ).order_by(Session.start).first()
+    if current:
+        current.start = localize_date(current.start, to_tz=space.timezone)
+        current.end = localize_date(current.end, to_tz=space.timezone)
+    nextdiff = None
+    if next:
+        next.start = localize_date(next.start, to_tz=space.timezone)
+        next.end = localize_date(next.end, to_tz=space.timezone)
+        nextdiff = next.start.date() - now.date()
+        nextdiff = nextdiff.total_seconds()/86400
+    print current, next
+    return render_template('room_updates.html', room=room, current=current, next=next, nextdiff=nextdiff)
 
 @app.route('/<space>/schedule/edit')
 @lastuser.requires_login

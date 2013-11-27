@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block headerbox %}{% endblock %}
+
+{% block pageheaders %}
+	{% assets 'css_screens' -%}
+	    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+	{%- endassets %}
+{% endblock %}
+
+{% block basecontent %}{% endblock %}
+
+{% block footer %}
+    {% block footer_logo %}
+    <div id="footerlogo">
+        {%- block footer_logo_image %}
+        <img src="{{ url_for('baseframe.static', filename='img/logo@2x.png') }}">
+        {%- endblock %}
+    </div>
+    {% endblock %}
+{% endblock %}
