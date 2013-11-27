@@ -11,6 +11,8 @@ body.room_updates {background: #000000; color: #FFF;}
 
 #room_updates {position: absolute;top: 1%;left: 0%;bottom: 0%;right: 0%}
 
+#room_updates #current-title {display: none;}
+
 #room_updates #room {
 	position: absolute;
 	left: 10%;top: 0%;right:10%;

@@ -1,6 +1,10 @@
 {% extends "screens_layout.html" %}
 {% block bodytag %}<body class="room_updates">{% endblock %}
 
+{% block screens_pageheaders %}
+<meta http-equiv="refresh" content="60">
+{% endblock %}
+
 {% block basecontent %}
 <div id="room_updates">
 	<div id="room"
@@ -9,6 +13,7 @@
 		{{ room.title }}
 	</div>
 	{% if current %}
+		<div id="current-title">{{ current.title }} —{{ current.speaker }}</div>
 		<div id="current" class="details">
 			<div class="time">{{ current.start.strftime('%I:%M %p') }} - {{ current.end.strftime('%I:%M %p') }}</div>
 			<div class="title">{{ current.title }}</div>
@@ -16,7 +21,6 @@
 				<div class="speaker">{{ current.speaker }}</div>
 			{% endif %}
 		</div>
-		<div id="current-title">{{ current.title }} —{{ current.speaker }}</div>
 	{% else %}
 		<div id="current-title"></div>
 	{% endif %}

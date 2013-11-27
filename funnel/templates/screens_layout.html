@@ -5,6 +5,8 @@
 	{% assets 'css_screens' -%}
 	    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
 	{%- endassets %}
+    {% block screens_pageheaders %}
+    {% endblock %}
 {% endblock %}
 
 {% block basecontent %}{% endblock %}
