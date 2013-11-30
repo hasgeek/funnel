@@ -336,7 +336,7 @@ def session_feedback(space, proposal, id_type, userid, content, presentation, mi
         abort(400)
     if not min_scale <= presentation <= max_scale:
         abort(400)
-    if id_type != 'email':
+    if id_type not in ('email', 'deviceid'):
         abort(400)
 
     # Was feedback already submitted?
