@@ -100,3 +100,27 @@
     bottom: 0px;
     border-top: transparent;
 }
+
+.fc-event .fc-event-custom {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    z-index: 40;
+    display: none;
+}
+.fc-event:hover .fc-event-custom {
+    display: block;
+    padding: 1px 5px;
+    background: #FFF;
+    background: rgba(255,255,255,0.6);
+    border-top-left-radius: 3px;
+}
+.fc-event .fc-event-custom a{
+    font-weight: bolder;
+    color: #c33;
+    font-size: 1.2em;
+}
+.fc-event .fc-event-custom a:hover{
+    color: #c00;
+    text-decoration: none;
+}
