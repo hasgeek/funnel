@@ -52,4 +52,4 @@ class ProposalForm(Form):
         description=__("A phone number we can call you at to discuss your proposal, if required. "
             "Will not be displayed"))
     location = wtforms.TextField(__("Your location"), validators=[wtforms.validators.Required(), wtforms.validators.Length(max=80)],
-        description=__("Your location, to help plan for travel arrangement"))
+        description=__("Your location, to help plan for your travel if required"))
