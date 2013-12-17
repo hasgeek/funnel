@@ -97,9 +97,6 @@ def session_edit(space, session):
     permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
 def session_delete(space, session):
     modal_url = session.proposal.url_for('schedule') if session.proposal else None
-    try:
-        db.session.delete(session)
-        db.session.commit()
-        return jsonify(status=True, modal_url=modal_url)
-    except:
-        return jsonify(status=False)
+    db.session.delete(session)
+    db.session.commit()
+    return jsonify(status=True, modal_url=modal_url)
