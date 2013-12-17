@@ -16,7 +16,7 @@ from icalendar import Calendar, Event
 from sqlalchemy import func, or_, and_
 
 
-def session_data(sessions, timezone=None, with_modal_url=False):
+def session_data(sessions, timezone=None, with_modal_url=False, with_delete_url=False):
     return [dict({
             "id": session.url_id,
             "title": session.title,
@@ -25,9 +25,12 @@ def session_data(sessions, timezone=None, with_modal_url=False):
             "room_scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
             "url_name": session.url_name,
-        }.items() + {
+            "proposal_id": session.proposal_id,
+        }.items() + dict({
             "modal_url": session.url_for(with_modal_url)
-        }.items() if with_modal_url else {}.items()) for session in sessions]
+        } if with_modal_url else {}).items() + dict({
+            "delete_url": session.url_for('delete')
+        } if with_delete_url else {}).items()) for session in sessions]
 
 
 def date_js(d):
@@ -222,7 +225,7 @@ def schedule_edit(space):
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
             } for proposal in space.proposals if proposal.confirmed and not proposal.session],
-        'scheduled': session_data(space.sessions, timezone=space.timezone, with_modal_url='edit')
+        'scheduled': session_data(space.sessions, timezone=space.timezone, with_modal_url='edit', with_delete_url=True)
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),

@@ -47,7 +47,8 @@ def session_form(space, proposal=None, session=None):
         db.session.commit()
         data = dict(
             id=session.url_id, title=session.title, room_scoped_name=session.venue_room.scoped_name if session.venue_room else None,
-            is_break=session.is_break, modal_url=session.url_for('edit'))
+            is_break=session.is_break, modal_url=session.url_for('edit'), delete_url=session.url_for('delete'),
+            proposal_id=session.proposal_id)
         return jsonify(status=True, data=data)
     return jsonify(
         status=False,
@@ -87,3 +88,15 @@ def session_view_popup(space, session):
     permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
 def session_edit(space, session):
     return session_form(space, session=session)
+
+@app.route('/<space>/<session>/deletesession', methods=['POST'])
+@lastuser.requires_login
+@load_models(
+    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Session, {'url_name': 'session'}, 'session'),
+    permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
+def session_delete(space, session):
+    modal_url = session.proposal.url_for('schedule') if session.proposal else None
+    db.session.delete(session)
+    db.session.commit()
+    return jsonify(status=True, modal_url=modal_url)
