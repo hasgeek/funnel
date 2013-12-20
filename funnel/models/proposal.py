@@ -110,7 +110,7 @@ class Proposal(BaseIdNameMixin, db.Model):
             return url_for('proposal_voteup', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'votedown':
             return url_for('proposal_votedown', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
-        elif action == 'cancelvote':
+        elif action == 'votecancel':
             return url_for('proposal_cancelvote', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'next':
             return url_for('proposal_next', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
