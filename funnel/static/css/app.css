@@ -1,12 +1,29 @@
+body {
+  background-image: url('../img/satinweave.png?1357570024');
+}
+
+@media all and (-webkit-min-device-pixel-ratio: 1.5) {
+  body {
+    background-image: url('../img/satinweave@2x.png?1357570024');
+    background-size: 24px 12px;
+  }
+}
+footer .footer-inner {
+  background: inherit;
+}
+
+.infosheet, .table {
+  background: white;
+}
+
 #logo {
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
-  background-image: url('../img/logo.png?1377716335');
+  background-image: url('../img/logo.png?1388525392');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 110px;
-  height: 75px;
   height: 75px;
 }
 
@@ -16,7 +33,7 @@
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
-  background-image: url('../img/logo.png?1377716335');
+  background-image: url('../img/logo.png?1388525392');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 110px;

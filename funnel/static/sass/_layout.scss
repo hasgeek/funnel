@@ -4,9 +4,27 @@
 //     font-family: $font-default;
 // }
 
+body {
+    background-image: image-url('satinweave.png');
+}
+
+@media all and (-webkit-min-device-pixel-ratio: 1.5) {
+    body {
+        background-image: image-url('satinweave@2x.png');
+        background-size: image-width('satinweave.png') image-height('satinweave.png');
+    }
+}
+
+footer .footer-inner {
+    background: inherit;
+}
+
+.infosheet, .table {
+    background: white;
+}
+
 #logo {
     @include replace-text-with-dimensions('logo.png');
-    height: 75px;
 }
 
 #hg-networkbar.navbar .navbar-brand{

@@ -58,15 +58,19 @@
 {%- endmacro %}
 
 {% block content %}
+{#
   <ul class="nav nav-tabs">
     <li class="active"><a href="#info" data-toggle="tab">{% trans %}Info{% endtrans %}</a></li>
     <li><a href="#proposals" data-toggle="tab">{% trans %}Proposals{% endtrans %}</a></li>
-{#-    {%- if sections %}{% for section in sections %}
+{ #-    {%- if sections %}{% for section in sections %}
       <li><a href="#section-{{ section.name }}" data-toggle="tab">{{ section.title }}</a></li>
-    {% endfor %}{% endif %} #}
+    {% endfor %}{% endif %} # }
   </ul>
+#}
+{#
   <div class="tab-content section">
     <div class="tab-pane active" id="info">
+#}
       <p>
         {{ space.datelocation }}
       </p>
@@ -95,9 +99,11 @@
         <a class="btn btn-primary" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
       </p>
       {% endif %}
+{#
     </div>
 
     <div class="tab-pane" id="proposals">
+#}
       {%- if confirmed %}
         <h3>{% trans %}Confirmed sessions{% endtrans %}</h3>
         {{ proposal_table(confirmed) }}
@@ -107,5 +113,7 @@
         {{ proposal_table(unconfirmed) }}
       {%- endif %}
     </div>
+{#
   </div>
+#}
 {% endblock %}
