@@ -142,7 +142,7 @@ class Comment(BaseMixin, db.Model):
 
     def url_for(self, action='view', proposal=None, _external=False):
         if action == 'view':
-            return proposal.url_for() + "#c%d" % self.id
+            return proposal.url_for(_external=_external) + "#c%d" % self.id
         elif action == 'json':
             return url_for('comment_json', space=proposal.proposal_space.name, proposal=proposal.url_name,
                 comment=self.id, _external=_external)
