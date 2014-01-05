@@ -3,6 +3,11 @@
 
 {% block networkbar %}{{ responsive_networkbar(siteid=config['SITE_ID'], login=config['LASTUSER_CLIENT_ID'] and true or false) }}{% endblock %}
 
+{%- block image_src %}
+  <link rel="image_src" href="{{ url_for('static', filename='img/logo@2x.png') }}" />
+  <meta property="og:image" content="{{ url_for('static', filename='img/logo@2x.png') }}" />
+{%- endblock %}
+
 {% block baseheadline -%}
   {%- if breadcrumbs %}
     <ul class="breadcrumbs">
