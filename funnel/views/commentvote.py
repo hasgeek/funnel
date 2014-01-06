@@ -58,7 +58,7 @@ def proposal_cancelvote(space, proposal):
     permission='view', addlperms=lastuser.permissions)
 def comment_json(space, proposal, comment):
     if comment:
-        return jsonp(message=comment.message)
+        return jsonp(message=comment.message.text)
     else:
         return jsonp(message='')
 
