@@ -26,7 +26,7 @@
         {% if comment.is_deleted -%}
           <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
         {%- else -%}
-          <span class="commenter {%- if comment.user == document.user %} selected{% endif %}">{{ comment.user.fullname }}</span>
+          <span class="commenter {%- if comment.user == document.user %} selected{% endif %}">{{ comment.user.pickername }}</span>
           {{ comment.created_at|age }}
           {%- if comment.edited_at %}
             ({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})
