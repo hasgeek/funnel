@@ -482,8 +482,13 @@ dl.bar {
     div:target {
         margin: -0.25em;
         padding: 0.25em;
-        background-color: $color-flash; //$color-listing-hover;
         @include border-radius(3px);
+
+        -webkit-animation: yellowhi 4s 1;
+           -moz-animation: yellowhi 4s 1;
+            -ms-animation: yellowhi 4s 1;
+             -o-animation: yellowhi 4s 1;
+                animation: yellowhi 4s 1;
     }
     .collapse, .uncollapse {
         font-family: $font-monospace;
@@ -608,4 +613,64 @@ div.markdown-field a.button {
 /* Spam protection */
 .z {
     display: none;
+}
+
+@-webkit-keyframes yellowhi {
+    0% {
+        background-color: $color-flash;
+    }
+    25% {
+        background-color: $color-flash;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+@-moz-keyframes yellowhi {
+    0% {
+        background-color: $color-flash;
+    }
+    25% {
+        background-color: $color-flash;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+@-ms-keyframes yellowhi {
+    0% {
+        background-color: $color-flash;
+    }
+    25% {
+        background-color: $color-flash;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+@-o-keyframes yellowhi {
+    0% {
+        background-color: $color-flash;
+    }
+    25% {
+        background-color: $color-flash;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+@keyframes yellowhi {
+    0% {
+        background-color: $color-flash;
+    }
+    25% {
+        background-color: $color-flash;
+    }
+    100% {
+        background-color: transparent;
+    }
 }

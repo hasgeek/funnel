@@ -528,12 +528,16 @@ dl.bar dd:last-child {
 .comments div:target {
   margin: -0.25em;
   padding: 0.25em;
-  background-color: #ffffa2;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   -ms-border-radius: 3px;
   -o-border-radius: 3px;
   border-radius: 3px;
+  -webkit-animation: yellowhi 4s 1;
+  -moz-animation: yellowhi 4s 1;
+  -ms-animation: yellowhi 4s 1;
+  -o-animation: yellowhi 4s 1;
+  animation: yellowhi 4s 1;
 }
 .comments .collapse, .comments .uncollapse {
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
@@ -656,4 +660,74 @@ div.markdown-field a.button.selected {
 /* Spam protection */
 .z {
   display: none;
+}
+
+@-webkit-keyframes yellowhi {
+  0% {
+    background-color: #ffffa2;
+  }
+
+  25% {
+    background-color: #ffffa2;
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+@-moz-keyframes yellowhi {
+  0% {
+    background-color: #ffffa2;
+  }
+
+  25% {
+    background-color: #ffffa2;
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+@-ms-keyframes yellowhi {
+  0% {
+    background-color: #ffffa2;
+  }
+
+  25% {
+    background-color: #ffffa2;
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+@-o-keyframes yellowhi {
+  0% {
+    background-color: #ffffa2;
+  }
+
+  25% {
+    background-color: #ffffa2;
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes yellowhi {
+  0% {
+    background-color: #ffffa2;
+  }
+
+  25% {
+    background-color: #ffffa2;
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
