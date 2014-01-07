@@ -61,7 +61,7 @@ def usergroup_edit(space, kwargs):
         for userdata in usersdata or []:
             user = User.query.filter_by(userid=userdata['userid']).first()
             if user is None:
-                user = User(userid=userdata['userid'], username=userdata['name'], fullname=userdata['title'])
+                user = User(userid=userdata['userid'], fullname=userdata['title'])
                 db.session.add(user)
             users.append(user)
         usergroup.users = users
