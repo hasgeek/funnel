@@ -43,12 +43,12 @@
     <p class="col-md-12">
       {% trans %}by{% endtrans%}
       {%- if proposal.speaker %}
-        <strong>{{ proposal.speaker.fullname }}</strong>
+        <strong>{{ proposal.speaker.pickername }}</strong>
         {%- if proposal.speaker != proposal.user %}
-          ({% trans %}via{% endtrans %} {{ proposal.user.fullname }})
+          {% trans %}via{% endtrans %} {{ proposal.user.pickername }}
         {%- endif %}
       {%- else %}
-        <strong>{{ proposal.user.fullname }}</strong>
+        <strong>{{ proposal.user.pickername }}</strong>
         ({% trans %}proposing{% endtrans %})
       {%- endif %}
       {% trans %}on{% endtrans %} {{ proposal.datetime.strftime("%A, %B %e, %Y") }}

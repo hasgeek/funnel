@@ -12,7 +12,7 @@
           <th>{% trans %}Type{% endtrans %}</th>
           <th>{% trans %}Level{% endtrans %}</th>
           <th class="num">{% trans %}+1{% endtrans %}</th>
-          <th class="num">{% trans %}Comments{% endtrans %}</th>
+          <th class="num"><i class="icon-comment"></i></th>
           <th>{% trans %}Submitted{% endtrans %}</th>
         </tr>
       </thead>
@@ -27,12 +27,12 @@
             <td></td>
             <td><a href="{{ link }}">
               {%- if proposal.speaker -%}
-                {{ proposal.speaker.fullname }}
+                {{ proposal.speaker.pickername }}
                 {%- if proposal.user != proposal.speaker %}
-                  <small>(via {{ proposal.user.fullname }})</small>
+                  <small>via {{ proposal.user.pickername }}</small>
                 {%- endif %}
               {%- else -%}
-                {{ proposal.user.fullname }} <em>{% trans %}(proposing){% endtrans %}</em>
+                {{ proposal.user.pickername }} <em>{% trans %}(proposing){% endtrans %}</em>
               {%- endif -%}
             </a></td>
             <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>

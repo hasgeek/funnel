@@ -4,7 +4,7 @@
   <h2>{% trans %}Users{% endtrans %}</h2>
   <ol>
     {%- for user in usergroup.users %}
-      <li>{{ user.fullname }} {%- if user.username %} (~{{ user.username }}){% endif %}</li>
+      <li>{{ user.pickername }}</li>
     {% else %}
       <li><em>{% trans %}(No users){% endtrans %}</em></li>
     {%- endfor %}

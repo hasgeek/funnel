@@ -1,4 +1,4 @@
-**{{ g.user.fullname }}** replied to you on **{{ proposal.title
+**{{ g.user.pickername }}** replied to you on **{{ proposal.title
 }}**.
 
 {{ comment.message }}
