@@ -149,7 +149,6 @@ table.listing {
   border-radius: 4px;
 }
 .infosheet .votebox {
-  float: right;
   text-align: center;
   padding-left: 1em;
 }
@@ -189,8 +188,9 @@ table.listing {
   background-color: #d9e8f0;
   color: #444444;
 }
-.infosheet .votebox .label {
+.infosheet .votebox .vlabel {
   margin-top: 0.5em;
+  font-size: 80%;
 }
 .infosheet .section {
   padding: 0 1.2em;
@@ -306,7 +306,6 @@ table.listing {
   .infosheet .votebox .choices {
     font-size: 200%;
     margin-top: 10px;
-    text-align: right;
   }
   .infosheet .section {
     padding: 0 2em;

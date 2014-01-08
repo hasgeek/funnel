@@ -133,7 +133,7 @@ table.listing {
     @include border-radius(4px);
     
     .votebox {
-        float: right;
+        // float: right;
         text-align: center;
         padding-left: 1em;
         .choices {
@@ -164,8 +164,9 @@ table.listing {
                 color: $color-section-heading;
             }
         }
-        .label {
+        .vlabel {
             margin-top: 0.5em;
+            font-size: 80%;
         }
     }
     .section {
@@ -280,7 +281,7 @@ table.listing {
             .choices {
                 font-size: 200%;
                 margin-top: 10px;
-                text-align: right;
+                // text-align: right;
             }
         }
 

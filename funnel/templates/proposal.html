@@ -11,8 +11,26 @@
   <div class="infosheet">
   <div class="section first">
     <div class="row">
-      <h1 class="col-xs-12 col-sm-8 col-md-8 col-lg-9">{{ proposal.title }}</h1>
-      <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3 votebox">
+      <div class="col-xs-12 col-sm-7 col-md-8 col-lg-9">
+        <h1>{{ proposal.title }}</h1>
+        <p>
+          {% trans %}by{% endtrans%}
+          {%- if proposal.speaker %}
+            <strong>{{ proposal.speaker.pickername }}</strong>
+            {%- if proposal.speaker != proposal.user %}
+              {% trans %}via{% endtrans %} {{ proposal.user.pickername }}
+            {%- endif %}
+          {%- else %}
+            <strong>{{ proposal.user.pickername }}</strong>
+            ({% trans %}proposing{% endtrans %})
+          {%- endif %}
+          {% trans %}on{% endtrans %} {{ proposal.datetime.strftime("%A, %B %e, %Y") }}
+          {%- if proposal.user == g.user %}
+            <small>({% trans %}that’s you!{% endtrans %} <a href="{{ proposal.url_for('edit') }}">{% trans %}Edit this{% endtrans %}</a>? <a href="{{ proposal.url_for('delete') }}">{% trans %}Delete this{% endtrans %}</a>?)</small>
+          {%- endif %}
+        </p>
+      </div>
+      <div class="col-xs-12 col-sm-5 col-md-4 col-lg-3 votebox">
         {%- set vote = proposal.votes.getvote(g.user) %}
         <div class="choices">
 
@@ -33,29 +51,11 @@
             {%- endif -%}
             {{ proposal.votes.count }}</span>
           </div>
-        <div class="label">
+        <div class="vlabel">
           {% trans %}Vote on this proposal{% endtrans %}
         </div>
       </div>
     
-  </div>
-  <div class="row">
-    <p class="col-md-12">
-      {% trans %}by{% endtrans%}
-      {%- if proposal.speaker %}
-        <strong>{{ proposal.speaker.pickername }}</strong>
-        {%- if proposal.speaker != proposal.user %}
-          {% trans %}via{% endtrans %} {{ proposal.user.pickername }}
-        {%- endif %}
-      {%- else %}
-        <strong>{{ proposal.user.pickername }}</strong>
-        ({% trans %}proposing{% endtrans %})
-      {%- endif %}
-      {% trans %}on{% endtrans %} {{ proposal.datetime.strftime("%A, %B %e, %Y") }}
-      {%- if proposal.user == g.user %}
-        <small>({% trans %}that’s you!{% endtrans %} <a href="{{ proposal.url_for('edit') }}">{% trans %}Edit this{% endtrans %}</a>? <a href="{{ proposal.url_for('delete') }}">{% trans %}Delete this{% endtrans %}</a>?)</small>
-      {%- endif %}
-    </p>
   </div>
   <div class="row">
     <!-- Social buttons -->
