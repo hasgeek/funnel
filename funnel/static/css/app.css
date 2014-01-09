@@ -1,5 +1,6 @@
 body {
   background-image: url('../img/satinweave.png?1357570024');
+  background-color: #f1f1f1;
 }
 
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
@@ -147,6 +148,7 @@ table.listing {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
+  word-wrap: break-word;
 }
 .infosheet .votebox {
   text-align: center;
