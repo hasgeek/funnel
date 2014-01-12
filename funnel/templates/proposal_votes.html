@@ -1,13 +1,14 @@
+{% from 'baseframe/forms.html' import ajaxlink %}
 {%- set vote = proposal.votes.getvote(g.user) %}
 {%- if not vote %}
-  <a class="votechoice" title="{% trans %}Vote up{% endtrans %}" href="{{ proposal.url_for('voteup') }}">+1</a>
-  <a class="votechoice" title="{% trans %}Vote down{% endtrans %}" href="{{ proposal.url_for('votedown') }}">-1</a>
+  {{ ajaxlink(csrf_form, '+1', "Vote up", proposal.url_for('voteup'), 'proposal_vote_up', target='#proposal_vote_choices', class='votechoice', success_msg='Your vote has been recorded') }}
+  {{ ajaxlink(csrf_form, '-1', "Vote down", proposal.url_for('votedown'), 'proposal_vote_down', target='#proposal_vote_choices', class='votechoice', success_msg='Your vote has been recorded') }}
 {%- elif vote.votedown %}
-  <a class="votechoice" title="{% trans %}Vote up{% endtrans %}" href="{{ proposal.url_for('voteup') }}">+1</a>
-  <a class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ proposal.url_for('votecancel') }}">-1</a>
+  {{ ajaxlink(csrf_form, '+1', "Vote up", proposal.url_for('voteup'), 'proposal_vote_up', target='#proposal_vote_choices', class='votechoice', success_msg='Your vote has been recorded') }}
+  {{ ajaxlink(csrf_form, '-1', "Withdraw vote", proposal.url_for('votecancel'), 'proposal_vote_down', target='#proposal_vote_choices', class='votechoice selected', success_msg='Your vote has been withdrawn') }}
 {%- else %}
-  <a class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ proposal.url_for('votecancel') }}">+1</a>
-  <a class="votechoice" title="{% trans %}Vote down{% endtrans %}" href="{{ proposal.url_for('votedown') }}">-1</a>
+  {{ ajaxlink(csrf_form, '+1', "Withdraw vote", proposal.url_for('votecancel'), 'proposal_vote_up', target='#proposal_vote_choices', class='votechoice selected', success_msg='Your vote has been withdrawn') }}
+  {{ ajaxlink(csrf_form, '-1', "Vote down", proposal.url_for('votedown'), 'proposal_vote_down', target='#proposal_vote_choices', class='votechoice', success_msg='Your vote has been recorded') }}
 {% endif %}
 <span class="indicator">&rarr;</span>
 <span class="score">

@@ -140,6 +140,9 @@ table.listing {
             font-size: 180%;
             margin-top: 10px;
             text-align: center;
+            form {
+                display: inline-block;
+            }
             span.score {
                 font-family: $font-monospace;
                 border: 1px solid $color-outline;
