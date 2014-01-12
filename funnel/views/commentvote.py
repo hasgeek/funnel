@@ -9,7 +9,6 @@ from .. import app, lastuser
 from ..models import *
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
 @app.route('/<space>/<proposal>/voteup', methods=['POST'])
 @lastuser.requires_login
 @load_models(
@@ -25,7 +24,6 @@ def proposal_voteup(space, proposal):
         return (_("Voting link timed out, please refresh the page."), 401)
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
 @app.route('/<space>/<proposal>/votedown', methods=['POST'])
 @lastuser.requires_login
 @load_models(
@@ -41,7 +39,6 @@ def proposal_votedown(space, proposal):
         return (_("Voting link timed out, please refresh the page."), 401)
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
 @app.route('/<space>/<proposal>/cancelvote', methods=['POST'])
 @lastuser.requires_login
 @load_models(
@@ -70,8 +67,7 @@ def comment_json(space, proposal, comment):
         return jsonp(message='')
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/voteup')
+@app.route('/<space>/<proposal>/comments/<int:comment>/voteup', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
@@ -79,18 +75,15 @@ def comment_json(space, proposal, comment):
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
 def comment_voteup(space, proposal, comment):
-    comment.votes.vote(g.user, votedown=False)
-    db.session.commit()
-    if request.is_xhr:
-        commentvote = get_template_attribute('comments.html', 'commentvote')
-        return commentvote(proposal=proposal)
+    if request.is_xhr and Form().validate_on_submit():
+        comment.votes.vote(g.user, votedown=False)
+        db.session.commit()
+        return render_template('proposal_comment_votes.html', comment=comment, currentuser=g.user, votelinkbase=proposal.url_for() + '/comments')
     else:
-        flash(_("Your vote has been recorded"), 'info')
-        return redirect(comment.url_for(proposal=proposal))
+        return (_("Voting link timed out, please refresh the page."), 401)
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/votedown')
+@app.route('/<space>/<proposal>/comments/<int:comment>/votedown', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
@@ -98,18 +91,15 @@ def comment_voteup(space, proposal, comment):
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
 def comment_votedown(space, proposal, comment):
-    comment.votes.vote(g.user, votedown=True)
-    db.session.commit()
-    if request.is_xhr:
-        commentvote = get_template_attribute('comments.html', 'commentvote')
-        return commentvote(proposal=proposal)
+    if request.is_xhr and Form().validate_on_submit():
+        comment.votes.vote(g.user, votedown=True)
+        db.session.commit()
+        return render_template('proposal_comment_votes.html', comment=comment, currentuser=g.user, votelinkbase=proposal.url_for() + '/comments')
     else:
-        flash(_("Your vote has been recorded"), 'info')
-        return redirect(comment.url_for(proposal=proposal))
+        return (_("Voting link timed out, please refresh the page."), 401)
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote')
+@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
@@ -117,11 +107,9 @@ def comment_votedown(space, proposal, comment):
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
 def comment_cancelvote(space, proposal, comment):
-    comment.votes.cancelvote(g.user)
-    db.session.commit()
-    if request.is_xhr:
-        commentvote = get_template_attribute('comments.html', 'commentvote')
-        return commentvote(proposal=proposal)
+    if request.is_xhr and Form().validate_on_submit():
+        comment.votes.cancelvote(g.user)
+        db.session.commit()
+        return render_template('proposal_comment_votes.html', comment=comment, currentuser=g.user, votelinkbase=proposal.url_for() + '/comments')
     else:
-        flash(_("Your vote has been withdrawn"), 'info')
-        return redirect(comment.url_for(proposal=proposal))
+        return (_("Voting link timed out, please refresh the page."), 401)

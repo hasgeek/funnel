@@ -1,19 +1,6 @@
 {% macro commentvote(comment, currentuser, votelinkbase) %}
-  <div class="comment-vote">
-    {%- set comvote = comment.votes.getvote(currentuser) %}
-    {%- if not comvote -%}
-      <a class="comment-vote-up" title="{% trans %}Vote up{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
-      <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-down" title="{% trans %}Vote down{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
-    {%- elif not comvote.votedown -%}
-      <a class="comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25b2;</a><br/>
-      <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-down" title="{% trans %}Vote down{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
-    {%- else -%}
-      <a class="comment-vote-up" title="{% trans %}Vote up{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
-      <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25bc;</a><br/>
-    {%- endif %}
+  <div id="c{{ comment.id }}_votes" class="comment-vote">
+    {% include 'proposal_comment_votes.html' %}
   </div>
 {% endmacro %}
 {% macro commenttree(comments, document, currentuser, documenturl) %}

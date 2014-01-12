@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% from "baseframe/forms.html" import renderfield %}
-{% from "comments.html" import commenttree %}
+{% from "comments.html" import commenttree with context %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 
