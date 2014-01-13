@@ -1,15 +1,15 @@
 {% from 'baseframe/forms.html' import ajaxlink %}
 {%- set comvote = comment.votes.getvote(currentuser) %}
 {%- if not comvote -%}
-  {{ ajaxlink(csrf_form, '&#x25b2;', "Vote up", '%s/%s/voteup' % (votelinkbase, comment.id), 'c%s_vote_up' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-up', success_msg='Your vote has been recorded') }}
+  {{ ajaxlink(csrf_form, "&#x25b2;", "Vote up", '%s/%s/voteup' % (votelinkbase, comment.id), 'c%s_vote_up' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-up', success_msg="Your upvote for %s's comment has been recorded" % comment.user.fullname) }}
   <span class="count">{{ comment.votes.count }}</span>
-  {{ ajaxlink(csrf_form, '&#x25bc;', "Vote down", '%s/%s/votedown' % (votelinkbase, comment.id), 'c%s_vote_down' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-down', success_msg='Your vote has been recorded') }}
+  {{ ajaxlink(csrf_form, "&#x25bc;", "Vote down", '%s/%s/votedown' % (votelinkbase, comment.id), 'c%s_vote_down' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-down', success_msg="Your downvote for %s's comment has been recorded" % comment.user.fullname) }}
 {%- elif not comvote.votedown -%}
-  {{ ajaxlink(csrf_form, '&#x25b2;', "Withdraw vote", '%s/%s/cancelvote' % (votelinkbase, comment.id), 'c%s_vote_cancel' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-cancel', success_msg='Your vote has been withdrawn') }}
+  {{ ajaxlink(csrf_form, "&#x25b2;", "Withdraw vote", '%s/%s/cancelvote' % (votelinkbase, comment.id), 'c%s_vote_cancel' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-cancel', success_msg="Your vote for %s's comment has been withdrawn" % comment.user.fullname) }}
   <span class="count">{{ comment.votes.count }}</span>
-  {{ ajaxlink(csrf_form, '&#x25bc;', "Vote down", '%s/%s/votedown' % (votelinkbase, comment.id), 'c%s_vote_down' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-down', success_msg='Your vote has been recorded') }}
+  {{ ajaxlink(csrf_form, "&#x25bc;", "Vote down", '%s/%s/votedown' % (votelinkbase, comment.id), 'c%s_vote_down' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-down', success_msg="Your downvote for %s's comment has been recorded" % comment.user.fullname) }}
 {%- else -%}
-  {{ ajaxlink(csrf_form, '&#x25b2;', "Vote up", '%s/%s/voteup' % (votelinkbase, comment.id), 'c%s_vote_up' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-up', success_msg='Your vote has been recorded') }}
+  {{ ajaxlink(csrf_form, "&#x25b2;", "Vote up", '%s/%s/voteup' % (votelinkbase, comment.id), 'c%s_vote_up' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-up', success_msg="Your upvote for %s's comment has been recorded" % comment.user.fullname) }}
   <span class="count">{{ comment.votes.count }}</span>
-  {{ ajaxlink(csrf_form, '&#x25bc;', "Withdraw vote", '%s/%s/cancelvote' % (votelinkbase, comment.id), 'c%s_vote_cancel' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-cancel', success_msg='Your vote has been withdrawn') }}
+  {{ ajaxlink(csrf_form, "&#x25bc;", "Withdraw vote", '%s/%s/cancelvote' % (votelinkbase, comment.id), 'c%s_vote_cancel' % comment.id, target='#c%s_votes' % comment.id, class='comment-vote-cancel', success_msg="Your vote for %s's comment has been withdrawn" % comment.user.fullname) }}
 {%- endif %}
