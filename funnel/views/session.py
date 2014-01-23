@@ -68,7 +68,7 @@ def session_new(space):
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Proposal, {'url_name': 'proposal'}, 'proposal'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('new-session', 'siteadmin'), addlperms=lastuser.permissions)
 def proposal_schedule(space, proposal):
     return session_form(space, proposal=proposal)
@@ -76,7 +76,7 @@ def proposal_schedule(space, proposal):
 @app.route('/<space>/<session>/viewsession-popup', methods=['GET'])
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Session, {'url_name': 'session'}, 'session'))
+    (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'))
 def session_view_popup(space, session):
     return render_template('session_view_popup.html', session=session, timezone=space.timezone, localize_date=localize_date)
 
@@ -84,7 +84,7 @@ def session_view_popup(space, session):
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Session, {'url_name': 'session'}, 'session'),
+    (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
     permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
 def session_edit(space, session):
     return session_form(space, session=session)
@@ -93,7 +93,7 @@ def session_edit(space, session):
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Session, {'url_name': 'session'}, 'session'),
+    (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
     permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
 def session_delete(space, session):
     modal_url = session.proposal.url_for('schedule') if session.proposal else None
