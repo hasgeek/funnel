@@ -6,6 +6,7 @@
 
 body {
     background-image: image-url('satinweave.png');
+    background-color: #f1f1f1;
 }
 
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
@@ -131,6 +132,7 @@ table.listing {
     padding-bottom: 1em;
     border: 1px solid $color-sheet-border;
     @include border-radius(4px);
+    word-wrap: break-word;
     
     .votebox {
         // float: right;

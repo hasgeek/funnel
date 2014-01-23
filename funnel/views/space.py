@@ -31,7 +31,8 @@ def space_data(space):
 @lastuser.requires_permission('siteadmin')
 def space_new():
     form = ProposalSpaceForm(model=ProposalSpace)
-    form.timezone.data = app.config.get('TIMEZONE')
+    if request.method == 'GET':
+        form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user)
         form.populate_obj(space)
