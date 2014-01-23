@@ -95,7 +95,14 @@ $(function() {
             options: {
                 backdrop: 'static'
             },
-            pop: function() {this.container.modal(this.options);},
+            pop: function() {
+                this.container.modal(this.options);
+                if(settings.editable) {
+                    this.container.on('shown.bs.modal', function() {
+                        activate_widgets(true);
+                    });
+                }
+            },
             hide: function() {this.container.modal('hide');},
             close: function() {
                 if(settings.editable) if(events.current.unscheduled) calendar.remove(events.current);
@@ -163,8 +170,8 @@ $(function() {
                             + " - " + $.fullCalendar.formatDate(events.current.end, "H:mm")
                             );
                     }
-                    popup.pop();
                     popup.body().html(result);
+                    popup.pop();
                 },
                 complete: function(xhr, type) {
                     if(type == 'error' || type == 'timeout') {
