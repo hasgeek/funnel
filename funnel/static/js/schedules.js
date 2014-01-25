@@ -101,6 +101,9 @@ $(function() {
                     this.container.on('shown.bs.modal', function() {
                         activate_widgets(true);
                     });
+                    this.container.on('hidden.bs.modal', function() {
+                        popup.close();
+                    });
                 }
             },
             hide: function() {this.container.modal('hide');},
@@ -183,7 +186,6 @@ $(function() {
         };
 
         obj.init = function() {
-            popup.container.find('.close').click(popup.close);
             popup.container.find('.save').click(popup.save);
         };
 
