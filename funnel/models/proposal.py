@@ -124,8 +124,6 @@ class Proposal(BaseIdNameMixin, db.Model):
             return url_for('proposal_json', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'edit':
             return url_for('proposal_edit', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
-        elif action == 'confirm':
-            return url_for('proposal_confirm', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'delete':
             return url_for('proposal_delete', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'voteup':
@@ -140,3 +138,5 @@ class Proposal(BaseIdNameMixin, db.Model):
             return url_for('proposal_prev', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'schedule':
             return url_for('proposal_schedule', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'status':
+            return url_for('proposal_status', space=self.proposal_space.name, proposal=self.url_name, _external=_external)

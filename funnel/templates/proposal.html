@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from "baseframe/forms.html" import renderfield %}
+{% from "baseframe/forms.html" import renderfield, renderform %}
 {% from "comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
@@ -63,16 +63,6 @@
       <a href="//twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{ config['TWITTER_ID'] }}">Tweet</a>
       <g:plusone size="medium"></g:plusone>
       <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
-      {% if 'siteadmin' in g.lastuserinfo.permissions %}
-        <form method="POST" action="{{ proposal.url_for('confirm') }}" style="float: right">
-          {{ confirmform.hidden_tag() }}
-          {% if proposal.confirmed -%}
-            <button class="btn btn-xs btn-warning" type="submit">{% trans %}Cancel Session{% endtrans %}</button>
-          {% else %}
-            <button class="btn btn-xs btn-warning" type="submit">{% trans %}Confirm Session{% endtrans %}</button>
-          {% endif -%}
-        </form>
-      {% endif %}
     </div>
   </div>
   </div>
@@ -99,7 +89,10 @@
         If you’d like to speak, leave a comment.{% endtrans %}</em>
       </p>
     {%- endif -%}
-
+    {% if statusform and 'siteadmin' in g.lastuserinfo.permissions %}
+      <h2>{% trans %}Proposal Status{% endtrans %}</h2>
+      <p>{{ renderform(statusform, 'proposal-status', action=proposal.url_for('status'), submit='Save') }}</p>
+    {% endif %}
     <h2>{% trans %}Objective{% endtrans %}</h2>
     {{ proposal.objective }}
     <h2>{% trans %}Description{% endtrans %}</h2>

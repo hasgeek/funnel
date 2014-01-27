@@ -5,8 +5,9 @@ from baseframe.forms import Form, MarkdownField
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from ..models import PROPOSALSTATUS
 
-__all__ = ['ProposalForm']
+__all__ = ['ProposalForm', 'ProposalStatusForm']
 
 
 class ProposalForm(Form):
@@ -53,3 +54,9 @@ class ProposalForm(Form):
             "Will not be displayed"))
     location = wtforms.TextField(__("Your location"), validators=[wtforms.validators.Required(), wtforms.validators.Length(max=80)],
         description=__("Your location, to help plan for your travel if required"))
+
+
+class ProposalStatusForm(Form):
+    status = wtforms.fields.SelectField(
+        __("Status:"), coerce=int,
+        choices = [(status, title) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
