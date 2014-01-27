@@ -9,6 +9,20 @@ from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 
 __all__ = ['Proposal']
 
+# --- Constants ------------------------------------------------------------------
+
+class PROPOSALSTATUS:
+    # Draft-state for future use, so people can save their proposals and submit only when ready
+    # DRAFT = 0
+    SUBMITTED = 1
+    CONFIRMED = 2
+    REJECTED = 3
+    SHORTLISTED = 4
+    BACKUP = 5
+    CANCELLED = 6
+
+    titles = ['Draft', 'Confirmed', 'Rejected', 'Shotlisted', 'Backup', 'Cancelled']
+
 
 # --- Models ------------------------------------------------------------------
 
@@ -38,8 +52,7 @@ class Proposal(BaseIdNameMixin, db.Model):
     requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
-    status = db.Column(db.Integer, default=0, nullable=False)
-    confirmed = db.Column(db.Boolean, default=False, nullable=False)
+    status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
@@ -65,6 +78,14 @@ class Proposal(BaseIdNameMixin, db.Model):
     @property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
+
+    @property
+    def status_title(self):
+        return PROPOSALSTATUS.titles[self.status]
+
+    @property
+    def confirmed(self):
+        return self.status == PROPOSALSTATUS.CONFIRMED
 
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
