@@ -236,7 +236,7 @@ def proposal_delete(space, proposal):
 @app.route('/<space>/<proposal>', methods=['GET', 'POST'])
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    (Proposal, {'url_name': 'proposal'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 def proposal_view(space, proposal):
     if proposal.proposal_space != space:
