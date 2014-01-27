@@ -16,8 +16,8 @@ __all__ = ['Proposal', 'PROPOSALSTATUS']
 
 class PROPOSALSTATUS(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
-    # DRAFT = (0)
-    SUBMITTED = (1, __("Draft"))
+    # DRAFT = (0, __("Draft"))
+    SUBMITTED = (1, __("Submitted"))
     CONFIRMED = (2, __("Confirmed"))
     WAITLISTED = (3, __("Waitlisted"))
     SHORTLISTED = (4, __("Shortlisted"))
