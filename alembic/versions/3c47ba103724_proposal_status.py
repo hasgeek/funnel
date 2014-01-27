@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql import select, bindparam, table, column
 from sqlalchemy.schema import DefaultClause
-from funnel.models.proposal import PROPOSALSTATUS
+from funnel.models import PROPOSALSTATUS
 
 
 def upgrade():

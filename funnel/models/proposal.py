@@ -7,7 +7,7 @@ from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 
-__all__ = ['Proposal']
+__all__ = ['Proposal', 'PROPOSALSTATUS']
 
 # --- Constants ------------------------------------------------------------------
 
