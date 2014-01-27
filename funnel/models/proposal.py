@@ -6,22 +6,23 @@ from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
+from coaster.utils import LabeledEnum
+from baseframe import __
+from sqlalchemy.ext.hybrid import hybrid_property
 
 __all__ = ['Proposal', 'PROPOSALSTATUS']
 
 # --- Constants ------------------------------------------------------------------
 
-class PROPOSALSTATUS:
+class PROPOSALSTATUS(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
-    # DRAFT = 0
-    SUBMITTED = 1
-    CONFIRMED = 2
-    REJECTED = 3
-    SHORTLISTED = 4
-    BACKUP = 5
-    CANCELLED = 6
-
-    titles = ['Draft', 'Confirmed', 'Rejected', 'Shotlisted', 'Backup', 'Cancelled']
+    # DRAFT = (0)
+    SUBMITTED = (1, __("Draft"))
+    CONFIRMED = (2, __("Confirmed"))
+    REJECTED = (3, __("Rejected"))
+    SHORTLISTED = (4, __("Shortlisted"))
+    WAITLISTED = (5, __("Waitlisted"))
+    CANCELLED = (6, __("Cancelled"))
 
 
 # --- Models ------------------------------------------------------------------
@@ -81,9 +82,9 @@ class Proposal(BaseIdNameMixin, db.Model):
 
     @property
     def status_title(self):
-        return PROPOSALSTATUS.titles[self.status]
+        return PROPOSALSTATUS[self.status]
 
-    @property
+    @hybrid_property
     def confirmed(self):
         return self.status == PROPOSALSTATUS.CONFIRMED
 
