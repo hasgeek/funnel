@@ -92,15 +92,22 @@ $(function() {
             container: $('#popup'),
             title: function() {return this.container.find('.modal-title')},
             body: function() {return this.container.find('.modal-body')},
+            activated: false,
             options: {
                 backdrop: 'static'
             },
             pop: function() {
                 this.container.modal(this.options);
                 if(settings.editable) {
-                    this.container.on('shown.bs.modal', function() {
-                        activate_widgets(true);
-                    });
+                    if(!this.activated) {
+                        this.activated = true;
+                        this.container.on('hidden.bs.modal', function() {
+                            popup.close();
+                        });
+                        this.container.on('shown.bs.modal', function() {
+                            activate_widgets(true);
+                        });
+                    }
                 }
             },
             hide: function() {this.container.modal('hide');},
@@ -146,12 +153,6 @@ $(function() {
                     }
                 });
             };
-            popup.close = function() {
-                if(events.current.unscheduled) {
-                    calendar.remove(events.current);
-                    events.current = null;
-                }
-            };
         }
 
         obj.open = function() {
@@ -183,7 +184,6 @@ $(function() {
         };
 
         obj.init = function() {
-            popup.container.find('.close').click(popup.close);
             popup.container.find('.save').click(popup.save);
         };
 
