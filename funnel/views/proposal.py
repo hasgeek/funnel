@@ -73,37 +73,40 @@ def proposal_data(proposal):
                     votes_bydate[groupname].setdefault(date, 0)
                     votes_bydate[groupname][date] += -1 if vote.votedown else +1
 
-    return {'id': proposal.id,
-            'name': proposal.url_name,
-            'title': proposal.title,
-            'url': proposal.url_for(_external=True),
-            'json_url': proposal.url_for('json', _external=True),
-            'proposer': proposal.user.pickername,
-            'speaker': proposal.speaker.pickername if proposal.speaker else None,
-            'email': proposal.email if lastuser.has_permission('siteadmin') else None,
-            'phone': proposal.phone if lastuser.has_permission('siteadmin') else None,
-            'section': proposal.section.title if proposal.section else None,
-            'type': proposal.session_type,
-            'level': proposal.technical_level,
-            'objective': proposal.objective.html,
-            'description': proposal.description.html,
-            'requirements': proposal.requirements.html,
-            'slides': proposal.slides,
-            'links': proposal.links,
-            'bio': proposal.bio.html,
-            'votes': proposal.votes.count,
-            'votes_count': votes_count,
-            'votes_groups': votes_groups,
-            'votes_bydate': votes_bydate,
-            'comments': proposal.comments.count,
-            'submitted': proposal.created_at.isoformat() + 'Z',
-            'confirmed': proposal.confirmed,
-            }
+    return dict([
+            ('id', proposal.id),
+            ('name', proposal.url_name),
+            ('title', proposal.title),
+            ('url', proposal.url_for(_external=True)),
+            ('json_url', proposal.url_for('json', _external=True)),
+            ('proposer', proposal.user.pickername),
+            ('speaker', proposal.speaker.pickername if proposal.speaker else None),
+            ('section', proposal.section.title if proposal.section else None),
+            ('type', proposal.session_type),
+            ('level', proposal.technical_level),
+            ('objective', proposal.objective.html),
+            ('description', proposal.description.html),
+            ('requirements', proposal.requirements.html),
+            ('slides', proposal.slides),
+            ('links', proposal.links),
+            ('bio', proposal.bio.html),
+            ('votes', proposal.votes.count),
+            ('comments', proposal.comments.count),
+            ('submitted', proposal.created_at.isoformat() + 'Z'),
+            ('confirmed', proposal.confirmed),
+        ] + ([
+            ('email', proposal.email),
+            ('phone', proposal.phone),
+            ('location', proposal.location),
+            ('votes_count', votes_count),
+            ('votes_groups', votes_groups),
+            ('votes_bydate', votes_bydate),
+        ] if lastuser.has_permission('siteadmin') else []))
 
 
 def proposal_data_flat(proposal, groups=[]):
     data = proposal_data(proposal)
-    cols = [data[header] for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
+    cols = [data.get(header) for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
     for name in groups:
         cols.append(data['votes_groups'][name])
     return cols
