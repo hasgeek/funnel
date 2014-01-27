@@ -52,6 +52,19 @@ class ProposalSpace(BaseNameMixin, db.Model):
     def rooms(self):
         return [room for venue in self.venues for room in venue.rooms]
 
+    @property
+    def proposals_by_status(self):
+        from .proposal import Proposal, PROPOSALSTATUS
+        return dict((status, Proposal.query.filter_by(proposal_space=self, status=status).order_by(db.desc('created_at')).all()) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT)
+
+    @property
+    def proposals_by_confirmation(self):
+        from .proposal import Proposal, PROPOSALSTATUS
+        response = dict(
+            confirmed=Proposal.query.filter_by(proposal_space=self, status=PROPOSALSTATUS.CONFIRMED).order_by(db.desc('created_at')).all(),
+            unconfirmed=Proposal.query.filter(Proposal.proposal_space == self, Proposal.status != PROPOSALSTATUS.CONFIRMED, Proposal.status != PROPOSALSTATUS.DRAFT).order_by(db.desc('created_at')).all())
+        return response
+
     def permissions(self, user, inherited=None):
         perms = super(ProposalSpace, self).permissions(user, inherited)
         perms.add('view')
