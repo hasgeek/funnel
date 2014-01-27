@@ -19,9 +19,9 @@ class PROPOSALSTATUS(LabeledEnum):
     # DRAFT = (0)
     SUBMITTED = (1, __("Draft"))
     CONFIRMED = (2, __("Confirmed"))
-    REJECTED = (3, __("Rejected"))
+    WAITLISTED = (3, __("Waitlisted"))
     SHORTLISTED = (4, __("Shortlisted"))
-    WAITLISTED = (5, __("Waitlisted"))
+    REJECTED = (5, __("Rejected"))
     CANCELLED = (6, __("Cancelled"))
 
 
