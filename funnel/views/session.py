@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from pytz import timezone as pytz_timezone, utc
+from pytz import timezone as pytz_timezone
 from baseframe import _
-from datetime import datetime
 from flask import request, render_template, jsonify
 from coaster.views import load_models
 
-from .helpers import localize_micro_timestamp, localize_date
+from .helpers import localize_date
 from .. import app, lastuser
 from ..models import db, Proposal, ProposalSpace, Session
 from ..forms import SessionForm
