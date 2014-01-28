@@ -7,7 +7,7 @@ from baseframe import _
 from coaster.views import load_model, jsonp, requestargs
 
 from .. import app, lastuser
-from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal
+from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, PROPOSALSTATUS
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -48,10 +48,8 @@ def space_new():
     permission='view', addlperms=lastuser.permissions)
 def space_view(space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
-    confirmed = Proposal.query.filter_by(proposal_space=space, confirmed=True).order_by(db.desc('created_at')).all()
-    unconfirmed = Proposal.query.filter_by(proposal_space=space, confirmed=False).order_by(db.desc('created_at')).all()
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        confirmed=confirmed, unconfirmed=unconfirmed, is_siteadmin=lastuser.has_permission('siteadmin'))
+        is_siteadmin=lastuser.has_permission('siteadmin'), PROPOSALSTATUS=PROPOSALSTATUS)
 
 
 @app.route('/<space>/json')

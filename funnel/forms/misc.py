@@ -5,7 +5,7 @@ from baseframe.forms import Form
 import wtforms
 import wtforms.fields.html5
 
-__all__=  ['ConfirmDeleteForm', 'ConfirmSessionForm']
+__all__=  ['ConfirmDeleteForm']
 
 
 class ConfirmDeleteForm(Form):
@@ -15,10 +15,3 @@ class ConfirmDeleteForm(Form):
     # The labels on these widgets are not used. See delete.html.
     delete = wtforms.SubmitField(__(u"Delete"))
     cancel = wtforms.SubmitField(__(u"Cancel"))
-
-
-class ConfirmSessionForm(Form):
-    """
-    Dummy form for CSRF
-    """
-    pass

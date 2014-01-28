@@ -6,8 +6,23 @@ from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
+from coaster.utils import LabeledEnum
+from baseframe import __
+from sqlalchemy.ext.hybrid import hybrid_property
 
-__all__ = ['Proposal']
+__all__ = ['Proposal', 'PROPOSALSTATUS']
+
+# --- Constants ------------------------------------------------------------------
+
+class PROPOSALSTATUS(LabeledEnum):
+    # Draft-state for future use, so people can save their proposals and submit only when ready
+    DRAFT = (0, __("Draft"))
+    SUBMITTED = (1, __("Submitted"))
+    CONFIRMED = (2, __("Confirmed"))
+    WAITLISTED = (3, __("Waitlisted"))
+    SHORTLISTED = (4, __("Shortlisted"))
+    REJECTED = (5, __("Rejected"))
+    CANCELLED = (6, __("Cancelled"))
 
 
 # --- Models ------------------------------------------------------------------
@@ -38,8 +53,7 @@ class Proposal(BaseIdNameMixin, db.Model):
     requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
-    status = db.Column(db.Integer, default=0, nullable=False)
-    confirmed = db.Column(db.Boolean, default=False, nullable=False)
+    status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
@@ -65,6 +79,14 @@ class Proposal(BaseIdNameMixin, db.Model):
     @property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
+
+    @property
+    def status_title(self):
+        return PROPOSALSTATUS[self.status]
+
+    @hybrid_property
+    def confirmed(self):
+        return self.status == PROPOSALSTATUS.CONFIRMED
 
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
@@ -102,8 +124,6 @@ class Proposal(BaseIdNameMixin, db.Model):
             return url_for('proposal_json', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'edit':
             return url_for('proposal_edit', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
-        elif action == 'confirm':
-            return url_for('proposal_confirm', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'delete':
             return url_for('proposal_delete', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'voteup':
@@ -118,3 +138,5 @@ class Proposal(BaseIdNameMixin, db.Model):
             return url_for('proposal_prev', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'schedule':
             return url_for('proposal_schedule', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+        elif action == 'status':
+            return url_for('proposal_status', space=self.proposal_space.name, proposal=self.url_name, _external=_external)

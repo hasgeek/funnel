@@ -13,8 +13,8 @@ from coaster.gfm import markdown
 from baseframe import _
 
 from .. import app, mail, lastuser
-from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote, ProposalFeedback, FEEDBACK_AUTH_TYPE
-from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ConfirmSessionForm
+from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote, ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS
+from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ProposalStatusForm
 
 proposal_headers = [
     'id',
@@ -101,6 +101,7 @@ def proposal_data(proposal):
             ('votes_count', votes_count),
             ('votes_groups', votes_groups),
             ('votes_bydate', votes_bydate),
+            ('status', proposal.status),
         ] if lastuser.has_permission('siteadmin') else []))
 
 
@@ -188,21 +189,18 @@ def proposal_edit(space, proposal):
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<space>/<proposal>/confirm', methods=['POST'])
+@app.route('/<space>/<proposal>/status', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('confirm-proposal', 'siteadmin'), addlperms=lastuser.permissions)
-def proposal_confirm(space, proposal):
-    form = ConfirmSessionForm()
+def proposal_status(space, proposal):
+    form = ProposalStatusForm()
     if form.validate_on_submit():
-        proposal.confirmed = not proposal.confirmed
+        proposal.status = form.status.data
         db.session.commit()
-        if proposal.confirmed:
-            flash(_("This proposal has been confirmed."), 'success')
-        else:
-            flash(_("This session has been cancelled."), 'success')
+        flash(_("The proposal has been ") + PROPOSALSTATUS[proposal.status].lower(), 'success')
     return redirect(proposal.url_for())
 
 
@@ -319,11 +317,16 @@ def proposal_view(space, proposal):
                 flash(_("No such comment"), 'error')
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
-    confirmform = ConfirmSessionForm()
+    if proposal.status != PROPOSALSTATUS.DRAFT:
+        statusform = ProposalStatusForm(status=proposal.status)
+    else:
+        statusform = None
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         breadcrumbs=[(space.url_for(), space.title)],
-        links=links, confirmform=confirmform)
+        links=links, statusform=statusform)
+
+
 
 
 
