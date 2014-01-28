@@ -5,7 +5,7 @@ from baseframe.forms import Form, MarkdownField
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from ..models import PROPOSALSTATUS
+from ..models import PROPOSALSTATUS, Proposal, ProposalSpace
 
 __all__ = ['ProposalForm', 'ProposalStatusForm']
 
@@ -57,6 +57,16 @@ class ProposalForm(Form):
 
 
 class ProposalStatusForm(Form):
+    def __init__(self, **kwargs):
+        self.proposal = kwargs.pop('proposal')
+        super(ProposalStatusForm, self).__init__(**kwargs)
+
     status = wtforms.fields.SelectField(
         __("Status:"), coerce=int,
         choices = [(status, title) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+
+    def validate_status(self, status):
+        old = self.proposal.status
+        self.proposal.status = self.status.data
+        if not self.proposal.status_valid():
+            raise wtforms.ValidationError(__("A %s proposal cannot be %s" % (PROPOSALSTATUS[old].lower(), PROPOSALSTATUS[self.status.data].lower())))

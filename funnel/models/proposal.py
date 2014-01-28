@@ -9,6 +9,7 @@ from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import inspect
 
 __all__ = ['Proposal', 'PROPOSALSTATUS']
 
@@ -23,6 +24,17 @@ class PROPOSALSTATUS(LabeledEnum):
     SHORTLISTED = (4, __("Shortlisted"))
     REJECTED = (5, __("Rejected"))
     CANCELLED = (6, __("Cancelled"))
+
+    @classmethod
+    def transitions(cls):
+        return dict([
+            (cls.DRAFT, [cls.SUBMITTED]),
+            (cls.SUBMITTED, [cls.CONFIRMED, cls.WAITLISTED, cls.SHORTLISTED, cls.REJECTED]),
+            (cls.CONFIRMED, [cls.WAITLISTED, cls.REJECTED, cls.CANCELLED]),
+            (cls.WAITLISTED, [cls.CONFIRMED, cls.REJECTED, cls.CANCELLED]),
+            (cls.SHORTLISTED, [cls.CONFIRMED, cls.WAITLISTED]),
+            (cls.REJECTED, [cls.CONFIRMED, cls.WAITLISTED]),
+            (cls.CANCELLED, [cls.CONFIRMED, cls.WAITLISTED])])
 
 
 # --- Models ------------------------------------------------------------------
@@ -116,6 +128,12 @@ class Proposal(BaseIdNameMixin, db.Model):
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
         return perms
+
+    def status_valid(self):
+        history = inspect(self).attrs.status.history
+        if history.unchanged:
+            return True
+        return history.added[0] in PROPOSALSTATUS.transitions()[history.deleted[0]]
 
     def url_for(self, action='view', _external=False):
         if action == 'view':

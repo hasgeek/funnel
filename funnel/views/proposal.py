@@ -196,11 +196,13 @@ def proposal_edit(space, proposal):
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('confirm-proposal', 'siteadmin'), addlperms=lastuser.permissions)
 def proposal_status(space, proposal):
-    form = ProposalStatusForm()
+    form = ProposalStatusForm(proposal=proposal)
     if form.validate_on_submit():
         proposal.status = form.status.data
         db.session.commit()
         flash(_("The proposal has been ") + PROPOSALSTATUS[proposal.status].lower(), 'success')
+    elif form.errors:
+        flash(unicode(form.errors['status'][0]), 'danger')
     return redirect(proposal.url_for())
 
 
@@ -318,7 +320,7 @@ def proposal_view(space, proposal):
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
     if proposal.status != PROPOSALSTATUS.DRAFT:
-        statusform = ProposalStatusForm(status=proposal.status)
+        statusform = ProposalStatusForm(status=proposal.status, proposal=proposal)
     else:
         statusform = None
     return render_template('proposal.html', space=space, proposal=proposal,
