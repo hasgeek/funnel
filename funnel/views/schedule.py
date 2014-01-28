@@ -244,7 +244,7 @@ def schedule_edit(space):
 @requestargs(('sessions', json.loads))
 def schedule_update(space, sessions):
     for session in sessions:
-        s = Session.query.filter_by(url_id=session['id']).first()
+        s = Session.query.filter_by(proposal_space=space, url_id=session['id']).one()
         s.start = session['start']
         s.end = session['end']
         db.session.commit()
