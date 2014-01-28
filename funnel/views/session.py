@@ -28,6 +28,7 @@ def session_form(space, proposal=None, session=None):
         if proposal:
             form.description.data = proposal.description
             form.speaker_bio.data = proposal.bio
+            form.speaker.data = proposal.speaker.fullname
             form.title.data = proposal.title
         return render_template('session_form.html', form=form, formid='session_form')
     if form.validate_on_submit():
