@@ -201,7 +201,13 @@ $(function() {
                     else {
                         var from_day = from.getDay(), to_day = to.getDay();
                         var inactive = [];
-                        for(i=0; i <= 6; i++) {if(i == from_day) i = to_day;else inactive.push(i);}
+                        for(i=0; i <= 6; i++) {
+                            if(
+                                (from_day <= to_day && (i < from_day || i > to_day)) ||
+                                (from_day > to_day && (i < from_day && i > to_day))
+                                )
+                                inactive.push(i);
+                        }
                         return inactive;
                     }
                 }
@@ -239,6 +245,7 @@ $(function() {
                         if(to_date != null) {
                             config.hiddenDays = calendar.helpers.inactive_days(from_date, to_date);
                             config.firstDay = from_date.getDay();
+                            console.log(config.hiddenDays, config.firstDay);
                         }
                     };
                     config.eventClick = events.onClick;
