@@ -245,7 +245,6 @@ $(function() {
                         if(to_date != null) {
                             config.hiddenDays = calendar.helpers.inactive_days(from_date, to_date);
                             config.firstDay = from_date.getDay();
-                            console.log(config.hiddenDays, config.firstDay);
                         }
                     };
                     config.eventClick = events.onClick;
