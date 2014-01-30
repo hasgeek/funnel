@@ -306,7 +306,7 @@ $(function() {
                     unscheduled: $('body #dummy')
                 };
                 calendar.add(event);
-                popup.open(event);
+                popup.open();
                 calendar.container.fullCalendar('unselect');
             };
             config.drop = function(date, allDay) {
@@ -320,7 +320,7 @@ $(function() {
                 event.end.setMinutes(event.end.getMinutes() + calendar.options.config.defaultEventMinutes);
                 event.unscheduled = source;
                 calendar.add(event);
-                popup.open(event);
+                popup.open();
             };
             config.viewRender = function() {
                 event_list = calendar.events();
