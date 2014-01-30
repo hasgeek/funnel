@@ -373,7 +373,10 @@ $(function() {
             to_date = new Date(to_date);
             calendar.init(scheduled);
             popup.init();
-            if(events.init_open) popup.open(events.init_open);
+            if(events.init_open) {
+                events.current = events.init_open;
+                popup.open();
+            }
         };
 
         var init_buttons = function() {
@@ -572,11 +575,6 @@ $(function() {
         }
 
         for(i in scheduled) {
-            if(!settings.editable && window.location.hash.replace('#', '') == scheduled[i].url_name) {
-                events.init_open = scheduled[i];
-                window.location.hash = "";
-            }
-            delete scheduled[i].url_name;
             scheduled[i] = {
                 start: new Date(scheduled[i].start),
                 end: new Date(scheduled[i].end),
@@ -585,8 +583,15 @@ $(function() {
                 proposal_id: scheduled[i].proposal_id,
                 saved: true,
                 unscheduled: null,
-                obj_data: scheduled[i]
+                obj_data: scheduled[i],
+                url_name: scheduled[i].url_name
             };
+            if(!settings.editable && window.location.hash.replace('#', '') == scheduled[i].url_name) {
+                events.init_open = scheduled[i];
+                window.location.hash = "";
+            }
+            delete scheduled[i].url_name;
+            delete scheduled[i].obj_data.url_name;
             if(scheduled[i].obj_data.delete_url) scheduled[i].delete_url = scheduled[i].obj_data.delete_url;
             scheduled[i].start = events.to_space_timezone(scheduled[i].start);
             scheduled[i].end = events.to_space_timezone(scheduled[i].end);
