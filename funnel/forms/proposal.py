@@ -2,12 +2,13 @@
 
 from baseframe import __
 from baseframe.forms import Form, MarkdownField
+from .. import lastuser
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from ..models import PROPOSALSTATUS
 
-__all__ = ['ProposalForm', 'ProposalStatusForm']
+__all__ = ['ProposalForm', 'ProposalFormForAdmin', 'ProposalStatusForm']
 
 
 class ProposalForm(Form):
@@ -61,5 +62,10 @@ class ProposalForm(Form):
 
 class ProposalStatusForm(Form):
     status = wtforms.fields.SelectField(
-        __("Status:"), coerce=int,
+        __("Status"), coerce=int,
         choices = [(status, title) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+
+
+class ProposalFormForAdmin(ProposalForm, ProposalStatusForm):
+    blog_post = wtforms.fields.html5.URLField(__("Blogpost"), validators=[wtforms.validators.Optional(), wtforms.validators.URL()],
+        description=__("Link to the relevant blog post JSON endpoint on event's blog"))

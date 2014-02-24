@@ -95,7 +95,7 @@
           <h2>{% trans %}Proposal Status{% endtrans %}</h2>
           <p>{{ renderform(statusform, 'proposal-status', action=proposal.url_for('status'), submit='Save') }}</p>
         {% endif %}
-        {% if proposal.preview_video or proposal.slides %}
+        {% if proposal.preview_video or proposal.slides or blogpost %}
           <h2>{% trans %}Media{% endtrans %}</h2>
           <p class=" space-two-top space-two-bottom clearfix">
             <ul class="nav nav-tabs">
@@ -103,7 +103,10 @@
                 <li class="active"><a href="#preview_video" data-toggle="tab">Preview Video</a></li>
               {% endif %}
               {% if proposal.slides %}
-                <li><a href="#slides" data-toggle="tab"{% if not proposal.preview_video %} class="active"{% endif %}>Slides</a></li>
+                <li{% if not proposal.preview_video %} class="active"{% endif %}><a href="#slides" data-toggle="tab">Slides</a></li>
+              {% endif %}
+              {% if blogpost %}
+                <li{% if not proposal.preview_video and not proposal.slides %} class="active"{% endif %}><a href="#blogpost" data-toggle="tab">Blog Post</a></li>
               {% endif %}
             </ul>
             <div class="tab-content">
@@ -119,6 +122,13 @@
                   <div class="embed-container">
                     <a href="{{ proposal.slides }}" class="oembed">{{ proposal.slides }}</a>
                   </div>
+                </div>
+              {% endif %}
+              {% if blogpost %}
+                <div class="tab-pane{% if not proposal.preview_video and not proposal.slides %} active{% endif %}" id="blogpost">
+                    <h3><a href="{{ blogpost['url'] }}" target="_blank">{{ blogpost['title'] }}</a></h3>
+                    <p>{{ blogpost['description'] }}</p>
+                    <p><a href="{{ blogpost['url'] }}" target="_blank">Read more &raquo;</a>
                 </div>
               {% endif %}
             </div>
