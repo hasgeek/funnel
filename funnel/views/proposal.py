@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import requests
+
 from datetime import datetime
 from pytz import timezone, utc
 from pytz.exceptions import UnknownTimeZoneError
@@ -14,7 +16,7 @@ from baseframe import _
 
 from .. import app, mail, lastuser
 from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote, ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS
-from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ProposalStatusForm
+from ..forms import ProposalForm, ProposalFormForAdmin, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ProposalStatusForm
 
 proposal_headers = [
     'id',
@@ -121,7 +123,10 @@ def proposal_data_flat(proposal, groups=[]):
     (ProposalSpace, {'name': 'space'}, 'space'),
     permission='new-proposal', addlperms=lastuser.permissions)
 def proposal_new(space):
-    form = ProposalForm(model=Proposal, parent=space)
+    if lastuser.has_permission('siteadmin'):
+        form = ProposalFormForAdmin(model=Proposal, parent=space)
+    else:
+        form = ProposalForm(model=Proposal, parent=space)
     del form.session_type  # We don't use this anymore
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if len(list(form.section.query.all())) == 0:
@@ -157,7 +162,10 @@ def proposal_new(space):
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('edit-proposal', 'siteadmin'), addlperms=lastuser.permissions)
 def proposal_edit(space, proposal):
-    form = ProposalForm(obj=proposal, model=Proposal, parent=space)
+    if lastuser.has_permission('siteadmin'):
+        form = ProposalFormForAdmin(obj=proposal, model=Proposal, parent=space)
+    else:
+        form = ProposalForm(obj=proposal, model=Proposal, parent=space)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
@@ -321,9 +329,10 @@ def proposal_view(space, proposal):
         statusform = ProposalStatusForm(status=proposal.status)
     else:
         statusform = None
+    blogpost = requests.get(proposal.blog_post).json() if proposal.blog_post else None
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        breadcrumbs=[(space.url_for(), space.title)],
+        breadcrumbs=[(space.url_for(), space.title)], blogpost=blogpost,
         links=links, statusform=statusform)
 
 

@@ -2,12 +2,13 @@
 
 from baseframe import __
 from baseframe.forms import Form, MarkdownField
+from .. import lastuser
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from ..models import PROPOSALSTATUS
 
-__all__ = ['ProposalForm', 'ProposalStatusForm']
+__all__ = ['ProposalForm', 'ProposalFormForAdmin', 'ProposalStatusForm']
 
 
 class ProposalForm(Form):
@@ -39,7 +40,10 @@ class ProposalForm(Form):
         description=__("For workshops, what must participants bring to the session?"))
     slides = wtforms.fields.html5.URLField(__("Slides"), validators=[wtforms.validators.Optional(), wtforms.validators.URL()],
         description=__("Link to your slides. These can be just an outline initially. "
-            "If you provide a Slideshare link, we'll embed slides in the page"))
+            "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"))
+    preview_video = wtforms.fields.html5.URLField(__("Preview Video"), validators=[wtforms.validators.Optional(), wtforms.validators.URL()],
+        description=__("Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
+            "If you provide a YouTube/Vimeo link, we'll embed it in the page"))
     links = wtforms.TextAreaField(__("Links"),
         description=__("Other links, one per line. Provide links to your profile and "
             "slides and videos from your previous sessions; anything that'll help "
@@ -58,5 +62,10 @@ class ProposalForm(Form):
 
 class ProposalStatusForm(Form):
     status = wtforms.fields.SelectField(
-        __("Status:"), coerce=int,
+        __("Status"), coerce=int,
         choices = [(status, title) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+
+
+class ProposalFormForAdmin(ProposalForm, ProposalStatusForm):
+    blog_post = wtforms.fields.html5.URLField(__("Blogpost"), validators=[wtforms.validators.Optional(), wtforms.validators.URL()],
+        description=__("Link to the relevant blog post JSON endpoint on event's blog"))

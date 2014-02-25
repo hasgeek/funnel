@@ -14,6 +14,7 @@ __all__ = ['Proposal', 'PROPOSALSTATUS']
 
 # --- Constants ------------------------------------------------------------------
 
+
 class PROPOSALSTATUS(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
     DRAFT = (0, __("Draft"))
@@ -52,6 +53,8 @@ class Proposal(BaseIdNameMixin, db.Model):
     description = MarkdownColumn('description', nullable=False)
     requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
+    preview_video = db.Column(db.Unicode(250), default=u'', nullable=False)
+    blog_post = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
 
