@@ -53,8 +53,8 @@ class Proposal(BaseIdNameMixin, db.Model):
     description = MarkdownColumn('description', nullable=False)
     requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
-    preview_video = db.Column(db.Text, server_default=u'', nullable=False)
-    blog_post = db.Column(db.Text, server_default=u'', nullable=False)
+    preview_video = db.Column(db.Unicode(250), default=u'', nullable=False)
+    blog_post = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
 

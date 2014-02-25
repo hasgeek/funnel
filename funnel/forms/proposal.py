@@ -43,7 +43,7 @@ class ProposalForm(Form):
             "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"))
     preview_video = wtforms.fields.html5.URLField(__("Preview Video"), validators=[wtforms.validators.Optional(), wtforms.validators.URL()],
         description=__("Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
-            "If you provide a Youtube/Vimeo link, we'll embed it in the page"))
+            "If you provide a YouTube/Vimeo link, we'll embed it in the page"))
     links = wtforms.TextAreaField(__("Links"),
         description=__("Other links, one per line. Provide links to your profile and "
             "slides and videos from your previous sessions; anything that'll help "
