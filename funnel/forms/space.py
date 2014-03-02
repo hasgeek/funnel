@@ -6,9 +6,28 @@ from baseframe.forms import Form, MarkdownField, ValidName
 from baseframe.forms.sqlalchemy import AvailableName
 import wtforms
 import wtforms.fields.html5
+from baseframe.forms import Form
 
 __all__ = ['ProposalSpaceForm']
 
+def set_none(self, field):
+    if not field.data:
+        field.data = None
+
+class Content(wtforms.Form):
+    format = MarkdownField('Format', description=__("Event format, accepted proposals"))
+    criteria = MarkdownField('Criteria to submit', description=__("Criteria to submit"))
+    panel = MarkdownField('Editorial Panel')
+    dates = MarkdownField('Important Dates', description=__("First set of confirmed proposals, Last date to submit, Event Dates, etc"))
+    open_source = MarkdownField('Commitment to Open Source')
+    title_helper = wtforms.TextField('Helper', description=__("Helper text for the Propose Session link beside title"))
+
+    validate_format = set_none
+    validate_criteria = set_none
+    validate_panel = set_none
+    validate_dates = set_none
+    validate_open_source = set_none
+    validate_title_helper = set_none
 
 class ProposalSpaceForm(Form):
     name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName()])
@@ -23,7 +42,8 @@ class ProposalSpaceForm(Form):
     tagline = wtforms.TextField(__("Tagline"), validators=[wtforms.validators.Required()],
         description=__("This is displayed on the card on the homepage"))
     description = MarkdownField(__("Description"), validators=[wtforms.validators.Required()],
-        description=__("Instructions for proposers, with Markdown formatting"))
+        description=__("About Event"))
+    content = wtforms.fields.FormField(Content)
     timezone = wtforms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),
         validators=[wtforms.validators.Required()], choices=sorted_timezones(), default=u'UTC')

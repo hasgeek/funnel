@@ -4,6 +4,7 @@ from flask import url_for
 from . import db, BaseNameMixin, MarkdownColumn
 from .user import User
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
+from coaster.sqlalchemy import JsonDict
 
 __all__ = ['SPACESTATUS', 'ProposalSpace']
 
@@ -30,6 +31,7 @@ class ProposalSpace(BaseNameMixin, db.Model):
         backref=db.backref('spaces', cascade="all, delete-orphan"))
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
+    content = db.Column(JsonDict, server_default='{}', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)
