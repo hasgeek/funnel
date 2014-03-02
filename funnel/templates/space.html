@@ -111,8 +111,8 @@
   </p>
 {% endif %}
 {% set tabs = [] %}
-{% set titles = {'format': 'Format', 'criteria': 'Criteria for proposals', 'panel': 'Editorial Panel', 'dates': 'Important Dates', 'open_source': 'Commitment to Open Source'} %}
-{% for tab in ['format', 'criteria', 'panel', 'dates', 'open_source'] %}
+{% set titles = {'format': 'Format', 'criteria': 'Criteria for proposals', 'panel': 'Editorial Panel', 'dates': 'Important Dates', 'open_source': 'Commitment to Open Source', 'themes': 'Themes'} %}
+{% for tab in titles.keys() %}
   {% if tab in space.content and space.content[tab] %}
     {% if tabs.append(tab) %}{% endif %}
   {% endif %}

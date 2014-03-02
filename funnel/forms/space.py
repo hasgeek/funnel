@@ -15,7 +15,8 @@ def set_none(self, field):
         field.data = None
 
 class Content(wtforms.Form):
-    format = MarkdownField('Format', description=__("Event format, accepted proposals"))
+    format = MarkdownField('Format', description=__("Event format"))
+    themes = MarkdownField('Themes', description=__("Themes for accepted proposals"))
     criteria = MarkdownField('Criteria to submit', description=__("Criteria to submit"))
     panel = MarkdownField('Editorial Panel')
     dates = MarkdownField('Important Dates', description=__("First set of confirmed proposals, Last date to submit, Event Dates, etc"))
@@ -23,6 +24,7 @@ class Content(wtforms.Form):
     title_helper = wtforms.TextField('Helper', description=__("Helper text for the Propose Session link beside title"))
 
     validate_format = set_none
+    validate_themes = set_none
     validate_criteria = set_none
     validate_panel = set_none
     validate_dates = set_none
