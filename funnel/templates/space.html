@@ -127,7 +127,7 @@
   <div class="tab-content section">
     <div class="tab-pane active" id="tab_about">{{ description }}</div>
     {% for tab in tabs %}
-      <div class="tab-pane" id="tab_{{ tab }}">{{ space.content[tab] }}</div>
+      <div class="tab-pane" id="tab_{{ tab }}">{{ space.content[tab]|markdown }}</div>
     {% endfor %}
   </div>
 {% else %}
