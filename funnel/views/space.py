@@ -35,6 +35,7 @@ def space_new():
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user)
+        space.content = form.content.data
         form.populate_obj(space)
         db.session.add(space)
         db.session.commit()
