@@ -16,6 +16,11 @@ server with::
 
   $ python runserver.py
 
+You may also want to setup the database with::
+
+  $ python manage.py db create
+
+
 WSGI is recommended for production. Enable ``mod_wsgi`` in Apache and make a
 ``VirtualHost`` with::
 
