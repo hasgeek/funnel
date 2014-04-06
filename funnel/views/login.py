@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, render_template
+from flask import g, flash, redirect, render_template
 from coaster.views import get_next_url
 from baseframe import _
 
 from .. import app, lastuser
-from ..models import db
+from ..models import db, Profile
 
 
 @app.route('/login')
@@ -24,7 +24,7 @@ def logout():
 @app.route('/login/redirect')
 @lastuser.auth_handler
 def lastuserauth():
-    # Save the user object
+    Profile.update_from_user(g.user, db.session, make_user_profiles=False, make_org_profiles=False)
     db.session.commit()
     return redirect(get_next_url())
 
@@ -32,7 +32,7 @@ def lastuserauth():
 @app.route('/login/notify', methods=['POST'])
 @lastuser.notification_handler
 def lastusernotify(user):
-    # Save the user object
+    Profile.update_from_user(user, db.session, make_user_profiles=False, make_org_profiles=False)
     db.session.commit()
 
 

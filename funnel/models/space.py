@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseNameMixin, MarkdownColumn
+from . import db, BaseScopedNameMixin, MarkdownColumn
 from .user import User
+from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 from coaster.sqlalchemy import JsonDict
 
@@ -23,12 +24,15 @@ class SPACESTATUS:
 
 # --- Models ------------------------------------------------------------------
 
-class ProposalSpace(BaseNameMixin, db.Model):
+class ProposalSpace(BaseScopedNameMixin, db.Model):
     __tablename__ = 'proposal_space'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('spaces', cascade="all, delete-orphan"))
+        backref=db.backref('spaces', cascade='all, delete-orphan'))
+    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True)  # nullable for transition
+    profile = db.relationship(Profile, backref=db.backref('spaces', cascade='all, delete-orphan'))
+    parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
     content = db.Column(JsonDict, server_default='{}', nullable=False)
@@ -44,6 +48,8 @@ class ProposalSpace(BaseNameMixin, db.Model):
 
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False)
+
+    __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
     def __init__(self, **kwargs):
         super(ProposalSpace, self).__init__(**kwargs)

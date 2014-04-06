@@ -41,12 +41,21 @@ def init_for(env):
     coaster.app.init_app(app, env)
     db.init_app(app)
     db.app = app
+
+    if app.config.get('SERVER_NAME'):
+        subdomain = app.config.get('STATIC_SUBDOMAIN', 'static')
+    else:
+        subdomain = None
+    app.add_url_rule('/static/<path:filename>', endpoint='static',
+        view_func=app.send_static_file, subdomain=subdomain)
+
     mail.init_app(app)
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
     baseframe.init_app(app, requires=['jquery.oembed', 'funnel'], ext_requires=[
         'jquery.form', ('codemirror-markdown', 'pygments'), ('toastr', 'baseframe-bs3')
-        ])
+        ], static_subdomain=subdomain)
+
     app.assets.register('js_fullcalendar',
         Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
             output='js/fullcalendar.packed.js', filters='closure_js'))
