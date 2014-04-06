@@ -20,7 +20,6 @@ lastuser = Lastuser()
 
 version = Version(__version__)
 assets['jquery.oembed.js'][version] = 'js/libs/jquery.oembed.js'
-assets['showdown.js'][version] = 'js/libs/showdown.js'
 assets['funnel.js'][version] = 'js/scripts.js'
 assets['funnel.css'][version] = 'css/app.css'
 assets['spectrum.js'][version] = 'js/libs/spectrum.js'
@@ -45,8 +44,8 @@ def init_for(env):
     mail.init_app(app)
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User))
-    baseframe.init_app(app, requires=[
-        'jquery.form', 'jquery.oembed', 'showdown', 'codemirror-markdown', 'pygments', 'toastr', 'baseframe-bs3', 'funnel',
+    baseframe.init_app(app, requires=['jquery.oembed', 'funnel'], ext_requires=[
+        'jquery.form', ('codemirror-markdown', 'pygments'), ('toastr', 'baseframe-bs3')
         ])
     app.assets.register('js_fullcalendar',
         Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
