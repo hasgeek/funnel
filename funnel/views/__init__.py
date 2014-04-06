@@ -1,12 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from .index import *
-from .login import *
-from .space import *
-from .section import *
-from .usergroup import *
-from .proposal import *
-from .commentvote import *
-from .venue import *
-from .schedule import *
-from .session import *
+from . import index, login, profile, space, section, usergroup, proposal, commentvote, venue, schedule, session

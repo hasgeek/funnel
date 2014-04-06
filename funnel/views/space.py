@@ -27,7 +27,7 @@ def space_data(space):
         'json_url': space.url_for('json', _external=True),
         }
 
-@app.route('/new', methods=['GET', 'POST'])
+@app.route('/newspace', methods=['GET', 'POST'])  # FIXME
 @lastuser.requires_permission('siteadmin')
 def space_new():
     form = ProposalSpaceForm(model=ProposalSpace)

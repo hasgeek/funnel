@@ -51,7 +51,7 @@ def init_for(env):
 
     mail.init_app(app)
     lastuser.init_app(app)
-    lastuser.init_usermanager(UserManager(db, models.User))
+    lastuser.init_usermanager(UserManager(db, models.User, models.Team))
     baseframe.init_app(app, requires=['jquery.oembed', 'funnel'], ext_requires=[
         'jquery.form', ('codemirror-markdown', 'pygments'), ('toastr', 'baseframe-bs3')
         ], static_subdomain=subdomain)

@@ -11,7 +11,7 @@ from ..models import db, Profile
 @app.route('/login')
 @lastuser.login_handler
 def login():
-    return {'scope': 'id email phone'}
+    return {'scope': 'id email phone organizations'}
 
 
 @app.route('/logout')
