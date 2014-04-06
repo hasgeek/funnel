@@ -42,11 +42,7 @@ def send_mail(sender, to, body, subject):
     msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
     mail.send(msg)
 
-
-def proposal_data(proposal):
-    """
-    Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
-    """
+def proposal_votes(proposal):
     votes_count = None
     votes_groups = None
     votes_bydate = dict([(group.name, {}) for group in proposal.proposal_space.usergroups])
@@ -74,6 +70,15 @@ def proposal_data(proposal):
                         date = vote.updated_at.strftime('%Y-%m-%d')
                     votes_bydate[groupname].setdefault(date, 0)
                     votes_bydate[groupname][date] += -1 if vote.votedown else +1
+
+    return (votes_count, votes_groups, votes_bydate)
+
+def proposal_data(proposal):
+    """
+    Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
+    """
+    
+    votes_count, votes_groups, votes_bydate = proposal_votes(proposal)
 
     return dict([
             ('id', proposal.id),
@@ -330,10 +335,14 @@ def proposal_view(space, proposal):
     else:
         statusform = None
     blogpost = requests.get(proposal.blog_post).json() if proposal.blog_post else None
+
+    votes_count, votes_groups, votes_bydate = proposal_votes(proposal)
+
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         breadcrumbs=[(space.url_for(), space.title)], blogpost=blogpost,
-        links=links, statusform=statusform)
+        votes_groups=votes_groups,
+        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform)
 
 
 
