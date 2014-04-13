@@ -67,6 +67,13 @@ class ProposalSpace(BaseNameMixin, db.Model):
             unconfirmed=Proposal.query.filter(Proposal.proposal_space == self, Proposal.status != PROPOSALSTATUS.CONFIRMED, Proposal.status != PROPOSALSTATUS.DRAFT).order_by(db.desc('created_at')).all())
         return response
 
+    def user_in_group(self, user, group):
+        for grp in self.usergroups:
+            if grp.name == group:
+                if user in grp.users:
+                    return True
+        return False
+
     def permissions(self, user, inherited=None):
         perms = super(ProposalSpace, self).permissions(user, inherited)
         perms.add('view')

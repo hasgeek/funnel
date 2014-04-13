@@ -106,7 +106,7 @@
               If you’d like to speak, leave a comment.{% endtrans %}</em>
             </p>
           {%- endif -%}
-          {% if statusform and 'siteadmin' in g.lastuserinfo.permissions %}
+          {% if statusform and 'siteadmin' in g.lastuserinfo.permissions or proposal.proposal_space.user_in_group(g.user, 'editorial-panel') %}
             <h2>{% trans %}Proposal Stats &amp; Status{% endtrans %}</h2>
 
             <div class="row text-center">

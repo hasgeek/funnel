@@ -49,7 +49,23 @@
             <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
             <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
             <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
-            <td class="num"><a href="{{ link }}">{{ proposal.votes.count }}</a></td>
+            <td class="num"><a href="{{ link }}">
+              {{ proposal.votes.count }}
+              {% if 'siteadmin' in g.lastuserinfo.permissions or space.user_in_group(g.user, 'editorial-panel') %}
+                {% set breakups = dict() %}
+                {% set groups = proposal.votes_by_group() %}
+                {% if 'participants' in groups %}{% if breakups.update({'P': groups['participants']}) %}{% endif %}{% endif %}
+                {% if 'editorial-panel' in groups %}{% if breakups.update({'EP': groups['editorial-panel']}) %}{% endif %}{% endif %}
+                {% if breakups.__len__() %}
+                  (
+                  {%- for item in breakups -%}
+                    {%- if loop.index != 1 %}, {% endif %}
+                    {{ item }}: {{ breakups[item] }}
+                  {%- endfor -%}
+                  )
+                {% endif %}
+              {% endif %}
+            </a></td>
             <td class="num"><a href="{{ link }}">{{ proposal.comments.count }}</a></td>
             <td><a href="{{ link }}">{{ proposal.datetime.strftime("%a, %b %e") }}</a></td>
           </tr>

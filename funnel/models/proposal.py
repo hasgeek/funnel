@@ -9,6 +9,8 @@ from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
+from flask import request
+from pytz import timezone, utc
 
 __all__ = ['Proposal', 'PROPOSALSTATUS']
 
@@ -100,6 +102,42 @@ class Proposal(BaseIdNameMixin, db.Model):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
                 Proposal.created_at > self.created_at).order_by('created_at').first()
+
+    def votes_count(self):
+        return len(self.votes.votes)
+
+    def votes_by_group(self):
+        votes_groups = dict([(group.name, 0) for group in self.proposal_space.usergroups])
+        groupuserids = dict([(group.name, [user.userid for user in group.users])
+            for group in self.proposal_space.usergroups])
+        for vote in self.votes.votes:
+            for groupname, userids in groupuserids.items():
+                if vote.user.userid in userids:
+                    votes_groups[groupname] += -1 if vote.votedown else +1
+        return votes_groups
+
+    def votes_by_date(self):
+        if 'tz' in request.args:
+            try:
+                tz = timezone(request.args['tz'])
+            except UnknownTimeZoneError:
+                abort(400)
+        else:
+            tz = None
+        votes_bydate = dict([(group.name, {}) for group in self.proposal_space.usergroups])
+        groupuserids = dict([(group.name, [user.userid for user in group.users])
+            for group in self.proposal_space.usergroups])
+        for vote in self.votes.votes:
+            for groupname, userids in groupuserids.items():
+                if vote.user.userid in userids:
+                    if tz:
+                        date = tz.normalize(vote.updated_at.replace(tzinfo=utc).astimezone(tz)).strftime('%Y-%m-%d')
+                    else:
+                        date = vote.updated_at.strftime('%Y-%m-%d')
+                    votes_bydate[groupname].setdefault(date, 0)
+                    votes_bydate[groupname][date] += -1 if vote.votedown else +1
+        return votes_bydate
+
 
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
