@@ -162,7 +162,7 @@
 
     <div class="tab-pane" id="proposals">
 #}
-      {%- if is_siteadmin -%}
+      {%- if is_siteadmin or space.user_in_group(g.user, 'editorial-panel') -%}
         {%- for status, proposal_group in space.proposals_by_status.iteritems() if proposal_group -%}
             <h3>{{ PROPOSALSTATUS[status] }} {% trans %}proposals{% endtrans %}</h3>
             {{ proposal_table(proposal_group) }}
