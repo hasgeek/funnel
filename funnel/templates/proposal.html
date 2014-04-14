@@ -65,7 +65,7 @@
         </div>
         <div class="col-md-3 col-lg-3 col-sm-12 col-xs-12">
           Status: 
-          {% if 'siteadmin' in g.lastuserinfo.permissions %}
+          {% if 'siteadmin' in g.lastuserinfo.permissions or proposal.proposal_space.user_in_group(g.user, 'editorial-panel') %}
             {{ PROPOSALSTATUS[proposal.status] }}
             {% if proposal.session and proposal.confirmed %} &amp; Scheduled{% endif %}
           {% else %}
