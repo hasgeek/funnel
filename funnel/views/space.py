@@ -84,7 +84,7 @@ def space_view_csv(space):
     for proposal in proposals:
         out.writerow(proposal_data_flat(proposal, usergroups))
     outfile.seek(0)
-    return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
+    return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/csv')
 
 
 @app.route('/<space>/edit', methods=['GET', 'POST'])
