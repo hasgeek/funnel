@@ -11,7 +11,7 @@
   <div class="infosheet">
     <div class="section first">
       <div class="row">
-        <div class="col-xs-12 col-sm-7 col-md-8 col-lg-9">
+        <div class="col-xs-12 col-sm-7 col-md-8 col-lg-8">
           <h1>{{ proposal.title }}</h1>
           <p>
             {% trans %}by{% endtrans%}
@@ -30,7 +30,7 @@
             {%- endif %}
           </p>
         </div>
-        <div class="col-xs-12 col-sm-5 col-md-4 col-lg-3 votebox">
+        <div class="col-xs-12 col-sm-5 col-md-4 col-lg-4 votebox">
           {%- set vote = proposal.votes.getvote(g.user) %}
           <div class="choices">
 
@@ -58,10 +58,26 @@
       </div>
       <div class="row">
         <!-- Social buttons -->
-        <div class="social col-md-12 col-lg-12 col-sm-12 col-xs-12">
+        <div class="social col-md-9 col-lg-9 col-sm-12 col-xs-12">
           <a href="//twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{ config['TWITTER_ID'] }}">Tweet</a>
           <g:plusone size="medium"></g:plusone>
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
+        </div>
+        <div class="col-md-3 col-lg-3 col-sm-12 col-xs-12">
+          Status: 
+          {% if 'siteadmin' in g.lastuserinfo.permissions or proposal.proposal_space.user_in_group(g.user, 'editorial-panel') %}
+            {{ PROPOSALSTATUS[proposal.status] }}
+            {% if proposal.session and proposal.confirmed %} &amp; Scheduled{% endif %}
+          {% else %}
+            {% if proposal.confirmed %}
+              Confirmed {% if proposal.session %} &amp; Scheduled{% endif %}
+            {% else %}
+              Submitted
+            {% endif %}
+          {% endif %}
+          {% if proposal.session %}
+            <br><a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -90,8 +106,52 @@
               If you’d like to speak, leave a comment.{% endtrans %}</em>
             </p>
           {%- endif -%}
-          {% if statusform and 'siteadmin' in g.lastuserinfo.permissions %}
-            <h2>{% trans %}Proposal Status{% endtrans %}</h2>
+          {% if statusform and 'siteadmin' in g.lastuserinfo.permissions or proposal.proposal_space.user_in_group(g.user, 'editorial-panel') %}
+            <h2>{% trans %}Proposal Stats &amp; Status{% endtrans %}</h2>
+
+            <div class="row text-center">
+              <div class="col-md-3 col-lg-3 col-sm-6 col-xs-12">
+                <h3>Total votes</h3>
+                <h1>{%- if proposal.votes.count > 0 -%}+{%- endif -%}{{ proposal.votes.count }}</h1>
+              </div>
+              {% if 'participants' in votes_groups %}
+                <div class="col-md-3 col-lg-3 col-sm-6 col-xs-12">
+                  <h3>Total Participant Votes</h3>
+                  <h1>
+                    {% if votes_groups['participants'] > 0 %}+{% endif %}{{ votes_groups['participants'] }}
+                  </h1>
+                </div>
+              {% endif %}
+              {% if 'editorial-panel' in votes_groups %}
+                <div class="col-md-3 col-lg-3 col-sm-6 col-xs-12">
+                  <h3>Total EP Votes</h3>
+                  <h1>
+                    {% if votes_groups['editorial-panel'] > 0 %}+{% endif %}{{ votes_groups['editorial-panel'] }}
+                  </h1>
+                </div>
+              {% endif %}
+              {% set votes = dict() %}
+              {% for vote in proposal.votes.votes %}
+                {% if votes.update({vote.user.username: vote}) %}{% endif %}
+              {% endfor %}
+              {% for group in proposal.proposal_space.usergroups %}
+                {% if group.name == 'editorial-panel' %}
+                  {% for member in group.users %}
+                    <div class="col-md-3 col-lg-3 col-sm-6 col-xs-12">
+                      <h3>EP Vote: {% if g.user != member %}{{ member.fullname }}{% else %}You{% endif %}</h3>
+                      <h1>
+                        {% if member.username in votes %}
+                          {% if votes[member.username].votedown %}-1{% else %}+1{% endif %}
+                        {% else %}
+                          &mdash;
+                        {% endif %}
+                      </h1>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            </div>
+
             <p>{{ renderform(statusform, 'proposal-status', action=proposal.url_for('status'), submit='Save') }}</p>
           {% endif %}
           {% if proposal.preview_video or proposal.slides or blogpost %}

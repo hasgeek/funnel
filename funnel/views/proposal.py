@@ -42,38 +42,10 @@ def send_mail(sender, to, body, subject):
     msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
     mail.send(msg)
 
-
 def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
-    votes_count = None
-    votes_groups = None
-    votes_bydate = dict([(group.name, {}) for group in proposal.proposal_space.usergroups])
-
-    if 'tz' in request.args:
-        try:
-            tz = timezone(request.args['tz'])
-        except UnknownTimeZoneError:
-            abort(400)
-    else:
-        tz = None
-
-    if lastuser.has_permission('siteadmin'):
-        votes_count = len(proposal.votes.votes)
-        votes_groups = dict([(group.name, 0) for group in proposal.proposal_space.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users])
-            for group in proposal.proposal_space.usergroups])
-        for vote in proposal.votes.votes:
-            for groupname, userids in groupuserids.items():
-                if vote.user.userid in userids:
-                    votes_groups[groupname] += -1 if vote.votedown else +1
-                    if tz:
-                        date = tz.normalize(vote.updated_at.replace(tzinfo=utc).astimezone(tz)).strftime('%Y-%m-%d')
-                    else:
-                        date = vote.updated_at.strftime('%Y-%m-%d')
-                    votes_bydate[groupname].setdefault(date, 0)
-                    votes_bydate[groupname][date] += -1 if vote.votedown else +1
 
     return dict([
             ('id', proposal.id),
@@ -100,9 +72,9 @@ def proposal_data(proposal):
             ('email', proposal.email),
             ('phone', proposal.phone),
             ('location', proposal.location),
-            ('votes_count', votes_count),
-            ('votes_groups', votes_groups),
-            ('votes_bydate', votes_bydate),
+            ('votes_count', proposal.votes_count()),
+            ('votes_groups', proposal.votes_by_group()),
+            ('votes_bydate', proposal.votes_by_date()),
             ('status', proposal.status),
         ] if lastuser.has_permission('siteadmin') else []))
 
@@ -330,13 +302,12 @@ def proposal_view(space, proposal):
     else:
         statusform = None
     blogpost = requests.get(proposal.blog_post).json() if proposal.blog_post else None
+
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         breadcrumbs=[(space.url_for(), space.title)], blogpost=blogpost,
-        links=links, statusform=statusform)
-
-
-
+        votes_groups=proposal.votes_by_group(),
+        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform)
 
 
 @app.route('/<space>/<proposal>/feedback', methods=['POST'])
