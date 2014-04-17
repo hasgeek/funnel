@@ -103,40 +103,40 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     def url_for(self, action='view', _external=False):
         if action == 'view':
-            return url_for('space_view', space=self.name, _external=_external)
+            return url_for('space_view', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-proposal':
-            return url_for('proposal_new', space=self.name, _external=_external)
+            return url_for('proposal_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'json':
-            return url_for('space_view_json', space=self.name, _external=_external)
+            return url_for('space_view_json', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'csv':
-            return url_for('space_view_csv', space=self.name, _external=_external)
+            return url_for('space_view_csv', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'edit':
-            return url_for('space_edit', space=self.name, _external=_external)
+            return url_for('space_edit', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'sections':
-            return url_for('section_list', space=self.name, _external=_external)
+            return url_for('section_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-section':
-            return url_for('section_new', space=self.name, _external=_external)
+            return url_for('section_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'usergroups':
-            return url_for('usergroup_list', space=self.name, _external=_external)
+            return url_for('usergroup_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-usergroup':
-            return url_for('usergroup_new', space=self.name, _external=_external)
+            return url_for('usergroup_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'venues':
-            return url_for('venue_list', space=self.name, _external=_external)
+            return url_for('venue_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-venue':
-            return url_for('venue_new', space=self.name, _external=_external)
+            return url_for('venue_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'schedule':
-            return url_for('schedule_view', space=self.name, _external=_external)
+            return url_for('schedule_view', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'edit-schedule':
-            return url_for('schedule_edit', space=self.name, _external=_external)
+            return url_for('schedule_edit', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'update-schedule':
-            return url_for('schedule_update', space=self.name, _external=_external)
+            return url_for('schedule_update', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-session':
-            return url_for('session_new', space=self.name, _external=_external)
+            return url_for('session_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'update-venue-colors':
-            return url_for('update_venue_colors', space=self.name, _external=_external)
+            return url_for('update_venue_colors', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'json-schedule':
-            return url_for('schedule_json', space=self.name, _external=_external)
+            return url_for('schedule_json', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'subscribe-schedule':
-            return url_for('schedule_subscribe', space=self.name, _external=_external)
+            return url_for('schedule_subscribe', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'ical-schedule':
-            return url_for('schedule_ical', space=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
+            return url_for('schedule_ical', profile=self.profile.name, space=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')

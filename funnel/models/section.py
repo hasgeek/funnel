@@ -44,10 +44,10 @@ class ProposalSpaceSection(BaseScopedNameMixin, db.Model):
 
     def url_for(self, action='view', _external=False):
         if action == 'view':
-            return url_for('section_view', space=self.proposal_space.name, section=self.name, _external=_external)
+            return url_for('section_view', profile=self.proposal_space.profile.name, space=self.proposal_space.name, section=self.name, _external=_external)
         elif action == 'edit':
-            return url_for('section_edit', space=self.proposal_space.name, section=self.name, _external=_external)
+            return url_for('section_edit', profile=self.proposal_space.profile.name, space=self.proposal_space.name, section=self.name, _external=_external)
         elif action == 'delete':
-            return url_for('section_delete', space=self.proposal_space.name, section=self.name, _external=_external)
+            return url_for('section_delete', profile=self.proposal_space.profile.name, space=self.proposal_space.name, section=self.name, _external=_external)
         elif action == 'usergroups':
-            return url_for('usergroup_list', space=self.proposal_space.name, section=self.name, _external=_external)
+            return url_for('usergroup_list', profile=self.proposal_space.profile.name, space=self.proposal_space.name, section=self.name, _external=_external)

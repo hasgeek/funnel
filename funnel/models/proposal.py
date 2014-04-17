@@ -160,24 +160,24 @@ class Proposal(BaseIdNameMixin, db.Model):
 
     def url_for(self, action='view', _external=False):
         if action == 'view':
-            return url_for('proposal_view', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_view', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'json':
-            return url_for('proposal_json', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_json', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'edit':
-            return url_for('proposal_edit', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_edit', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'delete':
-            return url_for('proposal_delete', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_delete', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'voteup':
-            return url_for('proposal_voteup', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_voteup', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'votedown':
-            return url_for('proposal_votedown', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_votedown', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'votecancel':
-            return url_for('proposal_cancelvote', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_cancelvote', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'next':
-            return url_for('proposal_next', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_next', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'prev':
-            return url_for('proposal_prev', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_prev', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'schedule':
-            return url_for('proposal_schedule', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_schedule', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'status':
-            return url_for('proposal_status', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_status', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)

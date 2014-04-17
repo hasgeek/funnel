@@ -4,15 +4,16 @@ import unicodecsv
 from cStringIO import StringIO
 from flask import g, flash, redirect, render_template, Response, request, jsonify
 from baseframe import _
-from coaster.views import load_model, jsonp, requestargs
+from coaster.views import load_models, jsonp, requestargs
 
 from .. import app, lastuser
-from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, PROPOSALSTATUS
+from ..models import db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, PROPOSALSTATUS
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
+
 
 def space_data(space):
     return {
@@ -27,9 +28,12 @@ def space_data(space):
         'json_url': space.url_for('json', _external=True),
         }
 
-@app.route('/newspace', methods=['GET', 'POST'])  # FIXME
-@lastuser.requires_permission('siteadmin')
-def space_new():
+
+@app.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    permission='new-space')
+def space_new(profile):
     form = ProposalSpaceForm(model=ProposalSpace)
     if request.method == 'GET':
         form.timezone.data = app.config.get('TIMEZONE')
@@ -44,19 +48,24 @@ def space_new():
     return render_template('baseframe/autoform.html', form=form, title=_("Create a new proposal space"), submit=_("Create space"))
 
 
-@app.route('/<space>/')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
+
+@app.route('/<space>/', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view', addlperms=lastuser.permissions)
-def space_view(space):
+def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     return render_template('space.html', space=space, description=space.description, sections=sections,
         is_siteadmin=lastuser.has_permission('siteadmin'), PROPOSALSTATUS=PROPOSALSTATUS)
 
 
-@app.route('/<space>/json')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
+@app.route('/<space>/json', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view', addlperms=lastuser.permissions)
-def space_view_json(space):
+def space_view_json(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     return jsonp(**{
@@ -69,10 +78,12 @@ def space_view_json(space):
         })
 
 
-@app.route('/<space>/csv')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
+@app.route('/<space>/csv', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view', addlperms=lastuser.permissions)
-def space_view_csv(space):
+def space_view_csv(profile, space):
     if lastuser.has_permission('siteadmin'):
         usergroups = [g.name for g in space.usergroups]
     else:
@@ -87,10 +98,12 @@ def space_view_csv(space):
     return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
 
 
-@app.route('/<space>/edit', methods=['GET', 'POST'])
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
+@app.route('/<space>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('edit-space', 'siteadmin'), addlperms=lastuser.permissions)
-def space_edit(space):
+def space_edit(profile, space):
     form = ProposalSpaceForm(obj=space, model=ProposalSpace)
     if request.method == 'GET' and not space.timezone:
         form.timezone.data = app.config.get('TIMEZONE')
@@ -103,11 +116,13 @@ def space_edit(space):
     return render_template('baseframe/autoform.html', form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
 
-@app.route('/<space>/update_venue_colors', methods=['POST'])
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
+@app.route('/<space>/update_venue_colors', methods=['POST'], subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('siteadmin'), addlperms=lastuser.permissions)
 @requestargs('id[]', 'color[]')
-def update_venue_colors(space, id, color):
+def update_venue_colors(profile, space, id, color):
     colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
     for room in space.rooms:
         if room.scoped_name in colors:

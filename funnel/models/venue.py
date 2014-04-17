@@ -29,11 +29,11 @@ class Venue(BaseScopedNameMixin, db.Model):
 
     def url_for(self, action='new', _external=False):
         if action == 'new-room':
-            return url_for('venueroom_new', space=self.proposal_space.name, venue=self.name, _external=_external)
+            return url_for('venueroom_new', profile=self.proposal_space.profile.name, space=self.proposal_space.name, venue=self.name, _external=_external)
         elif action == 'delete':
-            return url_for('venue_delete', space=self.proposal_space.name, venue=self.name, _external=_external)
+            return url_for('venue_delete', profile=self.proposal_space.profile.name, space=self.proposal_space.name, venue=self.name, _external=_external)
         elif action == 'edit':
-            return url_for('venue_edit', space=self.proposal_space.name, venue=self.name, _external=_external)
+            return url_for('venue_edit', profile=self.proposal_space.profile.name, space=self.proposal_space.name, venue=self.name, _external=_external)
 
 
 class VenueRoom(BaseScopedNameMixin, db.Model):
@@ -54,8 +54,8 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
 
     def url_for(self, action='new', _external=False):
         if action == 'delete':
-            return url_for('venueroom_delete', space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)
+            return url_for('venueroom_delete', profile=self.venue.proposal_space.profile.name, space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)
         if action == 'ical-schedule':
-            return url_for('schedule_room_ical', space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
+            return url_for('schedule_room_ical', profile=self.venue.proposal_space.profile.name, space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
         elif action == 'edit':
-            return url_for('venueroom_edit', space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)
+            return url_for('venueroom_edit', profile=self.venue.proposal_space.profile.name, space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)

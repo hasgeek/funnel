@@ -13,9 +13,10 @@ def index():
     return render_template('index.html', spaces=spaces, siteadmin=lastuser.has_permission('siteadmin'))
 
 
-@app.route('/json')
-def spaces_json():
-	return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.all()])
+@app.route('/json', subdomain='<profile>')
+@load_model(Profile, {'name': 'profile'}, 'profile')
+def spaces_json(profile):
+	return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.filter_by(profile=profile).all()])
 
 
 @app.route('/', subdomain='<profile>')

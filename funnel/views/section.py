@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, redirect, request, flash
-from coaster.views import load_models, load_model
+from coaster.views import load_models
 from baseframe import _
 
 from .. import app, lastuser
-from ..models import db, ProposalSpace, ProposalSpaceSection
+from ..models import db, Profile, ProposalSpace, ProposalSpaceSection
 from ..forms import SectionForm, ConfirmDeleteForm
 
 def section_data(section):
@@ -17,11 +17,13 @@ def section_data(section):
         'json_url': None
         }
 
-@app.route('/<space>/sections')
+@app.route('/<space>/sections', subdomain='<profile>')
 @lastuser.requires_login
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
-def section_list(space):
+def section_list(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
     return render_template('sections.html', space=space, sections=sections,
         breadcrumbs=[
@@ -29,13 +31,14 @@ def section_list(space):
             (space.url_for('sections'), _("Sections"))])
 
 
-@app.route('/<space>/sections/<section>')
+@app.route('/<space>/sections/<section>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
-def section_view(space, section):
+def section_view(profile, space, section):
     return render_template('section.html', space=space, section=section,
         breadcrumbs=[
             (space.url_for(), space.title),
@@ -43,11 +46,13 @@ def section_view(space, section):
             (section.url_for(), section.title)])
 
 
-@app.route('/<space>/sections/new', methods=['GET', 'POST'])
+@app.route('/<space>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
+@load_models(
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('new-section', 'siteadmin'), addlperms=lastuser.permissions)
-def section_new(space):
+def section_new(profile, space):
     form = SectionForm(model=ProposalSpaceSection, parent=space)
     if form.validate_on_submit():
         section = ProposalSpaceSection(proposal_space=space)
@@ -60,13 +65,14 @@ def section_new(space):
         breadcrumbs=[(space.url_for(), space.title), (space.url_for('sections'), _("Sections"))])
 
 
-@app.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'])
+@app.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission=('edit-section', 'siteadmin'), addlperms=lastuser.permissions)
-def section_edit(space, section):
+def section_edit(profile, space, section):
     form = SectionForm(obj=section, model=ProposalSpaceSection, parent=space)
     if form.validate_on_submit():
         form.populate_obj(section)
@@ -80,13 +86,14 @@ def section_edit(space, section):
             (section.url_for(), section.title)])
 
 
-@app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'])
+@app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission=('delete-section', 'siteadmin'), addlperms=lastuser.permissions)
-def section_delete(space, section):
+def section_delete(profile, space, section):
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
