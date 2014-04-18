@@ -118,7 +118,7 @@ def session_ical(session):
 
 @app.route('/<space>/schedule', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_view(profile, space):
@@ -134,7 +134,7 @@ def schedule_view(profile, space):
 
 @app.route('/<space>/schedule/subscribe', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_subscribe(profile, space):
@@ -144,7 +144,7 @@ def schedule_subscribe(profile, space):
 
 @app.route('/<space>/schedule/json', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_json(profile, space):
@@ -155,7 +155,7 @@ def schedule_json(profile, space):
 
 @app.route('/<space>/schedule/ical', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_ical(profile, space):
@@ -174,7 +174,7 @@ def schedule_ical(profile, space):
 
 @app.route('/<space>/schedule/<venue>/<room>/ical', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
@@ -207,7 +207,7 @@ def schedule_room_ical(profile, space, venue, room):
 
 @app.route('/<space>/schedule/<venue>/<room>/updates', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
@@ -240,7 +240,7 @@ def schedule_room_updates(profile, space, venue, room):
 @app.route('/<space>/schedule/edit', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
 def schedule_edit(profile, space):
@@ -264,7 +264,7 @@ def schedule_edit(profile, space):
 @app.route('/<space>/schedule/update', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('siteadmin'), addlperms=lastuser.permissions)
 @requestargs(('sessions', json.loads))

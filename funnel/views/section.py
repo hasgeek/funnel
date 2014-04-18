@@ -20,7 +20,7 @@ def section_data(section):
 @app.route('/<space>/sections', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
 def section_list(profile, space):
@@ -34,7 +34,7 @@ def section_list(profile, space):
 @app.route('/<space>/sections/<section>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
@@ -49,7 +49,7 @@ def section_view(profile, space, section):
 @app.route('/<space>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('new-section', 'siteadmin'), addlperms=lastuser.permissions)
 def section_new(profile, space):
@@ -68,7 +68,7 @@ def section_new(profile, space):
 @app.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission=('edit-section', 'siteadmin'), addlperms=lastuser.permissions)
@@ -89,7 +89,7 @@ def section_edit(profile, space, section):
 @app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission=('delete-section', 'siteadmin'), addlperms=lastuser.permissions)

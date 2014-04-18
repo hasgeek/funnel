@@ -91,7 +91,7 @@ def proposal_data_flat(proposal, groups=[]):
 @app.route('/<space>/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-proposal', addlperms=lastuser.permissions)
 def proposal_new(profile, space):
@@ -130,7 +130,7 @@ def proposal_new(profile, space):
 @app.route('/<space>/<proposal>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('edit-proposal', 'siteadmin'), addlperms=lastuser.permissions)
@@ -173,7 +173,7 @@ def proposal_edit(profile, space, proposal):
 @app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('confirm-proposal', 'siteadmin'), addlperms=lastuser.permissions)
@@ -189,7 +189,7 @@ def proposal_status(profile, space, proposal):
 @app.route('/<space>/<proposal>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('delete-proposal', 'siteadmin'), addlperms=lastuser.permissions)
@@ -219,7 +219,7 @@ def proposal_delete(profile, space, proposal):
 
 @app.route('/<space>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
@@ -316,7 +316,7 @@ def proposal_view(profile, space, proposal):
 
 @app.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
@@ -355,7 +355,7 @@ def session_feedback(profile, space, proposal, id_type, userid, content, present
 
 @app.route('/<space>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
@@ -365,7 +365,7 @@ def proposal_json(profile, space, proposal):
 
 @app.route('/<space>/<proposal>/next', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
@@ -380,7 +380,7 @@ def proposal_next(profile, space, proposal):
 
 @app.route('/<space>/<proposal>/prev', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)

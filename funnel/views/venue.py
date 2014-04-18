@@ -46,7 +46,7 @@ def room_data(room):
 @app.route('/<space>/venues', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
 def venue_list(profile, space):
@@ -59,7 +59,7 @@ def venue_list(profile, space):
 @app.route('/<space>/venues/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('new-venue', 'siteadmin'), addlperms=lastuser.permissions)
 def venue_new(profile, space):
@@ -79,7 +79,7 @@ def venue_new(profile, space):
 @app.route('/<space>/venues/<venue>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     permission=('edit-venue', 'siteadmin'), addlperms=lastuser.permissions)
@@ -97,7 +97,7 @@ def venue_edit(profile, space, venue):
 @app.route('/<space>/venues/<venue>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     permission=('delete-venue', 'siteadmin'), addlperms=lastuser.permissions)
@@ -111,7 +111,7 @@ def venue_delete(profile, space, venue):
 @app.route('/<space>/venues/<venue>/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     permission=('new-venue', 'siteadmin'), addlperms=lastuser.permissions)
@@ -132,7 +132,7 @@ def venueroom_new(profile, space, venue):
 @app.route('/<space>/venues/<venue>/<room>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
@@ -151,7 +151,7 @@ def venueroom_edit(profile, space, venue, room):
 @app.route('/<space>/venues/<venue>/<room>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),

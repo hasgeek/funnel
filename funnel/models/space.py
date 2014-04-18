@@ -49,6 +49,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False)
 
+    #: Redirect URLs from Funnel to Talkfunnel
+    legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
+
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
     def __init__(self, **kwargs):

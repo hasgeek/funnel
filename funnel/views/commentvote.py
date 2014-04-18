@@ -12,7 +12,7 @@ from ..models import db, Profile, ProposalSpace, Proposal, Comment
 @app.route('/<space>/<proposal>/voteup', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
@@ -27,7 +27,7 @@ def proposal_voteup(profile, space, proposal):
 @app.route('/<space>/<proposal>/votedown', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
@@ -42,7 +42,7 @@ def proposal_votedown(profile, space, proposal):
 @app.route('/<space>/<proposal>/cancelvote', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
@@ -55,7 +55,7 @@ def proposal_cancelvote(profile, space, proposal):
 
 @app.route('/<space>/<proposal>/comments/<int:comment>/json', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
@@ -71,7 +71,7 @@ def comment_json(profile, space, proposal, comment):
 @app.route('/<space>/<proposal>/comments/<int:comment>/voteup', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),

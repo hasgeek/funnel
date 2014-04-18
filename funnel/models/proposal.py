@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseIdNameMixin, MarkdownColumn
+from . import db, BaseScopedIdNameMixin, MarkdownColumn
 from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
@@ -30,7 +30,7 @@ class PROPOSALSTATUS(LabeledEnum):
 
 # --- Models ------------------------------------------------------------------
 
-class Proposal(BaseIdNameMixin, db.Model):
+class Proposal(BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'proposal'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -46,6 +46,8 @@ class Proposal(BaseIdNameMixin, db.Model):
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
+    parent = db.synonym('proposal_space')
+
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
@@ -69,13 +71,15 @@ class Proposal(BaseIdNameMixin, db.Model):
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
+
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSAL)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
 
     def __repr__(self):
-        return u'<Proposal "%s" in space "%s" by "%s">' % (self.title, self.proposal_space.title, self.user.fullname)
+        return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
 
     @property
     def owner(self):

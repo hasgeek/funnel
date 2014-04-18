@@ -57,7 +57,7 @@ def session_form(space, proposal=None, session=None):
 @app.route('/<space>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('new-session', 'siteadmin'), addlperms=lastuser.permissions)
 def session_new(profile, space):
@@ -67,7 +67,7 @@ def session_new(profile, space):
 @app.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('new-session', 'siteadmin'), addlperms=lastuser.permissions)
@@ -77,7 +77,7 @@ def proposal_schedule(profile, space, proposal):
 
 @app.route('/<space>/<session>/viewsession-popup', methods=['GET'], subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'))
 def session_view_popup(profile, space, session):
@@ -87,7 +87,7 @@ def session_view_popup(profile, space, session):
 @app.route('/<space>/<session>/editsession', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
     permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
@@ -98,7 +98,7 @@ def session_edit(profile, space, session):
 @app.route('/<space>/<session>/deletesession', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
     permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)

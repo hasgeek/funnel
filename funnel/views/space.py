@@ -31,7 +31,7 @@ def space_data(space):
 
 @app.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     permission='new-space')
 def space_new(profile):
     form = ProposalSpaceForm(model=ProposalSpace)
@@ -51,7 +51,7 @@ def space_new(profile):
 
 @app.route('/<space>/', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view', addlperms=lastuser.permissions)
 def space_view(profile, space):
@@ -62,7 +62,7 @@ def space_view(profile, space):
 
 @app.route('/<space>/json', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view', addlperms=lastuser.permissions)
 def space_view_json(profile, space):
@@ -80,7 +80,7 @@ def space_view_json(profile, space):
 
 @app.route('/<space>/csv', subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view', addlperms=lastuser.permissions)
 def space_view_csv(profile, space):
@@ -100,7 +100,7 @@ def space_view_csv(profile, space):
 
 @app.route('/<space>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('edit-space', 'siteadmin'), addlperms=lastuser.permissions)
 def space_edit(profile, space):
@@ -118,7 +118,7 @@ def space_edit(profile, space):
 
 @app.route('/<space>/update_venue_colors', methods=['POST'], subdomain='<profile>')
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('siteadmin'), addlperms=lastuser.permissions)
 @requestargs('id[]', 'color[]')

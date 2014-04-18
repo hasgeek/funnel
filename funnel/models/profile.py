@@ -12,8 +12,18 @@ class Profile(ProfileBase, db.Model):
 
     description = MarkdownColumn('description', default=u'', nullable=False)
 
+    def permissions(self, user, inherited=None):
+        perms = super(Profile, self).permissions(user, inherited)
+        perms.add('view')
+        if user and self.userid in user.user_organizations_owned_ids():
+            perms.add('edit-profile')
+            perms.add('new-space')
+        return perms
+
     def url_for(self, action='view', _external=False):
         if action == 'view':
             return url_for('profile_view', profile=self.name, _external=_external)
+        if action == 'edit':
+            return url_for('profile_edit', profile=self.name, _external=_external)
         elif action == 'new-space':
-            return url_for('proposalspace_new', profile=self.name, _external=_external)
+            return url_for('space_new', profile=self.name, _external=_external)

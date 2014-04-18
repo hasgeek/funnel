@@ -12,7 +12,7 @@ from ..forms import  UserGroupForm, ConfirmDeleteForm
 @app.route('/<space>/users', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
 def usergroup_list(profile, space):
@@ -25,7 +25,7 @@ def usergroup_list(profile, space):
 @app.route('/<space>/users/<group>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
     permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
@@ -41,7 +41,7 @@ def usergroup_view(profile, space, usergroup):
 @app.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission=('new-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
 def usergroup_edit(profile, space, kwargs):
@@ -89,7 +89,7 @@ def usergroup_edit(profile, space, kwargs):
 @app.route('/<space>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (Profile, {'name': 'profile'}, 'profile'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
     permission=('delete-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
