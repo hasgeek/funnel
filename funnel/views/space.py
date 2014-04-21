@@ -80,7 +80,7 @@ def space_view_csv(space):
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
     outfile = StringIO()
     out = unicodecsv.writer(outfile, encoding='utf-8')
-    out.writerow(proposal_headers + ['votes_' + group for group in usergroups])
+    out.writerow(proposal_headers + ['votes_' + group for group in usergroups] + ['status'])
     for proposal in proposals:
         out.writerow(proposal_data_flat(proposal, usergroups))
     outfile.seek(0)
