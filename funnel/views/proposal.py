@@ -83,6 +83,7 @@ def proposal_data_flat(proposal, groups=[]):
     cols = [data.get(header) for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
     for name in groups:
         cols.append(data['votes_groups'][name])
+    cols.append(PROPOSALSTATUS[proposal.status])
     return cols
 
 
