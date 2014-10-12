@@ -113,6 +113,7 @@ def session_ical(session):
     event.add_component(alarm)
     return event
 
+
 @app.route('/<space>/schedule')
 @load_model(ProposalSpace, {'name': 'space'}, 'space',)
 def schedule_view(space):
