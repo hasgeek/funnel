@@ -39,6 +39,10 @@ class ProposalSpace(BaseNameMixin, db.Model):
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
 
+    # Columns for mobile
+    bg_image = db.Column(db.Unicode(250), nullable=True)
+    bg_color = db.Column(db.Unicode(6), nullable=True)
+
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
 

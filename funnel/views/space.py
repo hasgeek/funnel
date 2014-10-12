@@ -25,6 +25,8 @@ def space_data(space):
         'status': space.status,
         'url': space.url_for(_external=True),
         'json_url': space.url_for('json', _external=True),
+        'bg_image': space.bg_image,
+        'bg_color': space.bg_color,
         }
 
 @app.route('/new', methods=['GET', 'POST'])
