@@ -49,6 +49,8 @@ class ProposalSpaceForm(Form):
         description=__("In YYYY-MM-DD format"))
     tagline = wtforms.TextField(__("Tagline"), validators=[wtforms.validators.Required()],
         description=__("This is displayed on the card on the homepage"))
+    website = wtforms.fields.html5.URLField(__("Website"),
+        validators=[wtforms.validators.Optional()])
     description = MarkdownField(__("Description"), validators=[wtforms.validators.Required()],
         description=__("About Event"))
     timezone = wtforms.SelectField(__("Timezone"),
@@ -60,6 +62,9 @@ class ProposalSpaceForm(Form):
         description=__("RGB color for the event, shown on the mobile app. Enter without the '#'. E.g. CCCCCC."),
         validators=[wtforms.validators.Optional(), wtforms.validators.length(max=6)],
         default=u"CCCCCC")
+    explore_url = wtforms.fields.html5.URLField(__("Explore tab URL"),
+        description=__(u"Page containing the explore tab’s contents, for the mobile app"),
+        validators=[wtforms.validators.Optional()])
 
     status = wtforms.SelectField(__("Status"), coerce=int, choices=[
         (0, __("Draft")),

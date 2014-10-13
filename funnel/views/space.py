@@ -14,6 +14,7 @@ from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
 
+
 def space_data(space):
     return {
         'name': space.name,
@@ -24,10 +25,13 @@ def space_data(space):
         'end': space.date_upto.isoformat() if space.date_upto else None,
         'status': space.status,
         'url': space.url_for(_external=True),
+        'website': space.website,
         'json_url': space.url_for('json', _external=True),
         'bg_image': space.bg_image,
         'bg_color': space.bg_color,
+        'explore_url': space.explore_url,
         }
+
 
 @app.route('/new', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')

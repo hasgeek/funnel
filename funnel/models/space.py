@@ -42,6 +42,7 @@ class ProposalSpace(BaseNameMixin, db.Model):
     # Columns for mobile
     bg_image = db.Column(db.Unicode(250), nullable=True)
     bg_color = db.Column(db.Unicode(6), nullable=True)
+    explore_url = db.Column(db.Unicode(250), nullable=True)
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
