@@ -1,18 +1,4 @@
-body {
-  background-image: url('../img/satinweave.png?1357570024');
-  background-color: #f1f1f1;
-}
-
-@media all and (-webkit-min-device-pixel-ratio: 1.5) {
-  body {
-    background-image: url('../img/satinweave@2x.png?1357570024');
-    background-size: 24px 12px;
-  }
-}
-footer .footer-inner {
-  background: inherit;
-}
-
+@charset "UTF-8";
 .infosheet, .table {
   background: white;
 }
@@ -21,6 +7,7 @@ footer .footer-inner {
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
+  text-transform: capitalize;
   background-image: url('../img/logo.png?1388525392');
   background-repeat: no-repeat;
   background-position: 50% 50%;
@@ -28,17 +15,27 @@ footer .footer-inner {
   height: 75px;
 }
 
+@media all and (-webkit-min-device-pixel-ratio: 1.5) {
+  #logo {
+    background-image: url('../img/logo@2x.png?1388525427');
+    -moz-background-size: 110px 75px;
+    -o-background-size: 110px 75px;
+    -webkit-background-size: 110px 75px;
+    background-size: 110px 75px;
+  }
+}
 #hg-networkbar.navbar .navbar-brand {
   padding: 0;
   display: block;
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
-  background-image: url('../img/logo.png?1388525392');
+  text-transform: capitalize;
+  background-image: url('../img/logo@2x.png?1388525427');
   background-repeat: no-repeat;
   background-position: 50% 50%;
-  width: 110px;
-  height: 75px;
+  width: 221px;
+  height: 150px;
   height: 48px;
   background-position: left center;
   background-size: auto 100%;
@@ -81,6 +78,7 @@ footer .footer-inner {
   text-indent: -119988px;
   overflow: hidden;
   text-align: left;
+  text-transform: capitalize;
   background-image: url('../img/home.png?1377162656');
   background-repeat: no-repeat;
   background-position: 12 22;
@@ -102,8 +100,8 @@ footer .footer-inner {
 }
 /* Tables */
 table.listing {
-  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -136,17 +134,15 @@ table.listing {
 
 .listing tr.link:hover,
 .listing tbody.link:hover tr {
-  background: #d9e8f0;
+  background: #D9E8F0;
 }
 
 .infosheet {
   margin: -0.7em -15px 1em -15px;
   padding-bottom: 1em;
   border: 1px solid #afafaf;
-  -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
+  -webkit-border-radius: 4px;
   border-radius: 4px;
   word-wrap: break-word;
 }
@@ -162,10 +158,8 @@ table.listing {
 .infosheet .votebox .choices span.score {
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
   border: 1px solid #b7b7b7;
-  -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
+  -webkit-border-radius: 3px;
   border-radius: 3px;
   padding: 0 3px;
 }
@@ -175,10 +169,8 @@ table.listing {
 .infosheet .votebox .choices a.votechoice {
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
   border: 1px solid transparent;
-  -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
+  -webkit-border-radius: 3px;
   border-radius: 3px;
   padding: 0 3px;
 }
@@ -187,8 +179,8 @@ table.listing {
   text-decoration: none;
 }
 .infosheet .votebox .choices a.votechoice:active, .infosheet .votebox .choices a.votechoice.selected {
-  background-color: #d9e8f0;
-  color: #444444;
+  background-color: #D9E8F0;
+  color: #444;
 }
 .infosheet .votebox .vlabel {
   margin-top: 0.5em;
@@ -203,14 +195,12 @@ table.listing {
 .infosheet .section h2 {
   font-size: 100%;
   font-weight: bold;
-  background: #d9e8f0;
+  background: #D9E8F0;
   padding: 0 0.5em;
   margin: 0 -0.5em;
-  color: #444444;
-  -webkit-border-radius: 3px;
+  color: #444;
   -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
+  -webkit-border-radius: 3px;
   border-radius: 3px;
 }
 .infosheet .section h1 + p, .infosheet .section h1 + ul, .infosheet .section h1 + ol, .infosheet .section h2 + p, .infosheet .section h2 + ul, .infosheet .section h2 + ol {
@@ -236,7 +226,7 @@ table.listing {
 }
 .infosheet .section.bar {
   position: relative;
-  color: white;
+  color: #fff;
   background-color: #df5e0e;
   padding: 1px 6px;
   font-size: 0.8em;
@@ -301,8 +291,8 @@ table.listing {
 @media screen and (min-width: 768px) {
   .infosheet {
     margin: 0em auto 2em auto;
-    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
     -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
     box-shadow: rgba(0, 0, 0, 0.4) 0 1px 5px;
   }
   .infosheet .votebox .choices {
@@ -317,14 +307,14 @@ table.listing {
   }
   .infosheet .section.bar {
     position: relative;
-    color: white;
+    color: #fff;
     background-color: #df5e0e;
     padding: 1px 3em;
     margin: 0 -1em 1em -1em;
     font-size: 14px;
     text-align: left;
-    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
     -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
     box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px;
   }
   .infosheet .section.bar:before, .infosheet .section.bar:after {
@@ -387,18 +377,14 @@ dl.bar dd {
   display: -webkit-inline-block;
   display: -moz-inline-block;
   display: -ms-inline-block;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -ms-box-flex: 1;
-  box-flex: 1;
+  -webkit-flex-grow: 1;
+  flex-grow: 1;
   margin: 0 0 0 5px;
   text-indent: 0;
 }
 dl.bar dd:last-child {
-  -webkit-box-flex: 0;
-  -moz-box-flex: 0;
-  -ms-box-flex: 0;
-  box-flex: 0;
+  -webkit-flex-grow: 0;
+  flex-grow: 0;
   margin: 0;
 }
 
@@ -409,18 +395,14 @@ dl.bar dd:last-child {
 
   dl.bar {
     display: block;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-box;
-    display: box;
+    display: -webkit-flex;
+    display: flex;
     margin: 1em 0;
   }
   dl.bar dt {
     display: inline;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-box;
-    display: box;
+    display: -webkit-flex;
+    display: flex;
     margin: 0 0.5em 0 0;
   }
   dl.bar dt:after {
@@ -428,22 +410,16 @@ dl.bar dd:last-child {
   }
   dl.bar dd {
     display: inline;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-box;
-    display: box;
-    -webkit-box-flex: 1;
-    -moz-box-flex: 1;
-    -ms-box-flex: 1;
-    box-flex: 1;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-grow: 1;
+    flex-grow: 1;
     margin: 0 1em 0 0;
     text-indent: 0;
   }
   dl.bar dd:last-child {
-    -webkit-box-flex: 0;
-    -moz-box-flex: 0;
-    -ms-box-flex: 0;
-    box-flex: 0;
+    -webkit-flex-grow: 0;
+    flex-grow: 0;
     margin: 0;
   }
 }
@@ -474,16 +450,16 @@ dl.bar dd:last-child {
 }
 .leftear a {
   padding-right: 0.33em;
-  -webkit-transition: left 0.1s linear;
   -moz-transition: left 0.1s linear;
   -o-transition: left 0.1s linear;
+  -webkit-transition: left 0.1s linear;
   transition: left 0.1s linear;
 }
 .leftear a:hover {
   left: -5px;
-  -webkit-transition: left 0.1s linear;
   -moz-transition: left 0.1s linear;
   -o-transition: left 0.1s linear;
+  -webkit-transition: left 0.1s linear;
   transition: left 0.1s linear;
 }
 
@@ -493,16 +469,16 @@ dl.bar dd:last-child {
 }
 .rightear a {
   padding-left: 0.33em;
-  -webkit-transition: right 0.1s linear;
   -moz-transition: right 0.1s linear;
   -o-transition: right 0.1s linear;
+  -webkit-transition: right 0.1s linear;
   transition: right 0.1s linear;
 }
 .rightear a:hover {
   right: -5px;
-  -webkit-transition: right 0.1s linear;
   -moz-transition: right 0.1s linear;
   -o-transition: right 0.1s linear;
+  -webkit-transition: right 0.1s linear;
   transition: right 0.1s linear;
 }
 
@@ -529,10 +505,8 @@ dl.bar dd:last-child {
 .comments div:target {
   margin: -0.25em;
   padding: 0.25em;
-  -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
+  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-animation: yellowhi 4s 1;
   -moz-animation: yellowhi 4s 1;
@@ -575,13 +549,11 @@ dl.bar dd:last-child {
   font-weight: bold;
 }
 .comments .com-header .commenter.selected, .comments .com-footer .commenter.selected {
-  color: #444444;
-  background-color: #d9e8f0;
+  color: #444;
+  background-color: #D9E8F0;
   padding: 1px 0.25em;
-  -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
+  -webkit-border-radius: 3px;
   border-radius: 3px;
 }
 .comments .com-header a,
@@ -667,67 +639,53 @@ div.markdown-field a.button.selected {
   0% {
     background-color: #ffffa2;
   }
-
   25% {
     background-color: #ffffa2;
   }
-
   100% {
     background-color: transparent;
   }
 }
-
 @-moz-keyframes yellowhi {
   0% {
     background-color: #ffffa2;
   }
-
   25% {
     background-color: #ffffa2;
   }
-
   100% {
     background-color: transparent;
   }
 }
-
 @-ms-keyframes yellowhi {
   0% {
     background-color: #ffffa2;
   }
-
   25% {
     background-color: #ffffa2;
   }
-
   100% {
     background-color: transparent;
   }
 }
-
 @-o-keyframes yellowhi {
   0% {
     background-color: #ffffa2;
   }
-
   25% {
     background-color: #ffffa2;
   }
-
   100% {
     background-color: transparent;
   }
 }
-
 @keyframes yellowhi {
   0% {
     background-color: #ffffa2;
   }
-
   25% {
     background-color: #ffffa2;
   }
-
   100% {
     background-color: transparent;
   }

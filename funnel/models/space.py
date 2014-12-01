@@ -43,6 +43,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
     status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
 
+    # Columns for mobile
+    bg_image = db.Column(db.Unicode(250), nullable=True)
+    bg_color = db.Column(db.Unicode(6), nullable=True)
+    explore_url = db.Column(db.Unicode(250), nullable=True)
+
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
 
@@ -143,3 +148,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('schedule_subscribe', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'ical-schedule':
             return url_for('schedule_ical', profile=self.profile.name, space=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')
+
+    @classmethod
+    def all(cls):
+        """
+        Return currently active events, sorted by date.
+        """
+        return cls.query.filter(cls.status >= 1).filter(cls.status <= 4).order_by(cls.date.desc()).all()

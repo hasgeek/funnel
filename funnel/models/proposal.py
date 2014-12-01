@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
+from flask import url_for, abort
 from . import db, BaseScopedIdNameMixin, MarkdownColumn
 from .user import User
 from .space import ProposalSpace
@@ -10,7 +10,7 @@ from coaster.utils import LabeledEnum
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
-from pytz import timezone, utc
+from pytz import timezone, utc, UnknownTimeZoneError
 
 __all__ = ['Proposal', 'PROPOSALSTATUS']
 
@@ -83,7 +83,7 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
 
     @property
     def owner(self):
-        return self.speaker or self.user  
+        return self.speaker or self.user
 
     @property
     def datetime(self):
@@ -142,7 +142,6 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
                     votes_bydate[groupname][date] += -1 if vote.votedown else +1
         return votes_bydate
 
-
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
@@ -155,7 +154,7 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
                 perms.update([
                     'view-proposal',
                     'edit-proposal',
-                    'delete-proposal',
+                    'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
                     'transfer-proposal',
                     ])
                 if self.speaker != self.user:

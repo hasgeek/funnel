@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, request, flash
+from flask import render_template, redirect, flash
 from coaster.views import load_models
 from baseframe import _
+from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceSection
-from ..forms import SectionForm, ConfirmDeleteForm
+from ..forms import SectionForm
+
 
 def section_data(section):
     return {
@@ -16,6 +18,7 @@ def section_data(section):
         'url': None,
         'json_url': None
         }
+
 
 @app.route('/<space>/sections', subdomain='<profile>')
 @lastuser.requires_login
@@ -61,8 +64,7 @@ def section_new(profile, space):
         db.session.commit()
         flash(_("Your new section has been added"), 'info')
         return redirect(space.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("New section"), submit=_("Create section"),
-        breadcrumbs=[(space.url_for(), space.title), (space.url_for('sections'), _("Sections"))])
+    return render_form(form=form, title=_("New section"), submit=_("Create section"))
 
 
 @app.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'], subdomain='<profile>')
@@ -79,11 +81,7 @@ def section_edit(profile, space, section):
         db.session.commit()
         flash(_("Your section has been edited"), 'info')
         return redirect(space.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("Edit section"), submit=_("Save changes"),
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('sections'), _("Sections")),
-            (section.url_for(), section.title)])
+    return render_form(form=form, title=_("Edit section"), submit=_("Save changes"))
 
 
 @app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'], subdomain='<profile>')
@@ -94,16 +92,8 @@ def section_edit(profile, space, section):
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission=('delete-section', 'siteadmin'), addlperms=lastuser.permissions)
 def section_delete(profile, space, section):
-    form = ConfirmDeleteForm()
-    if form.validate_on_submit():
-        if 'delete' in request.form:
-            db.session.delete(section)
-            db.session.commit()
-            flash(_("Your section has been deleted"), 'info')
-        return redirect(space.url_for(), code=303)
-    return render_template('delete.html', form=form, title=_(u"Confirm delete"),
+    return render_delete_sqla(section, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete section ‘{title}’?").format(title=section.title),
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('sections'), _("Sections")),
-            (section.url_for(), section.title)])
+        success=_("Your section has been deleted"),
+        next=space.url_for('sections'),
+        cancel_url=space.url_for('sections'))

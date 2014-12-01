@@ -22,8 +22,8 @@ def session_data(sessions, timezone=None, with_modal_url=False, with_delete_url=
     return [dict({
             "id": session.url_id,
             "title": session.title,
-            "start": session.start.isoformat()+'Z',
-            "end": session.end.isoformat()+'Z',
+            "start": session.start.isoformat() + 'Z',
+            "end": session.end.isoformat() + 'Z',
             "room_scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
             "url_name": session.url_name,
@@ -49,8 +49,8 @@ def schedule_data(space):
         data[day][slot].append({
             "id": session.url_id,
             "title": session.title,
-            "start": session.start.isoformat()+'Z',
-            "end": session.end.isoformat()+'Z',
+            "start": session.start.isoformat() + 'Z',
+            "end": session.end.isoformat() + 'Z',
             "url": session.url_for(_external=True),
             "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,

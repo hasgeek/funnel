@@ -4,6 +4,7 @@ import unicodecsv
 from cStringIO import StringIO
 from flask import g, flash, redirect, render_template, Response, request, jsonify
 from baseframe import _
+from baseframe.forms import render_form
 from coaster.views import load_models, jsonp, requestargs
 
 from .. import app, lastuser
@@ -25,7 +26,11 @@ def space_data(space):
         'end': space.date_upto.isoformat() if space.date_upto else None,
         'status': space.status,
         'url': space.url_for(_external=True),
+        'website': space.website,
         'json_url': space.url_for('json', _external=True),
+        'bg_image': space.bg_image,
+        'bg_color': space.bg_color,
+        'explore_url': space.explore_url,
         }
 
 
@@ -45,8 +50,7 @@ def space_new(profile):
         db.session.commit()
         flash(_("Your new space has been created"), 'info')
         return redirect(space.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("Create a new proposal space"), submit=_("Create space"))
-
+    return render_form(form=form, title=_("Create a new proposal space"), submit=_("Create space"), cancel_url=profile.url_for())
 
 
 @app.route('/<space>/', subdomain='<profile>')
@@ -113,7 +117,7 @@ def space_edit(profile, space):
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')
         return redirect(space.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("Edit proposal space"), submit=_("Save changes"))
+    return render_form(form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
 
 @app.route('/<space>/update_venue_colors', methods=['POST'], subdomain='<profile>')

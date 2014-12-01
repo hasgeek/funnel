@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import wtforms
-import re
 from baseframe import __
 from baseframe.forms import Form, MarkdownField
 from baseframe.staticdata import country_codes
-
+from .space import valid_color_re
 
 __all__ = ['VenueForm', 'VenueRoomForm']
-
-
-valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
 
 
 class VenueForm(Form):
@@ -44,6 +40,6 @@ class VenueRoomForm(Form):
     bgcolor = wtforms.TextField(__("Event Color"), validators=[wtforms.validators.Required(), wtforms.validators.length(max=6)],
         description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
 
-    def validate_bgcolor(self, bgcolor):
-        if not valid_color_re.match(bgcolor.data):
+    def validate_bgcolor(self, field):
+        if not valid_color_re.match(field.data):
             raise wtforms.ValidationError("Please enter a valid color code")

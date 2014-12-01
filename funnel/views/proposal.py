@@ -11,16 +11,18 @@ from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
 from baseframe import _
+from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote,
     ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
-from ..forms import ProposalForm, ProposalFormForAdmin, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ProposalStatusForm
+from ..forms import ProposalForm, ProposalFormForAdmin, CommentForm, DeleteCommentForm, ProposalStatusForm
 
 proposal_headers = [
     'id',
     'title',
     'url',
+    'fullname',
     'proposer',
     'speaker',
     'email',
@@ -41,6 +43,7 @@ def send_mail(sender, to, body, subject):
     msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
     mail.send(msg)
 
+
 def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
@@ -52,6 +55,7 @@ def proposal_data(proposal):
             ('title', proposal.title),
             ('url', proposal.url_for(_external=True)),
             ('json_url', proposal.url_for('json', _external=True)),
+            ('fullname', proposal.owner.fullname),
             ('proposer', proposal.user.pickername),
             ('speaker', proposal.speaker.pickername if proposal.speaker else None),
             ('section', proposal.section.title if proposal.section else None),
@@ -121,9 +125,8 @@ def proposal_new(profile, space):
         db.session.commit()
         flash(_("Your new session has been saved"), 'info')
         return redirect(proposal.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("Submit a session proposal"),
+    return render_form(form=form, title=_("Submit a session proposal"),
         submit=_("Submit proposal"),
-        breadcrumbs=[(space.url_for(), space.title)],
         message=Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
@@ -164,9 +167,7 @@ def proposal_edit(profile, space, proposal):
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')
         return redirect(proposal.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("Edit session proposal"), submit=_("Save changes"),
-        breadcrumbs=[(space.url_for(), space.title),
-                     (proposal.url_for(), proposal.title)],
+    return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
         message=Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
@@ -195,9 +196,9 @@ def proposal_status(profile, space, proposal):
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission=('delete-proposal', 'siteadmin'), addlperms=lastuser.permissions)
 def proposal_delete(profile, space, proposal):
-    form = ConfirmDeleteForm()
-    if form.validate_on_submit():
-        if 'delete' in request.form:
+    if request.method in ('POST', 'DELETE'):
+        if 'delete' in request.form or request.method == 'DELETE':
+            # FIXME: Move all these to cascades. They shouldn't be manual
             comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
             for comment in comments:
                 db.session.delete(comment)
@@ -206,16 +207,14 @@ def proposal_delete(profile, space, proposal):
             for vote in votes:
                 db.session.delete(vote)
             db.session.delete(proposal.votes)
-            db.session.delete(proposal)
-            db.session.commit()
-            flash(_("Your proposal has been deleted"), "info")
-            return redirect(space.url_for())
-        else:
-            return redirect(proposal.url_for())
-    return render_template('delete.html', form=form, title=_(u"Confirm delete"),
+
+    return render_delete_sqla(proposal, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete your proposal ‘{title}’? "
                 u"This will remove all votes and comments as well. This operation "
-                u"is permanent and cannot be undone.").format(title=proposal.title))
+                u"is permanent and cannot be undone.").format(title=proposal.title),
+        success=_("Your proposal has been deleted"),
+        next=space.url_for(),
+        cancel_url=proposal.url_for())
 
 
 @app.route('/<space>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
