@@ -58,7 +58,6 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
     requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=False)
-    blog_post = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
 
@@ -155,7 +154,7 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
                     'view-proposal',
                     'edit-proposal',
                     'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
-                    'submit-proposal',
+                    'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                     'transfer-proposal',
                     ])
                 if self.speaker != self.user:

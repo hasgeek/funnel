@@ -98,7 +98,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         if user is not None:
             if self.status == SPACESTATUS.SUBMISSIONS:
                 perms.add('new-proposal')
-            if self.admin_team and user in self.admin_team.users:
+            if ((self.admin_team and user in self.admin_team.users) or
+                (self.profile.admin_team and user in self.profile.admin_team.users) or
+                    user.owner_of(self.profile)):
                 perms.update([
                     'view-contactinfo',
                     'edit-space',

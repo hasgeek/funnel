@@ -12,7 +12,12 @@
     <div class="section first">
       <div class="row">
         <div class="col-xs-12 col-sm-7 col-md-8 col-lg-8">
-          <h1>{{ proposal.title }}</h1>
+          <div class="page-header">
+            <h3>
+            <a href="{{ proposal.proposal_space.profile.url_for() }}">{{ proposal.proposal_space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i>&nbsp;
+            <a href="{{ proposal.proposal_space.url_for() }}">{{ proposal.proposal_space.short_title() }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>
+            <h1>{{ proposal.title }}</h1>
+          </div>
           <p>
             {% trans %}by{% endtrans%}
             {%- if proposal.speaker %}
@@ -154,7 +159,7 @@
 
             <p>{{ renderform(statusform, 'proposal-status', action=proposal.url_for('status'), submit='Save') }}</p>
           {% endif %}
-          {% if proposal.preview_video or proposal.slides or blogpost %}
+          {% if proposal.preview_video or proposal.slides %}
             <h2>{% trans %}Media{% endtrans %}</h2>
             <p class=" space-two-top space-two-bottom clearfix">
               <ul class="nav nav-tabs">
@@ -164,30 +169,16 @@
                 {% if proposal.slides %}
                   <li{% if not proposal.preview_video %} class="active"{% endif %}><a href="#slides" data-toggle="tab">Slides</a></li>
                 {% endif %}
-                {% if blogpost %}
-                  <li{% if not proposal.preview_video and not proposal.slides %} class="active"{% endif %}><a href="#blogpost" data-toggle="tab">Blog Post</a></li>
-                {% endif %}
               </ul>
               <div class="tab-content">
                 {% if proposal.preview_video %}
                   <div class="tab-pane active" id="preview_video">
-                    <div class="embed-container">
-                      <a href="{{ proposal.preview_video }}" class="oembed">{{ proposal.preview_video }}</a>
-                    </div>
+                    <a href="{{ proposal.preview_video }}" class="oembed">{{ proposal.preview_video }}</a>
                   </div>
                 {% endif %}
                 {% if proposal.slides %}
                   <div class="tab-pane{% if not proposal.preview_video %} active{% endif %}" id="slides">
-                    <div class="embed-container">
-                      <a href="{{ proposal.slides }}" class="oembed">{{ proposal.slides }}</a>
-                    </div>
-                  </div>
-                {% endif %}
-                {% if blogpost %}
-                  <div class="tab-pane{% if not proposal.preview_video and not proposal.slides %} active{% endif %}" id="blogpost">
-                      <h3><a href="{{ blogpost['url'] }}" target="_blank">{{ blogpost['title'] }}</a></h3>
-                      <p>{{ blogpost['description'] }}</p>
-                      <p><a href="{{ blogpost['url'] }}" target="_blank">Read more &raquo;</a>
+                    <a href="{{ proposal.slides }}" class="oembed">{{ proposal.slides }}</a>
                   </div>
                 {% endif %}
               </div>
@@ -229,19 +220,19 @@
             <p id="toplevel-comment" class="hidden">
               <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>
             </p>
-            <form method="POST" id="newcomment">
+            <form method="POST" id="newcomment" class="row">
               <div class="hidden">
                 <input type="hidden" name="form.id" value="newcomment"/>
                 {{ commentform.hidden_tag() }}
                 {{ commentform.parent_id() }}
                 {{ commentform.comment_edit_id() }}
               </div>
-              <p>
-                {{ renderfield(commentform.message) }}
-              </p>
-              <p>
-                <input id="comment-submit" class="btn btn-primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
-              </p>
+              {{ renderfield(commentform.message, style='wide', nolabel=true) }}
+              <div class="form-group form-actions clearfix">
+                <div class="col-xs-12">
+                  <input id="comment-submit" class="btn btn-primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
+                </div>
+              </div>
             </form>
             <form method="POST" id="delcomment" class="hidden">
               <div class="hidden">
@@ -289,10 +280,6 @@
 <script type="text/javascript">
   $(function() {
     commentsInit({{ request.base_url|tojson }});
-    $('.oembed').oembed();
-    {%- if proposal.links %}
-      $("#links-list a").oembed();
-    {%- endif %}
   });
 </script>
 <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>

@@ -49,13 +49,13 @@ def init_for(env):
         ])
     app.assets.register('js_fullcalendar',
         Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
-            output='js/fullcalendar.packed.js', filters='closure_js'))
+            output='js/fullcalendar.packed.js', filters='uglipyjs'))
     app.assets.register('css_fullcalendar',
         Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css', 'schedules.css'),
             output='css/fullcalendar.packed.css', filters='cssmin'))
     app.assets.register('js_schedules',
         Bundle(assets.require('schedules.js'),
-            output='js/schedules.packed.js', filters='closure_js'))
+            output='js/schedules.packed.js', filters='uglipyjs'))
     app.assets.register('css_screens',
         Bundle(assets.require('screens.css'),
             output='css/screens.packed.css', filters='cssmin'))

@@ -317,11 +317,9 @@ def proposal_view(profile, space, proposal):
         statusform = ProposalStatusForm(status=proposal.status)
     else:
         statusform = None
-    blogpost = requests.get(proposal.blog_post).json() if proposal.blog_post else None
 
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        breadcrumbs=[(space.url_for(), space.title)], blogpost=blogpost,
         votes_groups=proposal.votes_by_group(),
         PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform)
 

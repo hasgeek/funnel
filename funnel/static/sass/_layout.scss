@@ -1,5 +1,7 @@
 @import "compass";
 
+$body-line-height: 24px;
+
 // body {
 //     font-family: $font-default;
 // }
@@ -50,49 +52,6 @@
 
 .nav {
     margin-bottom: 10px;
-}
-
-.breadcrumbs {
-    @include pie-clearfix;
-    list-style: none;
-    margin: {
-        top: -1em;
-        bottom: 1em;
-        left: 0;
-        right: 0;
-    }
-    padding: 0;
-    li {
-        float: left;
-        padding: 0.25em 0.25em;
-        font-size: 80%;
-        &:before {
-            content: "→";
-            padding-right: 0.5em;
-        }
-        &:first-child:before {
-            content: "";
-            padding-right: 0;
-        }
-        &.home {
-            @include replace-text-with-dimensions('home.png', 12, 22);
-            padding: 0 0.2em 0 0;
-            a {
-                display: block;
-            }
-        }
-    }
-}
-
-@media screen and (min-width: 768px){
-    .breadcrumbs {
-        margin: {
-            top: -1em;
-            bottom: 1em;
-            left: 0;
-            right: 0;
-        }
-    }
 }
 
 /* Tables */
@@ -185,6 +144,15 @@ table.listing {
         padding: 0 1.2em;
         h1 {
             margin: 0.5em 0 0 0;
+        }
+        // Yuck! So much nesting. Fix this.
+        .page-header h3 {
+            margin-top: 0.5em;
+            margin-bottom: 0;
+            line-height: $body-line-height * 1.5
+        }
+        .page-header h3 + h1 {
+            margin-top: 0;
         }
         h2 {
             //margin: 0.66em 0 0 0;

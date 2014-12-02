@@ -28,10 +28,7 @@ def section_data(section):
     permission='view-section')
 def section_list(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
-    return render_template('sections.html', space=space, sections=sections,
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('sections'), _("Sections"))])
+    return render_template('sections.html', space=space, sections=sections)
 
 
 @app.route('/<space>/sections/<section>', subdomain='<profile>')
@@ -42,11 +39,7 @@ def section_list(profile, space):
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission='view-section')
 def section_view(profile, space, section):
-    return render_template('section.html', space=space, section=section,
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('sections'), _("Sections")),
-            (section.url_for(), section.title)])
+    return render_template('section.html', space=space, section=section)
 
 
 @app.route('/<space>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')

@@ -50,10 +50,7 @@ def room_data(room):
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def venue_list(profile, space):
-    return render_template('venues.html', space=space, venues=space.venues,
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('venues'), _("Venues"))])
+    return render_template('venues.html', space=space, venues=space.venues)
 
 
 @app.route('/<space>/venues/new', methods=['GET', 'POST'], subdomain='<profile>')

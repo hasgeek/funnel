@@ -1,4 +1,3 @@
-@charset "UTF-8";
 .infosheet, .table {
   background: white;
 }
@@ -47,57 +46,6 @@
   margin-bottom: 10px;
 }
 
-.breadcrumbs {
-  *zoom: 1;
-  list-style: none;
-  margin-top: -1em;
-  margin-bottom: 1em;
-  margin-left: 0;
-  margin-right: 0;
-  padding: 0;
-}
-.breadcrumbs:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-.breadcrumbs li {
-  float: left;
-  padding: 0.25em 0.25em;
-  font-size: 80%;
-}
-.breadcrumbs li:before {
-  content: "→";
-  padding-right: 0.5em;
-}
-.breadcrumbs li:first-child:before {
-  content: "";
-  padding-right: 0;
-}
-.breadcrumbs li.home {
-  text-indent: -119988px;
-  overflow: hidden;
-  text-align: left;
-  text-transform: capitalize;
-  background-image: url('../img/home.png?1377162656');
-  background-repeat: no-repeat;
-  background-position: 12 22;
-  width: 12px;
-  height: 22px;
-  padding: 0 0.2em 0 0;
-}
-.breadcrumbs li.home a {
-  display: block;
-}
-
-@media screen and (min-width: 768px) {
-  .breadcrumbs {
-    margin-top: -1em;
-    margin-bottom: 1em;
-    margin-left: 0;
-    margin-right: 0;
-  }
-}
 /* Tables */
 table.listing {
   -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -191,6 +139,14 @@ table.listing {
 }
 .infosheet .section h1 {
   margin: 0.5em 0 0 0;
+}
+.infosheet .section .page-header h3 {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  line-height: 36px;
+}
+.infosheet .section .page-header h3 + h1 {
+  margin-top: 0;
 }
 .infosheet .section h2 {
   font-size: 100%;

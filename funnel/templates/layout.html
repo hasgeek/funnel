@@ -9,15 +9,6 @@
 {%- endblock %}
 
 {% block baseheadline -%}
-  {%- if breadcrumbs %}
-    <ul class="breadcrumbs">
-      <li class="home"><a href="{{ url_for('index') }}">Home</a></li>
-      {% for url, title in breadcrumbs -%}
-      <li><a href="{{ url }}">{{ title }}</a></li>
-      {% endfor -%}
-    </ul>
-  {% endif -%}
-
   {% block headline -%}
     <div class="page-header">
       {% block top_title %}<h1>{{ self.title()|e }}</h1>{% endblock %}

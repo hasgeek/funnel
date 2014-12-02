@@ -10,7 +10,6 @@ from time import mktime
 from flask import render_template, json, jsonify, request, Response
 
 from coaster.views import load_models, requestargs, jsonp
-from baseframe import _
 
 from .. import app, lastuser
 from ..models import db, Profile, ProposalSpace, Session, VenueRoom, Venue
@@ -126,10 +125,7 @@ def schedule_view(profile, space):
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         sessions=session_data(space.sessions, timezone=space.timezone, with_modal_url='view-popup'),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('schedule'), _("Schedule"))])
+        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
 
 
 @app.route('/<space>/schedule/subscribe', subdomain='<profile>')
@@ -232,7 +228,7 @@ def schedule_room_updates(profile, space, venue, room):
         next.start = localize_date(next.start, to_tz=space.timezone)
         next.end = localize_date(next.end, to_tz=space.timezone)
         nextdiff = next.start.date() - now.date()
-        nextdiff = nextdiff.total_seconds()/86400
+        nextdiff = nextdiff.total_seconds() / 86400
     print current, next
     return render_template('room_updates.html', room=room, current=current, next=next, nextdiff=nextdiff)
 
@@ -246,19 +242,15 @@ def schedule_room_updates(profile, space, venue, room):
 def schedule_edit(profile, space):
     proposals = {
         'unscheduled': [{
-                'title': proposal.title,
-                'modal_url': proposal.url_for('schedule')
+            'title': proposal.title,
+            'modal_url': proposal.url_for('schedule')
             } for proposal in space.proposals if proposal.confirmed and not proposal.session],
         'scheduled': session_data(space.sessions, timezone=space.timezone, with_modal_url='edit', with_delete_url=True)
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('schedule'), _("Schedule")),
-            (space.url_for('edit-schedule'), _("Edit"))])
+        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
 
 
 @app.route('/<space>/schedule/update', methods=['POST'], subdomain='<profile>')
