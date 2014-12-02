@@ -10,7 +10,7 @@ __all__ = ['UserGroupForm']
 
 
 class UserGroupForm(Form):
-    name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName(scoped=True)])
+    name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName()])
     title = wtforms.TextField(__("Title"), validators=[wtforms.validators.Required()])
     users = wtforms.TextAreaField(__("Users"), validators=[wtforms.validators.Required()],
         description=__("Usernames or email addresses, one per line"))

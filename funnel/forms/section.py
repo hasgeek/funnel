@@ -10,7 +10,7 @@ __all__ = ['SectionForm']
 
 
 class SectionForm(Form):
-    name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName(scoped=True)])
+    name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName()])
     title = wtforms.TextField(__("Title"), validators=[wtforms.validators.Required()])
     description = wtforms.TextAreaField(__("Description"), validators=[wtforms.validators.Required()])
     public = wtforms.BooleanField(__("Public?"), default=True)
