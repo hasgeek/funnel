@@ -155,6 +155,7 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
                     'view-proposal',
                     'edit-proposal',
                     'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
+                    'submit-proposal',
                     'transfer-proposal',
                     ])
                 if self.speaker != self.user:

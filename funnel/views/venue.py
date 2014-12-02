@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, render_template
-from coaster.views import load_model, load_models
+from flask import flash, render_template, jsonify
+from coaster.views import load_models, requestargs
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
@@ -48,7 +48,7 @@ def room_data(room):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='view')
 def venue_list(profile, space):
     return render_template('venues.html', space=space, venues=space.venues,
         breadcrumbs=[
@@ -61,7 +61,7 @@ def venue_list(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('new-venue', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='new-venue')
 def venue_new(profile, space):
     form = VenueForm()
     if form.validate_on_submit():
@@ -82,7 +82,7 @@ def venue_new(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    permission=('edit-venue', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-venue')
 def venue_edit(profile, space, venue):
     form = VenueForm(obj=venue)
     if form.validate_on_submit():
@@ -100,7 +100,7 @@ def venue_edit(profile, space, venue):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    permission=('delete-venue', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='delete-venue')
 def venue_delete(profile, space, venue):
     return render_delete_sqla(venue, db, title=u"Confirm delete",
         message=_(u"Delete venue “{title}”? This cannot be undone".format(title=venue.title)),
@@ -114,7 +114,7 @@ def venue_delete(profile, space, venue):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    permission=('new-venue', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='new-venue')
 def venueroom_new(profile, space, venue):
     form = VenueRoomForm()
     if form.validate_on_submit():
@@ -136,7 +136,7 @@ def venueroom_new(profile, space, venue):
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission=('edit-venue', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-venue')
 def venueroom_edit(profile, space, venue, room):
     form = VenueRoomForm(obj=room)
     if form.validate_on_submit():
@@ -155,9 +155,24 @@ def venueroom_edit(profile, space, venue, room):
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission=('delete-venue', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='delete-venue')
 def venueroom_delete(profile, space, venue, room):
     return render_delete_sqla(room, db, title=u"Confirm delete",
         message=_(u"Delete room “{title}”? This cannot be undone".format(title=room.title)),
         success=_(u"You have deleted room “{title}”".format(title=room.title)),
         next=space.url_for('venues'))
+
+
+@app.route('/<space>/update_venue_colors', methods=['POST'], subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='edit-venue')
+@requestargs('id[]', 'color[]')
+def update_venue_colors(profile, space, id, color):
+    colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
+    for room in space.rooms:
+        if room.scoped_name in colors:
+            room.bgcolor = colors[room.scoped_name]
+    db.session.commit()
+    return jsonify(status=True)

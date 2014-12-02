@@ -2,13 +2,16 @@
 
 from baseframe import __
 from baseframe.forms import Form, MarkdownField
-from .. import lastuser
 import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from ..models import PROPOSALSTATUS
 
-__all__ = ['ProposalForm', 'ProposalFormForAdmin', 'ProposalStatusForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalFormForAdmin', 'ProposalStatusForm']
+
+
+class TransferProposal(Form):
+    userid = wtforms.TextField(__("Transfer to"), validators=[wtforms.validators.Required()])
 
 
 class ProposalForm(Form):

@@ -7,16 +7,13 @@ from baseframe.forms import Form, MarkdownField, ValidName
 from baseframe.forms.sqlalchemy import AvailableName
 import wtforms
 import wtforms.fields.html5
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from .profile import profile_teams
 
 __all__ = ['ProposalSpaceForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
-
-
-def set_none(self, field):
-    if not field.data:
-        field.data = None
 
 
 class ProposalSpaceForm(Form):
@@ -59,10 +56,16 @@ class ProposalSpaceForm(Form):
         ],
         description=__(u"Proposals can only be submitted in the “Open” state. "
             u"“Closed” and “Withdrawn” are hidden from homepage"))
+    admin_team = QuerySelectField(u"Admin Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+        query_factory=profile_teams, get_label='title', allow_blank=False,
+        description=_(u"The administrators of this proposal space"))
+    review_team = QuerySelectField(u"Review Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+        query_factory=profile_teams, get_label='title', allow_blank=False,
+        description=_(u"Reviewers can see contact details of proposers, but can’t change settings"))
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
-            raise wtforms.ValidationError(_("End date cannot be before Start date"))
+            raise wtforms.ValidationError(_("End date cannot be before start date"))
 
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):

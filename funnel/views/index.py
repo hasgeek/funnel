@@ -16,7 +16,7 @@ def index():
 
 
 @app.route('/json', subdomain='<profile>')
-@load_model(Profile, {'name': 'profile'}, 'g.profile')
+@load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def spaces_json(profile):
     return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.filter_by(profile=profile).all()])
 
@@ -26,7 +26,7 @@ def spaces_json(profile):
 def profile_view(profile):
     spaces = ProposalSpace.query.filter(ProposalSpace.profile == profile).filter(
         ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()
-    return render_template('index.html', spaces=spaces, siteadmin=lastuser.has_permission('siteadmin'))
+    return render_template('index.html', spaces=spaces)
 
 
 # Legacy routes for funnel to talkfunnel migration

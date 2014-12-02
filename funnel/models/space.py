@@ -2,10 +2,9 @@
 
 from flask import url_for
 from . import db, BaseScopedNameMixin, MarkdownColumn
-from .user import User
+from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
-from coaster.sqlalchemy import JsonDict
 
 __all__ = ['SPACESTATUS', 'ProposalSpace']
 
@@ -53,6 +52,12 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False)
 
+    admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    admin_team = db.relationship(Team, foreign_keys=[admin_team_id])
+
+    review_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    review_team = db.relationship(Team, foreign_keys=[review_team_id])
+
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
 
@@ -93,18 +98,29 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         if user is not None:
             if self.status == SPACESTATUS.SUBMISSIONS:
                 perms.add('new-proposal')
-            if user == self.user:
+            if self.admin_team and user in self.admin_team.users:
                 perms.update([
+                    'view-contactinfo',
                     'edit-space',
                     'delete-space',
                     'view-section',
                     'new-section',
+                    'edit-section',
+                    'delete-section',
                     'view-usergroup',
                     'new-usergroup',
+                    'edit-usergroup',
+                    'delete-usergroup',
                     'confirm-proposal',
+                    'view-venue',
                     'new-venue',
                     'edit-venue',
                     'delete-venue',
+                    ])
+            if self.review_team and user in self.review_team.users:
+                perms.update([
+                    'view-contactinfo',
+                    'confirm-proposal',
                     ])
         return perms
 

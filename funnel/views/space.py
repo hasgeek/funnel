@@ -56,18 +56,18 @@ def space_new(profile):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='view', addlperms=lastuser.permissions)
+    permission='view')
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        is_siteadmin=lastuser.has_permission('siteadmin'), PROPOSALSTATUS=PROPOSALSTATUS)
+        PROPOSALSTATUS=PROPOSALSTATUS)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='view', addlperms=lastuser.permissions)
+    permission='view')
 def space_view_json(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
@@ -85,10 +85,10 @@ def space_view_json(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='view', addlperms=lastuser.permissions)
+    permission='view')
 def space_view_csv(profile, space):
-    if lastuser.has_permission('siteadmin'):
-        usergroups = [g.name for g in space.usergroups]
+    if 'view-contactinfo' in g.permissions:
+        usergroups = [ug.name for ug in space.usergroups]
     else:
         usergroups = []
     proposals = Proposal.query.filter_by(proposal_space=space).order_by(db.desc('created_at')).all()
@@ -105,7 +105,7 @@ def space_view_csv(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('edit-space', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-space')
 def space_edit(profile, space):
     form = ProposalSpaceForm(obj=space, model=ProposalSpace)
     if request.method == 'GET' and not space.timezone:
@@ -116,18 +116,3 @@ def space_edit(profile, space):
         flash(_("Your changes have been saved"), 'info')
         return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Edit proposal space"), submit=_("Save changes"))
-
-
-@app.route('/<space>/update_venue_colors', methods=['POST'], subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('siteadmin'), addlperms=lastuser.permissions)
-@requestargs('id[]', 'color[]')
-def update_venue_colors(profile, space, id, color):
-    colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
-    for room in space.rooms:
-        if room.scoped_name in colors:
-            room.bgcolor = colors[room.scoped_name]
-    db.session.commit()
-    return jsonify(status=True)

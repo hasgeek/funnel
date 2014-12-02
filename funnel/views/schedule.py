@@ -146,7 +146,7 @@ def schedule_subscribe(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='view')
 def schedule_json(profile, space):
     return jsonp(schedule=schedule_data(space),
         venues=[venue_data(venue) for venue in space.venues],
@@ -242,7 +242,7 @@ def schedule_room_updates(profile, space, venue, room):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-schedule')
 def schedule_edit(profile, space):
     proposals = {
         'unscheduled': [{
@@ -266,7 +266,7 @@ def schedule_edit(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-schedule')
 @requestargs(('sessions', json.loads))
 def schedule_update(profile, space, sessions):
     for session in sessions:

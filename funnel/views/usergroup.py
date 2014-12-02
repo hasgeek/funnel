@@ -15,7 +15,7 @@ from ..forms import UserGroupForm
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='view-usergroup')
 def usergroup_list(profile, space):
     return render_template('usergroups.html', space=space, usergroups=space.usergroups,
         breadcrumbs=[
@@ -29,7 +29,7 @@ def usergroup_list(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
-    permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='view-usergroup')
 def usergroup_view(profile, space, usergroup):
     return render_template('usergroup.html', space=space, usergroup=usergroup,
         breadcrumbs=[
@@ -44,7 +44,7 @@ def usergroup_view(profile, space, usergroup):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('new-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='new-usergroup')
 def usergroup_edit(profile, space, kwargs):
     group = kwargs.get('group')
     form = UserGroupForm(model=UserGroup, parent=space)
@@ -86,7 +86,7 @@ def usergroup_edit(profile, space, kwargs):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
-    permission=('delete-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='delete-usergroup')
 def usergroup_delete(profile, space, usergroup):
     return render_delete_sqla(usergroup, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete user group ‘{title}’?").format(title=usergroup.title),

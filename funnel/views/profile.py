@@ -61,7 +61,7 @@ def profile_new():
 @app.route('/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    permission=('edit-profile', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-profile')
 def profile_edit(profile):
     form = EditProfileForm(obj=profile, model=Profile)
     if form.validate_on_submit():

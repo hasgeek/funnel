@@ -98,7 +98,7 @@ def proposal_data_flat(proposal, groups=[]):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='new-proposal', addlperms=lastuser.permissions)
+    permission='new-proposal')
 def proposal_new(profile, space):
     if lastuser.has_permission('siteadmin'):
         form = ProposalFormForAdmin(model=Proposal, parent=space)
@@ -137,7 +137,7 @@ def proposal_new(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-    permission=('edit-proposal', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-proposal')
 def proposal_edit(profile, space, proposal):
     if lastuser.has_permission('siteadmin'):
         form = ProposalFormForAdmin(obj=proposal, model=Proposal, parent=space)
@@ -172,13 +172,25 @@ def proposal_edit(profile, space, proposal):
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
+# @app.route('/<space>/<proposal>/<transition>', methods=['GET', 'POST'], subdomain='<profile>')
+# @lastuser.requires_login
+# @load_models(
+#     (Profile, {'name': 'profile'}, 'g.profile'),
+#     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+#     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+#     kwargs=True)
+# def proposal_transition(profile, space, proposal, kwargs):
+#     transition = kwargs['transition']
+#     workflow=proposal.workflow()
+    
+
 @app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-    permission=('confirm-proposal', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='confirm-proposal')
 def proposal_status(profile, space, proposal):
     form = ProposalStatusForm()
     if form.validate_on_submit():
@@ -194,7 +206,7 @@ def proposal_status(profile, space, proposal):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-    permission=('delete-proposal', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='delete-proposal')
 def proposal_delete(profile, space, proposal):
     if request.method in ('POST', 'DELETE'):
         if 'delete' in request.form or request.method == 'DELETE':

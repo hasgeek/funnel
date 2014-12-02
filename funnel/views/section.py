@@ -25,7 +25,7 @@ def section_data(section):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='view-section')
 def section_list(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
     return render_template('sections.html', space=space, sections=sections,
@@ -40,7 +40,7 @@ def section_list(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
-    permission=('view-section', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='view-section')
 def section_view(profile, space, section):
     return render_template('section.html', space=space, section=section,
         breadcrumbs=[
@@ -54,7 +54,7 @@ def section_view(profile, space, section):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission=('new-section', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='new-section')
 def section_new(profile, space):
     form = SectionForm(model=ProposalSpaceSection, parent=space)
     if form.validate_on_submit():
@@ -73,7 +73,7 @@ def section_new(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
-    permission=('edit-section', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='edit-section')
 def section_edit(profile, space, section):
     form = SectionForm(obj=section, model=ProposalSpaceSection, parent=space)
     if form.validate_on_submit():
@@ -90,7 +90,7 @@ def section_edit(profile, space, section):
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
-    permission=('delete-section', 'siteadmin'), addlperms=lastuser.permissions)
+    permission='delete-section')
 def section_delete(profile, space, section):
     return render_delete_sqla(section, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete section ‘{title}’?").format(title=section.title),
