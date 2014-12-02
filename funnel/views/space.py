@@ -44,7 +44,6 @@ def space_new(profile):
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user)
-        space.content = form.content.data
         form.populate_obj(space)
         db.session.add(space)
         db.session.commit()
@@ -112,7 +111,6 @@ def space_edit(profile, space):
     if request.method == 'GET' and not space.timezone:
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
-        space.content = form.content.data
         form.populate_obj(space)
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')

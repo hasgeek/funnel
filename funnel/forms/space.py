@@ -19,24 +19,6 @@ def set_none(self, field):
         field.data = None
 
 
-class Content(wtforms.Form):
-    format = MarkdownField('Format', description=__("Event format"))
-    themes = MarkdownField('Themes', description=__("Themes for accepted proposals"))
-    criteria = MarkdownField('Criteria to submit', description=__("Criteria to submit"))
-    panel = MarkdownField('Editorial Panel')
-    dates = MarkdownField('Important Dates', description=__("First set of confirmed proposals, Last date to submit, Event Dates, etc"))
-    open_source = MarkdownField('Commitment to Open Source')
-    title_helper = wtforms.TextField('Helper', description=__("Helper text for the Propose Session link beside title"))
-
-    validate_format = set_none
-    validate_themes = set_none
-    validate_criteria = set_none
-    validate_panel = set_none
-    validate_dates = set_none
-    validate_open_source = set_none
-    validate_title_helper = set_none
-
-
 class ProposalSpaceForm(Form):
     name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName()])
     title = wtforms.TextField(__("Title"), validators=[wtforms.validators.Required()])
@@ -77,8 +59,6 @@ class ProposalSpaceForm(Form):
         ],
         description=__(u"Proposals can only be submitted in the “Open” state. "
             u"“Closed” and “Withdrawn” are hidden from homepage"))
-
-    content = wtforms.fields.FormField(Content)
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
