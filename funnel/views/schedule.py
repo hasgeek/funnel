@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from flask import render_template, json, jsonify, request, Response
-from coaster.views import load_model, load_models, requestargs, jsonp
-from baseframe import _
-from .helpers import localize_micro_timestamp, localize_date
-from .. import app, lastuser
-from ..models import db, ProposalSpace, Session, VenueRoom, Venue
-from time import mktime
-from .venue import venue_data, room_data
 from pytz import timezone, utc
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event, Alarm
-from icalendar import Calendar, Event
-from sqlalchemy import func, or_, and_
+from sqlalchemy import or_
+from time import mktime
+
+from flask import render_template, json, jsonify, request, Response
+
+from coaster.views import load_models, requestargs, jsonp
+
+from .. import app, lastuser
+from ..models import db, Profile, ProposalSpace, Session, VenueRoom, Venue
+from .helpers import localize_date
+from .venue import venue_data, room_data
 
 
 def session_data(sessions, timezone=None, with_modal_url=False, with_delete_url=False):
     return [dict({
             "id": session.url_id,
             "title": session.title,
-            "start": session.start.isoformat()+'Z',
-            "end": session.end.isoformat()+'Z',
+            "start": session.start.isoformat() + 'Z',
+            "end": session.end.isoformat() + 'Z',
             "room_scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
             "url_name": session.url_name,
@@ -47,8 +48,8 @@ def schedule_data(space):
         data[day][slot].append({
             "id": session.url_id,
             "title": session.title,
-            "start": session.start.isoformat()+'Z',
-            "end": session.end.isoformat()+'Z',
+            "start": session.start.isoformat() + 'Z',
+            "end": session.end.isoformat() + 'Z',
             "url": session.url_for(_external=True),
             "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
@@ -114,37 +115,46 @@ def session_ical(session):
     return event
 
 
-@app.route('/<space>/schedule')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',)
-def schedule_view(space):
+@app.route('/<space>/schedule', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def schedule_view(profile, space):
     return render_template('schedule.html', space=space, venues=space.venues,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         sessions=session_data(space.sessions, timezone=space.timezone, with_modal_url='view-popup'),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('schedule'), _("Schedule"))])
+        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
 
 
-@app.route('/<space>/schedule/subscribe')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',)
-def schedule_subscribe(space):
+@app.route('/<space>/schedule/subscribe', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def schedule_subscribe(profile, space):
     return render_template('schedule_subscribe.html',
         space=space, venues=space.venues, rooms=space.rooms)
 
 
-@app.route('/<space>/schedule/json')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
-    permission=('view', 'siteadmin'), addlperms=lastuser.permissions)
-def schedule_json(space):
+@app.route('/<space>/schedule/json', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def schedule_json(profile, space):
     return jsonp(schedule=schedule_data(space),
         venues=[venue_data(venue) for venue in space.venues],
         rooms=[room_data(room) for room in space.rooms])
 
-@app.route('/<space>/schedule/ical')
-@load_model(ProposalSpace, {'name': 'space'}, 'space',)
-def schedule_ical(space):
+
+@app.route('/<space>/schedule/ical', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def schedule_ical(profile, space):
     cal = Calendar()
     cal.add('prodid', "-//Schedule for {event}//funnel.hasgeek.com//".format(event=space.title))
     cal.add('version', "2.0")
@@ -157,12 +167,15 @@ def schedule_ical(space):
         cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
-@app.route('/<space>/schedule/<venue>/<room>/ical')
+
+@app.route('/<space>/schedule/<venue>/<room>/ical', subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),)
-def schedule_room_ical(space, venue, room):
+    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
+    permission='view')
+def schedule_room_ical(profile, space, venue, room):
     cal = Calendar()
     cal.add('prodid', "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
         room=room.title,
@@ -187,12 +200,15 @@ def schedule_room_ical(space, venue, room):
         cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
-@app.route('/<space>/schedule/<venue>/<room>/updates')
+
+@app.route('/<space>/schedule/<venue>/<room>/updates', subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
-    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),)
-def schedule_room_updates(space, venue, room):
+    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
+    permission='view')
+def schedule_room_updates(profile, space, venue, room):
     now = datetime.utcnow()
     current = Session.query.filter(
         Session.start <= now, Session.end >= now,
@@ -212,38 +228,39 @@ def schedule_room_updates(space, venue, room):
         next.start = localize_date(next.start, to_tz=space.timezone)
         next.end = localize_date(next.end, to_tz=space.timezone)
         nextdiff = next.start.date() - now.date()
-        nextdiff = nextdiff.total_seconds()/86400
+        nextdiff = nextdiff.total_seconds() / 86400
     print current, next
     return render_template('room_updates.html', room=room, current=current, next=next, nextdiff=nextdiff)
 
-@app.route('/<space>/schedule/edit')
+
+@app.route('/<space>/schedule/edit', subdomain='<profile>')
 @lastuser.requires_login
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
-    permission=('edit', 'siteadmin'), addlperms=lastuser.permissions)
-def schedule_edit(space):
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='edit-schedule')
+def schedule_edit(profile, space):
     proposals = {
         'unscheduled': [{
-                'title': proposal.title,
-                'modal_url': proposal.url_for('schedule')
+            'title': proposal.title,
+            'modal_url': proposal.url_for('schedule')
             } for proposal in space.proposals if proposal.confirmed and not proposal.session],
         'scheduled': session_data(space.sessions, timezone=space.timezone, with_modal_url='edit', with_delete_url=True)
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]),
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('schedule'), _("Schedule")),
-            (space.url_for('edit-schedule'), _("Edit"))])
+        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
 
 
-@app.route('/<space>/schedule/update', methods=['POST'])
+@app.route('/<space>/schedule/update', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
-    permission=('siteadmin'), addlperms=lastuser.permissions)
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='edit-schedule')
 @requestargs(('sessions', json.loads))
-def schedule_update(space, sessions):
+def schedule_update(profile, space, sessions):
     for session in sessions:
         s = Session.query.filter_by(proposal_space=space, url_id=session['id']).one()
         s.start = session['start']

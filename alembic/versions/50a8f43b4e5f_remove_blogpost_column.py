@@ -1,0 +1,25 @@
+"""Remove blogpost column
+
+Revision ID: 50a8f43b4e5f
+Revises: 411fc4124fb5
+Create Date: 2014-12-03 03:46:34.962222
+
+"""
+
+# revision identifiers, used by Alembic.
+revision = '50a8f43b4e5f'
+down_revision = '411fc4124fb5'
+
+from alembic import op
+import sqlalchemy as sa
+
+
+def upgrade():
+    with op.batch_alter_table('proposal', schema=None) as batch_op:
+        batch_op.drop_column('blog_post')
+
+
+def downgrade():
+    with op.batch_alter_table('proposal', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('blog_post', sa.VARCHAR(length=250), autoincrement=False, nullable=False, server_default="''"))
+        batch_op.alter_column('blog_post', server_default=None)

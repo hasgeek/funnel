@@ -12,8 +12,7 @@ down_revision = '6f98e24760d'
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.sql import select, bindparam, table, column
-from sqlalchemy.schema import DefaultClause
+from sqlalchemy.sql import table, column
 from funnel.models import PROPOSALSTATUS
 
 

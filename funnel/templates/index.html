@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 
 {% block titletags -%}
-  <title>{{ config['SITE_TITLE'] }}</title>
-  <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
+  <title>{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}</title>
+  <meta name="DC.title" content="{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}"/>
 {%- endblock %}
 
 {% block baseheadline -%}
@@ -10,20 +10,18 @@
 {%- endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-12">
-      {% block heading %}
-        <div class="page-header">
-          <h1>{{ config['SITE_TITLE'] }}</h1>
-        </div>
-      {% endblock %}
-      <p>
-        {{ config['WELCOME_MESSAGE'] }}
-        {% if siteadmin %}<a href="{{url_for('space_new')}}" style="float:right">{% trans %}New space{% endtrans %}</a>{% endif %}
-      </p>
+  {% block heading %}
+    <div class="page-header">
+      <h1>{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}</h1>
     </div>
-  </div>
-  <br />
+  {% endblock %}
+  {%- if g.profile %}
+    {{ g.profile.description }}
+  {%- else %}
+    <p>
+      {{ config['WELCOME_MESSAGE'] }}
+    </p>
+  {% endif %}
   {% if spaces %}
     <ul class="cardset row">
       {% for space in spaces %}
@@ -42,7 +40,7 @@
     </ul>
   {% else %}
     <p>{% trans %}There are no proposal spaces at this time.{% endtrans %}
-        <a href="{{url_for('space_new')}}">{% trans %}Create one{% endtrans %}</a>.
+        {% if 'new-space' in g.permissions %}<a href="{{g.profile.url_for('new-space')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
     </p>
   {% endif %}
 

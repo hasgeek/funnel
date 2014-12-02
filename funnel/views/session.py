@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from pytz import timezone as pytz_timezone
 from baseframe import _
 from flask import request, render_template, jsonify
 from coaster.views import load_models
 
 from .helpers import localize_date
 from .. import app, lastuser
-from ..models import db, Proposal, ProposalSpace, Session
+from ..models import db, Profile, Proposal, ProposalSpace, Session
 from ..forms import SessionForm
 
 
@@ -55,47 +54,56 @@ def session_form(space, proposal=None, session=None):
         form=render_template('session_form.html', form=form, formid='session_new'))
 
 
-@app.route('/<space>/sessions/new', methods=['GET', 'POST'])
+@app.route('/<space>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
-    permission=('new-session', 'siteadmin'), addlperms=lastuser.permissions)
-def session_new(space):
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='new-session')
+def session_new(profile, space):
     return session_form(space)
 
 
-@app.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-    permission=('new-session', 'siteadmin'), addlperms=lastuser.permissions)
-def proposal_schedule(space, proposal):
+    permission='new-session')
+def proposal_schedule(profile, space, proposal):
     return session_form(space, proposal=proposal)
 
-@app.route('/<space>/<session>/viewsession-popup', methods=['GET'])
+
+@app.route('/<space>/<session>/viewsession-popup', methods=['GET'], subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
-    (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'))
-def session_view_popup(space, session):
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
+    permission='view')
+def session_view_popup(profile, space, session):
     return render_template('session_view_popup.html', session=session, timezone=space.timezone, localize_date=localize_date)
 
-@app.route('/<space>/<session>/editsession', methods=['GET', 'POST'])
+
+@app.route('/<space>/<session>/editsession', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
-    permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
-def session_edit(space, session):
+    permission='edit-session')
+def session_edit(profile, space, session):
     return session_form(space, session=session)
 
-@app.route('/<space>/<session>/deletesession', methods=['POST'])
+
+@app.route('/<space>/<session>/deletesession', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
-    permission=('edit-session', 'siteadmin'), addlperms=lastuser.permissions)
-def session_delete(space, session):
+    permission='edit-session')
+def session_delete(profile, space, session):
     modal_url = session.proposal.url_for('schedule') if session.proposal else None
     db.session.delete(session)
     db.session.commit()

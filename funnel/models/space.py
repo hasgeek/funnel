@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseNameMixin, MarkdownColumn
-from .user import User
+from . import db, BaseScopedNameMixin, MarkdownColumn
+from .user import User, Team
+from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
-from coaster.sqlalchemy import JsonDict
 
 __all__ = ['SPACESTATUS', 'ProposalSpace']
 
@@ -23,15 +23,17 @@ class SPACESTATUS:
 
 # --- Models ------------------------------------------------------------------
 
-class ProposalSpace(BaseNameMixin, db.Model):
+class ProposalSpace(BaseScopedNameMixin, db.Model):
     __tablename__ = 'proposal_space'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('spaces', cascade="all, delete-orphan"))
+        backref=db.backref('spaces', cascade='all, delete-orphan'))
+    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True)  # nullable for transition
+    profile = db.relationship(Profile, backref=db.backref('spaces', cascade='all, delete-orphan'))
+    parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
-    content = db.Column(JsonDict, server_default='{}', nullable=False)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)
@@ -49,6 +51,17 @@ class ProposalSpace(BaseNameMixin, db.Model):
 
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False)
+
+    admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    admin_team = db.relationship(Team, foreign_keys=[admin_team_id])
+
+    review_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    review_team = db.relationship(Team, foreign_keys=[review_team_id])
+
+    #: Redirect URLs from Funnel to Talkfunnel
+    legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
+
+    __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
     def __init__(self, **kwargs):
         super(ProposalSpace, self).__init__(**kwargs)
@@ -85,60 +98,73 @@ class ProposalSpace(BaseNameMixin, db.Model):
         if user is not None:
             if self.status == SPACESTATUS.SUBMISSIONS:
                 perms.add('new-proposal')
-            if user == self.user:
+            if ((self.admin_team and user in self.admin_team.users) or
+                (self.profile.admin_team and user in self.profile.admin_team.users) or
+                    user.owner_of(self.profile)):
                 perms.update([
+                    'view-contactinfo',
                     'edit-space',
                     'delete-space',
                     'view-section',
                     'new-section',
+                    'edit-section',
+                    'delete-section',
                     'view-usergroup',
                     'new-usergroup',
+                    'edit-usergroup',
+                    'delete-usergroup',
                     'confirm-proposal',
+                    'view-venue',
                     'new-venue',
                     'edit-venue',
                     'delete-venue',
+                    ])
+            if self.review_team and user in self.review_team.users:
+                perms.update([
+                    'view-contactinfo',
+                    'confirm-proposal',
                     ])
         return perms
 
     def url_for(self, action='view', _external=False):
         if action == 'view':
-            return url_for('space_view', space=self.name, _external=_external)
+            return url_for('space_view', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-proposal':
-            return url_for('proposal_new', space=self.name, _external=_external)
+            return url_for('proposal_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'json':
-            return url_for('space_view_json', space=self.name, _external=_external)
+            return url_for('space_view_json', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'csv':
-            return url_for('space_view_csv', space=self.name, _external=_external)
+            return url_for('space_view_csv', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'edit':
-            return url_for('space_edit', space=self.name, _external=_external)
+            return url_for('space_edit', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'sections':
-            return url_for('section_list', space=self.name, _external=_external)
+            return url_for('section_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-section':
-            return url_for('section_new', space=self.name, _external=_external)
+            return url_for('section_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'usergroups':
-            return url_for('usergroup_list', space=self.name, _external=_external)
+            return url_for('usergroup_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-usergroup':
-            return url_for('usergroup_new', space=self.name, _external=_external)
+            return url_for('usergroup_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'venues':
-            return url_for('venue_list', space=self.name, _external=_external)
+            return url_for('venue_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-venue':
-            return url_for('venue_new', space=self.name, _external=_external)
+            return url_for('venue_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'schedule':
-            return url_for('schedule_view', space=self.name, _external=_external)
+            return url_for('schedule_view', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'edit-schedule':
-            return url_for('schedule_edit', space=self.name, _external=_external)
+            return url_for('schedule_edit', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'update-schedule':
-            return url_for('schedule_update', space=self.name, _external=_external)
+            return url_for('schedule_update', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-session':
-            return url_for('session_new', space=self.name, _external=_external)
+            return url_for('session_new', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'update-venue-colors':
-            return url_for('update_venue_colors', space=self.name, _external=_external)
+            return url_for('update_venue_colors', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'json-schedule':
-            return url_for('schedule_json', space=self.name, _external=_external)
+            return url_for('schedule_json', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'subscribe-schedule':
-            return url_for('schedule_subscribe', space=self.name, _external=_external)
+            return url_for('schedule_subscribe', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'ical-schedule':
-            return url_for('schedule_ical', space=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
+            return url_for('schedule_ical', profile=self.profile.name, space=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')
 
     @classmethod
     def all(cls):

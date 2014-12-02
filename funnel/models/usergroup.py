@@ -43,8 +43,8 @@ class UserGroup(BaseScopedNameMixin, db.Model):
 
     def url_for(self, action='view', _external=False):
         if action == 'view':
-            return url_for('usergroup_view', space=self.proposal_space.name, group=self.name, _external=_external)
+            return url_for('usergroup_view', profile=self.proposal_space.profile.name, space=self.proposal_space.name, group=self.name, _external=_external)
         elif action == 'edit':
-            return url_for('usergroup_edit', space=self.proposal_space.name, group=self.name, _external=_external)
+            return url_for('usergroup_edit', profile=self.proposal_space.profile.name, space=self.proposal_space.name, group=self.name, _external=_external)
         elif action == 'delete':
-            return url_for('usergroup_delete', space=self.proposal_space.name, group=self.name, _external=_external)
+            return url_for('usergroup_delete', profile=self.proposal_space.profile.name, space=self.proposal_space.name, group=self.name, _external=_external)

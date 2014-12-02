@@ -84,6 +84,13 @@
   <hr>
 {%- endmacro %}
 
+{% block headline %}
+  <div class="page-header">
+    <h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>
+    <h1>{{ space.title }}</h1>
+  </div>
+{% endblock %}
+
 {% block content %}
 {#
   <ul class="nav nav-tabs">
@@ -126,35 +133,10 @@
     {% endif %}
   </p>
 {% endif %}
-{% set tabs = [] %}
-{% set titles = {'format': 'Format', 'criteria': 'Criteria for proposals', 'panel': 'Editorial Panel', 'dates': 'Important Dates', 'open_source': 'Commitment to Open Source', 'themes': 'Themes'} %}
-{% for tab in ['format', 'themes', 'criteria', 'panel', 'dates', 'open_source'] %}
-  {% if tab in space.content and space.content[tab] %}
-    {% if tabs.append(tab) %}{% endif %}
-  {% endif %}
-{% endfor %}
-{% if tabs.__len__() %}
-  <ul class="nav nav-tabs">
-    <li class="active"><a href="#tab_about" data-toggle="tab">{% trans %}About{% endtrans %}</a></li>
-    {% for tab in tabs %}
-      <li><a href="#tab_{{ tab }}" data-toggle="tab">{{ titles[tab] }}</a></li>
-    {% endfor %}
-  </ul>
-  <div class="tab-content section">
-    <div class="tab-pane active" id="tab_about">{{ description }}</div>
-    {% for tab in tabs %}
-      <div class="tab-pane" id="tab_{{ tab }}">{{ space.content[tab]|markdown }}</div>
-    {% endfor %}
-  </div>
-{% else %}
   {{ description }}
-{% endif %}
 {% if space.status == 1 -%}
   <p>
     <a class="btn btn-success" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
-    {% if 'title_helper' in space.content and space.content['title_helper'] %}
-      <span data-toggle="tooltip" data-placement="right" title="{{ space.content['title_helper'] }}" class="tooltip icon-question-sign" style="opacity: 1"></span>
-    {% endif %}
   </p>
 {% endif %}
 {#

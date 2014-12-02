@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
-from . import db, BaseIdNameMixin, MarkdownColumn
+from flask import url_for, abort
+from . import db, BaseScopedIdNameMixin, MarkdownColumn
 from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
@@ -10,7 +10,7 @@ from coaster.utils import LabeledEnum
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
-from pytz import timezone, utc
+from pytz import timezone, utc, UnknownTimeZoneError
 
 __all__ = ['Proposal', 'PROPOSALSTATUS']
 
@@ -30,7 +30,7 @@ class PROPOSALSTATUS(LabeledEnum):
 
 # --- Models ------------------------------------------------------------------
 
-class Proposal(BaseIdNameMixin, db.Model):
+class Proposal(BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'proposal'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -46,6 +46,8 @@ class Proposal(BaseIdNameMixin, db.Model):
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
+    parent = db.synonym('proposal_space')
+
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
@@ -56,7 +58,6 @@ class Proposal(BaseIdNameMixin, db.Model):
     requirements = MarkdownColumn('requirements', nullable=False)
     slides = db.Column(db.Unicode(250), default=u'', nullable=False)
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=False)
-    blog_post = db.Column(db.Unicode(250), default=u'', nullable=False)
     links = db.Column(db.Text, default=u'', nullable=False)
     status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
 
@@ -69,17 +70,19 @@ class Proposal(BaseIdNameMixin, db.Model):
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
+
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSAL)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
 
     def __repr__(self):
-        return u'<Proposal "%s" in space "%s" by "%s">' % (self.title, self.proposal_space.title, self.user.fullname)
+        return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
 
     @property
     def owner(self):
-        return self.speaker or self.user  
+        return self.speaker or self.user
 
     @property
     def datetime(self):
@@ -138,7 +141,6 @@ class Proposal(BaseIdNameMixin, db.Model):
                     votes_bydate[groupname][date] += -1 if vote.votedown else +1
         return votes_bydate
 
-
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
@@ -151,7 +153,8 @@ class Proposal(BaseIdNameMixin, db.Model):
                 perms.update([
                     'view-proposal',
                     'edit-proposal',
-                    'delete-proposal',
+                    'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
+                    'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                     'transfer-proposal',
                     ])
                 if self.speaker != self.user:
@@ -160,24 +163,24 @@ class Proposal(BaseIdNameMixin, db.Model):
 
     def url_for(self, action='view', _external=False):
         if action == 'view':
-            return url_for('proposal_view', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_view', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'json':
-            return url_for('proposal_json', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_json', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'edit':
-            return url_for('proposal_edit', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_edit', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'delete':
-            return url_for('proposal_delete', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_delete', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'voteup':
-            return url_for('proposal_voteup', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_voteup', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'votedown':
-            return url_for('proposal_votedown', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_votedown', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'votecancel':
-            return url_for('proposal_cancelvote', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_cancelvote', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'next':
-            return url_for('proposal_next', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_next', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'prev':
-            return url_for('proposal_prev', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_prev', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'schedule':
-            return url_for('proposal_schedule', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_schedule', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'status':
-            return url_for('proposal_status', space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+            return url_for('proposal_status', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)

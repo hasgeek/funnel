@@ -1,24 +1,22 @@
 @import "compass";
 
+$body-line-height: 24px;
+
 // body {
 //     font-family: $font-default;
 // }
 
-body {
-    background-image: image-url('satinweave.png');
-    background-color: #f1f1f1;
-}
 
-@media all and (-webkit-min-device-pixel-ratio: 1.5) {
-    body {
-        background-image: image-url('satinweave@2x.png');
-        background-size: image-width('satinweave.png') image-height('satinweave.png');
-    }
-}
+// Bring this back when we're ready
 
-footer .footer-inner {
-    background: inherit;
-}
+// body {
+//     background-image: image-url('satinweave.png');
+//     background-color: #f1f1f1;
+// }
+
+// footer .footer-inner {
+//     background: inherit;
+// }
 
 .infosheet, .table {
     background: white;
@@ -28,10 +26,23 @@ footer .footer-inner {
     @include replace-text-with-dimensions('logo.png');
 }
 
+@media all and (-webkit-min-device-pixel-ratio: 1.5) {
+    // Bring this back when we're ready
+
+    // body {
+    //     background-image: image-url('satinweave@2x.png');
+    //     @include background-size(image-width('satinweave.png') image-height('satinweave.png'));
+    // }
+    #logo {
+        background-image: image-url('logo@2x.png');
+        @include background-size(image-width('logo.png') image-height('logo.png'));
+    }
+}
+
 #hg-networkbar.navbar .navbar-brand{
   padding: 0;
   display: block;
-  @include replace-text-with-dimensions('logo.png');
+  @include replace-text-with-dimensions('logo@2x.png');
   height: 48px;
   background-position: left center;
   background-size: auto 100%;
@@ -43,52 +54,9 @@ footer .footer-inner {
     margin-bottom: 10px;
 }
 
-.breadcrumbs {
-    @include pie-clearfix;
-    list-style: none;
-    margin: {
-        top: -1em;
-        bottom: 1em;
-        left: 0;
-        right: 0;
-    }
-    padding: 0;
-    li {
-        float: left;
-        padding: 0.25em 0.25em;
-        font-size: 80%;
-        &:before {
-            content: "→";
-            padding-right: 0.5em;
-        }
-        &:first-child:before {
-            content: "";
-            padding-right: 0;
-        }
-        &.home {
-            @include replace-text-with-dimensions('home.png', 12, 22);
-            padding: 0 0.2em 0 0;
-            a {
-                display: block;
-            }
-        }
-    }
-}
-
-@media screen and (min-width: 768px){
-    .breadcrumbs {
-        margin: {
-            top: -1em;
-            bottom: 1em;
-            left: 0;
-            right: 0;
-        }
-    }
-}
-
 /* Tables */
 table.listing {
-    @include single-box-shadow(rgba(0, 0, 0, 0.1), 0, 1px, 2px);
+    @include box-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 .listing thead > tr > th, .listing tbody > tr > th, .listing tfoot > tr > th, .listing thead > tr > td, .listing tbody > tr > td, .listing tfoot > tr > td {
     padding: 4px;
@@ -176,6 +144,15 @@ table.listing {
         padding: 0 1.2em;
         h1 {
             margin: 0.5em 0 0 0;
+        }
+        // Yuck! So much nesting. Fix this.
+        .page-header h3 {
+            margin-top: 0.5em;
+            margin-bottom: 0;
+            line-height: $body-line-height * 1.5
+        }
+        .page-header h3 + h1 {
+            margin-top: 0;
         }
         h2 {
             //margin: 0.66em 0 0 0;
@@ -353,7 +330,7 @@ dl dd {
 
 dl.bar {
     //display: block;
-    //@include display-box;
+    //@include display-flex;
 
     margin: 1em 0;
     dt {
@@ -373,12 +350,12 @@ dl.bar {
         display: -webkit-inline-block;
         display: -moz-inline-block;
         display: -ms-inline-block;
-        @include box-flex(1);
+        @include flex-grow(1);
         margin: 0 0 0 5px;
         text-indent: 0;    
     }
     dd:last-child {
-        @include box-flex(0);
+        @include flex-grow(0);
         margin: 0;
     }
  }
@@ -388,12 +365,12 @@ dl.bar {
     }
     dl.bar {
         display: block;
-        @include display-box;
+        @include display-flex;
 
         margin: 1em 0;
         dt {
             display: inline;
-            @include display-box;
+            @include display-flex;
             margin: 0 0.5em 0 0;
         }
         dt:after {
@@ -401,13 +378,13 @@ dl.bar {
         }
         dd {
             display: inline;
-            @include display-box;
-            @include box-flex(1);
+            @include display-flex;
+            @include flex-grow(1);
             margin: 0 1em 0 0;
             text-indent: 0;
         }
         dd:last-child {
-            @include box-flex(0);
+            @include flex-grow(0);
             margin: 0;
         }
     }

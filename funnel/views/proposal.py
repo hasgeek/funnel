@@ -3,8 +3,6 @@
 import requests
 
 from datetime import datetime
-from pytz import timezone, utc
-from pytz.exceptions import UnknownTimeZoneError
 from bleach import linkify
 
 from flask import g, render_template, redirect, request, Markup, abort, flash, escape
@@ -13,10 +11,12 @@ from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
 from baseframe import _
+from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, mail, lastuser
-from ..models import db, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote, ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS
-from ..forms import ProposalForm, ProposalFormForAdmin, CommentForm, DeleteCommentForm, ConfirmDeleteForm, ProposalStatusForm
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote,
+    ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
+from ..forms import ProposalForm, ProposalFormForAdmin, CommentForm, DeleteCommentForm, ProposalStatusForm
 
 proposal_headers = [
     'id',
@@ -42,6 +42,7 @@ def send_mail(sender, to, body, subject):
     msg.body = body
     msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
     mail.send(msg)
+
 
 def proposal_data(proposal):
     """
@@ -92,12 +93,13 @@ def proposal_data_flat(proposal, groups=[]):
 
 # --- Routes ------------------------------------------------------------------
 
-@app.route('/<space>/new', methods=['GET', 'POST'])
+@app.route('/<space>/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
-    permission='new-proposal', addlperms=lastuser.permissions)
-def proposal_new(space):
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='new-proposal')
+def proposal_new(profile, space):
     if lastuser.has_permission('siteadmin'):
         form = ProposalFormForAdmin(model=Proposal, parent=space)
     else:
@@ -123,20 +125,20 @@ def proposal_new(space):
         db.session.commit()
         flash(_("Your new session has been saved"), 'info')
         return redirect(proposal.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("Submit a session proposal"),
+    return render_form(form=form, title=_("Submit a session proposal"),
         submit=_("Submit proposal"),
-        breadcrumbs=[(space.url_for(), space.title)],
         message=Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<space>/<proposal>/edit', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-    permission=('edit-proposal', 'siteadmin'), addlperms=lastuser.permissions)
-def proposal_edit(space, proposal):
+    permission='edit-proposal')
+def proposal_edit(profile, space, proposal):
     if lastuser.has_permission('siteadmin'):
         form = ProposalFormForAdmin(obj=proposal, model=Proposal, parent=space)
     else:
@@ -165,20 +167,31 @@ def proposal_edit(space, proposal):
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')
         return redirect(proposal.url_for(), code=303)
-    return render_template('baseframe/autoform.html', form=form, title=_("Edit session proposal"), submit=_("Save changes"),
-        breadcrumbs=[(space.url_for(), space.title),
-                     (proposal.url_for(), proposal.title)],
+    return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
         message=Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<space>/<proposal>/status', methods=['POST'])
+# @app.route('/<space>/<proposal>/<transition>', methods=['GET', 'POST'], subdomain='<profile>')
+# @lastuser.requires_login
+# @load_models(
+#     (Profile, {'name': 'profile'}, 'g.profile'),
+#     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+#     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+#     kwargs=True)
+# def proposal_transition(profile, space, proposal, kwargs):
+#     transition = kwargs['transition']
+#     workflow=proposal.workflow()
+    
+
+@app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-    permission=('confirm-proposal', 'siteadmin'), addlperms=lastuser.permissions)
-def proposal_status(space, proposal):
+    permission='confirm-proposal')
+def proposal_status(profile, space, proposal):
     form = ProposalStatusForm()
     if form.validate_on_submit():
         proposal.status = form.status.data
@@ -187,16 +200,17 @@ def proposal_status(space, proposal):
     return redirect(proposal.url_for())
 
 
-@app.route('/<space>/<proposal>/delete', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-    permission=('delete-proposal', 'siteadmin'), addlperms=lastuser.permissions)
-def proposal_delete(space, proposal):
-    form = ConfirmDeleteForm()
-    if form.validate_on_submit():
-        if 'delete' in request.form:
+    permission='delete-proposal')
+def proposal_delete(profile, space, proposal):
+    if request.method in ('POST', 'DELETE'):
+        if 'delete' in request.form or request.method == 'DELETE':
+            # FIXME: Move all these to cascades. They shouldn't be manual
             comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
             for comment in comments:
                 db.session.delete(comment)
@@ -205,24 +219,23 @@ def proposal_delete(space, proposal):
             for vote in votes:
                 db.session.delete(vote)
             db.session.delete(proposal.votes)
-            db.session.delete(proposal)
-            db.session.commit()
-            flash(_("Your proposal has been deleted"), "info")
-            return redirect(space.url_for())
-        else:
-            return redirect(proposal.url_for())
-    return render_template('delete.html', form=form, title=_(u"Confirm delete"),
+
+    return render_delete_sqla(proposal, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete your proposal ‘{title}’? "
                 u"This will remove all votes and comments as well. This operation "
-                u"is permanent and cannot be undone.").format(title=proposal.title))
+                u"is permanent and cannot be undone.").format(title=proposal.title),
+        success=_("Your proposal has been deleted"),
+        next=space.url_for(),
+        cancel_url=proposal.url_for())
 
 
-@app.route('/<space>/<proposal>', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_view(space, proposal):
+def proposal_view(profile, space, proposal):
     if proposal.proposal_space != space:
         return redirect(proposal.url_for(), code=301)
 
@@ -304,22 +317,21 @@ def proposal_view(space, proposal):
         statusform = ProposalStatusForm(status=proposal.status)
     else:
         statusform = None
-    blogpost = requests.get(proposal.blog_post).json() if proposal.blog_post else None
 
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        breadcrumbs=[(space.url_for(), space.title)], blogpost=blogpost,
         votes_groups=proposal.votes_by_group(),
         PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform)
 
 
-@app.route('/<space>/<proposal>/feedback', methods=['POST'])
+@app.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 @requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
-def session_feedback(space, proposal, id_type, userid, content, presentation, min_scale=0, max_scale=2):
+def session_feedback(profile, space, proposal, id_type, userid, content, presentation, min_scale=0, max_scale=2):
     # Process feedback
     if not min_scale <= content <= max_scale:
         abort(400)
@@ -351,20 +363,23 @@ def session_feedback(space, proposal, id_type, userid, content, presentation, mi
         return "Saved\n", 201
 
 
-@app.route('/<space>/<proposal>/json', methods=['GET', 'POST'])
+@app.route('/<space>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_json(space, proposal):
+def proposal_json(profile, space, proposal):
     return jsonp(proposal_data(proposal))
 
-@app.route('/<space>/<proposal>/next')
+
+@app.route('/<space>/<proposal>/next', subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_next(space, proposal):
+def proposal_next(profile, space, proposal):
     next = proposal.getnext()
     if next:
         return redirect(next.url_for())
@@ -373,12 +388,13 @@ def proposal_next(space, proposal):
         return redirect(space.url_for())
 
 
-@app.route('/<space>/<proposal>/prev')
+@app.route('/<space>/<proposal>/prev', subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_prev(space, proposal):
+def proposal_prev(profile, space, proposal):
     prev = proposal.getprev()
     if prev:
         return redirect(prev.url_for())

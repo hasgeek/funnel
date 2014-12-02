@@ -1,45 +1,44 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, request, flash
-from coaster.views import load_models, load_model
+from flask import render_template, redirect, request
+from coaster.views import load_models
 from baseframe import _
+from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, lastuser
-from ..models import db, User, UserGroup, ProposalSpace
-from ..forms import  UserGroupForm, ConfirmDeleteForm
+from ..models import db, Profile, User, UserGroup, ProposalSpace
+from ..forms import UserGroupForm
 
 
-@app.route('/<space>/users')
-@lastuser.requires_login
-@load_model(ProposalSpace, {'name': 'space'}, 'space',
-    permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
-def usergroup_list(space):
-    return render_template('usergroups.html', space=space, usergroups=space.usergroups,
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('usergroups'), _("Users"))])
-
-
-@app.route('/<space>/users/<group>')
+@app.route('/<space>/users', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
-    (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
-    permission=('view-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
-def usergroup_view(space, usergroup):
-    return render_template('usergroup.html', space=space, usergroup=usergroup,
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('usergroups'), _("Users")),
-            (usergroup.url_for(), usergroup.title)])
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view-usergroup')
+def usergroup_list(profile, space):
+    return render_template('usergroups.html', space=space, usergroups=space.usergroups)
 
 
-@app.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
-@app.route('/<space>/users/<group>/edit', methods=['GET', 'POST'])
+@app.route('/<space>/users/<group>', subdomain='<profile>')
 @lastuser.requires_login
-@load_model(ProposalSpace, {'name': 'space'}, 'space', kwargs=True,
-    permission=('new-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
-def usergroup_edit(space, kwargs):
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
+    permission='view-usergroup')
+def usergroup_view(profile, space, usergroup):
+    return render_template('usergroup.html', space=space, usergroup=usergroup)
+
+
+@app.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='new-usergroup')
+def usergroup_edit(profile, space, kwargs):
     group = kwargs.get('group')
     form = UserGroupForm(model=UserGroup, parent=space)
     if group is not None:
@@ -68,38 +67,22 @@ def usergroup_edit(space, kwargs):
         db.session.commit()
         return redirect(usergroup.url_for(), code=303)
     if group is None:
-        return render_template('baseframe/autoform.html', form=form, title=_("New user group"), submit=_("Create user group"),
-            breadcrumbs=[
-                (space.url_for(), space.title),
-                (space.url_for('usergroups'), _("Users"))])
+        return render_form(form=form, title=_("New user group"), submit=_("Create user group"))
 
     else:
-        return render_template('baseframe/autoform.html', form=form, title=_("Edit user group"), submit=_("Save changes"),
-            breadcrumbs=[
-                (space.url_for(), space.title),
-                (space.url_for('usergroups'), _("Users")),
-                (usergroup.url_for(), usergroup.title)])
+        return render_form(form=form, title=_("Edit user group"), submit=_("Save changes"))
 
 
-@app.route('/<space>/users/<group>/delete', methods=['GET', 'POST'])
+@app.route('/<space>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
-    permission=('delete-usergroup', 'siteadmin'), addlperms=lastuser.permissions)
-def usergroup_delete(space, usergroup):
-    form = ConfirmDeleteForm()
-    if form.validate_on_submit():
-        if 'delete' in request.form:
-            db.session.delete(usergroup)
-            db.session.commit()
-            flash(_("Your user group has been deleted"), 'info')
-            return redirect(space.url_for('usergroups'))
-        else:
-            return redirect(usergroup.url_for())
-    return render_template('delete.html', form=form, title=_(u"Confirm delete"),
+    permission='delete-usergroup')
+def usergroup_delete(profile, space, usergroup):
+    return render_delete_sqla(usergroup, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete user group ‘{title}’?").format(title=usergroup.title),
-        breadcrumbs=[
-            (space.url_for(), space.title),
-            (space.url_for('usergroups'), _("Users")),
-            (usergroup.url_for(), usergroup.title)])
+        success=_("Your user group has been deleted"),
+        next=space.url_for('usergroups'),
+        cancel_url=space.url_for('usergroups'))

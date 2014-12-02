@@ -144,14 +144,14 @@ class Comment(BaseMixin, db.Model):
         if action == 'view':
             return proposal.url_for(_external=_external) + "#c%d" % self.id
         elif action == 'json':
-            return url_for('comment_json', space=proposal.proposal_space.name, proposal=proposal.url_name,
+            return url_for('comment_json', profile=proposal.proposal_space.profile.name, space=proposal.proposal_space.name, proposal=proposal.url_name,
                 comment=self.id, _external=_external)
         elif action == 'voteup':
-            return url_for('comment_voteup', space=proposal.proposal_space.name, proposal=proposal.url_name,
+            return url_for('comment_voteup', profile=proposal.proposal_space.profile.name, space=proposal.proposal_space.name, proposal=proposal.url_name,
                 comment=self.id, _external=_external)
         elif action == 'votedown':
-            return url_for('comment_votedown', space=proposal.proposal_space.name, proposal=proposal.url_name,
+            return url_for('comment_votedown', profile=proposal.proposal_space.profile.name, space=proposal.proposal_space.name, proposal=proposal.url_name,
                 comment=self.id, _external=_external)
         elif action == 'cancelvote':
-            return url_for('comment_cancelvote', space=proposal.proposal_space.name, proposal=proposal.url_name,
+            return url_for('comment_cancelvote', profile=proposal.proposal_space.profile.name, space=proposal.proposal_space.name, proposal=proposal.url_name,
                 comment=self.id, _external=_external)

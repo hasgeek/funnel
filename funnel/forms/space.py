@@ -7,34 +7,13 @@ from baseframe.forms import Form, MarkdownField, ValidName
 from baseframe.forms.sqlalchemy import AvailableName
 import wtforms
 import wtforms.fields.html5
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from .profile import profile_teams
 
 __all__ = ['ProposalSpaceForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
-
-
-def set_none(self, field):
-    if not field.data:
-        field.data = None
-
-
-class Content(wtforms.Form):
-    format = MarkdownField('Format', description=__("Event format"))
-    themes = MarkdownField('Themes', description=__("Themes for accepted proposals"))
-    criteria = MarkdownField('Criteria to submit', description=__("Criteria to submit"))
-    panel = MarkdownField('Editorial Panel')
-    dates = MarkdownField('Important Dates', description=__("First set of confirmed proposals, Last date to submit, Event Dates, etc"))
-    open_source = MarkdownField('Commitment to Open Source')
-    title_helper = wtforms.TextField('Helper', description=__("Helper text for the Propose Session link beside title"))
-
-    validate_format = set_none
-    validate_themes = set_none
-    validate_criteria = set_none
-    validate_panel = set_none
-    validate_dates = set_none
-    validate_open_source = set_none
-    validate_title_helper = set_none
 
 
 class ProposalSpaceForm(Form):
@@ -77,12 +56,16 @@ class ProposalSpaceForm(Form):
         ],
         description=__(u"Proposals can only be submitted in the “Open” state. "
             u"“Closed” and “Withdrawn” are hidden from homepage"))
-
-    content = wtforms.fields.FormField(Content)
+    admin_team = QuerySelectField(u"Admin Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+        query_factory=profile_teams, get_label='title', allow_blank=False,
+        description=_(u"The administrators of this proposal space"))
+    review_team = QuerySelectField(u"Review Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+        query_factory=profile_teams, get_label='title', allow_blank=False,
+        description=_(u"Reviewers can see contact details of proposers, but can’t change settings"))
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
-            raise wtforms.ValidationError(_("End date cannot be before Start date"))
+            raise wtforms.ValidationError(_("End date cannot be before start date"))
 
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):

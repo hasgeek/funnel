@@ -5,17 +5,18 @@ from coaster.views import jsonp, load_models
 from baseframe import _
 
 from .. import app, lastuser
-from ..models import *
+from ..models import db, Profile, ProposalSpace, Proposal, Comment
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/voteup')
+@app.route('/<space>/<proposal>/voteup', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
-def proposal_voteup(space, proposal):
+def proposal_voteup(profile, space, proposal):
     proposal.votes.vote(g.user, votedown=False)
     db.session.commit()
     flash(_("Your vote has been recorded"), 'info')
@@ -23,13 +24,14 @@ def proposal_voteup(space, proposal):
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/votedown')
+@app.route('/<space>/<proposal>/votedown', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
-def proposal_votedown(space, proposal):
+def proposal_votedown(profile, space, proposal):
     proposal.votes.vote(g.user, votedown=True)
     db.session.commit()
     flash(_("Your vote has been recorded"), 'info')
@@ -37,26 +39,28 @@ def proposal_votedown(space, proposal):
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/cancelvote')
+@app.route('/<space>/<proposal>/cancelvote', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
-def proposal_cancelvote(space, proposal):
+def proposal_cancelvote(profile, space, proposal):
     proposal.votes.cancelvote(g.user)
     db.session.commit()
     flash(_("Your vote has been withdrawn"), 'info')
     return redirect(proposal.url_for())
 
 
-@app.route('/<space>/<proposal>/comments/<int:comment>/json')
+@app.route('/<space>/<proposal>/comments/<int:comment>/json', subdomain='<profile>')
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='view', addlperms=lastuser.permissions)
-def comment_json(space, proposal, comment):
+def comment_json(profile, space, proposal, comment):
     if comment:
         return jsonp(message=comment.message.text)
     else:
@@ -64,14 +68,15 @@ def comment_json(space, proposal, comment):
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/voteup')
+@app.route('/<space>/<proposal>/comments/<int:comment>/voteup', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
-def comment_voteup(space, proposal, comment):
+def comment_voteup(profile, space, proposal, comment):
     comment.votes.vote(g.user, votedown=False)
     db.session.commit()
     flash(_("Your vote has been recorded"), 'info')
@@ -79,14 +84,14 @@ def comment_voteup(space, proposal, comment):
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/votedown')
+@app.route('/<space>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
-def comment_votedown(space, proposal, comment):
+def comment_votedown(profile, space, proposal, comment):
     comment.votes.vote(g.user, votedown=True)
     db.session.commit()
     flash(_("Your vote has been recorded"), 'info')
@@ -94,14 +99,14 @@ def comment_votedown(space, proposal, comment):
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote')
+@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
-def comment_cancelvote(space, proposal, comment):
+def comment_cancelvote(profile, space, proposal, comment):
     comment.votes.cancelvote(g.user)
     db.session.commit()
     flash(_("Your vote has been withdrawn"), 'info')
