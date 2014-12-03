@@ -62,10 +62,10 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
     status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
-    votes = db.relationship(VoteSpace, uselist=False)
+    votes = db.relationship(VoteSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
 
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
-    comments = db.relationship(CommentSpace, uselist=False)
+    comments = db.relationship(CommentSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
 
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)

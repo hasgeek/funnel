@@ -209,18 +209,6 @@ def proposal_status(profile, space, proposal):
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='delete-proposal')
 def proposal_delete(profile, space, proposal):
-    if request.method in ('POST', 'DELETE'):
-        if 'delete' in request.form or request.method == 'DELETE':
-            # FIXME: Move all these to cascades. They shouldn't be manual
-            comments = Comment.query.filter_by(commentspace=proposal.comments).order_by('created_at').all()
-            for comment in comments:
-                db.session.delete(comment)
-            db.session.delete(proposal.comments)
-            votes = Vote.query.filter_by(votespace=proposal.votes).all()
-            for vote in votes:
-                db.session.delete(vote)
-            db.session.delete(proposal.votes)
-
     return render_delete_sqla(proposal, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete your proposal ‘{title}’? "
                 u"This will remove all votes and comments as well. This operation "

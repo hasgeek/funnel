@@ -62,7 +62,7 @@ class Vote(BaseMixin, db.Model):
     __tablename__ = 'vote'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('votes', cascade="all, delete-orphan"))
+        backref=db.backref('votes', lazy='dynamic', cascade="all, delete-orphan"))
     votespace_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votespace = db.relationship(VoteSpace, primaryjoin=votespace_id == VoteSpace.id,
         backref=db.backref('votes', cascade="all, delete-orphan"))
@@ -85,7 +85,7 @@ class Comment(BaseMixin, db.Model):
     __tablename__ = 'comment'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('comments', cascade="all"))
+        backref=db.backref('comments', lazy='dynamic', cascade="all, delete-orphan"))
     commentspace_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
     commentspace = db.relationship(CommentSpace, primaryjoin=commentspace_id == CommentSpace.id,
         backref=db.backref('comments', cascade="all, delete-orphan"))
