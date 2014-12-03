@@ -118,7 +118,8 @@ def proposal_new(profile, space):
             proposal.speaker = g.user
         else:
             proposal.speaker = None
-        proposal.votes.vote(g.user)  # Vote up your own proposal by default
+        with db.session.no_autoflush:
+            proposal.votes.vote(g.user)  # Vote up your own proposal by default
         form.populate_obj(proposal)
         proposal.name = make_name(proposal.title)
         db.session.add(proposal)

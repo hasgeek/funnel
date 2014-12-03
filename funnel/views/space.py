@@ -43,7 +43,7 @@ def space_new(profile):
     if request.method == 'GET':
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
-        space = ProposalSpace(user=g.user, profile=g.profile)
+        space = ProposalSpace(user=g.user, profile=profile)
         form.populate_obj(space)
         db.session.add(space)
         db.session.commit()
