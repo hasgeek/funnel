@@ -38,6 +38,18 @@ def space_redirect(space):
     return redirect(space.url_for())
 
 
+@app.route('/<space>/json')
+@load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
+def space_redirect_json(space):
+    return redirect(space.url_for('json'))
+
+
+@app.route('/<space>/csv')
+@load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
+def space_redirect_csv(space):
+    return redirect(space.url_for('csv'))
+
+
 @app.route('/<space>/<int:id>-<name>')
 @app.route('/<space>/<int:id>')
 @load_model(Proposal, {'id': 'id'}, 'proposal')
