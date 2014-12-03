@@ -1,7 +1,26 @@
 {% extends "baseframe.html" -%}
-{% from "baseframe/components.html" import responsive_networkbar with context %}
+{% from "baseframe/components.html" import hgnav with context %}
 
-{% block networkbar %}{{ responsive_networkbar(siteid=config['SITE_ID'], login=config['LASTUSER_CLIENT_ID'] and true or false) }}{% endblock %}
+{% block headerbox %}
+  {% macro site_title() %}
+    <div class="page-header">
+      <h1>
+        {%- if g.profile -%}
+          <a href="{{ url_for('index') }}"><i class="fa fa-filter"></i></a>
+          <a href="{{ g.profile.url_for() }}">{{ g.profile.title }}</a>
+          {%- if space %}
+            <i class="fa fa-angle-right"></i>
+            <a href="{{ space.url_for() }}">{{ space.title }}</a>
+          {%- endif %}
+        {%- else -%}
+          <a href="{{ url_for('index') }}"><i class="fa fa-filter"></i> {{ config['SITE_TITLE'] }}</a>
+        {%- endif -%}
+      </h1>
+    </div>
+  {% endmacro %}
+  {{ hgnav(site_title=site_title()) }}
+
+{% endblock %}
 
 {%- block image_src %}
   <link rel="image_src" href="{{ url_for('static', filename='img/logo@2x.png') }}" />
