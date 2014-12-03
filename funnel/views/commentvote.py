@@ -87,6 +87,7 @@ def comment_voteup(profile, space, proposal, comment):
 @app.route('/<space>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
@@ -102,6 +103,7 @@ def comment_votedown(profile, space, proposal, comment):
 @app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
