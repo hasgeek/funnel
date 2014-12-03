@@ -183,7 +183,7 @@ def proposal_edit(profile, space, proposal):
 # def proposal_transition(profile, space, proposal, kwargs):
 #     transition = kwargs['transition']
 #     workflow=proposal.workflow()
-    
+
 
 @app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
@@ -234,7 +234,7 @@ def proposal_delete(profile, space, proposal):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Proposal, {'url_name': 'proposal'}, 'proposal'),
+    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 def proposal_view(profile, space, proposal):
     if proposal.proposal_space != space:
