@@ -31,13 +31,17 @@ def usergroup_view(profile, space, usergroup):
     return render_template('usergroup.html', space=space, usergroup=usergroup)
 
 
-@app.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<space>/users/new',
+    defaults={'group': None},
+    endpoint='usergroup_new',
+    methods=['GET', 'POST'],
+    subdomain='<profile>')
 @app.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='new-usergroup')
+    permission='new-usergroup', kwargs=True)
 def usergroup_edit(profile, space, kwargs):
     group = kwargs.get('group')
     form = UserGroupForm(model=UserGroup, parent=space)
