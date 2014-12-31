@@ -68,6 +68,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
 
+    def __repr__(self):
+        return '<ProposalSpace %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
+
     @property
     def rooms(self):
         return [room for venue in self.venues for room in venue.rooms]
