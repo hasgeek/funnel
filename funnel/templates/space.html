@@ -51,7 +51,7 @@
             <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
             <td class="num"><a href="{{ link }}">
               {{ proposal.votes.count }}
-              {% if 'siteadmin' in g.lastuserinfo.permissions or space.user_in_group(g.user, 'editorial-panel') %}
+              {% if 'view-voteinfo' in g.permissions %}
                 {% set breakups = dict() %}
                 {% set groups = proposal.votes_by_group() %}
                 {% if 'participants' in groups %}{% if breakups.update({'P': groups['participants']}) %}{% endif %}{% endif %}
@@ -144,7 +144,7 @@
 
     <div class="tab-pane" id="proposals">
 #}
-      {%- if is_siteadmin or space.user_in_group(g.user, 'editorial-panel') -%}
+      {%- if 'view-status' in g.permissions -%}
         {%- for status, proposal_group in space.proposals_by_status.iteritems() if proposal_group -%}
             <h3>{{ PROPOSALSTATUS[status] }} {% trans %}proposals{% endtrans %}</h3>
             {{ proposal_table(proposal_group) }}

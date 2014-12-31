@@ -123,6 +123,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                 perms.update([
                     'view-contactinfo',
                     'confirm-proposal',
+                    'view-voteinfo',
+                    'view-status',
                     ])
         return perms
 

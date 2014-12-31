@@ -7,7 +7,7 @@ import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from ..models import PROPOSALSTATUS
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalFormForAdmin', 'ProposalStatusForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalStatusForm']
 
 
 class TransferProposal(Form):
@@ -67,7 +67,3 @@ class ProposalStatusForm(Form):
     status = wtforms.fields.SelectField(
         __("Status"), coerce=int,
         choices=[(status, title) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
-
-
-class ProposalFormForAdmin(ProposalForm, ProposalStatusForm):
-    pass
