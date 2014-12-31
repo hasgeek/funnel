@@ -144,12 +144,12 @@
 
     <div class="tab-pane" id="proposals">
 #}
-      {%- if 'view-status' in g.permissions -%}
+      {%- if 'view-status' in g.permissions %}
         {%- for status, proposal_group in space.proposals_by_status.iteritems() if proposal_group -%}
             <h3>{{ PROPOSALSTATUS[status] }} {% trans %}proposals{% endtrans %}</h3>
             {{ proposal_table(proposal_group) }}
         {%- endfor -%}
-      {%- else -%}
+      {%- else %}
         {%- if space.proposals_by_confirmation['confirmed'] %}
           <h3>{% trans %}Confirmed sessions{% endtrans %}</h3>
           {{ proposal_table(space.proposals_by_confirmation['confirmed']) }}
