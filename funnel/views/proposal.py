@@ -16,7 +16,7 @@ from baseframe.forms import render_form, render_delete_sqla
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote,
     ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
-from ..forms import ProposalForm, ProposalFormForAdmin, CommentForm, DeleteCommentForm, ProposalStatusForm
+from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm
 
 proposal_headers = [
     'id',
@@ -79,7 +79,7 @@ def proposal_data(proposal):
             ('votes_groups', proposal.votes_by_group()),
             ('votes_bydate', proposal.votes_by_date()),
             ('status', proposal.status),
-        ] if lastuser.has_permission('siteadmin') else []))
+        ] if 'view-contactinfo' in g.permissions else []))
 
 
 def proposal_data_flat(proposal, groups=[]):
@@ -100,10 +100,7 @@ def proposal_data_flat(proposal, groups=[]):
     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-proposal')
 def proposal_new(profile, space):
-    if lastuser.has_permission('siteadmin'):
-        form = ProposalFormForAdmin(model=Proposal, parent=space)
-    else:
-        form = ProposalForm(model=Proposal, parent=space)
+    form = ProposalForm(model=Proposal, parent=space)
     del form.session_type  # We don't use this anymore
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
     if len(list(form.section.query.all())) == 0:
@@ -140,10 +137,7 @@ def proposal_new(profile, space):
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='edit-proposal')
 def proposal_edit(profile, space, proposal):
-    if lastuser.has_permission('siteadmin'):
-        form = ProposalFormForAdmin(obj=proposal, model=Proposal, parent=space)
-    else:
-        form = ProposalForm(obj=proposal, model=Proposal, parent=space)
+    form = ProposalForm(obj=proposal, model=Proposal, parent=space)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
