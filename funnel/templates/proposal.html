@@ -111,7 +111,7 @@
               If you’d like to speak, leave a comment.{% endtrans %}</em>
             </p>
           {%- endif -%}
-          {% if statusform and 'view-status' in g.permissions %}
+          {% if statusform and 'confirm-proposal' in g.permissions %}
             <h2>{% trans %}Proposal Stats &amp; Status{% endtrans %}</h2>
 
             <div class="row text-center">
