@@ -70,10 +70,10 @@
         </div>
         <div class="col-md-3 col-lg-3 col-sm-12 col-xs-12">
           Status: 
-          {%- if 'view-status' in g.permissions -%}
+          {%- if 'view-status' in g.permissions %}
             {{ PROPOSALSTATUS[proposal.status] }}
             {% if proposal.session and proposal.confirmed %} &amp; Scheduled{% endif %}
-          {% else %}
+          {%- else %}
             {% if proposal.confirmed %}
               Confirmed {% if proposal.session %} &amp; Scheduled{% endif %}
             {% else %}
