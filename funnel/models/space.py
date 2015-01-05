@@ -128,6 +128,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'confirm-proposal',
                     'view-voteinfo',
                     'view-status',
+                    'edit-proposal',
+                    'delete-proposal',
                     ])
         return perms
 
