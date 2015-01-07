@@ -121,6 +121,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'new-venue',
                     'edit-venue',
                     'delete-venue',
+                    'edit-schedule',
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
@@ -130,6 +131,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'view-status',
                     'edit-proposal',
                     'delete-proposal',
+                    'edit-schedule',
                     ])
         return perms
 
