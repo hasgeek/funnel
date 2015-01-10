@@ -213,11 +213,11 @@ def schedule_room_updates(profile, space, venue, room):
     current = Session.query.filter(
         Session.start <= now, Session.end >= now,
         Session.proposal_space == space,
-        or_(Session.venue_room == room, Session.is_break == True)
+        or_(Session.venue_room == room, Session.is_break == True)  # NOQA
         ).first()
     next = Session.query.filter(
         Session.start > now,
-        or_(Session.venue_room == room, Session.is_break == True),
+        or_(Session.venue_room == room, Session.is_break == True),  # NOQA
         Session.proposal_space == space
         ).order_by(Session.start).first()
     if current:
