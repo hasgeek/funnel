@@ -2,12 +2,12 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request, jsonify
+from flask import g, flash, redirect, render_template, Response, request
 from baseframe import _
-from baseframe.forms import render_form, render_message, dynamic_form
-from coaster.views import load_models, jsonp, requestargs
+from baseframe.forms import render_form, render_message, FormGenerator
+from coaster.views import load_models, jsonp
 
-from .. import app, lastuser
+from .. import app
 from ..models import db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, PROPOSALSTATUS
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
@@ -49,7 +49,7 @@ def space_form_test(profile):
         'type': 'AnnotatedTextField',
         'prefix': '+91',
     }]
-    form = dynamic_form(fields)
+    form = FormGenerator().generate(fields)()
     if form.validate_on_submit():
         class Target(object):
             pass
