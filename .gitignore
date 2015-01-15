@@ -14,3 +14,4 @@ instance/development.py
 .coverage
 *.packed.js
 *.packed.css
+funnel/static/gen
