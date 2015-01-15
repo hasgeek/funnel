@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseScopedNameMixin, MarkdownColumn
+from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 
-__all__ = ['SPACESTATUS', 'ProposalSpace']
+__all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
@@ -70,6 +70,21 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         return '<ProposalSpace %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
+
+    @db.validates('name')
+    def _validate_name(self, key, value):
+        value = unicode(value).strip() if value is not None else None
+        if not value:
+            raise ValueError(value)
+
+        if value != self.name and self.name is not None and self.profile is not None:
+            redirect = ProposalSpaceRedirect.query.get((self.profile_id, self.name))
+            if redirect is None:
+                redirect = ProposalSpaceRedirect(profile=self.profile, name=self.name, proposal_space=self)
+                db.session.add(redirect)
+            else:
+                redirect.proposal_space = self
+        return value
 
     @property
     def rooms(self):
@@ -181,3 +196,30 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         Return currently active events, sorted by date.
         """
         return cls.query.filter(cls.status >= 1).filter(cls.status <= 4).order_by(cls.date.desc()).all()
+
+
+class ProposalSpaceRedirect(TimestampMixin, db.Model):
+    __tablename__ = "proposal_space_redirect"
+
+    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False, primary_key=True)
+    profile = db.relationship(Profile, backref=db.backref('space_redirects', cascade='all, delete-orphan'))
+    parent = db.synonym('profile')
+    name = db.Column(db.Unicode(250), nullable=False, primary_key=True)
+
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id', ondelete='SET NULL'), nullable=True)
+    proposal_space = db.relationship(ProposalSpace, backref='redirects')
+
+    def __repr__(self):
+        return '<ProposalSpaceRedirect %s/%s: "%s">' % (self.profile.name, self.name,
+            self.proposal_space.name if self.proposal_space else "(none)")
+
+    def redirect_view_args(self):
+        return {'space': self.proposal_space.name}
+
+    @classmethod
+    def migrate_profile(cls, oldprofile, newprofile):
+        """
+        There's no point trying to migrate redirects when merging profiles, so discard them.
+        """
+        oldprofile.space_redirects = []
+        return [cls.__table__.name]

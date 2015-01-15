@@ -5,7 +5,7 @@ from coaster.views import jsonp, load_models
 from baseframe import _
 
 from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, Proposal, Comment
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal, Comment
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
@@ -13,7 +13,7 @@ from ..models import db, Profile, ProposalSpace, Proposal, Comment
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
 def proposal_voteup(profile, space, proposal):
@@ -28,7 +28,7 @@ def proposal_voteup(profile, space, proposal):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
 def proposal_votedown(profile, space, proposal):
@@ -43,7 +43,7 @@ def proposal_votedown(profile, space, proposal):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
 def proposal_cancelvote(profile, space, proposal):
@@ -56,7 +56,7 @@ def proposal_cancelvote(profile, space, proposal):
 @app.route('/<space>/<proposal>/comments/<int:comment>/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='view', addlperms=lastuser.permissions)
@@ -72,7 +72,7 @@ def comment_json(profile, space, proposal, comment):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
@@ -88,7 +88,7 @@ def comment_voteup(profile, space, proposal, comment):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
@@ -104,7 +104,7 @@ def comment_votedown(profile, space, proposal, comment):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)

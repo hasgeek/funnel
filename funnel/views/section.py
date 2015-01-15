@@ -6,7 +6,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, ProposalSpaceSection
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection
 from ..forms import SectionForm
 
 
@@ -24,7 +24,7 @@ def section_data(section):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view-section')
 def section_list(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
@@ -35,7 +35,7 @@ def section_list(profile, space):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission='view-section')
 def section_view(profile, space, section):
@@ -46,7 +46,7 @@ def section_view(profile, space, section):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-section')
 def section_new(profile, space):
     form = SectionForm(model=ProposalSpaceSection, parent=space)
@@ -64,7 +64,7 @@ def section_new(profile, space):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission='edit-section')
 def section_edit(profile, space, section):
@@ -81,7 +81,7 @@ def section_edit(profile, space, section):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission='delete-section')
 def section_delete(profile, space, section):

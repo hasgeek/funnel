@@ -8,7 +8,7 @@ from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
 
 from .. import app
-from ..models import db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, PROPOSALSTATUS
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -80,7 +80,7 @@ def space_new(profile):
 @app.route('/<space>/', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
@@ -91,7 +91,7 @@ def space_view(profile, space):
 @app.route('/<space>/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def space_view_json(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
@@ -109,7 +109,7 @@ def space_view_json(profile, space):
 @app.route('/<space>/csv', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def space_view_csv(profile, space):
     if 'view-contactinfo' in g.permissions:
@@ -129,7 +129,7 @@ def space_view_csv(profile, space):
 @app.route('/<space>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def space_edit(profile, space):
     form = ProposalSpaceForm(obj=space, model=ProposalSpace)

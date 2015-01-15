@@ -12,7 +12,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, mail, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, Comment,
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, Comment,
     ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm
 
@@ -95,7 +95,7 @@ def proposal_data_flat(proposal, groups=[]):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-proposal')
 def proposal_new(profile, space):
     form = ProposalForm(model=Proposal, parent=space)
@@ -127,7 +127,7 @@ def proposal_new(profile, space):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='edit-proposal')
 def proposal_edit(profile, space, proposal):
@@ -156,7 +156,7 @@ def proposal_edit(profile, space, proposal):
 # @lastuser.requires_login
 # @load_models(
 #     (Profile, {'name': 'profile'}, 'g.profile'),
-#     (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+#     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
 #     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
 #     kwargs=True)
 # def proposal_transition(profile, space, proposal, kwargs):
@@ -168,7 +168,7 @@ def proposal_edit(profile, space, proposal):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='confirm-proposal')
 def proposal_status(profile, space, proposal):
@@ -184,7 +184,7 @@ def proposal_status(profile, space, proposal):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='delete-proposal')
 def proposal_delete(profile, space, proposal):
@@ -200,7 +200,7 @@ def proposal_delete(profile, space, proposal):
 @app.route('/<space>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 def proposal_view(profile, space, proposal):
@@ -295,7 +295,7 @@ def proposal_view(profile, space, proposal):
 @app.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 @requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
@@ -334,7 +334,7 @@ def session_feedback(profile, space, proposal, id_type, userid, content, present
 @app.route('/<space>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 def proposal_json(profile, space, proposal):
@@ -344,7 +344,7 @@ def proposal_json(profile, space, proposal):
 @app.route('/<space>/<proposal>/next', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 def proposal_next(profile, space, proposal):
@@ -359,7 +359,7 @@ def proposal_next(profile, space, proposal):
 @app.route('/<space>/<proposal>/prev', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 def proposal_prev(profile, space, proposal):

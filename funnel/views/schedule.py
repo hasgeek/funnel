@@ -12,7 +12,7 @@ from flask import render_template, json, jsonify, request, Response
 from coaster.views import load_models, requestargs, jsonp
 
 from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, Session, VenueRoom, Venue
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Session, VenueRoom, Venue
 from .helpers import localize_date
 from .venue import venue_data, room_data
 
@@ -118,7 +118,7 @@ def session_ical(session):
 @app.route('/<space>/schedule', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_view(profile, space):
     return render_template('schedule.html', space=space, venues=space.venues,
@@ -131,7 +131,7 @@ def schedule_view(profile, space):
 @app.route('/<space>/schedule/subscribe', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_subscribe(profile, space):
     return render_template('schedule_subscribe.html',
@@ -141,7 +141,7 @@ def schedule_subscribe(profile, space):
 @app.route('/<space>/schedule/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_json(profile, space):
     return jsonp(schedule=schedule_data(space),
@@ -152,7 +152,7 @@ def schedule_json(profile, space):
 @app.route('/<space>/schedule/ical', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_ical(profile, space):
     cal = Calendar()
@@ -171,7 +171,7 @@ def schedule_ical(profile, space):
 @app.route('/<space>/schedule/<venue>/<room>/ical', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
     permission='view')
@@ -204,7 +204,7 @@ def schedule_room_ical(profile, space, venue, room):
 @app.route('/<space>/schedule/<venue>/<room>/updates', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
     permission='view')
@@ -237,7 +237,7 @@ def schedule_room_updates(profile, space, venue, room):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-schedule')
 def schedule_edit(profile, space):
     proposals = {
@@ -257,7 +257,7 @@ def schedule_edit(profile, space):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-schedule')
 @requestargs(('sessions', json.loads))
 def schedule_update(profile, space, sessions):

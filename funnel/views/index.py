@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from flask import g, render_template, redirect
-from .. import app, lastuser
-from ..models import Profile, ProposalSpace, Proposal
+from .. import app
+from ..models import Profile, ProposalSpace, ProposalSpaceRedirect, Proposal
 from coaster.views import jsonp, load_model
 from .space import space_data
 

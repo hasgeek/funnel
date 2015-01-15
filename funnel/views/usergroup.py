@@ -6,7 +6,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, lastuser
-from ..models import db, Profile, User, UserGroup, ProposalSpace
+from ..models import db, Profile, User, UserGroup, ProposalSpace, ProposalSpaceRedirect
 from ..forms import UserGroupForm
 
 
@@ -14,7 +14,7 @@ from ..forms import UserGroupForm
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view-usergroup')
 def usergroup_list(profile, space):
     return render_template('usergroups.html', space=space, usergroups=space.usergroups)
@@ -24,7 +24,7 @@ def usergroup_list(profile, space):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
     permission='view-usergroup')
 def usergroup_view(profile, space, usergroup):
@@ -40,7 +40,7 @@ def usergroup_view(profile, space, usergroup):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-usergroup', kwargs=True)
 def usergroup_edit(profile, space, kwargs):
     group = kwargs.get('group')
@@ -81,7 +81,7 @@ def usergroup_edit(profile, space, kwargs):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    (ProposalSpace, {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
     permission='delete-usergroup')
 def usergroup_delete(profile, space, usergroup):
