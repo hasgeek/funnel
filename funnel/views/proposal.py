@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import requests
-
 from datetime import datetime
 from bleach import linkify
 
@@ -14,7 +12,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, mail, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, Comment, Vote,
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceSection, Proposal, Comment,
     ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm
 
@@ -111,13 +109,9 @@ def proposal_new(profile, space):
         form.phone.data = g.user.phone
     if form.validate_on_submit():
         proposal = Proposal(user=g.user, proposal_space=space)
-        if form.speaking.data:
-            proposal.speaker = g.user
-        else:
-            proposal.speaker = None
         with db.session.no_autoflush:
             proposal.votes.vote(g.user)  # Vote up your own proposal by default
-        form.populate_obj(proposal)
+        form.populate_obj(proposal.formdata)
         proposal.name = make_name(proposal.title)
         db.session.add(proposal)
         db.session.commit()
@@ -137,7 +131,7 @@ def proposal_new(profile, space):
     (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='edit-proposal')
 def proposal_edit(profile, space, proposal):
-    form = ProposalForm(obj=proposal, model=Proposal, parent=space)
+    form = ProposalForm(obj=proposal.formdata, model=Proposal, parent=space)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
     form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
@@ -146,18 +140,9 @@ def proposal_edit(profile, space, proposal):
         del form.section
     if proposal.user != g.user:
         del form.speaking
-    elif request.method == 'GET':
-        form.speaking.data = proposal.speaker == g.user
     if form.validate_on_submit():
-        form.populate_obj(proposal)
+        form.populate_obj(proposal.formdata)
         proposal.name = make_name(proposal.title)
-        if proposal.user == g.user:
-            # Only allow the speaker to change this status
-            if form.speaking.data:
-                proposal.speaker = g.user
-            else:
-                if proposal.speaker == g.user:
-                    proposal.speaker = None
         proposal.edited_at = datetime.utcnow()
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')

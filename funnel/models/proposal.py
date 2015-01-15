@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for, abort
-from . import db, BaseScopedIdNameMixin, MarkdownColumn
+from . import db, BaseScopedIdNameMixin, MarkdownColumn, JsonDict
 from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
@@ -13,6 +13,8 @@ from flask import request
 from pytz import timezone, utc, UnknownTimeZoneError
 
 __all__ = ['Proposal', 'PROPOSALSTATUS']
+
+_marker = object()
 
 # --- Constants ------------------------------------------------------------------
 
@@ -29,6 +31,43 @@ class PROPOSALSTATUS(LabeledEnum):
 
 
 # --- Models ------------------------------------------------------------------
+
+class ProposalFormData(object):
+    """
+    Form data access helper for custom fields
+    """
+    def __init__(self, proposal):
+        self.__dict__['proposal'] = proposal
+        self.__dict__['data'] = proposal.data
+
+    def __getattr__(self, attr, default=_marker):
+        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
+            raise AttributeError("Invalid attribute: %s" % attr)
+
+        if default is _marker:
+            try:
+                if hasattr(self.proposal, attr):
+                    return getattr(self.proposal, attr)
+                return self.data[attr]
+            except KeyError:
+                raise AttributeError(attr)
+        else:
+            if hasattr(self.proposal, attr):
+                return getattr(self.proposal, attr, default)
+            return self.data.get(attr, default)
+
+    def __setattr__(self, attr, value):
+        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
+            raise AttributeError("Invalid attribute: %s" % attr)
+
+        if hasattr(self.proposal, attr):
+            if attr in self.proposal.__valid_fields__:
+                setattr(self.proposal, attr, value)
+            else:
+                raise AttributeError("Cannot set attribute: %s" % attr)
+        else:
+            self.data[attr] = value
+
 
 class Proposal(BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'proposal'
@@ -70,7 +109,27 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
+    # Additional form data
+    data = db.Column(JsonDict, nullable=False, server_default='{}')
+    # Location coordinates for proposals that need them. These are
+    # not stored inside the data dict as any proposal that needs
+    # coordinates will also likely need plotting on a map, and values
+    # are easier to query from db when they are directly on the model.
+    # See the coordinates property below for a composite.
+    latitude = db.Column(db.Numeric, nullable=True)
+    longitude = db.Column(db.Numeric, nullable=True)
+
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
+
+    # XXX: The following two may overlap. Reconsider whether both are needed
+
+    # Allow these fields to be set on the proposal by custom forms
+    __valid_fields__ = ('title', 'speaker', 'speaking', 'email', 'phone', 'bio', 'section', 'objective', 'session_type',
+        'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
+        'latitude', 'longitude', 'coordinates')
+    # Never allow these fields to be set on the proposal or proposal.data by custom forms
+    __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'proposal_space_id',
+        'proposal_space', 'parent', 'votes_id', 'votes', 'comments_id', 'comments', 'edited_at', 'data')
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
@@ -81,8 +140,32 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
         return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
 
     @property
+    def coordinates(self):
+        return self.latitude, self.longitude
+
+    @coordinates.setter
+    def coordinates(self, value):
+        self.latitude, self.longitude = value
+
+    @property
+    def formdata(self):
+        return ProposalFormData(self)
+
+    @property
     def owner(self):
         return self.speaker or self.user
+
+    @property
+    def speaking(self):
+        return self.speaker == self.user
+
+    @speaking.setter
+    def speaking(self, value):
+        if value:
+            self.speaker = self.user
+        else:
+            if self.speaker == self.user:
+                self.speaker = None  # Reset only if it's currently set to user
 
     @property
     def datetime(self):
