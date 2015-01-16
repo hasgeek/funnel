@@ -27,7 +27,7 @@ class VenueForm(Form):
     country = wtforms.SelectField(__("Country"),
         validators=[wtforms.validators.Optional(), wtforms.validators.length(max=2)],
         choices=country_codes, default="IN")
-    location = MapMarkerField(__("Location"), map_id="map", longitude_id="longitude", latitude_id="latitude")
+    location = MapMarkerField(__("Location"))
     latitude = wtforms.DecimalField(__("Latitude"), places=None,
         validators=[wtforms.validators.Optional(), wtforms.validators.NumberRange(-90, 90)])
     longitude = wtforms.DecimalField(__("Longitude"), places=None,
