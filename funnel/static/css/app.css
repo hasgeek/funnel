@@ -159,7 +159,7 @@ table.listing {
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
-.infosheet .section h1 + p, .infosheet .section h1 + ul, .infosheet .section h1 + ol, .infosheet .section h2 + p, .infosheet .section h2 + ul, .infosheet .section h2 + ol {
+.infosheet .section h1 + p, .infosheet .section h1 + ul, .infosheet .section h1 + ol, .infosheet .section h2 + p, .infosheet .section h2 + ul, .infosheet .section h2 + ol, .infosheet .section form {
   margin-top: 0.5em;
 }
 .infosheet .section .social {

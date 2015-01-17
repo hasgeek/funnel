@@ -164,7 +164,7 @@ table.listing {
             color: $color-section-heading;
             @include border-radius(3px);
         }
-        h1+p, h1+ul, h1+ol, h2+p, h2+ul, h2+ol {
+        h1+p, h1+ul, h1+ol, h2+p, h2+ul, h2+ol, form {
             margin-top: 0.5em;
         }
         .social {

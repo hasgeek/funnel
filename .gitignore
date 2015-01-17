@@ -15,3 +15,6 @@ instance/development.py
 *.packed.js
 *.packed.css
 funnel/static/gen
+*.sql
+*.gz
+*.bz2

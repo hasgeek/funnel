@@ -217,9 +217,6 @@
               <a class="btn btn-info" href="{{ url_for('login') }}">{% trans %}Login with Twitter or Google to leave a comment{% endtrans %}</a>
             </p>
           {% else -%}
-            <p id="toplevel-comment" class="hidden">
-              <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>
-            </p>
             <form method="POST" id="newcomment" class="row">
               <div class="hidden">
                 <input type="hidden" name="form.id" value="newcomment"/>
@@ -234,6 +231,9 @@
                 </div>
               </div>
             </form>
+            <p id="toplevel-comment" class="hidden">
+              <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>
+            </p>
             <form method="POST" id="delcomment" class="hidden">
               <div class="hidden">
                 <input type="hidden" name="form.id" value="delcomment"/>
