@@ -5,7 +5,7 @@ from coaster.views import jsonp, load_models
 from baseframe import _
 
 from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal, Comment
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal, ProposalRedirect, Comment
 
 
 # FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
@@ -14,7 +14,7 @@ from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
 def proposal_voteup(profile, space, proposal):
     proposal.votes.vote(g.user, votedown=False)
@@ -29,7 +29,7 @@ def proposal_voteup(profile, space, proposal):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
 def proposal_votedown(profile, space, proposal):
     proposal.votes.vote(g.user, votedown=True)
@@ -44,7 +44,7 @@ def proposal_votedown(profile, space, proposal):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='vote-proposal', addlperms=lastuser.permissions)
 def proposal_cancelvote(profile, space, proposal):
     proposal.votes.cancelvote(g.user)
@@ -57,7 +57,7 @@ def proposal_cancelvote(profile, space, proposal):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='view', addlperms=lastuser.permissions)
 def comment_json(profile, space, proposal, comment):
@@ -73,7 +73,7 @@ def comment_json(profile, space, proposal, comment):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
 def comment_voteup(profile, space, proposal, comment):
@@ -89,7 +89,7 @@ def comment_voteup(profile, space, proposal, comment):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
 def comment_votedown(profile, space, proposal, comment):
@@ -105,7 +105,7 @@ def comment_votedown(profile, space, proposal, comment):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
 def comment_cancelvote(profile, space, proposal, comment):

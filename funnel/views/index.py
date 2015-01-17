@@ -2,7 +2,7 @@
 
 from flask import g, render_template, redirect
 from .. import app
-from ..models import Profile, ProposalSpace, ProposalSpaceRedirect, Proposal
+from ..models import Profile, ProposalSpace, ProposalSpaceRedirect, Proposal, ProposalRedirect
 from coaster.views import jsonp, load_model
 from .space import space_data
 
@@ -11,7 +11,7 @@ from .space import space_data
 def index():
     g.profile = None
     g.permissions = []
-    spaces = ProposalSpace.query.filter(ProposalSpace.profile != None).filter(ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()
+    spaces = ProposalSpace.query.filter(ProposalSpace.profile != None).filter(ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()  # NOQA
     return render_template('index.html', spaces=spaces)
 
 
@@ -20,7 +20,7 @@ def all_spaces_json():
     g.profile = None
     g.permissions = []
     # FIXME: Only return active spaces
-    return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.filter(ProposalSpace.profile != None).order_by(ProposalSpace.date.desc()).all()])
+    return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.filter(ProposalSpace.profile != None).order_by(ProposalSpace.date.desc()).all()])  # NOQA
 
 
 @app.route('/json', subdomain='<profile>')

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for, abort
-from . import db, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
+from . import db, TimestampMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
 from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
@@ -12,7 +12,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
 from pytz import timezone, utc, UnknownTimeZoneError
 
-__all__ = ['Proposal', 'PROPOSALSTATUS']
+__all__ = ['PROPOSALSTATUS', 'Proposal', 'ProposalRedirect']
 
 _marker = object()
 
@@ -131,6 +131,28 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     def __repr__(self):
         return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
+
+    @db.validates('proposal_space')
+    def _validate_proposal_space(self, key, value):
+        if not value:
+            raise ValueError(value)
+
+        if value != self.proposal_space and self.proposal_space is not None:
+            redirect = ProposalRedirect.query.get((self.proposal_space_id, self.url_id))
+            if redirect is None:
+                redirect = ProposalRedirect(proposal_space=self.proposal_space, url_id=self.url_id, proposal=self)
+                db.session.add(redirect)
+            else:
+                redirect.proposal = self
+        return value
+
+    def move_to(self, space):
+        """
+        Move to a new proposal space and reset the url_id
+        """
+        self.proposal_space = space
+        self.url_id = None
+        self.make_id()
 
     @property
     def formdata(self):
@@ -252,3 +274,34 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             return url_for('proposal_schedule', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
         elif action == 'status':
             return url_for('proposal_status', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external)
+
+
+class ProposalRedirect(TimestampMixin, db.Model):
+    __tablename__ = "proposal_redirect"
+
+    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
+    proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
+        backref=db.backref('proposal_redirects', cascade="all, delete-orphan"))
+    parent = db.synonym('proposal_space')
+    url_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    url_id_attr = 'url_id'
+
+    proposal_id = db.Column(None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True)
+    proposal = db.relationship(Proposal, backref='redirects')
+
+    def __repr__(self):
+        return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
+            self.proposal_space.profile.name, self.proposal_space.name, self.url_id,
+            self.proposal.proposal_space.profile.name if self.proposal else "(none)",
+            self.proposal.proposal_space.name if self.proposal else "(none)",
+            self.proposal.url_id if self.proposal else "(none)")
+
+    def redirect_view_args(self):
+        if self.proposal:
+            return {
+                'profile': self.proposal.proposal_space.profile.name,
+                'space': self.proposal.proposal_space.name,
+                'proposal': self.proposal.url_name
+                }
+        else:
+            return {}

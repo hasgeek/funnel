@@ -6,7 +6,7 @@ from coaster.views import load_models
 
 from .helpers import localize_date
 from .. import app, lastuser
-from ..models import db, Profile, Proposal, ProposalSpace, ProposalSpaceRedirect, Session
+from ..models import db, Profile, Proposal, ProposalRedirect, ProposalSpace, ProposalSpaceRedirect, Session
 from ..forms import SessionForm
 
 
@@ -69,7 +69,7 @@ def session_new(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Proposal, {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='new-session')
 def proposal_schedule(profile, space, proposal):
     return session_form(space, proposal=proposal)

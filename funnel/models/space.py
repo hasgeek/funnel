@@ -210,11 +210,17 @@ class ProposalSpaceRedirect(TimestampMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace, backref='redirects')
 
     def __repr__(self):
-        return '<ProposalSpaceRedirect %s/%s: "%s">' % (self.profile.name, self.name,
+        return '<ProposalSpaceRedirect %s/%s: %s>' % (self.profile.name, self.name,
             self.proposal_space.name if self.proposal_space else "(none)")
 
     def redirect_view_args(self):
-        return {'space': self.proposal_space.name}
+        if self.proposal_space:
+            return {
+                'profile': self.profile.name,
+                'space': self.proposal_space.name
+                }
+        else:
+            return {}
 
     @classmethod
     def migrate_profile(cls, oldprofile, newprofile):
