@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseScopedNameMixin, MarkdownColumn
+from . import db, BaseScopedNameMixin, MarkdownColumn, CoordinatesMixin
 from .space import ProposalSpace
 
 
 __all__ = ['Venue', 'VenueRoom']
 
 
-class Venue(BaseScopedNameMixin, db.Model):
+class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'venue'
 
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
@@ -22,8 +22,6 @@ class Venue(BaseScopedNameMixin, db.Model):
     state = db.Column(db.Unicode(30), default=u'', nullable=False)
     postcode = db.Column(db.Unicode(20), default=u'', nullable=False)
     country = db.Column(db.Unicode(2), default=u'', nullable=False)
-    latitude = db.Column(db.Numeric(8, 5), nullable=True)
-    longitude = db.Column(db.Numeric(8, 5), nullable=True)
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 

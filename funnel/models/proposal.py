@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for, abort
-from . import db, BaseScopedIdNameMixin, MarkdownColumn, JsonDict
+from . import db, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
 from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
@@ -69,7 +69,7 @@ class ProposalFormData(object):
             self.data[attr] = value
 
 
-class Proposal(BaseScopedIdNameMixin, db.Model):
+class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -111,13 +111,6 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
 
     # Additional form data
     data = db.Column(JsonDict, nullable=False, server_default='{}')
-    # Location coordinates for proposals that need them. These are
-    # not stored inside the data dict as any proposal that needs
-    # coordinates will also likely need plotting on a map, and values
-    # are easier to query from db when they are directly on the model.
-    # See the coordinates property below for a composite.
-    latitude = db.Column(db.Numeric, nullable=True)
-    longitude = db.Column(db.Numeric, nullable=True)
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
 
@@ -138,14 +131,6 @@ class Proposal(BaseScopedIdNameMixin, db.Model):
 
     def __repr__(self):
         return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
-
-    @property
-    def coordinates(self):
-        return self.latitude, self.longitude
-
-    @coordinates.setter
-    def coordinates(self, value):
-        self.latitude, self.longitude = value
 
     @property
     def formdata(self):
