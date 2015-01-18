@@ -58,6 +58,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     review_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
     review_team = db.relationship(Team, foreign_keys=[review_team_id])
 
+    parent_space_id = db.Column(None, db.ForeignKey('proposal_space.id', ondelete='SET NULL'), nullable=True)
+    parent_space = db.relationship('ProposalSpace', remote_side='ProposalSpace.id', backref='subspaces')
+
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
 

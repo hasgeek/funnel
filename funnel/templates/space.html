@@ -125,6 +125,23 @@
     {%- endif -%}
   </strong>
 </p>
+{%- if space.subspaces %}
+  <ul class="cardset row">
+    {% for subspace in space.subspaces %}
+      <li class="col-md-4 col-sm-6">
+        <a href="{{ subspace.url_for() }}">
+          <div class="card-title">
+            <h2>{{ subspace.title }}</h2>
+            <h3>{{ subspace.datelocation }}</h3>
+          </div>
+          <div class="card-body">
+            <p>{{ subspace.tagline }}</p>
+          </div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{%- endif %}
 {% if space.status == 1 -%}
   <p>
     <a class="btn btn-success" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>

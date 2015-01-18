@@ -9,6 +9,10 @@
           <a href="{{ url_for('index') }}"><i class="fa fa-filter"></i></a> <i class="fa fa-angle-right"></i>
           <a href="{{ g.profile.url_for() }}">{{ g.profile.title }}</a>
           {%- if space %}
+            {%- if space.parent_space %}
+              <i class="fa fa-angle-right"></i>
+              <a href="{{ space.parent_space.url_for() }}">{{ space.parent_space.short_title() }}</a>
+            {%- endif %}
             <i class="fa fa-angle-right"></i>
             <a href="{{ space.url_for() }}">{{ space.short_title() }}</a>
           {%- endif %}
