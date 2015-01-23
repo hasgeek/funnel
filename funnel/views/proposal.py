@@ -369,3 +369,23 @@ def proposal_prev(profile, space, proposal):
     else:
         flash(_("You were at the first proposal"), 'info')
         return redirect(space.url_for())
+
+
+@app.route('/<space>/<proposal>/move', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    permission='move-proposal', addlperms=lastuser.permissions)
+def proposal_moveto(profile, space, proposal):
+    target_name = request.args.get('target')
+    if not target_name:
+        abort(404)
+    profile_name, space_name = target_name.split('/', 1)
+    target_space = ProposalSpace.query.filter(ProposalSpace.name == space_name).join(Profile).filter(Profile.name == profile_name).one_or_none()
+    if target_space:
+        proposal.move_to(target_space)
+        db.session.commit()  # WARNING: GET request!
+        return redirect(proposal.url_for(), 303)
+    else:
+        abort(404)

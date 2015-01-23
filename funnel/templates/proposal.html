@@ -15,6 +15,7 @@
           <div class="page-header">
             <h3>
             <a href="{{ proposal.proposal_space.profile.url_for() }}">{{ proposal.proposal_space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i>&nbsp;
+            {% if proposal.proposal_space.parent_space %}<a href="{{ proposal.proposal_space.parent_space.url_for() }}">{{ proposal.proposal_space.parent_space.short_title() }}</a> &nbsp;<i class="fa fa-angle-right"></i>{% endif %}
             <a href="{{ proposal.proposal_space.url_for() }}">{{ proposal.proposal_space.short_title() }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>
             <h1>{{ proposal.title }}</h1>
           </div>
@@ -83,6 +84,19 @@
           {% if proposal.session %}
             <br><a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
           {% endif %}
+          {%- if 'move-proposal' in g.permissions %}
+            <br>
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                Move <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                {%- for movespace in proposal.proposal_space.profile.spaces %}
+                  <li><a href="{{ proposal.url_for('move-to', target=movespace) }}">{{ movespace.title }}</a></li>
+                {%- endfor %}
+              </ul>
+            </div>
+          {%- endif %}
         </div>
       </div>
     </div>

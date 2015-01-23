@@ -96,14 +96,22 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     @property
     def proposals_by_status(self):
         from .proposal import Proposal, PROPOSALSTATUS
-        return dict((status, Proposal.query.filter_by(proposal_space=self, status=status).order_by(db.desc('created_at')).all()) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT)
+        if self.subspaces:
+            basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
+        else:
+            basequery = Proposal.query.filter_by(proposal_space=self)
+        return dict((status, basequery.filter_by(status=status).order_by(db.desc('created_at')).all()) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT)
 
     @property
     def proposals_by_confirmation(self):
         from .proposal import Proposal, PROPOSALSTATUS
+        if self.subspaces:
+            basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
+        else:
+            basequery = Proposal.query.filter_by(proposal_space=self)
         response = dict(
-            confirmed=Proposal.query.filter_by(proposal_space=self, status=PROPOSALSTATUS.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=Proposal.query.filter(Proposal.proposal_space == self, Proposal.status != PROPOSALSTATUS.CONFIRMED, Proposal.status != PROPOSALSTATUS.DRAFT).order_by(db.desc('created_at')).all())
+            confirmed=basequery.filter_by(status=PROPOSALSTATUS.CONFIRMED).order_by(db.desc('created_at')).all(),
+            unconfirmed=basequery.filter(Proposal.status != PROPOSALSTATUS.CONFIRMED, Proposal.status != PROPOSALSTATUS.DRAFT).order_by(db.desc('created_at')).all())
         return response
 
     def user_in_group(self, user, group):
@@ -140,6 +148,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'edit-venue',
                     'delete-venue',
                     'edit-schedule',
+                    'move-proposal',
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
