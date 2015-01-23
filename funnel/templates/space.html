@@ -125,16 +125,14 @@
     {%- endif -%}
   </strong>
 </p>
-<p>
-  {% if space.status == 1 -%}
-    <p>
-      <a class="btn btn-success" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
-      {% if 'title_helper' in space.content and space.content['title_helper'] %}
-        <span data-toggle="tooltip" data-placement="right" title="{{ space.content['title_helper'] }}" class="tooltip icon-question-sign" style="opacity: 1"></span>
-      {% endif %}
-    </p>
-  {% endif %}
-</p>
+{% if space.status == 1 -%}
+  <p>
+    <a class="btn btn-success" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+    {% if 'title_helper' in space.content and space.content['title_helper'] %}
+      <span data-toggle="tooltip" data-placement="right" title="{{ space.content['title_helper'] }}" class="tooltip icon-question-sign" style="opacity: 1"></span>
+    {% endif %}
+  </p>
+{% endif %}
 {{ description }}
 {%- if space.subspaces %}
   <ul class="cardset row">
