@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}{{ space.title }}{% endblock %}
 
-{%- macro proposal_table(proposals) %}
+{%- macro proposal_table(space, proposals) %}
   <div class="table-responsive">
     <table class="table table-bordered listing">
       <thead>
@@ -9,7 +9,6 @@
           <th class="num">#</th>
           <th>{% trans %}Speaker{% endtrans %}</th>
           <th>{% trans %}Section{% endtrans %}</th>
-          <th>{% trans %}Type{% endtrans %}</th>
           <th>{% trans %}Level{% endtrans %}</th>
           <th class="num">{% trans %}+1{% endtrans %}</th>
           <th class="num"><i class="icon-comment"></i></th>
@@ -21,7 +20,7 @@
           {%- set link=proposal.url_for() -%}
           <tr>
             <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
-            <td colspan="8">
+            <td colspan="6">
               <a href="{{ link }}"><strong>{{ proposal.title }}</strong></a>
               {% if proposal.preview_video %}
                 <span data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" class="tooltip icon-film" style="opacity: 1"></span>
@@ -46,8 +45,7 @@
                 {{ proposal.user.pickername }} <em>{% trans %}(proposing){% endtrans %}</em>
               {%- endif -%}
             </a></td>
-            <td><a href="{{ link }}">{{ proposal.section.title }}</a></td>
-            <td><a href="{{ link }}">{{ proposal.session_type }}</a></td>
+            <td><a href="{{ link }}">{%- if proposal.proposal_space != space %}{{ proposal.proposal_space.short_title() }}{% else %}{{ proposal.section.title }}{% endif %}</a></td>
             <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
             <td class="num"><a href="{{ link }}">
               {{ proposal.votes.count }}
@@ -156,16 +154,16 @@
       {%- if 'view-status' in g.permissions %}
         {%- for status, proposal_group in space.proposals_by_status.iteritems() if proposal_group -%}
             <h3>{{ PROPOSALSTATUS[status] }} {% trans %}proposals{% endtrans %}</h3>
-            {{ proposal_table(proposal_group) }}
+            {{ proposal_table(space, proposal_group) }}
         {%- endfor -%}
       {%- else %}
         {%- if space.proposals_by_confirmation['confirmed'] %}
           <h3>{% trans %}Confirmed sessions{% endtrans %}</h3>
-          {{ proposal_table(space.proposals_by_confirmation['confirmed']) }}
+          {{ proposal_table(space, space.proposals_by_confirmation['confirmed']) }}
         {%- endif %}
         {%- if space.proposals_by_confirmation['unconfirmed'] %}
           {%- if space.proposals_by_confirmation['confirmed'] %}<h3>{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
-          {{ proposal_table(space.proposals_by_confirmation['unconfirmed']) }}
+          {{ proposal_table(space, space.proposals_by_confirmation['unconfirmed']) }}
         {%- endif %}
       {%- endif %}
 {#
