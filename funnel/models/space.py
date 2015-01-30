@@ -5,7 +5,7 @@ from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
-from .rsvp import RSVP, RSVP_ACTION
+from .rsvp import *
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
@@ -24,7 +24,7 @@ class SPACESTATUS:
 
 # --- Models ------------------------------------------------------------------
 
-class ProposalSpace(BaseScopedNameMixin, db.Model):
+class ProposalSpace(RSVPMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'proposal_space'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -64,8 +64,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
-
-    allow_rsvp = db.Column(db.Boolean, default=False)
 
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
@@ -214,14 +212,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         """
         return cls.query.filter(cls.status >= 1).filter(cls.status <= 4).order_by(cls.date.desc()).all()
 
-    def rsvp_actions(self):
-        if self.allow_rsvp:
-            return sorted(RSVP_ACTION.items(), key=lambda action: action[1]['order'])
-        else:
-            return []
-
-    def rsvp_responses_count(self, action):
-        return RSVP.query.filter_by(proposal_space_id=self.id, rsvp_action=action).count()
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):
     __tablename__ = "proposal_space_redirect"

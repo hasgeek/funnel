@@ -124,9 +124,7 @@
   </strong>
 </p>
 {%- if space.allow_rsvp %}
-  <div id='rsvp-section'>
-    {% include 'rsvp.html' %}
-  </div>
+  {% include 'rsvp.html' %}
 {%- endif %}
 {{ description }}
 {%- if space.subspaces %}
@@ -180,16 +178,7 @@
 <script type="text/javascript">
   $(document).ready(function() {
     $('.tooltip').tooltip();
-
-    $(document).on('click', '.form-submit', function(event){
-      event.preventDefault();
-      var url = $($(this).data('form-id')).attr("action");
-      var rsvpXHR = $.post(url, {rsvp_action: $(this).val()});
-      rsvpXHR.done(function(data){
-        $('#rsvp-section').html(data);
-      });
-    });
-
   });
 </script>
+{{ rsvp_script() }}
 {% endblock %}
