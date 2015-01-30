@@ -5,7 +5,7 @@ from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
-from .rsvp import RSVP_ACTION
+from .rsvp import RSVP, RSVP_ACTION
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
@@ -219,6 +219,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return sorted(RSVP_ACTION.items(), key=lambda action: action[1]['order'])
         else:
             return []
+
+    def rsvp_responses_count(self, action):
+        return RSVP.query.filter_by(proposal_space_id=self.id, rsvp_action=action).count()
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):
     __tablename__ = "proposal_space_redirect"

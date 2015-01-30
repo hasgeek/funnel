@@ -7,7 +7,7 @@ __all__ = ['RSVP', 'RSVP_ACTION']
 
 
 class RSVP_ACTION(LabeledEnum):
-    RSVP_Y = ('Y', {'label': "I'm going", 'category': 'primary', 'order': 1})
+    RSVP_Y = ('Y', {'label': "I'm going", 'category': 'success', 'order': 1})
     RSVP_N = ('N', {'label': 'Not going', 'category': 'danger', 'order': 2})
     RSVP_M = ('M', {'label': 'Maybe', 'category': 'default', 'order': 3})
 
