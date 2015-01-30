@@ -2,7 +2,6 @@
 
 from flask.ext.lastuser.sqlalchemy import UserBase2, TeamBase
 from . import db
-from rsvp import RSVP
 
 __all__ = ['User', 'Team']
 
