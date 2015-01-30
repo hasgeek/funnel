@@ -15,7 +15,7 @@ class RSVP_ACTION(LabeledEnum):
 
 class RSVP(TimestampMixin, db.Model):
     __tablename__ = 'rsvp'
-    __table_args__ = (db.UniqueConstraint('user_id', 'proposal_space_id'),)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'user_id'),)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
