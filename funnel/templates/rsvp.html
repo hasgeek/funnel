@@ -1,0 +1,19 @@
+<h3>Attending this event?</h3>
+{%- if g.user %}
+  <form id="rsvp-form" action="{{space.url_for('rsvp')}}" method="POST">
+    <p class="button-bar">
+      {%- for action in space.rsvp_actions() %}
+        <button data-form-id='#rsvp-form' name="action" value="{{ action[0] }}" type="submit" class="btn btn-sm btn-{{ action[1].category }} form-submit">
+          {{ action[1].label }}
+            {%- if g.user.rsvp_status(space.id) == action[0] %}
+                <i class="fa fa-check"></i>
+            {% endif %}
+        </button>
+      {%- endfor %}
+    </p>
+  </form>
+{%- else %}
+  <p>
+    <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>
+  </p>
+{%- endif %}
