@@ -14,3 +14,4 @@ from .proposal import *
 from .feedback import *
 from .session import *
 from .venue import *
+from .rsvp import *

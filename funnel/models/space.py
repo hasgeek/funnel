@@ -5,6 +5,7 @@ from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
+from .rsvp import RSVP_ACTION
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
@@ -63,6 +64,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
+
+    allow_rsvp = db.Column(db.Boolean, default=False)
 
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
@@ -201,6 +204,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('schedule_subscribe', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'ical-schedule':
             return url_for('schedule_ical', profile=self.profile.name, space=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')
+        elif action == 'rsvp':
+            return url_for('rsvp', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):
@@ -209,6 +214,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         """
         return cls.query.filter(cls.status >= 1).filter(cls.status <= 4).order_by(cls.date.desc()).all()
 
+    def rsvp_actions(self):
+        if self.allow_rsvp:
+            return sorted(RSVP_ACTION.items(), key=lambda action: action[1]['order'])
+        else:
+            return []
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):
     __tablename__ = "proposal_space_redirect"

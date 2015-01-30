@@ -2,19 +2,21 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request
+from flask import g, flash, redirect, render_template, Response, request, make_response
 from baseframe import _
 from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
 
 from .. import app
-from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, RSVP
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-
+import logging
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 def space_data(space):
     return {
@@ -141,3 +143,18 @@ def space_edit(profile, space):
         flash(_("Your changes have been saved"), 'info')
         return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Edit proposal space"), submit=_("Save changes"))
+
+@app.route('/<space>/rsvp', methods=['POST'], subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def rsvp(profile, space):
+    rsvp = RSVP.query.filter_by(proposal_space_id=space.id, user_id=g.user.id).first()
+    if rsvp:
+        rsvp.rsvp_action = request.form['rsvp_action']
+    else:
+        rsvp = RSVP(proposal_space_id=space.id, user_id=g.user.id, rsvp_action=request.form['rsvp_action'])
+        db.session.add(rsvp)
+    db.session.commit()
+    return make_response(render_template('rsvp.html', space=space, rsvp=rsvp))

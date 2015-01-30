@@ -62,6 +62,7 @@ class ProposalSpaceForm(Form):
     review_team = QuerySelectField(u"Review Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=_(u"Reviewers can see contact details of proposers, but can’t change settings"))
+    allow_rsvp = wtforms.BooleanField(__("Allow RSVP?"))
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
