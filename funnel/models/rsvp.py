@@ -14,7 +14,6 @@ class RSVP_ACTION(LabeledEnum):
 
 
 class RSVP(TimestampMixin, db.Model):
-    """Captures an RSVP from the user for a proposal space"""
     __tablename__ = 'rsvp'
     __table_args__ = (db.UniqueConstraint('user_id', 'proposal_space_id'),)
     
