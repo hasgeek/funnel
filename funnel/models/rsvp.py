@@ -3,43 +3,44 @@
 from . import db, TimestampMixin
 from coaster.utils import LabeledEnum
 from baseframe import __
+from .space import ProposalSpace
+from .user import User
 
-__all__ = ['RSVP', 'RSVP_ACTION', 'RSVPMixin']
+__all__ = ['Rsvp']
 
 
 class RSVP_ACTION(LabeledEnum):
-    RSVP_Y = ('Y', {'label': "I'm going", 'category': 'success', 'order': 1})
-    RSVP_N = ('N', {'label': 'Not going', 'category': 'danger', 'order': 2})
-    RSVP_M = ('M', {'label': 'Maybe', 'category': 'default', 'order': 3})
+    RSVP_Y = ('Y', {'label': __("I'm going"), 'category': 'success', 'order': 1})
+    RSVP_N = ('N', {'label': __("Not going"), 'category': 'danger', 'order': 2})
+    RSVP_M = ('M', {'label': __("Maybe"), 'category': 'default', 'order': 3})
 
 
-class RSVP(TimestampMixin, db.Model):
+class Rsvp(TimestampMixin, db.Model):
     __tablename__ = 'rsvp'
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'user_id'),)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
-    rsvp_action = db.Column(db.Enum(*RSVP_ACTION.keys(), name='rsvp_action'), default=RSVP_ACTION)
+    proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id)
+    user = db.relationship(User, primaryjoin=user_id == User.id)
+
+    rsvp_action = db.Column(db.Enum(*RSVP_ACTION.keys(), name='rsvp_action'), default=RSVP_ACTION, nullable=False)
+
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'user_id'),)
 
     def __init__(self, **kwargs):
-        super(RSVP, self).__init__(**kwargs)
+        super(Rsvp, self).__init__(**kwargs)
 
-class RSVPMixin(object):
+    @classmethod
+    def rsvp_actions(self, space):
+        # A new list is being generated with the responses count appended
+        def append_rsvp_responses_count(action):
+            action[1]['responses_count'] = Rsvp.query.filter_by(proposal_space=space, rsvp_action=action[0]).count()
+            return action
+        return map(append_rsvp_responses_count, sorted(RSVP_ACTION.items(), key=lambda action: action[1]['order']))
 
-    allow_rsvp = db.Column(db.Boolean, default=False)
+    @classmethod
+    def user_rsvp_status(self, space, user):
+        if user:
+            rsvp = Rsvp.query.get((space.id, user.id))
+            return rsvp.rsvp_action if rsvp else None
 
-    def rsvp_actions(self):
-        if self.allow_rsvp:
-            return sorted(RSVP_ACTION.items(), key=lambda action: action[1]['order'])
-        else:
-            return []
-
-    def rsvp_responses_count(self, action):
-        return RSVP.query.filter_by(proposal_space_id=self.id, rsvp_action=action).count()
-
-    def user_rsvp_status(self, user_id):
-        rsvp = RSVP.query.filter_by(proposal_space_id=self.id, user_id=user_id).first()
-        if rsvp:
-            return rsvp.rsvp_action
-        else:
-            return None

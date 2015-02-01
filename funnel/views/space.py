@@ -8,12 +8,13 @@ from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
 
 from .. import app
-from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, RSVP
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, Rsvp
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
+
 
 def space_data(space):
     return {
@@ -84,7 +85,7 @@ def space_new(profile):
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS)
+        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user))
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -141,17 +142,18 @@ def space_edit(profile, space):
         return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
+
 @app.route('/<space>/rsvp', methods=['POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def rsvp(profile, space):
-    rsvp = RSVP.query.filter_by(proposal_space_id=space.id, user_id=g.user.id).first()
+    rsvp = Rsvp.query.get((space.id, g.user.id))
     if rsvp:
         rsvp.rsvp_action = request.form['rsvp_action']
     else:
-        rsvp = RSVP(proposal_space_id=space.id, user_id=g.user.id, rsvp_action=request.form['rsvp_action'])
+        rsvp = Rsvp(proposal_space=space, user=g.user, rsvp_action=request.form['rsvp_action'])
         db.session.add(rsvp)
     db.session.commit()
-    return make_response(render_template('rsvp.html', space=space, rsvp=rsvp))
+    return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user)))

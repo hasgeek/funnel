@@ -5,7 +5,6 @@ from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
-from .rsvp import *
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
@@ -24,7 +23,7 @@ class SPACESTATUS:
 
 # --- Models ------------------------------------------------------------------
 
-class ProposalSpace(RSVPMixin, BaseScopedNameMixin, db.Model):
+class ProposalSpace(BaseScopedNameMixin, db.Model):
     __tablename__ = 'proposal_space'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -65,6 +64,8 @@ class ProposalSpace(RSVPMixin, BaseScopedNameMixin, db.Model):
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
 
+    allow_rsvp = db.Column(db.Boolean, default=False)
+    
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
     def __init__(self, **kwargs):
