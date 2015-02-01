@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import rsvp with context %}
 {% block title %}{{ space.title }}{% endblock %}
 
 {%- macro proposal_table(space, proposals) %}
@@ -124,7 +125,7 @@
   </strong>
 </p>
 {%- if space.allow_rsvp %}
-  {% include 'rsvp.html' %}
+  {{ rsvp() }}
 {%- endif %}
 {{ description }}
 {%- if space.subspaces %}
@@ -178,7 +179,15 @@
 <script type="text/javascript">
   $(document).ready(function() {
     $('.tooltip').tooltip();
+
+    $(document).on('click', '.form-submit', function(event){
+      event.preventDefault();
+      var url = $($(this).data('form-id')).attr("action");
+      var rsvpXHR = $.post(url, {rsvp_action: $(this).val()});
+      rsvpXHR.done(function(data){
+        $('#rsvp-section').html(data);
+      });
+    });
   });
 </script>
-{{ rsvp_script() }}
 {% endblock %}

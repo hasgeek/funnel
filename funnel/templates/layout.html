@@ -42,18 +42,3 @@
 {% block basecontent -%}
   {% block content %}{% endblock %}
 {%- endblock %}
-
-{% macro rsvp_script() %}
-  <script>
-    $(function(){
-      $(document).on('click', '.form-submit', function(event){
-        event.preventDefault();
-        var url = $($(this).data('form-id')).attr("action");
-        var rsvpXHR = $.post(url, {rsvp_action: $(this).val()});
-        rsvpXHR.done(function(data){
-          $('#rsvp-section').html(data);
-        });
-      });
-    });
-  </script>
-{% endmacro %}

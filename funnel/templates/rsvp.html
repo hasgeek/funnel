@@ -1,27 +1,2 @@
-<div id='rsvp-section'>
-  <h3>Attending this event?</h3>
-  {%- if g.user %}
-    <form id="rsvp-form" action="{{space.url_for('rsvp')}}" method="POST">
-      <p class="button-bar">
-        {%- for action in space.rsvp_actions() %}
-          {% with action_val = action[0], action_config = action[1], action_count = space.rsvp_responses_count(action_val) %}
-            {%- if space.user_rsvp_status(g.user.id) == action_val %}
-              <button data-form-id='#rsvp-form' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit active">
-              {{ action_config.label }}
-              <i class="fa fa-check"></i>
-            {%- else  %}
-              <button data-form-id='#rsvp-form' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit">
-              {{ action_config.label }}
-            {% endif %}
-              <span class="badge rsvp-badge">{% if action_count > 0 %}{{ action_count}}{% endif %}</span>
-            </button>
-          {% endwith %}
-        {%- endfor %}
-      </p>
-    </form>
-  {%- else %}
-    <p>
-      <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>
-    </p>
-  {%- endif %}
-</div>
+{% from "macros.html" import rsvp with context %}
+{{rsvp()}}
