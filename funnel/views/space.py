@@ -7,7 +7,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_message, FormGenerator, Form
 from coaster.views import load_models, jsonp
 
-from .. import app
+from .. import app, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, Rsvp
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
@@ -144,6 +144,7 @@ def space_edit(profile, space):
 
 
 @app.route('/<space>/rsvp', methods=['POST'], subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
