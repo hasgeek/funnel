@@ -4,7 +4,7 @@ import unicodecsv
 from cStringIO import StringIO
 from flask import g, flash, redirect, render_template, Response, request, make_response
 from baseframe import _
-from baseframe.forms import render_form, render_message, FormGenerator
+from baseframe.forms import render_form, render_message, FormGenerator, Form
 from coaster.views import load_models, jsonp
 
 from .. import app
@@ -85,7 +85,7 @@ def space_new(profile):
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user))
+        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user), rsvp_form=Form())
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -149,11 +149,14 @@ def space_edit(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def rsvp(profile, space):
-    rsvp = Rsvp.query.get((space.id, g.user.id))
-    if rsvp:
-        rsvp.rsvp_action = request.form['rsvp_action']
+    if request.method == 'POST' and Form().validate_csrf_data(request.form['csrf_token']):
+        rsvp = Rsvp.query.get((space.id, g.user.id))
+        if rsvp:
+            rsvp.rsvp_action = request.form['rsvp_action']
+        else:
+            rsvp = Rsvp(proposal_space=space, user=g.user, rsvp_action=request.form['rsvp_action'])
+            db.session.add(rsvp)
+        db.session.commit()
+        return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user), rsvp_form=Form()))
     else:
-        rsvp = Rsvp(proposal_space=space, user=g.user, rsvp_action=request.form['rsvp_action'])
-        db.session.add(rsvp)
-    db.session.commit()
-    return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user)))
+        return make_response("Invalid request", 400)

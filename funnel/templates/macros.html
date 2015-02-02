@@ -3,6 +3,7 @@
     <h3>Attending this event?</h3>
     {%- if g.user %}
       <form id="rsvp-form" action="{{space.url_for('rsvp')}}" method="POST">
+        {{rsvp_form.csrf_token()}}
         <p class="button-bar">
           {%- for action in rsvp_actions %}
             {% with action_val = action[0], action_config = action[1] %}

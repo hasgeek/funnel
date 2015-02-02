@@ -183,7 +183,7 @@
     $(document).on('click', '.form-submit', function(event){
       event.preventDefault();
       var url = $($(this).data('form-id')).attr("action");
-      var rsvpXHR = $.post(url, {rsvp_action: $(this).val()});
+      var rsvpXHR = $.post(url, {rsvp_action: $(this).val(), csrf_token: $("#csrf_token").val()});
       rsvpXHR.done(function(data){
         $('#rsvp-section').html(data);
       });
