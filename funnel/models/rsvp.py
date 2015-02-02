@@ -10,9 +10,10 @@ __all__ = ['Rsvp']
 
 
 class RSVP_ACTION(LabeledEnum):
-    RSVP_Y = ('Y', {'label': __("I'm going"), 'category': 'success', 'order': 1})
-    RSVP_N = ('N', {'label': __("Not going"), 'category': 'danger', 'order': 2})
-    RSVP_M = ('M', {'label': __("Maybe"), 'category': 'default', 'order': 3})
+    RSVP_Y = ('Y', {'label': __("I'm going"), 'category': 'success', 'order': 1, 'active': True})
+    RSVP_N = ('N', {'label': __("Not going"), 'category': 'danger', 'order': 2, 'active': True})
+    RSVP_M = ('M', {'label': __("Maybe"), 'category': 'default', 'order': 3, 'active': True})
+    RSVP_A = ('A', {'label': __("Awaiting"), 'category': 'default', 'order': 4, 'active': False})
 
 
 class Rsvp(TimestampMixin, db.Model):
@@ -36,7 +37,8 @@ class Rsvp(TimestampMixin, db.Model):
         def append_rsvp_responses_count(action):
             action[1]['responses_count'] = Rsvp.query.filter_by(proposal_space=space, rsvp_action=action[0]).count()
             return action
-        return map(append_rsvp_responses_count, sorted(RSVP_ACTION.items(), key=lambda action: action[1]['order']))
+        return map(append_rsvp_responses_count,
+                   sorted((item for item in RSVP_ACTION.items() if item[1]['active']), key=lambda action: action[1]['order']))
 
     @classmethod
     def user_rsvp_status(self, space, user):
