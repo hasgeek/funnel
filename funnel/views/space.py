@@ -2,18 +2,22 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request, make_response
+from flask import g, flash, redirect, render_template, Response, request, make_response, abort
 from baseframe import _
 from baseframe.forms import render_form, render_message, FormGenerator, Form
 from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, Rsvp
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, Rsvp, RSVP_ACTION
 from ..forms import ProposalSpaceForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
+import wtforms
+
+class RsvpForm(Form):
+    rsvp_action=wtforms.RadioField(None, choices=[(key, value['label']) for key, value in RSVP_ACTION.items()])
 
 
 def space_data(space):
@@ -84,8 +88,15 @@ def space_new(profile):
     permission='view')
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
+    rsvp = Rsvp.get_for(space, g.user) if g.user else None
+    if rsvp:
+        rsvp_form = RsvpForm(obj=rsvp, model=Rsvp)
+        user_rsvp_status = rsvp.rsvp_action
+    else:
+        rsvp_form = RsvpForm()
+        user_rsvp_status = None
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user), rsvp_form=Form())
+        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=user_rsvp_status, rsvp_form=rsvp_form)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -150,14 +161,19 @@ def space_edit(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def rsvp(profile, space):
-    if request.method == 'POST' and Form().validate_csrf_data(request.form['csrf_token']):
-        rsvp = Rsvp.query.get((space.id, g.user.id))
+    form = RsvpForm()
+    if form.validate_on_submit():
+        rsvp = Rsvp.get_for(space, g.user)
         if rsvp:
             rsvp.rsvp_action = request.form['rsvp_action']
         else:
             rsvp = Rsvp(proposal_space=space, user=g.user, rsvp_action=request.form['rsvp_action'])
             db.session.add(rsvp)
         db.session.commit()
-        return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=Rsvp.user_rsvp_status(space, g.user), rsvp_form=Form()))
+        form.populate_obj(rsvp)
+        if request.is_xhr:
+            return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=rsvp.rsvp_action, rsvp_form=RsvpForm()))
+        else:
+            return redirect(space.url_for(), code=303)
     else:
-        return make_response("Invalid request", 400)
+        abort(400)
