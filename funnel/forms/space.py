@@ -9,8 +9,9 @@ import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from .profile import profile_teams
+from ..models import RSVP_ACTION
 
-__all__ = ['ProposalSpaceForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -71,3 +72,7 @@ class ProposalSpaceForm(Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise wtforms.ValidationError("Please enter a valid color code")
+
+
+class RsvpForm(Form):
+    rsvp_action = wtforms.RadioField("rsvp_action", choices=[(key, value['label']) for key, value in RSVP_ACTION.items()])

@@ -188,11 +188,13 @@
 
     $(document).on('click', '.form-submit', function(event){
       event.preventDefault();
+      // form id and action input accessors are stored as data attributes in the rsvp buttons
       var rsvpForm = $($(this).data('form-id'));
+      var rsvpActionInput = rsvpForm.find($(this).data('rsvp-action-input'));
       var rsvpResponse = $(this).val();
       rsvpForm.submit(function(e) {
         e.preventDefault();
-        $("input[name=rsvp_action]").val([rsvpResponse]);
+        rsvpActionInput.val([rsvpResponse]); // setting the response value in the radio input
         var rsvpFormData = $(this).serializeArray();
         var formURL = $(this).attr("action");
         var rsvpXHR = $.post(formURL, rsvpFormData);
