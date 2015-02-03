@@ -1,30 +1,25 @@
-{% macro rsvp() %}
+{% from "baseframe/forms.html" import renderform %}
+{% macro rsvp(space, rsvp_form, rsvp_actions, user_rsvp_status) %}
   <div id='rsvp-section'>
     <h3>Attending this event?</h3>
-    {%- if g.user %}
-      <form id="rsvp-form" action="{{space.url_for('rsvp')}}" method="POST">
-        {{rsvp_form.csrf_token()}}
-        <p class="button-bar">
-          {%- for action in rsvp_actions %}
-            {% with action_val = action[0], action_config = action[1] %}
-              {%- if user_rsvp_status == action_val %}
-                <button data-form-id='#rsvp-form' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit active">
-                {{ action_config.label }}
-                <i class="fa fa-check"></i>
-              {%- else  %}
-                <button data-form-id='#rsvp-form' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit">
-                {{ action_config.label }}
-              {% endif %}
-                <span class="badge rsvp-badge">{% if action_config.responses_count > 0 %}{{ action_config.responses_count}}{% endif %}</span>
-              </button>
-            {% endwith %}
-          {%- endfor %}
-        </p>
-      </form>
-    {%- else %}
-      <p>
-        <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>
+      <div class="jshidden">
+        {{renderform(rsvp_form, 'rsvp-form', False, None, space.url_for('rsvp'))}}
+      </div>
+      <p class="button-bar no-jshidden">
+        {%- for action in rsvp_actions %}
+          {% with action_val = action[0], action_config = action[1] %}
+            {%- if user_rsvp_status == action_val %}
+              <button title="Your RSVP" data-form-id='#rsvp-form' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit active">
+              {{ action_config.label }}
+              <i class="fa fa-check"></i>
+            {%- else  %}
+              <button data-form-id='#rsvp-form' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit">
+              {{ action_config.label }}
+            {% endif %}
+              <span class="badge rsvp-badge">{% if action_config.responses_count > 0 %}{{ action_config.responses_count}}{% endif %}</span>
+            </button>
+          {% endwith %}
+        {%- endfor %}
       </p>
-    {%- endif %}
   </div>
 {% endmacro %}

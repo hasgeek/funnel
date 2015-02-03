@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from "macros.html" import rsvp with context %}
+{% from "macros.html" import rsvp %}
 {% block title %}{{ space.title }}{% endblock %}
 
 {%- macro proposal_table(space, proposals) %}
@@ -125,7 +125,13 @@
   </strong>
 </p>
 {%- if space.allow_rsvp %}
-  {{ rsvp() }}
+    {%- if g.user %}
+      {{ rsvp(space, rsvp_form, rsvp_actions, user_rsvp_status) }}
+    {%- else %}
+      <p>
+        <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>
+      </p>
+    {%- endif %}
 {%- endif %}
 {{ description }}
 {%- if space.subspaces %}
@@ -182,11 +188,19 @@
 
     $(document).on('click', '.form-submit', function(event){
       event.preventDefault();
-      var url = $($(this).data('form-id')).attr("action");
-      var rsvpXHR = $.post(url, {rsvp_action: $(this).val(), csrf_token: $("#csrf_token").val()});
-      rsvpXHR.done(function(data){
-        $('#rsvp-section').html(data);
+      var rsvpForm = $($(this).data('form-id'));
+      var rsvpResponse = $(this).val();
+      rsvpForm.submit(function(e) {
+        e.preventDefault();
+        $("input[name=rsvp_action]").val([rsvpResponse]);
+        var rsvpFormData = $(this).serializeArray();
+        var formURL = $(this).attr("action");
+        var rsvpXHR = $.post(formURL, rsvpFormData);
+        rsvpXHR.done(function(data){
+          $('#rsvp-section').html(data);
+        });
       });
+      rsvpForm.submit();
     });
   });
 </script>
