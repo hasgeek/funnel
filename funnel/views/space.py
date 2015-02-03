@@ -4,20 +4,16 @@ import unicodecsv
 from cStringIO import StringIO
 from flask import g, flash, redirect, render_template, Response, request, make_response, abort
 from baseframe import _
-from baseframe.forms import render_form, render_message, FormGenerator, Form
+from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, Rsvp, RSVP_ACTION
-from ..forms import ProposalSpaceForm
+from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, Rsvp
+from ..forms import ProposalSpaceForm, RsvpForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-import wtforms
-
-class RsvpForm(Form):
-    rsvp_action=wtforms.RadioField(None, choices=[(key, value['label']) for key, value in RSVP_ACTION.items()])
 
 
 def space_data(space):
