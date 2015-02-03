@@ -64,7 +64,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
 
-    allow_rsvp = db.Column(db.Boolean, default=False)
+    allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
     
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 

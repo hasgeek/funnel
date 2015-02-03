@@ -21,13 +21,13 @@ def upgrade():
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.Column('proposal_space_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('rsvp_action', sa.Enum('M', 'N', 'Y', 'A', name='rsvp_rsvp_action_enum'), nullable=False, server_default='A'),
+    sa.Column('rsvp_action', sa.Enum('M', 'N', 'Y', 'A', name='rsvp_rsvp_action_enum'), nullable=False),
     sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('proposal_space_id', 'user_id'),
     sa.UniqueConstraint('proposal_space_id', 'user_id')
     )
-    op.add_column(u'proposal_space', sa.Column('allow_rsvp', sa.Boolean(), nullable=True))
+    op.add_column(u'proposal_space', sa.Column('allow_rsvp', sa.Boolean(), nullable=False, server_default='0'))
     op.alter_column('proposal_space', 'allow_rsvp', server_default=None)
     ### end Alembic commands ###
 
