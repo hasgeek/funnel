@@ -173,3 +173,14 @@ def rsvp(profile, space):
             return redirect(space.url_for(), code=303)
     else:
         abort(400)
+
+
+@app.route('/<space>/rsvp_list', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='edit-space')
+def rsvp_list(profile, space):
+    rsvps = Rsvp.query.filter_by(proposal_space=space).all()
+    return render_template('space_rsvp_list.html', space=space, rsvps=rsvps, rsvp_actions=Rsvp.rsvp_actions(space))

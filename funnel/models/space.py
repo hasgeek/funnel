@@ -205,6 +205,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('schedule_ical', profile=self.profile.name, space=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')
         elif action == 'rsvp':
             return url_for('rsvp', profile=self.profile.name, space=self.name)
+        elif action == 'rsvp_list':
+            return url_for('rsvp_list', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):

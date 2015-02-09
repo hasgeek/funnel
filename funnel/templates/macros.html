@@ -1,7 +1,6 @@
 {% from "baseframe/forms.html" import renderform %}
 {% macro rsvp(space, rsvp_form, rsvp_actions, user_rsvp_status) %}
   <div id='rsvp-section'>
-    <h3>Attending this event?</h3>
       <div class="jshidden">
         {{renderform(rsvp_form, 'rsvp-form', False, None, space.url_for('rsvp'))}}
       </div>

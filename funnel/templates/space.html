@@ -125,13 +125,23 @@
   </strong>
 </p>
 {%- if space.allow_rsvp %}
-    {%- if g.user %}
-      {{ rsvp(space, rsvp_form, rsvp_actions, user_rsvp_status) }}
-    {%- else %}
-      <p>
-        <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>
-      </p>
-    {%- endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading rsvp-header"><h3>Attending this event?</h3></div>
+      <div class="panel-body">
+        {%- if g.user %}
+          {{ rsvp(space, rsvp_form, rsvp_actions, user_rsvp_status) }}
+        {%- else %}
+          <p>
+            <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>
+          </p>
+        {%- endif %}
+      </div>
+      {% if g.user and 'edit-space' in g.permissions %}
+        <div class="panel-footer">
+          <a href="{{ space.url_for('rsvp_list') }}">See RSVP list</a>
+        </div>
+      {% endif %}
+    </div>
 {%- endif %}
 {{ description }}
 {%- if space.subspaces %}
