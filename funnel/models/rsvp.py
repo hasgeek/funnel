@@ -6,10 +6,10 @@ from baseframe import __
 from .space import ProposalSpace
 from .user import User
 
-__all__ = ['Rsvp', 'RSVP_ACTION']
+__all__ = ['Rsvp', 'RSVP_STATUS']
 
 
-class RSVP_ACTION(LabeledEnum):
+class RSVP_STATUS(LabeledEnum):
     RSVP_Y = ('Y', {'label': __("I'm going"), 'category': 'success'})
     RSVP_N = ('N', {'label': __("Not going"), 'category': 'danger'})
     RSVP_M = ('M', {'label': __("Maybe"), 'category': 'default'})
@@ -24,7 +24,7 @@ class Rsvp(TimestampMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id)
     user = db.relationship(User, primaryjoin=user_id == User.id)
 
-    rsvp_action = db.Column(db.Enum(*RSVP_ACTION.keys(), name='rsvp_action'), default=RSVP_ACTION, nullable=False)
+    rsvp_status = db.Column(db.Enum(*RSVP_STATUS.keys(), name='rsvp_status'), default=RSVP_STATUS, nullable=False)
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'user_id'),)
 
@@ -32,12 +32,12 @@ class Rsvp(TimestampMixin, db.Model):
         super(Rsvp, self).__init__(**kwargs)
 
     @classmethod
-    def rsvp_actions(cls, space):
+    def rsvp_statuses(cls, space):
         # A new list is being generated with the responses count appended
         def append_rsvp_responses_count(action):
-            action[1]['responses_count'] = cls.query.filter_by(proposal_space=space, rsvp_action=action[0]).count()
+            action[1]['responses_count'] = cls.query.filter_by(proposal_space=space, rsvp_status=action[0]).count()
             return action
-        return map(append_rsvp_responses_count, RSVP_ACTION.items())
+        return map(append_rsvp_responses_count, RSVP_STATUS.items())
 
     @classmethod
     def get_for(cls, space, user):

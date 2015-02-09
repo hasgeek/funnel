@@ -1,18 +1,18 @@
 {% from "baseframe/forms.html" import renderform %}
-{% macro rsvp(space, rsvp_form, rsvp_actions, user_rsvp_status) %}
+{% macro rsvp(space, rsvp_form, rsvp_statuses, user_rsvp_status) %}
   <div id='rsvp-section'>
       <div class="jshidden">
         {{renderform(rsvp_form, 'rsvp-form', False, None, space.url_for('rsvp'))}}
       </div>
       <p class="button-bar no-jshidden">
-        {%- for action in rsvp_actions %}
+        {%- for action in rsvp_statuses %}
           {% with action_val = action[0], action_config = action[1] %}
             {%- if user_rsvp_status == action_val %}
-              <button title="Your RSVP" data-form-id='#rsvp-form' data-rsvp-action-input='input[name=rsvp_action]' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit active">
+              <button title="Your RSVP" data-form-id='#rsvp-form' data-rsvp-action-input='input[name=rsvp_status]' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit active">
               {{ action_config.label }}
               <i class="fa fa-check"></i>
             {%- else  %}
-              <button data-form-id='#rsvp-form' data-rsvp-action-input='input[name=rsvp_action]' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit">
+              <button data-form-id='#rsvp-form' data-rsvp-action-input='input[name=rsvp_status]' name="action" value="{{ action_val }}" type="submit" class="btn btn-sm btn-{{ action_config.category }} form-submit">
               {{ action_config.label }}
             {% endif %}
               <span class="badge rsvp-badge">{% if action_config.responses_count > 0 %}{{ action_config.responses_count}}{% endif %}</span>

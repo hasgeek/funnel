@@ -129,7 +129,7 @@
       <div class="panel-heading rsvp-header"><h3>Attending this event?</h3></div>
       <div class="panel-body">
         {%- if g.user %}
-          {{ rsvp(space, rsvp_form, rsvp_actions, user_rsvp_status) }}
+          {{ rsvp(space, rsvp_form, rsvp_statuses, user_rsvp_status) }}
         {%- else %}
           <p>
             <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>

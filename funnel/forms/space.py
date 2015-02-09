@@ -9,7 +9,7 @@ import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from .profile import profile_teams
-from ..models import RSVP_ACTION
+from ..models import RSVP_STATUS
 
 __all__ = ['ProposalSpaceForm', 'RsvpForm']
 
@@ -75,4 +75,4 @@ class ProposalSpaceForm(Form):
 
 
 class RsvpForm(Form):
-    rsvp_action = wtforms.RadioField("rsvp_action", choices=[(key, value['label']) for key, value in RSVP_ACTION.items()])
+    rsvp_status = wtforms.RadioField("rsvp_status", choices=[(key, value['label']) for key, value in RSVP_STATUS.items()])

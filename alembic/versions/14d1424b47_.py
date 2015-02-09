@@ -21,7 +21,7 @@ def upgrade():
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
-        sa.Column('rsvp_action', sa.Enum('M', 'N', 'Y', 'A', name='rsvp_rsvp_action_enum'), nullable=False),
+        sa.Column('rsvp_status', sa.Enum('M', 'N', 'Y', 'A', name='rsvp_rsvp_status_enum'), nullable=False),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('proposal_space_id', 'user_id'),

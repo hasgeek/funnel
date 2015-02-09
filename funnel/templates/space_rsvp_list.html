@@ -5,7 +5,7 @@
   <div role="tabpanel">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-      {%- for action in rsvp_actions %}
+      {%- for action in rsvp_statuses %}
         {% with action_val = action[0], action_config = action[1] %}
           {% if loop.first %}
           <li role="presentation" class="active">
@@ -20,7 +20,7 @@
 
     <!-- Tab panes -->
     <div class="tab-content">
-      {%- for action in rsvp_actions %}
+      {%- for action in rsvp_statuses %}
         {% with action_val = action[0], action_config = action[1] %}
           {% if loop.first %}
           <div role="tabpanel" class="tab-pane active" id="rsvp-tab-{{ action_val.lower() }}">
@@ -29,7 +29,7 @@
           {% endif %}
             <table class="table">
               {% for rsvp in rsvps %}
-                {% if rsvp.rsvp_action == action_val %}
+                {% if rsvp.rsvp_status == action_val %}
                 <thead>
                   <tr>
                     <th>Name</th>

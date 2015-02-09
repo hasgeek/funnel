@@ -87,12 +87,12 @@ def space_view(profile, space):
     rsvp = Rsvp.get_for(space, g.user) if g.user else None
     if rsvp:
         rsvp_form = RsvpForm(obj=rsvp, model=Rsvp)
-        user_rsvp_status = rsvp.rsvp_action
+        user_rsvp_status = rsvp.rsvp_status
     else:
         rsvp_form = RsvpForm()
         user_rsvp_status = None
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=user_rsvp_status, rsvp_form=rsvp_form)
+        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_statuses=Rsvp.rsvp_statuses(space), user_rsvp_status=user_rsvp_status, rsvp_form=rsvp_form)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -161,14 +161,14 @@ def rsvp(profile, space):
     if form.validate_on_submit():
         rsvp = Rsvp.get_for(space, g.user)
         if rsvp:
-            rsvp.rsvp_action = request.form['rsvp_action']
+            rsvp.rsvp_status = request.form['rsvp_status']
         else:
-            rsvp = Rsvp(proposal_space=space, user=g.user, rsvp_action=request.form['rsvp_action'])
+            rsvp = Rsvp(proposal_space=space, user=g.user, rsvp_status=request.form['rsvp_status'])
             db.session.add(rsvp)
         db.session.commit()
         form.populate_obj(rsvp)
         if request.is_xhr:
-            return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_actions=Rsvp.rsvp_actions(space), user_rsvp_status=rsvp.rsvp_action, rsvp_form=RsvpForm()))
+            return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_statuses=Rsvp.rsvp_statuses(space), user_rsvp_status=rsvp.rsvp_status, rsvp_form=RsvpForm()))
         else:
             return redirect(space.url_for(), code=303)
     else:
@@ -183,4 +183,4 @@ def rsvp(profile, space):
     permission='edit-space')
 def rsvp_list(profile, space):
     rsvps = Rsvp.query.filter_by(proposal_space=space).all()
-    return render_template('space_rsvp_list.html', space=space, rsvps=rsvps, rsvp_actions=Rsvp.rsvp_actions(space))
+    return render_template('space_rsvp_list.html', space=space, rsvps=rsvps, rsvp_statuses=Rsvp.rsvp_statuses(space))
