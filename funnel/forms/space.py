@@ -57,13 +57,13 @@ class ProposalSpaceForm(Form):
         ],
         description=__(u"Proposals can only be submitted in the “Open” state. "
             u"“Closed” and “Withdrawn” are hidden from homepage"))
-    admin_team = QuerySelectField(u"Admin Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+    admin_team = QuerySelectField(u"Admin Team", validators=[wtforms.validators.Required(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
-        description=_(u"The administrators of this proposal space"))
-    review_team = QuerySelectField(u"Review Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+        description=__(u"The administrators of this proposal space"))
+    review_team = QuerySelectField(u"Review Team", validators=[wtforms.validators.Required(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
-        description=_(u"Reviewers can see contact details of proposers, but can’t change settings"))
-    allow_rsvp = wtforms.BooleanField(__("Allow RSVP"))
+        description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
+    allow_rsvp = wtforms.BooleanField(__("Allow site visitors to RSVP (login required)"))
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
@@ -75,4 +75,8 @@ class ProposalSpaceForm(Form):
 
 
 class RsvpForm(Form):
-    rsvp_status = wtforms.RadioField("rsvp_status", choices=[(key, value['label']) for key, value in RSVP_STATUS.items()])
+    status = wtforms.RadioField("Status", choices=[
+        ('Y', __("Going")),
+        ('N', __("Not going")),
+        ('M', __("May be going"))
+        ])

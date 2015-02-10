@@ -87,12 +87,12 @@ def space_view(profile, space):
     rsvp = Rsvp.get_for(space, g.user) if g.user else None
     if rsvp:
         rsvp_form = RsvpForm(obj=rsvp, model=Rsvp)
-        user_rsvp_status = rsvp.rsvp_status
+        user_rsvp_status = rsvp.status
     else:
         rsvp_form = RsvpForm()
         user_rsvp_status = None
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_statuses=Rsvp.rsvp_statuses(space), user_rsvp_status=user_rsvp_status, rsvp_form=rsvp_form)
+        PROPOSALSTATUS=PROPOSALSTATUS, user_rsvp_status=user_rsvp_status, rsvp_form=rsvp_form)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -159,14 +159,9 @@ def space_edit(profile, space):
 def rsvp(profile, space):
     form = RsvpForm()
     if form.validate_on_submit():
-        rsvp = Rsvp.get_for(space, g.user)
-        if rsvp:
-            rsvp.rsvp_status = request.form['rsvp_status']
-        else:
-            rsvp = Rsvp(proposal_space=space, user=g.user, rsvp_status=request.form['rsvp_status'])
-            db.session.add(rsvp)
-        db.session.commit()
+        rsvp = Rsvp.get_for(space, g.user, create=True)
         form.populate_obj(rsvp)
+        db.session.commit()
         if request.is_xhr:
             return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_statuses=Rsvp.rsvp_statuses(space), user_rsvp_status=rsvp.rsvp_status, rsvp_form=RsvpForm()))
         else:
@@ -182,5 +177,4 @@ def rsvp(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def rsvp_list(profile, space):
-    rsvps = Rsvp.query.filter_by(proposal_space=space).all()
-    return render_template('space_rsvp_list.html', space=space, rsvps=rsvps, rsvp_statuses=Rsvp.rsvp_statuses(space))
+    return render_template('space_rsvp_list.html', space=space)

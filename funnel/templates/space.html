@@ -136,9 +136,9 @@
           </p>
         {%- endif %}
       </div>
-      {% if g.user and 'edit-space' in g.permissions %}
+      {% if g.user and 'view-rsvps' in g.permissions %}
         <div class="panel-footer">
-          <a href="{{ space.url_for('rsvp_list') }}">See RSVP list</a>
+          <a href="{{ space.url_for('rsvp-list') }}">See RSVP list</a>
         </div>
       {% endif %}
     </div>

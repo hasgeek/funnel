@@ -10,35 +10,28 @@ __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
 class RSVP_STATUS(LabeledEnum):
-    RSVP_Y = ('Y', {'label': __("I'm going"), 'category': 'success'})
-    RSVP_N = ('N', {'label': __("Not going"), 'category': 'danger'})
-    RSVP_M = ('M', {'label': __("Maybe"), 'category': 'default'})
-    # RSVP_A = ('A', {'label': __("Awaiting"), 'category': 'default', 'order': 4, 'active': False})
-    __order__ = (RSVP_Y, RSVP_N, RSVP_M)
+    Y = ('Y', __("Yes"))
+    N = ('N', __("No"))
+    M = ('M', __("Maybe"))
+    A = ('A', __("Awaiting"))
+    __order__ = (Y, N, M, A)
 
 
 class Rsvp(TimestampMixin, db.Model):
     __tablename__ = 'rsvp'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True)
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
-    proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id)
-    user = db.relationship(User, primaryjoin=user_id == User.id)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, primary_key=True)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
+    proposal_space = db.relationship(ProposalSpace,
+        backref=db.backref('rsvps', cascade='all, delete-orphan', lazy='dynamic'))
+    user = db.relationship(User)
 
-    rsvp_status = db.Column(db.Enum(*RSVP_STATUS.keys(), name='rsvp_status'), default=RSVP_STATUS, nullable=False)
-
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'user_id'),)
-
-    def __init__(self, **kwargs):
-        super(Rsvp, self).__init__(**kwargs)
+    status = db.Column(db.Enum(*RSVP_STATUS.keys(), name='rsvp_status_enum'), default=RSVP_STATUS.A, nullable=False)
 
     @classmethod
-    def rsvp_statuses(cls, space):
-        # A new list is being generated with the responses count appended
-        def append_rsvp_responses_count(action):
-            action[1]['responses_count'] = cls.query.filter_by(proposal_space=space, rsvp_status=action[0]).count()
-            return action
-        return map(append_rsvp_responses_count, RSVP_STATUS.items())
-
-    @classmethod
-    def get_for(cls, space, user):
-        return cls.query.filter_by(proposal_space_id=space.id, user_id=user.id).first()
+    def get_for(cls, space, user, create=False):
+        if user:
+            result = cls.query.get((space.id, user.id))
+            if not result and create:
+                result = cls(proposal_space=space, user=user)
+                db.session.add(result)
+            return result
