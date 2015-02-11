@@ -20,7 +20,7 @@ def upgrade():
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
-        sa.Column('status', sa.Enum('Y', 'N', 'M', 'A', name='rsvp_status_enum'), nullable=False),
+        sa.Column('status', sa.CHAR(length=1), sa.CheckConstraint("status IN ('Y', 'N', 'M', 'A')"), nullable=False),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('proposal_space_id', 'user_id')
@@ -32,4 +32,3 @@ def upgrade():
 def downgrade():
     op.drop_column('proposal_space', 'allow_rsvp')
     op.drop_table('rsvp')
-    op.execute(sa.text('DROP TYPE rsvp_status_enum'))

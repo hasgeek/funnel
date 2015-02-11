@@ -25,7 +25,9 @@ class Rsvp(TimestampMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, primary_key=True)
     user = db.relationship(User)
 
-    status = db.Column(db.Enum(*RSVP_STATUS.keys(), name='rsvp_status_enum'), default=RSVP_STATUS.A, nullable=False)
+    status = db.Column(db.CHAR(1),
+        db.CheckConstraint('status IN (%s)' % ', '.join(["'%s'" % value for value in RSVP_STATUS.keys()])),
+        default=RSVP_STATUS.A, nullable=False)
 
     @classmethod
     def get_for(cls, space, user, create=False):
