@@ -75,8 +75,4 @@ class ProposalSpaceForm(Form):
 
 
 class RsvpForm(Form):
-    status = wtforms.RadioField("Status", choices=[
-        ('Y', __("Going")),
-        ('N', __("Not going")),
-        ('M', __("May be going"))
-        ])
+    status = wtforms.RadioField("Status", choices=[(k, RSVP_STATUS[k].title) for k in RSVP_STATUS.USER_CHOICES])
