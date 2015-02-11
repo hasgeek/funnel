@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block title %}RSVP List{% endblock %}
+
+{% block content %}{% with counts=space.rsvp_counts() %}
+  <div role="tabpanel">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      {%- for value, status in statuses.items() %}
+        <li role="presentation" {%- if loop.first %} class="active"{% endif %}>
+          <a href="#rsvp-tab-{{ status.name }}" aria-controls="home" role="tab" data-toggle="tab">{{ status.title }} <span class="badge">{{ counts[value] }}</span></a>
+        </li>
+      {%- endfor %}
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      {%- for value, status in statuses.items() %}
+        <div role="tabpanel" class="tab-pane {%- if loop.first %} active{% endif %}" id="rsvp-tab-{{ status.name }}">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {%- for rsvp in space.rsvps_with(value) %}
+                <tr>
+                  <td>{{rsvp.user.fullname}}</td>
+                  <td>{{rsvp.user.email}}</td>
+                </tr>
+              {%- else %}
+                <tr><td colspan="2"><em>No users</em></td></tr>
+              {%- endfor %}
+            </tbody>
+          </table>
+        </div>
+      {%- endfor %}
+    </div>
+  </div>
+{% endwith %}{% endblock %}

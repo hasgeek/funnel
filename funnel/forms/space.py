@@ -9,8 +9,9 @@ import wtforms
 import wtforms.fields.html5
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from .profile import profile_teams
+from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -56,12 +57,13 @@ class ProposalSpaceForm(Form):
         ],
         description=__(u"Proposals can only be submitted in the “Open” state. "
             u"“Closed” and “Withdrawn” are hidden from homepage"))
-    admin_team = QuerySelectField(u"Admin Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+    admin_team = QuerySelectField(u"Admin Team", validators=[wtforms.validators.Required(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
-        description=_(u"The administrators of this proposal space"))
-    review_team = QuerySelectField(u"Review Team", validators=[wtforms.validators.Required(_(u"Please select a team"))],
+        description=__(u"The administrators of this proposal space"))
+    review_team = QuerySelectField(u"Review Team", validators=[wtforms.validators.Required(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
-        description=_(u"Reviewers can see contact details of proposers, but can’t change settings"))
+        description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
+    allow_rsvp = wtforms.BooleanField(__("Allow site visitors to RSVP (login required)"))
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
@@ -70,3 +72,11 @@ class ProposalSpaceForm(Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise wtforms.ValidationError("Please enter a valid color code")
+
+
+class RsvpForm(Form):
+    status = wtforms.RadioField("Status", choices=[
+        ('Y', __("Going")),
+        ('N', __("Not going")),
+        ('M', __("May be going"))
+        ])

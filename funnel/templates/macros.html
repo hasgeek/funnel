@@ -1,0 +1,34 @@
+{% from "baseframe/forms.html" import renderform %}
+{% macro rsvpform(space, form) %}{% with counts=space.rsvp_counts() %}
+  <form id="rsvp-form" action="{{ space.url_for('rsvp') }}" method="POST">
+    {{ form.hidden_tag() }}
+    <p class="button-bar no-jshidden">
+      {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'info', "Maybe"), ('N', 'default', "Not going")] %}
+        <button type="submit" name="status" value="{{ value }}" class="btn btn-{{ class_ }}">{{ title }} <span class="badge">{{ counts[value] }}</span> {%- if form.status.data == value %} <i class="fa fa-check"></i>{% endif %}</button>
+      {%- endfor %}
+      <span class="loading hidden">&nbsp;</span>
+    </p>
+  </form>
+{% endwith %}{% endmacro %}
+
+{% macro rsvpscript() %}
+  <script type="text/javascript">
+    $(function() {
+      $("#rsvp-form").ajaxForm({
+        target: '#rsvp-form',
+        replaceTarget: true,
+        beforeSubmit: function(formdata, form, options) {
+          form.find('button[type="submit"]').prop('disabled', true).addClass('submit-disabled');
+          form.find('.loading').removeClass('hidden');
+          return true;
+        },
+        error: function(context, xhr, status, errMsg) {
+          var form = $("#{{ formid }}");
+          form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
+          form.find('.loading').addClass('hidden');
+          form.append('<div class="alert alert-danger fade in"><a href="#" class="close" data-dismiss="alert">&times;</a> An error occured when saving your choice. Please try again</div>');
+        } // No comma or semicolon here
+      });
+    });
+  </script>
+{% endmacro %}

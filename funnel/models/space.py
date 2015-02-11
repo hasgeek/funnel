@@ -45,6 +45,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     bg_image = db.Column(db.Unicode(250), nullable=True)
     bg_color = db.Column(db.Unicode(6), nullable=True)
     explore_url = db.Column(db.Unicode(250), nullable=True)
+    allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
@@ -149,6 +150,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'delete-venue',
                     'edit-schedule',
                     'move-proposal',
+                    'view-rsvps',
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
@@ -201,6 +203,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('schedule_subscribe', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'ical-schedule':
             return url_for('schedule_ical', profile=self.profile.name, space=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')
+        elif action == 'rsvp':
+            return url_for('rsvp', profile=self.profile.name, space=self.name)
+        elif action == 'rsvp-list':
+            return url_for('rsvp_list', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):

@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
 {% block title %}{{ space.title }}{% endblock %}
 
 {%- macro proposal_table(space, proposals) %}
@@ -123,6 +124,19 @@
     {%- endif -%}
   </strong>
 </p>
+{%- if space.allow_rsvp %}
+  <h3>{% trans %}Attending this event?{% endtrans %}</h3>
+  {%- if g.user %}
+    {{ rsvpform(space, rsvp_form) }}
+  {%- else %}
+    <p>
+      <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>{% trans %}Login to RSVP{% endtrans %}</a>
+    </p>
+  {%- endif %}
+  {% if g.user and 'view-rsvps' in g.permissions %}
+    <a href="{{ space.url_for('rsvp-list') }}">See RSVP list</a>
+  {% endif %}
+{%- endif %}
 {{ description }}
 {%- if space.subspaces %}
   <ul class="cardset row">
@@ -172,9 +186,5 @@
 #}
 {% endblock %}
 {% block footerscripts %}
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('.tooltip').tooltip();
-  });
-</script>
+  {{ rsvpscript() }}
 {% endblock %}
