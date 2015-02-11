@@ -14,7 +14,9 @@ class RSVP_STATUS(LabeledEnum):
     N = ('N', 'no', __("No"))
     M = ('M', 'maybe', __("Maybe"))
     A = ('A', 'awaiting', __("Awaiting"))
-    __order__ = (Y, N, M, A)
+    # To avoid interfering with LabeledEnum, the following should use a list, not a tuple,
+    # and should contain actual status values, not Python objects
+    USER_CHOICES = ['Y', 'N', 'M']
 
 
 class Rsvp(TimestampMixin, db.Model):
