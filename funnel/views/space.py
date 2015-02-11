@@ -8,7 +8,8 @@ from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal, PROPOSALSTATUS, Rsvp
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
+    PROPOSALSTATUS, Rsvp, RSVP_STATUS)
 from ..forms import ProposalSpaceForm, RsvpForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -60,6 +61,7 @@ def space_form_test(profile):
 
 
 @app.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     permission='new-space')
@@ -84,15 +86,9 @@ def space_new(profile):
     permission='view')
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
-    rsvp = Rsvp.get_for(space, g.user) if g.user else None
-    if rsvp:
-        rsvp_form = RsvpForm(obj=rsvp, model=Rsvp)
-        user_rsvp_status = rsvp.status
-    else:
-        rsvp_form = RsvpForm()
-        user_rsvp_status = None
+    rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, user_rsvp_status=user_rsvp_status, rsvp_form=rsvp_form)
+        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -134,6 +130,7 @@ def space_view_csv(profile, space):
 
 
 @app.route('/<space>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -163,7 +160,7 @@ def rsvp(profile, space):
         form.populate_obj(rsvp)
         db.session.commit()
         if request.is_xhr:
-            return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_statuses=Rsvp.rsvp_statuses(space), user_rsvp_status=rsvp.rsvp_status, rsvp_form=RsvpForm()))
+            return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_form=form))
         else:
             return redirect(space.url_for(), code=303)
     else:
@@ -177,4 +174,4 @@ def rsvp(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def rsvp_list(profile, space):
-    return render_template('space_rsvp_list.html', space=space)
+    return render_template('space_rsvp_list.html', space=space, statuses=RSVP_STATUS)

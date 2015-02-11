@@ -1,2 +1,3 @@
-{% from "macros.html" import rsvp %}
-{{ rsvp(space, rsvp_form, rsvp_statuses, user_rsvp_status) }}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{{ rsvpform(space, rsvp_form) }}
+{{ rsvpscript() }}

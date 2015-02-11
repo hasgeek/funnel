@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from "macros.html" import rsvp %}
+{% from "macros.html" import rsvpform, rsvpscript %}
 {% block title %}{{ space.title }}{% endblock %}
 
 {%- macro proposal_table(space, proposals) %}
@@ -125,23 +125,17 @@
   </strong>
 </p>
 {%- if space.allow_rsvp %}
-    <div class="panel panel-default">
-      <div class="panel-heading rsvp-header"><h3>Attending this event?</h3></div>
-      <div class="panel-body">
-        {%- if g.user %}
-          {{ rsvp(space, rsvp_form, rsvp_statuses, user_rsvp_status) }}
-        {%- else %}
-          <p>
-            <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>Login to RSVP</a>
-          </p>
-        {%- endif %}
-      </div>
-      {% if g.user and 'view-rsvps' in g.permissions %}
-        <div class="panel-footer">
-          <a href="{{ space.url_for('rsvp-list') }}">See RSVP list</a>
-        </div>
-      {% endif %}
-    </div>
+  <h3>{% trans %}Attending this event?{% endtrans %}</h3>
+  {%- if g.user %}
+    {{ rsvpform(space, rsvp_form) }}
+  {%- else %}
+    <p>
+      <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>{% trans %}Login to RSVP{% endtrans %}</a>
+    </p>
+  {%- endif %}
+  {% if g.user and 'view-rsvps' in g.permissions %}
+    <a href="{{ space.url_for('rsvp-list') }}">See RSVP list</a>
+  {% endif %}
 {%- endif %}
 {{ description }}
 {%- if space.subspaces %}
@@ -192,28 +186,5 @@
 #}
 {% endblock %}
 {% block footerscripts %}
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('.tooltip').tooltip();
-
-    $(document).on('click', '.form-submit', function(event){
-      event.preventDefault();
-      // form id and action input accessors are stored as data attributes in the rsvp buttons
-      var rsvpForm = $($(this).data('form-id'));
-      var rsvpActionInput = rsvpForm.find($(this).data('rsvp-action-input'));
-      var rsvpResponse = $(this).val();
-      rsvpForm.submit(function(e) {
-        e.preventDefault();
-        rsvpActionInput.val([rsvpResponse]); // setting the response value in the radio input
-        var rsvpFormData = $(this).serializeArray();
-        var formURL = $(this).attr("action");
-        var rsvpXHR = $.post(formURL, rsvpFormData);
-        rsvpXHR.done(function(data){
-          $('#rsvp-section').html(data);
-        });
-      });
-      rsvpForm.submit();
-    });
-  });
-</script>
+  {{ rsvpscript() }}
 {% endblock %}

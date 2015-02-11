@@ -1,53 +1,41 @@
 {% extends "layout.html" %}
-{% block title %}RSVP List {% endblock %}
+{% block title %}RSVP List{% endblock %}
 
-{% block content %}
+{% block content %}{% with counts=space.rsvp_counts() %}
   <div role="tabpanel">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-      {%- for action in rsvp_statuses %}
-        {% with action_val = action[0], action_config = action[1] %}
-          {% if loop.first %}
-          <li role="presentation" class="active">
-          {% else %}
-          <li role="presentation">
-          {% endif %}
-            <a href="#rsvp-tab-{{ action_val.lower() }}" aria-controls="home" role="tab" data-toggle="tab">{{ action_config.label}} ({{ action_config.responses_count}})</a>
-          </li>
-        {% endwith %}
+      {%- for value, status in statuses.items() %}
+        <li role="presentation" {%- if loop.first %} class="active"{% endif %}>
+          <a href="#rsvp-tab-{{ status.name }}" aria-controls="home" role="tab" data-toggle="tab">{{ status.title }} <span class="badge">{{ counts[value] }}</span></a>
+        </li>
       {%- endfor %}
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
-      {%- for action in rsvp_statuses %}
-        {% with action_val = action[0], action_config = action[1] %}
-          {% if loop.first %}
-          <div role="tabpanel" class="tab-pane active" id="rsvp-tab-{{ action_val.lower() }}">
-          {% else %}
-          <div role="tabpanel" class="tab-pane" id="rsvp-tab-{{ action_val.lower() }}">
-          {% endif %}
-            <table class="table">
-              {% for rsvp in rsvps %}
-                {% if rsvp.rsvp_status == action_val %}
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{{rsvp.user.fullname}}</td>
-                    <td>{{rsvp.user.email}}</td>
-                  </tr>
-                </tbody>
-                {% endif %}
-              {% endfor %}
-            </table>
-          </div>
-        {% endwith %}
-      {% endfor %}
+      {%- for value, status in statuses.items() %}
+        <div role="tabpanel" class="tab-pane {%- if loop.first %} active{% endif %}" id="rsvp-tab-{{ status.name }}">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {%- for rsvp in space.rsvps_with(value) %}
+                <tr>
+                  <td>{{rsvp.user.fullname}}</td>
+                  <td>{{rsvp.user.email}}</td>
+                </tr>
+              {%- else %}
+                <tr><td colspan="2"><em>No users</em></td></tr>
+              {%- endfor %}
+            </tbody>
+          </table>
+        </div>
+      {%- endfor %}
     </div>
   </div>
-{% endblock %}
+{% endwith %}{% endblock %}
