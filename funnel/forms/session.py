@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from baseframe import __
-from baseframe.forms import Form, MarkdownField
+import baseframe.forms as forms
 from coaster.utils import nullint
-import wtforms
 
-class SessionForm(Form):
-    title = wtforms.TextField(__("Title"), validators=[wtforms.validators.Required()])
-    venue_room_id = wtforms.SelectField(__("Room"), choices=[], coerce=nullint, validators=[wtforms.validators.Optional()])
-    description = MarkdownField(__("Description"), validators=[wtforms.validators.Optional()])
-    speaker = wtforms.TextField(__("Speaker"), validators=[wtforms.validators.Optional()])
-    speaker_bio = MarkdownField(__("Speaker bio"), validators=[wtforms.validators.Optional()])
-    is_break = wtforms.BooleanField(__("This session is a break period"), default=False)
-    start = wtforms.HiddenField(__("Start Time"), validators=[wtforms.validators.Required()])
-    end = wtforms.HiddenField(__("End Time"), validators=[wtforms.validators.Required()])
+
+class SessionForm(forms.Form):
+    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    venue_room_id = forms.SelectField(__("Room"), choices=[], coerce=nullint, validators=[forms.validators.Optional()])
+    description = forms.MarkdownField(__("Description"), validators=[forms.validators.Optional()])
+    speaker = forms.StringField(__("Speaker"), validators=[forms.validators.Optional()])
+    speaker_bio = forms.MarkdownField(__("Speaker bio"), validators=[forms.validators.Optional()])
+    is_break = forms.BooleanField(__("This session is a break period"), default=False)
+    start = forms.HiddenField(__("Start Time"), validators=[forms.validators.DataRequired()])
+    end = forms.HiddenField(__("End Time"), validators=[forms.validators.DataRequired()])

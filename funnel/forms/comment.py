@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from baseframe import __
-from baseframe.forms import Form, MarkdownField
-import wtforms
-import wtforms.fields.html5
+import baseframe.forms as forms
 
 __all__ = ['CommentForm', 'DeleteCommentForm']
 
 
-class CommentForm(Form):
-    parent_id = wtforms.HiddenField(__("Parent"), default="", id="comment_parent_id")
-    comment_edit_id = wtforms.HiddenField(__("Edit"), default="", id="comment_edit_id")
-    message = MarkdownField(__("Comment"), id="comment_message", validators=[wtforms.validators.Required()])
+class CommentForm(forms.Form):
+    parent_id = forms.HiddenField(__("Parent"), default="", id="comment_parent_id")
+    comment_edit_id = forms.HiddenField(__("Edit"), default="", id="comment_edit_id")
+    message = forms.MarkdownField(__("Comment"), id="comment_message", validators=[forms.validators.DataRequired()])
 
 
-class DeleteCommentForm(Form):
-    comment_id = wtforms.HiddenField(__("Comment"), validators=[wtforms.validators.Required()])
-
-
+class DeleteCommentForm(forms.Form):
+    comment_id = forms.HiddenField(__("Comment"), validators=[forms.validators.DataRequired()])

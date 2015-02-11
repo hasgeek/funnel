@@ -1,42 +1,43 @@
 # -*- coding: utf-8 -*-
 
-import wtforms
 from baseframe import __
-from baseframe.forms import Form, MarkdownField, CoordinatesField, ValidCoordinates
+import baseframe.forms as forms
 from baseframe.staticdata import country_codes
 from .space import valid_color_re
 
 __all__ = ['VenueForm', 'VenueRoomForm']
 
 
-class VenueForm(Form):
-    title = wtforms.TextField(__("Name"),
+class VenueForm(forms.Form):
+    title = forms.StringField(__("Name"),
         description=__("Name of the venue"),
-        validators=[wtforms.validators.Required(), wtforms.validators.length(max=250)])
-    description = MarkdownField(__("Description"), description=__("An optional note about the venue"))
-    address1 = wtforms.TextField(__("Address (line 1)"),
-        validators=[wtforms.validators.Optional(), wtforms.validators.length(max=160)])
-    address2 = wtforms.TextField(__("Address (line 2)"),
-        validators=[wtforms.validators.Optional(), wtforms.validators.length(max=160)])
-    city = wtforms.TextField(__("City"),
-        validators=[wtforms.validators.Optional(), wtforms.validators.length(max=30)])
-    state = wtforms.TextField(__("State"),
-        validators=[wtforms.validators.Optional(), wtforms.validators.length(max=30)])
-    postcode = wtforms.TextField(__("Post code"),
-        validators=[wtforms.validators.Optional(), wtforms.validators.length(max=20)])
-    country = wtforms.SelectField(__("Country"),
-        validators=[wtforms.validators.Optional(), wtforms.validators.length(max=2)],
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
+    description = forms.MarkdownField(__("Description"), description=__("An optional note about the venue"))
+    address1 = forms.StringField(__("Address (line 1)"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=160)])
+    address2 = forms.StringField(__("Address (line 2)"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=160)])
+    city = forms.StringField(__("City"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=30)])
+    state = forms.StringField(__("State"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=30)])
+    postcode = forms.StringField(__("Post code"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=20)])
+    country = forms.SelectField(__("Country"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=2)],
         choices=country_codes, default="IN")
-    location = CoordinatesField(__("Location"), validators=[wtforms.validators.Optional(), ValidCoordinates()])
+    location = forms.CoordinatesField(__("Location"),
+        validators=[forms.validators.Optional(), forms.validators.ValidCoordinates()])
 
 
-class VenueRoomForm(Form):
-    title = wtforms.TextField(__("Name"), description=__("Name of the room"),
-        validators=[wtforms.validators.Required(), wtforms.validators.length(max=250)])
-    description = MarkdownField(__("Description"), description=__("An optional note about the room"))
-    bgcolor = wtforms.TextField(__("Event Color"), validators=[wtforms.validators.Required(), wtforms.validators.length(max=6)],
+class VenueRoomForm(forms.Form):
+    title = forms.StringField(__("Name"), description=__("Name of the room"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
+    description = forms.MarkdownField(__("Description"), description=__("An optional note about the room"))
+    bgcolor = forms.StringField(__("Event Color"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
         description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
 
     def validate_bgcolor(self, field):
         if not valid_color_re.match(field.data):
-            raise wtforms.ValidationError("Please enter a valid color code")
+            raise forms.ValidationError("Please enter a valid color code")

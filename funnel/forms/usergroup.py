@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from baseframe import __
-from baseframe.forms import Form, ValidName
+import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName
-import wtforms
-import wtforms.fields.html5
 
 __all__ = ['UserGroupForm']
 
 
-class UserGroupForm(Form):
-    name = wtforms.TextField(__("URL name"), validators=[wtforms.validators.Required(), ValidName(), AvailableName()])
-    title = wtforms.TextField(__("Title"), validators=[wtforms.validators.Required()])
-    users = wtforms.TextAreaField(__("Users"), validators=[wtforms.validators.Required()],
+class UserGroupForm(forms.Form):
+    name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.validators.ValidName(), AvailableName()])
+    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    users = forms.TextAreaField(__("Users"), validators=[forms.validators.DataRequired()],
         description=__("Usernames or email addresses, one per line"))
