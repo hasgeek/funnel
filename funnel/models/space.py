@@ -95,6 +95,14 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         return [room for venue in self.venues for room in venue.rooms]
 
     @property
+    def proposals_all(self):
+        from .proposal import Proposal
+        if self.subspaces:
+            return Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
+        else:
+            return self.proposals
+
+    @property
     def proposals_by_status(self):
         from .proposal import Proposal, PROPOSALSTATUS
         if self.subspaces:

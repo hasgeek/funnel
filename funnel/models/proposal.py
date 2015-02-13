@@ -84,7 +84,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     bio = MarkdownColumn('bio', nullable=True)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
-        backref=db.backref('proposals', cascade="all, delete-orphan"))
+        backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
     parent = db.synonym('proposal_space')
 
     section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)

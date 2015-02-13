@@ -244,7 +244,7 @@ def schedule_edit(profile, space):
         'unscheduled': [{
             'title': proposal.title,
             'modal_url': proposal.url_for('schedule')
-            } for proposal in space.proposals if proposal.confirmed and not proposal.session],
+            } for proposal in space.proposals_all if proposal.confirmed and not proposal.session],
         'scheduled': session_data(space.sessions, timezone=space.timezone, with_modal_url='edit', with_delete_url=True)
         }
     return render_template('schedule_edit.html', space=space, proposals=proposals,
