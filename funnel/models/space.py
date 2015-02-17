@@ -159,6 +159,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'edit-schedule',
                     'move-proposal',
                     'view-rsvps',
+                    'new-session'
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
