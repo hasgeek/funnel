@@ -124,6 +124,11 @@
     {%- endif -%}
   </strong>
 </p>
+{%- if space.sessions %}
+  <p>
+    <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
+  </p>
+{%- endif %}
 {%- if space.allow_rsvp %}
   <h3>{% trans %}Attending this event?{% endtrans %}</h3>
   {%- if g.user %}
