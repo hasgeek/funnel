@@ -179,7 +179,7 @@ def rsvp_list(profile, space):
 
 def ticket_data(ticket):
     return {
-        'id': ticket.id,
+        '_id': ticket.id,
         'fullname': ticket.attendee_name,
         'job_title': ticket.attendee_job_title,
         'company': ticket.attendee_company,
@@ -189,7 +189,7 @@ def ticket_data(ticket):
 
 def full_ticket_data(ticket):
     return {
-        'id': ticket.id,
+        '_id': ticket.id,
         'fullname': ticket.attendee_name,
         'job_title': ticket.attendee_job_title,
         'company': ticket.attendee_company,
