@@ -183,6 +183,7 @@ def ticket_data(ticket):
         'fullname': ticket.attendee_name,
         'job_title': ticket.attendee_job_title,
         'company': ticket.attendee_company,
+        'key': ticket.attendee_access_key
     }
 
 
