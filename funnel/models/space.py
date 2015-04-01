@@ -216,6 +216,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('rsvp', profile=self.profile.name, space=self.name)
         elif action == 'rsvp-list':
             return url_for('rsvp_list', profile=self.profile.name, space=self.name)
+        elif action == 'tickets':
+            return url_for('tickets', profile=self.profile.name, space=self.name)
+        elif action == 'ticket':
+            return url_for('ticket', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):

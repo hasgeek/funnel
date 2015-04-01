@@ -68,6 +68,10 @@ class SyncTicket(BaseMixin, db.Model):
     sync_ticket_type = db.relationship(SyncTicketType,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
 
+    @classmethod
+    def tickets_from_space(cls, space_id):
+        return cls.query.join(SyncTicketType).filter_by(proposal_space_id=space_id).all()
+
 
 class SyncAttendee(BaseMixin, db.Model):
     __tablename__ = 'sync_attendee'

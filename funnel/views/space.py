@@ -9,7 +9,7 @@ from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
-    PROPOSALSTATUS, Rsvp, RSVP_STATUS)
+    PROPOSALSTATUS, Rsvp, RSVP_STATUS, SyncTicket)
 from ..forms import ProposalSpaceForm, RsvpForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -175,3 +175,49 @@ def rsvp(profile, space):
     permission='edit-space')
 def rsvp_list(profile, space):
     return render_template('space_rsvp_list.html', space=space, statuses=RSVP_STATUS)
+
+
+def ticket_data(ticket):
+    return {
+        'id': ticket.id,
+        'fullname': ticket.attendee_name,
+        'job_title': ticket.attendee_job_title,
+        'company': ticket.attendee_company,
+    }
+
+
+def full_ticket_data(ticket):
+    return {
+        'id': ticket.id,
+        'fullname': ticket.attendee_name,
+        'job_title': ticket.attendee_job_title,
+        'company': ticket.attendee_company,
+        'email': ticket.attendee_email,
+        'twitter': ticket.attendee_twitter,
+        'phone': ticket.attendee_phone
+    }
+
+
+@app.route('/<space>/tickets', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def tickets(profile, space):
+    return jsonp(tickets=[ticket_data(ticket) for ticket in SyncTicket.tickets_from_space(space.id)])
+
+
+@app.route('/<space>/ticket', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def ticket(profile, space):
+    ticket = SyncTicket.query.filter_by(id=request.args.get('ticket_id')).first()
+    if not ticket:
+        abort(404)
+    elif ticket.attendee_access_key == request.args.get('key'):
+        print ticket.id
+        return jsonp(ticket=full_ticket_data(ticket))
+    else:
+        abort(401)
