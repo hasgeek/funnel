@@ -177,26 +177,27 @@ def rsvp_list(profile, space):
     return render_template('space_rsvp_list.html', space=space, statuses=RSVP_STATUS)
 
 
-def ticket_data(ticket):
-    return {
-        '_id': ticket.id,
-        'fullname': ticket.attendee_name,
-        'job_title': ticket.attendee_job_title,
-        'company': ticket.attendee_company,
-        'key': ticket.attendee_access_key
-    }
-
-
-def full_ticket_data(ticket):
-    return {
-        '_id': ticket.id,
-        'fullname': ticket.attendee_name,
-        'job_title': ticket.attendee_job_title,
-        'company': ticket.attendee_company,
-        'email': ticket.attendee_email,
-        'twitter': ticket.attendee_twitter,
-        'phone': ticket.attendee_phone
-    }
+def ticket_data(ticket, space_id, full=False):
+    if full:
+        return {
+            '_id': ticket.id,
+            'fullname': ticket.attendee_name,
+            'job_title': ticket.attendee_job_title,
+            'company': ticket.attendee_company,
+            'email': ticket.attendee_email,
+            'twitter': ticket.attendee_twitter,
+            'phone': ticket.attendee_phone,
+            'space_id': space_id
+        }
+    else:
+        return {
+            '_id': ticket.id,
+            'fullname': ticket.attendee_name,
+            'job_title': ticket.attendee_job_title,
+            'company': ticket.attendee_company,
+            'key': ticket.attendee_access_key,
+            'space_id': space_id
+        }
 
 
 @app.route('/<space>/tickets', subdomain='<profile>')
@@ -205,7 +206,7 @@ def full_ticket_data(ticket):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def tickets(profile, space):
-    return jsonp(tickets=[ticket_data(ticket) for ticket in SyncTicket.tickets_from_space(space.id)])
+    return jsonp(tickets=[ticket_data(ticket, space.id) for ticket in SyncTicket.tickets_from_space(space.id)])
 
 
 @app.route('/<space>/ticket', subdomain='<profile>')
@@ -218,7 +219,7 @@ def ticket(profile, space):
     if not ticket:
         abort(404)
     elif ticket.attendee_access_key == request.args.get('key'):
-        print ticket.id
-        return jsonp(ticket=full_ticket_data(ticket))
+        # TODO: add contact
+        return jsonp(ticket=ticket_data(ticket, space.id, full=True))
     else:
         abort(401)
