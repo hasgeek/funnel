@@ -2,14 +2,14 @@
 
 from . import db, BaseMixin
 from .space import ProposalSpace
-from coaster import newsecret
+import uuid
 
 __all__ = ['SyncEvent', 'SyncTicketType', 'SyncEventTicketType', 'SyncTicket', 'SyncAttendee']
 
 
 def ticket_secret():
-    # 8-character string sliced from newsecret
-    return newsecret()[0:8]
+    # 8-character string sliced from uuid
+    return str(uuid.uuid4())[0:8]
 
 
 class SyncEventTicketType(BaseMixin, db.Model):
