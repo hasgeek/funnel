@@ -10,10 +10,14 @@ init_for('dev')
 
 
 class ExplaraTicket(object):
+    # model an explara ticket obtained from their CSV
     def __init__(self, row):
         self.row = row
 
     def get(self, attr):
+        # returns the value of the requested attributed by
+        # referring to a map of attributes and their respective column
+        # indexes in the CSV
         attrs = {
             'fullname': 1,
             'email': 2,
@@ -31,10 +35,8 @@ class ExplaraTicket(object):
 
 def format_twitter(twitter_id):
     # formats a user given twitter handle
-    # Eg: https://twitter.com/shreyas_satish -> shreyas_satish
-    # @shreyas_satish -> shreyas_satish
-    parsed_id = urlparse(str(twitter_id))
-    return parsed_id.path.replace('/', '').replace('@', '')
+    # Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
+    return urlparse(str(twitter_id)).path.replace('/', '').replace('@', '')
 
 
 def sync_ticket_types(ticket_types, space_id):
@@ -59,24 +61,31 @@ def sync_events(events, space_id):
     db.session.commit()
 
 
-def get_tickets(csv_file):
-    tickets = []
+def get_rows_from_csv(csv_file, skip_header=True):
     with open(csv_file, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
-        next(reader)
-        for row in reader:
-            tickets.append(row)
-    return tickets
+        if skip_header:
+            next(reader)
+        return [row for row in reader]
 
 
 def sync_tickets(proposal_space_id, csv_file):
-    tickets = get_tickets(csv_file)
+    tickets = get_rows_from_csv(csv_file)
 
     for item in tickets:
         et = ExplaraTicket(item)
         ticket_type = SyncTicketType.query.filter_by(name=et.get('ticket_type'), proposal_space_id=proposal_space_id).first()
         ticket = SyncTicket.query.filter_by(ticket_no=et.get('ticket_no')).first()
-        if not ticket:
+        if ticket:
+            ticket.attendee_name = et.get('fullname')
+            ticket.attendee_email = et.get('email')
+            ticket.attendee_phone = et.get('phone')
+            ticket.attendee_twitter = et.get('twitter')
+            ticket.attendee_job_title = et.get('job_title')
+            ticket.attendee_company = et.get('company')
+            ticket.attendee_city = et.get('city')
+            ticket.sync_ticket_type = ticket_type
+        else:
             ticket = SyncTicket(
                 ticket_no=et.get('ticket_no'),
                 order_no=et.get('order_no'),
@@ -90,7 +99,7 @@ def sync_tickets(proposal_space_id, csv_file):
                 sync_ticket_type=ticket_type
                 )
             db.session.add(ticket)
-            db.session.commit()
+        db.session.commit()
         for e in ticket_type.sync_events:
             sa = SyncAttendee.query.filter_by(sync_ticket_id=ticket.id, sync_event_id=e.id).first()
             if not sa:
@@ -99,9 +108,9 @@ def sync_tickets(proposal_space_id, csv_file):
                 db.session.commit()
 
 
-def sync_metarefresh(csv_file):
-    mr_profile = Profile.query.filter_by(name='metarefresh').first()
-    mr_space = ProposalSpace.query.filter_by(name='2015').filter_by(profile_id=mr_profile.id).first()
+def sync_metarefresh(profile_name, space_name, csv_file):
+    mr_profile = Profile.query.filter_by(name=profile_name).first()
+    mr_space = ProposalSpace.query.filter_by(name=space_name).filter_by(profile_id=mr_profile.id).first()
     mr_ticket_types = ["ReactJS Workshop", "Performance audit workshop", "Offline registrations for ReactJS workshop", "Offline registrations for Performance Audit workshop", "T-shirt", "Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April", "Single day pass - 17th April"]
     mr_events = [
         {'name': 'MetaRefresh Day 1', 'ticket_types': ["Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April"]},
