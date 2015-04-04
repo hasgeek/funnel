@@ -2,7 +2,7 @@
 
 from flask import *
 from funnel import init_for
-from funnel.models import (db, Profile, ProposalSpace, Event, TicketType, SyncTicket, Attendee)
+from funnel.models import (db, Profile, ProposalSpace, Event, TicketType, Participant, SyncTicket, Attendee)
 import csv
 from urlparse import urlparse
 
@@ -14,10 +14,22 @@ class ExplaraTicket(object):
     def __init__(self, row):
         self.row = row
 
+    def participant_from_ticket(self):
+        return Participant(
+            fullname=self.get('fullname'),
+            email=self.get('email'),
+            phone=self.get('phone'),
+            twitter=self.get('twitter'),
+            job_title=self.get('job_title'),
+            company=self.get('company'),
+            city=self.get('city')
+        )
+
     def get(self, attr):
-        # returns the value of the requested attributed by
-        # referring to a map of attributes and their respective column
-        # indexes in the CSV
+        """ returns the value of the requested attributed by
+            referring to a map of attributes and their respective column
+            indexes in the CSV
+        """
         attrs = {
             'fullname': 1,
             'email': 2,
@@ -30,34 +42,35 @@ class ExplaraTicket(object):
             'city': 14,
             'twitter': 15
         }
-        return self.row[attrs[attr]]
+        return str(self.row[attrs[attr]]).strip()
 
 
 def format_twitter(twitter_id):
-    # formats a user given twitter handle
-    # Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
+    """formats a user given twitter handle
+       Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
+    """
     return urlparse(str(twitter_id)).path.replace('/', '').replace('@', '')
 
 
 def sync_ticket_types(ticket_types, space_id):
     for tt in ticket_types:
-        tt = TicketType.query.filter_by(name=tt, proposal_space_id=space_id).first()
-        if not stt:
-            tt = TicketType(name=tt, proposal_space_id=space_id)
-            db.session.add(tt)
+        ticket_type = TicketType.query.filter_by(name=tt, proposal_space_id=space_id).first()
+        if not ticket_type:
+            ticket_type = TicketType(name=tt, proposal_space_id=space_id)
+            db.session.add(ticket_type)
     db.session.commit()
 
 
 def sync_events(events, space_id):
     for e in events:
-        e = Event.query.filter_by(name=e['name'], proposal_space_id=space_id).first()
-        if not e:
-            e = Event(name=e['name'], proposal_space_id=space_id)
-            db.ession.add(e)
-            db.ession.commit()
+        event = Event.query.filter_by(name=e['name'], proposal_space_id=space_id).first()
+        if not event:
+            event = Event(name=e['name'], proposal_space_id=space_id)
+            db.session.add(event)
+            db.session.commit()
         for tt in e['ticket_types']:
-            if tt not in [ticket_type.name for ticket_type in e.sync_ticket_types]:
-                e.ticket_types.append(TicketType.query.filter_by(name=tt).first())
+            if tt not in [ticket_type.name for ticket_type in event.ticket_types]:
+                event.ticket_types.append(TicketType.query.filter_by(name=tt).first())
     db.session.commit()
 
 
@@ -69,50 +82,42 @@ def get_rows_from_csv(csv_file, skip_header=True):
         return [row for row in reader]
 
 
-def sync_tickets(proposal_space_id, csv_file):
+def sync_tickets(space, csv_file):
     tickets = get_rows_from_csv(csv_file)
 
     for item in tickets:
         et = ExplaraTicket(item)
-        ticket_type = TicketType.query.filter_by(name=et.get('ticket_type'), proposal_space_id=proposal_space_id).first()
-        participant = Participant.query.filter_by(email=et.get('email')).first()
         ticket = SyncTicket.query.filter_by(ticket_no=et.get('ticket_no')).first()
-        if ticket:
-            participant.fullname = et.get('fullname')
-            participant.email = et.get('email')
-            participant.phone = et.get('phone')
-            participant.twitter = et.get('twitter')
-            participant.job_title = et.get('job_title')
-            participant.company = et.get('company')
-            participant.city = et.get('city')
-            ticket.ticket_type = ticket_type
-        else:
-            participant = Participant(
-                fullname=et.get('fullname'),
-                email=et.get('email'),
-                phone=et.get('phone'),
-                twitter=et.get('twitter'),
-                job_title=et.get('job_title'),
-                company=et.get('company'),
-                city=et.get('city')
-            )
-            db.session.add(participant)
-            db.session.commit()
+        if not ticket:
             ticket = SyncTicket(
                 ticket_no=et.get('ticket_no'),
-                order_no=et.get('order_no'),
-                sync_ticket_type=ticket_type,
-                participant=participant
-                )
+                order_no=et.get('order_no')
+            )
             db.session.add(ticket)
+
+        # assign or update ticket's ticket type if found to be changed
+        ticket_ticket_type = TicketType.query.filter_by(name=et.get('ticket_type'), proposal_space_id=space.id).first()
+        if ticket.ticket_type is not ticket_ticket_type:
+            ticket.ticket_type = ticket_ticket_type
+
+        # assign or update participant if found to be changed
+        ticket_participant = Participant.query.filter_by(email=et.get('email')).first()
+        if ticket.participant is not ticket_participant:
+            if not ticket_participant:
+                # create a new participant record if required
+                ticket_participant = et.participant_from_ticket()
+                db.session.add(ticket_participant)
+                db.session.commit()
+            ticket.participant = ticket_participant
+
         db.session.commit()
 
-    for e in space.events:
-        a = Attendee.query.filter_by(event_id=e.id, participant_id=participant.id).query.first()
-        if not a:
-            a = Attendee(event_id=e.id, participant_id=participant.id)
-        db.session.add(a)
-        db.session.commit()
+        for event in space.events:
+            a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
+            if not a:
+                a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
+            db.session.add(a)
+            db.session.commit()
 
 
 def sync_metarefresh(profile_name, space_name, csv_file):
@@ -128,5 +133,4 @@ def sync_metarefresh(profile_name, space_name, csv_file):
 
     sync_ticket_types(mr_ticket_types, mr_space.id)
     sync_events(mr_events, mr_space.id)
-    sync_tickets(mr_space.id, csv_file)
-    sync_attendees(mr_space)
+    sync_tickets(mr_space, csv_file)
