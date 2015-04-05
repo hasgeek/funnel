@@ -9,7 +9,7 @@ from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
-    PROPOSALSTATUS, Rsvp, RSVP_STATUS, SyncTicket)
+    PROPOSALSTATUS, Rsvp, RSVP_STATUS, Participant)
 from ..forms import ProposalSpaceForm, RsvpForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -177,49 +177,49 @@ def rsvp_list(profile, space):
     return render_template('space_rsvp_list.html', space=space, statuses=RSVP_STATUS)
 
 
-def ticket_data(ticket, space_id, full=False):
+def participant_data(participant, space_id, full=False):
     if full:
         return {
-            '_id': ticket.id,
-            'fullname': ticket.attendee_name,
-            'job_title': ticket.attendee_job_title,
-            'company': ticket.attendee_company,
-            'email': ticket.attendee_email,
-            'twitter': ticket.attendee_twitter,
-            'phone': ticket.attendee_phone,
+            '_id': participant.id,
+            'fullname': participant.fullname,
+            'job_title': participant.job_title,
+            'company': participant.company,
+            'email': participant.email,
+            'twitter': participant.twitter,
+            'phone': participant.phone,
             'space_id': space_id
         }
     else:
         return {
-            '_id': ticket.id,
-            'fullname': ticket.attendee_name,
-            'job_title': ticket.attendee_job_title,
-            'company': ticket.attendee_company,
-            'key': ticket.attendee_access_key,
+            '_id': participant.id,
+            'fullname': participant.fullname,
+            'job_title': participant.job_title,
+            'company': participant.company,
+            'key': participant.key,
             'space_id': space_id
         }
 
 
-@app.route('/<space>/tickets', subdomain='<profile>')
+@app.route('/<space>/participants', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
-def tickets(profile, space):
-    return jsonp(tickets=[ticket_data(ticket, space.id) for ticket in SyncTicket.tickets_from_space(space.id)])
+def participants(profile, space):
+    return jsonp(participants=[participant_data(participant, space.id) for participant in space.participants])
 
 
-@app.route('/<space>/ticket', subdomain='<profile>')
+@app.route('/<space>/participant', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
-def ticket(profile, space):
-    ticket = SyncTicket.query.filter_by(id=request.args.get('ticket_id')).first()
-    if not ticket:
+def participant(profile, space):
+    participant = Participant.query.filter_by(id=request.args.get('participant_id')).first()
+    if not participant:
         abort(404)
-    elif ticket.attendee_access_key == request.args.get('key'):
+    elif participant.key == request.args.get('key'):
         # TODO: add contact
-        return jsonp(ticket=ticket_data(ticket, space.id, full=True))
+        return jsonp(participant=participant_data(participant, space.id, full=True))
     else:
         abort(401)

@@ -14,7 +14,7 @@ class ExplaraTicket(object):
     def __init__(self, row):
         self.row = row
 
-    def participant_from_ticket(self):
+    def participant_from_ticket(self, space_id):
         return Participant(
             fullname=self.get('fullname'),
             email=self.get('email'),
@@ -22,7 +22,8 @@ class ExplaraTicket(object):
             twitter=self.get('twitter'),
             job_title=self.get('job_title'),
             company=self.get('company'),
-            city=self.get('city')
+            city=self.get('city'),
+            proposal_space_id=space_id
         )
 
     def get(self, attr):
@@ -53,10 +54,10 @@ def format_twitter(twitter_id):
 
 
 def sync_ticket_types(ticket_types, space_id):
-    for tt in ticket_types:
-        ticket_type = TicketType.query.filter_by(name=tt, proposal_space_id=space_id).first()
+    for name in ticket_types:
+        ticket_type = TicketType.query.filter_by(name=name, proposal_space_id=space_id).first()
         if not ticket_type:
-            ticket_type = TicketType(name=tt, proposal_space_id=space_id)
+            ticket_type = TicketType(name=name, proposal_space_id=space_id)
             db.session.add(ticket_type)
     db.session.commit()
 
@@ -88,29 +89,27 @@ def sync_tickets(space, csv_file):
     for item in tickets:
         et = ExplaraTicket(item)
         ticket = SyncTicket.query.filter_by(ticket_no=et.get('ticket_no')).first()
+
+        # get or create ticket type
+        ticket_ticket_type = TicketType.query.filter_by(name=et.get('ticket_type'), proposal_space_id=space.id).first()
+
+        # get or create participant
+        ticket_participant = Participant.query.filter_by(email=et.get('email')).first()
+        if not ticket_participant:
+            # create a new participant record if required
+            ticket_participant = et.participant_from_ticket(space.id)
+            db.session.add(ticket_participant)
+            db.session.commit()
+
         if not ticket:
             ticket = SyncTicket(
                 ticket_no=et.get('ticket_no'),
-                order_no=et.get('order_no')
+                order_no=et.get('order_no'),
+                ticket_type=ticket_ticket_type,
+                participant=ticket_participant
             )
             db.session.add(ticket)
-
-        # assign or update ticket's ticket type if found to be changed
-        ticket_ticket_type = TicketType.query.filter_by(name=et.get('ticket_type'), proposal_space_id=space.id).first()
-        if ticket.ticket_type is not ticket_ticket_type:
-            ticket.ticket_type = ticket_ticket_type
-
-        # assign or update participant if found to be changed
-        ticket_participant = Participant.query.filter_by(email=et.get('email')).first()
-        if ticket.participant is not ticket_participant:
-            if not ticket_participant:
-                # create a new participant record if required
-                ticket_participant = et.participant_from_ticket()
-                db.session.add(ticket_participant)
-                db.session.commit()
-            ticket.participant = ticket_participant
-
-        db.session.commit()
+            db.session.commit()
 
         for event in space.events:
             a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()

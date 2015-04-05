@@ -63,6 +63,9 @@ class Participant(BaseMixin, db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('participant', cascade="all, delete-orphan"))
+    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=True)
+    proposal_space = db.relationship(ProposalSpace,
+        backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
 
 
 class Attendee(BaseMixin, db.Model):
