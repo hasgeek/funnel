@@ -15,5 +15,4 @@ from .feedback import *
 from .session import *
 from .venue import *
 from .rsvp import *
-from .sync import *
 from .event import *
