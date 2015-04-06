@@ -5,6 +5,7 @@ from funnel import init_for
 from funnel.models import (db, Profile, ProposalSpace, Event, TicketType, Participant, SyncTicket, Attendee)
 import csv
 from urlparse import urlparse
+import sys
 
 init_for('dev')
 
@@ -120,6 +121,7 @@ def sync_tickets(space, csv_file):
 
 
 def sync_metarefresh(profile_name, space_name, csv_file):
+    print "Syncing {0} - {1}".format(profile_name, space_name)
     mr_profile = Profile.query.filter_by(name=profile_name).first()
     mr_space = ProposalSpace.query.filter_by(name=space_name).filter_by(profile_id=mr_profile.id).first()
     mr_ticket_types = ["ReactJS Workshop", "Performance audit workshop", "Offline registrations for ReactJS workshop", "Offline registrations for Performance Audit workshop", "T-shirt", "Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April", "Single day pass - 17th April"]
@@ -133,3 +135,8 @@ def sync_metarefresh(profile_name, space_name, csv_file):
     sync_ticket_types(mr_ticket_types, mr_space.id)
     sync_events(mr_events, mr_space.id)
     sync_tickets(mr_space, csv_file)
+    print "Done"
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'metarefresh':
+        sync_metarefresh('metarefresh', sys.argv[2], sys.argv[3])
