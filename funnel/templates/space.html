@@ -124,18 +124,18 @@
     {%- endif -%}
   </strong>
 </p>
-{%- if space.sessions %}
-  <ul class="list-inline">
+<ul class="list-inline">
+  {%- if space.sessions %}
     <li>
       <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
     </li>
-    {%- if space.buy_tickets_url %}
-      <li>
-        <a href="{{ space.buy_tickets_url }}" class='btn btn-danger btn-sm' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
-      </li>
-    {%- endif %}
-  </ul>
-{%- endif %}
+  {%- endif %}
+  {%- if space.buy_tickets_url %}
+    <li>
+      <a href="{{ space.buy_tickets_url }}" class='btn btn-danger btn-sm' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
+    </li>
+  {%- endif %}
+</ul>
 {%- if space.allow_rsvp %}
   <h3>{% trans %}Attending this event?{% endtrans %}</h3>
   {%- if g.user %}
