@@ -125,9 +125,14 @@
   </strong>
 </p>
 {%- if space.sessions %}
-  <p>
-    <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
-  </p>
+  <ul class="list-inline">
+    <li>
+      <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
+    </li>
+    <li>
+      <a href="{{ space.buy_tickets_url }}" class='btn btn-danger btn-sm' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
+    </li>
+  </ul>
 {%- endif %}
 {%- if space.allow_rsvp %}
   <h3>{% trans %}Attending this event?{% endtrans %}</h3>

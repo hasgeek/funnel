@@ -46,6 +46,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     bg_color = db.Column(db.Unicode(6), nullable=True)
     explore_url = db.Column(db.Unicode(250), nullable=True)
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
+    buy_tickets_url = db.Column(db.Unicode(250), nullable=True)
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)

@@ -59,6 +59,9 @@ class ProposalSpaceForm(forms.Form):
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
+    buy_tickets_url = forms.URLField(__("URL to buy tickets"),
+        description=__(u"Eg: Explara, Instamojo"),
+        validators=[forms.validators.Optional()])
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
