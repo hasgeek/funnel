@@ -3,6 +3,14 @@ from . import db, BaseMixin
 from .space import ProposalSpace
 from .user import User
 import uuid
+import svgutils.transform as sg
+import sys
+import qrcode
+import qrcode.image.svg
+import subprocess
+import os
+import time
+from .. import app
 
 __all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
 
@@ -67,8 +75,55 @@ class Participant(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
 
+    def make_badge(self, space):
+        participant = self
+        basepath = app.config['BADGES_PATH']
+        filename = '{0}_{1}_{2}'.format(space.profile.name, space.name, str(self.id))
+        factory = qrcode.image.svg.SvgPathImage
+        img = qrcode.make("{0}:{1}".format(str(participant.id), participant.key), image_factory=factory)
+        img_path = "{0}/{1}.svg".format(basepath, filename)
+        img.save(img_path)
+
+        fields = []
+        name_splits = participant.fullname.split()
+        first_name = name_splits[0]
+        last_name = "".join([s for s in name_splits[1:]])
+        x = 400
+        y = 300
+        fields.append(sg.TextElement(x, y, first_name, size=140, weight="bold"))
+        if last_name:
+            y += 100
+            fields.append(sg.TextElement(x, y, last_name, size=80))
+        if participant.company:
+            y += 100
+            fields.append(sg.TextElement(x, y, participant.company, size=60))
+        if participant.twitter:
+            y += 100
+            fields.append(sg.TextElement(x, y, "@{0}".format(participant.twitter), size=60))
+        y += 50
+        qr_sg = sg.fromfile(img_path).getroot()
+        qr_sg.moveto(370, 650, scale=15)
+        fields.append(qr_sg)
+
+        # badge_sg = sg.fromfile(badge_template)
+        badge_sg = sg.SVGFigure("50cm", "30cm")
+        badge_sg.append(fields)
+        # badge_path = 'badge_svgs/{0}_{1}.svg'.format(filename, 'badge')
+        badge_svg_path = "{0}/{1}_badge.svg".format(basepath, filename)
+        badge_sg.save(badge_svg_path)
+        badge_path = '{0}/{1}.pdf'.format(basepath, filename)
+        # inkscape --export-pdf=metarefresh_2015_1.svg_badge.pdf metarefresh_2015_1.svg_badge.svg
+        subprocess.call(['inkscape', '--export-pdf={0}'.format(badge_path), badge_svg_path])
+        return badge_path
+
+    # TODO: Pending Test
+    # def print_badge(self, badge_path):
+    #     os.system("lpr -o page-ranges=1 -P %s %s" % (app.config['PRINTER_NAME'], badge_path))
+    #     time.sleep(2)
+    #     os.unlink(badge_path)
+
     def badge_url(self, space):
-        path = '{0}_{1}_{2}.pdf'.format(space.profile.name, space.name, str(self.id))
+        path = '{0}/{1}_{2}_{3}.pdf'.format('badges', space.profile.name, space.name, str(self.id))
         return path
 
 
