@@ -67,6 +67,10 @@ class Participant(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
 
+    def badge_url(self, space):
+        path = '{0}_{1}_{2}.pdf'.format(space.profile.name, space.name, str(self.id))
+        return path
+
 
 class Attendee(BaseMixin, db.Model):
     __tablename__ = 'attendee'
