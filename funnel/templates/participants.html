@@ -29,7 +29,7 @@
           <td>{{p.company}}</td>
           <td>{{p.twitter}}</td>
           <td>
-            <a href="{{url_for('static', filename=p.badge_url(space))}}" class='btn btn-default' target='_blank'>Show badge</a>
+            <a href="participant/{{p.id}}/badge" class='btn btn-default' target="_blank">Show badge</a>
             <a href="participant/{{p.id}}/edit" class='btn btn-info'>Edit</a>
           </td>
         </tr>

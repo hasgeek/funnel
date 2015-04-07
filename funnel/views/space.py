@@ -2,7 +2,7 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request, make_response, abort
+from flask import g, flash, redirect, render_template, Response, request, make_response, abort, url_for
 from baseframe import _
 from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
@@ -232,6 +232,22 @@ def new_participant(profile, space):
         db.session.commit()
         return redirect(space.url_for('participants'), code=303)
     return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
+
+
+@app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Participant, {'id': 'participant_id'}, 'participant'),
+    permission='view')
+def participant_badge(profile, space, participant):
+    path = participant.badge_url(space)
+    try:
+        f = open(path)
+        f.close()
+    except IOError:
+        participant.make_badge(space)
+    return redirect(url_for('static', filename=participant.badge_url(space)))
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
