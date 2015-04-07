@@ -17,15 +17,21 @@ def make_badge(space, participant):
     name_splits = participant.fullname.split()
     first_name = name_splits[0]
     last_name = "".join([s for s in name_splits[1:]])
-    fields.append(sg.TextElement(400, 300, first_name, size=140, weight="bold"))
+    x = 400
+    y = 300
+    fields.append(sg.TextElement(x, y, first_name, size=140, weight="bold"))
     if last_name:
-        fields.append(sg.TextElement(400, 400, last_name, size=80))
+        y += 100
+        fields.append(sg.TextElement(x, y, last_name, size=80))
     if participant.company:
-        fields.append(sg.TextElement(400, 500, participant.company, size=60))
+        y += 100
+        fields.append(sg.TextElement(x, y, participant.company, size=60))
     if participant.twitter:
-        fields.append(sg.TextElement(400, 600, "@{0}".format(participant.twitter), size=60))
+        y += 100
+        fields.append(sg.TextElement(x, y, "@{0}".format(participant.twitter), size=60))
+    y += 50
     qr_sg = sg.fromfile(img_path).getroot()
-    qr_sg.moveto(400, 650, scale=15)
+    qr_sg.moveto(370, 650, scale=15)
     fields.append(qr_sg)
 
     # badge_sg = sg.fromfile(badge_template)
@@ -40,4 +46,6 @@ def make_badge(space, participant):
 # make_badge(ProposalSpace.query.first(), Participant.query.first())
 
 for p in Participant.query.all():
+    print "Making Badges..."
     make_badge(ProposalSpace.query.first(), p)
+    print "Done!"
