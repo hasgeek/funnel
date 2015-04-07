@@ -73,6 +73,8 @@ class Attendee(BaseMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False, primary_key=True)
+    participant = db.relationship(Participant,
+        backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
     event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False, primary_key=True)
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
