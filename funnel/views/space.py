@@ -10,7 +10,7 @@ from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     PROPOSALSTATUS, Rsvp, RSVP_STATUS, Participant)
-from ..forms import ProposalSpaceForm, RsvpForm
+from ..forms import ProposalSpaceForm, RsvpForm, ParticipantForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
@@ -200,13 +200,64 @@ def participant_data(participant, space_id, full=False):
         }
 
 
+@app.route('/<space>/participants/json', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def participants_json(profile, space):
+    return jsonp(participants=[participant_data(participant, space.id) for participant in space.participants])
+
+
 @app.route('/<space>/participants', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def participants(profile, space):
-    return jsonp(participants=[participant_data(participant, space.id) for participant in space.participants])
+    return render_template('participants.html', profile=profile, space=space, participants=space.participants.all())
+
+
+@app.route('/<space>/participants/new', methods=['GET', 'POST'], subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def new_participant(profile, space):
+    form = ParticipantForm()
+    if form.validate_on_submit():
+        participant = Participant(proposal_space=space)
+        form.populate_obj(participant)
+        db.session.add(participant)
+        db.session.commit()
+        return redirect(space.url_for('participants'), code=303)
+    return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
+
+
+@app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Participant, {'id': 'participant_id'}, 'participant'),
+    permission='view')
+def participant_edit(profile, space, participant):
+    form = ParticipantForm(obj=participant, model=Participant)
+    if form.validate_on_submit():
+        form.populate_obj(participant)
+        db.session.commit()
+        flash(_("Your changes have been saved"), 'info')
+        return redirect(space.url_for('participants'), code=303)
+    return render_form(form=form, title=_("Edit Participant"), submit=_("Save changes"))
+
+    form = ParticipantForm()
+    if form.validate_on_submit():
+        participant = Participant(proposal_space=space)
+        form.populate_obj(participant)
+        db.session.add(participant)
+        db.session.commit()
+        return redirect(space.url_for('participants'), code=303)
+    else:
+        return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
 
 
 @app.route('/<space>/participant', subdomain='<profile>')

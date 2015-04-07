@@ -8,7 +8,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm', 'ParticipantForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -71,3 +71,13 @@ class ProposalSpaceForm(forms.Form):
 
 class RsvpForm(forms.Form):
     status = forms.RadioField("Status", choices=[(k, RSVP_STATUS[k].title) for k in RSVP_STATUS.USER_CHOICES])
+
+
+class ParticipantForm(forms.Form):
+    fullname = forms.StringField(__("Full Name"), validators=[forms.validators.DataRequired()])
+    email = forms.EmailField(__("Email"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
+    phone = forms.StringField(__("Phone number"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
+    city = forms.StringField(__("City"), validators=[forms.validators.Length(max=80)])
+    company = forms.StringField(__("Company"), validators=[forms.validators.DataRequired()])
+    job_title = forms.StringField(__("Job Title"), validators=[])
+    twitter = forms.StringField(__("Twitter"), validators=[])
