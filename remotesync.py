@@ -91,7 +91,6 @@ def sync_tickets(space, csv_file):
         et = ExplaraTicket(item)
         ticket = SyncTicket.query.filter_by(ticket_no=et.get('ticket_no')).first()
 
-        # get or create ticket type
         ticket_ticket_type = TicketType.query.filter_by(name=et.get('ticket_type'), proposal_space_id=space.id).first()
 
         # get or create participant
@@ -102,7 +101,12 @@ def sync_tickets(space, csv_file):
             db.session.add(ticket_participant)
             db.session.commit()
 
-        if not ticket:
+        if ticket:
+            # check if participant has changed
+            if ticket.participant is not ticket_participant:
+                # update the participant record attached to the ticket
+                ticket.participant = ticket_participant
+        else:
             ticket = SyncTicket(
                 ticket_no=et.get('ticket_no'),
                 order_no=et.get('order_no'),
@@ -111,8 +115,8 @@ def sync_tickets(space, csv_file):
             )
             db.session.add(ticket)
             db.session.commit()
-
-        for event in space.events:
+            # for event in space.events:
+        for event in ticket.ticket_type.events:
             a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
             if not a:
                 a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
