@@ -124,7 +124,7 @@ def sync_tickets(space, csv_file):
             db.session.commit()
 
 
-def sync_metarefresh(profile_name, space_name, ticket_types, events, csv_file):
+def sync(profile_name, space_name, ticket_types, events, csv_file):
     print "Syncing {0} - {1}".format(profile_name, space_name)
     profile = Profile.query.filter_by(name=profile_name).first()
     space = ProposalSpace.query.filter_by(name=space_name).filter_by(profile_id=profile.id).first()
@@ -142,4 +142,4 @@ if __name__ == '__main__':
             {'name': 'ReactJS Workshop', 'ticket_types': ["ReactJS Workshop", "Offline registrations for ReactJS workshop"]},
             {'name': 'Performance Audit Workshop', 'ticket_types': ["Performance audit workshop", "Offline registrations for Performance Audit workshop"]},
         ]
-        sync_metarefresh(sys.argv[1], sys.argv[2], mr_ticket_types, mr_events, sys.argv[3])
+        sync(sys.argv[1], sys.argv[2], mr_ticket_types, mr_events, sys.argv[3])
