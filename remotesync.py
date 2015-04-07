@@ -10,6 +10,13 @@ import sys
 init_for('dev')
 
 
+def format_twitter(twitter_id):
+    """formats a user given twitter handle
+       Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
+    """
+    return urlparse(str(twitter_id)).path.replace('/', '').replace('@', '')
+
+
 class ExplaraTicket(object):
     # model of an explara ticket obtained from their CSV
     def __init__(self, row):
@@ -20,7 +27,7 @@ class ExplaraTicket(object):
             fullname=self.get('fullname'),
             email=self.get('email'),
             phone=self.get('phone'),
-            twitter=self.get('twitter'),
+            twitter=format_twitter(self.get('twitter')),
             job_title=self.get('job_title'),
             company=self.get('company'),
             city=self.get('city'),
@@ -45,13 +52,6 @@ class ExplaraTicket(object):
             'twitter': 15
         }
         return str(self.row[attrs[attr]]).strip()
-
-
-def format_twitter(twitter_id):
-    """formats a user given twitter handle
-       Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
-    """
-    return urlparse(str(twitter_id)).path.replace('/', '').replace('@', '')
 
 
 def sync_ticket_types(ticket_types, space_id):
