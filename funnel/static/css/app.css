@@ -1,3 +1,7 @@
+body {
+  padding-top: 70px;
+}
+
 .infosheet, .table {
   background: white;
 }
@@ -7,7 +11,7 @@
   overflow: hidden;
   text-align: left;
   text-transform: capitalize;
-  background-image: url('../img/logo.png?1417622562');
+  background-image: url('../img/logo.png?1427694745');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 110px;
@@ -16,7 +20,7 @@
 
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
   #logo {
-    background-image: url('../img/logo@2x.png?1417622562');
+    background-image: url('../img/logo@2x.png?1427694745');
     -moz-background-size: 110px 75px;
     -o-background-size: 110px 75px;
     -webkit-background-size: 110px 75px;
@@ -30,7 +34,7 @@
   overflow: hidden;
   text-align: left;
   text-transform: capitalize;
-  background-image: url('../img/logo@2x.png?1417622562');
+  background-image: url('../img/logo@2x.png?1427694745');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 221px;
