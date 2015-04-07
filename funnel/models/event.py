@@ -116,14 +116,12 @@ class Participant(BaseMixin, db.Model):
         subprocess.call(['inkscape', '--export-pdf={0}'.format(badge_path), badge_svg_path])
         return badge_path
 
-    # TODO: Pending Test
-    # def print_badge(self, badge_path):
-    #     os.system("lpr -o page-ranges=1 -P %s %s" % (app.config['PRINTER_NAME'], badge_path))
-    #     time.sleep(2)
-    #     os.unlink(badge_path)
+    def print_badge(self, space):
+        path = app.config['BADGES_PATH'] + '/{0}'.format(self.badge_url(space))
+        os.system("lpr -o page-ranges=1 -P %s %s" % (app.config['PRINTER_NAME'], path))
 
     def badge_url(self, space):
-        path = '{0}/{1}_{2}_{3}.pdf'.format('badges', space.profile.name, space.name, str(self.id))
+        path = '{0}_{1}_{2}.pdf'.format(space.profile.name, space.name, str(self.id))
         return path
 
 

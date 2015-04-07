@@ -247,7 +247,7 @@ def participant_badge(profile, space, participant):
         f.close()
     except IOError:
         participant.make_badge(space)
-    return redirect(url_for('static', filename=participant.badge_url(space)))
+    return redirect(url_for('static', filename="badges/{0}".format(participant.badge_url(space))))
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
