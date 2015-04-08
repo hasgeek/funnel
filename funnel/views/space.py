@@ -241,13 +241,7 @@ def new_participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='view')
 def participant_badge(profile, space, participant):
-    path = participant.badge_url(space)
-    try:
-        f = open(path)
-        f.close()
-    except IOError:
-        participant.make_badge(space)
-    return redirect(url_for('static', filename="badges/{0}".format(participant.badge_url(space))))
+    return participant.make_badge(space)
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
