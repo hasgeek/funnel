@@ -213,7 +213,7 @@ def participants_json(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='view')
+    permission='participant-view')
 def participants(profile, space):
     return render_template('participants.html', profile=profile, space=space, participants=space.participants.all())
 
@@ -222,7 +222,7 @@ def participants(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='view')
+    permission='new-participant')
 def new_participant(profile, space):
     form = ParticipantForm()
     if form.validate_on_submit():
@@ -235,21 +235,23 @@ def new_participant(profile, space):
 
 
 @app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='view')
+    permission='participant-view')
 def participant_badge(profile, space, participant):
     return participant.make_badge(space)
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='view')
+    permission='participant-edit')
 def participant_edit(profile, space, participant):
     form = ParticipantForm(obj=participant, model=Participant)
     if form.validate_on_submit():
@@ -287,20 +289,22 @@ def participant(profile, space):
 
 
 @app.route('/<space>/event', subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='view')
+    permission='event-view')
 def events(profile, space):
     return render_template('events.html', profile=profile, space=space, events=space.events.all())
 
 
 @app.route('/<space>/event/<event_id>', subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'id': 'event_id'}, 'event'),
-    permission='view')
+    permission='event-view')
 def event(profile, space, event):
     j = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
     stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Attendee.checked_in]).select_from(j).where(Attendee.event_id == event.id).order_by(Participant.fullname)
@@ -310,18 +314,16 @@ def event(profile, space, event):
 
 
 @app.route('/<space>/event/<event_id>/checkin/<participant_id>', subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'id': 'event_id'}, 'event'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='view')
+    permission='event-checkin')
 def event_checkin(profile, space, event, participant):
     a = Attendee.query.filter_by(participant_id=participant.id, event_id=event.id).first()
-    print a.participant_id
     checked_in = True if request.args.get('checkin') == 't' else False
-    print request.args.get('checkin')
-    print checked_in
     a.checked_in = checked_in
     db.session.add(a)
     db.session.commit()
