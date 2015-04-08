@@ -100,10 +100,11 @@ class Participant(BaseMixin, db.Model):
         qrcode_path = "{0}/{1}".format(app.config.get('BADGES_PATH'), qrcode_filename)
         make_qrcode(qrcode_data, qrcode_path)
         if qrcode_full_path:
-            qrcode_path = url_for('static', filename="{0}/{1}".format('badges', qrcode_filename))
+            qrcode_url = url_for('static', filename="{0}/{1}".format('badges', qrcode_filename))
         else:
-            qrcode_path = qrcode_filename
-        badge_html = render_template('badge.html', first_name=first_name, last_name=last_name, twitter=format_twitter(self.twitter), qrcode_path=qrcode_path, participant=self)
+            qrcode_url = qrcode_filename
+        qrcode_content = open(qrcode_path).read()
+        badge_html = render_template('badge.html', first_name=first_name, last_name=last_name, twitter=format_twitter(self.twitter), qrcode_path=qrcode_url, qrcode_content=qrcode_content, participant=self)
         return badge_html
 
     def make_badge_file(self, space):
