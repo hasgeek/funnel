@@ -303,7 +303,7 @@ def events(profile, space):
     permission='view')
 def event(profile, space, event):
     j = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
-    stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Attendee.checked_in]).select_from(j).where(Attendee.event_id == event.id)
+    stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Attendee.checked_in]).select_from(j).where(Attendee.event_id == event.id).order_by(Participant.fullname)
     q = db.session.execute(stmt)
     participants = q.fetchall()
     return render_template('event.html', profile=profile, space=space, participants=participants, event=event)
