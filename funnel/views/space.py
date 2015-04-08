@@ -9,7 +9,7 @@ from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
-    PROPOSALSTATUS, Rsvp, RSVP_STATUS, Participant)
+    PROPOSALSTATUS, Rsvp, RSVP_STATUS, Participant, Event, Attendee)
 from ..forms import ProposalSpaceForm, RsvpForm, ParticipantForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -88,7 +88,7 @@ def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form)
+        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form, events=space.events.all())
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -230,7 +230,7 @@ def new_participant(profile, space):
         form.populate_obj(participant)
         db.session.add(participant)
         db.session.commit()
-        return redirect(space.url_for('participants'), code=303)
+        return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
 
 
@@ -256,7 +256,7 @@ def participant_edit(profile, space, participant):
         form.populate_obj(participant)
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')
-        return redirect(space.url_for('participants'), code=303)
+        return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Edit Participant"), submit=_("Save changes"))
 
     form = ParticipantForm()
@@ -284,3 +284,45 @@ def participant(profile, space):
         return jsonp(participant=participant_data(participant, space.id, full=True))
     else:
         abort(401)
+
+
+@app.route('/<space>/event', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def events(profile, space):
+    return render_template('events.html', profile=profile, space=space, events=space.events.all())
+
+
+@app.route('/<space>/event/<event_id>', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'id': 'event_id'}, 'event'),
+    permission='view')
+def event(profile, space, event):
+    j = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
+    stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Attendee.checked_in]).select_from(j).where(Attendee.event_id == event.id)
+    q = db.session.execute(stmt)
+    participants = q.fetchall()
+    return render_template('event.html', profile=profile, space=space, participants=participants, event=event)
+
+
+@app.route('/<space>/event/<event_id>/checkin/<participant_id>', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'id': 'event_id'}, 'event'),
+    (Participant, {'id': 'participant_id'}, 'participant'),
+    permission='view')
+def event_checkin(profile, space, event, participant):
+    a = Attendee.query.filter_by(participant_id=participant.id, event_id=event.id).first()
+    print a.participant_id
+    checked_in = True if request.args.get('checkin') == 't' else False
+    print request.args.get('checkin')
+    print checked_in
+    a.checked_in = checked_in
+    db.session.add(a)
+    db.session.commit()
+    return redirect("{0}event/{1}".format(space.url_for(), event.id), code=303)

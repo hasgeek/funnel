@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <style>
+    body {
+      /*font-family: Franklin Gothic Cond Demi, Franklin Gothic book, Arial;*/
+      font-family: Arial;
+      width: 3.75in;
+      height: 5.25in;
+    }
+    .badge { 
+      padding: 10px;
+      padding-top: 50px;
+    }
+    .label {
+      text-align: center;
+      margin-top: 10px;
+    }
+    h1.label {
+      font-size: 30px;
+      margin-bottom: 8px;
+      word-wrap: break-word;
+      text-transform: uppercase;
+      margin-bottom: 0;
+    }
+    h3.label {
+      font-size: 20px;
+      margin-bottom: 2px;
+      font-weight: normal;
+      word-wrap: break-word;
+      margin-top: 2px;
+      text-transform: uppercase;
+    }
+    .last-name-box {
+      padding-bottom: 4px;
+      border-bottom: 4px solid;
+      text-align: center;
+    }
+    h4.label {
+      font-size: 16px;
+      margin-bottom: 2px;
+      word-wrap: break-word;
+    }
+    img.center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      height: 1em;
+    }
+    .company-label {
+      color: #df5e0e;
+    }
+    .twitter-label {
+      color: #0ea5b0;
+    }
+    .qrcode svg {
+      height: 3em;
+    }
+  </style>
+<head>
+</head>
+<body>
+<div class="badge">
+  <h1 class = 'label'>{{first_name}}</h1>
+  <div class="last-name-box">
+    <h3 class = 'label last-name-border'>{{last_name}}</h3>
+  </div>
+  {% if participant.company %}
+  <h4 class = 'label company-label'>{{participant.company}}</h3>
+  {% endif %}
+  {% if twitter %}
+  <h4 class = 'label twitter-label'>{{twitter}}</h3>
+  {% endif %}
+  <div class="label qrcode">{{qrcode_content|safe}}</div>
+</div>
+</body>
+</html>

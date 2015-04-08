@@ -127,6 +127,7 @@ class Attendee(BaseMixin, db.Model):
     event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False, primary_key=True)
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
+    checked_in = db.Column(db.Boolean, default=False, nullable=True)
 
 
 class SyncTicket(BaseMixin, db.Model):
