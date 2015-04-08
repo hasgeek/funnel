@@ -25,7 +25,6 @@
         <th>Name</th>
         <th>Email</th>
         <th>Company</th>
-        <th>Checked In?</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -35,13 +34,6 @@
           <td>{{p.fullname}}</td>
           <td>{{p.email}}</td>
           <td>{{p.company}}</td>
-          <td>
-            {% if p.checked_in %}
-              Yes
-            {% else %}
-              No
-            {% endif %}
-          </td>
           <td>
             <ul class="list-inline">
             <li>
