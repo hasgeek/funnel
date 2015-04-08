@@ -25,7 +25,7 @@ def split_name(fullname):
 
 
 def format_twitter(twitter):
-    return "@{0}".format(twitter)
+    return "@{0}".format(twitter) if twitter else ""
 
 
 def make_qrcode(data, path):
