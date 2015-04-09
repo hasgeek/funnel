@@ -33,7 +33,7 @@ class Event(BaseMixin, db.Model):
     __tablename__ = 'event'
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    name = db.Column(db.Unicode(80), nullable=True)
+    name = db.Column(db.Unicode(80), nullable=False)
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan', lazy='dynamic'))
@@ -47,7 +47,7 @@ class TicketType(BaseMixin, db.Model):
     __tablename__ = 'ticket_type'
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    name = db.Column(db.Unicode(80), nullable=True)
+    name = db.Column(db.Unicode(80), nullable=False)
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_types', cascade='all, delete-orphan', lazy='dynamic'))
@@ -66,7 +66,7 @@ class Participant(BaseMixin, db.Model):
 
     fullname = db.Column(db.Unicode(80), nullable=True)
     #: Unvalidated email address
-    email = db.Column(db.Unicode(80), nullable=True, unique=True)
+    email = db.Column(db.Unicode(80), nullable=False, unique=True)
     #: Unvalidated phone number
     phone = db.Column(db.Unicode(80), nullable=True)
     #: Unvalidated Twitter id
@@ -77,12 +77,12 @@ class Participant(BaseMixin, db.Model):
     company = db.Column(db.Unicode(80), nullable=True)
     #: Participant's city
     city = db.Column(db.Unicode(80), nullable=True)
-    #: Access key for connecting to the user record (nulled when linked)
+    #: Access key for connecting to the user record
     key = db.Column(db.Unicode(44), nullable=True, default=make_key, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('participant', cascade="all, delete-orphan"))
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=True)
+    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
 
@@ -145,8 +145,8 @@ class SyncTicket(BaseMixin, db.Model):
     __tablename__ = 'sync_ticket'
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    ticket_no = db.Column(db.Unicode(80), nullable=True, unique=True)
-    order_no = db.Column(db.Unicode(80), nullable=True)
+    ticket_no = db.Column(db.Unicode(80), nullable=False, unique=True)
+    order_no = db.Column(db.Unicode(80), nullable=False)
     ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False, primary_key=True)
     ticket_type = db.relationship(TicketType,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
