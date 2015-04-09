@@ -2,9 +2,6 @@
 
 from pytz import timezone as pytz_timezone, utc
 from datetime import datetime
-import qrcode
-import qrcode.image.svg
-import urllib
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
