@@ -242,7 +242,9 @@ def new_participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='participant-view')
 def participant_badge(profile, space, participant):
-    return participant.make_badge(space)
+    qrcode_content = participant.make_qrcode(participant.make_qrcode_path(space))
+    first_name, last_name = participant.split_name(participant.fullname)
+    return render_template('badge.html', first_name=first_name, last_name=last_name, twitter=participant.format_twitter(participant.twitter), qrcode_content=qrcode_content, company=participant.company)
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')

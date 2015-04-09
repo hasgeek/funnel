@@ -12,29 +12,6 @@ from flask import url_for, render_template
 __all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
 
 
-def make_key():
-    # 8-character string sliced from uuid
-    return str(uuid.uuid4())[0:8]
-
-
-def split_name(fullname):
-    name_splits = fullname.split()
-    first_name = name_splits[0]
-    last_name = " ".join([s for s in name_splits[1:]])
-    return first_name, last_name
-
-
-def format_twitter(twitter):
-    return "@{0}".format(twitter) if twitter else ""
-
-
-def make_qrcode(data, path):
-    factory = qrcode.image.svg.SvgPathImage
-    img = qrcode.make(data, image_factory=factory)
-    img.save(path)
-    return path
-
-
 class EventTicketType(BaseMixin, db.Model):
     __tablename__ = 'event_ticket_type'
 
@@ -68,6 +45,10 @@ class TicketType(BaseMixin, db.Model):
 class Participant(BaseMixin, db.Model):
     __tablename__ = 'participant'
 
+    def make_key():
+        # 8-character string sliced from uuid
+        return str(uuid.uuid4())[0:8]
+
     fullname = db.Column(db.Unicode(80), nullable=True)
     #: Unvalidated email address
     email = db.Column(db.Unicode(80), nullable=True, unique=True)
@@ -90,31 +71,42 @@ class Participant(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
 
-    def make_file_path(self, space):
-        return "{0}_{1}_{2}".format(space.profile.name, space.name, str(self.id))
+    def split_name(self, fullname):
+        """ Splits a given fullname into two parts
+            a first name, and a concanetated last name.
+            Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
+        """
+        name_splits = fullname.split()
+        first_name = name_splits[0]
+        last_name = " ".join([s for s in name_splits[1:]])
+        return first_name, last_name
 
-    def make_badge(self, space, qrcode_full_path=True):
-        first_name, last_name = split_name(self.fullname)
-        qrcode_filename = '{0}.{1}'.format(self.make_file_path(space), 'svg')
-        qrcode_data = "{0}:{1}".format(str(self.id), self.key)
-        qrcode_path = "{0}/{1}".format(app.config.get('BADGES_PATH'), qrcode_filename)
-        make_qrcode(qrcode_data, qrcode_path)
-        if qrcode_full_path:
-            qrcode_url = url_for('static', filename="{0}/{1}".format('badges', qrcode_filename))
-        else:
-            qrcode_url = qrcode_filename
-        qrcode_content = open(qrcode_path).read()
-        badge_html = render_template('badge.html', first_name=first_name, last_name=last_name, twitter=format_twitter(self.twitter), qrcode_path=qrcode_url, qrcode_content=qrcode_content, participant=self)
-        return badge_html
+    def format_twitter(self, twitter):
+        return "@{0}".format(twitter) if twitter else ""
 
-    def make_badge_file(self, space):
-        basepath = app.config['BADGES_PATH']
-        filename = '{0}.{1}'.format(self.make_file_path(space), 'html')
-        path = "{0}/{1}".format(basepath, filename)
-        html = self.make_badge(space, qrcode_full_path=False)
-        f = open(path, "wb")
-        f.write(html)
-        f.close()
+    def file_contents(self, path):
+        """ Returns contents of a given file path
+        """
+        file = open(path)
+        content = file.read()
+        file.close()
+        return content
+
+    def make_qrcode(self, path):
+        """ Makes a QR code with a given path and returns the raw svg
+            Data Format is id:key. Eg: 1:xxxxxxxx
+        """
+        data = "{0}:{1}".format(str(self.id), self.key)
+        factory = qrcode.image.svg.SvgPathImage
+        img = qrcode.make(data, image_factory=factory)
+        img.save(path)
+        return self.file_contents(path)
+
+    def make_qrcode_path(self, space):
+        """ Returns a filepath. Set a config var for BADGES_PATH.
+            Eg: static/badges/metarefresh_2015_1.svg
+        """
+        return "{0}/{1}_{2}_{3}.{4}".format(app.config.get('BADGES_PATH'), space.profile.name, space.name, str(self.id), 'svg')
 
 
 class Attendee(BaseMixin, db.Model):
@@ -127,7 +119,7 @@ class Attendee(BaseMixin, db.Model):
     event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False, primary_key=True)
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
-    checked_in = db.Column(db.Boolean, default=False, nullable=True)
+    checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
 
 class SyncTicket(BaseMixin, db.Model):
