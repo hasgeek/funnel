@@ -83,4 +83,4 @@ class ParticipantForm(forms.Form):
     city = forms.StringField(__("City"), validators=[forms.validators.Length(max=80)])
     company = forms.StringField(__("Company"), validators=[forms.validators.DataRequired()])
     job_title = forms.StringField(__("Job Title"), validators=[])
-    twitter = forms.StringField(__("Twitter"), validators=[])
+    twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
