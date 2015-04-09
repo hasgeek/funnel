@@ -195,7 +195,6 @@ def participant_data(participant, space_id, full=False):
             'fullname': participant.fullname,
             'job_title': participant.job_title,
             'company': participant.company,
-            'key': participant.key,
             'space_id': space_id
         }
 
