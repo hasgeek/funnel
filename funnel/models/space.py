@@ -162,6 +162,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'view-rsvps',
                     'new-session',
                     'edit-session',
+                    'event-checkin',
+                    'event-view',
+                    'participant-edit',
+                    'participant-view',
+                    'new-participant'
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
@@ -220,6 +225,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('rsvp', profile=self.profile.name, space=self.name)
         elif action == 'rsvp-list':
             return url_for('rsvp_list', profile=self.profile.name, space=self.name)
+        elif action == 'participants':
+            return url_for('participants', profile=self.profile.name, space=self.name)
+        elif action == 'new_participant':
+            return url_for('new_participant', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):

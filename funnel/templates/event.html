@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{% block title %}{{ space.title }}{% endblock %}
+{% block headline %}
+  <div class="page-header">
+    {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
+    <h1>{{ space.title }}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <h2>Participants</h2>
+  <p>
+  <h3>{{event.name}}</h3>
+  </p>
+  <p>
+    <input autofocus class="input-medium search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
+  </p>
+  <p>
+    <a href={{"/{0}/participants/new".format(space.name)}} class='btn btn-primary'>New Participant</a>
+  </p>
+  <table class="table" id='participants-table'>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Company</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in participants %}
+        <tr>
+          <td>{{p.fullname}}</td>
+          <td>{{p.email}}</td>
+          <td>{{p.company}}</td>
+          <td>
+            <ul class="list-inline">
+            <li>
+              <a href={{"{0}participant/{1}/badge".format(space.url_for(), p.id)}} class='btn btn-xs btn-default' target="_blank">Show badge</a>
+            </li>
+            <li>
+              <a href={{"{0}participant/{1}/edit".format(space.url_for(), p.id)}} class='btn btn-xs btn-info'>Edit</a>
+            </li>
+            <li>
+            {% if p.checked_in %}
+              <a href="{{event.id}}/checkin/{{p.id}}" class='btn btn-xs btn-danger'>Cancel Check-in</a>
+            {% else %}
+            <a href="{{event.id}}/checkin/{{p.id}}?checkin=t" class='btn btn-xs btn-warning'>Check-in</a>
+            {% endif %}
+            </li>
+            </ul>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+{% block footerscripts %}
+<script>
+  $(document).ready(function() {
+    var $rows = $('#participants-table tbody tr');
+    $('#search').keyup(function() {
+      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+      $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+      }).hide();
+    });
+  });
+</script>
+{% endblock %}
