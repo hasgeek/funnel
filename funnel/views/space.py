@@ -208,16 +208,8 @@ def participants_json(profile, space):
     return jsonp(participants=[participant_data(participant, space.id) for participant in space.participants])
 
 
-@app.route('/<space>/participants', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='participant-view')
-def participants(profile, space):
-    return render_template('participants.html', profile=profile, space=space, participants=space.participants.all())
-
-
 @app.route('/<space>/participants/new', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
