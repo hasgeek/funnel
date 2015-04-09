@@ -6,7 +6,7 @@
 <ol>
 {%- for e in events %}
 <li>
-  <a href={{"{0}event/{1}".format(space.url_for(), e.id)}}>{{e.name}}</a>
+  <a href={{ "{0}event/{1}".format(space.url_for(), e.id) }}>{{ e.name }}</a>
 </li>
 {%- endfor %}
 </ol>

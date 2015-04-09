@@ -65,16 +65,16 @@
 </head>
 <body>
 <div class="badge">
-  <h1 class = 'label' id='first_name'>{{first_name}}</h1>
+  <h1 class = 'label' id='first_name'>{{ first_name }}</h1>
   <div class="last-name-box">
-    <h3 class = 'label last-name-border'>{{last_name}}</h3>
+    <h3 class = 'label last-name-border'>{{ last_name }}</h3>
   </div>
-  {% if company %}
-  <h4 class = 'label company-label'>{{company}}</h3>
-  {% endif %}
-  {% if twitter %}
-  <h4 class = 'label twitter-label'>{{twitter}}</h3>
-  {% endif %}
+  {%- if company %}
+  <h4 class = 'label company-label'>{{ company }}</h3>
+  {%- endif %}
+  {%- if twitter %}
+  <h4 class = 'label twitter-label'>{{ twitter }}</h3>
+  {%- endif %}
 </div>
 <div class="label qrcode">{{qrcode_content|safe}}</div>
 <script>
