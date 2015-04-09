@@ -22,13 +22,15 @@ class EventTicketType(BaseMixin, db.Model):
 
 
 class Event(BaseMixin, db.Model):
-    """ A discrete event under a proposal space
+    """ A discrete event under a proposal space.
         For instance, a space could be associated with a workshop and a two-day conference.
-        The workshop would constitute as one event and each day of the conference
-        constitutes as a seperate event.
-        This is so that it's possible to distinguish participants based on
+        The workshop constitutes as one event and each day of the conference
+        constitutes as an independent event.
+        This is done to allow distinguishing participants based on
         on the tickets they have, given a participant may have a ticket
         for only the workshop or a single day of the conference.
+        An event is associated with multiple ticket types,
+        which helps make the distinction between participants
     """
     __tablename__ = 'event'
 
@@ -41,7 +43,7 @@ class Event(BaseMixin, db.Model):
 
 
 class TicketType(BaseMixin, db.Model):
-    """ Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop1.
+    """ Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
         A ticket type is associated with multiple events.
     """
     __tablename__ = 'ticket_type'
@@ -140,7 +142,7 @@ class Attendee(BaseMixin, db.Model):
 
 
 class SyncTicket(BaseMixin, db.Model):
-    """ Simple model of a ticket that was bought elsewhere. Eg: Explara
+    """ Model a ticket that was bought elsewhere. Eg: Explara
     """
     __tablename__ = 'sync_ticket'
 
