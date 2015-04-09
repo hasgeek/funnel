@@ -2,7 +2,7 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request, make_response, abort, url_for
+from flask import g, flash, redirect, render_template, Response, request, make_response, abort
 from baseframe import _
 from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
@@ -253,16 +253,6 @@ def participant_edit(profile, space, participant):
         flash(_("Your changes have been saved"), 'info')
         return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Edit Participant"), submit=_("Save changes"))
-
-    form = ParticipantForm()
-    if form.validate_on_submit():
-        participant = Participant(proposal_space=space)
-        form.populate_obj(participant)
-        db.session.add(participant)
-        db.session.commit()
-        return redirect(space.url_for('participants'), code=303)
-    else:
-        return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
 
 
 @app.route('/<space>/participant', subdomain='<profile>')
