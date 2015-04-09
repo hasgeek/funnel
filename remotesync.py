@@ -7,8 +7,6 @@ import csv
 from urlparse import urlparse
 import sys
 
-init_for('dev')
-
 
 def format_twitter(twitter_id):
     """formats a user given twitter handle
@@ -18,7 +16,8 @@ def format_twitter(twitter_id):
 
 
 class ExplaraTicket(object):
-    # model of an explara ticket obtained from their CSV
+    """ Models an Explara ticket as obtained from their CSV
+    """
     def __init__(self, row):
         self.row = row
 
@@ -115,7 +114,6 @@ def sync_tickets(space, csv_file):
             )
             db.session.add(ticket)
             db.session.commit()
-            # for event in space.events:
         for event in ticket.ticket_type.events:
             a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
             if not a:
@@ -134,7 +132,9 @@ def sync(profile_name, space_name, ticket_types, events, csv_file):
     print "Done"
 
 if __name__ == '__main__':
-    if sys.argv[1] == 'metarefresh':
+    # Eg: python remotesync.py dev metarefresh 2015 /path/to/csv
+    init_for(sys.argv[1])
+    if sys.argv[2] == 'metarefresh':
         mr_ticket_types = ["ReactJS Workshop", "Performance audit workshop", "Offline registrations for ReactJS workshop", "Offline registrations for Performance Audit workshop", "T-shirt", "Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April", "Single day pass - 17th April"]
         mr_events = [
             {'name': 'MetaRefresh Day 1', 'ticket_types': ["Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April"]},
@@ -142,4 +142,4 @@ if __name__ == '__main__':
             {'name': 'ReactJS Workshop', 'ticket_types': ["ReactJS Workshop", "Offline registrations for ReactJS workshop"]},
             {'name': 'Performance Audit Workshop', 'ticket_types': ["Performance audit workshop", "Offline registrations for Performance Audit workshop"]},
         ]
-        sync(sys.argv[1], sys.argv[2], mr_ticket_types, mr_events, sys.argv[3])
+        sync(sys.argv[2], sys.argv[3], mr_ticket_types, mr_events, sys.argv[4])
