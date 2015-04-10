@@ -44,9 +44,9 @@
     .company-name{
       font-size: 27px;
       color: #df5e0e;
-      line-height: 27px;
-      height: 45px;
+      line-height: 1;
       width: 2.9in;
+      margin-bottom: 10px;
     }
     .twitter-handle {
       font-size: 25px;
@@ -100,6 +100,21 @@
 {%- endfor  %}
 <script>
   $(function() {
+    var getFontSize = function(nameLen){
+      if (nameLen > 60){
+        return '18px';
+      }
+      else if (nameLen > 40){
+        return '20px';
+      }
+      else if (nameLen > 20){
+        return '22px';
+      }
+      else if (nameLen > 16){
+        return '24px';
+      }
+    }
+
     $('.first-name').textfill({
         maxFontPixels: 55,
         changeLineHeight: 1,
@@ -111,14 +126,8 @@
     });
       
     $.each($('.company-name'), function(index, companyName){
-      $(companyName).textfill({
-        minFontPixels: 18,
-        maxFontPixels: 25,
-        changeLineHeight: 1,
-        fail: function(){
-         $(companyName).find('span').css('font-size', '18px');
-        }
-      });
+      newFontSize = getFontSize($(companyName).find('span').html().length);
+      $(companyName).css('font-size', newFontSize)
     });
 
     $('.twitter-handle').textfill({
