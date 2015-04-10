@@ -7,6 +7,8 @@ import uuid
 
 __all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
 
+ATTENDEE_TABLE_NAME = 'attendee'
+
 
 class EventTicketType(BaseMixin, db.Model):
     """ Join Model for Event and TicketType
@@ -37,6 +39,7 @@ class Event(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan', lazy='dynamic'))
     ticket_types = db.relationship("TicketType", secondary=EventTicketType.__tablename__)
+    participants = db.relationship("Participant", secondary=ATTENDEE_TABLE_NAME)
 
 
 class TicketType(BaseMixin, db.Model):
@@ -78,6 +81,7 @@ class Participant(BaseMixin, db.Model):
     city = db.Column(db.Unicode(80), nullable=True)
     #: Access key for connecting to the user record
     key = db.Column(db.Unicode(44), nullable=True, default=make_key, unique=True)
+    badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('participant', cascade="all, delete-orphan"))
@@ -91,11 +95,16 @@ class Participant(BaseMixin, db.Model):
         stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
         return db.session.execute(stmt).fetchall()
 
+    @classmethod
+    def update_badge_printed(cls, event, value):
+        badge_printed = 't' if value is True else 'f'
+        db.engine.execute("UPDATE {0} SET badge_printed = '{1}'".format(cls.__tablename__, badge_printed))
+
 
 class Attendee(BaseMixin, db.Model):
     """ Join model between Participant and Event
     """
-    __tablename__ = 'attendee'
+    __tablename__ = ATTENDEE_TABLE_NAME
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False, primary_key=True)

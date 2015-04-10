@@ -280,6 +280,19 @@ def event(profile, space, event):
     return render_template('event.html', profile=profile, space=space, participants=participants, event=event)
 
 
+@app.route('/<space>/event/<event_id>/participant_update', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'id': 'event_id'}, 'event'),
+    permission='participant-edit')
+def participant_update(profile, space, event):
+    badges_printed = True if request.args.get('badges_printed') == 't' else False
+    Participant.update_badge_printed(event, badges_printed)
+    return redirect("{0}event/{1}".format(space.url_for(), event.id), code=303)
+
+
 def participant_badge_data(participants, space):
     badges = []
     for participant in participants:
