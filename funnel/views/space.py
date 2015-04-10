@@ -15,7 +15,7 @@ from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-
+from helpers import split_name, format_twitter, make_qrcode
 
 def space_data(space):
     return {
@@ -225,19 +225,6 @@ def new_participant(profile, space):
     return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
 
 
-@app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='participant-view')
-def participant_badge(profile, space, participant):
-    qrcode_content = participant.make_qrcode(participant.make_qrcode_path(space))
-    first_name, last_name = participant.split_name(participant.fullname)
-    return render_template('badge.html', first_name=first_name, last_name=last_name, twitter=participant.format_twitter(participant.twitter), qrcode_content=qrcode_content, company=participant.company)
-
-
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -291,6 +278,45 @@ def events(profile, space):
 def event(profile, space, event):
     participants = Participant.get_by_event(event)
     return render_template('event.html', profile=profile, space=space, participants=participants, event=event)
+
+
+def participant_badge_data(participants, space):
+    badges = []
+    for participant in participants:
+        qrcode_data = "{0}:{1}".format(str(participant.id), participant.key)
+        qrcode_path = "{0}/{1}_{2}_{3}.{4}".format(app.config.get('BADGES_PATH'), space.profile.name, space.name, str(participant.id), 'svg')
+        first_name, last_name = split_name(participant.fullname)
+        badges.append({
+            'first_name': first_name,
+            'last_name': last_name,
+            'twitter': format_twitter(participant.twitter),
+            'company': participant.company,
+            'qrcode_content': make_qrcode(qrcode_data, qrcode_path)
+        })
+    return badges
+
+
+@app.route('/<space>/event/<event_id>/badges', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'id': 'event_id'}, 'event'),
+    permission='event-view')
+def event_badges(profile, space, event):
+    participants = Participant.get_by_event(event)
+    return render_template('badge.html', badges=participant_badge_data(participants, space))
+
+
+@app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Participant, {'id': 'participant_id'}, 'participant'),
+    permission='participant-view')
+def participant_badge(profile, space, participant):
+    return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
 @app.route('/<space>/event/<event_id>/checkin/<participant_id>', subdomain='<profile>')

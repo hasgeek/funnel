@@ -3,9 +3,6 @@ from . import db, BaseMixin
 from .space import ProposalSpace
 from .user import User
 import uuid
-from .. import app
-import qrcode
-import qrcode.image.svg
 
 
 __all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
@@ -91,45 +88,8 @@ class Participant(BaseMixin, db.Model):
     @classmethod
     def get_by_event(cls, event):
         participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
-        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
+        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
         return db.session.execute(stmt).fetchall()
-
-    def split_name(self, fullname):
-        """ Splits a given fullname into two parts
-            a first name, and a concanetated last name.
-            Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
-        """
-        name_splits = fullname.split()
-        first_name = name_splits[0]
-        last_name = " ".join([s for s in name_splits[1:]])
-        return first_name, last_name
-
-    def format_twitter(self, twitter):
-        return "@{0}".format(twitter) if twitter else ""
-
-    def file_contents(self, path):
-        """ Returns contents of a given file path
-        """
-        file = open(path)
-        content = file.read()
-        file.close()
-        return content
-
-    def make_qrcode(self, path):
-        """ Makes a QR code with a given path and returns the raw svg
-            Data Format is id:key. Eg: 1:xxxxxxxx
-        """
-        data = "{0}:{1}".format(str(self.id), self.key)
-        factory = qrcode.image.svg.SvgPathImage
-        img = qrcode.make(data, image_factory=factory)
-        img.save(path)
-        return self.file_contents(path)
-
-    def make_qrcode_path(self, space):
-        """ Returns a filepath. Set a config var for BADGES_PATH.
-            Eg: static/badges/metarefresh_2015_1.svg
-        """
-        return "{0}/{1}_{2}_{3}.{4}".format(app.config.get('BADGES_PATH'), space.profile.name, space.name, str(self.id), 'svg')
 
 
 class Attendee(BaseMixin, db.Model):

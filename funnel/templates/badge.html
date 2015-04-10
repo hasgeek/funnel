@@ -64,19 +64,23 @@
 <head>
 </head>
 <body>
-<div class="badge">
-  <h1 class = 'label' id='first_name'>{{ first_name }}</h1>
-  <div class="last-name-box">
-    <h3 class = 'label last-name-border'>{{ last_name }}</h3>
+{%- for badge in badges %}
+  <div class="badge-layout">
+    <div class="badge">
+      <h1 class = 'label' id='first_name'>{{ badge['first_name'] }}</h1>
+      <div class="last-name-box">
+        <h3 class = 'label last-name-border'>{{ badge['last_name'] }}</h3>
+      </div>
+      {%- if badge['company'] %}
+      <h4 class = 'label company-label'>{{ badge['company'] }}</h3>
+      {%- endif %}
+      {%- if badge['twitter'] %}
+      <h4 class = 'label twitter-label'>{{ badge['twitter'] }}</h3>
+      {%- endif %}
+    </div>
+    <div class="label qrcode">{{badge['qrcode_content']|safe}}</div>
   </div>
-  {%- if company %}
-  <h4 class = 'label company-label'>{{ company }}</h3>
-  {%- endif %}
-  {%- if twitter %}
-  <h4 class = 'label twitter-label'>{{ twitter }}</h3>
-  {%- endif %}
-</div>
-<div class="label qrcode">{{qrcode_content|safe}}</div>
+{%- endfor  %}
 <script>
   $(function(){
     $("h1,h3,h4").fitText(1.1);
