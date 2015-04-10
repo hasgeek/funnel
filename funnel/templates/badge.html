@@ -1,46 +1,53 @@
 <!DOCTYPE html>
-<html>
+<head>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-  <script src="{{url_for('static', filename='js/libs/jquery.fittext.js')}}"></script>
+  <script src="{{url_for('static', filename='js/libs/jquery.textfill.min.js')}}"></script>
+  <link href='http://fonts.googleapis.com/css?family=Raleway:500,700' rel='stylesheet' type='text/css'>
   <style>
     body {
-      /*font-family: Franklin Gothic Cond Demi, Franklin Gothic book, Arial;*/
-      font-family: Arial;
+      font-family: 'Raleway', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .badge{
       width: 3.75in;
       height: 5.25in;
+      position: relative;
     }
-    .badge { 
-      padding: 10px;
-      padding-top: 50px;
+    .badge-content { 
+      width: 2.45in;
+      margin: 0 auto;
+      padding-top: 1.5in;
     }
     .label {
       text-align: center;
-      margin-top: 10px;
+      margin: 0;
+      line-height: 1;
     }
-    h1.label {
-      font-size: 58px;
-      margin-bottom: 8px;
-      word-wrap: break-word;
+    .first-name {
+      font-size: 60px;
+      margin-bottom: 13px;
       text-transform: uppercase;
-      margin-bottom: 0;
+      font-weight: 700;
     }
-    h3.label {
+    .last-name {
       font-size: 30px;
-      margin-bottom: 2px;
-      font-weight: normal;
-      word-wrap: break-word;
-      margin-top: 2px;
+      margin-bottom: 10px;
       text-transform: uppercase;
+      font-weight: 500;
     }
     .last-name-box {
-      padding-bottom: 4px;
-      border-bottom: 4px solid;
-      text-align: center;
+      border-bottom: 3px solid #000;
+      margin-bottom: 10px;
     }
-    h4.label {
+    .company-name{
+      height: 45px;
+      font-size: 27px;
+      color: #df5e0e;
+    }
+    .twitter-handle {
       font-size: 20px;
-      margin-bottom: 2px;
-      word-wrap: break-word;
+      color: #0ea5b0;
     }
     img.center {
       display: block;
@@ -48,39 +55,65 @@
       margin-right: auto;
       height: 1em;
     }
-    .company-label {
-      color: #df5e0e;
-    }
-    .twitter-label {
-      color: #0ea5b0;
-    }
     .qrcode {
-      /*text-align: right;*/
+      text-align: center;
+      position: absolute;
+      bottom: 0.7in;
+      left: 0;
+      right: 0;
+      margin: auto;
     }
     .qrcode svg {
       height: 5em;
     }
   </style>
-<head>
 </head>
 <body>
-<div class="badge">
-  <h1 class = 'label' id='first_name'>{{ first_name }}</h1>
-  <div class="last-name-box">
-    <h3 class = 'label last-name-border'>{{ last_name }}</h3>
+  <div class="badge">
+    <div class="badge-content">
+      <div class="label first-name" id="firstname">
+        <span> {{first_name}} </span>
+      </div>
+      <div class="last-name-box">
+        <div class="label last-name" id="lastname">
+          <span> {{last_name}} </span>
+        </div>
+      </div>
+      {% if company %}
+        <div class="label company-name" id="companyname">
+          <span> {{company}} </span>
+        </div>
+      {% endif %}
+      {% if twitter %}
+        <div class="label twitter-handle" id="twitter">
+          <span> {{twitter}} </span>
+        </div>
+      {% endif %}
+      <div class="qrcode">{{qrcode_content|safe}}</div>
+    </div>
   </div>
-  {%- if company %}
-  <h4 class = 'label company-label'>{{ company }}</h3>
-  {%- endif %}
-  {%- if twitter %}
-  <h4 class = 'label twitter-label'>{{ twitter }}</h3>
-  {%- endif %}
-</div>
-<div class="label qrcode">{{qrcode_content|safe}}</div>
-<script>
-  $(function(){
-    $("h1,h3,h4").fitText(1.1);
-  });
-</script>
+  <script>
+    $(function() {
+      $('#firstname').textfill({
+        maxFontPixels: 60
+      });
+      $('#lastname').textfill({
+        maxFontPixels: 30
+      });
+      $('#companyname').textfill({
+        minFontPixels: 18,
+        maxFontPixels: 27,
+        changeLineHeight: 1
+      });
+      $('#twitter').textfill({
+        minFontPixels: 16,
+        maxFontPixels: 18
+      });
+      lineheight = parseInt($('#companyname').css("line-height"));
+      if (lineheight < 20){
+        $('#companyname').css("margin-bottom", "5px")
+      }
+    });
+  </script>
 </body>
 </html>
