@@ -15,9 +15,9 @@
       position: relative;
     }
     .badge-content { 
-      width: 2.45in;
+      width: 2.9in;
       margin: 0 auto;
-      padding-top: 1.5in;
+      padding-top: 1.7in;
     }
     .label {
       text-align: center;
@@ -26,7 +26,7 @@
     }
     .first-name {
       font-size: 60px;
-      margin-bottom: 13px;
+      //margin-bottom: 13px;
       text-transform: uppercase;
       font-weight: 700;
     }
@@ -44,9 +44,10 @@
       height: 45px;
       font-size: 27px;
       color: #df5e0e;
+      margin-bottom: 10px;
     }
     .twitter-handle {
-      font-size: 20px;
+      font-size: 27px;
       color: #0ea5b0;
     }
     img.center {
@@ -106,12 +107,15 @@
         changeLineHeight: 1
       });
       $('#twitter').textfill({
-        minFontPixels: 16,
-        maxFontPixels: 18
+        minFontPixels: 18,
+        maxFontPixels: 27
       });
       lineheight = parseInt($('#companyname').css("line-height"));
       if (lineheight < 20){
-        $('#companyname').css("margin-bottom", "5px")
+        $('#companyname').css("margin-bottom", "5px");
+      }
+      else{
+        $('#companyname').css("height", lineheight+"px");
       }
     });
   </script>
