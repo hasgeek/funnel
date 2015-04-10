@@ -28,12 +28,14 @@
       font-size: 55px;
       text-transform: uppercase;
       font-weight: 700;
+      width: 2.9in;
     }
     .last-name {
       font-size: 30px;
       margin-bottom: 10px;
       text-transform: uppercase;
       font-weight: 500;
+      width: 2.9in;
     }
     .last-name-box {
       border-bottom: 3px solid #000;
@@ -43,11 +45,13 @@
       font-size: 27px;
       color: #df5e0e;
       line-height: 27px;
-      margin-bottom: 10px;
+      height: 45px;
+      width: 2.9in;
     }
     .twitter-handle {
-      font-size: 24px;
+      font-size: 25px;
       color: #0ea5b0;
+      width: 2.9in;
     }
     img.center {
       display: block;
@@ -109,17 +113,16 @@
     $.each($('.company-name'), function(index, companyName){
       $(companyName).textfill({
         minFontPixels: 18,
-        maxFontPixels: 27,
+        maxFontPixels: 25,
         changeLineHeight: 1,
         fail: function(){
-          console.log("company name failed");
-          $(companyName).find('span').css('font-size', '18px');
+         $(companyName).find('span').css('font-size', '18px');
         }
       });
     });
 
     $('.twitter-handle').textfill({
-        maxFontPixels: 24
+        maxFontPixels: 25
     });
   });
 </script>
