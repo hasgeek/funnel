@@ -17,6 +17,7 @@ from .venue import venue_data, room_data
 from .section import section_data
 from helpers import split_name, format_twitter, make_qrcode
 
+
 def space_data(space):
     return {
         'name': space.name,
@@ -180,7 +181,7 @@ def rsvp_list(profile, space):
 def participant_data(participant, space_id, full=False):
     if full:
         return {
-            '_id': participant.id,
+            '_id': participant.puk,
             'fullname': participant.fullname,
             'job_title': participant.job_title,
             'company': participant.company,
@@ -191,7 +192,7 @@ def participant_data(participant, space_id, full=False):
         }
     else:
         return {
-            '_id': participant.id,
+            '_id': participant.puk,
             'fullname': participant.fullname,
             'job_title': participant.job_title,
             'company': participant.company,
@@ -248,7 +249,7 @@ def participant_edit(profile, space, participant):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def participant(profile, space):
-    participant = Participant.query.filter_by(id=request.args.get('participant_id')).first()
+    participant = Participant.query.filter_by(puk=request.args.get('participant_id')).first()
     if not participant:
         abort(404)
     elif participant.key == request.args.get('key'):
@@ -288,16 +289,16 @@ def event(profile, space, event):
     (Event, {'id': 'event_id'}, 'event'),
     permission='participant-edit')
 def participant_update(profile, space, event):
-    badges_printed = True if request.args.get('badges_printed') == 't' else False
-    Participant.update_badge_printed(event, badges_printed)
+    badge_printed = True if request.args.get('badge_printed') == 't' else False
+    Participant.update_badge_printed(event, badge_printed)
     return redirect("{0}event/{1}".format(space.url_for(), event.id), code=303)
 
 
 def participant_badge_data(participants, space):
     badges = []
     for participant in participants:
-        qrcode_data = "{0}:{1}".format(str(participant.id), participant.key)
-        qrcode_path = "{0}/{1}_{2}_{3}.{4}".format(app.config.get('BADGES_PATH'), space.profile.name, space.name, str(participant.id), 'svg')
+        qrcode_data = "{0}{1}".format(participant.puk, participant.key)
+        qrcode_path = "{0}/{1}_{2}_{3}.{4}".format(app.config.get('BADGES_PATH'), space.profile.name, space.name, str(participant.puk), 'svg')
         first_name, last_name = split_name(participant.fullname)
         badges.append({
             'first_name': first_name,
@@ -317,7 +318,13 @@ def participant_badge_data(participants, space):
     (Event, {'id': 'event_id'}, 'event'),
     permission='event-view')
 def event_badges(profile, space, event):
-    participants = Participant.get_by_event(event)
+    if request.args.get('badge_printed') == 't':
+        badge_printed = 't'
+    elif request.args.get('badge_printed') == 'f':
+        badge_printed = 'f'
+    else:
+        badge_printed = None
+    participants = Participant.get_by_event(event, badge_printed)
     return render_template('badge.html', badges=participant_badge_data(participants, space))
 
 

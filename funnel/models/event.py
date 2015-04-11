@@ -2,7 +2,33 @@
 from . import db, BaseMixin
 from .space import ProposalSpace
 from .user import User
-import uuid
+import urllib
+import base64
+import random
+
+PRINTABLE_ASCII = map(chr, range(32, 127))
+
+
+def rand_printable_string(length):
+    chars = ['x'] * length
+    for i in range(0, length):
+        chars[i] = random.choice(PRINTABLE_ASCII)
+        return "".join(chars)
+
+
+def make_key(n=8):
+    rand_key = rand_printable_string(n)
+    rand_key_base64 = base64.encodestring(rand_key).strip('\n')
+    rand_key_urlsafe = urllib.urlencode({'key': rand_key_base64})
+    return rand_key_urlsafe.strip('key=')
+
+
+def make_public_key():
+    return make_key()[:4]
+
+
+def make_private_key():
+    return make_key()[:8]
 
 
 __all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
@@ -62,10 +88,6 @@ class Participant(BaseMixin, db.Model):
     """
     __tablename__ = 'participant'
 
-    def make_key():
-        # 8-character string sliced from uuid
-        return str(uuid.uuid4())[0:8]
-
     fullname = db.Column(db.Unicode(80), nullable=True)
     #: Unvalidated email address
     email = db.Column(db.Unicode(80), nullable=False, unique=True)
@@ -79,8 +101,10 @@ class Participant(BaseMixin, db.Model):
     company = db.Column(db.Unicode(80), nullable=True)
     #: Participant's city
     city = db.Column(db.Unicode(80), nullable=True)
+    # public key
+    puk = db.Column(db.Unicode(44), nullable=True, default=make_public_key, unique=True)
     #: Access key for connecting to the user record
-    key = db.Column(db.Unicode(44), nullable=True, default=make_key, unique=True)
+    key = db.Column(db.Unicode(44), nullable=False, default=make_private_key, unique=True)
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -90,15 +114,19 @@ class Participant(BaseMixin, db.Model):
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
 
     @classmethod
-    def get_by_event(cls, event):
+    def get_by_event(cls, event, badge_printed=None):
         participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
         stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
-        return db.session.execute(stmt).fetchall()
+        if badge_printed:
+                return db.session.execute(stmt.where(Participant.badge_printed == badge_printed)).fetchall()
+        else:
+            return db.session.execute(stmt).fetchall()
 
     @classmethod
-    def update_badge_printed(cls, event, value):
-        badge_printed = 't' if value is True else 'f'
-        db.engine.execute("UPDATE {0} SET badge_printed = '{1}'".format(cls.__tablename__, badge_printed))
+    def update_badge_printed(cls, event, badge_printed):
+        participant_ids = [participant.id for participant in event.participants]
+        stmt = db.update(Participant).where(Participant.id.in_(participant_ids)).values({Participant.badge_printed: badge_printed})
+        db.session.execute(stmt)
 
 
 class Attendee(BaseMixin, db.Model):
