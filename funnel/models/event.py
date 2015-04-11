@@ -106,7 +106,7 @@ class Participant(BaseMixin, db.Model):
     @classmethod
     def get_by_event(cls, event, badge_printed=None):
         participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
-        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
+        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
         if badge_printed:
                 return db.session.execute(stmt.where(Participant.badge_printed == badge_printed)).fetchall()
         else:
