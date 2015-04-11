@@ -2,29 +2,19 @@
 from . import db, BaseMixin
 from .space import ProposalSpace
 from .user import User
-import urllib
-import base64
 import random
+import uuid
 
 PRINTABLE_ASCII = map(chr, range(32, 127))
 
 
-def rand_printable_string(length):
-    chars = ['x'] * length
-    for i in range(0, length):
-        chars[i] = random.choice(PRINTABLE_ASCII)
-        return "".join(chars)
-
-
-def make_key(n=8):
-    rand_key = rand_printable_string(n)
-    rand_key_base64 = base64.encodestring(rand_key).strip('\n')
-    rand_key_urlsafe = urllib.urlencode({'key': rand_key_base64})
-    return rand_key_urlsafe.strip('key=')
+def make_key():
+    key = str(uuid.uuid4()).replace('-', '')
+    return ''.join(random.sample(key, len(key)))
 
 
 def make_public_key():
-    return make_key()[:4]
+    return make_key()[:8]
 
 
 def make_private_key():
