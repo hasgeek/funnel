@@ -15,7 +15,7 @@
       position: relative;
     }
     .badge-content { 
-      width: 2.9in;
+      width: 3in;
       margin: 0 auto;
       padding-top: 1.7in;
     }
@@ -28,26 +28,30 @@
       font-size: 60px;
       text-transform: uppercase;
       font-weight: 700;
+      width: 2.9in;
     }
     .last-name {
       font-size: 30px;
       margin-bottom: 10px;
       text-transform: uppercase;
       font-weight: 500;
+      width: 2.9in;
     }
     .last-name-box {
       border-bottom: 3px solid #000;
       margin-bottom: 10px;
     }
     .company-name{
-      height: 45px;
       font-size: 27px;
       color: #df5e0e;
+      line-height: 1;
+      width: 2.9in;
       margin-bottom: 10px;
     }
     .twitter-handle {
-      font-size: 27px;
+      font-size: 25px;
       color: #0ea5b0;
+      width: 2.9in;
     }
     img.center {
       display: block;
@@ -72,21 +76,21 @@
 {%- for badge in badges %}
   <div class="badge">
     <div class="badge-content">
-      <div class="label first-name" id="firstname">
+      <div class="label first-name">
         <span>{{ badge['first_name'] }}</span>
       </div>
       <div class="last-name-box">
-        <div class="label last-name" id="lastname">
+        <div class="label last-name">
           <span>{{ badge['last_name'] }} </span>
         </div>
       </div>
       {%- if badge['company'] %}
-        <div class="label company-name" id="companyname">
+        <div class="label company-name">
           <span>{{ badge['company'] }}</span>
         </div>
       {% endif %}
       {%- if badge['twitter'] %}
-        <div class="label twitter-handle" id="twitter">
+        <div class="label twitter-handle">
           <span>{{ badge['twitter'] }}</span>
         </div>
       {% endif %}
@@ -96,31 +100,39 @@
 {%- endfor  %}
 <script>
   $(function() {
-    $('#firstname').textfill({
-      maxFontPixels: 60
-    });
-
-    $('#lastname').textfill({
-      maxFontPixels: 30
-    });
-
-    $('#companyname').textfill({
-      minFontPixels: 18,
-      maxFontPixels: 27,
-      changeLineHeight: 1
-    });
-
-    $('#twitter').textfill({
-      minFontPixels: 18,
-      maxFontPixels: 27
-    });
-    
-    var lineHeight = parseInt($('#companyname').css("line-height"), 10);
-    if (lineHeight < 20){
-      $('#companyname').css("margin-bottom", "5px");
-    } else{
-      $('#companyname').css("height", lineHeight.toString() + "px");
+    var getFontSize = function(nameLen){
+      if (nameLen > 60){
+        return '18px';
+      }
+      else if (nameLen > 40){
+        return '20px';
+      }
+      else if (nameLen > 20){
+        return '22px';
+      }
+      else if (nameLen > 16){
+        return '24px';
+      }
     }
+
+    $('.first-name').textfill({
+        maxFontPixels: 60,
+        changeLineHeight: 1,
+    });
+
+    $('.last-name').textfill({
+        maxFontPixels: 30,
+        changeLineHeight: 1
+    });
+      
+    $.each($('.company-name'), function(index, companyName){
+      newFontSize = getFontSize($(companyName).find('span').html().length);
+      $(companyName).css('font-size', newFontSize)
+    });
+
+    $('.twitter-handle').textfill({
+        maxFontPixels: 25
+    });
   });
 </script>
 </body>
