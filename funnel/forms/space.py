@@ -82,5 +82,5 @@ class ParticipantForm(forms.Form):
     phone = forms.StringField(__("Phone number"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
     city = forms.StringField(__("City"), validators=[forms.validators.Length(max=80)])
     company = forms.StringField(__("Company"), validators=[forms.validators.DataRequired()])
-    job_title = forms.StringField(__("Job Title"), validators=[])
+    job_title = forms.StringField(__("Job Title"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
