@@ -14,7 +14,8 @@ from helpers import split_name, format_twitter, make_qrcode
 def participant_data(participant, space_id, full=False):
     if full:
         return {
-            '_id': participant.puk,
+            '_id': participant.id,
+            'puk': participant.puk,
             'fullname': participant.fullname,
             'job_title': participant.job_title,
             'company': participant.company,
@@ -25,7 +26,8 @@ def participant_data(participant, space_id, full=False):
         }
     else:
         return {
-            '_id': participant.puk,
+            '_id': participant.id,
+            'puk': participant.puk,
             'fullname': participant.fullname,
             'job_title': participant.job_title,
             'company': participant.company,
@@ -82,7 +84,7 @@ def participant_edit(profile, space, participant):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def participant(profile, space):
-    participant = Participant.query.filter_by(puk=request.args.get('participant_id')).first()
+    participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
     if not participant:
         abort(404)
     elif participant.key == request.args.get('key'):
