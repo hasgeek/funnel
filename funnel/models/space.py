@@ -225,6 +225,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('rsvp', profile=self.profile.name, space=self.name)
         elif action == 'rsvp-list':
             return url_for('rsvp_list', profile=self.profile.name, space=self.name)
+        elif action == 'events':
+            return url_for('events', profile=self.profile.name, space=self.name)
         elif action == 'participants':
             return url_for('participants', profile=self.profile.name, space=self.name)
         elif action == 'new_participant':
