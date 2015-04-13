@@ -78,7 +78,7 @@ class Participant(BaseMixin, db.Model):
     """
     __tablename__ = 'participant'
 
-    fullname = db.Column(db.Unicode(80), nullable=True)
+    fullname = db.Column(db.Unicode(80), nullable=False)
     #: Unvalidated email address
     email = db.Column(db.Unicode(80), nullable=False, unique=True)
     #: Unvalidated phone number
@@ -92,7 +92,7 @@ class Participant(BaseMixin, db.Model):
     #: Participant's city
     city = db.Column(db.Unicode(80), nullable=True)
     # public key
-    puk = db.Column(db.Unicode(44), nullable=True, default=make_public_key, unique=True)
+    puk = db.Column(db.Unicode(44), nullable=False, default=make_public_key, unique=True)
     #: Access key for connecting to the user record
     key = db.Column(db.Unicode(44), nullable=False, default=make_private_key, unique=True)
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
