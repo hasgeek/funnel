@@ -32,8 +32,8 @@ class EventTicketType(BaseMixin, db.Model):
     __tablename__ = 'event_ticket_type'
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False, primary_key=True)
-    ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False, primary_key=True)
+    event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False)
+    ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
 
 
 class Event(BaseMixin, db.Model):
@@ -51,7 +51,7 @@ class Event(BaseMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.Unicode(80), nullable=False)
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan', lazy='dynamic'))
     ticket_types = db.relationship("TicketType", secondary=EventTicketType.__tablename__)
@@ -66,7 +66,7 @@ class TicketType(BaseMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.Unicode(80), nullable=False)
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_types', cascade='all, delete-orphan', lazy='dynamic'))
     events = db.relationship("Event", secondary=EventTicketType.__tablename__)
@@ -108,15 +108,9 @@ class Participant(BaseMixin, db.Model):
         participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
         stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
         if badge_printed:
-                return db.session.execute(stmt.where(Participant.badge_printed == badge_printed)).fetchall()
+            return db.session.execute(stmt.where(Participant.badge_printed == badge_printed)).fetchall()
         else:
             return db.session.execute(stmt).fetchall()
-
-    @classmethod
-    def update_badge_printed(cls, event, badge_printed):
-        participant_ids = [participant.id for participant in event.participants]
-        stmt = db.update(Participant).where(Participant.id.in_(participant_ids)).values({Participant.badge_printed: badge_printed})
-        db.session.execute(stmt)
 
 
 class Attendee(BaseMixin, db.Model):
@@ -125,10 +119,10 @@ class Attendee(BaseMixin, db.Model):
     __tablename__ = ATTENDEE_TABLE_NAME
 
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False, primary_key=True)
+    participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
-    event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False, primary_key=True)
+    event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False)
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
@@ -142,10 +136,10 @@ class SyncTicket(BaseMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     ticket_no = db.Column(db.Unicode(80), nullable=False, unique=True)
     order_no = db.Column(db.Unicode(80), nullable=False)
-    ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False, primary_key=True)
+    ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
     ticket_type = db.relationship(TicketType,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
-    participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False, primary_key=True)
+    participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant, primaryjoin=participant_id == Participant.id,
         backref=db.backref('sync_tickets', cascade="all, delete-orphan"))
 
