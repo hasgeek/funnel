@@ -5,12 +5,11 @@ from .user import User
 import random
 import uuid
 from sqlalchemy.ext.associationproxy import association_proxy
+from datetime import datetime
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket']
 
 PRINTABLE_ASCII = map(chr, range(32, 127))
-ATTENDEE_TABLE_NAME = 'attendee'
-EVENT_TICKET_TYPE_TABLE_NAME = 'event_ticket_type'
 
 
 def make_key():
@@ -26,9 +25,10 @@ def make_private_key():
     return make_key()[:8]
 
 
-event_ticket_type = db.Table(EVENT_TICKET_TYPE_TABLE_NAME, db.Model.metadata,
+event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
-    db.Column('ticket_type_id', db.Integer, db.ForeignKey('ticket_type.id'))
+    db.Column('ticket_type_id', db.Integer, db.ForeignKey('ticket_type.id')),
+    db.Column('created_at', db.DateTime, default=datetime.utcnow)
 )
 
 
@@ -49,7 +49,7 @@ class Event(BaseMixin, db.Model):
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan', lazy='dynamic'))
-    ticket_types = db.relationship("TicketType", secondary=EVENT_TICKET_TYPE_TABLE_NAME, lazy='dynamic')
+    ticket_types = db.relationship("TicketType", secondary=event_ticket_type, lazy='dynamic')
     participants = association_proxy('attendees', 'participant')
 
 
@@ -63,7 +63,7 @@ class TicketType(BaseMixin, db.Model):
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_types', cascade='all, delete-orphan', lazy='dynamic'))
-    events = db.relationship("Event", secondary=EVENT_TICKET_TYPE_TABLE_NAME)
+    events = db.relationship("Event", secondary=event_ticket_type)
 
 
 class Participant(BaseMixin, db.Model):
@@ -91,20 +91,19 @@ class Participant(BaseMixin, db.Model):
     key = db.Column(db.Unicode(44), nullable=False, default=make_private_key, unique=True)
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('participant', cascade="all, delete-orphan"))
+    user = db.relationship(User, backref=db.backref('participants', cascade='all, delete-orphan'))
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
     events = association_proxy('attendees', 'event')
 
-    __table_args__ = (db.UniqueConstraint("proposal_space_id", "email"),)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
 
 class Attendee(BaseMixin, db.Model):
     """ Join model between Participant and Event
     """
-    __tablename__ = ATTENDEE_TABLE_NAME
+    __tablename__ = 'attendee'
 
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant,
@@ -120,7 +119,7 @@ class SyncTicket(BaseMixin, db.Model):
     """
     __tablename__ = 'sync_ticket'
 
-    ticket_no = db.Column(db.Unicode(80), nullable=False, unique=True)
+    ticket_no = db.Column(db.Unicode(80), nullable=False)
     order_no = db.Column(db.Unicode(80), nullable=False)
     ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
     ticket_type = db.relationship(TicketType,
@@ -128,6 +127,8 @@ class SyncTicket(BaseMixin, db.Model):
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant, primaryjoin=participant_id == Participant.id,
         backref=db.backref('sync_tickets', cascade="all, delete-orphan"))
+
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'ticket_no'),)
 
     @classmethod
     def tickets_from_space(cls, space_id):
