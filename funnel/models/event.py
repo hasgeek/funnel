@@ -50,7 +50,7 @@ class Event(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan', lazy='dynamic'))
     ticket_types = db.relationship("TicketType", secondary=EVENT_TICKET_TYPE_TABLE_NAME, lazy='dynamic')
-    participants = db.relationship("Participant", secondary=ATTENDEE_TABLE_NAME, lazy='dynamic')
+    participants = association_proxy('attendees', 'participant')
 
 
 class TicketType(BaseMixin, db.Model):
