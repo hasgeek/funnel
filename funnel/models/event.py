@@ -127,6 +127,9 @@ class SyncTicket(BaseMixin, db.Model):
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant, primaryjoin=participant_id == Participant.id,
         backref=db.backref('sync_tickets', cascade="all, delete-orphan"))
+    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space = db.relationship(ProposalSpace,
+        backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'ticket_no'),)
 

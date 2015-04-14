@@ -132,7 +132,8 @@ def sync_tickets(space, csv_file):
                 ticket_no=et.get('ticket_no'),
                 order_no=et.get('order_no'),
                 ticket_type=ticket_ticket_type,
-                participant=ticket_participant
+                participant=ticket_participant,
+                proposal_space=space
             )
             db.session.add(ticket)
             db.session.commit()
