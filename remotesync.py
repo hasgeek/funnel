@@ -89,7 +89,7 @@ def sync_participant_keys(profile_name, space_name, csv_file):
     puk_field_index = 10
     key_field_index = 11
     badge_printed_field_index = 12
-    participant_rows = get_rows_from_csv(csv_file, delimiter='|')
+    participant_rows = get_rows_from_csv(csv_file)
     for pr in participant_rows:
         participant = Participant.query.filter_by(email=pr[email_field_index]).first()
         if participant:
