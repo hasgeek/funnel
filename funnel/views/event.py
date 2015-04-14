@@ -140,7 +140,7 @@ def participant_badge_data(participants, space):
     permission='event-view')
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
-    participants = event.participants.filter(Participant.badge_printed == badge_printed).all()
+    participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
     return render_template('badge.html', badges=participant_badge_data(participants, space))
 
 
