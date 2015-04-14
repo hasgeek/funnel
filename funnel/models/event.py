@@ -98,7 +98,7 @@ class Participant(BaseMixin, db.Model):
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
     events = association_proxy('attendees', 'event')
 
-    __table_args__ = (db.UniqueConstraint("proposal_space_id", "email"))
+    __table_args__ = (db.UniqueConstraint("proposal_space_id", "email"),)
 
 
 class Attendee(BaseMixin, db.Model):
