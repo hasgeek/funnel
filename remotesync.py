@@ -75,12 +75,28 @@ def sync_events(events, space_id):
     db.session.commit()
 
 
-def get_rows_from_csv(csv_file, skip_header=True):
+def get_rows_from_csv(csv_file, skip_header=True, delimiter=','):
     with open(csv_file, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+        reader = csv.reader(csvfile, delimiter=delimiter)
         if skip_header:
             next(reader)
         return [row for row in reader]
+
+
+def sync_participant_keys(profile_name, space_name, csv_file):
+    # Temporary function to syncrhonize keys generated locally
+    email_field_index = 4
+    puk_field_index = 10
+    key_field_index = 10
+    badge_printed_field_index = 12
+    participant_rows = get_rows_from_csv(csv_file, delimiter='|')
+    for pr in participant_rows:
+        participant = Participant.query.filter_by(email=pr[email_field_index]).first()
+        participant.puk = pr[puk_field_index]
+        participant.key = pr[key_field_index]
+        participant.badge_printed = pr[badge_printed_field_index]
+        db.session.add(participant)
+    db.session.commit()
 
 
 def sync_tickets(space, csv_file):
