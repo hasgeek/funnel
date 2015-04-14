@@ -229,7 +229,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('events', profile=self.profile.name, space=self.name)
         elif action == 'participants':
             return url_for('participants', profile=self.profile.name, space=self.name)
-        elif action == 'new_participant':
+        elif action == 'new-participant':
             return url_for('new_participant', profile=self.profile.name, space=self.name)
 
     @classmethod
