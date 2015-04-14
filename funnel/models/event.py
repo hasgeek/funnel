@@ -5,7 +5,10 @@ from .user import User
 import random
 import uuid
 
+__all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
+
 PRINTABLE_ASCII = map(chr, range(32, 127))
+ATTENDEE_TABLE_NAME = 'attendee'
 
 
 def make_key():
@@ -19,11 +22,6 @@ def make_public_key():
 
 def make_private_key():
     return make_key()[:8]
-
-
-__all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
-
-ATTENDEE_TABLE_NAME = 'attendee'
 
 
 class EventTicketType(BaseMixin, db.Model):
