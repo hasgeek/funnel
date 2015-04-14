@@ -51,7 +51,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('email', 'proposal_space_id'),
+        sa.UniqueConstraint('proposal_space_id', 'email'),
         sa.UniqueConstraint('key'),
         sa.UniqueConstraint('puk')
     )
