@@ -84,7 +84,7 @@ def get_rows_from_csv(csv_file, skip_header=True, delimiter=','):
 
 
 def sync_participant_keys(profile_name, space_name, csv_file):
-    # Temporary function to syncrhonize keys generated locally
+    # Temporary function to synchronize keys generated locally
     email_field_index = 4
     puk_field_index = 10
     key_field_index = 11
