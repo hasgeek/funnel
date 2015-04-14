@@ -112,8 +112,7 @@ def events(profile, space):
     (Event, {'id': 'event_id'}, 'event'),
     permission='event-view')
 def event(profile, space, event):
-    participants = Participant.get_by_event(event)
-    return render_template('event.html', profile=profile, space=space, participants=participants, event=event)
+    return render_template('event.html', profile=profile, space=space, participants=event.participants, event=event)
 
 
 def participant_badge_data(participants, space):
@@ -140,13 +139,8 @@ def participant_badge_data(participants, space):
     (Event, {'id': 'event_id'}, 'event'),
     permission='event-view')
 def event_badges(profile, space, event):
-    if request.args.get('badge_printed') == 't':
-        badge_printed = 't'
-    elif request.args.get('badge_printed') == 'f':
-        badge_printed = 'f'
-    else:
-        badge_printed = None
-    participants = Participant.get_by_event(event, badge_printed)
+    badge_printed = True if request.args.get('badge_printed') == 't' else False
+    participants = event.participants.filter(Participant.badge_printed == badge_printed).all()
     return render_template('badge.html', badges=participant_badge_data(participants, space))
 
 

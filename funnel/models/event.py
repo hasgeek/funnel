@@ -4,11 +4,13 @@ from .space import ProposalSpace
 from .user import User
 import random
 import uuid
+from sqlalchemy.ext.associationproxy import association_proxy
 
-__all__ = ['Event', 'TicketType', 'EventTicketType', 'Participant', 'Attendee', 'SyncTicket']
+__all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket']
 
 PRINTABLE_ASCII = map(chr, range(32, 127))
 ATTENDEE_TABLE_NAME = 'attendee'
+EVENT_TICKET_TYPE_TABLE_NAME = 'event_ticket_type'
 
 
 def make_key():
@@ -24,13 +26,10 @@ def make_private_key():
     return make_key()[:8]
 
 
-class EventTicketType(BaseMixin, db.Model):
-    """ Join Model for Event and TicketType
-    """
-    __tablename__ = 'event_ticket_type'
-
-    event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False)
-    ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
+event_ticket_type = db.Table(EVENT_TICKET_TYPE_TABLE_NAME, db.Model.metadata,
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
+    db.Column('ticket_type_id', db.Integer, db.ForeignKey('ticket_type.id'))
+)
 
 
 class Event(BaseMixin, db.Model):
@@ -50,8 +49,8 @@ class Event(BaseMixin, db.Model):
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan', lazy='dynamic'))
-    ticket_types = db.relationship("TicketType", secondary=EventTicketType.__tablename__)
-    participants = db.relationship("Participant", secondary=ATTENDEE_TABLE_NAME)
+    ticket_types = db.relationship("TicketType", secondary=EVENT_TICKET_TYPE_TABLE_NAME, lazy='dynamic')
+    participants = db.relationship("Participant", secondary=ATTENDEE_TABLE_NAME, lazy='dynamic')
 
 
 class TicketType(BaseMixin, db.Model):
@@ -64,7 +63,7 @@ class TicketType(BaseMixin, db.Model):
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_types', cascade='all, delete-orphan', lazy='dynamic'))
-    events = db.relationship("Event", secondary=EventTicketType.__tablename__)
+    events = db.relationship("Event", secondary=EVENT_TICKET_TYPE_TABLE_NAME)
 
 
 class Participant(BaseMixin, db.Model):
@@ -75,7 +74,7 @@ class Participant(BaseMixin, db.Model):
 
     fullname = db.Column(db.Unicode(80), nullable=False)
     #: Unvalidated email address
-    email = db.Column(db.Unicode(80), nullable=False, unique=True)
+    email = db.Column(db.Unicode(80), nullable=False)
     #: Unvalidated phone number
     phone = db.Column(db.Unicode(80), nullable=True)
     #: Unvalidated Twitter id
@@ -97,15 +96,9 @@ class Participant(BaseMixin, db.Model):
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
+    events = association_proxy('attendees', 'event')
 
-    @classmethod
-    def get_by_event(cls, event, badge_printed=None):
-        participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
-        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
-        if badge_printed:
-            return db.session.execute(stmt.where(Participant.badge_printed == badge_printed)).fetchall()
-        else:
-            return db.session.execute(stmt).fetchall()
+    __table_args__ = (db.UniqueConstraint("email", "proposal_space_id"), {})
 
 
 class Attendee(BaseMixin, db.Model):
