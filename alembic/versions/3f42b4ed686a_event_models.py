@@ -44,8 +44,7 @@ def upgrade():
         sa.Column('name', sa.Unicode(length=80), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('id')
+        sa.PrimaryKeyConstraint('id')
     )
     op.create_table('event',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -54,8 +53,7 @@ def upgrade():
         sa.Column('name', sa.Unicode(length=80), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('id')
+        sa.PrimaryKeyConstraint('id')
     )
     op.create_table('event_ticket_type',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -65,8 +63,7 @@ def upgrade():
         sa.Column('ticket_type_id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['event_id'], ['event.id'], ),
         sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id'], ),
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('id')
+        sa.PrimaryKeyConstraint('id')
     )
     op.create_table('sync_ticket',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -79,7 +76,6 @@ def upgrade():
         sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
         sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id'], ),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('id'),
         sa.UniqueConstraint('ticket_no')
     )
     op.create_table('attendee',
@@ -91,8 +87,7 @@ def upgrade():
         sa.Column('checked_in', sa.Boolean(), nullable=False),
         sa.ForeignKeyConstraint(['event_id'], ['event.id'], ),
         sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('id')
+        sa.PrimaryKeyConstraint('id')
     )
 
 

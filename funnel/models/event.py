@@ -31,7 +31,6 @@ class EventTicketType(BaseMixin, db.Model):
     """
     __tablename__ = 'event_ticket_type'
 
-    id = db.Column(db.Integer, primary_key=True, unique=True)
     event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False)
     ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
 
@@ -49,7 +48,6 @@ class Event(BaseMixin, db.Model):
     """
     __tablename__ = 'event'
 
-    id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.Unicode(80), nullable=False)
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
@@ -64,7 +62,6 @@ class TicketType(BaseMixin, db.Model):
     """
     __tablename__ = 'ticket_type'
 
-    id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.Unicode(80), nullable=False)
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
@@ -118,7 +115,6 @@ class Attendee(BaseMixin, db.Model):
     """
     __tablename__ = ATTENDEE_TABLE_NAME
 
-    id = db.Column(db.Integer, primary_key=True, unique=True)
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
@@ -133,7 +129,6 @@ class SyncTicket(BaseMixin, db.Model):
     """
     __tablename__ = 'sync_ticket'
 
-    id = db.Column(db.Integer, primary_key=True, unique=True)
     ticket_no = db.Column(db.Unicode(80), nullable=False, unique=True)
     order_no = db.Column(db.Unicode(80), nullable=False)
     ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
