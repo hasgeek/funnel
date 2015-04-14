@@ -92,20 +92,25 @@ def sync_participant_keys(profile_name, space_name, csv_file):
     participant_rows = get_rows_from_csv(csv_file, delimiter='|')
     for pr in participant_rows:
         participant = Participant.query.filter_by(email=pr[email_field_index]).first()
-        participant.puk = pr[puk_field_index]
-        participant.key = pr[key_field_index]
-        participant.badge_printed = pr[badge_printed_field_index]
-        db.session.add(participant)
+        if participant:
+            participant.puk = pr[puk_field_index]
+            participant.key = pr[key_field_index]
+            participant.badge_printed = pr[badge_printed_field_index]
+            db.session.add(participant)
+        else:
+            print "No record found for {0}".format(pr[email_field_index])
     db.session.commit()
 
 
 def sync_tickets(space, csv_file):
     tickets = get_rows_from_csv(csv_file)
+    # track current ticket nos
+    current_ticket_nos = []
 
     for item in tickets:
         et = ExplaraTicket(item)
         ticket = SyncTicket.query.filter_by(ticket_no=et.get('ticket_no')).first()
-
+        current_ticket_nos.append(et.get('ticket_no'))
         ticket_ticket_type = TicketType.query.filter_by(name=et.get('ticket_type'), proposal_space_id=space.id).first()
 
         # get or create participant
@@ -136,6 +141,19 @@ def sync_tickets(space, csv_file):
                 a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
             db.session.add(a)
             db.session.commit()
+
+    # sweep cancelled tickets
+    cancelled_tickets = SyncTicket.query.filter(~SyncTicket.ticket_no.in_(current_ticket_nos)).all()
+    print "Sweeping cancelled tickets.."
+    for ct in cancelled_tickets:
+        print "Removing event access for {0}".format(ct.participant.email)
+        st = SyncTicket.query.filter(SyncTicket.ticket_no == ct.ticket_no).first()
+        event_ids = [event.id for event in st.ticket_type.events]
+        cancelled_attendees = Attendee.query.filter(Attendee.participant_id == st.participant.id).filter(Attendee.event_id.in_(event_ids)).all()
+        for ca in cancelled_attendees:
+            db.session.delete(ca)
+        db.session.delete(st)
+        db.session.commit()
 
 
 def sync(profile_name, space_name, ticket_types, events, csv_file):
