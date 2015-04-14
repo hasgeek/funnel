@@ -86,12 +86,12 @@ def participant_edit(profile, space, participant):
 def participant(profile, space):
     participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
     if not participant:
-        abort(404)
+        return jsonp(message="Not found", code=404)
     elif participant.key == request.args.get('key'):
         # TODO: add contact
         return jsonp(participant=participant_data(participant, space.id, full=True))
     else:
-        abort(401)
+        return jsonp(message="Unauthorized", code=401)
 
 
 @app.route('/<space>/event', subdomain='<profile>')
