@@ -26,9 +26,9 @@ def make_private_key():
 
 
 event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
-    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
-    db.Column('ticket_type_id', db.Integer, db.ForeignKey('ticket_type.id')),
-    db.Column('created_at', db.DateTime, default=datetime.utcnow)
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
+    db.Column('ticket_type_id', db.Integer, db.ForeignKey('ticket_type.id'), primary_key=True),
+    db.Column('created_at', db.DateTime, default=datetime.utcnow, nullable=False)
 )
 
 
