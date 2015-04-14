@@ -87,12 +87,13 @@ def sync_participant_keys(profile_name, space_name, csv_file):
     # Temporary function to syncrhonize keys generated locally
     email_field_index = 4
     puk_field_index = 10
-    key_field_index = 10
+    key_field_index = 11
     badge_printed_field_index = 12
     participant_rows = get_rows_from_csv(csv_file, delimiter='|')
     for pr in participant_rows:
         participant = Participant.query.filter_by(email=pr[email_field_index]).first()
         if participant:
+            print participant.email
             participant.puk = pr[puk_field_index]
             participant.key = pr[key_field_index]
             participant.badge_printed = pr[badge_printed_field_index]
