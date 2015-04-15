@@ -15,6 +15,14 @@ def index():
     return render_template('index.html', spaces=spaces)
 
 
+@app.route('/whoami')
+def whoami():
+    if g.user:
+        return jsonp(message="hey {0}".format(g.user.fullname), code=200)
+    else:
+        return jsonp(message="Hmm, so who _are_ you?", code=401)
+
+
 @app.route('/json')
 def all_spaces_json():
     g.profile = None
