@@ -167,15 +167,42 @@ def sync(profile_name, space_name, ticket_types, events, csv_file):
     sync_tickets(space, csv_file)
     print "Done"
 
+
+def sync_crew(space, csv_file):
+    """csv_file -> name, email, company, twitter
+    """
+    crew_rows = get_rows_from_csv(csv_file)
+    crew_participants = []
+
+    for r in crew_rows:
+        p = space.participants.filter(Participant.email == r[1]).first()
+        if not p:
+            p = Participant(fullname=r[0], email=r[1], company=r[2], twitter=r[3], proposal_space=space)
+            db.session.add(p)
+            db.session.commit()
+        crew_participants.append(p)
+
+    ticket_type = space.ticket_types.filter(TicketType.name == 'Crew').first()
+    for participant in crew_participants:
+        for event in ticket_type.events:
+            a = Attendee.query.filter_by(event_id=event.id, participant_id=participant.id).first()
+            if not a:
+                a = Attendee(event_id=event.id, participant_id=participant.id)
+                db.session.add(a)
+                db.session.commit()
+
+
+
+
 if __name__ == '__main__':
     # Eg: python remotesync.py dev metarefresh 2015 /path/to/csv
     init_for(sys.argv[1])
     if sys.argv[2] == 'metarefresh':
-        mr_ticket_types = ["ReactJS Workshop", "Performance audit workshop", "Offline registrations for ReactJS workshop", "Offline registrations for Performance Audit workshop", "T-shirt", "Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April", "Single day pass - 17th April"]
+        mr_ticket_types = ["ReactJS Workshop", "Performance audit workshop", "Offline registrations for ReactJS workshop", "Offline registrations for Performance Audit workshop", "T-shirt", "Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April", "Single day pass - 17th April", "Crew"]
         mr_events = [
-            {'name': 'MetaRefresh Day 1', 'ticket_types': ["Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April"]},
-            {'name': 'MetaRefresh Day 2', 'ticket_types': ["Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 17th April"]},
-            {'name': 'ReactJS Workshop', 'ticket_types': ["ReactJS Workshop", "Offline registrations for ReactJS workshop"]},
-            {'name': 'Performance Audit Workshop', 'ticket_types': ["Performance audit workshop", "Offline registrations for Performance Audit workshop"]},
+            {'name': 'MetaRefresh Day 1', 'ticket_types': ["Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 16th April", "Crew"]},
+            {'name': 'MetaRefresh Day 2', 'ticket_types': ["Super early geek", "Early geek", "Regular", "Late", "Offline registrations and payment", "Single day pass - 17th April", "Crew"]},
+            {'name': 'ReactJS Workshop', 'ticket_types': ["ReactJS Workshop", "Offline registrations for ReactJS workshop", "Crew"]},
+            {'name': 'Performance Audit Workshop', 'ticket_types': ["Performance audit workshop", "Offline registrations for Performance Audit workshop", "Crew"]},
         ]
         sync(sys.argv[2], sys.argv[3], mr_ticket_types, mr_events, sys.argv[4])
