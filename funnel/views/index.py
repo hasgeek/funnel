@@ -15,7 +15,7 @@ def index():
     return render_template('index.html', spaces=spaces)
 
 
-@app.route('/whoami')
+@app.route('/api/whoami')
 def whoami():
     if g.user:
         return jsonp(message="Hey {0}!".format(g.user.fullname), code=200)
