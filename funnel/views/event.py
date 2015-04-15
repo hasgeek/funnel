@@ -9,6 +9,7 @@ from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, ContactExchange)
 from ..forms import ParticipantForm
 from helpers import split_name, format_twitter, make_qrcode
+from sqlalchemy.exc import IntegrityError
 
 
 def participant_data(participant, space_id, full=False):
@@ -88,9 +89,16 @@ def participant(profile, space):
     if not participant:
         return jsonp(message="Not found", code=404)
     elif participant.key == request.args.get('key'):
-        contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
-        db.session.add(contact_exchange)
-        db.session.commit()
+        if g.user:
+            try:
+                contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
+                db.session.add(contact_exchange)
+                db.session.commit()
+            except IntegrityError:
+                app.logger.warning("Contact Exchange already present")
+                db.session.rollback()
+        else:
+            app.logger.warning("Somebody tried to scan without logging in")
         return jsonp(participant=participant_data(participant, space.id, full=True))
     else:
         return jsonp(message="Unauthorized", code=401)
