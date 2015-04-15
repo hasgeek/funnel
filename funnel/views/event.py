@@ -37,6 +37,7 @@ def participant_data(participant, space_id, full=False):
 
 
 @app.route('/<space>/participants/json', subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -80,6 +81,7 @@ def participant_edit(profile, space, participant):
 
 
 @app.route('/<space>/participant', subdomain='<profile>')
+@lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
