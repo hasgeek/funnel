@@ -168,7 +168,6 @@ def event_checkin(profile, space, event, participant):
     a = Attendee.query.filter_by(participant_id=participant.id, event_id=event.id).first()
     checked_in = True if request.args.get('checkin') == 't' else False
     a.checked_in = checked_in
-    print participant.id
     db.session.add(a)
     db.session.commit()
     return redirect("{0}event/{1}".format(space.url_for(), event.id), code=303)
