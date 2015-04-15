@@ -18,7 +18,7 @@ def index():
 @app.route('/whoami')
 def whoami():
     if g.user:
-        return jsonp(message="hey {0}".format(g.user.fullname), code=200)
+        return jsonp(message="Hey {0}!".format(g.user.fullname), code=200)
     else:
         return jsonp(message="Hmm, so who _are_ you?", code=401)
 
