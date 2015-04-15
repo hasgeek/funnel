@@ -1,12 +1,12 @@
-"""contact_exchange
+"""contact exchange
 
-Revision ID: 55fb920237f8
+Revision ID: 589368eb80ff
 Revises: 522d776a42ed
-Create Date: 2015-04-15 15:46:10.217644
+Create Date: 2015-04-15 16:17:08.093180
 
 """
 
-revision = '55fb920237f8'
+revision = '589368eb80ff'
 down_revision = '522d776a42ed'
 
 from alembic import op
@@ -24,8 +24,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('user_id', 'proposal_space_id', 'participant_id')
+        sa.PrimaryKeyConstraint('id', 'user_id', 'proposal_space_id', 'participant_id')
     )
 
 
