@@ -95,7 +95,7 @@ class Participant(BaseMixin, db.Model):
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan', lazy='dynamic'))
-    events = association_proxy('attendees', 'event')
+    events = db.relationship(Event, secondary='attendee')
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 

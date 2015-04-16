@@ -7,6 +7,8 @@ import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
+from wtforms.widgets import CheckboxInput, ListWidget
 
 __all__ = ['ProposalSpaceForm', 'RsvpForm', 'ParticipantForm']
 
@@ -84,3 +86,7 @@ class ParticipantForm(forms.Form):
     company = forms.StringField(__("Company"), validators=[forms.validators.DataRequired()])
     job_title = forms.StringField(__("Job Title"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
+    events = QuerySelectMultipleField(__("Events"),
+        widget=ListWidget(), option_widget=CheckboxInput(),
+        get_label='name',
+        validators=[forms.validators.DataRequired(u"You need to select at least one event")])

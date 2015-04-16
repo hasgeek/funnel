@@ -54,6 +54,7 @@ def participants_json(profile, space):
     permission='new-participant')
 def new_participant(profile, space):
     form = ParticipantForm()
+    form.events.query = space.events
     if form.validate_on_submit():
         participant = Participant(proposal_space=space)
         form.populate_obj(participant)
@@ -72,6 +73,7 @@ def new_participant(profile, space):
     permission='participant-edit')
 def participant_edit(profile, space, participant):
     form = ParticipantForm(obj=participant, model=Participant)
+    form.events.query = space.events
     if form.validate_on_submit():
         form.populate_obj(participant)
         db.session.commit()
