@@ -15,6 +15,7 @@ from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
+from funnel.views.helpers import parsed_location_geodata, location_geodata, format_location
 
 
 def space_data(space):
@@ -85,10 +86,16 @@ def space_new(profile):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def space_view(profile, space):
+    # TODO: cache space_location and speaker_locations on redis
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
+    space_location = parsed_location_geodata(space.datelocation)
+    speaker_locations = {}
+    proposal_locations = set([format_location(proposal.location) for proposal in space.proposals])
+    for location in proposal_locations:
+        speaker_locations.setdefault(format_location(location), location_geodata(format_location(location)))
     return render_template('space.html', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form)
+        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form, space_location=space_location, speaker_locations=speaker_locations)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
