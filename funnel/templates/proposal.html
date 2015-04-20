@@ -270,9 +270,11 @@
 <div class="col-md-1 col-sm-1 col-xs-6 col-sm-pull-10 col-md-pull-10">
   <div class="leftear">
     {%- if proposal.getprev() -%}
-      <a href="{{ proposal.url_for('prev') }}" title="{% trans %}Previous{% endtrans %}"><i class="icon-chevron-left"></i></a>
+      <a href="{{ proposal.url_for('prev') }}" title="{% trans %}Previous{% endtrans %}">
+        <i class="fa fa-chevron-left"></i>
+      </a>
     {%- else -%}
-      <i class="icon-chevron-left"></i>
+      <i class="fa fa-chevron-left"></i>
     {%- endif -%}
   </div>
 </div>
@@ -280,13 +282,14 @@
 <div class="col-md-1 col-sm-1 col-xs-6">
   <div class="rightear">
     {%- if proposal.getnext() -%}
-      <a href="{{ proposal.url_for('next') }}" title="{% trans %}Next{% endtrans %}"><i class="icon-chevron-right"></i></a>
+      <a href="{{ proposal.url_for('next') }}" title="{% trans %}Next{% endtrans %}">
+        <i class="fa fa-chevron-right"></i>
+      </a>
     {%- else -%}
-      <i class="icon-chevron-right"></i>
+      <i class="fa fa-chevron-right"></i>
     {%- endif -%}
   </div>
 </div>
-
 
 {% endblock %}
 
