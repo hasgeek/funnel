@@ -11,7 +11,8 @@ from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
 from pytz import timezone, utc, UnknownTimeZoneError
-from funnel.util import geonameid_from_location
+from werkzeug.utils import cached_property
+from ..util import geonameid_from_location
 
 __all__ = ['PROPOSALSTATUS', 'Proposal', 'ProposalRedirect']
 
@@ -187,6 +188,10 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def confirmed(self):
         return self.status == PROPOSALSTATUS.CONFIRMED
 
+    @cached_property
+    def location_geonameid(self):
+        return geonameid_from_location(self.location)
+
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
             Proposal.id != self.id).filter(
@@ -231,15 +236,6 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                     votes_bydate[groupname].setdefault(date, 0)
                     votes_bydate[groupname][date] += -1 if vote.votedown else +1
         return votes_bydate
-
-    def is_outstation_speaker(self, space_location_geonameid):
-        """ determines if a proposal's location is different from the space location
-            returns None if location didn't resolve with hascore.
-        """
-        location_geonameid = geonameid_from_location(self.location)
-        if not location_geonameid:
-            return None
-        return location_geonameid != space_location_geonameid
 
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
