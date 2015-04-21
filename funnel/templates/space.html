@@ -43,18 +43,15 @@
                   <small>via {{ proposal.user.pickername }}</small>
                 {%- endif %}
                 {%- if g.user and 'edit-space' in g.permissions %}
-                  {% with %}
-                    {% set oustation_speaker = proposal.location | is_outstation_speaker(speaker_locations, space_location) %}
-                    <span class='outstation-speaker'>
-                      {%- if oustation_speaker %}
-                        <i class="fa fa-plane" title="Outstation Speaker - {{ proposal.location }}"></i>
-                      {%- elif oustation_speaker is none %}
-                        <i class="fa fa-exclamation" title="Couldn't retrieve speaker's location - {{ proposal.location }}"></i>
-                      {%- else %}
-                        <i class="fa fa-map-marker" title="Same location - {{ proposal.location }}"></i>
-                      {%- endif %}
-                    </span>
-                  {%- endwith %}
+                  <span class='outstation-speaker'>
+                    {%- if proposal.is_outstation_speaker(space.location_geonameid) %}
+                      <i class="fa fa-plane" title="Outstation Speaker - {{ proposal.location }}"></i>
+                    {%- elif proposal.is_outstation_speaker(space.location_geonameid) is none %}
+                      <i class="fa fa-exclamation" title="Couldn't retrieve speaker's location - {{ proposal.location }}"></i>
+                    {%- else %}
+                      <i class="fa fa-map-marker" title="Same location - {{ proposal.location }}"></i>
+                    {%- endif %}
+                  </span>
                 {%- endif %}
               {%- else -%}
                 {{ proposal.user.pickername }} <em>{% trans %}(proposing){% endtrans %}</em>
