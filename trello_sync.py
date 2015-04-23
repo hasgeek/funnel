@@ -65,7 +65,8 @@ def sync_status_updates_from_trello(proposal_space, trello_board_id):
     if not lists.ok:
         return False, "Could not connect to the Trello board - {0}.".format(trello_board_id)
 
-    # Maps PROPOSALSTATUS enums with lists on Trello
+    # Makes a list of dictionaries, collating PROPOSALSTATUS enums
+    # with the corresponding lists on Trello
     # Eg: lists which have "Confirmed" in their labels will be mapped with
     # the appropriate enum in PROPOSALSTATUS, which in this case, is 2
     status_lists = [{'list': l, 'status': key_label[0]}
@@ -78,7 +79,8 @@ def sync_status_updates_from_trello(proposal_space, trello_board_id):
     return True, "Synchronized {0} with Trello at {1}".format(proposal_space.url_for('view'), str(datetime.now()))
 
 if __name__ == '__main__':
-    # Eg: python trello_sync.py dev rootconf 2015 trello_board_id
+    # python trello_sync.py <env> <profile name> <proposal space name> <trello board id>
+    # Eg: python trello_sync.py dev rootconf 2015 xxx
     init_for(sys.argv[1])
     app.test_request_context().push()
     space = ProposalSpace.query.join(Profile)\
