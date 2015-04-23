@@ -1,11 +1,13 @@
 import sys
 import requests
-import logging
 from urlparse import urlparse
 from datetime import datetime
 from funnel import init_for
 from funnel.models import (db, Proposal, PROPOSALSTATUS, ProposalSpace, Profile)
 from funnel import app
+
+import logging
+logging.basicConfig(filename='trello_sync.log', level=logging.DEBUG)
 
 
 def find_url_in_text(text, pattern):
@@ -48,9 +50,9 @@ def update_proposals(proposal_space, l, status):
                     proposal.status = status
                     db.session.add(proposal)
             else:
-                logging.warn("No proposal called {0} found".format(card.get('name')))
+                logging.warning("No proposal called {0} found".format(card.get('name').encode('utf-8')))
         else:
-            logging.warn("No proposal link for {0} in description".format(card.get('name')))
+            logging.warning("No proposal link for {0} in description".format(card.get('name').encode('utf-8')))
     db.session.commit()
 
 
@@ -89,4 +91,4 @@ if __name__ == '__main__':
     if result[0]:
         logging.info(result[1])
     else:
-        logging.warn(result[1])
+        logging.warning(result[1])
