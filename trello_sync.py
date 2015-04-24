@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys
 import requests
 from urlparse import urlparse
@@ -11,7 +13,7 @@ logging.basicConfig(filename='trello_sync.log', level=logging.DEBUG)
 
 
 def find_url_in_text(text, pattern):
-    """ parses the text, returns the first url that
+    """ Parses the text, returns the first url that
         matches the given pattern
     """
     url_matches = [word
@@ -21,7 +23,7 @@ def find_url_in_text(text, pattern):
 
 
 def get_id_from_permalink(permalink, sep='-', pos=0):
-    """ extracts the last segment of permalink
+    """ Extracts the last segment of a given permalink
         returns the id as an int
         Eg: 'https://rootconf.talkfunnel.com/2015/42-x-y' -> '42'
     """
@@ -30,8 +32,8 @@ def get_id_from_permalink(permalink, sep='-', pos=0):
 
 
 def update_proposals(proposal_space, l, status):
-    """ Get cards for a given list id from Trello,
-        retrieve corresponding proposal, and update status if
+    """ Gets cards for a given list id from Trello,
+        retrieves corresponding proposal, and updates status if
         found to be changed on Trello
     """
     cards_url = "{base_url}/lists/{list_id}/cards?key={key}&token={token}"\
@@ -67,10 +69,6 @@ def sync_status_updates_from_trello(proposal_space, trello_board_id):
     if not lists.ok:
         return False, "Could not connect to the Trello board - {0}.".format(trello_board_id)
 
-    # Makes a list of dictionaries, collating PROPOSALSTATUS enums
-    # with the corresponding lists on Trello
-    # Eg: lists which have "Confirmed" in their labels will be mapped with
-    # the appropriate enum in PROPOSALSTATUS, which in this case, is 2
     status_lists = [{'list': l, 'status': key_label[0]}
                     for key_label in PROPOSALSTATUS.items()
                     for l in lists.json()
@@ -84,11 +82,11 @@ if __name__ == '__main__':
     # python trello_sync.py <env> <profile name> <proposal space name> <trello board id>
     # Eg: python trello_sync.py dev rootconf 2015 xxx
     init_for(sys.argv[1])
-    app.test_request_context().push()
-    space = ProposalSpace.query.join(Profile)\
-        .filter(Profile.name == sys.argv[2], ProposalSpace.name == sys.argv[3]).first()
-    result = sync_status_updates_from_trello(space, sys.argv[4])
-    if result[0]:
-        logging.info(result[1])
-    else:
-        logging.warning(result[1])
+    with app.test_request_context():
+        space = ProposalSpace.query.join(Profile)\
+            .filter(Profile.name == sys.argv[2], ProposalSpace.name == sys.argv[3]).first()
+        result = sync_status_updates_from_trello(space, sys.argv[4])
+        if result[0]:
+            logging.info(result[1])
+        else:
+            logging.warning(result[1])
