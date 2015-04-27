@@ -11,6 +11,8 @@ from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
 from pytz import timezone, utc, UnknownTimeZoneError
+from werkzeug.utils import cached_property
+from ..util import geonameid_from_location
 
 __all__ = ['PROPOSALSTATUS', 'Proposal', 'ProposalRedirect']
 
@@ -185,6 +187,10 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     @hybrid_property
     def confirmed(self):
         return self.status == PROPOSALSTATUS.CONFIRMED
+
+    @cached_property
+    def location_geonameid(self):
+        return geonameid_from_location(self.location)
 
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
