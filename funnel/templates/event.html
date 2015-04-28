@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
 {% block title %}{{ space.title }}{% endblock %}
 {% block headline %}
   <div class="page-header">
@@ -13,13 +14,31 @@
   <p>
   <h3>{{event.name}}</h3>
   </p>
-  <p>
-    <input autofocus class="input-medium search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
-  </p>
-  <p>
-    <a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a>
-    <a href={{ "{0}event/{1}/badges".format(space.url_for(), event.id) }} class='btn btn-info' target="_blank">See Badges</a>
-  </p>
+  <div class="row">
+    <div class="col-md-3">
+      <form class="form-inline">
+        <div class="form-group">
+          <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-9">
+      <ul class="list-inline pull-right">
+        <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a></li>
+        <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.id) }} class='btn btn-info' target="_blank">See Badges</a></li>
+        <li></li>
+        <li></li>
+        <li>
+          <form method="POST" id="badge_form" class="form-inline">
+            <div class="form-group">
+            {{ badge_form.hidden_tag() }}
+            {{ renderfield(badge_form.badge_printed, style='wide', nolabel=true) }}
+            <input id="badge-form-submit" class="btn btn-danger" type="submit" value="{% trans %}Update Badges{% endtrans %}"/>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
   <table class="table" id='participants-table'>
     <thead>
       <tr>
@@ -34,7 +53,7 @@
         <tr id="p-{{ p.id }}">
           <td class='js-searchable'>{{ p.fullname }}</td>
           <td class='js-searchable'>{{ p.email }}</td>
-          <td class='js-searchable'>{{ p.company }}</td>
+          <td class='js-searchable small-td'>{{ p.company }}</td>
           <td>
             <ul class="list-inline">
             <li>
@@ -60,6 +79,13 @@
 {% block footerscripts %}
 <script>
   $(document).ready(function() {
+    $('#badge_form').on("submit", function(){
+       if ($('#badge_form select.field-badge_printed').val() === "") {
+        return false;
+       }
+       return window.confirm("Are you sure? Selected action will apply to all listed participants.")
+    });
+
     var TableSearch = function(tableId){
       // a little library that takes a table id
       // and provides a method to search the table's rows for a given query.

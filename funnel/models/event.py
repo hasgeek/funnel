@@ -100,6 +100,12 @@ class Participant(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
     @classmethod
+    def update_badge_printed(cls, event, badge_printed):
+        participant_ids = [participant.id for participant in event.participants]
+        db.session.query(cls).filter(cls.id.in_(participant_ids)).update({'badge_printed': badge_printed}, False)
+        db.session.commit()
+
+    @classmethod
     def attendees_by_event(cls, event):
         participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
         stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)

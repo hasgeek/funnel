@@ -7,7 +7,7 @@ from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, ContactExchange)
-from ..forms import ParticipantForm
+from ..forms import ParticipantForm, ParticipantBadgeForm
 from helpers import split_name, format_twitter, make_qrcode
 from sqlalchemy.exc import IntegrityError
 
@@ -118,7 +118,7 @@ def events(profile, space):
     return render_template('events.html', profile=profile, space=space, events=space.events.all())
 
 
-@app.route('/<space>/event/<event_id>', subdomain='<profile>')
+@app.route('/<space>/event/<event_id>', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -127,7 +127,12 @@ def events(profile, space):
     permission='event-view')
 def event(profile, space, event):
     participants = Participant.attendees_by_event(event)
-    return render_template('event.html', profile=profile, space=space, participants=participants, event=event)
+    form = ParticipantBadgeForm()
+    if form.validate_on_submit():
+        badge_printed = True if form.data.get('badge_printed') == 't' else False
+        Participant.update_badge_printed(event, badge_printed)
+        return redirect("{0}/{1}".format(space.url_for('events'), event.id), code=303)
+    return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant))
 
 
 def participant_badge_data(participants, space):
