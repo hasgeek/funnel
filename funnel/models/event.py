@@ -68,7 +68,7 @@ class TicketType(BaseMixin, db.Model):
 
 class Participant(BaseMixin, db.Model):
     """ Model users participating in the proposal space
-        as an attendee, speaker, volunteer, sponsor.
+        as an attendee, speaker, volunteer, sponsor etc .
     """
     __tablename__ = 'participant'
 
@@ -87,7 +87,6 @@ class Participant(BaseMixin, db.Model):
     city = db.Column(db.Unicode(80), nullable=True)
     # public key
     puk = db.Column(db.Unicode(44), nullable=False, default=make_public_key, unique=True)
-    #: Access key for connecting to the user record
     key = db.Column(db.Unicode(44), nullable=False, default=make_private_key, unique=True)
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
