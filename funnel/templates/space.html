@@ -43,10 +43,8 @@
                   <small>via {{ proposal.user.pickername }}</small>
                 {%- endif %}
                 {%- if g.user and 'edit-space' in g.permissions %}
-                  {%- if proposal.location_geonameid != space.location_geonameid %}
+                  {%- if proposal.location and proposal.location_geonameid != space.location_geonameid %}
                     <i class="fa fa-plane" aria-label="Outstation Speaker"></i>
-                  {%- else %}
-                    <i class="fa fa-map-marker"></i>
                   {%- endif %}
                 {%- endif %}
               {%- else -%}
