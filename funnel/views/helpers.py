@@ -30,9 +30,7 @@ def split_name(fullname):
         Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
     """
     name_splits = fullname.split()
-    first_name = name_splits[0]
-    last_name = " ".join([s for s in name_splits[1:]])
-    return first_name, last_name
+    return name_splits[0], " ".join([s for s in name_splits[1:]])
 
 
 def format_twitter(twitter):
@@ -50,7 +48,7 @@ def file_contents(path):
 
 def make_qrcode(data, path):
     """ Makes a QR code with a given path and returns the raw svg
-      Data Format is id:key. Eg: 1:xxxxxxxx
+        Data Format is id:key. Eg: 1:xxxxxxxx
     """
     try:
         qrcode_svg = file_contents(path)
