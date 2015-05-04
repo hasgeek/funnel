@@ -6,6 +6,7 @@ import qrcode
 import qrcode.image.svg
 
 
+
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
     return localize_timestamp(int(timestamp)/1000, from_tz, to_tz)
 
