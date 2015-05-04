@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
+from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn, JsonDict
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
@@ -67,6 +67,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
+
+    config = db.Column(JsonDict, nullable=False, server_default='{}')
 
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
