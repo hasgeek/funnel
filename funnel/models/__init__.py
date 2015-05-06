@@ -15,3 +15,5 @@ from .feedback import *
 from .session import *
 from .venue import *
 from .rsvp import *
+from .event import *
+from .contact_exchange import *

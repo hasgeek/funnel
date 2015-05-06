@@ -7,8 +7,10 @@ import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
+from wtforms.widgets import CheckboxInput, ListWidget
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm', 'ParticipantForm', 'ParticipantBadgeForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -74,3 +76,22 @@ class ProposalSpaceForm(forms.Form):
 
 class RsvpForm(forms.Form):
     status = forms.RadioField("Status", choices=[(k, RSVP_STATUS[k].title) for k in RSVP_STATUS.USER_CHOICES])
+
+
+class ParticipantForm(forms.Form):
+    fullname = forms.StringField(__("Full Name"), validators=[forms.validators.DataRequired()])
+    email = forms.EmailField(__("Email"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
+    phone = forms.StringField(__("Phone number"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
+    city = forms.StringField(__("City"), validators=[forms.validators.Length(max=80)])
+    company = forms.StringField(__("Company"), validators=[forms.validators.DataRequired()])
+    job_title = forms.StringField(__("Job Title"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
+    twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
+    events = QuerySelectMultipleField(__("Events"),
+        widget=ListWidget(), option_widget=CheckboxInput(),
+        get_label='name',
+        validators=[forms.validators.DataRequired(u"You need to select at least one event")])
+
+
+class ParticipantBadgeForm(forms.Form):
+    choices = [('', "Badge Printing Status"), ('t', "Printed"), ("f", "Not Printed")]
+    badge_printed = forms.SelectField("", choices=[(val_title[0], val_title[1]) for val_title in choices])
