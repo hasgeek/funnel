@@ -3,11 +3,14 @@
 from pytz import timezone as pytz_timezone, utc
 from datetime import datetime
 
+
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
     return localize_timestamp(int(timestamp)/1000, from_tz, to_tz)
 
+
 def localize_timestamp(timestamp, from_tz=utc, to_tz=utc):
     return localize_date(datetime.fromtimestamp(int(timestamp)), from_tz, to_tz)
+
 
 def localize_date(date, from_tz=utc, to_tz=utc):
     if from_tz and to_tz:
