@@ -6,6 +6,9 @@ import random
 import uuid
 from sqlalchemy.ext.associationproxy import association_proxy
 from datetime import datetime
+from ..util import get_rows_from_csv, format_twitter
+import requests
+import logging
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket']
 
@@ -52,6 +55,25 @@ class Event(BaseMixin, db.Model):
     ticket_types = db.relationship("TicketType", secondary=event_ticket_type, lazy='dynamic')
     participants = association_proxy('attendees', 'participant')
 
+    @classmethod
+    def get_or_create(cls, name, space):
+        event = cls.query.filter_by(name=name, proposal_space=space).first()
+        if not event:
+            event = cls(name=name, proposal_space=space)
+            db.session.add(event)
+            db.session.commit()
+        return event
+
+    @classmethod
+    def sync_from_list(cls, event_list, space):
+        for event_dict in event_list:
+            event = cls.get_or_create(event_dict.get('name'), space)
+            for ticket_type_name in event_dict.get('ticket_types', []):
+                if ticket_type_name not in [ticket_type.name for ticket_type in event.ticket_types]:
+                    event.ticket_types.append(TicketType.get_by_name(ticket_type_name, space))
+        db.session.commit()
+        return True
+
 
 class TicketType(BaseMixin, db.Model):
     """ Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
@@ -64,6 +86,25 @@ class TicketType(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_types', cascade='all, delete-orphan', lazy='dynamic'))
     events = db.relationship("Event", secondary=event_ticket_type)
+
+    @classmethod
+    def get_by_name(cls, name, space):
+        return cls.query.filter_by(name=name, proposal_space=space).first()
+
+    @classmethod
+    def get_or_create(cls, name, space):
+        ticket_type = cls.query.filter_by(name=name, proposal_space=space).first()
+        if not ticket_type:
+            ticket_type = cls(name=name, proposal_space=space)
+            db.session.add(ticket_type)
+            db.session.commit()
+        return ticket_type
+
+    @classmethod
+    def sync_from_list(cls, ticket_type_list, space):
+        for name in ticket_type_list:
+            cls.get_or_create(name, space)
+        return True
 
 
 class Participant(BaseMixin, db.Model):
@@ -111,6 +152,43 @@ class Participant(BaseMixin, db.Model):
         return db.session.execute(stmt).fetchall()
     __table_args__ = (db.UniqueConstraint("email", "proposal_space_id"), {})
 
+    @classmethod
+    def make_from_dict(cls, participant_dict, space):
+        return Participant(
+            fullname=participant_dict.get('fullname'),
+            email=participant_dict.get('email'),
+            phone=participant_dict.get('phone'),
+            twitter=format_twitter(participant_dict.get('twitter')),
+            job_title=participant_dict.get('job_title'),
+            company=participant_dict.get('company'),
+            city=participant_dict.get('city'),
+            proposal_space=space
+        )
+
+    @classmethod
+    def sync_from_csv(space, csv_file):
+        """csv_file -> name, email, company, twitter
+        """
+        crew_rows = get_rows_from_csv(csv_file)
+        crew_participants = []
+
+        for r in crew_rows:
+            p = space.participants.filter(Participant.email == r[1]).first()
+            if not p:
+                p = Participant(fullname=r[0], email=r[1], company=r[2], twitter=r[3], proposal_space=space)
+                db.session.add(p)
+                db.session.commit()
+            crew_participants.append(p)
+
+        ticket_type = space.ticket_types.filter(TicketType.name == 'Crew').first()
+        for participant in crew_participants:
+            for event in ticket_type.events:
+                a = Attendee.query.filter_by(event_id=event.id, participant_id=participant.id).first()
+                if not a:
+                    a = Attendee(event_id=event.id, participant_id=participant.id)
+                    db.session.add(a)
+                    db.session.commit()
+
 
 class Attendee(BaseMixin, db.Model):
     """ Join model between Participant and Event
@@ -124,6 +202,60 @@ class Attendee(BaseMixin, db.Model):
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
+
+
+class ExplaraAPI(object):
+    # explara_api = ExplaraAPI({'access_token'}: app.config.get('EXPLARA_ACCESS_TOKEN'))
+    # tickets = explara_api.get_tickets(app.config.get('EXPLARA_ROOTCONF_15'))
+    def __init__(self, config):
+        self.access_token = config.get('access_token')
+
+    def get_orders(self, explara_event_id):
+        access_token = self.access_token
+        headers = {'Authorization': 'Bearer {0}'.format(access_token)}
+        attendee_list_url = 'https://www.explara.com/api/e/attendee-list'
+        ticket_orders = []
+        all_ticket_orders_retrieved = False
+        from_record = 0
+        to_record = 50
+        while not all_ticket_orders_retrieved:
+            payload = {'eventId': explara_event_id, 'fromRecord': from_record, 'toRecord': to_record}
+            attendee_response = requests.post(attendee_list_url, headers=headers, data=payload).json()
+            if not attendee_response.get('attendee'):
+                all_ticket_orders_retrieved = True
+            elif isinstance(attendee_response.get('attendee'), list):
+                ticket_orders.append([order for order in attendee_response.get('attendee')])
+            elif isinstance(attendee_response.get('attendee'), dict):
+                ticket_orders.append([order for id, order in attendee_response.get('attendee').iteritems()])
+            from_record = to_record + 1
+            to_record += 50
+
+        return [order for order_list in ticket_orders for order in order_list]
+
+    def get_tickets(self, event_id):
+        orders = self.get_orders(event_id)
+        tickets = []
+
+        def parse_details(details):
+            return details if details else {}
+
+        for order in orders:
+            for attendee in order.get('attendee'):
+                if attendee.get('status') == 'attending':
+                    details = parse_details(attendee.get('details'))
+                    tickets.append({
+                        'fullname': attendee.get('name'),
+                        'email': attendee.get('email'),
+                        'phone': details.get('Phone') or order.get('phoneNo'),
+                        'twitter': details.get('Twitter handle'),
+                        'job_title': details.get('Job title'),
+                        'company': details.get('Company name'),
+                        'city': attendee.get('city'),
+                        'ticket_no': attendee.get('ticketNo'),
+                        'ticket_type': attendee.get('ticketName'),
+                        'order_no': order.get('orderNo'),
+                    })
+        return tickets
 
 
 class SyncTicket(BaseMixin, db.Model):
@@ -146,5 +278,52 @@ class SyncTicket(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'ticket_no'),)
 
     @classmethod
-    def tickets_from_space(cls, space_id):
-        return cls.query.join(TicketType).filter_by(proposal_space_id=space_id).all()
+    def sync_from_list(cls, space, ticket_list):
+        # track current ticket nos
+        current_ticket_nos = []
+        for ticket_dict in ticket_list:
+            ticket = SyncTicket.query.filter_by(ticket_no=ticket_dict.get('ticket_no'), proposal_space=space).first()
+            current_ticket_nos.append(ticket_dict.get('ticket_no'))
+            ticket_ticket_type = TicketType.query.filter_by(name=ticket_dict.get('ticket_type'), proposal_space=space).first()
+            # get or create participant
+            ticket_participant = Participant.query.filter_by(email=ticket_dict.get('email'), proposal_space=space).first()
+            if not ticket_participant:
+                # create a new participant record if required
+                ticket_participant = Participant.make_from_dict(ticket_dict, space)
+                db.session.add(ticket_participant)
+                db.session.commit()
+
+            if ticket:
+                # check if participant has changed
+                if ticket.participant is not ticket_participant:
+                    # update the participant record attached to the ticket
+                    ticket.participant = ticket_participant
+            else:
+                ticket = SyncTicket(
+                    ticket_no=ticket_dict.get('ticket_no'),
+                    order_no=ticket_dict.get('order_no'),
+                    ticket_type=ticket_ticket_type,
+                    participant=ticket_participant,
+                    proposal_space=space
+                )
+                db.session.add(ticket)
+                db.session.commit()
+            for event in ticket.ticket_type.events:
+                a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
+                if not a:
+                    a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
+                db.session.add(a)
+                db.session.commit()
+
+        # sweep cancelled tickets
+        cancelled_tickets = SyncTicket.query.filter_by(proposal_space=space).filter(~SyncTicket.ticket_no.in_(current_ticket_nos)).all()
+        logging.warn("Sweeping cancelled tickets..")
+        for ct in cancelled_tickets:
+            logging.warn("Removing event access for {0}".format(ct.participant.email))
+            st = SyncTicket.query.filter_by(ticket_no=ct.ticket_no, proposal_space=space).first()
+            event_ids = [event.id for event in st.ticket_type.events]
+            cancelled_attendees = Attendee.query.filter(Attendee.participant_id == st.participant.id).filter(Attendee.event_id.in_(event_ids)).all()
+            for ca in cancelled_attendees:
+                db.session.delete(ca)
+            db.session.delete(st)
+            db.session.commit()
