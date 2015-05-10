@@ -7,7 +7,6 @@ import uuid
 from sqlalchemy.ext.associationproxy import association_proxy
 from datetime import datetime
 from ..util import get_rows_from_csv, format_twitter
-import requests
 import logging
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket']
@@ -202,60 +201,6 @@ class Attendee(BaseMixin, db.Model):
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
-
-
-class ExplaraAPI(object):
-    # explara_api = ExplaraAPI({'access_token'}: app.config.get('EXPLARA_ACCESS_TOKEN'))
-    # tickets = explara_api.get_tickets(app.config.get('EXPLARA_ROOTCONF_15'))
-    def __init__(self, config):
-        self.access_token = config.get('access_token')
-
-    def get_orders(self, explara_event_id):
-        access_token = self.access_token
-        headers = {'Authorization': 'Bearer {0}'.format(access_token)}
-        attendee_list_url = 'https://www.explara.com/api/e/attendee-list'
-        ticket_orders = []
-        all_ticket_orders_retrieved = False
-        from_record = 0
-        to_record = 50
-        while not all_ticket_orders_retrieved:
-            payload = {'eventId': explara_event_id, 'fromRecord': from_record, 'toRecord': to_record}
-            attendee_response = requests.post(attendee_list_url, headers=headers, data=payload).json()
-            if not attendee_response.get('attendee'):
-                all_ticket_orders_retrieved = True
-            elif isinstance(attendee_response.get('attendee'), list):
-                ticket_orders.append([order for order in attendee_response.get('attendee')])
-            elif isinstance(attendee_response.get('attendee'), dict):
-                ticket_orders.append([order for id, order in attendee_response.get('attendee').iteritems()])
-            from_record = to_record + 1
-            to_record += 50
-
-        return [order for order_list in ticket_orders for order in order_list]
-
-    def get_tickets(self, event_id):
-        orders = self.get_orders(event_id)
-        tickets = []
-
-        def parse_details(details):
-            return details if details else {}
-
-        for order in orders:
-            for attendee in order.get('attendee'):
-                if attendee.get('status') == 'attending':
-                    details = parse_details(attendee.get('details'))
-                    tickets.append({
-                        'fullname': attendee.get('name'),
-                        'email': attendee.get('email'),
-                        'phone': details.get('Phone') or order.get('phoneNo'),
-                        'twitter': details.get('Twitter handle'),
-                        'job_title': details.get('Job title'),
-                        'company': details.get('Company name'),
-                        'city': attendee.get('city'),
-                        'ticket_no': attendee.get('ticketNo'),
-                        'ticket_type': attendee.get('ticketName'),
-                        'order_no': order.get('orderNo'),
-                    })
-        return tickets
 
 
 class SyncTicket(BaseMixin, db.Model):
