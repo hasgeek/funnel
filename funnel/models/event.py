@@ -2,13 +2,13 @@
 from . import db, BaseMixin
 from .space import ProposalSpace
 from .user import User
-import random
-import uuid
 from sqlalchemy.ext.associationproxy import association_proxy
 from datetime import datetime
 from ..util import get_rows_from_csv, format_twitter
 import requests
 import logging
+import base64
+import os
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket']
 
@@ -16,8 +16,7 @@ PRINTABLE_ASCII = map(chr, range(32, 127))
 
 
 def make_key():
-    key = str(uuid.uuid4()).replace('-', '')
-    return ''.join(random.sample(key, len(key)))
+    return base64.urlsafe_b64encode(os.urandom(128))
 
 
 def make_public_key():
