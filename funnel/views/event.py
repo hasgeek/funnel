@@ -5,8 +5,9 @@ from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange, TicketType)
-from ..forms import ParticipantForm, ParticipantBadgeForm, AttendeeSyncForm, EventTicketTypeSyncForm
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange)
+import baseframe.forms as forms
+from ..forms import ParticipantForm, ParticipantBadgeForm
 from helpers import split_name, format_twitter, make_qrcode
 from sqlalchemy.exc import IntegrityError
 from funnel.explara import ExplaraAPI
@@ -119,8 +120,7 @@ def allowed_file(filename, allowed_exts=[]):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='event-view')
 def events(profile, space):
-    attendee_sync_form = AttendeeSyncForm()
-    event_ticket_type_sync_form = EventTicketTypeSyncForm()
+    attendee_sync_form = forms.Form()
     if attendee_sync_form.validate_on_submit():
         space_key = space.title.lower() + '-' + space.name
         if space_key in app.config.get('EXPLARA_EVENT_IDS').keys():
@@ -128,7 +128,7 @@ def events(profile, space):
             tickets = ea.get_tickets(app.config.get('EXPLARA_EVENT_IDS').get(space_key))
             SyncTicket.sync_from_list(space, tickets)
             return redirect(space.url_for('events'), code=303)
-    return render_template('events.html', profile=profile, space=space, events=space.events.all(), attendee_sync_form=attendee_sync_form, event_ticket_type_sync_form=event_ticket_type_sync_form)
+    return render_template('events.html', profile=profile, space=space, events=space.events.all(), attendee_sync_form=attendee_sync_form)
 
 
 @app.route('/<space>/event/<event_id>', methods=['GET', 'POST'], subdomain='<profile>')
