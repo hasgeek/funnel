@@ -4,12 +4,12 @@ from flask import flash, redirect, render_template, request, g
 from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
-
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, ContactExchange)
-from ..forms import ParticipantForm, ParticipantBadgeForm
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange, TicketType)
+from ..forms import ParticipantForm, ParticipantBadgeForm, AttendeeSyncForm, EventTicketTypeSyncForm
 from helpers import split_name, format_twitter, make_qrcode
 from sqlalchemy.exc import IntegrityError
+from funnel.explara import ExplaraAPI
 
 
 def participant_data(participant, space_id, full=False):
@@ -108,14 +108,27 @@ def participant(profile, space):
         return jsonp(message="Unauthorized", code=401)
 
 
-@app.route('/<space>/event', subdomain='<profile>')
+def allowed_file(filename, allowed_exts=[]):
+    return '.' in filename and filename.rsplit('.', 1)[1] in allowed_exts
+
+
+@app.route('/<space>/event', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='event-view')
 def events(profile, space):
-    return render_template('events.html', profile=profile, space=space, events=space.events.all())
+    attendee_sync_form = AttendeeSyncForm()
+    event_ticket_type_sync_form = EventTicketTypeSyncForm()
+    if attendee_sync_form.validate_on_submit():
+        space_key = space.title.lower() + '-' + space.name
+        if space_key in app.config.get('EXPLARA_EVENT_IDS').keys():
+            ea = ExplaraAPI({'access_token': app.config.get('EXPLARA_ACCESS_TOKEN')})
+            tickets = ea.get_tickets(app.config.get('EXPLARA_EVENT_IDS').get(space_key))
+            SyncTicket.sync_from_list(space, tickets)
+            return redirect(space.url_for('events'), code=303)
+    return render_template('events.html', profile=profile, space=space, events=space.events.all(), attendee_sync_form=attendee_sync_form, event_ticket_type_sync_form=event_ticket_type_sync_form)
 
 
 @app.route('/<space>/event/<event_id>', methods=['GET', 'POST'], subdomain='<profile>')

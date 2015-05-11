@@ -1,8 +1,17 @@
 {% extends "layout.html" %}
 {% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
 {% block title %}{{ space.title }}{% endblock %}
 
 {% block content %}
+<p>
+<form method="POST" id="attendee_remote_sync_form" enctype="multipart/form-data" class="form-inline">
+  <div class="form-group">
+    {{ attendee_sync_form.hidden_tag() }}
+  </div>
+  <input id="attendee_sync_form-submit" class="btn btn-danger" type="submit" value="{% trans %}Sync Attendees{% endtrans %}"/>
+</form>
+</p>
 <ol>
 {%- for e in events %}
 <li>
