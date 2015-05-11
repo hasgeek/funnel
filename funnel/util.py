@@ -2,6 +2,8 @@ from . import app
 import requests
 from urlparse import urljoin
 from baseframe import cache
+import csv
+from urlparse import urlparse
 
 
 @cache.memoize(timeout=86400)
@@ -17,3 +19,18 @@ def geonameid_from_location(text):
         geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]
         return geonameids[0] if geonameids else None
     return None
+
+
+def get_rows_from_csv(csv_file, skip_header=True, delimiter=','):
+    with open(csv_file, 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=delimiter)
+        if skip_header:
+            next(reader)
+        return [row for row in reader]
+
+
+def format_twitter(twitter_id):
+    """formats a user given twitter handle
+       Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
+    """
+    return urlparse(str(twitter_id)).path.replace('/', '').replace('@', '')
