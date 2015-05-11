@@ -7,7 +7,7 @@ __all__ = ['ExplaraAPI']
 
 class ExplaraAPI(object):
     # explara_api = ExplaraAPI({'access_token'}: app.config.get('EXPLARA_ACCESS_TOKEN'))
-    # tickets = explara_api.get_tickets(app.config.get('EXPLARA_ROOTCONF_15'))
+    # tickets = explara_api.get_tickets(app.config.get('EXPLARA_EVENT_IDS').get('rootconf-2015'))
     def __init__(self, config):
         self.access_token = config.get('access_token')
 
