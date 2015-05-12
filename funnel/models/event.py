@@ -227,12 +227,15 @@ class SyncTicket(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
 
     @classmethod
+    def fetch(cls, ticket_no, order_no, space):
+        return cls.query.filter_by(ticket_no=ticket_no, order_no=order_no, proposal_space=space).first()
+
+    @classmethod
     def sync_from_list(cls, space, ticket_list):
         # track current ticket nos
-        current_ticket_nos = []
+        current_ticket_ids = []
         for ticket_dict in ticket_list:
-            ticket = SyncTicket.query.filter_by(ticket_no=ticket_dict.get('ticket_no'), order_no=ticket_dict.get('order_no'), proposal_space=space).first()
-            current_ticket_nos.append(ticket_dict.get('ticket_no'))
+            ticket = SyncTicket.fetch(ticket_dict.get('ticket_no'), ticket_dict.get('order_no'), space)
             ticket_ticket_type = TicketType.query.filter_by(name=ticket_dict.get('ticket_type'), proposal_space=space).first()
             # get or create participant
             ticket_participant = Participant.query.filter_by(email=ticket_dict.get('email'), proposal_space=space).first()
@@ -257,6 +260,7 @@ class SyncTicket(BaseMixin, db.Model):
                 )
                 db.session.add(ticket)
                 db.session.commit()
+            current_ticket_ids.append(ticket.id)
             for event in ticket.ticket_type.events:
                 a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
                 if not a:
@@ -265,11 +269,11 @@ class SyncTicket(BaseMixin, db.Model):
                 db.session.commit()
 
         # sweep cancelled tickets
-        cancelled_tickets = SyncTicket.query.filter_by(proposal_space=space).filter(~SyncTicket.ticket_no.in_(current_ticket_nos)).all()
+        cancelled_tickets = SyncTicket.query.filter_by(proposal_space=space).filter(~SyncTicket.id.in_(current_ticket_ids)).all()
         logging.warn("Sweeping cancelled tickets..")
         for ct in cancelled_tickets:
             logging.warn("Removing event access for {0}".format(ct.participant.email))
-            st = SyncTicket.query.filter_by(ticket_no=ct.ticket_no, proposal_space=space).first()
+            st = SyncTicket.fetch(ct.ticket_no, ct.order_no, space)
             event_ids = [event.id for event in st.ticket_type.events]
             cancelled_attendees = Attendee.query.filter(Attendee.participant_id == st.participant.id).filter(Attendee.event_id.in_(event_ids)).all()
             for ca in cancelled_attendees:
