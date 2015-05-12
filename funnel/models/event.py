@@ -66,9 +66,14 @@ class Event(BaseMixin, db.Model):
     def sync_from_list(cls, event_list, space):
         for event_dict in event_list:
             event = cls.get_or_create(event_dict.get('name'), space)
+            print "Event {0}".format(event.name)
             for ticket_type_name in event_dict.get('ticket_types', []):
                 if ticket_type_name not in [ticket_type.name for ticket_type in event.ticket_types]:
-                    event.ticket_types.append(TicketType.get_by_name(ticket_type_name, space))
+                    ticket_type = TicketType.get_by_name(ticket_type_name, space)
+                    if ticket_type:
+                        event.ticket_types.append(ticket_type)
+                    else:
+                        print "Count not find {0}".format(ticket_type_name)
         db.session.commit()
         return True
 
@@ -219,14 +224,14 @@ class SyncTicket(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
 
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'ticket_no'),)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
 
     @classmethod
     def sync_from_list(cls, space, ticket_list):
         # track current ticket nos
         current_ticket_nos = []
         for ticket_dict in ticket_list:
-            ticket = SyncTicket.query.filter_by(ticket_no=ticket_dict.get('ticket_no'), proposal_space=space).first()
+            ticket = SyncTicket.query.filter_by(ticket_no=ticket_dict.get('ticket_no'), order_no=ticket_dict.get('order_no'), proposal_space=space).first()
             current_ticket_nos.append(ticket_dict.get('ticket_no'))
             ticket_ticket_type = TicketType.query.filter_by(name=ticket_dict.get('ticket_type'), proposal_space=space).first()
             # get or create participant
