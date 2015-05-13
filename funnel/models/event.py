@@ -34,15 +34,16 @@ event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
 
 
 class Event(BaseMixin, db.Model):
-    """ A discrete event under a proposal space.
-        For instance, a space could be associated with a workshop and a two-day conference.
-        The workshop constitutes as one event and each day of the conference
-        constitutes as an independent event.
-        This is done to allow distinguishing participants based on
-        on the tickets they have, given a participant may have a ticket
-        for only the workshop or a single day of the conference.
-        An event is associated with multiple ticket types,
-        which helps make the distinction between participants
+    """
+    A discrete event under a proposal space.
+    For instance, a space could be associated with a workshop and a two-day conference.
+    The workshop constitutes as one event and each day of the conference
+    constitutes as an independent event.
+    This is done to allow distinguishing participants based on
+    on the tickets they have, given a participant may have a ticket
+    for only the workshop or a single day of the conference.
+    An event is associated with multiple ticket types,
+    which helps make the distinction between participants.
     """
     __tablename__ = 'event'
 
@@ -59,23 +60,21 @@ class Event(BaseMixin, db.Model):
         if not event:
             event = cls(name=name, proposal_space=space)
             db.session.add(event)
-            db.session.commit()
         return event
 
     @classmethod
     def sync_from_list(cls, event_list, space):
         for event_dict in event_list:
-            event = cls.get_or_create(event_dict.get('name').decode('utf-8'), space)
+            event = cls.get_or_create(event_dict.get('name'), space)
             for ticket_type_name in event_dict.get('ticket_types', []):
-                if ticket_type_name.decode('utf-8') not in [ticket_type.name for ticket_type in event.ticket_types]:
-                    event.ticket_types.append(TicketType.get_or_create(ticket_type_name.decode('utf-8'), space))
-        db.session.commit()
-        return True
+                if ticket_type_name not in [ticket_type.name for ticket_type in event.ticket_types]:
+                    event.ticket_types.append(TicketType.get_or_create(ticket_type_name, space))
 
 
 class TicketType(BaseMixin, db.Model):
-    """ Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
-        A ticket type is associated with multiple events.
+    """
+    Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
+    A ticket type is associated with multiple events.
     """
     __tablename__ = 'ticket_type'
 
@@ -91,19 +90,18 @@ class TicketType(BaseMixin, db.Model):
         if not ticket_type:
             ticket_type = cls(name=name, proposal_space=space)
             db.session.add(ticket_type)
-            db.session.commit()
         return ticket_type
 
     @classmethod
     def sync_from_list(cls, ticket_type_list, space):
         for name in ticket_type_list:
             cls.get_or_create(name, space)
-        return True
 
 
 class Participant(BaseMixin, db.Model):
-    """ Model users participating in the proposal space
-        as an attendee, speaker, volunteer, sponsor etc .
+    """
+    Model users participating in the proposal space
+    as an attendee, speaker, volunteer, sponsor etc .
     """
     __tablename__ = 'participant'
 
@@ -137,7 +135,6 @@ class Participant(BaseMixin, db.Model):
     def update_badge_printed(cls, event, badge_printed):
         participant_ids = [participant.id for participant in event.participants]
         db.session.query(cls).filter(cls.id.in_(participant_ids)).update({'badge_printed': badge_printed}, False)
-        db.session.commit()
 
     @classmethod
     def attendees_by_event(cls, event):
@@ -171,7 +168,6 @@ class Participant(BaseMixin, db.Model):
             if not p:
                 p = Participant(fullname=r[0], email=r[1], company=r[2], twitter=r[3], proposal_space=space)
                 db.session.add(p)
-                db.session.commit()
             crew_participants.append(p)
 
         ticket_type = space.ticket_types.filter(TicketType.name == 'Crew').first()
@@ -181,12 +177,10 @@ class Participant(BaseMixin, db.Model):
                 if not a:
                     a = Attendee(event_id=event.id, participant_id=participant.id)
                     db.session.add(a)
-                    db.session.commit()
 
 
 class Attendee(BaseMixin, db.Model):
-    """ Join model between Participant and Event
-    """
+    """Join model between Participant and Event."""
     __tablename__ = 'attendee'
 
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
@@ -199,8 +193,7 @@ class Attendee(BaseMixin, db.Model):
 
 
 class SyncTicket(BaseMixin, db.Model):
-    """ Model a ticket that was bought elsewhere. Eg: Explara
-    """
+    """ Model for a ticket that was bought elsewhere. Eg: Explara."""
     __tablename__ = 'sync_ticket'
 
     ticket_no = db.Column(db.Unicode(80), nullable=False)
@@ -234,7 +227,6 @@ class SyncTicket(BaseMixin, db.Model):
                 # create a new participant record if required
                 ticket_participant = Participant.make_from_dict(ticket_dict, space)
                 db.session.add(ticket_participant)
-                db.session.commit()
 
             if ticket:
                 # check if participant has changed
@@ -250,14 +242,12 @@ class SyncTicket(BaseMixin, db.Model):
                     proposal_space=space
                 )
                 db.session.add(ticket)
-                db.session.commit()
             current_ticket_ids.append(ticket.id)
             for event in ticket.ticket_type.events:
                 a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
                 if not a:
                     a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
                 db.session.add(a)
-                db.session.commit()
 
         # sweep cancelled tickets
         cancelled_tickets = SyncTicket.query.filter_by(proposal_space=space).filter(~SyncTicket.id.in_(current_ticket_ids)).all()
@@ -270,4 +260,3 @@ class SyncTicket(BaseMixin, db.Model):
             for ca in cancelled_attendees:
                 db.session.delete(ca)
             db.session.delete(st)
-            db.session.commit()

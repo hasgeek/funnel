@@ -127,6 +127,7 @@ def events(profile, space):
             ea = ExplaraAPI({'access_token': app.config.get('EXPLARA_ACCESS_TOKEN')})
             tickets = ea.get_tickets(app.config.get('EXPLARA_EVENT_IDS').get(space_key))
             SyncTicket.sync_from_list(space, tickets)
+            db.session.commit()
             return redirect(space.url_for('events'), code=303)
     return render_template('events.html', profile=profile, space=space, events=space.events.all(), attendee_sync_form=attendee_sync_form)
 
