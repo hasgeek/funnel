@@ -48,7 +48,7 @@
       font-weight: 700;
     }
     .last-name {
-      font-size: 40px;
+      font-size: 35px;
       margin-bottom: 10px;
       text-transform: uppercase;
       font-weight: 400;
@@ -127,7 +127,7 @@
 <script>
   $(function() {
     var getFontSize = function(nameLen){
-      if (nameLen > 60){
+      if (nameLen > 55){
         return '18px';
       }
       else if (nameLen > 40){
@@ -136,8 +136,8 @@
       else if (nameLen > 30){
         return '22px';
       }
-      else if (nameLen > 16){
-        return '25px';
+      else if (nameLen > 20){
+        return '23px';
       }
     }
 
@@ -147,7 +147,7 @@
     });
 
     $('.last-name').textfill({
-        maxFontPixels: 40,
+        maxFontPixels: 35,
         changeLineHeight: 1
     });
       
