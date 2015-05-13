@@ -122,10 +122,11 @@ def allowed_file(filename, allowed_exts=[]):
 def events(profile, space):
     attendee_sync_form = forms.Form()
     if attendee_sync_form.validate_on_submit():
-        explara_ticket_client = TicketClient.query.filter_by(proposal_space=space, name='explara').first()
-        tickets = ExplaraAPI({'access_token': explara_ticket_client.client_access_token,
-                            'event_id': explara_ticket_client.client_event_id}).get_tickets()
-        SyncTicket.sync_from_list(space, tickets, explara_ticket_client)
+        for ticket_client in space.ticket_clients.all():
+            if ticket_client.name == 'explara':
+                tickets = ExplaraAPI({'access_token': ticket_client.client_access_token,
+                            'event_id': ticket_client.client_event_id}).get_tickets()
+                SyncTicket.sync_from_list(tickets, space, ticket_client)
         db.session.commit()
         return redirect(space.url_for('events'), code=303)
     return render_template('events.html', profile=profile, space=space, events=space.events.all(), attendee_sync_form=attendee_sync_form)

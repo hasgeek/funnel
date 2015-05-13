@@ -207,7 +207,7 @@ class SyncTicket(BaseMixin, db.Model):
         return cls.query.filter_by(ticket_no=ticket_no, order_no=order_no, proposal_space=space).first()
 
     @classmethod
-    def sync_from_list(cls, space, ticket_list, ticket_client=None):
+    def sync_from_list(cls, ticket_list, space, ticket_client=None):
         # track current ticket nos
         current_ticket_ids = []
         for ticket_dict in ticket_list:
