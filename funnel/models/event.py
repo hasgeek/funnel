@@ -65,15 +65,10 @@ class Event(BaseMixin, db.Model):
     @classmethod
     def sync_from_list(cls, event_list, space):
         for event_dict in event_list:
-            event = cls.get_or_create(event_dict.get('name'), space)
-            print "Event {0}".format(event.name)
+            event = cls.get_or_create(event_dict.get('name').decode('utf-8'), space)
             for ticket_type_name in event_dict.get('ticket_types', []):
-                if ticket_type_name not in [ticket_type.name for ticket_type in event.ticket_types]:
-                    ticket_type = TicketType.get_by_name(ticket_type_name, space)
-                    if ticket_type:
-                        event.ticket_types.append(ticket_type)
-                    else:
-                        print "Count not find {0}".format(ticket_type_name)
+                if ticket_type_name.decode('utf-8') not in [ticket_type.name for ticket_type in event.ticket_types]:
+                    event.ticket_types.append(TicketType.get_or_create(ticket_type_name.decode('utf-8'), space))
         db.session.commit()
         return True
 
@@ -89,10 +84,6 @@ class TicketType(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_types', cascade='all, delete-orphan', lazy='dynamic'))
     events = db.relationship("Event", secondary=event_ticket_type)
-
-    @classmethod
-    def get_by_name(cls, name, space):
-        return cls.query.filter_by(name=name, proposal_space=space).first()
 
     @classmethod
     def get_or_create(cls, name, space):
