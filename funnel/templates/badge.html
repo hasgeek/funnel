@@ -147,18 +147,15 @@
     });
 
     $.each($('.last-name'), function(index, lastName){
-      var newFontSize = getFontSize($(lastName).find('span').html().length);
-      $(lastName).css('font-size', newFontSize);
+      $(lastName).css('font-size', getFontSize($(lastName).find('span').html().length));
     });
       
     $.each($('.company-name'), function(index, companyName){
-      var newFontSize = getFontSize($(companyName).find('span').html().length);
-      $(companyName).css('font-size', newFontSize);
+      $(companyName).css('font-size', getFontSize($(companyName).find('span').html().length));
     });
 
     $.each($('.twitter-handle'), function(index, twitterHandle){
-      var newFontSize = getFontSize($(twitterHandle).find('span').html().length);
-      $(twitterHandle).css('font-size', newFontSize);
+      $(twitterHandle).css('font-size', getFontSize($(twitterHandle).find('span').html().length));
     });
   });
 </script>
