@@ -5,7 +5,7 @@ from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange)
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange, TicketClient)
 import baseframe.forms as forms
 from ..forms import ParticipantForm, ParticipantBadgeForm
 from helpers import split_name, format_twitter, make_qrcode
@@ -122,13 +122,12 @@ def allowed_file(filename, allowed_exts=[]):
 def events(profile, space):
     attendee_sync_form = forms.Form()
     if attendee_sync_form.validate_on_submit():
-        space_key = space.title.lower() + '-' + space.name
-        if space_key in app.config.get('EXPLARA_EVENT_IDS').keys():
-            ea = ExplaraAPI({'access_token': app.config.get('EXPLARA_ACCESS_TOKEN')})
-            tickets = ea.get_tickets(app.config.get('EXPLARA_EVENT_IDS').get(space_key))
-            SyncTicket.sync_from_list(space, tickets)
-            db.session.commit()
-            return redirect(space.url_for('events'), code=303)
+        explara_ticket_client = TicketClient.query.filter_by(proposal_space=space, name='explara').first()
+        tickets = ExplaraAPI({'access_token': explara_ticket_client.client_access_token,
+                            'event_id': explara_ticket_client.client_event_id}).get_tickets()
+        SyncTicket.sync_from_list(space, tickets, explara_ticket_client)
+        db.session.commit()
+        return redirect(space.url_for('events'), code=303)
     return render_template('events.html', profile=profile, space=space, events=space.events.all(), attendee_sync_form=attendee_sync_form)
 
 

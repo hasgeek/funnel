@@ -7,12 +7,13 @@ __all__ = ['ExplaraAPI']
 
 
 class ExplaraAPI(object):
-    # explara_api = ExplaraAPI({'access_token'}: app.config.get('EXPLARA_ACCESS_TOKEN'))
-    # tickets = explara_api.get_tickets(app.config.get('EXPLARA_EVENT_IDS').get('rootconf-2015'))
+    # ea = ExplaraAPI({'access_token': proposal_space.client_access_token})
+    # tickets = ea.get_tickets(proposal_space.client_event_id)
     def __init__(self, config):
         self.access_token = config.get('access_token')
+        self.event_id = config.get('event_id')
 
-    def get_orders(self, explara_event_id):
+    def get_orders(self):
         headers = {'Authorization': u'Bearer ' + self.access_token}
         attendee_list_url = 'https://www.explara.com/api/e/attendee-list'
         ticket_orders = []
@@ -20,7 +21,7 @@ class ExplaraAPI(object):
         from_record = 0
         to_record = 50
         while not completed:
-            payload = {'eventId': explara_event_id, 'fromRecord': from_record, 'toRecord': to_record}
+            payload = {'eventId': self.event_id, 'fromRecord': from_record, 'toRecord': to_record}
             attendee_response = requests.post(attendee_list_url, headers=headers, data=payload).json()
             if not attendee_response.get('attendee'):
                 completed = True
@@ -34,8 +35,8 @@ class ExplaraAPI(object):
 
         return ticket_orders
 
-    def get_tickets(self, event_id):
-        orders = self.get_orders(event_id)
+    def get_tickets(self):
+        orders = self.get_orders()
         tickets = []
 
         for order in orders:

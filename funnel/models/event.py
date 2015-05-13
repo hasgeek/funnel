@@ -7,9 +7,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from . import db, BaseMixin
 from .space import ProposalSpace
 from .user import User
-from ..util import get_rows_from_csv, format_twitter
 
-__all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket']
+__all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket', 'TicketClient']
 
 PRINTABLE_ASCII = map(chr, range(32, 127))
 
@@ -170,6 +169,18 @@ class Attendee(BaseMixin, db.Model):
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
 
+class TicketClient(BaseMixin, db.Model):
+    __tablename__ = 'ticket_client'
+    name = db.Column(db.Unicode(80), nullable=False)
+    client_event_id = db.Column(db.Unicode(80), nullable=False)
+    client_id = db.Column(db.Unicode(80), nullable=False)
+    client_secret = db.Column(db.Unicode(80), nullable=False)
+    client_access_token = db.Column(db.Unicode(80), nullable=False)
+    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space = db.relationship(ProposalSpace,
+        backref=db.backref('ticket_clients', cascade='all, delete-orphan', lazy='dynamic'))
+
+
 class SyncTicket(BaseMixin, db.Model):
     """ Model for a ticket that was bought elsewhere. Eg: Explara."""
     __tablename__ = 'sync_ticket'
@@ -185,6 +196,9 @@ class SyncTicket(BaseMixin, db.Model):
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
+    ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=False)
+    ticket_client = db.relationship(TicketClient,
+        backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
 
@@ -193,7 +207,7 @@ class SyncTicket(BaseMixin, db.Model):
         return cls.query.filter_by(ticket_no=ticket_no, order_no=order_no, proposal_space=space).first()
 
     @classmethod
-    def sync_from_list(cls, space, ticket_list):
+    def sync_from_list(cls, space, ticket_list, ticket_client=None):
         # track current ticket nos
         current_ticket_ids = []
         for ticket_dict in ticket_list:
@@ -217,6 +231,7 @@ class SyncTicket(BaseMixin, db.Model):
                     order_no=ticket_dict.get('order_no'),
                     ticket_type=ticket_ticket_type,
                     participant=ticket_participant,
+                    ticket_client=ticket_client,
                     proposal_space=space
                 )
                 db.session.add(ticket)
