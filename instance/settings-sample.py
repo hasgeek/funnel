@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 #: The title of this site
-SITE_TITLE='HasGeek Funnel'
+SITE_TITLE = 'HasGeek Funnel'
 #: Support contact email
 SITE_SUPPORT_EMAIL = 'test@example.com'
 #: TypeKit code for fonts
-TYPEKIT_CODE=''
+TYPEKIT_CODE = ''
 #: Google Analytics code UA-XXXXXX-X
-GA_CODE=''
+GA_CODE = ''
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
 #: Secret key
@@ -38,9 +38,11 @@ DEFAULT_MAIL_SENDER = ('Bill Gate', 'test@example.com')
 # Required for Flask-Mail to work.
 MAIL_DEFAULT_SENDER = DEFAULT_MAIL_SENDER
 #: Logging: recipients of error emails
-ADMINS=[]
+ADMINS = []
 #: Log file
-LOGFILE='error.log'
+LOGFILE = 'error.log'
 
 #: Messages (text or HTML)
 WELCOME_MESSAGE = "The funnel is a space for proposals and voting on events. Pick an event to get started."
+HASCORE_SERVER = 'https://api.hasgeek.com/'
+CACHE_TYPE = 'redis'

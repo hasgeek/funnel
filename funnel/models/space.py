@@ -5,6 +5,8 @@ from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
+from werkzeug.utils import cached_property
+from ..util import geonameid_from_location
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
@@ -124,6 +126,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             unconfirmed=basequery.filter(Proposal.status != PROPOSALSTATUS.CONFIRMED, Proposal.status != PROPOSALSTATUS.DRAFT).order_by(db.desc('created_at')).all())
         return response
 
+    @cached_property
+    def location_geonameid(self):
+        return geonameid_from_location(self.datelocation)
+
     def user_in_group(self, user, group):
         for grp in self.usergroups:
             if grp.name == group:
@@ -164,6 +170,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'edit-session',
                     'event-checkin',
                     'event-view',
+                    'event-sync',
                     'participant-edit',
                     'participant-view',
                     'new-participant'
