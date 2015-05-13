@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
+from ..util import format_twitter
 
 __all__ = ['ExplaraAPI']
 
@@ -47,7 +48,7 @@ class ExplaraAPI(object):
                         'fullname': attendee.get('name'),
                         'email': attendee.get('email'),
                         'phone': details.get('Phone') or order.get('phoneNo'),
-                        'twitter': details.get('Twitter handle'),
+                        'twitter': format_twitter(details.get('Twitter handle')),
                         'job_title': details.get('Job title'),
                         'company': details.get('Company name'),
                         'city': attendee.get('city'),
