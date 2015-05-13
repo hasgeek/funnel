@@ -55,9 +55,9 @@ class Event(BaseMixin, db.Model):
     participants = association_proxy('attendees', 'participant')
 
     @classmethod
-    def get_or_create(cls, name, space):
+    def get(cls, name, space, create=False):
         event = cls.query.filter_by(name=name, proposal_space=space).first()
-        if not event:
+        if not event and create:
             event = cls(name=name, proposal_space=space)
             db.session.add(event)
         return event
@@ -65,10 +65,10 @@ class Event(BaseMixin, db.Model):
     @classmethod
     def sync_from_list(cls, event_list, space):
         for event_dict in event_list:
-            event = cls.get_or_create(event_dict.get('name'), space)
+            event = cls.get(event_dict.get('name'), space, create=True)
             for ticket_type_name in event_dict.get('ticket_types', []):
                 if ticket_type_name not in [ticket_type.name for ticket_type in event.ticket_types]:
-                    event.ticket_types.append(TicketType.get_or_create(ticket_type_name, space))
+                    event.ticket_types.append(TicketType.get(ticket_type_name, space, create=True))
 
 
 class TicketType(BaseMixin, db.Model):
@@ -85,9 +85,9 @@ class TicketType(BaseMixin, db.Model):
     events = db.relationship("Event", secondary=event_ticket_type)
 
     @classmethod
-    def get_or_create(cls, name, space):
+    def get(cls, name, space, create=False):
         ticket_type = cls.query.filter_by(name=name, proposal_space=space).first()
-        if not ticket_type:
+        if not ticket_type and create:
             ticket_type = cls(name=name, proposal_space=space)
             db.session.add(ticket_type)
         return ticket_type
@@ -95,7 +95,7 @@ class TicketType(BaseMixin, db.Model):
     @classmethod
     def sync_from_list(cls, ticket_type_list, space):
         for name in ticket_type_list:
-            cls.get_or_create(name, space)
+            cls.get(name, space, create=True)
 
 
 class Participant(BaseMixin, db.Model):
@@ -149,34 +149,12 @@ class Participant(BaseMixin, db.Model):
             fullname=participant_dict.get('fullname'),
             email=participant_dict.get('email'),
             phone=participant_dict.get('phone'),
-            twitter=format_twitter(participant_dict.get('twitter')),
+            twitter=participant_dict.get('twitter'),
             job_title=participant_dict.get('job_title'),
             company=participant_dict.get('company'),
             city=participant_dict.get('city'),
             proposal_space=space
         )
-
-    @classmethod
-    def sync_from_csv(space, csv_file):
-        """csv_file -> name, email, company, twitter
-        """
-        crew_rows = get_rows_from_csv(csv_file)
-        crew_participants = []
-
-        for r in crew_rows:
-            p = space.participants.filter(Participant.email == r[1]).first()
-            if not p:
-                p = Participant(fullname=r[0], email=r[1], company=r[2], twitter=r[3], proposal_space=space)
-                db.session.add(p)
-            crew_participants.append(p)
-
-        ticket_type = space.ticket_types.filter(TicketType.name == 'Crew').first()
-        for participant in crew_participants:
-            for event in ticket_type.events:
-                a = Attendee.query.filter_by(event_id=event.id, participant_id=participant.id).first()
-                if not a:
-                    a = Attendee(event_id=event.id, participant_id=participant.id)
-                    db.session.add(a)
 
 
 class Attendee(BaseMixin, db.Model):
