@@ -48,7 +48,7 @@
       font-weight: 700;
     }
     .last-name {
-      font-size: 35px;
+      font-size: 30px;
       margin-bottom: 10px;
       text-transform: uppercase;
       font-weight: 400;
@@ -147,17 +147,18 @@
     });
 
     $('.last-name').textfill({
-        maxFontPixels: 35,
+        maxFontPixels: 30,
         changeLineHeight: 1
     });
       
     $.each($('.company-name'), function(index, companyName){
-      newFontSize = getFontSize($(companyName).find('span').html().length);
-      $(companyName).css('font-size', newFontSize)
+      var newFontSize = getFontSize($(companyName).find('span').html().length);
+      $(companyName).css('font-size', newFontSize);
     });
 
-    $('.twitter-handle').textfill({
-        maxFontPixels: 28
+    $.each($('.twitter-handle'), function(index, twitterHandle){
+      var newFontSize = getFontSize($(twitterHandle).find('span').html().length);
+      $(twitterHandle).css('font-size', newFontSize);
     });
   });
 </script>
