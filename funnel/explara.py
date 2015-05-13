@@ -12,7 +12,7 @@ class ExplaraAPI(object):
         self.access_token = config.get('access_token')
 
     def get_orders(self, explara_event_id):
-        headers = {'Authorization': 'Bearer {0}'.format(self.access_token)}
+        headers = {'Authorization': u'Bearer ' + self.access_token}
         attendee_list_url = 'https://www.explara.com/api/e/attendee-list'
         ticket_orders = []
         completed = False
