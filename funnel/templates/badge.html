@@ -2,7 +2,7 @@
 <head>
   <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
   <script src="{{ url_for('static', filename='js/libs/jquery.textfill.min.js') }}"></script>
-  <link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
   <style>
     @page {
       size: 3.75in 11.2in;  /* width height */
@@ -43,7 +43,7 @@
       line-height: 1;
     }
     .first-name {
-      font-size: 70px;
+      font-size: 65px;
       text-transform: uppercase;
       font-weight: 700;
     }
@@ -142,13 +142,13 @@
     }
 
     $('.first-name').textfill({
-        maxFontPixels: 70,
+        maxFontPixels: 65,
         changeLineHeight: 1,
     });
 
-    $('.last-name').textfill({
-        maxFontPixels: 30,
-        changeLineHeight: 1
+    $.each($('.last-name'), function(index, lastName){
+      var newFontSize = getFontSize($(lastName).find('span').html().length);
+      $(lastName).css('font-size', newFontSize);
     });
       
     $.each($('.company-name'), function(index, companyName){
