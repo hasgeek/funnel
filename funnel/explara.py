@@ -24,14 +24,14 @@ class ExplaraAPI(object):
             if not attendee_response.get('attendee'):
                 completed = True
             elif isinstance(attendee_response.get('attendee'), list):
-                ticket_orders.append([order for order in attendee_response.get('attendee')])
+                ticket_orders.extend([order for order in attendee_response.get('attendee')])
             # after the first batch, subsequent batches are dicts with batch no. as key.
             elif isinstance(attendee_response.get('attendee'), dict):
-                ticket_orders.append([order for id, order in attendee_response.get('attendee').iteritems()])
+                ticket_orders.extend([order for order_idx, order in attendee_response.get('attendee').items()])
             from_record = to_record
             to_record += 50
 
-        return [order for order_list in ticket_orders for order in order_list]
+        return ticket_orders
 
     def get_tickets(self, event_id):
         orders = self.get_orders(event_id)
