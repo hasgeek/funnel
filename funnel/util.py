@@ -1,17 +1,18 @@
-from . import app
-import requests
-from urlparse import urljoin
-from baseframe import cache
-import csv
 from urlparse import urlparse
+from urlparse import urljoin
+import requests
+import csv
+from . import app
+from baseframe import cache
 
 
 @cache.memoize(timeout=86400)
 def geonameid_from_location(text):
-    """ Accepts a string, checks hascore if there's a location embedded
-        in the string, and returns the geonameid for a location found.
-        Eg: "Bangalore" -> 1277333
-        To detect multiple locations, split them up and pass each location individually
+    """
+    Accepts a string, checks hascore if there's a location embedded
+    in the string, and returns the geonameid for a location found.
+    Eg: "Bangalore" -> 1277333
+    To detect multiple locations, split them up and pass each location individually
     """
     if 'HASCORE_SERVER' in app.config:
         url = urljoin(app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
@@ -30,7 +31,8 @@ def get_rows_from_csv(csv_file, skip_header=True, delimiter=','):
 
 
 def format_twitter(twitter_id):
-    """formats a user given twitter handle
-       Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
+    """
+    formats a user given twitter handle
+    Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
     """
     return urlparse(str(twitter_id)).path.replace('/', '').replace('@', '')
