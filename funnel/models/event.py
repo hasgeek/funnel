@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
+import os
+import base64
+import logging
+from datetime import datetime
+from sqlalchemy.ext.associationproxy import association_proxy
 from . import db, BaseMixin
 from .space import ProposalSpace
 from .user import User
-from sqlalchemy.ext.associationproxy import association_proxy
-from datetime import datetime
 from ..util import get_rows_from_csv, format_twitter
-import logging
-import base64
-import os
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket']
 
