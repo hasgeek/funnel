@@ -236,11 +236,12 @@ class SyncTicket(BaseMixin, db.Model):
                 )
                 db.session.add(ticket)
             current_ticket_ids.append(ticket.id)
-            for event in ticket.ticket_type.events:
-                a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
-                if not a:
-                    a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
-                db.session.add(a)
+            if ticket.ticket_type:
+                for event in ticket.ticket_type.events:
+                    a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
+                    if not a:
+                        a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
+                        db.session.add(a)
 
         # sweep cancelled tickets
         cancelled_tickets = SyncTicket.query.filter_by(proposal_space=space).filter(~SyncTicket.id.in_(current_ticket_ids)).all()
