@@ -15,17 +15,18 @@
   <h3>{{event.name}}</h3>
   </p>
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-2">
       <form class="form-inline">
         <div class="form-group">
           <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
         </div>
       </form>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-10">
       <ul class="list-inline pull-right">
         <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a></li>
-        <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.id) }} class='btn btn-info' target="_blank">See Badges</a></li>
+        <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.id) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
+        <li><a href={{ "{0}event/{1}/badges?badge_printed=t".format(space.url_for(), event.id) }} class='btn btn-success' target="_blank">Badges printed</a></li>
         <li></li>
         <li></li>
         <li>
@@ -57,10 +58,10 @@
           <td>
             <ul class="list-inline">
             <li>
-              <a href={{ "{0}participant/{1}/badge".format(space.url_for(), p.id) }} class='btn btn-xs btn-default' target="_blank">Show badge</a>
+              <a href={{ "{0}participant/{1}/badge".format(space.url_for(), p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
             </li>
             <li>
-              <a href={{ "{0}participant/{1}/edit".format(space.url_for(), p.id) }} class='btn btn-xs btn-info'>Edit</a>
+              <a href={{ "{0}participant/{1}/edit".format(space.url_for(), p.id) }} class='btn btn-xs btn-default'>Edit</a>
             </li>
             <li>
             {%- if p.checked_in %}

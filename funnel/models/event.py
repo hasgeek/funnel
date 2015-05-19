@@ -138,7 +138,7 @@ class Participant(BaseMixin, db.Model):
     @classmethod
     def attendees_by_event(cls, event):
         participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
-        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
+        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in, Participant.badge_printed]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
         return db.session.execute(stmt).fetchall()
     __table_args__ = (db.UniqueConstraint("email", "proposal_space_id"), {})
 

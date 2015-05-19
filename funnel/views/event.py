@@ -145,6 +145,7 @@ def event(profile, space, event):
     if form.validate_on_submit():
         badge_printed = True if form.data.get('badge_printed') == 't' else False
         Participant.update_badge_printed(event, badge_printed)
+        db.session.commit()
         return redirect("{0}/{1}".format(space.url_for('events'), event.id), code=303)
     return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant))
 
