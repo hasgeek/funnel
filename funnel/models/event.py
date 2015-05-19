@@ -241,7 +241,7 @@ class SyncTicket(BaseMixin, db.Model):
                     a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
                     if not a:
                         a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
-                    db.session.add(a)
+                        db.session.add(a)
 
         # sweep cancelled tickets
         cancelled_tickets = SyncTicket.query.filter_by(proposal_space=space).filter(~SyncTicket.id.in_(current_ticket_ids)).all()
