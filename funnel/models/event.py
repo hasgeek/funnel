@@ -91,11 +91,6 @@ class TicketType(BaseMixin, db.Model):
             db.session.add(ticket_type)
         return ticket_type
 
-    @classmethod
-    def sync_from_list(cls, ticket_type_list, space):
-        for name in ticket_type_list:
-            cls.get(name, space, create=True)
-
 
 class Participant(BaseMixin, db.Model):
     """
@@ -140,7 +135,6 @@ class Participant(BaseMixin, db.Model):
         participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
         stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in, Participant.badge_printed]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
         return db.session.execute(stmt).fetchall()
-    __table_args__ = (db.UniqueConstraint("email", "proposal_space_id"), {})
 
     @classmethod
     def make_from_dict(cls, participant_dict, space):
