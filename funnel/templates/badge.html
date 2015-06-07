@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <head>
   <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
-  <script src="{{ url_for('static', filename='js/libs/jquery.textfill.min.js') }}"></script>
   <link href='https://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
   <style>
     @page {
@@ -44,11 +43,13 @@
     }
     .first-name {
       font-size: 65px;
+      max-height: 65px; /* fit text in one line */
       text-transform: uppercase;
       font-weight: 700;
     }
     .last-name {
-      font-size: 30px;
+      font-size: 35px;
+      max-height: 35px; /* fit text in one line */
       margin-bottom: 10px;
       text-transform: uppercase;
       font-weight: 400;
@@ -59,17 +60,14 @@
     }
     .company-name{
       font-size: 28px;
+      max-height: 50px; /* fit text within two lines */
       color: #df5e0e;
-      line-height: 1;
       margin-bottom: 10px;
       font-weight: 700;
     }
-    .company-name span{
-      max-height: 50px;
-      overflow: hidden;      
-    }
     .twitter-handle {
-      font-size: 28px;
+      font-size: 30px;
+      max-height: 30px; /* fit text in one line */
       color: #0ea5b0;
       font-weight: 700;
     }
@@ -126,36 +124,32 @@
 {%- endfor %}
 <script>
   $(function() {
-    var getFontSize = function(nameLen){
-      if (nameLen > 55){
-        return '18px';
+    var updateFontSize = function(elem) {
+      var fontStep = 1;
+      var parentWidth = $(elem).width();
+      var parentHeight = parseInt($(elem).css('max-height'), 10);
+      var childElem = $(elem).find('span');
+      while ((childElem.width() > parentWidth) || (childElem.height() > parentHeight)) {
+        childElem.css('font-size', parseInt(childElem.css('font-size'), 10) - fontStep + 'px');
       }
-      else if (nameLen > 40){
-        return '20px';
-      }
-      else if (nameLen > 30){
-        return '22px';
-      }
-      else if (nameLen > 20){
-        return '23px';
-      }
+      /* Update parent div line-height */
+      $(elem).css('line-height', childElem.css('font-size'));
     }
 
-    $('.first-name').textfill({
-        maxFontPixels: 65,
-        changeLineHeight: 1,
+    $.each($('.first-name'), function(index, firstName){
+      updateFontSize(firstName);
     });
 
     $.each($('.last-name'), function(index, lastName){
-      $(lastName).css('font-size', getFontSize($(lastName).find('span').html().length));
+      updateFontSize(lastName);
     });
       
     $.each($('.company-name'), function(index, companyName){
-      $(companyName).css('font-size', getFontSize($(companyName).find('span').html().length));
+      updateFontSize(companyName);
     });
 
     $.each($('.twitter-handle'), function(index, twitterHandle){
-      $(twitterHandle).css('font-size', getFontSize($(twitterHandle).find('span').html().length));
+      updateFontSize(twitterHandle);
     });
   });
 </script>
