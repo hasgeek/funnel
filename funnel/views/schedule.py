@@ -247,8 +247,13 @@ def schedule_edit(profile, space):
             } for proposal in space.proposals_all if proposal.confirmed and not proposal.session],
         'scheduled': session_data(space.sessions, timezone=space.timezone, with_modal_url='edit', with_delete_url=True)
         }
+    # Set the proper range for the calendar to allow for date changes
+    first_session_date = Session.query.filter_by(proposal_space=space).order_by("created_at asc").first().start
+    last_session_date = Session.query.filter_by(proposal_space=space).order_by("created_at desc").first().start
+    from_date = first_session_date if first_session_date.date() < space.date else space.date
+    to_date = last_session_date if last_session_date.date() > space.date_upto else space.date_upto
     return render_template('schedule_edit.html', space=space, proposals=proposals,
-        from_date=date_js(space.date), to_date=date_js(space.date_upto),
+        from_date=date_js(from_date), to_date=date_js(to_date),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
         rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
 
