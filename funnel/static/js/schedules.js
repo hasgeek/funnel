@@ -223,7 +223,7 @@ $(function() {
                     firstDay: 1, //Start from Monday, if not modified
                     defaultView: 'agendaWeek',
                     allDaySlot: false,
-                    slotMinutes: 15,
+                    slotMinutes: CALENDAR_SLOT_MINUTES,
                     defaultEventMinutes: 45,
                     firstHour: 8,
                     slotEventOverlap: false,
