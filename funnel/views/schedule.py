@@ -52,6 +52,7 @@ def schedule_data(space):
             "end": session.end.isoformat() + 'Z',
             "url": session.url_for(_external=True),
             "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
+            "proposal_url": session.proposal.url_for(_external=True) if session.proposal else None,
             "proposal": session.proposal.id if session.proposal else None,
             "feedback_url": session.url_for('feedback', _external=True) if session.proposal else None,
             "speaker": session.speaker,
