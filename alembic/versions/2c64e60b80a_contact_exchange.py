@@ -15,7 +15,7 @@ import sqlalchemy as sa
 
 def upgrade():
     op.create_table('contact_exchange',
-    sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=True),
@@ -26,7 +26,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('user_id', 'proposal_space_id', 'participant_id')
-    )
+        )
 
 
 def downgrade():
