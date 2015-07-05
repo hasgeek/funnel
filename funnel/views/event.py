@@ -5,12 +5,12 @@ from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange, TicketClient)
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange)
 import baseframe.forms as forms
 from ..forms import ParticipantForm, ParticipantBadgeForm
 from helpers import split_name, format_twitter, make_qrcode
 from sqlalchemy.exc import IntegrityError
-from funnel.explara import ExplaraAPI
+from ..extapi.explara import ExplaraAPI
 
 
 def participant_data(participant, space_id, full=False):
@@ -124,8 +124,10 @@ def events(profile, space):
     if attendee_sync_form.validate_on_submit():
         for ticket_client in space.ticket_clients.all():
             if ticket_client.name == 'explara':
-                tickets = ExplaraAPI({'access_token': ticket_client.client_access_token,
-                            'event_id': ticket_client.client_event_id}).get_tickets()
+                tickets = ExplaraAPI(
+                    access_token=ticket_client.client_access_token,
+                    eventid=ticket_client.client_event_id
+                    ).get_tickets()
                 SyncTicket.sync_from_list(tickets, space, ticket_client)
         db.session.commit()
         return redirect(space.url_for('events'), code=303)

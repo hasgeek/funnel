@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import requests
-from .util import format_twitter
+from ..util import format_twitter
 
 __all__ = ['ExplaraAPI']
 
 
 class ExplaraAPI(object):
-    # ea = ExplaraAPI({'access_token': proposal_space.client_access_token})
-    # tickets = ea.get_tickets(proposal_space.client_event_id)
-    def __init__(self, config):
-        self.access_token = config.get('access_token')
-        self.event_id = config.get('event_id')
+    # ea = ExplaraAPI(access_token=proposal_space.client_access_token, event_id=proposal_space.client_event_id)
+    # tickets = ea.get_tickets()
+    def __init__(self, access_token, eventid):
+        self.access_token = access_token
+        self.eventid = eventid
 
     def get_orders(self):
         headers = {'Authorization': u'Bearer ' + self.access_token}
@@ -21,7 +21,7 @@ class ExplaraAPI(object):
         from_record = 0
         to_record = 50
         while not completed:
-            payload = {'eventId': self.event_id, 'fromRecord': from_record, 'toRecord': to_record}
+            payload = {'eventId': self.eventid, 'fromRecord': from_record, 'toRecord': to_record}
             attendee_response = requests.post(attendee_list_url, headers=headers, data=payload).json()
             if not attendee_response.get('attendee'):
                 completed = True
