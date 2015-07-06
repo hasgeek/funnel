@@ -10,8 +10,6 @@ from .user import User
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket', 'TicketClient']
 
-PRINTABLE_ASCII = map(chr, range(32, 127))
-
 
 def make_key():
     return base64.urlsafe_b64encode(os.urandom(128))
@@ -29,7 +27,7 @@ event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
     db.Column('ticket_type_id', db.Integer, db.ForeignKey('ticket_type.id'), primary_key=True),
     db.Column('created_at', db.DateTime, default=datetime.utcnow, nullable=False)
-)
+    )
 
 
 class Event(BaseMixin, db.Model):
