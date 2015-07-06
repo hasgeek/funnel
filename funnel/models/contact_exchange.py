@@ -6,6 +6,9 @@ __all__ = ['ContactExchange']
 
 
 class ContactExchange(BaseMixin, db.Model):
+    """
+    Model to track who scanned whose badge, at which event.
+    """
     __tablename__ = 'contact_exchange'
     user_id = db.Column(None, db.ForeignKey('user.id'))
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'))
