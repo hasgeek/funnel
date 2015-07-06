@@ -7,8 +7,11 @@ __all__ = ['ExplaraAPI']
 
 
 class ExplaraAPI(object):
-    # ea = ExplaraAPI(access_token=proposal_space.client_access_token, event_id=proposal_space.client_event_id)
-    # tickets = ea.get_tickets()
+    """
+    Example Use:
+    ea = ExplaraAPI(access_token="xxx", eventid="exxxx")
+    tickets = ea.get_tickets()
+    """
     def __init__(self, access_token, eventid):
         self.access_token = access_token
         self.eventid = eventid
