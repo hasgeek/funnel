@@ -83,15 +83,15 @@ class ParticipantForm(forms.Form):
     email = forms.EmailField(__("Email"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
     phone = forms.StringField(__("Phone number"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
     city = forms.StringField(__("City"), validators=[forms.validators.Length(max=80)])
-    company = forms.StringField(__("Company"), validators=[forms.validators.DataRequired()])
+    company = forms.StringField(__("Company"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
     job_title = forms.StringField(__("Job Title"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
         get_label='name',
-        validators=[forms.validators.DataRequired(u"You need to select at least one event")])
+        validators=[forms.validators.DataRequired(u"Select at least one event")])
 
 
 class ParticipantBadgeForm(forms.Form):
-    choices = [('', "Badge Printing Status"), ('t', "Printed"), ("f", "Not Printed")]
+    choices = [('', "Badge printing status"), ('t', "Printed"), ("f", "Not printed")]
     badge_printed = forms.SelectField("", choices=[(val_title[0], val_title[1]) for val_title in choices])
