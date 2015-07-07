@@ -134,12 +134,12 @@ def events(profile, space):
     return render_template('events.html', profile=profile, space=space, events=space.events.all(), attendee_sync_form=attendee_sync_form)
 
 
-@app.route('/<space>/event/<event_id>', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Event, {'id': 'event_id'}, 'event'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='event-view')
 def event(profile, space, event):
     participants = Participant.attendees_by_event(event)
@@ -148,7 +148,7 @@ def event(profile, space, event):
         badge_printed = True if form.data.get('badge_printed') == 't' else False
         Participant.update_badge_printed(event, badge_printed)
         db.session.commit()
-        return redirect("{0}/{1}".format(space.url_for('events'), event.id), code=303)
+        return redirect("{0}/{1}".format(space.url_for('events'), event.name), code=303)
     return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant))
 
 
@@ -168,12 +168,12 @@ def participant_badge_data(participants, space):
     return badges
 
 
-@app.route('/<space>/event/<event_id>/badges', subdomain='<profile>')
+@app.route('/<space>/event/<name>/badges', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Event, {'id': 'event_id'}, 'event'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='event-view')
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
@@ -192,12 +192,12 @@ def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<event_id>/checkin/<participant_id>', subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin/<participant_id>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Event, {'id': 'event_id'}, 'event'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='event-checkin')
 def event_checkin(profile, space, event, participant):
@@ -206,4 +206,4 @@ def event_checkin(profile, space, event, participant):
     a.checked_in = checked_in
     db.session.add(a)
     db.session.commit()
-    return redirect("{0}event/{1}".format(space.url_for(), event.id), code=303)
+    return redirect("{0}event/{1}".format(space.url_for(), event.name), code=303)

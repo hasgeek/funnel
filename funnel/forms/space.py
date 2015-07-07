@@ -88,7 +88,7 @@ class ParticipantForm(forms.Form):
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
-        get_label='name',
+        get_label='title',
         validators=[forms.validators.DataRequired(u"Select at least one event")])
 
 

@@ -12,7 +12,7 @@
 {% block content %}
   <h2>Participants</h2>
   <p>
-  <h3>{{event.name}}</h3>
+  <h3>{{event.title}}</h3>
   </p>
   <div class="row">
     <div class="col-md-2">
@@ -25,8 +25,8 @@
     <div class="col-md-10">
       <ul class="list-inline pull-right">
         <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a></li>
-        <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.id) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
-        <li><a href={{ "{0}event/{1}/badges?badge_printed=t".format(space.url_for(), event.id) }} class='btn btn-success' target="_blank">Badges printed</a></li>
+        <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.name) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
+        <li><a href={{ "{0}event/{1}/badges?badge_printed=t".format(space.url_for(), event.name) }} class='btn btn-success' target="_blank">Badges printed</a></li>
         <li></li>
         <li></li>
         <li>
@@ -65,9 +65,9 @@
             </li>
             <li>
             {%- if p.checked_in %}
-              <a href="{{ event.id }}/checkin/{{ p.id }}" class='btn btn-xs btn-danger'>Cancel Check-in</a>
+              <a href="{{ event.name }}/checkin/{{ p.id }}" class='btn btn-xs btn-danger'>Cancel Check-in</a>
             {%- else %}
-            <a href="{{ event.id }}/checkin/{{ p.id }}?checkin=t" class='btn btn-xs btn-warning'>Check-in</a>
+            <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" class='btn btn-xs btn-warning'>Check-in</a>
             {%- endif %}
             </li>
             </ul>

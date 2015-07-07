@@ -4,7 +4,7 @@ import base64
 import logging
 from datetime import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
-from . import db, BaseMixin
+from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
 from .user import User
 
@@ -30,7 +30,7 @@ event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     )
 
 
-class Event(BaseMixin, db.Model):
+class Event(BaseScopedNameMixin, db.Model):
     """
     A discrete event under a proposal space.
     For instance, a space could be associated with a workshop and a two-day conference.
@@ -44,18 +44,19 @@ class Event(BaseMixin, db.Model):
     """
     __tablename__ = 'event'
 
-    name = db.Column(db.Unicode(80), nullable=False)
     proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan', lazy='dynamic'))
+    parent = db.synonym('proposal_space')
     ticket_types = db.relationship("TicketType", secondary=event_ticket_type, lazy='dynamic')
     participants = association_proxy('attendees', 'participant')
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
     @classmethod
-    def get(cls, name, space, create=False):
-        event = cls.query.filter_by(name=name, proposal_space=space).first()
+    def get(cls, title, space, create=False):
+        event = cls.query.filter_by(title=title, proposal_space=space).first()
         if not event and create:
-            event = cls(name=name, proposal_space=space)
+            event = cls(title=title, proposal_space=space)
             db.session.add(event)
         return event
 
