@@ -1,14 +1,26 @@
 <!DOCTYPE html>
 <head>
   <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
-  <link href='https://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
   <style>
+    @font-face {
+      font-family: 'Bree Serif';
+      font-style: normal;
+      font-weight: 400;
+      src: url({{ url_for('static', filename='fonts/breeserif-regular.ttf')}}) format("truetype");
+    }
+
+    @font-face {
+      font-family: 'Bree Serif';
+      font-style: normal;
+      font-weight: 300;
+      src: url({{ url_for('static', filename='fonts/breeserif-light.otf')}}) format("opentype");
+    }
     @page {
       size: 3.75in 11.2in;  /* width height */
       margin: 0;
     }
     body {
-      font-family: 'Bree Serif', serif;
+      font-family: 'Bree Serif';
       margin: 0;
       padding: 0;
       background: transparent;
@@ -42,17 +54,17 @@
       line-height: 1;
     }
     .first-name {
-      font-size: 80px;
-      max-height: 80px; /* fit text in one line */
+      font-size: 79px;
+      max-height: 79px; /* fit text in one line */
       text-transform: uppercase;
-      font-weight: normal;
+      font-weight: 400;
     }
     .last-name {
-      font-size: 35px;
-      max-height: 35px; /* fit text in one line */
+      font-size: 38px;
+      max-height: 38px; /* fit text in one line */
       margin-bottom: 10px;
       text-transform: uppercase;
-      font-weight: normal;
+      font-weight: 300;
     }
     .last-name-box {
       border-bottom: 3px solid #000;
@@ -63,13 +75,13 @@
       max-height: 50px; /* fit text within two lines */
       color: #df5e0e;
       margin-bottom: 10px;
-      font-weight: normal;
+      font-weight: 400;
     }
     .twitter-handle {
       font-size: 35px;
       max-height: 35px; /* fit text in one line */
       color: #0ea5b0;
-      font-weight: normal;
+      font-weight: 400;
     }
     img.center {
       display: block;
