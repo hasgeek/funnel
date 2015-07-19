@@ -59,8 +59,12 @@ def new_participant(profile, space):
     if form.validate_on_submit():
         participant = Participant(proposal_space=space)
         form.populate_obj(participant)
-        db.session.add(participant)
-        db.session.commit()
+        try:
+            db.session.add(participant)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash(_(u"This participant already exists."), 'info')
         return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
 
