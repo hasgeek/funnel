@@ -9,14 +9,19 @@ __all__ = ['ExplaraAPI']
 class ExplaraAPI(object):
     """
     Example Use:
-    ea = ExplaraAPI(access_token="xxx", eventid="exxxx")
-    tickets = ea.get_tickets()
+    ea = ExplaraAPI(access_token="xxx")
+    tickets = ea.get_tickets(eventid="exxxx")
     """
-    def __init__(self, access_token, eventid):
+    def __init__(self, access_token):
         self.access_token = access_token
-        self.eventid = eventid
 
-    def get_orders(self):
+    def get_events(self):
+        events_url = 'https://www.explara.com/api/e/get-all-events'
+        headers = {'Authorization': u'Bearer ' + self.access_token}
+        events = requests.post(events_url, headers=headers).json()
+        return [{'title': e.get('eventTitle'), 'eventId': e.get('eventId')} for e in events.get('events')]
+
+    def get_orders(self, explara_eventid):
         headers = {'Authorization': u'Bearer ' + self.access_token}
         attendee_list_url = 'https://www.explara.com/api/e/attendee-list'
         ticket_orders = []
@@ -24,7 +29,7 @@ class ExplaraAPI(object):
         from_record = 0
         to_record = 50
         while not completed:
-            payload = {'eventId': self.eventid, 'fromRecord': from_record, 'toRecord': to_record}
+            payload = {'eventId': explara_eventid, 'fromRecord': from_record, 'toRecord': to_record}
             attendee_response = requests.post(attendee_list_url, headers=headers, data=payload).json()
             if not attendee_response.get('attendee'):
                 completed = True
@@ -38,8 +43,8 @@ class ExplaraAPI(object):
 
         return ticket_orders
 
-    def get_tickets(self):
-        orders = self.get_orders()
+    def get_tickets(self, explara_eventid):
+        orders = self.get_orders(explara_eventid)
         tickets = []
 
         for order in orders:
