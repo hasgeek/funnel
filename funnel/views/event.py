@@ -130,7 +130,7 @@ def events(profile, space):
             if ticket_client.name == 'explara':
                 tickets = ExplaraAPI(
                     access_token=ticket_client.client_access_token
-                    ).get_tickets(eventid=ticket_client.client_event_id)
+                    ).get_tickets(ticket_client.client_event_id)
                 SyncTicket.sync_from_list(tickets, space, ticket_client)
         db.session.commit()
         return redirect(space.url_for('events'), code=303)
