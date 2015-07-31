@@ -19,7 +19,7 @@ valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
 class ProposalSpaceForm(forms.Form):
     name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
-    datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired()])
+    datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)])
     date = forms.DateField(__("Start date (for sorting)"),
         validators=[forms.validators.DataRequired(__("Enter a valid date in YYYY-MM-DD format"))])
     date_upto = forms.DateField(__("End date (for sorting)"),
