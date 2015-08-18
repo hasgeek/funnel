@@ -671,3 +671,32 @@ div.markdown-field a.button {
 .small-td {
     width: 10em;
 }
+
+@media(max-width:767px) {
+  .list-inline > li.badge-print-status-btn {
+    display: block;
+    max-width: 100px;
+  }
+}
+
+@media(min-width: 1200px) {
+  .status-btn-list {
+    float: right;
+  }
+}
+
+@media(max-width: 991px) {
+  .status-btn-list li, .status-btn-list .controls, .search-participant{
+    margin-bottom: 10px;
+  }
+
+  .status-btn-list .controls {
+    padding-left: 0;
+  }
+}
+
+@media(min-width: 992px) and (max-width: 1199px) {
+  .search-participant, .table .status-btn-list li {
+      margin-bottom: 10px;
+  }
+}
