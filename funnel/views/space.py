@@ -66,7 +66,7 @@ def space_form_test(profile):
     (Profile, {'name': 'profile'}, 'g.profile'),
     permission='new-space')
 def space_new(profile):
-    form = ProposalSpaceForm(model=ProposalSpace)
+    form = ProposalSpaceForm(model=ProposalSpace, parent=profile)
     if request.method == 'GET':
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
