@@ -3,7 +3,6 @@
 import unicodecsv
 from cStringIO import StringIO
 from flask import g, flash, redirect, render_template, Response, request, make_response, abort
-from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
@@ -67,20 +66,16 @@ def space_form_test(profile):
     (Profile, {'name': 'profile'}, 'g.profile'),
     permission='new-space')
 def space_new(profile):
-    form = ProposalSpaceForm(model=ProposalSpace)
+    form = ProposalSpaceForm(model=ProposalSpace, parent=profile)
     if request.method == 'GET':
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user, profile=profile)
         form.populate_obj(space)
         db.session.add(space)
-        try:
-            db.session.commit()
-            flash(_("Your new space has been created"), 'info')
-            return redirect(space.url_for(), code=303)
-        except IntegrityError:
-            db.session.rollback()
-            flash(_("There is an existing space with that name. Please pick a different name."), 'danger')
+        db.session.commit()
+        flash(_("Your new space has been created"), 'info')
+        return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("Create a new proposal space"), submit=_("Create space"), cancel_url=profile.url_for())
 
 
