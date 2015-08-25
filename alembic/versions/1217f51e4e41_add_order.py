@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    op.create_table('order',
+    op.create_table('ticket_order',
     sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -29,7 +29,7 @@ def upgrade():
         sa.Column('paid_amount', sa.Numeric(), nullable=False),
         sa.Column('refund_amount', sa.Numeric(), nullable=False),
         sa.Column('payment_confirmed', sa.Boolean(), nullable=False),
-        sa.CheckConstraint(u'paid_amount > refund_amount', name='payment_greater_than_refund'),
+        sa.CheckConstraint(u'paid_amount >= refund_amount', name='payment_greater_than_refund'),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.ForeignKeyConstraint(['ticket_client_id'], ['ticket_client.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
@@ -39,4 +39,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('order')
+    op.drop_table('ticket_order')

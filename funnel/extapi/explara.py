@@ -25,12 +25,12 @@ class ExplaraAPI(object):
     def format_order(self, order):
         """ Returns a native representation of the order """
         def date_from_string(datestr):
-            return datetime.strptime(datestr.split()[0], '%Y-%m-%d')
+            return datetime.datetime.strptime(datestr.split()[0], '%Y-%m-%d')
 
         return {
             'order_no': order.get('orderNo'),
             'phone': order.get('phoneNo'),
-            'datetime': date_from_string(order.get('purchaseDate').get('date')),
+            'purchased_at': date_from_string(order.get('purchaseDate').get('date')),
             'buyer_email': order.get('email'),
             'buyer_phone': order.get('phoneNo'),
             'paid_amount': order.get('orderCost'),
