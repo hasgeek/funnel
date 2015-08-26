@@ -4,11 +4,13 @@ import base64
 import logging
 from datetime import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
+import uuid
 from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
 from .user import User
+from ..extapi.explara import ExplaraAPI
 
-__all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket', 'TicketClient']
+__all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket', 'TicketClient', 'Order']
 
 
 def make_key():
@@ -174,14 +176,71 @@ class TicketClient(BaseMixin, db.Model):
         backref=db.backref('ticket_clients', cascade='all, delete-orphan', lazy='dynamic'))
 
 
+class Order(BaseMixin, db.Model):
+    """ A purchase order that can be created here, or imported from a ticket client.
+    Each order is associated with one or more tickets.
+    """
+    __tablename__ = 'ticket_order'
+
+    order_no = db.Column(db.Unicode(80), default=unicode(uuid.uuid4()), nullable=False)
+    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space = db.relationship(ProposalSpace,
+        backref=db.backref('orders', cascade='all, delete-orphan', lazy='dynamic'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user = db.relationship(User, backref=db.backref('orders', cascade='all, delete-orphan'))
+    ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=True)
+    ticket_client = db.relationship(TicketClient,
+        backref=db.backref('orders', lazy='dynamic'))
+    buyer_email = db.Column(db.Unicode(80), nullable=True)
+    buyer_phone = db.Column(db.Unicode(80), nullable=True)
+    purchased_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    company_name = db.Column(db.Unicode(80), nullable=True)
+    paid_amount = db.Column(db.Numeric, default=0, nullable=False)
+    refund_amount = db.Column(db.Numeric, default=0, nullable=False)
+    payment_confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no'),
+                      db.CheckConstraint('paid_amount > refund_amount', 'payment_greater_than_refund'))
+
+    @classmethod
+    def fetch(cls, order_no, space):
+        return cls.query.filter_by(order_no=order_no, proposal_space=space).first()
+
+    @classmethod
+    def rsync(cls, space):
+        """ Synchronizes orders from the ticket clients for a given proposal space """
+        msg = ""
+        for ticket_client in space.ticket_clients.all():
+            if ticket_client.name == 'explara':
+                explara = ExplaraAPI(access_token=ticket_client.client_access_token)
+                remote_orders = explara.get_orders(ticket_client.client_event_id)
+                for remote_order in remote_orders:
+                    remote_order = explara.format_order(remote_order)
+                    if not cls.fetch(remote_order.get('order_no'), space):
+                        order = Order(order_no=remote_order.get('order_no'),
+                            buyer_email=remote_order.get('buyer_email'),
+                            buyer_phone=remote_order.get('buyer_phone'),
+                            purchased_at=remote_order.get('purchased_at'),
+                            paid_amount=remote_order.get('paid_amount'),
+                            refund_amount=remote_order.get('paid_amount'),
+                            proposal_space=space,
+                            ticket_client=ticket_client)
+                        db.session.add(order)
+                msg += "Upserted " + str(len(remote_orders)) + " orders from Explara."
+        return msg or "The given proposal space has no ticket clients."
+
+
 class SyncTicket(BaseMixin, db.Model):
-    """ Model for a ticket that was bought elsewhere. Eg: Explara."""
+    """ A ticket that can be booked here, or via a ticket client.
+    Each ticket is part of an order.
+    """
     __tablename__ = 'sync_ticket'
 
-    ticket_no = db.Column(db.Unicode(80), nullable=False)
+    ticket_no = db.Column(db.Unicode(80), default=unicode(uuid.uuid4()), nullable=False)
     order_no = db.Column(db.Unicode(80), nullable=False)
     ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
     ticket_type = db.relationship(TicketType,
+        backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
+    order = db.relationship(Order,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant, primaryjoin=participant_id == Participant.id,
@@ -189,11 +248,12 @@ class SyncTicket(BaseMixin, db.Model):
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
-    ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=False)
+    ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=True)
     ticket_client = db.relationship(TicketClient,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan', lazy='dynamic'))
 
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),
+                      db.ForeignKeyConstraint(['proposal_space_id', 'order_no'], ['ticket_order.proposal_space_id', 'ticket_order.order_no']))
 
     @classmethod
     def fetch(cls, ticket_no, order_no, space):
