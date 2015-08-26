@@ -177,6 +177,9 @@ class TicketClient(BaseMixin, db.Model):
 
 
 class Order(BaseMixin, db.Model):
+    """ A purchase order that can be created here, or imported from a ticket client.
+    Each order is associated with one or more tickets.
+    """
     __tablename__ = 'ticket_order'
 
     order_no = db.Column(db.Unicode(80), default=unicode(uuid.uuid4()), nullable=False)
@@ -227,7 +230,9 @@ class Order(BaseMixin, db.Model):
 
 
 class SyncTicket(BaseMixin, db.Model):
-    """ Model for a ticket that was bought elsewhere. Eg: Explara."""
+    """ A ticket that can be booked here, or via a ticket client.
+    Each ticket is part of an order.
+    """
     __tablename__ = 'sync_ticket'
 
     ticket_no = db.Column(db.Unicode(80), default=unicode(uuid.uuid4()), nullable=False)

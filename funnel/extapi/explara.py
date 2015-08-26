@@ -24,6 +24,7 @@ class ExplaraAPI(object):
 
     def format_order(self, order):
         """ Returns a native representation of the order """
+
         def date_from_string(datestr):
             return datetime.datetime.strptime(datestr.split()[0], '%Y-%m-%d')
 
