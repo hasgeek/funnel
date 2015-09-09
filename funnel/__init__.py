@@ -26,9 +26,6 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.css'][version] = 'css/schedules.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['screens.css'][version] = 'css/screens.css'
-assets['footable.js'][version] = 'js/libs/footable-min.js'
-assets['footable-core.css'][version] = 'css/footable.core.css'
-assets['footable-metro.css'][version] = 'css/footable.metro.css'
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -48,7 +45,7 @@ def init_for(env):
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(db, models.User, models.Team))
     baseframe.init_app(app, requires=['funnel'], ext_requires=[
-        ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-bs3', 'fontawesome>=4.0.0'
+        ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-bs3', 'fontawesome>=4.0.0', 'footable'
         ])
     app.assets.register('js_fullcalendar',
         Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
@@ -62,9 +59,3 @@ def init_for(env):
     app.assets.register('css_screens',
         Bundle(assets.require('screens.css'),
             output='css/screens.packed.css', filters='cssmin'))
-    app.assets.register('js_footable',
-        Bundle(assets.require('footable.js'),
-            output='js/footable.packed.js', filters='uglipyjs'))
-    app.assets.register('css_footable',
-        Bundle(assets.require('footable-core.css','footable-metro.css'),
-            output='css/footable.packed.css', filters='cssmin'))

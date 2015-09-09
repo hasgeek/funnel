@@ -3,9 +3,6 @@
 {% from "baseframe/forms.html" import renderfield %}
 {% block title %}{{ space.title }}{% endblock %}
 {% block pageheaders %}
-  {% assets 'css_footable' -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets %}
 {% endblock %}
 {% block headline %}
   <div class="page-header">
@@ -78,9 +75,6 @@
   </table>
 {% endblock %}
 {% block footerscripts %}
-  {% assets 'js_footable' -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
 <script>
   $(document).ready(function() {
     $('#badge_form').on("submit", function(){

@@ -663,6 +663,11 @@ div.markdown-field a.button.selected {
   width: 10em;
 }
 
+.footable > thead > tr > th {
+  background-color: #e8e8e8;
+  border: 1px solid #b7b7b7;
+}
+
 .list-inline > li.badge-print-status-btn {
   display: block;
   width: 200px;
@@ -693,7 +698,7 @@ td .status-btn-list li:last-child {
 }
 
 @media (min-width: 992px) {
-  .status-btn-list li, .status-btn-list .controls {
+  .status-btn-list .controls {
     margin-bottom: 0;
   }
 
