@@ -205,7 +205,7 @@ class SyncTicket(BaseMixin, db.Model):
         current_ticket_ids = []
         for ticket_dict in ticket_list:
             ticket = SyncTicket.fetch(ticket_dict.get('ticket_no'), ticket_dict.get('order_no'), space)
-            ticket_ticket_type = TicketType.query.filter_by(name=ticket_dict.get('ticket_type'), proposal_space=space).first()
+            ticket_ticket_type = TicketType.get(ticket_dict.get('ticket_type'), space, create=True)
             # get or create participant
             ticket_participant = Participant.query.filter_by(email=ticket_dict.get('email'), proposal_space=space).first()
             if not ticket_participant:
