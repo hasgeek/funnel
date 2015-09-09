@@ -14,23 +14,25 @@ class ExplaraAPI(object):
     """
     def __init__(self, access_token):
         self.access_token = access_token
+        self.headers = {'Authorization': u'Bearer ' + self.access_token}
+        self.base_url = 'https://www.explara.com/api/e/{0}'
 
     def get_events(self):
-        events_url = 'https://www.explara.com/api/e/get-all-events'
-        headers = {'Authorization': u'Bearer ' + self.access_token}
-        events = requests.post(events_url, headers=headers).json()
+        events = requests.post(self.base_url.format('get-all-events'), headers=self.headers).json()
         return [{'title': e.get('eventTitle'), 'eventId': e.get('eventId')} for e in events.get('events')]
 
+    def get_ticket_types(self, explara_eventid):
+        ticket_types = requests.post(self.base_url.format('get-tickets'), headers=self.headers, data={'eventId': explara_eventid}).json()
+        return ticket_types
+
     def get_orders(self, explara_eventid):
-        headers = {'Authorization': u'Bearer ' + self.access_token}
-        attendee_list_url = 'https://www.explara.com/api/e/attendee-list'
         ticket_orders = []
         completed = False
         from_record = 0
         to_record = 50
         while not completed:
             payload = {'eventId': explara_eventid, 'fromRecord': from_record, 'toRecord': to_record}
-            attendee_response = requests.post(attendee_list_url, headers=headers, data=payload).json()
+            attendee_response = requests.post(self.base_url.format('attendee-list'), headers=self.headers, data=payload).json()
             if not attendee_response.get('attendee'):
                 completed = True
             elif isinstance(attendee_response.get('attendee'), list):
@@ -62,7 +64,7 @@ class ExplaraAPI(object):
                         'company': details.get('Company name', ''),
                         'city': attendee.get('city', ''),
                         'ticket_no': attendee.get('ticketNo'),
-                        'ticket_type': attendee.get('ticketName'),
+                        'ticket_type': attendee.get('ticketName').strip(),
                         'order_no': order.get('orderNo'),
                     })
         return tickets
