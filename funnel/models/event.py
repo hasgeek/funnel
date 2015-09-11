@@ -148,6 +148,21 @@ class Participant(BaseMixin, db.Model):
             proposal_space=space
         )
 
+    @classmethod
+    def update_from_dict(cls, updated_participant):
+        participant = Participant.query.filter_by(email=updated_participant.get('email')).first()
+        if participant:
+            participant.fullname = updated_participant.get('fullname')
+            participant.phone = updated_participant.get('phone')
+            participant.twitter = updated_participant.get('twitter')
+            participant.job_title = updated_participant.get('job_title')
+            participant.company = updated_participant.get('company')
+            participant.city = updated_participant.get('city')
+            db.session.add(participant)
+            return participant
+        else:
+            return None
+
 
 class Attendee(BaseMixin, db.Model):
     """Join model between Participant and Event."""
