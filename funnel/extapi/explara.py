@@ -62,7 +62,7 @@ class ExplaraAPI(object):
                         'twitter': format_twitter(details.get('Twitter handle', '')),
                         'job_title': details.get('Job title', ''),
                         'company': details.get('Company name', ''),
-                        'city': attendee.get('city', ''),
+                        'city': order.get('city', ''),
                         'ticket_no': attendee.get('ticketNo'),
                         'ticket_type': attendee.get('ticketName').strip(),
                         'order_no': order.get('orderNo'),
