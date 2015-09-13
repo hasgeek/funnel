@@ -81,7 +81,7 @@ class RsvpForm(forms.Form):
 class ParticipantForm(forms.Form):
     fullname = forms.StringField(__("Full Name"), validators=[forms.validators.DataRequired()])
     email = forms.EmailField(__("Email"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
-    phone = forms.StringField(__("Phone number"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)])
+    phone = forms.StringField(__("Phone number"), validators=[forms.validators.Length(max=80)])
     city = forms.StringField(__("City"), validators=[forms.validators.Length(max=80)])
     company = forms.StringField(__("Company"), validators=[forms.validators.Length(max=80)])
     job_title = forms.StringField(__("Job Title"), validators=[forms.validators.Length(max=80)])
