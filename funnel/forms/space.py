@@ -93,9 +93,9 @@ class ParticipantForm(forms.Form):
 
 
 class ParticipantImportForm(forms.Form):
-    participant_list = forms.FileField("Participant List",
+    participant_list = forms.FileField(__("Participant List"),
         description=u"CSV with Header. Order: name, email, phone, twitter, company.",
-        )
+        validators=[forms.validators.DataRequired(u"Please upload a CSV file.")])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
         get_label='title',

@@ -4,14 +4,18 @@
 {% block title %}{{ space.title }}{% endblock %}
 
 {% block content %}
-<p>
+<ul class='list-inline'>
+<li>
 <form method="POST" id="attendee_remote_sync_form" enctype="multipart/form-data" class="form-inline">
   <div class="form-group">
     {{ attendee_sync_form.hidden_tag() }}
   </div>
   <input id="attendee_sync_form-submit" class="btn btn-danger" type="submit" value="{% trans %}Sync Attendees{% endtrans %}"/>
 </form>
-</p>
+</li>
+<li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a></li>
+<li><a href={{ space.url_for('import-participant') }} class='btn btn-info'>Import Participants</a></li>
+</ul>
 <ol>
 {%- for e in events %}
 <li>

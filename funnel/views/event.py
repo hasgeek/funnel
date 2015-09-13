@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-
+import os
 from flask import flash, redirect, render_template, request, g
+from werkzeug import secure_filename
 from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, Attendee, SyncTicket, ContactExchange)
 import baseframe.forms as forms
-from ..forms import ParticipantForm, ParticipantBadgeForm
+from ..forms import ParticipantForm, ParticipantBadgeForm, ParticipantImportForm
 from helpers import split_name, format_twitter, make_qrcode
 from sqlalchemy.exc import IntegrityError
 from ..extapi.explara import ExplaraAPI
@@ -35,6 +36,10 @@ def participant_data(participant, space_id, full=False):
             'company': participant.company,
             'space_id': space_id
         }
+
+
+def allowed_file(filename, exts=[]):
+    return '.' in filename and filename.rsplit('.', 1)[1] in exts
 
 
 @app.route('/<space>/participants/json', subdomain='<profile>')
@@ -67,6 +72,29 @@ def new_participant(profile, space):
             flash(_(u"This participant already exists."), 'info')
         return redirect(space.url_for(), code=303)
     return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
+
+
+@app.route('/<space>/participants/import', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='new-participant')
+def import_participant(profile, space):
+    form = ParticipantImportForm()
+    form.events.query = space.events
+    if form.validate_on_submit():
+        participant_list_csv = request.files['participant_list']
+        if participant_list_csv and allowed_file(participant_list_csv.filename, exts=['csv']):
+            filename = secure_filename(participant_list_csv.filename)
+            participant_list_csv.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            Participant.add_from_list(space, filename=filename, events=form.data['events'])
+            db.session.commit()
+            flash(_(u"Participants were imported from {0}.".format(filename)), 'info')
+            return redirect(space.url_for('events'), code=303)
+        else:
+            form.participant_list.errors.append(u'Please provide a valid CSV file.')
+    return render_form(form=form, title=_("Import Participants"), submit=_("Import"))
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
@@ -111,10 +139,6 @@ def participant(profile, space):
         return jsonp(participant=participant_data(participant, space.id, full=True))
     else:
         return jsonp(message="Unauthorized", code=401)
-
-
-def allowed_file(filename, allowed_exts=[]):
-    return '.' in filename and filename.rsplit('.', 1)[1] in allowed_exts
 
 
 @app.route('/<space>/event', methods=['GET', 'POST'], subdomain='<profile>')
