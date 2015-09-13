@@ -137,7 +137,6 @@ class Participant(BaseMixin, db.Model):
     def get(cls, space, email, participant_attrs={}, create=False):
         participant = cls.query.filter_by(proposal_space=space, email=email).first()
         if create and not participant:
-            print participant_attrs
             participant = cls(
                 fullname=participant_attrs.get('fullname'),
                 email=email,
