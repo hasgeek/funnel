@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-import csv
+import unicodecsv
 import base64
 import logging
 from datetime import datetime
@@ -26,7 +26,7 @@ def make_private_key():
 
 def csv_to_rows(csv_file, skip_header=True, delimiter=','):
     with open(csv_file, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=delimiter)
+        reader = unicodecsv.reader(csvfile, delimiter=delimiter)
         if skip_header:
             next(reader)
         return [row for row in reader]
