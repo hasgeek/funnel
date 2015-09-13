@@ -2,6 +2,8 @@
 {% from "macros.html" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html" import renderfield %}
 {% block title %}{{ space.title }}{% endblock %}
+{% block pageheaders %}
+{% endblock %}
 {% block headline %}
   <div class="page-header">
     {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
@@ -15,38 +17,33 @@
   <h3>{{event.title}}</h3>
   </p>
   <div class="row">
-    <div class="col-md-2">
-      <form class="form-inline">
-        <div class="form-group">
+    <div class="col-lg-3 col-sm-4 col-xs-6">
+      <form class="search-participant">
           <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
-        </div>
       </form>
     </div>
-    <div class="col-md-10">
-      <ul class="list-inline pull-right">
+    <div class="col-lg-9 col-xs-12">
+      <ul class="list-inline status-btn-list">
         <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a></li>
         <li><a href={{ space.url_for('import-participant') }} class='btn btn-info'>Import Participants</a></li>
         <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.name) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
         <li><a href={{ "{0}event/{1}/badges?badge_printed=t".format(space.url_for(), event.name) }} class='btn btn-success' target="_blank">Badges printed</a></li>
-        <li></li>
-        <li></li>
-        <li>
+        <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="form-inline">
-            <div class="form-group">
-            {{ badge_form.hidden_tag() }}
-            {{ renderfield(badge_form.badge_printed, style='wide', nolabel=true) }}
+              {{ badge_form.hidden_tag() }}
+              {{ renderfield(badge_form.badge_printed, style='wide', nolabel=true) }}
             <input id="badge-form-submit" class="btn btn-danger" type="submit" value="{% trans %}Update Badges{% endtrans %}"/>
           </form>
         </li>
       </ul>
     </div>
   </div>
-  <table class="table" id='participants-table'>
+  <table class="table footable" id='participants-table'>
     <thead>
       <tr>
         <th>Name</th>
-        <th>Email</th>
-        <th>Company</th>
+        <th data-hide="phone">Email</th>
+        <th data-hide="tablet, phone">Company</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -55,9 +52,9 @@
         <tr id="p-{{ p.id }}">
           <td class='js-searchable'>{{ p.fullname }}</td>
           <td class='js-searchable'>{{ p.email }}</td>
-          <td class='js-searchable small-td'>{{ p.company }}</td>
+          <td class='js-searchable'>{{ p.company }}</td>
           <td>
-            <ul class="list-inline">
+            <ul class="list-inline status-btn-list">
             <li>
               <a href={{ "{0}participant/{1}/badge".format(space.url_for(), p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
             </li>
@@ -157,6 +154,14 @@
       var hits = tableSearch.searchRows($(this).val());
       $(hits.join(",")).removeClass('hidden');
     });
+
+    $('.footable').footable({
+      breakpoints: {
+        phone: 600,
+        tablet: 768,
+      }
+    });
+
   });
 </script>
 {% endblock %}
