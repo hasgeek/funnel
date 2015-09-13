@@ -10,7 +10,7 @@ from ..models import RSVP_STATUS
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm', 'ParticipantForm', 'ParticipantBadgeForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm', 'ParticipantForm', 'ParticipantBadgeForm', 'ParticipantImportForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -86,6 +86,16 @@ class ParticipantForm(forms.Form):
     company = forms.StringField(__("Company"), validators=[forms.validators.Length(max=80)])
     job_title = forms.StringField(__("Job Title"), validators=[forms.validators.Length(max=80)])
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
+    events = QuerySelectMultipleField(__("Events"),
+        widget=ListWidget(), option_widget=CheckboxInput(),
+        get_label='title',
+        validators=[forms.validators.DataRequired(u"Select at least one event")])
+
+
+class ParticipantImportForm(forms.Form):
+    participant_list = forms.FileField("Participant List",
+        description=u"CSV with Header. Order: name, email, phone, twitter, company.",
+        )
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
         get_label='title',
