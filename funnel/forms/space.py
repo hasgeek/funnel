@@ -93,7 +93,7 @@ class ParticipantForm(forms.Form):
 
 
 class ParticipantImportForm(forms.Form):
-    participant_list = forms.FileField(__("Participant List"),
+    participant_list = forms.FileField(__("Participant list"),
         description=u"CSV with Header. Order: name, email, phone, twitter, company.",
         validators=[forms.validators.DataRequired(u"Please upload a CSV file.")])
     events = QuerySelectMultipleField(__("Events"),
