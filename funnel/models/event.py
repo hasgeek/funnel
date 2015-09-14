@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import unicodecsv
 import base64
 import logging
 from datetime import datetime
@@ -23,12 +22,6 @@ def make_public_key():
 
 def make_private_key():
     return make_key()[:8]
-
-
-def csv_to_rows(csv_file, delimiter=','):
-    with open(csv_file, 'rb') as csvfile:
-        reader = unicodecsv.DictReader(csvfile)
-        return [dict((k.lower(), v) for k, v in row.iteritems()) for row in reader]
 
 
 event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
@@ -144,7 +137,7 @@ class Participant(BaseMixin, db.Model):
                 job_title=fields.get('job_title'),
                 company=fields.get('company'),
                 city=fields.get('city'),
-                events=fields.get('events'),
+                events=fields.get('events', []),
                 proposal_space=space
             )
             db.session.add(participant)
@@ -174,15 +167,6 @@ class Participant(BaseMixin, db.Model):
             return participant
         else:
             raise NoResultFound
-
-    @classmethod
-    def add_from_list(cls, space, filename="", events=[]):
-        """
-        Expected CSV format (with header) : name, email, phone, twitter, company
-        """
-        for row in csv_to_rows(filename):
-            participant_dict = {'events': events, 'fullname': row.get('name'), 'email': row.get('email'), 'phone': row.get('phone'), 'twitter': row.get('twitter'), 'company': row.get('company')}
-            cls.get(space, participant_dict.get('email'), participant_dict, create=True)
 
 
 class Attendee(BaseMixin, db.Model):
@@ -250,7 +234,7 @@ class SyncTicket(BaseMixin, db.Model):
         for ticket_dict in ticket_list:
             ticket = SyncTicket.fetch(ticket_dict.get('ticket_no'), ticket_dict.get('order_no'), space)
             ticket_ticket_type = TicketType.get(ticket_dict.get('ticket_type'), space, create=True)
-            ticket_participant = Participant.get(space, ticket_dict.get('email'), ticket_dict, create=True)
+            ticket_participant = Participant.get(space, ticket_dict.get('email'), fields=ticket_dict, create=True)
 
             if ticket:
                 # check if participant has changed
