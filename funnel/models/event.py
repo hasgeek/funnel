@@ -5,6 +5,7 @@ import base64
 import logging
 from datetime import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm.exc import NoResultFound
 from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
 from .user import User
@@ -24,12 +25,10 @@ def make_private_key():
     return make_key()[:8]
 
 
-def csv_to_rows(csv_file, skip_header=True, delimiter=','):
+def csv_to_rows(csv_file, delimiter=','):
     with open(csv_file, 'rb') as csvfile:
-        reader = unicodecsv.reader(csvfile, delimiter=delimiter)
-        if skip_header:
-            next(reader)
-        return [row for row in reader]
+        reader = unicodecsv.DictReader(csvfile)
+        return [dict((k.lower(), v) for k, v in row.iteritems()) for row in reader]
 
 
 event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
@@ -134,18 +133,18 @@ class Participant(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
     @classmethod
-    def get(cls, space, email, participant_attrs={}, create=False):
+    def get(cls, space, email, fields={}, create=False):
         participant = cls.query.filter_by(proposal_space=space, email=email).first()
         if create and not participant:
             participant = cls(
-                fullname=participant_attrs.get('fullname'),
+                fullname=fields.get('fullname'),
                 email=email,
-                phone=participant_attrs.get('phone'),
-                twitter=participant_attrs.get('twitter'),
-                job_title=participant_attrs.get('job_title'),
-                company=participant_attrs.get('company'),
-                city=participant_attrs.get('city'),
-                events=participant_attrs.get('events'),
+                phone=fields.get('phone'),
+                twitter=fields.get('twitter'),
+                job_title=fields.get('job_title'),
+                company=fields.get('company'),
+                city=fields.get('city'),
+                events=fields.get('events'),
                 proposal_space=space
             )
             db.session.add(participant)
@@ -163,19 +162,18 @@ class Participant(BaseMixin, db.Model):
         return db.session.execute(stmt).fetchall()
 
     @classmethod
-    def update_from_dict(cls, space, updated_participant):
-        participant = cls.query.get(space, updated_participant.get('email'))
+    def update_from_dict(cls, space, fields):
+        participant = cls.get(space, fields.get('email'))
         if participant:
-            participant.fullname = updated_participant.get('fullname')
-            participant.phone = updated_participant.get('phone')
-            participant.twitter = updated_participant.get('twitter')
-            participant.job_title = updated_participant.get('job_title')
-            participant.company = updated_participant.get('company')
-            participant.city = updated_participant.get('city')
-            db.session.add(participant)
+            participant.fullname = fields.get('fullname')
+            participant.phone = fields.get('phone')
+            participant.twitter = fields.get('twitter')
+            participant.job_title = fields.get('job_title')
+            participant.company = fields.get('company')
+            participant.city = fields.get('city')
             return participant
         else:
-            return None
+            raise NoResultFound
 
     @classmethod
     def add_from_list(cls, space, filename="", events=[]):
@@ -183,7 +181,7 @@ class Participant(BaseMixin, db.Model):
         Expected CSV format (with header) : name, email, phone, twitter, company
         """
         for row in csv_to_rows(filename):
-            participant_dict = {'events': events, 'fullname': row[0], 'email': row[1], 'phone': row[2], 'twitter': row[3], 'company': row[4]}
+            participant_dict = {'events': events, 'fullname': row.get('name'), 'email': row.get('email'), 'phone': row.get('phone'), 'twitter': row.get('twitter'), 'company': row.get('company')}
             cls.get(space, participant_dict.get('email'), participant_dict, create=True)
 
 
