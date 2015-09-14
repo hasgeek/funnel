@@ -198,7 +198,7 @@ class Attendee(BaseMixin, db.Model):
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
     @classmethod
-    def get(cls, participant=None, event=None, create=False):
+    def get(cls, participant, event, create=False):
         attendee = cls.query.filter_by(participant=participant, event=event).first()
         if create and not attendee:
             attendee = cls(event=event, participant=participant)
