@@ -7,8 +7,8 @@ from baseframe import cache
 @cache.memoize(timeout=86400)
 def geonameid_from_location(text):
     """ Accepts a string, checks hascore if there's a location embedded
-        in the string, and returns an array of matched geonameids.
-        Eg: "Bangalore" -> [1277333]
+        in the string, and returns a set of matched geonameids.
+        Eg: "Bangalore" -> {1277333}
         To detect multiple locations, split them up and pass each location individually
     """
     if 'HASCORE_SERVER' in app.config:
