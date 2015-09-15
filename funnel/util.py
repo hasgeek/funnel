@@ -15,5 +15,5 @@ def geonameid_from_location(text):
         url = urljoin(app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
         response = requests.get(url, params={'q': text}).json()
         geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]
-        return geonameids
+        return set(geonameids)
     return None

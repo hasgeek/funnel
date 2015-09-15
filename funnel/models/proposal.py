@@ -190,8 +190,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     @cached_property
     def has_outstation_speaker(self):
-        space_geonameids = set(self.proposal_space.location_geonameid)
-        proposal_geonameids = set(geonameid_from_location(self.location))
+        space_geonameids = self.proposal_space.location_geonameid
+        proposal_geonameids = geonameid_from_location(self.location)
         return not space_geonameids.intersection(proposal_geonameids)
 
     def getnext(self):
