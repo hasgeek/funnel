@@ -189,8 +189,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return self.status == PROPOSALSTATUS.CONFIRMED
 
     @cached_property
-    def location_geonameid(self):
-        return geonameid_from_location(self.location)
+    def has_outstation_speaker(self):
+        return self.proposal_space.location_geonameid.isdisjoint(geonameid_from_location(self.location))
 
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
