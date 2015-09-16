@@ -62,9 +62,9 @@
             </li>
             <li>
             {%- if p.checked_in %}
-              <a href="{{ event.name }}/checkin/{{ p.id }}" data-pid="{{ p.id }}" data-checkinstatus=true class='btn btn-xs cancel-checkin'>Cancel Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif')}}" class="loader"/>
+              <a href="{{ event.name }}/checkin/{{ p.id }}" data-pid="{{ p.id }}" data-tocheckin=false class='btn btn-xs cancel-checkin'>Cancel Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif')}}" class="loader"/>
             {%- else %}
-              <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" data-pid="{{ p.id }}" data-checkinstatus=false class='btn btn-xs checkin'>Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" class="loader"/>
+              <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" data-pid="{{ p.id }}" data-tocheckin=true class='btn btn-xs checkin'>Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" class="loader"/>
             {%- endif %}
             </li>
             </ul>
@@ -75,35 +75,36 @@
   </table>
 {% endblock %}
 {% block footerscripts %}
-<script type="text/javascript" src="{{ url_for("static", filename="js/modernizr.min.js") }}"></script>
 <script>
-  LocalStorageKey = 'p-id';
+  if (Modernizr.localstorage) {
+    LocalStorageKey = 'p-id';
 
-  Storage.prototype.set = function(key, value) {
-    var participantList = JSON.parse(this.getItem(LocalStorageKey));
-    if(participantList) {
-      participantList[key] = value;
+    Storage.prototype.set = function(key, value) {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      if(participantList) {
+        participantList[key] = value;
+      }
+      else {
+        participantList = {};
+        participantList[key] = value;
+      }
+      return this.setItem(LocalStorageKey, JSON.stringify(participantList))
     }
-    else {
-      participantList = {};
-      participantList[key] = value;
+    Storage.prototype.get = function(key) {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      return participantList[key];
     }
-    return this.setItem(LocalStorageKey, JSON.stringify(participantList))
-  }
-  Storage.prototype.get = function(key) {
-    var participantList = JSON.parse(this.getItem(LocalStorageKey));
-    return participantList[key];
-  }
-  Storage.prototype.getItems = function() {
-    var participantList = JSON.parse(this.getItem(LocalStorageKey));
-    return participantList;
-  }
-  Storage.prototype.remove = function(key) {
-    var participantList = JSON.parse(this.getItem(LocalStorageKey));
-    if(participantList) {
-      delete participantList[key];
+    Storage.prototype.getItems = function() {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      return participantList;
     }
-    return this.setItem(LocalStorageKey, JSON.stringify(participantList))
+    Storage.prototype.remove = function(key) {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      if(participantList) {
+        delete participantList[key];
+      }
+      return this.setItem(LocalStorageKey, JSON.stringify(participantList))
+    }
   }
 
   $(document).ready(function() {
@@ -191,64 +192,78 @@
       }
     });
 
-    $('.checkin, .cancel-checkin').on('click', function(event) {
-      event.preventDefault();
-      localStorage.set($(this).data('pid'), $(this).attr('href'));
-      $(this).next('.loader').show();
-    });
+    if (Modernizr.localstorage) {
+      $('.checkin, .cancel-checkin').on('click', function(event) {
+        event.preventDefault();
+        localStorage.set($(this).data('pid'), $(this).attr('href'));
+        $(this).next('.loader').show();
+      });
 
-    //On page reload, for the all the participants in localStorage['p-id'] array show the ajax-loader image
-    if(localStorage.getItems() && Object.keys(localStorage.getItems()).length > 0) {
-      var participantList = localStorage.getItems();
-      for(key in participantList) {
-        $("[data-pid=" + key +"]").next('.loader').show();
+      // On page reload, for the all the participants in localStorage['p-id'] array show the ajax-loader image
+      if(localStorage.getItems() && Object.keys(localStorage.getItems()).length > 0) {
+        var participantList = localStorage.getItems();
+        for(key in participantList) {
+          $("[data-pid=" + key +"]").next('.loader').show();
+        }
       }
+
+      // Check localStorage['p-id'] array every 7 seconds, for any participant
+      // whose check-in status needs to be updated.
+      setInterval(setCheckInStatus, 7000);
     }
 
     function setCheckInStatus() {
       if(localStorage.getItems() && Object.keys(localStorage.getItems()).length > 0) {
         var current = Object.keys(localStorage.getItems())[0];
         localStorage.setItem('current', current);
-        var postUrl = localStorage.get(localStorage.getItem('current'));
+        var currentElement = "[data-pid=" + current +"]";
         $.ajax({
-          type: 'get',
-          url: postUrl,
+          type: 'post',
+          url: $(currentElement).attr('href'),
           timeout: 5000,
-          success: function() {
-            var current = localStorage.getItem('current');
-            var selectedParticipant = "[data-pid=" + current +"]";
-            if($(selectedParticipant).attr('href') === localStorage.get(localStorage.getItem('current'))) {
-              if($(selectedParticipant).data('checkinstatus')) {
-                $(selectedParticipant).data('checkinstatus', false);
-                $(selectedParticipant).attr('href', $(selectedParticipant).attr('href') + "?checkin=t");
-                $(selectedParticipant).removeClass('cancel-checkin').addClass('checkin').html('Check-in');
-              }
-              else {
-                $(selectedParticipant).attr('checkinstatus', true);
+          dataType: "json",
+          success: function(data) {
+            var selectedParticipant = "[data-pid=" + data.participant_id +"]";
+            // To handle cases where response was lost due to page reload
+            if($(selectedParticipant).data('tocheckin') === data.checked_in) {
+              if($(selectedParticipant).data('tocheckin')) {
+                $(selectedParticipant).attr('tocheckin', false);
                 var link = $(selectedParticipant).attr('href');
                 $(selectedParticipant).attr('href', link.substring(0, link.indexOf('?')));
                 $(selectedParticipant).removeClass('checkin').addClass('cancel-checkin').html('Cancel Check-in');
               }
+              else {
+                $(selectedParticipant).data('tocheckin', true);
+                $(selectedParticipant).attr('href', $(selectedParticipant).attr('href') + "?checkin=t");
+                $(selectedParticipant).removeClass('cancel-checkin').addClass('checkin').html('Check-in');
+              }
             }
-            localStorage.remove(current);
+            if (current === localStorage.getItem('error')) {
+              localStorage.removeItem('error');
+            }
             localStorage.removeItem('current');
+            localStorage.remove(data.participant_id);
             $(selectedParticipant).next('.loader').hide();
             $(selectedParticipant).parent().find('.error-txt').remove();
           },
           error: function() {
             var current = localStorage.getItem('current');
             var selectedParticipant = "[data-pid=" + current +"]";
-            $(selectedParticipant).next('.loader').hide();
-            $(selectedParticipant).parent().find('.error-txt').remove();
-            $(selectedParticipant).parent().append('<p class="error-txt">Error trying again</p>');
+            // After two failed tries, remove from localStorage['p-id'] array and show error message
+            if (current === localStorage.getItem('error')) {
+              $(selectedParticipant).next('.loader').hide();
+              $(selectedParticipant).parent().append('<p class="error-txt">Error try again</p>');
+              localStorage.removeItem('error');
+              localStorage.removeItem('current');
+              localStorage.remove(current);
+            }
+            else {
+              localStorage.setItem('error', current);
+            }
           }
         });
       }
     }
-   
-    //Check localStorage['p-id'] array every 7 seconds, for any participant 
-    //whose check in status needs to be updated.
-    setInterval(setCheckInStatus, 7000);
 
   });
 </script>
