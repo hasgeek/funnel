@@ -207,15 +207,14 @@
         }
       }
 
-      // Check localStorage['p-id'] array every 7 seconds, for any participant
+      // Check localStorage['p-id'] array every 1 second, for any participant
       // whose check-in status needs to be updated.
-      setInterval(setCheckInStatus, 7000);
+      setInterval(setCheckInStatus, 1000);
     }
 
     function setCheckInStatus() {
       if(localStorage.getItems() && Object.keys(localStorage.getItems()).length > 0) {
         var current = Object.keys(localStorage.getItems())[0];
-        localStorage.setItem('current', current);
         var currentElement = "[data-pid=" + current +"]";
         $.ajax({
           type: 'post',
@@ -238,28 +237,8 @@
                 $(selectedParticipant).removeClass('cancel-checkin').addClass('checkin').html('Check-in');
               }
             }
-            if (current === localStorage.getItem('error')) {
-              localStorage.removeItem('error');
-            }
-            localStorage.removeItem('current');
             localStorage.remove(data.participant_id);
             $(selectedParticipant).next('.loader').hide();
-            $(selectedParticipant).parent().find('.error-txt').remove();
-          },
-          error: function() {
-            var current = localStorage.getItem('current');
-            var selectedParticipant = "[data-pid=" + current +"]";
-            // After two failed tries, remove from localStorage['p-id'] array and show error message
-            if (current === localStorage.getItem('error')) {
-              $(selectedParticipant).next('.loader').hide();
-              $(selectedParticipant).parent().append('<p class="error-txt">Error try again</p>');
-              localStorage.removeItem('error');
-              localStorage.removeItem('current');
-              localStorage.remove(current);
-            }
-            else {
-              localStorage.setItem('error', current);
-            }
           }
         });
       }
