@@ -51,8 +51,8 @@ class Event(BaseScopedNameMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
     @classmethod
-    def get(cls, space, title):
-        return cls.query.filter_by(title=title, proposal_space=space).first()
+    def get_by_title(cls, space, title):
+        return cls.query.filter_by(title=title, proposal_space=space).one_or_none()
 
     @classmethod
     def create_from(cls, space, title):
@@ -62,7 +62,7 @@ class Event(BaseScopedNameMixin, db.Model):
 
     @classmethod
     def get_or_create_from(cls, space, title):
-        event = cls.get(space, title)
+        event = cls.get_by_title(space, title)
         if not event:
             event = cls.create_from(space, title)
         return event
@@ -83,8 +83,8 @@ class TicketType(BaseScopedNameMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
     @classmethod
-    def get(cls, space, title):
-        return cls.query.filter_by(title=title, proposal_space=space).first()
+    def get_by_title(cls, space, title):
+        return cls.query.filter_by(title=title, proposal_space=space).one_or_none()
 
     @classmethod
     def create_from(cls, space, title, events=[]):
@@ -98,7 +98,7 @@ class TicketType(BaseScopedNameMixin, db.Model):
 
     @classmethod
     def get_or_create_from(cls, space, title, events=[]):
-        ticket_type = TicketType.get(space, title)
+        ticket_type = TicketType.get_by_title(space, title)
         if not ticket_type:
             ticket_type = TicketType.create_from(space, title, events)
         return ticket_type
@@ -136,8 +136,8 @@ class Participant(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
     @classmethod
-    def get(cls, space, email):
-        return cls.query.filter_by(proposal_space=space, email=email).first()
+    def get_by_email(cls, space, email):
+        return cls.query.filter_by(proposal_space=space, email=email).one_or_none()
 
     @classmethod
     def create_from(cls, space, email, fields):
@@ -157,7 +157,7 @@ class Participant(BaseMixin, db.Model):
 
     @classmethod
     def get_or_create_from(cls, space, email, fields):
-        participant = Participant.get(space, email)
+        participant = Participant.get_by_email(space, email)
         if not participant:
             participant = Participant.create_from(space, email, fields)
         return participant
@@ -174,10 +174,6 @@ class Attendee(BaseMixin, db.Model):
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
-
-    @classmethod
-    def get(cls, participant, event):
-        return cls.query.filter_by(participant=participant, event=event).first()
 
 
 class TicketClient(BaseMixin, db.Model):
@@ -214,8 +210,8 @@ class SyncTicket(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
 
     @classmethod
-    def get(cls, space, order_no, ticket_no):
-        return cls.query.filter_by(ticket_no=ticket_no, order_no=order_no, proposal_space=space).first()
+    def get_by_ticket_no(cls, space, order_no, ticket_no):
+        return cls.query.filter_by(ticket_no=ticket_no, order_no=order_no, proposal_space=space).one_or_none()
 
     @classmethod
     def create_from(cls, space, order_no, ticket_no, ticket_type, participant, ticket_client):
