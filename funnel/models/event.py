@@ -46,8 +46,8 @@ class Event(BaseScopedNameMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('events', cascade='all, delete-orphan'))
     parent = db.synonym('proposal_space')
-    ticket_types = db.relationship("TicketType", secondary=event_ticket_type)
-    participants = db.relationship("Participant", secondary='attendee', backref="events", lazy='dynamic')
+    ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
+    participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
     @classmethod
@@ -79,7 +79,7 @@ class TicketType(BaseScopedNameMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_types', cascade='all, delete-orphan'))
     parent = db.synonym('proposal_space')
-    events = db.relationship("Event", secondary=event_ticket_type)
+    events = db.relationship('Event', secondary=event_ticket_type)
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
     @classmethod
