@@ -62,9 +62,9 @@
             </li>
             <li>
             {%- if p.checked_in %}
-              <a href="{{ event.name }}/checkin/{{ p.id }}" data-pid="{{ p.id }}" data-tocheckin=false class='btn btn-xs cancel-checkin'>Cancel Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif')}}" class="loader"/>
+              <a href="{{ event.name }}/checkin/{{ p.id }}" data-pid="{{ p.id }}" data-tocheckin="false" class='btn btn-xs cancel-checkin'>Cancel Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif')}}" class="loader"/>
             {%- else %}
-              <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" data-pid="{{ p.id }}" data-tocheckin=true class='btn btn-xs checkin'>Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" class="loader"/>
+              <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" data-pid="{{ p.id }}" data-tocheckin="true" class='btn btn-xs checkin'>Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" class="loader"/>
             {%- endif %}
             </li>
             </ul>
@@ -96,7 +96,15 @@
     }
     Storage.prototype.getItems = function() {
       var participantList = JSON.parse(this.getItem(LocalStorageKey));
-      return participantList;
+      if(participantList && Object.keys(participantList).length > 0) {
+        return participantList;
+      }
+    }
+    Storage.prototype.getItemKeys = function() {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      if(participantList && Object.keys(participantList).length > 0) {
+        return Object.keys(participantList);
+      }
     }
     Storage.prototype.remove = function(key) {
       var participantList = JSON.parse(this.getItem(LocalStorageKey));
@@ -200,8 +208,8 @@
       });
 
       // On page reload, for the all the participants in localStorage['p-id'] array show the ajax-loader image
-      if(localStorage.getItems() && Object.keys(localStorage.getItems()).length > 0) {
-        var participantList = localStorage.getItems();
+      var participantList = localStorage.getItems();
+      if(participantList) {
         for(key in participantList) {
           $("[data-pid=" + key +"]").next('.loader').show();
         }
@@ -213,9 +221,9 @@
     }
 
     function setCheckInStatus() {
-      if(localStorage.getItems() && Object.keys(localStorage.getItems()).length > 0) {
-        var current = Object.keys(localStorage.getItems())[0];
-        var currentElement = "[data-pid=" + current +"]";
+      var items = localStorage.getItemKeys();
+      if(items) {
+        var currentElement = "[data-pid=" + items[0] +"]";
         $.ajax({
           type: 'post',
           url: $(currentElement).attr('href'),
@@ -224,15 +232,15 @@
           success: function(data) {
             var selectedParticipant = "[data-pid=" + data.participant_id +"]";
             // To handle cases where response was lost due to page reload
-            if($(selectedParticipant).data('tocheckin') === data.checked_in) {
-              if($(selectedParticipant).data('tocheckin')) {
-                $(selectedParticipant).attr('tocheckin', false);
+            if($(selectedParticipant).attr('data-tocheckin') === String(data.checked_in)) {
+              if(data.checked_in) {
+                $(selectedParticipant).attr('data-tocheckin', "false");
                 var link = $(selectedParticipant).attr('href');
                 $(selectedParticipant).attr('href', link.substring(0, link.indexOf('?')));
                 $(selectedParticipant).removeClass('checkin').addClass('cancel-checkin').html('Cancel Check-in');
               }
               else {
-                $(selectedParticipant).data('tocheckin', true);
+                $(selectedParticipant).attr('data-tocheckin', "true");
                 $(selectedParticipant).attr('href', $(selectedParticipant).attr('href') + "?checkin=t");
                 $(selectedParticipant).removeClass('cancel-checkin').addClass('checkin').html('Check-in');
               }

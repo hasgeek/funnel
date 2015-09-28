@@ -209,6 +209,6 @@ def event_checkin(profile, space, event, participant):
     a.checked_in = checked_in
     db.session.add(a)
     db.session.commit()
-    if request.method == 'POST':
+    if request.is_xhr:
         return jsonify(status=True, participant_id=participant.id, checked_in=checked_in)
     return redirect("{0}event/{1}".format(space.url_for(), event.name), code=303)
