@@ -223,10 +223,10 @@
     function setCheckInStatus() {
       var items = localStorage.getItemKeys();
       if(items) {
-        var currentElement = "[data-pid=" + items[0] +"]";
+        var posturl = localStorage.get(items[0]);
         $.ajax({
           type: 'post',
-          url: $(currentElement).attr('href'),
+          url:  posturl,
           timeout: 5000,
           dataType: "json",
           success: function(data) {
