@@ -16,9 +16,9 @@ import sqlalchemy as sa
 
 def upgrade():
     op.add_column('ticket_type', sa.Column('title', sa.Unicode(length=250), nullable=True))
-    op.create_unique_constraint("ticket_type_proposal_space_id_name", 'ticket_type', ['proposal_space_id', 'name'])
+    op.create_unique_constraint("ticket_type_proposal_space_id_name_key", 'ticket_type', ['proposal_space_id', 'name'])
 
 
 def downgrade():
-    op.drop_constraint("ticket_type_proposal_space_id_name", 'ticket_type', type_='unique')
+    op.drop_constraint("ticket_type_proposal_space_id_name_key", 'ticket_type', type_='unique')
     op.drop_column('ticket_type', 'title')
