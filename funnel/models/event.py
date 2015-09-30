@@ -50,23 +50,6 @@ class Event(BaseScopedNameMixin, db.Model):
     participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
-    @classmethod
-    def get_by_title(cls, space, title):
-        return cls.query.filter_by(title=title, proposal_space=space).one_or_none()
-
-    @classmethod
-    def create_from(cls, space, title):
-        event = cls(title=title, proposal_space=space)
-        db.session.add(event)
-        return event
-
-    @classmethod
-    def get_or_create_from(cls, space, title):
-        event = cls.get_by_title(space, title)
-        if not event:
-            event = cls.create_from(space, title)
-        return event
-
 
 class TicketType(BaseScopedNameMixin, db.Model):
     """
@@ -81,27 +64,6 @@ class TicketType(BaseScopedNameMixin, db.Model):
     parent = db.synonym('proposal_space')
     events = db.relationship('Event', secondary=event_ticket_type)
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
-
-    @classmethod
-    def get_by_title(cls, space, title):
-        return cls.query.filter_by(title=title, proposal_space=space).one_or_none()
-
-    @classmethod
-    def create_from(cls, space, title, events=[]):
-        ticket_type = cls(
-            title=title,
-            proposal_space=space,
-            events=events
-        )
-        db.session.add(ticket_type)
-        return ticket_type
-
-    @classmethod
-    def get_or_create_from(cls, space, title, events=[]):
-        ticket_type = TicketType.get_by_title(space, title)
-        if not ticket_type:
-            ticket_type = TicketType.create_from(space, title, events)
-        return ticket_type
 
 
 class Participant(BaseMixin, db.Model):
@@ -135,33 +97,6 @@ class Participant(BaseMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
-    @classmethod
-    def get_by_email(cls, space, email):
-        return cls.query.filter_by(proposal_space=space, email=email).one_or_none()
-
-    @classmethod
-    def create_from(cls, space, email, fields):
-        participant = cls(
-            fullname=fields.get('fullname'),
-            email=email,
-            phone=fields.get('phone'),
-            twitter=fields.get('twitter'),
-            job_title=fields.get('job_title'),
-            company=fields.get('company'),
-            city=fields.get('city'),
-            events=fields.get('events', []),
-            proposal_space=space
-        )
-        db.session.add(participant)
-        return participant
-
-    @classmethod
-    def get_or_create_from(cls, space, email, fields):
-        participant = Participant.get_by_email(space, email)
-        if not participant:
-            participant = Participant.create_from(space, email, fields)
-        return participant
-
 
 class Attendee(BaseMixin, db.Model):
     """Join model between Participant and Event."""
@@ -179,8 +114,8 @@ class Attendee(BaseMixin, db.Model):
 class TicketClient(BaseMixin, db.Model):
     __tablename__ = 'ticket_client'
     name = db.Column(db.Unicode(80), nullable=False)
-    client_event_id = db.Column(db.Unicode(80), nullable=False)
-    client_id = db.Column(db.Unicode(80), nullable=False)
+    client_eventid = db.Column(db.Unicode(80), nullable=False)
+    clientid = db.Column(db.Unicode(80), nullable=False)
     client_secret = db.Column(db.Unicode(80), nullable=False)
     client_access_token = db.Column(db.Unicode(80), nullable=False)
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
@@ -208,20 +143,3 @@ class SyncTicket(BaseMixin, db.Model):
         backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
-
-    @classmethod
-    def get_by_ticket_no(cls, space, order_no, ticket_no):
-        return cls.query.filter_by(ticket_no=ticket_no, order_no=order_no, proposal_space=space).one_or_none()
-
-    @classmethod
-    def create_from(cls, space, order_no, ticket_no, ticket_type, participant, ticket_client):
-        ticket = cls(
-            proposal_space=space,
-            order_no=order_no,
-            ticket_no=ticket_no,
-            ticket_type=ticket_type,
-            participant=participant,
-            ticket_client=ticket_client,
-        )
-        db.session.add(ticket)
-        return ticket
