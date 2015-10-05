@@ -46,37 +46,223 @@
         <th>Actions</th>
       </tr>
     </thead>
-    <tbody>
-      {%- for p in participants %}
-        <tr id="p-{{ p.id }}">
-          <td class='js-searchable'>{{ p.fullname }}</td>
-          <td class='js-searchable'>{{ p.email }}</td>
-          <td class='js-searchable'>{{ p.company }}</td>
+    <tbody id="participants">
+      {% raw %}
+      <script id='participant' type='text/ractive'>
+      {{#each participants}}
+        <tr id="p-{{ pid }}">
+          <td class='js-searchable'>{{ fullname }}</td>
+          <td class='js-searchable'>{{ email }}</td>
+          <td class='js-searchable'>{{ company }}</td>
           <td>
             <ul class="list-inline status-btn-list">
             <li>
-              <a href={{ "{0}participant/{1}/badge".format(space.url_for(), p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
+              <a href="{{ showbadge_url }}" {{#badge_printed}} class="btn btn-xs btn-success" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
             </li>
             <li>
-              <a href={{ "{0}participant/{1}/edit".format(space.url_for(), p.id) }} class='btn btn-xs btn-default'>Edit</a>
+              <a href="{{ edit_url }}" class='btn btn-xs btn-default'>Edit</a>
             </li>
             <li>
-            {%- if p.checked_in %}
-              <a href="{{ event.name }}/checkin/{{ p.id }}" class='btn btn-xs btn-danger'>Cancel Check-in</a>
-            {%- else %}
-            <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" class='btn btn-xs btn-warning'>Check-in</a>
-            {%- endif %}
+            {{#checked_in}}
+              <a href="{{ checkin_url }}/checkin/{{ pid }}" data-pid="{{ pid }}" class="btn btn-xs cancel-checkin">Cancel Check-in</a>
+              <i class="fa fa-spinner fa-pulse loader"></i>
+              <i class="fa fa-close loader abort"></i>
+            {{/checked_in}}
+            {{^checked_in}}
+              <a href="{{ checkin_url }}/checkin/{{ pid }}?checkin=t" data-pid="{{ pid }}"sd class="btn btn-xs checkin">Check-in</a>
+              <i class="fa fa-spinner fa-pulse loader"></i>
+              <i class="fa fa-close loader abort"></i>
+            {{/checked_in}}
             </li>
             </ul>
           </td>
         </tr>
-      {%- endfor %}
+      {{/each}}
+      </script>
+      {% endraw %}
     </tbody>
   </table>
 {% endblock %}
 {% block footerscripts %}
 <script>
+  if (Modernizr.localstorage) {
+    //Two arrays: checkin-queue and cancelcheckin-queue
+    Storage.prototype.set = function(queue, id) {
+      var participantList = JSON.parse(this.getItem(queue));
+      if(participantList) {
+        participantList.push(id);
+      }
+      else {
+        participantList = [];
+        participantList.push(id);
+      }
+      return this.setItem(queue, JSON.stringify(participantList))
+    }
+
+    Storage.prototype.getFirstItem = function(queue) {
+      var participantList = JSON.parse(this.getItem(queue));
+      if(participantList && participantList.length) {
+        return participantList[0];
+      }
+    }
+
+    Storage.prototype.getItems = function(queue) {
+      var participantList = JSON.parse(this.getItem(queue));
+      if(participantList && participantList.length) {
+        return participantList;
+      }
+    }
+
+    Storage.prototype.findItem = function(queue, id) {
+      var participantList = JSON.parse(this.getItem(queue));
+      if(participantList && participantList.indexOf(id) !== -1) {
+        return true;
+      }
+    }
+
+    Storage.prototype.remove = function(queue, id) {
+      var participantList = JSON.parse(this.getItem(queue));
+      if(participantList && participantList.indexOf(id) !== -1) {
+        participantList.splice(participantList.indexOf(id),1);
+        this.setItem(queue, JSON.stringify(participantList));
+        return true;
+      }
+    }
+  }
+
   $(document).ready(function() {
+    var checkinUrl = window.location.href + "/checkin/";
+    var getParticipantsUrl = window.location.href + "/participants/json";
+
+    // To disable debug mode
+    Ractive.DEBUG = false;
+
+    var participantTable = new Ractive({
+      el: '#participants',
+      template: '#participant',
+      data: {
+        participants: ''
+      }
+    });
+
+    function getParticipantsData() {
+      $.ajax({
+        type: 'GET',
+        url:  getParticipantsUrl,
+        timeout: 5000,
+        dataType: 'jsonp',
+        success: function(data) {
+          participantTable.set('participants', data.participants).then(function() {
+            $('.loader').hide();
+            updateQueue(localStorage.getItems('checkin-queue'), true);
+            updateQueue(localStorage.getItems('cancelcheckin-queue'), false);
+          });
+        }
+      });
+    }
+
+    function updateQueue(participantIDs, action) {
+      if(participantIDs) {
+        participantIDs.forEach(function(participantID) {
+          var participant = "[data-pid=" + participantID +"]";
+          if(action) {
+            if($(participant).hasClass('cancel-checkin')) {
+              localStorage.remove('checkin-queue', participantID);
+            }
+            else {
+              $(participant).siblings('.loader').show();
+            }
+          }
+          else {
+            if($(participant).hasClass('checkin')) {
+              localStorage.remove('cancel-checkin', participantID);
+            }
+            else {
+              $(participant).siblings('.loader').show();
+            }
+          }
+        });
+      }
+    }
+
+    function checkQueue() {
+      var participantID = localStorage.getFirstItem('checkin-queue');
+      if(participantID) {
+        postCheckinStatus(participantID, true);
+      }
+      participantID = localStorage.getFirstItem('cancelcheckin-queue');
+      if(participantID) {
+        postCheckinStatus(participantID, false);
+      }
+    }
+
+    function postCheckinStatus(participantID, action) {
+      if(action) {
+        var posturl = checkinUrl + participantID + "?checkin=t";
+      }
+      else {
+        var posturl = checkinUrl + participantID;
+      }
+      $.ajax({
+        type: 'post',
+        url:  posturl,
+        timeout: 5000,
+        dataType: "json",
+        success: function(data) {
+          if(data.checked_in) {
+            localStorage.remove('checkin-queue', data.participant_id);
+          }
+          else {
+            localStorage.remove('cancelcheckin-queue', data.participant_id);
+          }
+        }
+      });
+    }
+
+    //Get the list of participants from server
+    getParticipantsData();
+
+    if (Modernizr.localstorage) {
+      $('#participants').on('click', '.checkin', function(event) {
+        event.preventDefault();
+        localStorage.set('checkin-queue', $(this).data('pid'));
+        $(this).siblings('.loader').show();
+      });
+
+      $('#participants').on('click', '.cancel-checkin', function(event) {
+        event.preventDefault();
+        localStorage.set('cancelcheckin-queue', $(this).data('pid'));
+        $(this).siblings('.loader').show();
+      });
+
+      $('#participants').on('click', '.abort', function(event) {
+        event.preventDefault();
+        var participantID = $(this).siblings('a').data('pid');
+        var participant = "[data-pid=" + participantID +"]";
+
+        if($(participant).hasClass('checkin')) {
+          // If participantID not in queue, checkin status has been sent to server
+          // then for this participantID send a cancel checkin to server
+          if(!localStorage.remove('checkin-queue', participantID)) {
+            localStorage.set('cancelcheckin-queue', participantID);
+          }
+        }
+        else{
+          if(!localStorage.remove('cancelcheckin-queue', participantID)) {
+            localStorage.set('checkin-queue', participantID);
+          }
+        }
+        $(participant).parent().find('.loader').hide();
+      });
+
+      // Check checkin-queue and cancelcheckin-queue arrays every 8 second, for any participant
+      // whose check-in status needs to be send to server.
+      setInterval(checkQueue, 8000);
+
+      //Get participants list from server every 1 min
+      setInterval(getParticipantsData, 60000);
+    }
+
     $('#badge_form').on("submit", function(){
        if ($('#badge_form select.field-badge_printed').val() === "") {
         return false;
