@@ -58,15 +58,6 @@ class Event(BaseScopedNameMixin, db.Model):
         else:
             return None
 
-    @classmethod
-    def sync_from_list(cls, space, event_list):
-        for event_dict in event_list:
-            event = cls.upsert(space, Event.name_from_title(space, event_dict.get('title')),
-                title=event_dict.get('title'), proposal_space=space)
-            for ticket_type_title in event_dict.get('ticket_types'):
-                ticket_type = TicketType.upsert(space, TicketType.name_from_title(space, ticket_type_title), proposal_space=space, title=ticket_type_title)
-                event.ticket_types.append(ticket_type)
-
 
 class TicketType(BaseScopedNameMixin, db.Model):
     """
