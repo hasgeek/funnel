@@ -50,6 +50,23 @@ class Event(BaseScopedNameMixin, db.Model):
     participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
+    @classmethod
+    def name_from_title(cls, space, title):
+        event = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
+        if event:
+            return event.name
+        else:
+            return None
+
+    @classmethod
+    def sync_from_list(cls, space, event_list):
+        for event_dict in event_list:
+            event = cls.upsert(space, Event.name_from_title(space, event_dict.get('title')),
+                title=event_dict.get('title'), proposal_space=space)
+            for ticket_type_title in event_dict.get('ticket_types'):
+                ticket_type = TicketType.upsert(space, TicketType.name_from_title(space, ticket_type_title), proposal_space=space, title=ticket_type_title)
+                event.ticket_types.append(ticket_type)
+
 
 class TicketType(BaseScopedNameMixin, db.Model):
     """
@@ -65,8 +82,16 @@ class TicketType(BaseScopedNameMixin, db.Model):
     events = db.relationship('Event', secondary=event_ticket_type)
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
+    @classmethod
+    def name_from_title(cls, space, title):
+        ticket_type = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
+        if ticket_type:
+            return ticket_type.name
+        else:
+            return None
 
-class Participant(BaseMixin, db.Model):
+
+class Participant(BaseScopedNameMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
@@ -95,7 +120,20 @@ class Participant(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan'))
 
+    name = db.synonym('email')
+    title = db.synonym('email')
+    parent = db.synonym('proposal_space')
+
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
+
+    def update_events(self, events, cancel=False):
+        for event in events:
+            if cancel:
+                if event in self.events:
+                    self.events.remove(event)
+            else:
+                if event not in self.events:
+                    self.events.append(event)
 
 
 class Attendee(BaseMixin, db.Model):
@@ -122,6 +160,31 @@ class TicketClient(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_clients', cascade='all, delete-orphan'))
 
+    def import_from_list(self, space, ticket_list, cancel_list=[]):
+        """
+        Batch upserts the tickets and its associated ticket types and participants.
+        Cancels the tickets in cancel_list.
+        """
+        for ticket_dict in ticket_list:
+            ticket_type = TicketType.upsert(space, TicketType.name_from_title(space, ticket_dict['ticket_type']),
+                            title=ticket_dict['ticket_type'], proposal_space=space)
+
+            participant = Participant.upsert(space, ticket_dict['email'],
+                             proposal_space=space,
+                             email=ticket_dict['email'],
+                             fullname=ticket_dict['fullname'],
+                             phone=ticket_dict['phone'],
+                             twitter=ticket_dict['twitter'],
+                             company=ticket_dict['company'],
+                             city=ticket_dict['city']
+                            )
+
+            SyncTicket.upsert(space, ticket_dict['order_no'], ticket_dict['ticket_no'], participant=participant, ticket_client=self, ticket_type=ticket_type)
+
+        for ticket in cancel_list:
+            # import ipdb; ipdb.set_trace()
+            ticket.cancel()
+
 
 class SyncTicket(BaseMixin, db.Model):
     """ Model for a ticket that was bought elsewhere. Eg: Explara."""
@@ -141,5 +204,37 @@ class SyncTicket(BaseMixin, db.Model):
     ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=False)
     ticket_client = db.relationship(TicketClient,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
-
+    # cancelled = db.Column(db.Boolean, default=False, nullable=False)
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
+
+    @classmethod
+    def get(cls, space, order_no, ticket_no):
+        return cls.query.filter_by(proposal_space=space, order_no=order_no, ticket_no=ticket_no).one_or_none()
+
+    @classmethod
+    def upsert(cls, space, order_no, ticket_no, participant, ticket_client, ticket_type):
+        ticket = cls.get(space, order_no, ticket_no)
+
+        if not ticket:
+            ticket = SyncTicket(proposal_space=space, order_no=order_no,
+                             ticket_no=ticket_no, ticket_type=ticket_type,
+                             participant=participant, ticket_client=ticket_client)
+            db.session.add(ticket)
+        else:
+            # Transfer ticket
+            if ticket.participant is not participant:
+                ticket.participant.update_events(ticket.ticket_type.events, cancel=True)
+                ticket.participant = participant
+
+        ticket.participant.update_events(ticket.ticket_type.events)
+
+        return ticket
+
+    @classmethod
+    def not_in(cls, space, ticket_client, ticket_nos):
+        return cls.query.filter_by(proposal_space=space, ticket_client=ticket_client)\
+            .filter(~cls.ticket_no.in_(ticket_nos)).all()
+
+    def cancel(self):
+        self.participant.update_events(self.ticket_type.events, cancel=True)
+        # self.cancelled = True
