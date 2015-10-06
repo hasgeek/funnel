@@ -1,17 +1,8 @@
 <!DOCTYPE html>
 <head>
   <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
+  <link href='https://fonts.googleapis.com/css?family=Kreon:400,700,300' rel='stylesheet' type='text/css'>
   <style>
-    @font-face {
-      font-family: 'Nimbus Sans Novus D OT';
-      font-style: normal;
-      src: url('https://static.hasgeek.co.in/static/fonts/nimbus-sansnovus-dot-sembolcon.otf') format("opentype");
-    }
-    @font-face {
-      font-family: 'Nimbus Sans Novus T OT';
-      font-style: normal;
-      src: url('https://static.hasgeek.co.in/static/fonts/nimbus-sans-tot-regucond.otf') format("opentype");
-    }
     @page {
       size: 3.75in 10.5in;  /* width height */
       margin: 0;
@@ -20,12 +11,13 @@
       margin: 0;
       padding: 0;
       background: transparent;
+      font-family: 'Kreon', serif;
     }
     .badge-wrapper{
       width: 3.75in;
       height: 10.5in;
       page-break-after: always;
-      background-image: url('https://images.hasgeek.com/embed/file/be9a22a3233b4e8b96d8dce6d3f28a47');
+      background-image: url('https://images.hasgeek.com/embed/file/537e510a431b41f9ad19d85c383a6377');
       background-repeat: no-repeat;
       background-size: 100% 100%;
     }
@@ -43,66 +35,67 @@
       transform: rotate(180deg);
     }
     .badge-content { 
-      width: 3in;
+      width: 3.4in;
       margin: 0 auto;
-      padding-top: 1.92in;
+      padding-top: 2.2in;
     }
     .label {
-      text-align: center;
       margin: 0;
       line-height: 1;
     }
     .first-name {
-      font-family: 'Nimbus Sans Novus D OT';
-      font-size: 65px;
-      max-height: 65px; /* fit text in one line */
+      font-size: 70px;
+      max-height: 70px; /* fit text in one line */
       text-transform: uppercase;
-      font-weight: 400;
+      font-weight: 700;
+      text-align: left;
     }
     .last-name {
-      font-family: 'Nimbus Sans Novus T OT';
-      font-size: 38px;
-      max-height: 38px; /* fit text in one line */
+      font-size: 40px;
+      max-height: 40px; /* fit text in one line */
       text-transform: uppercase;
       font-weight: 300;
-      margin-bottom: 3px;
+      text-align: left;
     }
-    .last-name-box {
-      border-bottom: 3px solid #000;
-      margin-bottom: 11px;
+    .divider-box {
+      position: absolute;
+      right: 0.2in;
+      top: 3.35in;
+      width: 90%;
+      text-align: right;
     }
     .company-name{
-      font-family: 'Nimbus Sans Novus D OT';
       font-size: 28px;
       max-height: 50px; /* fit text within two lines */
-      color: #df5e0e;
+      color: #d84b44;
+      font-weight: 700;
+      text-align: right;
       margin-bottom: 5px;
-      font-weight: 400;
     }
     .twitter-handle {
-      font-family: 'Nimbus Sans Novus D OT';   
       font-size: 28px;
       max-height: 28px; /* fit text in one line */
-      color: #0ea5b0;
-      font-weight: 400;
-    }
-    img.center {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      height: 1em;
+      color: #365d28;
+      width: 180px;
+      float: right;
+      font-weight: 700;
+      text-align: right;
     }
     .qrcode {
       text-align: center;
       position: absolute;
-      bottom: 0.3in;
-      left: 0;
-      right: 0;
+      bottom: 0.14in;
+      left: 0.3in;
+      width: 9em;
+      height: 9em;
       margin: auto;
       line-height: 1;
     }
     .qrcode svg {
-      height: 5.2em;
+      height: 6em;
+      width: 6em;
+      position: relative;
+      top: 1.5em;
     }
   </style>
 </head>
@@ -114,21 +107,21 @@
         <div class="label first-name">
           <span>{{ badge['first_name'] }}</span>
         </div>
-        <div class="last-name-box">
-          <div class="label last-name">
-            <span>{{ badge['last_name'] }} </span>
-          </div>
+        <div class="label last-name">
+          <span>{{ badge['last_name'] }} </span>
         </div>
-        {%- if badge['company'] %}
+        <div class="divider-box">
+          {%- if badge['company'] %}
           <div class="label company-name">
             <span>{{ badge['company'] }}</span>
           </div>
-        {% endif %}
-        {%- if badge['twitter'] %}
+          {% endif %}
+          {%- if badge['twitter'] %}
           <div class="label twitter-handle">
             <span>{{ badge['twitter'] }}</span>
           </div>
-        {% endif %}
+          {% endif %}
+        </div>
         <div class="qrcode">{{ badge['qrcode_content']|safe }}</div>
       </div>
     </div>
