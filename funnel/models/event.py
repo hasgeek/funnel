@@ -90,7 +90,7 @@ class Participant(BaseScopedNameMixin, db.Model):
 
     fullname = db.Column(db.Unicode(80), nullable=False)
     #: Unvalidated email address
-    email = db.Column(db.Unicode(80), nullable=False)
+    email = db.Column(db.Unicode(254), nullable=False)
     #: Unvalidated phone number
     phone = db.Column(db.Unicode(80), nullable=True)
     #: Unvalidated Twitter id
@@ -138,6 +138,8 @@ class Attendee(BaseMixin, db.Model):
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
+
+    __table_args__ = (db.UniqueConstraint('event_id', 'participant_id'),)
 
 
 class TicketClient(BaseMixin, db.Model):
