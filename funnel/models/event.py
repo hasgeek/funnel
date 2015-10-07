@@ -197,7 +197,6 @@ class SyncTicket(BaseMixin, db.Model):
     ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=False)
     ticket_client = db.relationship(TicketClient,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
-    # cancelled = db.Column(db.Boolean, default=False, nullable=False)
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
 
     @classmethod
@@ -230,4 +229,3 @@ class SyncTicket(BaseMixin, db.Model):
 
     def cancel(self):
         self.participant.update_events(self.ticket_type.events, cancel=True)
-        # self.cancelled = True
