@@ -131,8 +131,8 @@
   }
 
   $(document).ready(function() {
-    var checkinUrl = window.location.href + "/checkin/";
-    var getParticipantsUrl = window.location.href + "/participants/json";
+    var checkinUrl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}";
+    var getParticipantsUrl = "{{ '{0}event/{1}/participants/json'.format(space.url_for(), event.name) }}";
 
     // To disable debug mode
     Ractive.DEBUG = false;
