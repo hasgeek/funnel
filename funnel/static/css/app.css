@@ -706,22 +706,22 @@ td .status-btn-list li:last-child {
     margin: 0 0 5px;
   }
 }
-.loader, .abort {
+.loader, .js-abort {
   display: none;
   margin: 0 2px;
 }
 
-.abort {
+.js-abort {
   cursor: pointer;
 }
 
-.checkin {
+.js-checkin {
   background-color: #EC971F;
   border-bottom: 2px solid #D58512;
   color: #fff;
 }
 
-.cancel-checkin {
+.js-cancel-checkin {
   background-color: #D9534F;
   border-bottom: 2px solid #AC2925;
   color: #fff;

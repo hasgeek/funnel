@@ -46,9 +46,9 @@
         <th>Actions</th>
       </tr>
     </thead>
-    <tbody id="participants">
+    <tbody id="participants-table-content">
       {% raw %}
-      <script id='participant' type='text/ractive'>
+      <script id='participant-row' type='text/ractive'>
       {{#each participants}}
         <tr id="p-{{ pid }}">
           <td class='js-searchable'>{{ fullname }}</td>
@@ -64,14 +64,14 @@
             </li>
             <li>
             {{#checked_in}}
-              <a href="{{ checkin_url }}/checkin/{{ pid }}" data-pid="{{ pid }}" class="btn btn-xs cancel-checkin">Cancel Check-in</a>
+              <a href="{{ checkin_url }}/checkin/{{ pid }}" data-pid="{{ pid }}" class="btn btn-xs js-cancel-checkin">Cancel Check-in</a>
               <i class="fa fa-spinner fa-pulse loader"></i>
-              <i class="fa fa-close loader abort"></i>
+              <i class="fa fa-close loader js-abort"></i>
             {{/checked_in}}
             {{^checked_in}}
-              <a href="{{ checkin_url }}/checkin/{{ pid }}?checkin=t" data-pid="{{ pid }}"sd class="btn btn-xs checkin">Check-in</a>
+              <a href="{{ checkin_url }}/checkin/{{ pid }}?checkin=t" data-pid="{{ pid }}"sd class="btn btn-xs js-checkin">Check-in</a>
               <i class="fa fa-spinner fa-pulse loader"></i>
-              <i class="fa fa-close loader abort"></i>
+              <i class="fa fa-close loader js-abort"></i>
             {{/checked_in}}
             </li>
             </ul>
@@ -131,15 +131,12 @@
   }
 
   $(document).ready(function() {
-    var checkinUrl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}";
-    var getParticipantsUrl = "{{ '{0}event/{1}/participants/json'.format(space.url_for(), event.name) }}";
-
     // To disable debug mode
     Ractive.DEBUG = false;
 
-    var participantTable = new Ractive({
-      el: '#participants',
-      template: '#participant',
+    var participantTableContent = new Ractive({
+      el: '#participants-table-content',
+      template: '#participant-row',
       data: {
         participants: ''
       }
@@ -148,11 +145,11 @@
     function getParticipantsData() {
       $.ajax({
         type: 'GET',
-        url:  getParticipantsUrl,
+        url:  '{{ "{0}event/{1}/participants/json".format(space.url_for(), event.name) }}',
         timeout: 5000,
         dataType: 'jsonp',
         success: function(data) {
-          participantTable.set('participants', data.participants).then(function() {
+          participantTableContent.set('participants', data.participants).then(function() {
             $('.loader').hide();
             updateQueue(localStorage.getItems('checkin-queue'), true);
             updateQueue(localStorage.getItems('cancelcheckin-queue'), false);
@@ -166,7 +163,7 @@
         participantIDs.forEach(function(participantID) {
           var participant = "[data-pid=" + participantID +"]";
           if(action) {
-            if($(participant).hasClass('cancel-checkin')) {
+            if($(participant).hasClass('js-cancel-checkin')) {
               localStorage.remove('checkin-queue', participantID);
             }
             else {
@@ -174,7 +171,7 @@
             }
           }
           else {
-            if($(participant).hasClass('checkin')) {
+            if($(participant).hasClass('js-checkin')) {
               localStorage.remove('cancel-checkin', participantID);
             }
             else {
@@ -198,10 +195,10 @@
 
     function postCheckinStatus(participantID, action) {
       if(action) {
-        var posturl = checkinUrl + participantID + "?checkin=t";
+        var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + participantID + "?checkin=t";
       }
       else {
-        var posturl = checkinUrl + participantID;
+        var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + participantID;
       }
       $.ajax({
         type: 'post',
@@ -223,24 +220,24 @@
     getParticipantsData();
 
     if (Modernizr.localstorage) {
-      $('#participants').on('click', '.checkin', function(event) {
+      $('#participants-table-content').on('click', '.js-checkin', function(event) {
         event.preventDefault();
         localStorage.set('checkin-queue', $(this).data('pid'));
         $(this).siblings('.loader').show();
       });
 
-      $('#participants').on('click', '.cancel-checkin', function(event) {
+      $('#participants-table-content').on('click', '.js-cancel-checkin', function(event) {
         event.preventDefault();
         localStorage.set('cancelcheckin-queue', $(this).data('pid'));
         $(this).siblings('.loader').show();
       });
 
-      $('#participants').on('click', '.abort', function(event) {
+      $('#participants-table-content').on('click', '.js-abort', function(event) {
         event.preventDefault();
         var participantID = $(this).siblings('a').data('pid');
         var participant = "[data-pid=" + participantID +"]";
 
-        if($(participant).hasClass('checkin')) {
+        if($(participant).hasClass('js-checkin')) {
           // If participantID not in queue, checkin status has been sent to server
           // then for this participantID send a cancel checkin to server
           if(!localStorage.remove('checkin-queue', participantID)) {
