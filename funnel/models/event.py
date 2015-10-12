@@ -111,8 +111,6 @@ class Participant(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan'))
 
-    parent = db.synonym('proposal_space')
-
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
     @classmethod
