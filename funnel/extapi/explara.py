@@ -41,10 +41,8 @@ class ExplaraAPI(object):
         return ticket_orders
 
     def get_tickets(self, explara_eventid):
-        orders = self.get_orders(explara_eventid)
         tickets = []
-
-        for order in orders:
+        for order in self.get_orders(explara_eventid):
             for attendee in order.get('attendee'):
                 # cancelled tickets are in this list too, hence the check
                 if attendee.get('status') == 'attending':
