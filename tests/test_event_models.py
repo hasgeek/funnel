@@ -3,16 +3,15 @@
 import random
 import unittest
 from flask import Flask
-# from ..funnel.util import format_twitter, sync_from_list
 from funnel import *
 from funnel.models import (db, Profile, ProposalSpace, Event, User, SyncTicket, Participant, TicketClient, TicketType)
-from .event_models_fixtures import ticket_list, ticket_list2
+from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2
 
 app = Flask(__name__)
 db.init_app(app)
 
 
-def sync_from_list(space, event_list):
+def bulk_upsert(space, event_list):
     for event_dict in event_list:
         event = Event.upsert(space, Event.name_from_title(space, event_dict.get('title')),
             title=event_dict.get('title'), proposal_space=space)
@@ -49,11 +48,7 @@ class TestEventModels(unittest.TestCase):
         db.session.add(self.ticket_client)
         db.session.commit()
 
-        event_ticket_types_mapping = [
-            {'title': 'SpaceCon', 'ticket_types': ['Conference', 'Combo']},
-            {'title': 'SpaceCon workshop', 'ticket_types': ['Workshop', 'Combo']},
-        ]
-        sync_from_list(self.space, event_ticket_types_mapping)
+        bulk_upsert(self.space, event_ticket_types)
         db.session.commit()
 
         self.session = db.session
