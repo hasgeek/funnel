@@ -75,5 +75,4 @@ class TestEventModels(unittest.TestCase):
 
         # test_transfers
         self.ticket_client.import_from_list(self.space, ticket_list2)
-        self.assertEquals(len(p2.events), 1)
-        self.assertEquals(p2.events[0], Event.get(self.space, 'spacecon'))
+        self.assertEquals(p2.events and p2.events[0], Event.get(self.space, 'spacecon'))
