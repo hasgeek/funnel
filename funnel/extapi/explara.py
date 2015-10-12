@@ -73,5 +73,5 @@ class ExplaraAPI(object):
     def import_tickets(self, space, ticket_client):
         ticket_list = self.get_tickets(ticket_client.client_eventid)
         # Explara exludes cancelled tickets from the list
-        cancel_list = SyncTicket.not_in(space, ticket_client, [ticket.get('ticket_no') for ticket in ticket_list])
+        cancel_list = SyncTicket.exclude(space, ticket_client, [ticket.get('ticket_no') for ticket in ticket_list]).all()
         ticket_client.import_from_list(space, ticket_list, cancel_list=cancel_list)
