@@ -82,7 +82,7 @@ class TicketType(BaseScopedNameMixin, db.Model):
             return None
 
 
-class Participant(BaseScopedNameMixin, db.Model):
+class Participant(BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
@@ -111,11 +111,23 @@ class Participant(BaseScopedNameMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('participants', cascade='all, delete-orphan'))
 
-    name = db.synonym('email')
-    title = db.synonym('email')
     parent = db.synonym('proposal_space')
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
+
+    @classmethod
+    def get(cls, space, email):
+        return cls.query.filter_by(proposal_space=space, email=email).one_or_none()
+
+    @classmethod
+    def upsert(cls, **fields):
+        participant = cls.get(fields['proposal_space'], fields['email'])
+        if participant:
+            participant._set_fields(fields)
+        else:
+            participant = cls(**fields)
+            db.session.add(participant)
+        return participant
 
     def update_events(self, events, cancel=False):
         for event in events:
@@ -128,7 +140,10 @@ class Participant(BaseScopedNameMixin, db.Model):
 
 
 class Attendee(BaseMixin, db.Model):
-    """Join model between Participant and Event."""
+    """
+    Join model between Participant and Event.
+    TODO: #140 - Rename Attendee to EventParticipant
+    """
     __tablename__ = 'attendee'
 
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
@@ -162,8 +177,7 @@ class TicketClient(BaseMixin, db.Model):
             ticket_type = TicketType.upsert(space, TicketType.name_from_title(space, ticket_dict['ticket_type']),
                             title=ticket_dict['ticket_type'], proposal_space=space)
 
-            participant = Participant.upsert(space, ticket_dict['email'],
-                             proposal_space=space,
+            participant = Participant.upsert(proposal_space=space,
                              email=ticket_dict['email'],
                              fullname=ticket_dict['fullname'],
                              phone=ticket_dict['phone'],
@@ -175,8 +189,7 @@ class TicketClient(BaseMixin, db.Model):
             SyncTicket.upsert(space, ticket_dict['order_no'], ticket_dict['ticket_no'], participant=participant, ticket_client=self, ticket_type=ticket_type)
 
         for ticket in cancel_list:
-            # import ipdb; ipdb.set_trace()
-            ticket.cancel()
+            ticket.participant.update_events(ticket.ticket_type.events, cancel=True)
 
 
 class SyncTicket(BaseMixin, db.Model):
@@ -223,9 +236,6 @@ class SyncTicket(BaseMixin, db.Model):
         return ticket
 
     @classmethod
-    def not_in(cls, space, ticket_client, ticket_nos):
+    def exclude(cls, space, ticket_client, ticket_nos):
         return cls.query.filter_by(proposal_space=space, ticket_client=ticket_client)\
-            .filter(~cls.ticket_no.in_(ticket_nos)).all()
-
-    def cancel(self):
-        self.participant.update_events(self.ticket_type.events, cancel=True)
+            .filter(~cls.ticket_no.in_(ticket_nos))
