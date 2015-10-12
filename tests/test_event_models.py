@@ -2,13 +2,9 @@
 
 import random
 import unittest
-from flask import Flask
 from funnel import *
 from funnel.models import (db, Profile, ProposalSpace, Event, User, SyncTicket, Participant, TicketClient, TicketType)
 from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2
-
-app = Flask(__name__)
-db.init_app(app)
 
 
 def bulk_upsert(space, event_list):
@@ -40,7 +36,7 @@ class TestEventModels(unittest.TestCase):
         db.session.add(self.profile)
         db.session.commit()
 
-        self.space = ProposalSpace(title='2015', tagline='In a galaxy far far away...', profile=self.profile, user=self.user)
+        self.space = ProposalSpace(title='20000 AD', tagline='In a galaxy far far away...', profile=self.profile, user=self.user)
         db.session.add(self.space)
         db.session.commit()
 
@@ -61,10 +57,10 @@ class TestEventModels(unittest.TestCase):
     def test_import_from_list(self):
         # test bookings
         self.ticket_client.import_from_list(self.space, ticket_list)
-        self.assertEquals(SyncTicket.query.count(), 3)
-        self.assertEquals(Participant.query.count(), 3)
         p1 = Participant.query.filter_by(email='participant1@gmail.com', proposal_space=self.space).one_or_none()
         p2 = Participant.query.filter_by(email='participant2@gmail.com', proposal_space=self.space).one_or_none()
+        self.assertEquals(SyncTicket.query.count(), 3)
+        self.assertEquals(Participant.query.count(), 3)
         self.assertEquals(len(p1.events), 2)
         self.assertEquals(len(p2.events), 1)
 
