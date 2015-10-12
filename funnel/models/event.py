@@ -51,7 +51,7 @@ class Event(BaseScopedNameMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
     @classmethod
-    def name_from_title(cls, space, title):
+    def get_name(cls, space, title):
         event = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
         return event and event.name
 
@@ -71,7 +71,7 @@ class TicketType(BaseScopedNameMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
 
     @classmethod
-    def name_from_title(cls, space, title):
+    def get_name(cls, space, title):
         ticket_type = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
         return ticket_type and ticket_type.name
 
@@ -166,7 +166,7 @@ class TicketClient(BaseMixin, db.Model):
         Cancels the tickets in cancel_list.
         """
         for ticket_dict in ticket_list:
-            ticket_type = TicketType.upsert(space, TicketType.name_from_title(space, ticket_dict['ticket_type']),
+            ticket_type = TicketType.upsert(space, TicketType.get_name(space, ticket_dict['ticket_type']),
                             title=ticket_dict['ticket_type'], proposal_space=space)
 
             participant = Participant.upsert(proposal_space=space,
