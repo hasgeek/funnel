@@ -8,11 +8,6 @@ __all__ = ['ExplaraAPI']
 
 
 class ExplaraAPI(object):
-    """
-    Example Use:
-    ea = ExplaraAPI(access_token="xxx")
-    tickets = ea.get_tickets(eventid="exxxx")
-    """
     def __init__(self, access_token):
         self.access_token = access_token
         self.headers = {'Authorization': u'Bearer ' + self.access_token}
@@ -23,8 +18,7 @@ class ExplaraAPI(object):
         return [{'title': e.get('eventTitle'), 'eventId': e.get('eventId')} for e in events.get('events')]
 
     def get_ticket_types(self, explara_eventid):
-        ticket_types = requests.post(self.base_url.format('get-tickets'), headers=self.headers, data={'eventId': explara_eventid}).json()
-        return ticket_types
+        return requests.post(self.base_url.format('get-tickets'), headers=self.headers, data={'eventId': explara_eventid}).json()
 
     def get_orders(self, explara_eventid):
         ticket_orders = []

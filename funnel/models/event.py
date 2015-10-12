@@ -53,10 +53,7 @@ class Event(BaseScopedNameMixin, db.Model):
     @classmethod
     def name_from_title(cls, space, title):
         event = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
-        if event:
-            return event.name
-        else:
-            return None
+        return event and event.name
 
 
 class TicketType(BaseScopedNameMixin, db.Model):
@@ -76,10 +73,7 @@ class TicketType(BaseScopedNameMixin, db.Model):
     @classmethod
     def name_from_title(cls, space, title):
         ticket_type = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
-        if ticket_type:
-            return ticket_type.name
-        else:
-            return None
+        return ticket_type and ticket_type.name
 
 
 class Participant(BaseMixin, db.Model):
