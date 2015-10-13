@@ -60,7 +60,7 @@
               <a href="{{ showbadge_url }}" {{#badge_printed}} class="btn btn-xs btn-success" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
             </li>
             <li>
-              <a href="{{ edit_url }}" class='btn btn-xs btn-default'>Edit</a>
+              <a href="{{ edit_url }}" class="btn btn-xs btn-default" target="_blank">Edit</a>
             </li>
             <li>
             {{#checked_in}}
@@ -85,54 +85,127 @@
 {% endblock %}
 {% block footerscripts %}
 <script>
-  if (Modernizr.localstorage) {
-    //Two arrays: checkin-queue and cancelcheckin-queue
-    Storage.prototype.set = function(queue, id) {
-      var participantList = JSON.parse(this.getItem(queue));
+  $(document).ready(function() {
+    // To disable debug mode
+    Ractive.DEBUG = false;
+
+    //Reads from LocalStorage (key is 'checkin-queue' or 'cancelcheckin-queue')
+    function readFromLocalstorage(key) {
+      return JSON.parse(localStorage.getItem(key));
+    }
+    //Adds to LocalStorage (key is 'checkin-queue' or 'cancelcheckin-queue')
+    function addToLocalstorage(key, value) {
+      return localStorage.setItem(key, JSON.stringify(value))
+    }
+
+    //Adds a participant_id to queue
+    function enqueue(queueName, participant_id) {
+      var participantList = readFromLocalstorage(queueName);
       if(participantList) {
-        participantList.push(id);
+        participantList.push(participant_id);
       }
       else {
         participantList = [];
-        participantList.push(id);
+        participantList.push(participant_id);
       }
-      return this.setItem(queue, JSON.stringify(participantList))
+      return addToLocalstorage(queueName, participantList)
     }
 
-    Storage.prototype.getFirstItem = function(queue) {
-      var participantList = JSON.parse(this.getItem(queue));
+    //Reads first item from queue
+    //Returns undefined when queue is empty or not defined
+    function peek(queueName) {
+      var participantList = readFromLocalstorage(queueName);
       if(participantList && participantList.length) {
-        return participantList[0];
+        return participantList.shift();
       }
     }
 
-    Storage.prototype.getItems = function(queue) {
-      var participantList = JSON.parse(this.getItem(queue));
+    //Reads and returns all items from queue
+    //Returns undefined when queue is empty or not defined
+    function peekAllItems(queueName) {
+      var participantList = readFromLocalstorage(queueName);
       if(participantList && participantList.length) {
         return participantList;
       }
     }
 
-    Storage.prototype.findItem = function(queue, id) {
-      var participantList = JSON.parse(this.getItem(queue));
-      if(participantList && participantList.indexOf(id) !== -1) {
+    //Removes item from queue and returns true
+    //Returns undefined when item not present in queue
+    function dequeue(queueName, participant_id) {
+      var participantList = peekAllItems(queueName);
+      var index = participantList ? participantList.indexOf(participant_id) : -1;
+      if(index !== -1) {
+        //Remove item from queue and add updated queue to localStorage
+        participantList.splice(index, 1);
+        addToLocalstorage(queueName, participantList);
         return true;
       }
     }
 
-    Storage.prototype.remove = function(queue, id) {
-      var participantList = JSON.parse(this.getItem(queue));
-      if(participantList && participantList.indexOf(id) !== -1) {
-        participantList.splice(participantList.indexOf(id),1);
-        this.setItem(queue, JSON.stringify(participantList));
-        return true;
+    //updateQueue eg:- If participant in "checkin-queue" has already been checked-in then remove from queue
+    function updateQueue(queueName) {
+      var participantIDs = peekAllItems(queueName);
+      if(participantIDs) {
+        participantIDs.forEach(function(participantID) {
+          var participant = "[data-pid=" + participantID +"]";
+          if(queueName === "checkin-queue") {
+            if($(participant).hasClass('js-cancel-checkin')) {
+              //Participant has been checked-in so remove from 'checkin-queue' 
+              dequeue("checkin-queue", participantID);
+            }
+            else {
+              $(participant).siblings('.loader').show();
+            }
+          }
+          else {
+            if($(participant).hasClass('js-checkin')) {
+              //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
+              dequeue("cancelcheckin-queue", participantID);
+            }
+            else {
+              $(participant).siblings('.loader').show();
+            }
+          }
+        });
       }
     }
-  }
 
-  $(document).ready(function() {
-    // To disable debug mode
-    Ractive.DEBUG = false;
+    function postCheckinStatus(participantID, action) {
+      if(action) {
+        var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + participantID + "?checkin=t";
+      }
+      else {
+        var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + participantID;
+      }
+      $.ajax({
+        type: 'post',
+        url:  posturl,
+        timeout: 5000,
+        dataType: "json",
+        success: function(data) {
+          //Successfully posted to server so remove from queue
+          if(data.checked_in) {
+            dequeue("checkin-queue", data.participant_id);
+          }
+          else {
+            dequeue("cancelcheckin-queue", data.participant_id);
+          }
+        }
+      });
+    }
+
+    function checkQueues() {
+      //Read first participant from 'checkin-queue' and post check-in to server
+      var participantID = peek("checkin-queue");
+      if(participantID) {
+        postCheckinStatus(participantID, true);
+      }
+      //Read first participant from 'cancelcheckin-queue' and post cancel check-in to server
+      participantID = peek("cancelcheckin-queue");
+      if(participantID) {
+        postCheckinStatus(participantID, false);
+      }
+    }
 
     var participantTableContent = new Ractive({
       el: '#participants-table-content',
@@ -150,68 +223,12 @@
         dataType: 'jsonp',
         success: function(data) {
           participantTableContent.set('participants', data.participants).then(function() {
-            $('.loader').hide();
-            updateQueue(localStorage.getItems('checkin-queue'), true);
-            updateQueue(localStorage.getItems('cancelcheckin-queue'), false);
+            if (Modernizr.localstorage) {
+              $('.loader').hide();
+              updateQueue("checkin-queue");
+              updateQueue("cancelcheckin-queue");
+            }
           });
-        }
-      });
-    }
-
-    function updateQueue(participantIDs, action) {
-      if(participantIDs) {
-        participantIDs.forEach(function(participantID) {
-          var participant = "[data-pid=" + participantID +"]";
-          if(action) {
-            if($(participant).hasClass('js-cancel-checkin')) {
-              localStorage.remove('checkin-queue', participantID);
-            }
-            else {
-              $(participant).siblings('.loader').show();
-            }
-          }
-          else {
-            if($(participant).hasClass('js-checkin')) {
-              localStorage.remove('cancel-checkin', participantID);
-            }
-            else {
-              $(participant).siblings('.loader').show();
-            }
-          }
-        });
-      }
-    }
-
-    function checkQueue() {
-      var participantID = localStorage.getFirstItem('checkin-queue');
-      if(participantID) {
-        postCheckinStatus(participantID, true);
-      }
-      participantID = localStorage.getFirstItem('cancelcheckin-queue');
-      if(participantID) {
-        postCheckinStatus(participantID, false);
-      }
-    }
-
-    function postCheckinStatus(participantID, action) {
-      if(action) {
-        var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + participantID + "?checkin=t";
-      }
-      else {
-        var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + participantID;
-      }
-      $.ajax({
-        type: 'post',
-        url:  posturl,
-        timeout: 5000,
-        dataType: "json",
-        success: function(data) {
-          if(data.checked_in) {
-            localStorage.remove('checkin-queue', data.participant_id);
-          }
-          else {
-            localStorage.remove('cancelcheckin-queue', data.participant_id);
-          }
         }
       });
     }
@@ -219,16 +236,19 @@
     //Get the list of participants from server
     getParticipantsData();
 
+    //If localStorage is available, register event handlers for check-in, cancel-checkin and abort
     if (Modernizr.localstorage) {
       $('#participants-table-content').on('click', '.js-checkin', function(event) {
         event.preventDefault();
-        localStorage.set('checkin-queue', $(this).data('pid'));
+        //Add to participant_id to "checkin-queue"
+        enqueue("checkin-queue", $(this).data('pid'));
         $(this).siblings('.loader').show();
       });
 
       $('#participants-table-content').on('click', '.js-cancel-checkin', function(event) {
         event.preventDefault();
-        localStorage.set('cancelcheckin-queue', $(this).data('pid'));
+        //Add to participant_id to "cancelcheckin-queue"
+        enqueue("cancelcheckin-queue", $(this).data('pid'));
         $(this).siblings('.loader').show();
       });
 
@@ -238,25 +258,31 @@
         var participant = "[data-pid=" + participantID +"]";
 
         if($(participant).hasClass('js-checkin')) {
-          // If participantID not in queue, checkin status has been sent to server
-          // then for this participantID send a cancel checkin to server
-          if(!localStorage.remove('checkin-queue', participantID)) {
-            localStorage.set('cancelcheckin-queue', participantID);
+          // On abort, if participantID present in the queue, then remove from "checkin-queue"
+          // On abort, if participantID is not present in the "checkin-queue" it implies check-in has already been done, so a cancel check-in requires to be send(add it to "cancelcheckin-queue")
+          if(!dequeue("checkin-queue", participantID)) {
+            enqueue("cancelcheckin-queue", participantID);
           }
         }
         else{
-          if(!localStorage.remove('cancelcheckin-queue', participantID)) {
-            localStorage.set('checkin-queue', participantID);
+          if(!dequeue("cancelcheckin-queue", participantID)) {
+            enqueue("checkin-queue", participantID);
           }
         }
-        $(participant).parent().find('.loader').hide();
+        $(participant).siblings('.loader').hide();
       });
 
-      // Check checkin-queue and cancelcheckin-queue arrays every 8 second, for any participant
-      // whose check-in status needs to be send to server.
-      setInterval(checkQueue, 8000);
+      //If there is no network, display a confirmation dialog when user closes/reloades the page
+      window.onbeforeunload = function() {
+        if(!navigator.onLine) {
+          return 'There is no network!';
+        }
+      }
 
-      //Get participants list from server every 1 min
+      //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 second
+      setInterval(checkQueues, 8000);
+
+      //Get participants data from server every 1 min
       setInterval(getParticipantsData, 60000);
     }
 
@@ -343,12 +369,6 @@
         tablet: 768,
       }
     });
-
-    window.onbeforeunload = function() {
-      if(!navigator.onLine) {
-        return 'There is no network!';
-      }
-    }
 
   });
 </script>
