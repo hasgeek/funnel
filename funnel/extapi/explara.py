@@ -13,13 +13,6 @@ class ExplaraAPI(object):
         self.headers = {'Authorization': u'Bearer ' + self.access_token}
         self.base_url = 'https://www.explara.com/api/e/{0}'
 
-    def get_events(self):
-        events = requests.post(self.base_url.format('get-all-events'), headers=self.headers).json()
-        return [{'title': e.get('eventTitle'), 'eventId': e.get('eventId')} for e in events.get('events')]
-
-    def get_ticket_types(self, explara_eventid):
-        return requests.post(self.base_url.format('get-tickets'), headers=self.headers, data={'eventId': explara_eventid}).json()
-
     def get_orders(self, explara_eventid):
         ticket_orders = []
         completed = False
