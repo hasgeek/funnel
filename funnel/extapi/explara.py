@@ -7,6 +7,10 @@ from ..models import SyncTicket
 __all__ = ['ExplaraAPI']
 
 
+def strip_or_empty(val):
+    return val.strip() if val else ''
+
+
 class ExplaraAPI(object):
     """
     An interface that enables data retrieval from Explara.
@@ -55,16 +59,16 @@ class ExplaraAPI(object):
                     # we sometimes get an empty array for details
                     details = attendee.get('details') or {}
                     tickets.append({
-                        'fullname': attendee.get('name'),
-                        'email': attendee.get('email'),
-                        'phone': details.get('Phone') or order.get('phoneNo', ''),
-                        'twitter': format_twitter(details.get('Twitter handle', '')),
-                        'job_title': details.get('Job title', ''),
-                        'company': details.get('Company name', ''),
-                        'city': order.get('city', ''),
-                        'ticket_no': attendee.get('ticketNo'),
-                        'ticket_type': attendee.get('ticketName').strip(),
-                        'order_no': order.get('orderNo'),
+                        'fullname': strip_or_empty(attendee.get('name')),
+                        'email': strip_or_empty(attendee.get('email')),
+                        'phone': strip_or_empty(details.get('Phone') or order.get('phoneNo')),
+                        'twitter': format_twitter(strip_or_empty(details.get('Twitter handle'))),
+                        'job_title': strip_or_empty(details.get('Job title')),
+                        'company': strip_or_empty(details.get('Company name')),
+                        'city': strip_or_empty(order.get('city')),
+                        'ticket_no': strip_or_empty(attendee.get('ticketNo')),
+                        'ticket_type': strip_or_empty(attendee.get('ticketName')),
+                        'order_no': strip_or_empty(order.get('orderNo')),
                     })
         return tickets
 
