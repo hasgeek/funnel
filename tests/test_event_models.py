@@ -9,10 +9,10 @@ from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2
 
 def bulk_upsert(space, event_list):
     for event_dict in event_list:
-        event = Event.upsert(space, Event.get_name(space, event_dict.get('title')),
+        event = Event.upsert(space, Event.get_name_from_title(space, event_dict.get('title')),
             title=event_dict.get('title'), proposal_space=space)
         for ticket_type_title in event_dict.get('ticket_types'):
-            ticket_type = TicketType.upsert(space, TicketType.get_name(space, ticket_type_title), proposal_space=space, title=ticket_type_title)
+            ticket_type = TicketType.upsert(space, TicketType.get_name_from_title(space, ticket_type_title), proposal_space=space, title=ticket_type_title)
             event.ticket_types.append(ticket_type)
 
 
