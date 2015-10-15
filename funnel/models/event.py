@@ -130,6 +130,23 @@ class Participant(BaseMixin, db.Model):
                 if event not in self.events:
                     self.events.append(event)
 
+    @classmethod
+    def update_badge_printed(cls, event, badge_printed):
+        participant_ids = [participant.id for participant in event.participants]
+        db.session.query(cls).filter(cls.id.in_(participant_ids)).update({'badge_printed': badge_printed}, False)
+
+    @classmethod
+    def attendees_by_event(cls, event):
+        participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
+        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in, Participant.badge_printed]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
+        return db.session.execute(stmt).fetchall()
+
+    @classmethod
+    def filter_by_ticket_type(cls, ticket_type):
+        participant_sync_ticket_join = db.join(Participant, SyncTicket, Participant.id == SyncTicket.participant_id)
+        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter]).select_from(participant_sync_ticket_join).where(SyncTicket.ticket_type == ticket_type).distinct()
+        return db.session.execute(stmt).fetchall()
+
 
 class Attendee(BaseMixin, db.Model):
     """

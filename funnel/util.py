@@ -3,6 +3,8 @@ import requests
 from urlparse import urljoin
 from urlparse import urlparse
 from baseframe import cache
+import qrcode
+import qrcode.image.svg
 
 
 @cache.memoize(timeout=86400)
@@ -26,3 +28,36 @@ def format_twitter(twitter_id):
     Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
     """
     return urlparse(str(twitter_id)).path.replace('/', '').replace('@', '')
+
+
+def split_name(fullname):
+    """
+    Splits a given fullname into two parts
+    a first name, and a concanetated last name.
+    Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
+    """
+    name_splits = fullname.split()
+    return name_splits[0], " ".join([s for s in name_splits[1:]])
+
+
+def file_contents(path):
+    """Returns contents of a given file path"""
+    file = open(path)
+    content = file.read()
+    file.close()
+    return content
+
+
+def make_qrcode(data, path):
+    """
+    Makes a QR code with a given path and returns the raw svg
+    Data Format is id:key. Eg: 1:xxxxxxxx
+    """
+    try:
+        qrcode_svg = file_contents(path)
+    except:
+        factory = qrcode.image.svg.SvgPathImage
+        img = qrcode.make(data, image_factory=factory)
+        img.save(path)
+        qrcode_svg = file_contents(path)
+    return qrcode_svg
