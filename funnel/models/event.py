@@ -2,6 +2,7 @@
 import os
 import base64
 from datetime import datetime
+from sqlalchemy import or_
 from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
 from .user import User
@@ -48,12 +49,24 @@ class Event(BaseScopedNameMixin, db.Model):
     parent = db.synonym('proposal_space')
     ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
     participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
 
     @classmethod
-    def get_name_from_title(cls, space, title):
-        event = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
-        return event.name if event else None
+    def get(cls, space, name_or_title):
+        return cls.query.filter_by(proposal_space=space)\
+            .filter(or_(cls.name == name_or_title, cls.title == name_or_title)).one_or_none()
+
+    @classmethod
+    def upsert(cls, space, name_or_title, **fields):
+        event = cls.get(space, name_or_title)
+        if event:
+            event._set_fields(fields)
+        else:
+            fields.pop('proposal_space', None)
+            fields.pop('title', None)
+            event = cls(proposal_space=space, title=name_or_title, **fields)
+            db.session.add(event)
+        return event
 
 
 class TicketType(BaseScopedNameMixin, db.Model):
@@ -68,12 +81,24 @@ class TicketType(BaseScopedNameMixin, db.Model):
         backref=db.backref('ticket_types', cascade='all, delete-orphan'))
     parent = db.synonym('proposal_space')
     events = db.relationship('Event', secondary=event_ticket_type)
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
+    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
 
     @classmethod
-    def get_name_from_title(cls, space, title):
-        ticket_type = cls.query.filter_by(title=title, proposal_space=space).one_or_none()
-        return ticket_type.name if ticket_type else None
+    def get(cls, space, name_or_title):
+        return cls.query.filter_by(proposal_space=space)\
+            .filter(or_(cls.name == name_or_title, cls.title == name_or_title)).one_or_none()
+
+    @classmethod
+    def upsert(cls, space, name_or_title, **fields):
+        ticket_type = cls.get(space, name_or_title)
+        if ticket_type:
+            ticket_type._set_fields(fields)
+        else:
+            fields.pop('proposal_space', None)
+            fields.pop('title', None)
+            ticket_type = cls(proposal_space=space, title=name_or_title, **fields)
+            db.session.add(ticket_type)
+        return ticket_type
 
 
 class Participant(BaseMixin, db.Model):
@@ -172,7 +197,7 @@ class TicketClient(BaseMixin, db.Model):
             ticket.participant.remove_events(ticket.ticket_type.events)
 
         for ticket_dict in ticket_list:
-            ticket_type = TicketType.upsert(space, TicketType.get_name_from_title(space, ticket_dict['ticket_type']),
+            ticket_type = TicketType.upsert(space, ticket_dict['ticket_type'],
                             title=ticket_dict['ticket_type'], proposal_space=space)
 
             participant = Participant.upsert(space, ticket_dict['email'],
