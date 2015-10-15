@@ -123,14 +123,15 @@ class Participant(BaseMixin, db.Model):
             db.session.add(participant)
         return participant
 
-    def update_events(self, events, cancel=False):
+    def add_events(self, events):
         for event in events:
-            if cancel:
-                if event in self.events:
-                    self.events.remove(event)
-            else:
-                if event not in self.events:
-                    self.events.append(event)
+            if event not in self.events:
+                self.events.append(event)
+
+    def remove_events(self, events):
+        for event in events:
+            if event in self.events:
+                self.events.remove(event)
 
 
 class Attendee(BaseMixin, db.Model):
@@ -167,6 +168,9 @@ class TicketClient(BaseMixin, db.Model):
         Batch upserts the tickets and its associated ticket types and participants.
         Cancels the tickets in cancel_list.
         """
+        for ticket in cancel_list:
+            ticket.participant.remove_events(ticket.ticket_type.events)
+
         for ticket_dict in ticket_list:
             ticket_type = TicketType.upsert(space, TicketType.get_name_from_title(space, ticket_dict['ticket_type']),
                             title=ticket_dict['ticket_type'], proposal_space=space)
@@ -180,10 +184,15 @@ class TicketClient(BaseMixin, db.Model):
                              city=ticket_dict['city']
                             )
 
-            SyncTicket.upsert(space, ticket_dict['order_no'], ticket_dict['ticket_no'], participant=participant, ticket_client=self, ticket_type=ticket_type)
+            ticket, previous_participant = SyncTicket.upsert(space, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
+                participant=participant, ticket_client=self, ticket_type=ticket_type)
 
-        for ticket in cancel_list:
-            ticket.participant.update_events(ticket.ticket_type.events, cancel=True)
+            if previous_participant:
+                # Remove previous participant's access to events
+                previous_participant.remove_events(ticket_type.events)
+
+            # Ensure that the new or updated participant has access to events
+            ticket.participant.add_events(ticket_type.events)
 
 
 class SyncTicket(BaseMixin, db.Model):
@@ -211,25 +220,24 @@ class SyncTicket(BaseMixin, db.Model):
         return cls.query.filter_by(proposal_space=space, order_no=order_no, ticket_no=ticket_no).one_or_none()
 
     @classmethod
-    def upsert(cls, space, order_no, ticket_no, participant, ticket_client, ticket_type):
+    def upsert(cls, space, order_no, ticket_no, **fields):
+        previous_participant = None
         ticket = cls.get(space, order_no, ticket_no)
-
-        if not ticket:
-            ticket = SyncTicket(proposal_space=space, order_no=order_no,
-                             ticket_no=ticket_no, ticket_type=ticket_type,
-                             participant=participant, ticket_client=ticket_client)
-            db.session.add(ticket)
+        if ticket:
+            if ticket.participant is not fields.get('participant'):
+                # Transfer ticket
+                previous_participant = ticket.participant
+            ticket._set_fields(fields)
         else:
-            # Transfer ticket
-            if ticket.participant is not participant:
-                ticket.participant.update_events(ticket.ticket_type.events, cancel=True)
-                ticket.participant = participant
+            fields.pop('proposal_space', None)
+            fields.pop('order_no', None)
+            fields.pop('ticket_no', None)
+            ticket = SyncTicket(proposal_space=space, order_no=order_no, ticket_no=ticket_no, **fields)
+            db.session.add(ticket)
 
-        ticket.participant.update_events(ticket.ticket_type.events)
-
-        return ticket
+        return (ticket, previous_participant)
 
     @classmethod
     def exclude(cls, space, ticket_client, ticket_nos):
-        return cls.query.filter_by(proposal_space=space, ticket_client=ticket_client)\
-            .filter(~cls.ticket_no.in_(ticket_nos))
+        return cls.query.filter_by(proposal_space=space, ticket_client=ticket_client
+            ).filter(~cls.ticket_no.in_(ticket_nos))

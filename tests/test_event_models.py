@@ -4,7 +4,7 @@ import random
 import unittest
 from funnel import *
 from funnel.models import (db, Profile, ProposalSpace, Event, User, SyncTicket, Participant, TicketClient, TicketType)
-from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2
+from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2, ticket_list3
 
 
 def bulk_upsert(space, event_list):
@@ -66,9 +66,9 @@ class TestEventModels(unittest.TestCase):
 
         # test cancellations
         cancel_list = [SyncTicket.get(self.space, 'o2', 't2')]
-        self.ticket_client.import_from_list(self.space, ticket_list, cancel_list=cancel_list)
+        self.ticket_client.import_from_list(self.space, ticket_list2, cancel_list=cancel_list)
         self.assertEquals(len(p2.events), 0)
 
         # test_transfers
-        self.ticket_client.import_from_list(self.space, ticket_list2)
-        self.assertEquals(p2.events and p2.events[0], Event.get(self.space, 'spacecon'))
+        self.ticket_client.import_from_list(self.space, ticket_list3)
+        self.assertEquals(p2.events[0], Event.get(self.space, 'spacecon-workshop'))
