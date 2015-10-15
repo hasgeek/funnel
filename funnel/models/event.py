@@ -184,8 +184,8 @@ class TicketClient(BaseMixin, db.Model):
                              city=ticket_dict['city']
                             )
 
-            ticket, previous_participant = SyncTicket.upsert(space, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
-                participant=participant, ticket_client=self, ticket_type=ticket_type)
+            ticket, previous_participant = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
+                participant=participant, ticket_type=ticket_type)
 
             if previous_participant:
                 # Remove previous participant's access to events
@@ -207,32 +207,33 @@ class SyncTicket(BaseMixin, db.Model):
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant, primaryjoin=participant_id == Participant.id,
         backref=db.backref('sync_tickets', cascade="all, delete-orphan"))
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
-        backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
     ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=False)
     ticket_client = db.relationship(TicketClient,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'order_no', 'ticket_no'),)
+    __table_args__ = (db.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
 
     @classmethod
-    def get(cls, space, order_no, ticket_no):
-        return cls.query.filter_by(proposal_space=space, order_no=order_no, ticket_no=ticket_no).one_or_none()
+    def get(cls, ticket_client, order_no, ticket_no):
+        return cls.query.filter_by(ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no).one_or_none()
 
     @classmethod
-    def upsert(cls, space, order_no, ticket_no, **fields):
+    def upsert(cls, ticket_client, order_no, ticket_no, **fields):
+        """
+        Returns a tuple containing the upserted ticket, and the participant the ticket
+        was previously associated with or None if there was no earlier participant.
+        """
         previous_participant = None
-        ticket = cls.get(space, order_no, ticket_no)
+        ticket = cls.get(ticket_client, order_no, ticket_no)
         if ticket:
             if ticket.participant is not fields.get('participant'):
                 # Transfer ticket
                 previous_participant = ticket.participant
             ticket._set_fields(fields)
         else:
-            fields.pop('proposal_space', None)
+            fields.pop('ticket_client', None)
             fields.pop('order_no', None)
             fields.pop('ticket_no', None)
-            ticket = SyncTicket(proposal_space=space, order_no=order_no, ticket_no=ticket_no, **fields)
+            ticket = SyncTicket(ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no, **fields)
             db.session.add(ticket)
 
         return (ticket, previous_participant)
