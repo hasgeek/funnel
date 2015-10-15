@@ -112,12 +112,14 @@ class Participant(BaseMixin, db.Model):
         return cls.query.filter_by(proposal_space=space, email=email).one_or_none()
 
     @classmethod
-    def upsert(cls, **fields):
-        participant = cls.get(fields['proposal_space'], fields['email'])
+    def upsert(cls, space, emailid, **fields):
+        participant = cls.get(space, emailid)
         if participant:
             participant._set_fields(fields)
         else:
-            participant = cls(**fields)
+            fields.pop('proposal_space', None)
+            fields.pop('email', None)
+            participant = cls(proposal_space=space, email=emailid, **fields)
             db.session.add(participant)
         return participant
 
@@ -169,7 +171,7 @@ class TicketClient(BaseMixin, db.Model):
             ticket_type = TicketType.upsert(space, TicketType.get_name_from_title(space, ticket_dict['ticket_type']),
                             title=ticket_dict['ticket_type'], proposal_space=space)
 
-            participant = Participant.upsert(proposal_space=space,
+            participant = Participant.upsert(space, ticket_dict['email'],
                              email=ticket_dict['email'],
                              fullname=ticket_dict['fullname'],
                              phone=ticket_dict['phone'],
