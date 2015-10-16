@@ -117,7 +117,7 @@
     window.Queue.peek = function(queueName) {
       var participantList = window.Store.readFromLocalstorage(queueName);
       if(participantList && participantList.length) {
-        return participantList.shift();
+        return participantList[0];
       }
     }
 
