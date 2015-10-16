@@ -209,12 +209,12 @@ class TicketClient(BaseMixin, db.Model):
                              city=ticket_dict['city']
                             )
 
-            ticket, previous_participant = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
+            ticket = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
                 participant=participant, ticket_type=ticket_type)
 
-            if previous_participant:
+            if ticket.previous_participant:
                 # Remove previous participant's access to events
-                previous_participant.remove_events(ticket_type.events)
+                ticket.previous_participant.remove_events(ticket_type.events)
 
             # Ensure that the new or updated participant has access to events
             ticket.participant.add_events(ticket_type.events)
@@ -237,6 +237,8 @@ class SyncTicket(BaseMixin, db.Model):
         backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
     __table_args__ = (db.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
 
+    previous_participant = None
+
     @classmethod
     def get(cls, ticket_client, order_no, ticket_no):
         return cls.query.filter_by(ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no).one_or_none()
@@ -247,12 +249,11 @@ class SyncTicket(BaseMixin, db.Model):
         Returns a tuple containing the upserted ticket, and the participant the ticket
         was previously associated with or None if there was no earlier participant.
         """
-        previous_participant = None
         ticket = cls.get(ticket_client, order_no, ticket_no)
         if ticket:
             if ticket.participant is not fields.get('participant'):
                 # Transfer ticket
-                previous_participant = ticket.participant
+                ticket.previous_participant = ticket.participant
             ticket._set_fields(fields)
         else:
             fields.pop('ticket_client', None)
@@ -261,7 +262,7 @@ class SyncTicket(BaseMixin, db.Model):
             ticket = SyncTicket(ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no, **fields)
             db.session.add(ticket)
 
-        return (ticket, previous_participant)
+        return ticket
 
     @classmethod
     def exclude(cls, space, ticket_client, ticket_nos):
