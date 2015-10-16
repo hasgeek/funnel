@@ -20,14 +20,19 @@ def geonameid_from_location(text):
     return None
 
 
-def format_twitter(handle):
+def format_twitter_handle(handle):
     """
     formats a user given twitter handle
     Eg: https://twitter.com/shreyas_satish -> shreyas_satish, @shreyas_satish -> shreyas_satish
-    Returns None if handle is Falsy or contains an URL whose domain is not twitter.com
+    Returns None for invalid cases.
     """
-    # Return None for invalid cases
-    if not handle or (urlparse(handle).netloc and urlparse(handle).netloc != 'twitter.com'):
+    # Twitter restricts the length of handles to 15. 16 is the threshold here, since
+    # a user might prefix their handle with an '@', a valid case.
+    if (
+            not handle or
+            (urlparse(handle).netloc and urlparse(handle).netloc != 'twitter.com') or
+            (not urlparse(handle).netloc and len(handle) > 16)
+    ):
         return None
 
     return unicode([part for part in urlparse(handle).path.split('/') if part][0]).replace('@', '')

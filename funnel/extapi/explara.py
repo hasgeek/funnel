@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
-from ..util import format_twitter
+from ..util import format_twitter_handle
 from ..models import SyncTicket
 
 __all__ = ['ExplaraAPI']
@@ -62,7 +62,7 @@ class ExplaraAPI(object):
                         'fullname': strip_or_empty(attendee.get('name')),
                         'email': strip_or_empty(attendee.get('email')),
                         'phone': strip_or_empty(details.get('Phone') or order.get('phoneNo')),
-                        'twitter': format_twitter(strip_or_empty(details.get('Twitter handle'))),
+                        'twitter': format_twitter_handle(strip_or_empty(details.get('Twitter handle'))),
                         'job_title': strip_or_empty(details.get('Job title')),
                         'company': strip_or_empty(details.get('Company name')),
                         'city': strip_or_empty(order.get('city')),
