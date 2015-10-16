@@ -9,9 +9,9 @@ from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2
 
 def bulk_upsert(space, event_list):
     for event_dict in event_list:
-        event = Event.upsert(space, event_dict.get('title'), title=event_dict.get('title'), proposal_space=space)
+        event = Event.upsert(space, current_title=event_dict.get('title'), title=event_dict.get('title'), proposal_space=space)
         for ticket_type_title in event_dict.get('ticket_types'):
-            ticket_type = TicketType.upsert(space, ticket_type_title, proposal_space=space, title=ticket_type_title)
+            ticket_type = TicketType.upsert(space, current_name=None, current_title=ticket_type_title, proposal_space=space, title=ticket_type_title)
             event.ticket_types.append(ticket_type)
 
 
@@ -74,5 +74,5 @@ class TestEventModels(unittest.TestCase):
         # test_transfers
         self.ticket_client.import_from_list(self.space, ticket_list3)
         self.assertEquals(len(p2.events), 1)
-        self.assertEquals(p2.events[0], Event.get(self.space, 'spacecon'))
+        self.assertEquals(p2.events[0], Event.get(self.space, current_name='spacecon'))
         self.assertEquals(len(p3.events), 0)
