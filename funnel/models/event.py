@@ -2,7 +2,6 @@
 import os
 import base64
 from datetime import datetime
-from sqlalchemy import or_
 from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
 from .user import User
@@ -29,7 +28,30 @@ event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     )
 
 
-class Event(BaseScopedNameMixin, db.Model):
+class ScopedNameTitleMixin(object):
+    # TODO: Move this into coaster?
+    @classmethod
+    def get(cls, parent, current_name=None, current_title=None):
+        if current_name:
+            return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
+        elif current_title:
+            return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
+        else:
+            raise TypeError
+
+    @classmethod
+    def upsert(cls, parent, current_name=None, current_title=None, **fields):
+        instance = cls.get(parent, current_name, current_title)
+        if instance:
+            instance._set_fields(fields)
+        else:
+            fields.pop('title', None)
+            instance = cls(parent=parent, title=current_title, **fields)
+            db.session.add(instance)
+        return instance
+
+
+class Event(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
     """
     A discrete event under a proposal space.
     For instance, a space could be associated with a workshop and a two-day conference.
@@ -51,25 +73,8 @@ class Event(BaseScopedNameMixin, db.Model):
     participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
 
-    @classmethod
-    def get(cls, space, name_or_title):
-        return cls.query.filter_by(proposal_space=space)\
-            .filter(or_(cls.name == name_or_title, cls.title == name_or_title)).one_or_none()
 
-    @classmethod
-    def upsert(cls, space, name_or_title, **fields):
-        event = cls.get(space, name_or_title)
-        if event:
-            event._set_fields(fields)
-        else:
-            fields.pop('proposal_space', None)
-            fields.pop('title', None)
-            event = cls(proposal_space=space, title=name_or_title, **fields)
-            db.session.add(event)
-        return event
-
-
-class TicketType(BaseScopedNameMixin, db.Model):
+class TicketType(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
     """
     Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
     A ticket type is associated with multiple events.
@@ -82,23 +87,6 @@ class TicketType(BaseScopedNameMixin, db.Model):
     parent = db.synonym('proposal_space')
     events = db.relationship('Event', secondary=event_ticket_type)
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
-
-    @classmethod
-    def get(cls, space, name_or_title):
-        return cls.query.filter_by(proposal_space=space)\
-            .filter(or_(cls.name == name_or_title, cls.title == name_or_title)).one_or_none()
-
-    @classmethod
-    def upsert(cls, space, name_or_title, **fields):
-        ticket_type = cls.get(space, name_or_title)
-        if ticket_type:
-            ticket_type._set_fields(fields)
-        else:
-            fields.pop('proposal_space', None)
-            fields.pop('title', None)
-            ticket_type = cls(proposal_space=space, title=name_or_title, **fields)
-            db.session.add(ticket_type)
-        return ticket_type
 
 
 class Participant(BaseMixin, db.Model):
@@ -197,11 +185,9 @@ class TicketClient(BaseMixin, db.Model):
             ticket.participant.remove_events(ticket.ticket_type.events)
 
         for ticket_dict in ticket_list:
-            ticket_type = TicketType.upsert(space, ticket_dict['ticket_type'],
-                            title=ticket_dict['ticket_type'], proposal_space=space)
+            ticket_type = TicketType.upsert(space, current_title=ticket_dict['ticket_type'])
 
             participant = Participant.upsert(space, ticket_dict['email'],
-                             email=ticket_dict['email'],
                              fullname=ticket_dict['fullname'],
                              phone=ticket_dict['phone'],
                              twitter=ticket_dict['twitter'],
