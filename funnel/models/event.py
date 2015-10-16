@@ -249,8 +249,3 @@ class SyncTicket(BaseMixin, db.Model):
             db.session.add(ticket)
 
         return ticket
-
-    @classmethod
-    def exclude(cls, space, ticket_client, ticket_nos):
-        return cls.query.filter_by(proposal_space=space, ticket_client=ticket_client
-            ).filter(~cls.ticket_no.in_(ticket_nos))
