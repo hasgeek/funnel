@@ -12,6 +12,8 @@ down_revision = '48ce908329c0'
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.sql import table, column, select
+from funnel.models import (SyncTicket, TicketClient)
 
 
 def upgrade():
@@ -22,7 +24,12 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column('sync_ticket', sa.Column('proposal_space_id', sa.INTEGER(), autoincrement=False, nullable=False))
+    op.add_column('sync_ticket', sa.Column('proposal_space_id', sa.INTEGER(), autoincrement=False, nullable=True))
     op.create_foreign_key(u'sync_ticket_proposal_space_id_fkey', 'sync_ticket', 'proposal_space', ['proposal_space_id'], ['id'])
     op.drop_constraint(u'sync_ticket_ticket_client_id_order_no_ticket_no_key', 'sync_ticket', type_='unique')
     op.create_unique_constraint(u'sync_ticket_proposal_space_id_order_no_ticket_no_key', 'sync_ticket', ['proposal_space_id', 'order_no', 'ticket_no'])
+    # restore proposal_space_ids
+    sync_ticket = table(SyncTicket.__tablename__, column('proposal_space_id'), column('ticket_client_id'))
+    ticket_client = table(TicketClient.__tablename__, column('id'), column('proposal_space_id'))
+    op.execute(
+        sync_ticket.update().values({'proposal_space_id': select([ticket_client.c.proposal_space_id]).where(ticket_client.c.id == sync_ticket.c.ticket_client_id)}))
