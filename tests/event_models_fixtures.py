@@ -88,7 +88,7 @@ ticket_list3 = [{
     'company': u'Acme',
     'city': u'Atlantis',
     'ticket_no': u't{id}'.format(id=unicode(3)),
-    'ticket_type': u'Workshop',
+    'ticket_type': u'Conference',
     'order_no': u'o{id}'.format(id=unicode(3))
 }
 ]
