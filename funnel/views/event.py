@@ -2,8 +2,8 @@
 from flask import redirect, render_template
 from coaster.views import load_models
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, TicketType, TicketClient)
-import baseframe.forms as forms
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, TicketType)
+from baseframe import forms
 from ..forms import ParticipantBadgeForm
 from ..jobs import import_tickets
 from sqlalchemy.orm import load_only
@@ -47,10 +47,11 @@ def ticket_type(profile, space, ticket_type):
 def event(profile, space, event):
     participants = Participant.attendees_by_event(event)
     form = ParticipantBadgeForm()
+    checkin_form = forms.Form()
     if form.validate_on_submit():
         badge_printed = True if form.data.get('badge_printed') == 't' else False
         Participant.update_badge_printed(event, badge_printed)
         db.session.commit()
         return redirect("{0}/{1}".format(space.url_for('events'), event.name), code=303)
     checked_in_count = len([p for p in participants if p.checked_in])
-    return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant), checked_in_count=checked_in_count)
+    return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant), checked_in_count=checked_in_count, checkin_form=checkin_form)

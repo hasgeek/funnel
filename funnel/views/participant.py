@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import unicodecsv
 import StringIO
-from flask import flash, redirect, render_template, request, g
+from flask import flash, redirect, render_template, request, g, url_for
 from baseframe import _
+from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 from .. import app, lastuser
@@ -164,7 +165,7 @@ def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -173,10 +174,13 @@ def participant_badge(profile, space, participant):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='event-checkin')
 def event_checkin(profile, space, event, participant):
-    a = participant.attendees.filter_by(event=event).first()
-    a.checked_in = True if request.args.get('checkin') == 't' else False
-    db.session.commit()
-    return redirect("{0}event/{1}".format(space.url_for(), event.name), code=303)
+    attendee = Attendee.get(event, participant)
+    form = forms.Form()
+    if form.validate_on_submit():
+        # Toggle check-in status
+        attendee.checked_in = not attendee.checked_in
+        db.session.commit()
+    return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
 
 
 @app.route('/<space>/event/<name>/badges', subdomain='<profile>')
