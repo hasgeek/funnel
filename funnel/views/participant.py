@@ -8,22 +8,21 @@ from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
 from ..forms import ParticipantForm, ParticipantImportForm
-from funnel.util import split_name, format_twitter, make_qrcode
+from funnel.util import split_name, format_twitter_handle, make_qrcode
 from sqlalchemy.exc import IntegrityError
 
 
 def participant_badge_data(participants, space):
     badges = []
     for participant in participants:
-        qrcode_data = "{0}{1}".format(participant.puk, participant.key)
-        qrcode_path = "{0}/{1}_{2}_{3}.{4}".format(app.config.get('BADGES_PATH'), space.profile.name, space.name, str(participant.puk), 'svg')
+        qrcode_data = "{puk}{key}".format(puk=participant.puk, key=participant.key)
         first_name, last_name = split_name(participant.fullname)
         badges.append({
             'first_name': first_name,
             'last_name': last_name,
-            'twitter': format_twitter(participant.twitter),
+            'twitter': format_twitter_handle(participant.twitter),
             'company': participant.company,
-            'qrcode_content': make_qrcode(qrcode_data, qrcode_path)
+            'qrcode_content': make_qrcode(qrcode_data)
         })
     return badges
 
