@@ -2,7 +2,6 @@
 
 import requests
 from ..util import format_twitter_handle
-from ..models import SyncTicket
 
 __all__ = ['ExplaraAPI']
 
