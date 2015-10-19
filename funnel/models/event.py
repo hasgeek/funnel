@@ -195,13 +195,14 @@ class TicketClient(BaseMixin, db.Model):
                              city=ticket_dict['city']
                             )
 
+            ticket = SyncTicket.get(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'))
+            if ticket and ticket.participant is not participant:
+                # Ensure that the previous participant does not have access to
+                # this ticket's events
+                ticket.participant.remove_events(ticket_type.events)
+
             ticket = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
                 participant=participant, ticket_type=ticket_type)
-
-            if ticket.previous_participant:
-                # Remove previous participant's access to events
-                ticket.previous_participant.remove_events(ticket_type.events)
-
             # Ensure that the new or updated participant has access to events
             ticket.participant.add_events(ticket_type.events)
 
@@ -223,8 +224,6 @@ class SyncTicket(BaseMixin, db.Model):
         backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
     __table_args__ = (db.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
 
-    previous_participant = None
-
     @classmethod
     def get(cls, ticket_client, order_no, ticket_no):
         return cls.query.filter_by(ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no).one_or_none()
@@ -237,9 +236,6 @@ class SyncTicket(BaseMixin, db.Model):
         """
         ticket = cls.get(ticket_client, order_no, ticket_no)
         if ticket:
-            if ticket.participant is not fields.get('participant'):
-                # Transfer ticket
-                ticket.previous_participant = ticket.participant
             ticket._set_fields(fields)
         else:
             fields.pop('ticket_client', None)
