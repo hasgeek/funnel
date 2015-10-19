@@ -180,6 +180,14 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'edit-schedule',
                     'new-session',
                     'edit-session',
+                    'event-checkin',
+                    'event-view',
+                    'ticket-type-view',
+                    'event-sync',
+                    'participant-edit',
+                    'participant-view',
+                    'new-participant'
+
                     ])
         return perms
 
@@ -226,6 +234,14 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('rsvp', profile=self.profile.name, space=self.name)
         elif action == 'rsvp-list':
             return url_for('rsvp_list', profile=self.profile.name, space=self.name)
+        elif action == 'events':
+            return url_for('events', profile=self.profile.name, space=self.name)
+        elif action == 'participants':
+            return url_for('participants', profile=self.profile.name, space=self.name)
+        elif action == 'new-participant':
+            return url_for('new_participant', profile=self.profile.name, space=self.name)
+        elif action == 'import-participant':
+            return url_for('import_participant', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):
