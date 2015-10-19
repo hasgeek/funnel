@@ -16,14 +16,13 @@ from sqlalchemy.exc import IntegrityError
 def participant_badge_data(participants, space):
     badges = []
     for participant in participants:
-        qrcode_data = "{puk}{key}".format(puk=participant.puk, key=participant.key)
         first_name, last_name = split_name(participant.fullname)
         badges.append({
             'first_name': first_name,
             'last_name': last_name,
             'twitter': format_twitter_handle(participant.twitter),
             'company': participant.company,
-            'qrcode_content': make_qrcode(qrcode_data)
+            'qrcode_content': make_qrcode(u"{participant.puk}{participant.key}")
         })
     return badges
 
@@ -89,7 +88,7 @@ def new_participant(profile, space):
             db.session.rollback()
             flash(_(u"This participant already exists."), 'info')
         return redirect(space.url_for('events'), code=303)
-    return render_form(form=form, title=_("New Participant"), submit=_("Add Participant"))
+    return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
 
 
 @app.route('/<space>/participants/import', methods=['GET', 'POST'], subdomain='<profile>')
@@ -110,7 +109,7 @@ def import_participant(profile, space):
             db.session.commit()
             flash(_(u"Participants were imported from {filename}.".format(filename=participant_list_csv.filename)), 'info')
             return redirect(space.url_for('events'), code=303)
-    return render_form(form=form, title=_("Import Participants"), submit=_("Import"))
+    return render_form(form=form, title=_(u"Import Participants"), submit=_(u"Import"))
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
@@ -126,9 +125,9 @@ def participant_edit(profile, space, participant):
     if form.validate_on_submit():
         form.populate_obj(participant)
         db.session.commit()
-        flash(_("Your changes have been saved"), 'info')
+        flash(_(u"Your changes have been saved"), 'info')
         return redirect(space.url_for('events'), code=303)
-    return render_form(form=form, title=_("Edit Participant"), submit=_("Save changes"))
+    return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
 @app.route('/<space>/participant', subdomain='<profile>')
@@ -140,18 +139,18 @@ def participant_edit(profile, space, participant):
 def participant(profile, space):
     participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
     if not participant:
-        return jsonp(message="Not found", code=404)
+        return jsonp(message=u"Not found", code=404)
     elif participant.key == request.args.get('key'):
         try:
             contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
             db.session.add(contact_exchange)
             db.session.commit()
         except IntegrityError:
-            app.logger.warning("Contact Exchange already present")
+            app.logger.warning(u"Contact Exchange already present")
             db.session.rollback()
         return jsonp(participant=participant_data(participant, space.id, full=True))
     else:
-        return jsonp(message="Unauthorized", code=401)
+        return jsonp(message=u"Unauthorized", code=401)
 
 
 @app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')

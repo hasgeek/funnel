@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import redirect, render_template
+from flask import redirect, render_template, url_for
 from coaster.views import load_models
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, TicketType)
@@ -52,6 +52,6 @@ def event(profile, space, event):
         badge_printed = True if form.data.get('badge_printed') == 't' else False
         Participant.update_badge_printed(event, badge_printed)
         db.session.commit()
-        return redirect("{0}/{1}".format(space.url_for('events'), event.name), code=303)
+        return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
     checked_in_count = len([p for p in participants if p.checked_in])
     return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant), checked_in_count=checked_in_count, checkin_form=checkin_form)

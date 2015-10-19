@@ -31,8 +31,8 @@
     </div>
     <div class="col-lg-9 col-sm-9 col-xs-12">
       <ul class="list-inline status-btn-list">
-        <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.name) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
-        <li><a href={{ "{0}event/{1}/badges?badge_printed=t".format(space.url_for(), event.name) }} class='btn btn-success' target="_blank">Badges printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} class='btn btn-success' target="_blank">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="form-inline">
               {{ badge_form.hidden_tag() }}
@@ -61,18 +61,18 @@
           <td>
             <ul class="list-inline status-btn-list">
             <li>
-              <a href={{ "{0}participant/{1}/badge".format(space.url_for(), p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
+              <a href={{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id=p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
             </li>
             <li>
-              <a href={{ "{0}participant/{1}/edit".format(space.url_for(), p.id) }} class='btn btn-xs btn-default'>Edit</a>
+              <a href={{ url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id=p.id) }} class='btn btn-xs btn-default'>Edit</a>
             </li>
             <li>
-              <form action={{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name, participant_id=p.id) }} method="POST" id="checkin_form" class="form-inline">
+              <form action={{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name, participant_id=p.id) }} method='POST' class='checkin_form' class='form-inline'>
                 {{ checkin_form.hidden_tag() }}
                 {%- if p.checked_in %}
-                  <input class='btn btn-xs btn-danger' type="submit" value="{% trans %}Cancel Check-in{% endtrans %}"/>
+                  <input class='btn btn-xs btn-danger margin-top' type='submit' value="{% trans %}Cancel Check-in{% endtrans %}"/>
                 {%- else %}
-                  <input class='btn btn-xs btn-warning' type="submit" value="{% trans %}Check-in{% endtrans %}"/>
+                  <input class='btn btn-xs btn-warning margin-top' type='submit' value="{% trans %}Check-in{% endtrans %}"/>
                 {%- endif %}
               </form>
             </li>
