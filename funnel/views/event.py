@@ -220,20 +220,21 @@ def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin/', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    (Participant, {'id': 'participant_id'}, 'participant'),
     permission='event-checkin')
-def event_checkin(profile, space, event, participant):
-    a = Attendee.query.filter_by(participant_id=participant.id, event_id=event.id).first()
+def event_checkin(profile, space, event):
     checked_in = True if request.args.get('checkin') == 't' else False
-    a.checked_in = checked_in
-    db.session.add(a)
-    db.session.commit()
+    all_participants = request.args.getlist('pid')
+    for participant in all_participants:
+        a = Attendee.query.filter_by(participant_id=participant, event_id=event.id).first()
+        a.checked_in = checked_in
+        db.session.add(a)
+        db.session.commit()
     if request.is_xhr:
-        return jsonify(status=True, participant_id=participant.id, checked_in=checked_in)
+        return jsonify(status=True, participant_ids=all_participants, checked_in=checked_in)
     return redirect("{0}event/{1}".format(space.url_for(), event.name), code=303)
