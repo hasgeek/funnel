@@ -38,7 +38,8 @@ def format_twitter_handle(handle):
     parsed_handle = urlparse(handle)
     if (
             (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com') or
-            (not parsed_handle.netloc and len(handle) > 16)
+            (not parsed_handle.netloc and len(handle) > 16) or
+            (not parsed_handle.path)
     ):
         return None
 

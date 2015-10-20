@@ -197,7 +197,7 @@ class TicketClient(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_clients', cascade='all, delete-orphan'))
 
-    def import_from_list(self, space, ticket_list, cancel_list=[]):
+    def import_from_list(self, ticket_list, cancel_list=[]):
         """
         Batch upserts the tickets and its associated ticket types and participants.
         Cancels the tickets in cancel_list.
@@ -206,9 +206,9 @@ class TicketClient(BaseMixin, db.Model):
             ticket.participant.remove_events(ticket.ticket_type.events)
 
         for ticket_dict in ticket_list:
-            ticket_type = TicketType.upsert(space, current_title=ticket_dict['ticket_type'])
+            ticket_type = TicketType.upsert(self.proposal_space, current_title=ticket_dict['ticket_type'])
 
-            participant = Participant.upsert(space, ticket_dict['email'],
+            participant = Participant.upsert(self.proposal_space, ticket_dict['email'],
                              fullname=ticket_dict['fullname'],
                              phone=ticket_dict['phone'],
                              twitter=ticket_dict['twitter'],
@@ -266,3 +266,8 @@ class SyncTicket(BaseMixin, db.Model):
             db.session.add(ticket)
 
         return ticket
+
+    @classmethod
+    def exclude(cls, ticket_client, ticket_nos):
+        return cls.query.filter_by(ticket_client=ticket_client
+            ).filter(~cls.ticket_no.in_(ticket_nos))
