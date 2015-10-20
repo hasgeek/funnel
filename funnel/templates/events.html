@@ -5,7 +5,7 @@
 
 {% block content %}
 <ul class='list-inline'>
-<li><a href={{ space.url_for('new-event') }} class='btn btn-warning'>{% trans %}New event {% endtrans %}</a></li>
+<li><a href={{ space.url_for('new-event') }} class='btn btn-success'>{% trans %}New event {% endtrans %}</a></li>
 <li>
   <form method="POST" id="attendee_remote_sync_form" enctype="multipart/form-data" class="form-inline">
     <div class="form-group">
@@ -17,20 +17,24 @@
 <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>{% trans %}New participant {% endtrans %}</a></li>
 <li><a href={{ space.url_for('import-participant') }} class='btn btn-info'>{% trans %}Import participant list{% endtrans %}</a></li>
 </ul>
+<h3>Events</h3>
 <ol>
-{%- for event in events %}
-<li>
-  <a href={{ url_for('event', profile=space.profile.name, space=space.name, name=event.name) }}>
-    {{ event.title }}
-  </a>
-</li>
-{%- endfor %}
-{%- for ticket_type in ticket_types -%}
-<li>
-  <a href={{ url_for('ticket_type', profile=space.profile.name, space=space.name, name=ticket_type.name) }}>
-    {{ ticket_type.title.encode('ascii', 'ignore').decode('ascii') }}
-  </a>
-</li>
-{%- endfor %}
+  {%- for event in events %}
+    <li>
+      <a href={{ url_for('event', profile=space.profile.name, space=space.name, name=event.name) }}>
+        {{ event.title }}
+      </a>
+    </li>
+  {%- endfor %}
+</ol>
+<h3>Ticket Types</h3>
+<ol>
+  {%- for ticket_type in ticket_types -%}
+    <li>
+      <a href={{ url_for('ticket_type', profile=space.profile.name, space=space.name, name=ticket_type.name) }}>
+        {{ ticket_type.title.encode('ascii', 'ignore').decode('ascii') }}
+      </a>
+    </li>
+  {%- endfor %}
 </ol>
 {% endblock %}
