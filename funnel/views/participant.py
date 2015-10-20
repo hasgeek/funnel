@@ -105,7 +105,7 @@ def import_participant(profile, space):
         if participant_list_csv:
             for row in csvstring_to_rows(participant_list_csv.read()):
                 fields = {'proposal_space': space, 'events': form.data['events'], 'fullname': row.get('name'), 'email': row.get('email'), 'phone': row.get('phone'), 'twitter': row.get('twitter'), 'company': row.get('company')}
-                Participant.upsert(**fields)
+                Participant.upsert(space, fields['email'], **fields)
             db.session.commit()
             flash(_(u"Participants were imported from {filename}.".format(filename=participant_list_csv.filename)), 'info')
             return redirect(space.url_for('events'), code=303)
