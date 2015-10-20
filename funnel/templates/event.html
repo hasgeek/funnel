@@ -16,9 +16,9 @@
     <div class="col-lg-3 col-md-6 col-sm-4 col-xs-6">
       <h3>{{event.title}}</h3>
     </div>
-    <div class="col-lg-9 col-md-6 col-sm-4 col-xs-6">
-      <h3>
-        Total: {{participants | length}} |
+    <div class='col-lg-9 col-md-6 col-sm-8 col-xs-6'>
+      <h3 class='pull-right'>
+        Total: {{participants | length}}
         Checked In: {{checked_in_count}}
       </h3>
     </div>
@@ -30,9 +30,12 @@
       </form>
     </div>
     <div class="col-lg-9 col-sm-9 col-xs-12">
-      <ul class="list-inline status-btn-list">
-        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
-        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} class='btn btn-success' target="_blank">Badges printed</a></li>
+      <ul class="list-inline status-btn-list pull-right">
+        <li>
+          <a href={{ url_for('event_edit', profile=space.profile.name, space=space.name, name=event.name) }}>Edit Event</a>
+        </li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} target="_blank">Badges to be printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} target="_blank">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="form-inline">
               {{ badge_form.hidden_tag() }}

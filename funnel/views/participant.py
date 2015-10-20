@@ -2,6 +2,7 @@
 import unicodecsv
 import StringIO
 from flask import flash, redirect, render_template, request, g, url_for
+from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
@@ -10,7 +11,6 @@ from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
 from ..forms import ParticipantForm, ParticipantImportForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
-from sqlalchemy.exc import IntegrityError
 
 
 def participant_badge_data(participants, space):

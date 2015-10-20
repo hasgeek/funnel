@@ -2,13 +2,15 @@
 
 import re
 from coaster.utils import sorted_timezones
+from wtforms.widgets import CheckboxInput, ListWidget
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from baseframe import _, __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm', 'EventForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -74,3 +76,11 @@ class ProposalSpaceForm(forms.Form):
 
 class RsvpForm(forms.Form):
     status = forms.RadioField("Status", choices=[(k, RSVP_STATUS[k].title) for k in RSVP_STATUS.USER_CHOICES])
+
+
+class EventForm(forms.Form):
+    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    ticket_types = QuerySelectMultipleField(__("Ticket Types"),
+        widget=ListWidget(), option_widget=CheckboxInput(),
+        get_label='title',
+        validators=[forms.validators.DataRequired(u"Select at least one ticket_type")])
