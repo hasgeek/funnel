@@ -1,3 +1,5 @@
+window.Talkfunnel = {};
+
 function radioHighlight(radioName, highlightClass) {
     var selector = "input[name='" + radioName + "']";
     $(selector + ":checked").parent().addClass(highlightClass);
@@ -89,3 +91,12 @@ $(function() {
     }
   });
 });
+
+//convert array of objects into hashmap
+function tohashMap(objectArray, key) {
+    var hashMap = {};
+    objectArray.forEach(function(obj) {
+        hashMap[obj[key]] = obj;
+    });
+    return hashMap;
+}

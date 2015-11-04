@@ -86,35 +86,33 @@
 {% block footerscripts %}
 <script>
   if (Modernizr.localstorage) {
-    window.HasGeekTalkfunnel = {}
-
-    window.HasGeekTalkfunnel.Store = {};
+    window.Talkfunnel.Store = {};
 
     //Local storage can only save strings, so value is converted into strings and stored.
-    window.HasGeekTalkfunnel.Store.addToLocalstorage = function(key, value) {
+    window.Talkfunnel.Store.addToLocalstorage = function(key, value) {
       return localStorage.setItem(key, JSON.stringify(value))
     }
 
     //Reads from LocalStorage.
-    window.HasGeekTalkfunnel.Store.readFromLocalstorage = function(key) {
+    window.Talkfunnel.Store.readFromLocalstorage = function(key) {
       return JSON.parse(localStorage.getItem(key));
     }
 
-    window.HasGeekTalkfunnel.Queue = {};
+    window.Talkfunnel.Queue = {};
 
     //Adds a participant_id to queue
-    window.HasGeekTalkfunnel.Queue.enqueue = function(queueName, participant_id) {
-      var participantList = window.HasGeekTalkfunnel.Store.readFromLocalstorage(queueName) || [];
+    window.Talkfunnel.Queue.enqueue = function(queueName, participant_id) {
+      var participantList = window.Talkfunnel.Store.readFromLocalstorage(queueName) || [];
       if(participantList.indexOf(participant_id) === -1) {
         participantList.push(participant_id);
-        return window.HasGeekTalkfunnel.Store.addToLocalstorage(queueName, participantList)
+        return window.Talkfunnel.Store.addToLocalstorage(queueName, participantList)
       }
     }
 
     //Reads and returns all items from queue
     //Returns undefined when queue is empty or not defined
-    window.HasGeekTalkfunnel.Queue.peekAll = function(queueName) {
-      var participantList = window.HasGeekTalkfunnel.Store.readFromLocalstorage(queueName);
+    window.Talkfunnel.Queue.peekAll = function(queueName) {
+      var participantList = window.Talkfunnel.Store.readFromLocalstorage(queueName);
       if(participantList && participantList.length) {
         return participantList;
       }
@@ -122,13 +120,13 @@
 
     //Removes item from queue and returns true
     //Returns undefined when item not present in queue
-    window.HasGeekTalkfunnel.Queue.dequeue = function(queueName, participant_id) {
-      var participantList = window.HasGeekTalkfunnel.Store.readFromLocalstorage(queueName);
+    window.Talkfunnel.Queue.dequeue = function(queueName, participant_id) {
+      var participantList = window.Talkfunnel.Store.readFromLocalstorage(queueName);
       var index = participantList ? participantList.indexOf(participant_id) : -1;
       if(index !== -1) {
         //Remove item from queue and add updated queue to localStorage
         participantList.splice(index, 1);
-        window.HasGeekTalkfunnel.Store.addToLocalstorage(queueName, participantList);
+        window.Talkfunnel.Store.addToLocalstorage(queueName, participantList);
         return true;
       }
     }
@@ -147,24 +145,23 @@
     });
 
     //updateQueue: If participant in "checkin-queue" has already been checked-in then it is removed from checkin queue
-    function updateQueue(queueName) {
-      var participantIDs = window.HasGeekTalkfunnel.Queue.peekAll(queueName);
+    function updateQueue(queueName, participants) {
+      var participantIDs = window.Talkfunnel.Queue.peekAll(queueName);
       if(participantIDs) {
         participantIDs.forEach(function(participantID) {
-          var participant = "[data-pid=" + participantID +"]";
           if(queueName === "checkin-queue") {
-            if($(participant).hasClass('js-cancel-checkin')) {
+            if(participants[participantID].checked_in) {
               //Participant has been checked-in so remove from 'checkin-queue' 
-              window.HasGeekTalkfunnel.Queue.dequeue("checkin-queue", participantID);
+              window.Talkfunnel.Queue.dequeue("checkin-queue", participantID);
             }
             else {
               $(participant).siblings('.loader').show();
             }
           }
           else {
-            if($(participant).hasClass('js-checkin')) {
+            if(!participants[participantID].checked_in) {
               //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
-              window.HasGeekTalkfunnel.Queue.dequeue("cancelcheckin-queue", participantID);
+              window.Talkfunnel.Queue.dequeue("cancelcheckin-queue", participantID);
             }
             else {
               $(participant).siblings('.loader').show();
@@ -184,8 +181,9 @@
           participantTableContent.set('participants', data.participants).then(function() {
             if (Modernizr.localstorage) {
               $('.loader').hide();
-              updateQueue("checkin-queue");
-              updateQueue("cancelcheckin-queue");
+              var participants = tohashMap(data.participants, "pid");
+              updateQueue("checkin-queue", participants);
+              updateQueue("cancelcheckin-queue", participants);
             }
           });
         }
@@ -205,26 +203,26 @@
         success: function(data) {
           if(data.checked_in) {
             data.participant_ids.forEach(function(participant_id) {
-              window.HasGeekTalkfunnel.Queue.dequeue("checkin-queue", participant_id);
+              window.Talkfunnel.Queue.dequeue("checkin-queue", participant_id);
             });
           }
           else {
             data.participant_ids.forEach(function(participant_id) {
-              window.HasGeekTalkfunnel.Queue.dequeue("cancelcheckin-queue", participant_id);
+              window.Talkfunnel.Queue.dequeue("cancelcheckin-queue", participant_id);
             });
           }
         }
       });
     }
 
-    function checkQueues() {
+    function processQueues() {
       //Read all participants from 'checkin-queue' and post check-in to server
-      var participantIDs = window.HasGeekTalkfunnel.Queue.peekAll("checkin-queue");
+      var participantIDs = window.Talkfunnel.Queue.peekAll("checkin-queue");
       if(participantIDs) {
         postCheckinStatus(participantIDs, true);
       }
       //Read all participants from 'cancelcheckin-queue' and post cancel check-in to server
-      participantIDs = window.HasGeekTalkfunnel.Queue.peekAll("cancelcheckin-queue");
+      participantIDs = window.Talkfunnel.Queue.peekAll("cancelcheckin-queue");
       if(participantIDs) {
         postCheckinStatus(participantIDs, false);
       }
@@ -238,14 +236,14 @@
       $('#participants-table-content').on('click', '.js-checkin', function(event) {
         event.preventDefault();
         //Add to participant_id to "checkin-queue"
-        window.HasGeekTalkfunnel.Queue.enqueue("checkin-queue", $(this).attr('data-pid'));
+        window.Talkfunnel.Queue.enqueue("checkin-queue", $(this).attr('data-pid'));
         $(this).siblings('.loader').show();
       });
 
       $('#participants-table-content').on('click', '.js-cancel-checkin', function(event) {
         event.preventDefault();
         //Add to participant_id to "cancelcheckin-queue"
-        window.HasGeekTalkfunnel.Queue.enqueue("cancelcheckin-queue", $(this).attr('data-pid'));
+        window.Talkfunnel.Queue.enqueue("cancelcheckin-queue", $(this).attr('data-pid'));
         $(this).siblings('.loader').show();
       });
 
@@ -257,13 +255,13 @@
         if($(participant).hasClass('js-checkin')) {
           // On abort, if participantID present in the queue, then remove from "checkin-queue"
           // On abort, if participantID is not present in the "checkin-queue" it implies check-in has already been done, so a cancel check-in requires to be send(add it to "cancelcheckin-queue")
-          if(!window.HasGeekTalkfunnel.Queue.dequeue("checkin-queue", participantID)) {
-            window.HasGeekTalkfunnel.Queue.enqueue("cancelcheckin-queue", participantID);
+          if(!window.Talkfunnel.Queue.dequeue("checkin-queue", participantID)) {
+            window.Talkfunnel.Queue.enqueue("cancelcheckin-queue", participantID);
           }
         }
         else{
-          if(!window.HasGeekTalkfunnel.Queue.dequeue("cancelcheckin-queue", participantID)) {
-            window.HasGeekTalkfunnel.Queue.enqueue("checkin-queue", participantID);
+          if(!window.Talkfunnel.Queue.dequeue("cancelcheckin-queue", participantID)) {
+            window.Talkfunnel.Queue.enqueue("checkin-queue", participantID);
           }
         }
         $(participant).siblings('.loader').hide();
@@ -276,8 +274,8 @@
         }
       }
 
-      //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 second
-      setInterval(checkQueues, 8000);
+      //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 second and post check-in status to server
+      setInterval(processQueues, 8000);
 
       //Get participants data from server every 1 min
       setInterval(updateParticipantList, 60000);
