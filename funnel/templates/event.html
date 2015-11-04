@@ -90,13 +90,13 @@
 
     //Local storage can only save strings, so value is converted into strings and stored.
     window.Talkfunnel.Store.addToLocalstorage = function(key, value) {
-      return localStorage.setItem(key, JSON.stringify(value))
-    }
+      return localStorage.setItem(key, JSON.stringify(value));
+    };
 
     //Reads from LocalStorage.
     window.Talkfunnel.Store.readFromLocalstorage = function(key) {
       return JSON.parse(localStorage.getItem(key));
-    }
+    };
 
     window.Talkfunnel.Queue = {};
 
@@ -105,9 +105,9 @@
       var participantList = window.Talkfunnel.Store.readFromLocalstorage(queueName) || [];
       if(participantList.indexOf(participant_id) === -1) {
         participantList.push(participant_id);
-        return window.Talkfunnel.Store.addToLocalstorage(queueName, participantList)
+        return window.Talkfunnel.Store.addToLocalstorage(queueName, participantList);
       }
-    }
+    };
 
     //Reads and returns all items from queue
     //Returns undefined when queue is empty or not defined
@@ -116,7 +116,7 @@
       if(participantList && participantList.length) {
         return participantList;
       }
-    }
+    };
 
     //Removes item from queue and returns true
     //Returns undefined when item not present in queue
@@ -129,7 +129,7 @@
         window.Talkfunnel.Store.addToLocalstorage(queueName, participantList);
         return true;
       }
-    }
+    };
   }
 
   $(document).ready(function() {
@@ -149,6 +149,7 @@
       var participantIDs = window.Talkfunnel.Queue.peekAll(queueName);
       if(participantIDs) {
         participantIDs.forEach(function(participantID) {
+          var participant = "[data-pid=" + participantID +"]";
           if(queueName === "checkin-queue") {
             if(participants[participantID].checked_in) {
               //Participant has been checked-in so remove from 'checkin-queue' 
@@ -272,7 +273,7 @@
         if(!navigator.onLine) {
           return 'There is no network!';
         }
-      }
+      };
 
       //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 second and post check-in status to server
       setInterval(processQueues, 8000);
@@ -285,7 +286,7 @@
        if ($('#badge_form select.field-badge_printed').val() === "") {
         return false;
        }
-       return window.confirm("Are you sure? Selected action will apply to all listed participants.")
+       return window.confirm("Are you sure? Selected action will apply to all listed participants.");
     });
 
     var TableSearch = function(tableId){
@@ -301,7 +302,7 @@
       this.tableId = tableId;
       this.rowData = [];
       this.allMatchedIds = [];
-    }
+    };
 
     TableSearch.prototype.getRows = function(){
       return $('#' + this.tableId +' tbody tr');
@@ -321,7 +322,7 @@
 
     TableSearch.prototype.setAllMatchedIds = function(ids) {
       this.allMatchedIds = ids;
-    }
+    };
 
     TableSearch.prototype.searchRows = function(q){
       // Search the rows of the table for a supplied query.
@@ -329,26 +330,26 @@
       // reset data collection on first search or if table has changed
       if (this.rowData.length !== this.getRows().length) {
         this.setRowData();
-      };
+      }
 
       // return cached matched ids if query is blank
       if (q === '' && this.allMatchedIds.length !== 0) {
         return this.allMatchedIds;
-      };
+      }
 
       var matchedIds = [];
       for (var i = this.rowData.length - 1; i >= 0; i--) {
         if (this.rowData[i].text.indexOf(q.toLowerCase()) !== -1) {
           matchedIds.push(this.rowData[i]['rid']);
         }
-      };
+      }
 
       // cache ids if query is blank
       if (q === '') {
         this.setAllMatchedIds(matchedIds);
-      };
+      }
       return matchedIds;
-    }
+    };
 
     var tableSearch = new TableSearch('participants-table');
 
