@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import base64
+from operator import xor
 from datetime import datetime
 from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
@@ -32,12 +33,12 @@ class ScopedNameTitleMixin(BaseScopedNameMixin):
     # TODO: Move this into coaster?
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
+        if not xor(bool(current_name), bool(current_title)):
+            raise TypeError("Expects name xor title")
         if current_name:
             return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
-        elif current_title:
-            return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
         else:
-            raise TypeError
+            return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
 
     @classmethod
     def upsert(cls, parent, current_name=None, current_title=None, **fields):
