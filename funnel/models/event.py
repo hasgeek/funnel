@@ -28,7 +28,7 @@ event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     )
 
 
-class ScopedNameTitleMixin(object):
+class ScopedNameTitleMixin(BaseScopedNameMixin):
     # TODO: Move this into coaster?
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
@@ -51,7 +51,7 @@ class ScopedNameTitleMixin(object):
         return instance
 
 
-class Event(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
+class Event(ScopedNameTitleMixin, db.Model):
     """
     A discrete event under a proposal space.
     For instance, a space could be associated with a workshop and a two-day conference.
@@ -74,7 +74,7 @@ class Event(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
 
 
-class TicketType(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
+class TicketType(ScopedNameTitleMixin, db.Model):
     """
     Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
     A ticket type is associated with multiple events.
