@@ -34,7 +34,7 @@ class ScopedNameTitleMixin(BaseScopedNameMixin):
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
         if not xor(bool(current_name), bool(current_title)):
-            raise TypeError("Expects name xor title")
+            raise TypeError("Expects current_name xor current_title")
         if current_name:
             return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
         else:
