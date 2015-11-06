@@ -1,6 +1,7 @@
 from . import app
 import requests
 from urlparse import urljoin
+from urlparse import urlparse
 from baseframe import cache
 
 
@@ -17,3 +18,30 @@ def geonameid_from_location(text):
         geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]
         return set(geonameids)
     return None
+
+
+def format_twitter_handle(handle):
+    """
+    Formats a user-provided twitter handle.
+
+    Usage::
+      >>> format_twitter_handle('https://twitter.com/marscuriosity')
+      u'marscuriosity'
+
+    **Notes**
+
+    - Returns `None` for invalid cases.
+    - Twitter restricts the length of handles to 15. 16 is the threshold here, since a user might prefix their handle with an '@', a valid case.
+    - Tests in `tests/test_util.py`.
+    """
+    if not handle:
+        return None
+
+    parsed_handle = urlparse(handle)
+    if (
+            (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com') or
+            (not parsed_handle.netloc and len(handle) > 16)
+    ):
+        return None
+
+    return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace('@', '')
