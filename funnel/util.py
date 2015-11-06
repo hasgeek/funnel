@@ -25,12 +25,17 @@ def geonameid_from_location(text):
 
 def format_twitter_handle(handle):
     """
-    formats a user given twitter handle
-    Eg:  -> shreyas_satish, @shreyas_satish -> shreyas_satish
-    Returns None for invalid cases.
-    Twitter restricts the length of handles to 15. 16 is the threshold here, since
-    a user might prefix their handle with an '@', a valid case.
-    Tested in tests/test_util.py
+    Formats a user-provided twitter handle.
+
+    Usage::
+      >>> format_twitter_handle('https://twitter.com/marscuriosity')
+      u'marscuriosity'
+
+    **Notes**
+
+    - Returns `None` for invalid cases.
+    - Twitter restricts the length of handles to 15. 16 is the threshold here, since a user might prefix their handle with an '@', a valid case.
+    - Tests in `tests/test_util.py`.
     """
     if not handle:
         return None

@@ -28,16 +28,16 @@ event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     )
 
 
-class ScopedNameTitleMixin(object):
+class ScopedNameTitleMixin(BaseScopedNameMixin):
     # TODO: Move this into coaster?
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
+        if not bool(current_name) ^ bool(current_title):
+            raise TypeError("Expects current_name xor current_title")
         if current_name:
             return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
-        elif current_title:
-            return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
         else:
-            raise TypeError
+            return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
 
     @classmethod
     def upsert(cls, parent, current_name=None, current_title=None, **fields):
@@ -51,7 +51,7 @@ class ScopedNameTitleMixin(object):
         return instance
 
 
-class Event(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
+class Event(ScopedNameTitleMixin, db.Model):
     """
     A discrete event under a proposal space.
     For instance, a space could be associated with a workshop and a two-day conference.
@@ -74,7 +74,7 @@ class Event(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
 
 
-class TicketType(ScopedNameTitleMixin, BaseScopedNameMixin, db.Model):
+class TicketType(ScopedNameTitleMixin, db.Model):
     """
     Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
     A ticket type is associated with multiple events.
@@ -121,18 +121,16 @@ class Participant(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
     @classmethod
-    def get(cls, space, email):
-        return cls.query.filter_by(proposal_space=space, email=email).one_or_none()
+    def get(cls, current_space, current_email):
+        return cls.query.filter_by(proposal_space=current_space, email=current_email).one_or_none()
 
     @classmethod
-    def upsert(cls, space, emailid, **fields):
-        participant = cls.get(space, emailid)
+    def upsert(cls, current_space, current_email, **fields):
+        participant = cls.get(current_space, current_email)
         if participant:
             participant._set_fields(fields)
         else:
-            fields.pop('proposal_space', None)
-            fields.pop('email', None)
-            participant = cls(proposal_space=space, email=emailid, **fields)
+            participant = cls(proposal_space=current_space, email=current_email, **fields)
             db.session.add(participant)
         return participant
 
