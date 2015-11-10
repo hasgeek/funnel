@@ -6,7 +6,7 @@ from baseframe import __
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
 
-__all__ = ['ParticipantForm', 'ParticipantBadgeForm', 'ParticipantImportForm']
+__all__ = ['EventParticipantForm', 'ParticipantBadgeForm', 'EventParticipantImportForm']
 
 
 class ParticipantForm(forms.Form):
@@ -17,6 +17,9 @@ class ParticipantForm(forms.Form):
     company = forms.StringField(__("Company"), validators=[forms.validators.Length(max=80)])
     job_title = forms.StringField(__("Job Title"), validators=[forms.validators.Length(max=80)])
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
+
+
+class EventParticipantForm(ParticipantForm):
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
         get_label='title',
@@ -38,6 +41,12 @@ class ValidFile(object):
 
 
 class ParticipantImportForm(forms.Form):
+    participant_list = forms.FileField(__("Participant list"),
+        description=u"Expected headers: name, email, phone (optional), twitter (optional), company (optional)",
+        validators=[forms.validators.DataRequired(u"Please upload a valid CSV file"), ValidFile(allowed_exts=['csv'], message=u"Please upload a valid CSV file")])
+
+
+class EventParticipantImportForm(forms.Form):
     participant_list = forms.FileField(__("Participant list"),
         description=u"Expected headers: name, email, phone (optional), twitter (optional), company (optional)",
         validators=[forms.validators.DataRequired(u"Please upload a valid CSV file"), ValidFile(allowed_exts=['csv'], message=u"Please upload a valid CSV file")])

@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm', 'EventForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm', 'TicketClientForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -80,7 +80,17 @@ class RsvpForm(forms.Form):
 
 class EventForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
-    ticket_types = QuerySelectMultipleField(__("Ticket Types"),
-        widget=ListWidget(), option_widget=CheckboxInput(),
-        get_label='title',
-        validators=[forms.validators.DataRequired(u"Select at least one ticket_type")])
+
+
+class TicketClientForm(forms.Form):
+    name = forms.StringField(__("Name"), validators=[forms.validators.DataRequired()])
+    clientid = forms.StringField(__("Client id"), validators=[forms.validators.DataRequired()])
+    client_eventid = forms.StringField(__("Client event id"), validators=[forms.validators.DataRequired()])
+    client_secret = forms.StringField(__("Client event secret"), validators=[forms.validators.DataRequired()])
+    client_access_token = forms.StringField(__("Client access token"), validators=[forms.validators.DataRequired()])
+
+
+class TicketTypeForm(forms.Form):
+    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    events = QuerySelectMultipleField(__("Events"),
+        widget=ListWidget(), option_widget=CheckboxInput(), allow_blank=True, get_label='title', query_factory=lambda: [])
