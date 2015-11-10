@@ -9,7 +9,7 @@ from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
-from ..forms import ParticipantForm, ParticipantImportForm
+from ..forms import EventParticipantImportForm, EventParticipantForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
 
 
@@ -76,7 +76,7 @@ def participants_json(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-participant')
 def new_participant(profile, space):
-    form = ParticipantForm()
+    form = EventParticipantForm()
     form.events.query = space.events
     if form.validate_on_submit():
         participant = Participant(proposal_space=space)
@@ -87,7 +87,7 @@ def new_participant(profile, space):
         except IntegrityError:
             db.session.rollback()
             flash(_(u"This participant already exists."), 'info')
-        return redirect(space.url_for('events'), code=303)
+        return redirect(space.url_for('admin'), code=303)
     return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
 
 
@@ -98,7 +98,7 @@ def new_participant(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-participant')
 def import_participant(profile, space):
-    form = ParticipantImportForm()
+    form = EventParticipantImportForm()
     form.events.query = space.events
     if form.validate_on_submit():
         participant_list_csv = request.files['participant_list']
@@ -108,7 +108,7 @@ def import_participant(profile, space):
                 Participant.upsert(space, fields['email'], **fields)
             db.session.commit()
             flash(_(u"Participants were imported from {filename}.".format(filename=participant_list_csv.filename)), 'info')
-            return redirect(space.url_for('events'), code=303)
+            return redirect(space.url_for('admin'), code=303)
     return render_form(form=form, title=_(u"Import Participants"), submit=_(u"Import"))
 
 
@@ -120,13 +120,13 @@ def import_participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='participant-edit')
 def participant_edit(profile, space, participant):
-    form = ParticipantForm(obj=participant, model=Participant)
+    form = EventParticipantForm(obj=participant, model=Participant)
     form.events.query = space.events
     if form.validate_on_submit():
         form.populate_obj(participant)
         db.session.commit()
         flash(_(u"Your changes have been saved"), 'info')
-        return redirect(space.url_for('events'), code=303)
+        return redirect(space.url_for('admin'), code=303)
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 

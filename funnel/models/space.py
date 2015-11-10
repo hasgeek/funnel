@@ -169,7 +169,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'new-session',
                     'edit-session',
                     'new-event',
-                    'event-edit'
+                    'new-ticket-type',
+                    'new-ticket-client',
+                    'ticket-client-edit',
+                    'event-edit',
+                    'admin'
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
@@ -235,16 +239,24 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('rsvp', profile=self.profile.name, space=self.name)
         elif action == 'rsvp-list':
             return url_for('rsvp_list', profile=self.profile.name, space=self.name)
+        elif action == 'admin':
+            return url_for('admin', profile=self.profile.name, space=self.name)
         elif action == 'events':
             return url_for('events', profile=self.profile.name, space=self.name)
         elif action == 'participants':
             return url_for('participants', profile=self.profile.name, space=self.name)
         elif action == 'new-participant':
             return url_for('new_participant', profile=self.profile.name, space=self.name)
+        elif action == 'new-ticket-type-participant':
+            return url_for('new_ticket_type_participant', profile=self.profile.name, space=self.name)
         elif action == 'import-participant':
             return url_for('import_participant', profile=self.profile.name, space=self.name)
         elif action == 'new-event':
             return url_for('new_event', profile=self.profile.name, space=self.name)
+        elif action == 'new-ticket-type':
+            return url_for('new_ticket_type', profile=self.profile.name, space=self.name)
+        elif action == 'new-ticket-client':
+            return url_for('new_ticket_client', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):

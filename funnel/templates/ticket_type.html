@@ -22,37 +22,43 @@
       </h3>
     </div>
   </div>
-  <p>
-  </p>
   <div class="row">
     <div class="col-lg-3 col-sm-4 col-xs-6">
       <form class="search-participant">
-          <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
+        <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
       </form>
     </div>
     <div class="col-lg-9 col-xs-12">
-      <ul class="list-inline status-btn-list pull-right">
+      <ul class="list-inline">
+        <li>
+          <a href={{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }}>Edit Ticket Type</a>
+        </li>
       </ul>
     </div>
   </div>
-  <table class="table footable" id='participants-table'>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th data-hide="phone">Email</th>
-        <th data-hide="tablet, phone">Company</th>
-      </tr>
-    </thead>
-    <tbody>
-      {%- for p in participants %}
-        <tr id="p-{{ p.id }}">
-          <td class='js-searchable'>{{ p.fullname }}</td>
-          <td class='js-searchable'>{{ p.email }}</td>
-          <td class='js-searchable'>{{ p.company }}</td>
-        </tr>
-      {%- endfor %}
-    </tbody>
-  </table>
+  <br>
+  <div class="row">
+    <div class="col-md-12 col-lg-12">
+      <table class="table footable" id='participants-table'>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th data-hide="phone">Email</th>
+            <th data-hide="tablet, phone">Company</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for p in participants %}
+            <tr id="p-{{ p.id }}">
+              <td class='js-searchable'>{{ p.fullname }}</td>
+              <td class='js-searchable'>{{ p.email }}</td>
+              <td class='js-searchable'>{{ p.company }}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 {% endblock %}
 {% block footerscripts %}
 <script>
