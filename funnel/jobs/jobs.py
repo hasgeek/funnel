@@ -13,5 +13,4 @@ def import_tickets(env, ticket_client_id):
             # cancelled tickets are excluded from the list returned by get_tickets
             cancel_list = SyncTicket.exclude(ticket_client, [ticket.get('ticket_no') for ticket in ticket_list]).all()
             ticket_client.import_from_list(ticket_list, cancel_list=cancel_list)
-
-    db.session.commit()
+        db.session.commit()
