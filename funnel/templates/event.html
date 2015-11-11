@@ -86,7 +86,6 @@
 {% block footerscripts %}
 <script>
   if (Modernizr.localstorage) {
-    localStorage.clear();
     window.Talkfunnel.Store = {};
 
     //Local storage can only save strings, so value is converted into strings and stored.
