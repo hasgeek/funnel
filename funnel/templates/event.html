@@ -86,48 +86,58 @@
 {% block footerscripts %}
 <script>
   if (Modernizr.localstorage) {
+    localStorage.clear();
     window.Talkfunnel.Store = {};
 
     //Local storage can only save strings, so value is converted into strings and stored.
-    window.Talkfunnel.Store.addToLocalstorage = function(key, value) {
+    window.Talkfunnel.Store.add = function(key, value) {
       return localStorage.setItem(key, JSON.stringify(value));
     };
 
     //Reads from LocalStorage.
-    window.Talkfunnel.Store.readFromLocalstorage = function(key) {
+    window.Talkfunnel.Store.read = function(key) {
       return JSON.parse(localStorage.getItem(key));
     };
 
-    window.Talkfunnel.Queue = {};
+    window.Talkfunnel.Queue = function(queueName) {
+      this.queueName = queueName;
 
-    //Adds a participant_id to queue
-    window.Talkfunnel.Queue.enqueue = function(queueName, participant_id) {
-      var participantList = window.Talkfunnel.Store.readFromLocalstorage(queueName) || [];
-      if(participantList.indexOf(participant_id) === -1) {
-        participantList.push(participant_id);
-        return window.Talkfunnel.Store.addToLocalstorage(queueName, participantList);
-      }
-    };
+      //Adds a participant_id to queue
+      this.enqueue = function(participant_id) {
+        var participantList = window.Talkfunnel.Store.read(this.queueName) || [];
+        if(participantList.indexOf(participant_id) === -1) {
+          participantList.push(participant_id);
+          return window.Talkfunnel.Store.add(this.queueName, participantList);
+        }
+      };
 
-    //Reads and returns all items from queue
-    //Returns undefined when queue is empty or not defined
-    window.Talkfunnel.Queue.peekAll = function(queueName) {
-      var participantList = window.Talkfunnel.Store.readFromLocalstorage(queueName);
-      if(participantList && participantList.length) {
-        return participantList;
-      }
-    };
+      //Reads and returns all items from queue
+      //Returns undefined when queue is empty or not defined
+      this.readAll = function() {
+        var participantList = window.Talkfunnel.Store.read(this.queueName);
+        if(participantList && participantList.length) {
+          return participantList;
+        }
+      };
 
-    //Removes item from queue and returns true
-    //Returns undefined when item not present in queue
-    window.Talkfunnel.Queue.dequeue = function(queueName, participant_id) {
-      var participantList = window.Talkfunnel.Store.readFromLocalstorage(queueName);
-      var index = participantList ? participantList.indexOf(participant_id) : -1;
-      if(index !== -1) {
-        //Remove item from queue and add updated queue to localStorage
-        participantList.splice(index, 1);
-        window.Talkfunnel.Store.addToLocalstorage(queueName, participantList);
-        return true;
+      //Removes item from queue and returns true
+      //Returns undefined when item not present in queue
+      this.dequeue = function(participant_id) {
+        var participantList = window.Talkfunnel.Store.read(this.queueName);
+        var index = participantList ? participantList.indexOf(participant_id) : -1;
+        if(index !== -1) {
+          //Remove item from queue and add updated queue to localStorage
+          participantList.splice(index, 1);
+          window.Talkfunnel.Store.add(this.queueName, participantList);
+          return participant_id;
+        }
+      };
+    }
+
+    //If there is no network, display a confirmation dialog when user closes/reloades the page
+    window.onbeforeunload = function() {
+      if(!navigator.onLine) {
+        return 'There is no network!';
       }
     };
   }
@@ -144,16 +154,19 @@
       }
     });
 
+    var checkinQ = new window.Talkfunnel.Queue("checkin-queue");
+    var cancelcheckinQ = new window.Talkfunnel.Queue("cancelcheckin-queue");
+
     //updateQueue: If participant in "checkin-queue" has already been checked-in then it is removed from checkin queue
-    function updateQueue(queueName, participants) {
-      var participantIDs = window.Talkfunnel.Queue.peekAll(queueName);
+    var updateQueue = function(queue, participants) {
+      var participantIDs = queue.readAll();
       if(participantIDs) {
         participantIDs.forEach(function(participantID) {
           var participant = "[data-pid=" + participantID +"]";
-          if(queueName === "checkin-queue") {
+          if(queue.queueName === "checkin-queue") {
             if(participants[participantID].checked_in) {
               //Participant has been checked-in so remove from 'checkin-queue' 
-              window.Talkfunnel.Queue.dequeue("checkin-queue", participantID);
+              queue.dequeue(participantID);
             }
             else {
               $(participant).siblings('.loader').show();
@@ -162,7 +175,7 @@
           else {
             if(!participants[participantID].checked_in) {
               //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
-              window.Talkfunnel.Queue.dequeue("cancelcheckin-queue", participantID);
+              queue.dequeue(participantID);
             }
             else {
               $(participant).siblings('.loader').show();
@@ -172,7 +185,7 @@
       }
     }
 
-    function updateParticipantList() {
+    var updateParticipantList = function() {
       $.ajax({
         type: 'GET',
         url:  '{{ "{0}event/{1}/participants/json".format(space.url_for(), event.name) }}',
@@ -183,15 +196,15 @@
             if (Modernizr.localstorage) {
               $('.loader').hide();
               var participants = tohashMap(data.participants, "pid");
-              updateQueue("checkin-queue", participants);
-              updateQueue("cancelcheckin-queue", participants);
+              updateQueue(checkinQ, participants);
+              updateQueue(cancelcheckinQ, participants);
             }
           });
         }
       });
     }
 
-    function postCheckinStatus(participantIDs, action) {
+    var postCheckinStatus = function(participantIDs, action) {
       var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + "?" + $.param({"pid":participantIDs}, true);
       if(action) {
         posturl += "&checkin=t";
@@ -204,30 +217,44 @@
         success: function(data) {
           if(data.checked_in) {
             data.participant_ids.forEach(function(participant_id) {
-              window.Talkfunnel.Queue.dequeue("checkin-queue", participant_id);
+              checkinQ.dequeue(participant_id);
             });
           }
           else {
             data.participant_ids.forEach(function(participant_id) {
-              window.Talkfunnel.Queue.dequeue("cancelcheckin-queue", participant_id);
+              cancelcheckinQ.dequeue(participant_id);
             });
           }
         }
       });
     }
 
-    function processQueues() {
+    var processQueues = function() {
       //Read all participants from 'checkin-queue' and post check-in to server
-      var participantIDs = window.Talkfunnel.Queue.peekAll("checkin-queue");
+      var participantIDs = checkinQ.readAll();
       if(participantIDs) {
         postCheckinStatus(participantIDs, true);
       }
       //Read all participants from 'cancelcheckin-queue' and post cancel check-in to server
-      participantIDs = window.Talkfunnel.Queue.peekAll("cancelcheckin-queue");
+      participantIDs = cancelcheckinQ.readAll();
       if(participantIDs) {
         postCheckinStatus(participantIDs, false);
       }
     }
+
+    /*
+      Check-in scenarios:
+      1. A participant is checked-in & Internet is available. Also verify for cancel check-in and multiple participants check-in.
+      2. A participant is checked-in & Internet is down.
+      3. Abort a participant's check-in(A wrong particpant was checked in so cancel check-in immediately using abort) when Internet is available.
+      4. Abort a participant's check-in when Internet is down.
+      5. There are two check-in counters & both counters have internet: They have checked-in different participants. Verify both counters have the recent check-in status of participants.
+      6. There are two check-in counters & both counter's internet is down: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+      7. There are two check-in counters & both counters have internet: They checked-in few same participants. Verify both counters have the recent check-in status of participants.
+      8. There are two check-in counters & both counter's internet is down: They checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
+      8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+      9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    */
 
     //Get the list of participants from server
     updateParticipantList();
@@ -237,14 +264,14 @@
       $('#participants-table-content').on('click', '.js-checkin', function(event) {
         event.preventDefault();
         //Add to participant_id to "checkin-queue"
-        window.Talkfunnel.Queue.enqueue("checkin-queue", $(this).attr('data-pid'));
+        checkinQ.enqueue($(this).attr('data-pid'));
         $(this).siblings('.loader').show();
       });
 
       $('#participants-table-content').on('click', '.js-cancel-checkin', function(event) {
         event.preventDefault();
         //Add to participant_id to "cancelcheckin-queue"
-        window.Talkfunnel.Queue.enqueue("cancelcheckin-queue", $(this).attr('data-pid'));
+        cancelcheckinQ.enqueue($(this).attr('data-pid'));
         $(this).siblings('.loader').show();
       });
 
@@ -254,26 +281,19 @@
         var participant = "[data-pid=" + participantID +"]";
 
         if($(participant).hasClass('js-checkin')) {
-          // On abort, if participantID present in the queue, then remove from "checkin-queue"
-          // On abort, if participantID is not present in the "checkin-queue" it implies check-in has already been done, so a cancel check-in requires to be send(add it to "cancelcheckin-queue")
-          if(!window.Talkfunnel.Queue.dequeue("checkin-queue", participantID)) {
-            window.Talkfunnel.Queue.enqueue("cancelcheckin-queue", participantID);
+          // Case 1: On abort, participantID is removed from "checkin-queue" if present.
+          // Case 2: On abort, if participantID is not present in the "checkin-queue" it implies check-in request has been sent to server, so check-in has to be cancelled hence add it to "cancelcheckin-queue".
+          if(!checkinQ.dequeue(participantID)) {
+            cancelcheckinQ.enqueue(participantID);
           }
         }
         else{
-          if(!window.Talkfunnel.Queue.dequeue("cancelcheckin-queue", participantID)) {
-            window.Talkfunnel.Queue.enqueue("checkin-queue", participantID);
+          if(!cancelcheckinQ.dequeue(participantID)) {
+            checkinQ.enqueue(participantID);
           }
         }
         $(participant).siblings('.loader').hide();
       });
-
-      //If there is no network, display a confirmation dialog when user closes/reloades the page
-      window.onbeforeunload = function() {
-        if(!navigator.onLine) {
-          return 'There is no network!';
-        }
-      };
 
       //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 second and post check-in status to server
       setInterval(processQueues, 8000);
