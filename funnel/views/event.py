@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, render_template, request, g
+from flask import flash, redirect, render_template, request, g, jsonify
 from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
@@ -155,6 +155,31 @@ def event(profile, space, event):
     return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant))
 
 
+def participant_checkin_data(participant, space, event_name):
+    return {
+        'pid': participant.id,
+        'fullname': participant.fullname,
+        'company': participant.company,
+        'email': participant.email,
+        'badge_printed': participant.badge_printed,
+        'checked_in': participant.checked_in,
+        'showbadge_url': "{0}participant/{1}/badge".format(space.url_for(), participant.id),
+        'edit_url': "{0}participant/{1}/edit".format(space.url_for(), participant.id),
+        'checkin_url': "{0}/{1}".format(space.url_for('events'), event_name)
+    }
+
+
+@app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='view')
+def event_participants_json(profile, space, event):
+    return jsonp(participants=[participant_checkin_data(participant, space, event.name) for participant in Participant.attendees_by_event(event)])
+
+
 def participant_badge_data(participants, space):
     badges = []
     for participant in participants:
@@ -195,18 +220,21 @@ def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin/', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    (Participant, {'id': 'participant_id'}, 'participant'),
     permission='event-checkin')
-def event_checkin(profile, space, event, participant):
-    a = Attendee.query.filter_by(participant_id=participant.id, event_id=event.id).first()
+def event_checkin(profile, space, event):
     checked_in = True if request.args.get('checkin') == 't' else False
-    a.checked_in = checked_in
-    db.session.add(a)
-    db.session.commit()
+    all_participants = request.args.getlist('pid')
+    for participant in all_participants:
+        a = Attendee.query.filter_by(participant_id=participant, event_id=event.id).first()
+        a.checked_in = checked_in
+        db.session.add(a)
+        db.session.commit()
+    if request.is_xhr:
+        return jsonify(status=True, participant_ids=all_participants, checked_in=checked_in)
     return redirect("{0}event/{1}".format(space.url_for(), event.name), code=303)

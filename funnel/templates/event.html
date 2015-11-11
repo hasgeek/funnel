@@ -24,7 +24,7 @@
     </div>
     <div class="col-lg-9 col-xs-12">
       <ul class="list-inline status-btn-list">
-        <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a></li>
+        <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary' target="_blank">New Participant</a></li>
         <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.name) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
         <li><a href={{ "{0}event/{1}/badges?badge_printed=t".format(space.url_for(), event.name) }} class='btn btn-success' target="_blank">Badges printed</a></li>
         <li class="badge-print-status-btn">
@@ -46,42 +46,266 @@
         <th>Actions</th>
       </tr>
     </thead>
-    <tbody>
-      {%- for p in participants %}
-        <tr id="p-{{ p.id }}">
-          <td class='js-searchable'>{{ p.fullname }}</td>
-          <td class='js-searchable'>{{ p.email }}</td>
-          <td class='js-searchable'>{{ p.company }}</td>
+    <tbody id="participants-table-content">
+      {% raw %}
+      <script id='participant-row' type='text/ractive'>
+      {{#each participants}}
+        <tr id="p-{{ pid }}">
+          <td class='js-searchable'>{{ fullname }}</td>
+          <td class='js-searchable'>{{ email }}</td>
+          <td class='js-searchable'>{{ company }}</td>
           <td>
             <ul class="list-inline status-btn-list">
             <li>
-              <a href={{ "{0}participant/{1}/badge".format(space.url_for(), p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
+              <a href="{{ showbadge_url }}" {{#badge_printed}} class="btn btn-xs btn-success" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
             </li>
             <li>
-              <a href={{ "{0}participant/{1}/edit".format(space.url_for(), p.id) }} class='btn btn-xs btn-default'>Edit</a>
+              <a href="{{ edit_url }}" class="btn btn-xs btn-default" target="_blank">Edit</a>
             </li>
             <li>
-            {%- if p.checked_in %}
-              <a href="{{ event.name }}/checkin/{{ p.id }}" class='btn btn-xs btn-danger'>Cancel Check-in</a>
-            {%- else %}
-            <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" class='btn btn-xs btn-warning'>Check-in</a>
-            {%- endif %}
+            {{#checked_in}}
+              <a href="{{ checkin_url }}/checkin/?pid={{ pid }}" data-pid="{{ pid }}" class="btn btn-xs js-cancel-checkin">Cancel Check-in</a>
+              <i class="fa fa-spinner fa-pulse loader"></i>
+              <i class="fa fa-close loader js-abort"></i>
+            {{/checked_in}}
+            {{^checked_in}}
+              <a href="{{ checkin_url }}/checkin/?pid={{ pid }}&checkin=t" data-pid="{{ pid }}" class="btn btn-xs js-checkin">Check-in</a>
+              <i class="fa fa-spinner fa-pulse loader"></i>
+              <i class="fa fa-close loader js-abort"></i>
+            {{/checked_in}}
             </li>
             </ul>
           </td>
         </tr>
-      {%- endfor %}
+      {{/each}}
+      </script>
+      {% endraw %}
     </tbody>
   </table>
 {% endblock %}
 {% block footerscripts %}
 <script>
+  if (Modernizr.localstorage) {
+    window.Talkfunnel.Store = {};
+
+    //Local storage can only save strings, so value is converted into strings and stored.
+    window.Talkfunnel.Store.add = function(key, value) {
+      return localStorage.setItem(key, JSON.stringify(value));
+    };
+
+    //Reads from LocalStorage.
+    window.Talkfunnel.Store.read = function(key) {
+      return JSON.parse(localStorage.getItem(key));
+    };
+
+    window.Talkfunnel.Queue = function(queueName) {
+      this.queueName = queueName;
+
+      //Adds a participant_id to queue
+      this.enqueue = function(participant_id) {
+        var participantList = window.Talkfunnel.Store.read(this.queueName) || [];
+        if(participantList.indexOf(participant_id) === -1) {
+          participantList.push(participant_id);
+          return window.Talkfunnel.Store.add(this.queueName, participantList);
+        }
+      };
+
+      //Reads and returns all items from queue
+      //Returns undefined when queue is empty or not defined
+      this.readAll = function() {
+        var participantList = window.Talkfunnel.Store.read(this.queueName);
+        if(participantList && participantList.length) {
+          return participantList;
+        }
+      };
+
+      //Removes item from queue and returns true
+      //Returns undefined when item not present in queue
+      this.dequeue = function(participant_id) {
+        var participantList = window.Talkfunnel.Store.read(this.queueName);
+        var index = participantList ? participantList.indexOf(participant_id) : -1;
+        if(index !== -1) {
+          //Remove item from queue and add updated queue to localStorage
+          participantList.splice(index, 1);
+          window.Talkfunnel.Store.add(this.queueName, participantList);
+          return participant_id;
+        }
+      };
+    }
+
+    //If there is no network, display a confirmation dialog when user closes/reloades the page
+    window.onbeforeunload = function() {
+      if(!navigator.onLine) {
+        return 'There is no network!';
+      }
+    };
+  }
+
   $(document).ready(function() {
+    // To disable debug mode
+    Ractive.DEBUG = false;
+
+    var participantTableContent = new Ractive({
+      el: '#participants-table-content',
+      template: '#participant-row',
+      data: {
+        participants: ''
+      }
+    });
+
+    var checkinQ = new window.Talkfunnel.Queue("checkin-queue");
+    var cancelcheckinQ = new window.Talkfunnel.Queue("cancelcheckin-queue");
+
+    //updateQueue: If participant in "checkin-queue" has already been checked-in then it is removed from checkin queue
+    var updateQueue = function(queue, participants) {
+      var participantIDs = queue.readAll();
+      if(participantIDs) {
+        participantIDs.forEach(function(participantID) {
+          var participant = "[data-pid=" + participantID +"]";
+          if(queue.queueName === "checkin-queue") {
+            if(participants[participantID].checked_in) {
+              //Participant has been checked-in so remove from 'checkin-queue' 
+              queue.dequeue(participantID);
+            }
+            else {
+              $(participant).siblings('.loader').show();
+            }
+          }
+          else {
+            if(!participants[participantID].checked_in) {
+              //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
+              queue.dequeue(participantID);
+            }
+            else {
+              $(participant).siblings('.loader').show();
+            }
+          }
+        });
+      }
+    }
+
+    var updateParticipantList = function() {
+      $.ajax({
+        type: 'GET',
+        url:  '{{ "{0}event/{1}/participants/json".format(space.url_for(), event.name) }}',
+        timeout: 5000,
+        dataType: 'jsonp',
+        success: function(data) {
+          participantTableContent.set('participants', data.participants).then(function() {
+            if (Modernizr.localstorage) {
+              $('.loader').hide();
+              var participants = tohashMap(data.participants, "pid");
+              updateQueue(checkinQ, participants);
+              updateQueue(cancelcheckinQ, participants);
+            }
+          });
+        }
+      });
+    }
+
+    var postCheckinStatus = function(participantIDs, action) {
+      var posturl = "{{ '{0}event/{1}/checkin/'.format(space.url_for(), event.name) }}" + "?" + $.param({"pid":participantIDs}, true);
+      if(action) {
+        posturl += "&checkin=t";
+      }
+      $.ajax({
+        type: 'post',
+        url:  posturl,
+        timeout: 5000,
+        dataType: "json",
+        success: function(data) {
+          if(data.checked_in) {
+            data.participant_ids.forEach(function(participant_id) {
+              checkinQ.dequeue(participant_id);
+            });
+          }
+          else {
+            data.participant_ids.forEach(function(participant_id) {
+              cancelcheckinQ.dequeue(participant_id);
+            });
+          }
+        }
+      });
+    }
+
+    var processQueues = function() {
+      //Read all participants from 'checkin-queue' and post check-in to server
+      var participantIDs = checkinQ.readAll();
+      if(participantIDs) {
+        postCheckinStatus(participantIDs, true);
+      }
+      //Read all participants from 'cancelcheckin-queue' and post cancel check-in to server
+      participantIDs = cancelcheckinQ.readAll();
+      if(participantIDs) {
+        postCheckinStatus(participantIDs, false);
+      }
+    }
+
+    /*
+      Check-in scenarios:
+      1. A participant is checked-in & Internet is available. Also verify for cancel check-in and multiple participants check-in.
+      2. A participant is checked-in & Internet is down.
+      3. Abort a participant's check-in(A wrong particpant was checked in so cancel check-in immediately using abort) when Internet is available.
+      4. Abort a participant's check-in when Internet is down.
+      5. There are two check-in counters & both counters have internet: They have checked-in different participants. Verify both counters have the recent check-in status of participants.
+      6. There are two check-in counters & both counter's internet is down: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+      7. There are two check-in counters & both counters have internet: They checked-in few same participants. Verify both counters have the recent check-in status of participants.
+      8. There are two check-in counters & both counter's internet is down: They checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
+      8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+      9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    */
+
+    //Get the list of participants from server
+    updateParticipantList();
+
+    //If localStorage is available, register event handlers for check-in, cancel-checkin and abort
+    if (Modernizr.localstorage) {
+      $('#participants-table-content').on('click', '.js-checkin', function(event) {
+        event.preventDefault();
+        //Add to participant_id to "checkin-queue"
+        checkinQ.enqueue($(this).attr('data-pid'));
+        $(this).siblings('.loader').show();
+      });
+
+      $('#participants-table-content').on('click', '.js-cancel-checkin', function(event) {
+        event.preventDefault();
+        //Add to participant_id to "cancelcheckin-queue"
+        cancelcheckinQ.enqueue($(this).attr('data-pid'));
+        $(this).siblings('.loader').show();
+      });
+
+      $('#participants-table-content').on('click', '.js-abort', function(event) {
+        event.preventDefault();
+        var participantID = $(this).siblings('a').attr('data-pid');
+        var participant = "[data-pid=" + participantID +"]";
+
+        if($(participant).hasClass('js-checkin')) {
+          // Case 1: On abort, participantID is removed from "checkin-queue" if present.
+          // Case 2: On abort, if participantID is not present in the "checkin-queue" it implies check-in request has been sent to server, so check-in has to be cancelled hence add it to "cancelcheckin-queue".
+          if(!checkinQ.dequeue(participantID)) {
+            cancelcheckinQ.enqueue(participantID);
+          }
+        }
+        else{
+          if(!cancelcheckinQ.dequeue(participantID)) {
+            checkinQ.enqueue(participantID);
+          }
+        }
+        $(participant).siblings('.loader').hide();
+      });
+
+      //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 second and post check-in status to server
+      setInterval(processQueues, 8000);
+
+      //Get participants data from server every 1 min
+      setInterval(updateParticipantList, 60000);
+    }
+
     $('#badge_form').on("submit", function(){
        if ($('#badge_form select.field-badge_printed').val() === "") {
         return false;
        }
-       return window.confirm("Are you sure? Selected action will apply to all listed participants.")
+       return window.confirm("Are you sure? Selected action will apply to all listed participants.");
     });
 
     var TableSearch = function(tableId){
@@ -97,7 +321,7 @@
       this.tableId = tableId;
       this.rowData = [];
       this.allMatchedIds = [];
-    }
+    };
 
     TableSearch.prototype.getRows = function(){
       return $('#' + this.tableId +' tbody tr');
@@ -117,7 +341,7 @@
 
     TableSearch.prototype.setAllMatchedIds = function(ids) {
       this.allMatchedIds = ids;
-    }
+    };
 
     TableSearch.prototype.searchRows = function(q){
       // Search the rows of the table for a supplied query.
@@ -125,26 +349,26 @@
       // reset data collection on first search or if table has changed
       if (this.rowData.length !== this.getRows().length) {
         this.setRowData();
-      };
+      }
 
       // return cached matched ids if query is blank
       if (q === '' && this.allMatchedIds.length !== 0) {
         return this.allMatchedIds;
-      };
+      }
 
       var matchedIds = [];
       for (var i = this.rowData.length - 1; i >= 0; i--) {
         if (this.rowData[i].text.indexOf(q.toLowerCase()) !== -1) {
           matchedIds.push(this.rowData[i]['rid']);
         }
-      };
+      }
 
       // cache ids if query is blank
       if (q === '') {
         this.setAllMatchedIds(matchedIds);
-      };
+      }
       return matchedIds;
-    }
+    };
 
     var tableSearch = new TableSearch('participants-table');
 
