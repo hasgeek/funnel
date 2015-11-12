@@ -165,13 +165,13 @@ def ticket_client_edit(profile, space, ticket_client):
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='event-view')
 def event(profile, space, event):
-    participants = Participant.attendees_by_event(event)
+    participants = Participant.checkin_list(event)
     form = ParticipantBadgeForm()
-    checkin_form = forms.Form()
     if form.validate_on_submit():
         badge_printed = True if form.data.get('badge_printed') == 't' else False
-        Participant.update_badge_printed(event, badge_printed)
+        db.session.query(Participant).filter(Participant.id.in_([participant.id for participant in event.participants])).\
+            update({'badge_printed': badge_printed}, False)
         db.session.commit()
         return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
     checked_in_count = len([p for p in participants if p.checked_in])
-    return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant), checked_in_count=checked_in_count, checkin_form=checkin_form)
+    return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant), checked_in_count=checked_in_count, checkin_form=forms.Form())
