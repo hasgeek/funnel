@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import unicodecsv
-import StringIO
 from flask import flash, redirect, render_template, request, g, url_for
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
@@ -9,7 +7,7 @@ from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
-from ..forms import EventParticipantImportForm, EventParticipantForm
+from ..forms import ParticipantForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
 
 
@@ -25,14 +23,6 @@ def participant_badge_data(participants, space):
             'qrcode_content': make_qrcode(u"{participant.puk}{participant.key}")
         })
     return badges
-
-
-def lowercase_keys(dictiter):
-    return [dict((k.lower(), v) for k, v in d.iteritems()) for d in dictiter]
-
-
-def csvstring_to_rows(stream):
-    return lowercase_keys(unicodecsv.DictReader([row for row in StringIO.StringIO(stream)]))
 
 
 def participant_data(participant, space_id, full=False):
@@ -76,7 +66,7 @@ def participants_json(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='new-participant')
 def new_participant(profile, space):
-    form = EventParticipantForm()
+    form = ParticipantForm()
     form.events.query = space.events
     if form.validate_on_submit():
         participant = Participant(proposal_space=space)
@@ -91,27 +81,6 @@ def new_participant(profile, space):
     return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
 
 
-@app.route('/<space>/participants/import', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='new-participant')
-def import_participant(profile, space):
-    form = EventParticipantImportForm()
-    form.events.query = space.events
-    if form.validate_on_submit():
-        participant_list_csv = request.files['participant_list']
-        if participant_list_csv:
-            for row in csvstring_to_rows(participant_list_csv.read()):
-                fields = {'proposal_space': space, 'events': form.data['events'], 'fullname': row.get('name'), 'email': row.get('email'), 'phone': row.get('phone'), 'twitter': row.get('twitter'), 'company': row.get('company')}
-                Participant.upsert(space, fields['email'], **fields)
-            db.session.commit()
-            flash(_(u"Participants were imported from {filename}.".format(filename=participant_list_csv.filename)), 'info')
-            return redirect(space.url_for('admin'), code=303)
-    return render_form(form=form, title=_(u"Import Participants"), submit=_(u"Import"))
-
-
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -120,7 +89,7 @@ def import_participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='participant-edit')
 def participant_edit(profile, space, participant):
-    form = EventParticipantForm(obj=participant, model=Participant)
+    form = ParticipantForm(obj=participant, model=Participant)
     form.events.query = space.events
     if form.validate_on_submit():
         form.populate_obj(participant)
