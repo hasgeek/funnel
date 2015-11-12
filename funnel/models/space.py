@@ -249,8 +249,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('new_participant', profile=self.profile.name, space=self.name)
         elif action == 'new-ticket-type-participant':
             return url_for('new_ticket_type_participant', profile=self.profile.name, space=self.name)
-        elif action == 'import-participant':
-            return url_for('import_participant', profile=self.profile.name, space=self.name)
         elif action == 'new-event':
             return url_for('new_event', profile=self.profile.name, space=self.name)
         elif action == 'new-ticket-type':
