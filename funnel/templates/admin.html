@@ -46,7 +46,7 @@
       {%- for ticket_type in space.ticket_types -%}
         <li>
           <a href={{ url_for('ticket_type', profile=space.profile.name, space=space.name, name=ticket_type.name) }}>
-            {{ ticket_type.title.encode('ascii', 'ignore').decode('ascii') }}
+            {{ ticket_type.title }}
           </a>
         </li>
       {%- endfor %}
@@ -60,7 +60,7 @@
           New
         </a>
       </li>
-      {%- if space.ticket_clients | length > 0 %}
+      {%- if space.ticket_clients %}
         <li>
           <form method="POST" id="attendee_remote_sync_form" enctype="multipart/form-data" class="form-inline">
             <div class="form-group">
