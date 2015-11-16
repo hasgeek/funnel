@@ -667,3 +667,28 @@ div.markdown-field a.button {
 .rsvp-header {
     padding: 1px 0px 1px 15px
 }
+
+.js-loader, .js-abort {
+  display: none;
+  margin: 0 2px;
+}
+
+.js-abort {
+  cursor: pointer;
+}
+
+.js-checkin {
+  background-color: #EC971F;
+  border-bottom: 2px solid #D58512;
+  color: #fff;
+}
+
+.js-cancel-checkin {
+  background-color: #D9534F;
+  border-bottom: 2px solid #AC2925;
+  color: #fff;
+}
+
+td .btn:hover, td .btn:active, td .btn:focus {
+  color:#fff;
+}

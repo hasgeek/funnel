@@ -1,4 +1,55 @@
 
+window.Talkfunnel = {};
+
+if (Modernizr.localstorage) {
+    window.Talkfunnel.Store = {};
+
+    //Local storage can only save strings, so value is converted into strings and stored.
+    window.Talkfunnel.Store.add = function(key, value) {
+        return localStorage.setItem(key, JSON.stringify(value));
+    };
+
+    //Reads from LocalStorage.
+    window.Talkfunnel.Store.read = function(key) {
+        return JSON.parse(localStorage.getItem(key));
+    };
+
+    window.Talkfunnel.Queue = function(queueName) {
+        this.queueName = queueName;
+
+        //Adds a participant_id to queue
+        this.enqueue = function(participant_id) {
+            var participantList = window.Talkfunnel.Store.read(this.queueName) || [];
+            if(participantList.indexOf(participant_id) === -1) {
+                participantList.push(participant_id);
+                return window.Talkfunnel.Store.add(this.queueName, participantList);
+            }
+        };
+
+        //Reads and returns all items from queue
+        //Returns undefined when queue is empty or not defined
+        this.readAll = function() {
+            var participantList = window.Talkfunnel.Store.read(this.queueName);
+            if(participantList && participantList.length) {
+                return participantList;
+            }
+        };
+
+        //Removes item from queue and returns true
+        //Returns undefined when item not present in queue
+        this.dequeue = function(participant_id) {
+            var participantList = window.Talkfunnel.Store.read(this.queueName);
+            var index = participantList ? participantList.indexOf(participant_id) : -1;
+            if(index !== -1) {
+                //Remove item from queue and add updated queue to localStorage
+                participantList.splice(index, 1);
+                window.Talkfunnel.Store.add(this.queueName, participantList);
+                return participant_id;
+            }
+        };
+    }
+}
+
 function radioHighlight(radioName, highlightClass) {
     var selector = "input[name='" + radioName + "']";
     $(selector + ":checked").parent().addClass(highlightClass);
@@ -147,3 +198,12 @@ window.TableSearch.prototype.searchRows = function(q){
   }
   return matchedIds;
 };
+
+//convert array of objects into hashmap
+function tohashMap(objectArray, key) {
+    var hashMap = {};
+    objectArray.forEach(function(obj) {
+        hashMap[obj[key]] = obj;
+    });
+    return hashMap;
+}
