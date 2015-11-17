@@ -18,8 +18,8 @@
     </div>
     <div class='col-lg-9 col-md-6 col-sm-8 col-xs-6'>
       <h3 class='pull-right'>
-        Total: <span class="js-total">{{participants | length}}</span> |
-        Checked In: <span class="js-totalcheckin">{{checked_in_count}}</span>
+        Checked In: <span class="js-totalcheckin"></span> |
+        Total: <span class="js-total"></span>
       </h3>
     </div>
   </div>
@@ -73,6 +73,9 @@
               </li>
               <li>
                 <form action="{{ checkin_url }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
+                  <div style="display:none;">
+                    <input id="csrf_token" name="csrf_token" value="{{ getCsrfToken() }}" type="hidden">
+                  </div>
                   <input type="hidden" name="pid" value="{{ pid }}">
                   {{#checked_in}}
                     <input type="hidden" name="checkin" value="f">
@@ -96,7 +99,6 @@
   </table>
 {% endblock %}
 {% block footerscripts %}
-<script type="text/javascript" src="{{ url_for("static", filename="js/modernizr.min.js") }}"></script>
 <script>
   if (Modernizr.localstorage) {
     //If there is no network, display a confirmation dialog when user closes/reloades the page
@@ -116,7 +118,10 @@
       el: '#participants-table-content',
       template: '#participant-row',
       data: {
-        participants: ''
+        participants: '',
+        getCsrfToken: function() {
+          return $('meta[name="csrf-token"]').attr('content');
+        }
       }
     });
 
@@ -136,7 +141,7 @@
               queue.dequeue(participantID);
             }
             else {
-              $('#' + participant).find('.js-loader').show();
+              $('#' + participantID).find('.js-loader').show();
             }
           }
           else {
@@ -145,7 +150,7 @@
               queue.dequeue(participantID);
             }
             else {
-              $('#' + participant).find('.js-loader').show();
+              $('#' + participantID).find('.js-loader').show();
             }
           }
         });
@@ -174,14 +179,14 @@
     }
 
     var postCheckinStatus = function(participantIDs, action) {
-      var posturl = "{{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name) }}";
-      var formValues = $.param({"pid":participantIDs}, true)
+      var formValues = $.param({"pid":participantIDs}, true);
       if(action) {
         formValues += "&checkin=t";
       }
+      formValues += "&csrf_token=" + $("meta[name='csrf-token']").attr('content');
       $.ajax({
         type: 'post',
-        url:  posturl,
+        url:  "{{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name) }}",
         data : formValues,
         timeout: 5000,
         dataType: "json",
@@ -240,12 +245,11 @@
         });
         if(formValues["checkin"] === "t") {
           checkinQ.enqueue(formValues["pid"]);
-          $(this).find('.js-loader').show();
         }
         else {
           cancelcheckinQ.enqueue(formValues["pid"]);
-          $(this).find('.js-loader').show();
         }
+        $(this).find('.js-loader').show();
       });
 
       $('#participants-table-content').on('click', '.js-abort', function(event) {
@@ -255,7 +259,7 @@
 
         if(checkinStatus === "t") {
           // Case 1: On abort, participantID is removed from "checkin-queue" if present.
-          // Case 2: On abort, if participantID is not present in the "checkin-queue" it implies check-in request has been sent to server, so check-in has to be cancelled hence add it to "cancelcheckin-queue".
+          // Case 2: On abort, if participantID is not present in the "checkin-queue" it implies check-in request has been sent to server, so check-in has to be cancelled, hence add it to "cancelcheckin-queue".
           if(!checkinQ.dequeue(participantID)) {
             cancelcheckinQ.enqueue(participantID);
           }

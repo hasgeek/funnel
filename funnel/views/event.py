@@ -173,5 +173,4 @@ def event(profile, space, event):
             update({'badge_printed': badge_printed}, False)
         db.session.commit()
         return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
-    checked_in_count = len([p for p in participants if p.checked_in])
-    return render_template('event.html', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant), checked_in_count=checked_in_count, checkin_form=forms.Form())
+    return render_template('event.html', profile=profile, space=space, event=event, badge_form=ParticipantBadgeForm(model=Participant))

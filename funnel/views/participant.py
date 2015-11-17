@@ -159,7 +159,7 @@ def event_participants_json(profile, space, event):
     return jsonp(participants=[participant_checkin_data(participant, space, event) for participant in Participant.checkin_list(event)], total_participants=total_participants, total_checkedin=total_checkedin)
 
 
-@app.route('/<space>/event/<name>/checkin/', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -167,15 +167,17 @@ def event_participants_json(profile, space, event):
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='event-checkin')
 def event_checkin(profile, space, event):
-    checked_in = True if request.form.get('checkin') == 't' else False
-    participant_ids = request.form.getlist('pid')
-    for participant_id in participant_ids:
-        participant = Participant.query.filter_by(id=participant_id).first()
-        attendee = Attendee.get(event, participant)
-        attendee.checked_in = checked_in
-        db.session.commit()
-    if request.is_xhr:
-        return jsonify(status=True, participant_ids=participant_ids, checked_in=checked_in)    
+    form = forms.Form()
+    if form.validate_on_submit():
+      checked_in = True if request.form.get('checkin') == 't' else False
+      participant_ids = request.form.getlist('pid')
+      for participant_id in participant_ids:
+          participant = Participant.query.filter_by(id=participant_id).first()
+          attendee = Attendee.get(event, participant)
+          attendee.checked_in = checked_in
+          db.session.commit()
+      if request.is_xhr:
+          return jsonify(status=True, participant_ids=participant_ids, checked_in=checked_in)
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
 
 
