@@ -24,23 +24,23 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-lg-3 col-sm-3 col-xs-12">
+    <div class="col-lg-3 col-sm-4 col-xs-6">
       <form class="search-participant">
           <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
       </form>
     </div>
-    <div class="col-lg-9 col-sm-9 col-xs-12">
-      <ul class="list-inline status-btn-list pull-right">
+    <div class="col-lg-9 col-xs-12">
+      <ul class="list-inline status-btn-list">
         <li>
-          <a href={{ url_for('event_edit', profile=space.profile.name, space=space.name, name=event.name) }}>Edit Event</a>
+          <a href={{ url_for('event_edit', profile=space.profile.name, space=space.name, name=event.name) }} class='btn btn-primary'>Edit event title</a>
         </li>
-        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} target="_blank">Badges to be printed</a></li>
-        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} target="_blank">Badges printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} target="_blank" class='btn btn-info'>Badges to be printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} target="_blank" class='btn btn-success'>Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="form-inline">
               {{ badge_form.hidden_tag() }}
               {{ renderfield(badge_form.badge_printed, style='wide', nolabel=true) }}
-            <input id="badge-form-submit" class="btn btn-danger" type="submit" value="{% trans %}Update Badges{% endtrans %}"/>
+            <input id="badge-form-submit" class="btn btn-danger" type="submit" value="{% trans %}Update badges{% endtrans %}"/>
           </form>
         </li>
       </ul>
@@ -170,10 +170,11 @@
               var participants = tohashMap(data.participants, "pid");
               updateQueue(checkinQ, participants);
               updateQueue(cancelcheckinQ, participants);
-              $(".js-total").text(data.total_participants);
-              $(".js-totalcheckin").text(data.total_checkedin);
+              $('.js-total').text(data.total_participants);
+              $('.js-totalcheckin').text(data.total_checkedin);
             }
           });
+          $('.footable').trigger('footable_redraw');
         }
       });
     }
