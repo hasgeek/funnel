@@ -155,7 +155,7 @@
           }
         });
       }
-    }
+    };
 
     var updateParticipantList = function() {
       $.ajax({
@@ -177,7 +177,7 @@
           $('.footable').trigger('footable_redraw');
         }
       });
-    }
+    };
 
     var postCheckinStatus = function(participantIDs, action) {
       var formValues = $.param({"pid":participantIDs}, true);
@@ -186,7 +186,7 @@
       }
       formValues += "&csrf_token=" + $("meta[name='csrf-token']").attr('content');
       $.ajax({
-        type: 'post',
+        type: 'POST',
         url:  "{{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name) }}",
         data : formValues,
         timeout: 5000,
@@ -204,7 +204,7 @@
           }
         }
       });
-    }
+    };
 
     var processQueues = function() {
       //Read all participants from 'checkin-queue' and post check-in to server
@@ -217,7 +217,7 @@
       if(participantIDs) {
         postCheckinStatus(participantIDs, false);
       }
-    }
+    };
 
     /*
       Check-in scenarios:
@@ -285,7 +285,7 @@
        if ($('#badge_form select.field-badge_printed').val() === "") {
         return false;
        }
-       return window.confirm("Are you sure? Selected action will apply to all listed participants.")
+       return window.confirm("Are you sure? Selected action will apply to all listed participants.");
     });
 
     var tableSearch = new window.TableSearch('participants-table');
