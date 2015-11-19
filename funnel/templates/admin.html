@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-4">
+    <h3>Events</h3>
+    <ul class='list-inline'>
+      <li>
+        <a href={{ space.url_for('new-event') }} title="{% trans %}New event {% endtrans %}">
+          New
+        </a>
+      </li>
+      {%- if space.events %}
+        <li>
+          <a href={{ space.url_for('new-participant') }} title="{% trans %}New participant {% endtrans %}">
+            Add Participant
+          </a>
+        </li>
+      {%- endif %}
+    </ul>
+    <hr>
+    <ol>
+      {%- for event in events %}
+        <li>
+          <a href={{ url_for('event', profile=space.profile.name, space=space.name, name=event.name) }}>
+            {{ event.title }}
+          </a>
+        </li>
+      {%- endfor %}
+    </ol>
+  </div>
+  <div class="col-md-4">
+    <h3>Ticket Types</h3>
+    <ul class='list-inline'>
+      <li>
+        <a href={{ space.url_for('new-ticket-type') }} title="{% trans %}New ticket type {% endtrans %}">
+          New
+        </a>
+      </li>
+    </ul>
+    <hr>
+    <ol>
+      {%- for ticket_type in space.ticket_types -%}
+        <li>
+          <a href={{ url_for('ticket_type', profile=space.profile.name, space=space.name, name=ticket_type.name) }}>
+            {{ ticket_type.title }}
+          </a>
+        </li>
+      {%- endfor %}
+    </ol>
+  </div>
+  <div class="col-md-4">
+    <h3>Ticket Clients</h3>
+    <ul class='list-inline'>
+      <li>
+        <a href={{ space.url_for('new-ticket-client') }} title="{% trans %}New ticket client{% endtrans %}">
+          New
+        </a>
+      </li>
+      {%- if space.ticket_clients %}
+        <li>
+          <form method="POST" id="attendee_remote_sync_form" enctype="multipart/form-data" class="form-inline">
+            <div class="form-group">
+              {{ attendee_sync_form.hidden_tag() }}
+            </div>
+            <button id="attendee_sync_form-submit" class="btn btn-danger fa fa-refresh" type="submit" title="{% trans %}Sync tickets{% endtrans %}"></button>
+          </form>
+        </li>
+      {%- endif %}
+    </ul>
+    <hr>
+    <ol>
+      {%- for client in space.ticket_clients %}
+        <li>
+          <a href={{ url_for('ticket_client_edit', profile=space.profile.name, space=space.name, id=client.id) }}>{{client.name}}</a>
+        </li>
+      {%- endfor %}
+    </ol>
+  </div>
+</div>
+{% endblock %}

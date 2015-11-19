@@ -1,8 +1,11 @@
-from . import app
+import StringIO
 import requests
 from urlparse import urljoin
 from urlparse import urlparse
+import qrcode
+import qrcode.image.svg
 from baseframe import cache
+from . import app
 
 
 @cache.memoize(timeout=86400)
@@ -40,8 +43,32 @@ def format_twitter_handle(handle):
     parsed_handle = urlparse(handle)
     if (
             (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com') or
-            (not parsed_handle.netloc and len(handle) > 16)
+            (not parsed_handle.netloc and len(handle) > 16) or
+            (not parsed_handle.path)
     ):
         return None
 
     return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace('@', '')
+
+
+def split_name(fullname):
+    """
+    Splits a given fullname into two parts
+    a first name, and a concanetated last name.
+    Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
+    """
+    name_splits = fullname.split()
+    return name_splits[0], " ".join([s for s in name_splits[1:]])
+
+
+def make_qrcode(data):
+    """
+    Makes a QR code in-memory and returns the raw svg
+    """
+    factory = qrcode.image.svg.SvgPathImage
+    stream = StringIO.StringIO()
+    img = qrcode.make(data, image_factory=factory)
+    img.save(stream)
+    qrcode_svg = stream.getvalue()
+    stream.close()
+    return qrcode_svg

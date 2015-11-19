@@ -658,3 +658,89 @@ div.markdown-field a.button.selected {
 .rsvp-header {
   padding: 1px 0px 1px 15px;
 }
+
+.footable > thead > tr > th {
+  background-color: #e8e8e8;
+  border: 1px solid #b7b7b7;
+}
+
+.list-inline > li.badge-print-status-btn {
+  display: block;
+  width: 200px;
+}
+
+@media (min-width: 768px) {
+  .list-inline > li.badge-print-status-btn {
+    display: inline-block;
+    width: auto;
+  }
+}
+.status-btn-list {
+  margin: 0;
+  padding: 0;
+}
+
+.status-btn-list li {
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+.status-btn-list .controls {
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+.status-btn-list li, .status-btn-list .controls, .search-participant {
+  margin-bottom: 10px;
+}
+
+td .status-btn-list li:last-child {
+  margin: 0;
+}
+
+@media (min-width: 992px) {
+  .status-btn-list .controls {
+    margin-bottom: 0;
+  }
+
+  td .status-btn-list li {
+    margin: 0 0 5px;
+  }
+}
+@media (min-width: 1200px) {
+  .status-btn-list {
+    float: right;
+  }
+
+  .status-btn-list li:last-child {
+    padding-right: 0;
+  }
+}
+.footable .form-inline .btn {
+  vertical-align: middle;
+}
+
+.js-loader, .js-abort {
+  display: none;
+  margin: 0 2px;
+}
+
+.js-abort {
+  cursor: pointer;
+}
+
+.js-checkin {
+  background-color: #EC971F;
+  border-bottom: 2px solid #D58512;
+  color: #fff;
+}
+
+.js-cancel-checkin {
+  background-color: #D9534F;
+  border-bottom: 2px solid #AC2925;
+  color: #fff;
+}
+
+td .btn:hover, td .btn:active, td .btn:focus {
+  color: #fff;
+}

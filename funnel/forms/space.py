@@ -2,13 +2,15 @@
 
 import re
 from coaster.utils import sorted_timezones
+from wtforms.widgets import CheckboxInput, ListWidget
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from baseframe import _, __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm', 'TicketClientForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -74,3 +76,21 @@ class ProposalSpaceForm(forms.Form):
 
 class RsvpForm(forms.Form):
     status = forms.RadioField("Status", choices=[(k, RSVP_STATUS[k].title) for k in RSVP_STATUS.USER_CHOICES])
+
+
+class EventForm(forms.Form):
+    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+
+
+class TicketClientForm(forms.Form):
+    name = forms.StringField(__("Name"), validators=[forms.validators.DataRequired()])
+    clientid = forms.StringField(__("Client id"), validators=[forms.validators.DataRequired()])
+    client_eventid = forms.StringField(__("Client event id"), validators=[forms.validators.DataRequired()])
+    client_secret = forms.StringField(__("Client event secret"), validators=[forms.validators.DataRequired()])
+    client_access_token = forms.StringField(__("Client access token"), validators=[forms.validators.DataRequired()])
+
+
+class TicketTypeForm(forms.Form):
+    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    events = QuerySelectMultipleField(__("Events"),
+        widget=ListWidget(), option_widget=CheckboxInput(), allow_blank=True, get_label='title', query_factory=lambda: [])
