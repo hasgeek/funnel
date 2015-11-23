@@ -1,6 +1,8 @@
 {% extends "baseframe.html" -%}
 {% from "baseframe/components.html" import hgnav with context %}
 
+{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
+
 {% block headerbox %}
   {% macro site_title() %}
     <div class="page-header">
