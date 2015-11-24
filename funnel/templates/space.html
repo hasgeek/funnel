@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% from "macros.html" import rsvpform, rsvpscript %}
 {% block title %}{{ space.title }}{% endblock %}
-{% block description %}{{ space.title }} &ndash; {% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
+{% block description %}{{ space.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
 {%- macro proposal_table(space, proposals) %}
   <div class="table-responsive">
