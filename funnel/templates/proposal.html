@@ -2,6 +2,13 @@
 {% from "baseframe/forms.html" import renderfield, renderform %}
 {% from "comments.html" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
+{% block description %}
+  {%- if proposal.speaker -%}
+    {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=space.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+  {%- else -%}
+    {{ proposal.title }}, {{ space.title }}
+  {%- endif -%}
+{% endblock %}
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 
 {% block headline -%}{%- endblock %}

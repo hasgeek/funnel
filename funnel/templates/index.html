@@ -5,6 +5,8 @@
   <meta name="DC.title" content="{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}"/>
 {%- endblock %}
 
+{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
+
 {% block baseheadline -%}
   {% block headline -%}{%- endblock %}
 {%- endblock %}
