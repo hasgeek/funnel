@@ -1,4 +1,7 @@
-import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 import requests
 from urlparse import urljoin
 from urlparse import urlparse
@@ -68,7 +71,7 @@ def make_qrcode(data):
     Makes a QR code in-memory and returns the raw svg
     """
     factory = qrcode.image.svg.SvgPathImage
-    stream = StringIO.StringIO()
+    stream = StringIO()
     img = qrcode.make(data, image_factory=factory)
     img.save(stream)
     qrcode_svg = stream.getvalue()
