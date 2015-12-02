@@ -19,14 +19,14 @@ from ..jobs import import_tickets
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='admin')
 def admin(profile, space):
-    attendee_sync_form = forms.Form()
-    if attendee_sync_form.validate_on_submit():
+    csrf_form = forms.Form()
+    if csrf_form.validate_on_submit():
         for ticket_client in space.ticket_clients:
             if ticket_client and ticket_client.name == u'explara':
                 import_tickets.delay(ticket_client.id)
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(space.url_for('admin'), code=303)
-    return render_template('admin.html', profile=profile, space=space, events=space.events, attendee_sync_form=attendee_sync_form)
+    return render_template('admin.html', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
 
 
 @app.route('/<space>/events/new', methods=['GET', 'POST'], subdomain='<profile>')

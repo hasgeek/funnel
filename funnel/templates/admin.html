@@ -62,11 +62,11 @@
       </li>
       {%- if space.ticket_clients %}
         <li>
-          <form method="POST" id="attendee_remote_sync_form" enctype="multipart/form-data" class="form-inline">
+          <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="form-inline">
             <div class="form-group">
-              {{ attendee_sync_form.hidden_tag() }}
+              {{ csrf_form.hidden_tag() }}
             </div>
-            <button id="attendee_sync_form-submit" class="btn btn-danger fa fa-refresh" type="submit" title="{% trans %}Sync tickets{% endtrans %}"></button>
+            <button id="csrf_form-submit" class="btn btn-danger fa fa-refresh" type="submit" title="{% trans %}Sync tickets{% endtrans %}"></button>
           </form>
         </li>
       {%- endif %}
