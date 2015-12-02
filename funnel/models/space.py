@@ -171,8 +171,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'new-event',
                     'new-ticket-type',
                     'new-ticket-client',
-                    'ticket-client-edit',
-                    'event-edit',
+                    'edit-ticket-client',
+                    'edit-event',
                     'admin'
                     ])
             if self.review_team and user in self.review_team.users:
@@ -186,12 +186,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'edit-schedule',
                     'new-session',
                     'edit-session',
-                    'event-checkin',
-                    'event-view',
-                    'ticket-type-view',
-                    'event-sync',
-                    'participant-edit',
-                    'participant-view',
+                    'checkin-event',
+                    'view-event',
+                    'view-ticket-type',
+                    'edit-participant',
+                    'view-participant',
                     'new-participant'
                     ])
         return perms

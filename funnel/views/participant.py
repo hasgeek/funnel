@@ -87,7 +87,7 @@ def new_participant(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='participant-edit')
+    permission='edit-participant')
 def participant_edit(profile, space, participant):
     form = ParticipantForm(obj=participant, model=Participant)
     form.events.query = space.events
@@ -128,7 +128,7 @@ def participant(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='participant-view')
+    permission='view-participant')
 def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
 
@@ -140,7 +140,7 @@ def participant_badge(profile, space, participant):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='event-checkin')
+    permission='checkin-event')
 def event_checkin(profile, space, event, participant):
     attendee = Attendee.get(event, participant)
     form = forms.Form()
@@ -157,7 +157,7 @@ def event_checkin(profile, space, event, participant):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    permission='event-view')
+    permission='view-event')
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()

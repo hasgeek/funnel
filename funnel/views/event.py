@@ -56,7 +56,7 @@ def new_event(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    permission='event-edit')
+    permission='edit-event')
 def event_edit(profile, space, event):
     form = EventForm(obj=event, model=Event)
     if form.validate_on_submit():
@@ -73,7 +73,7 @@ def event_edit(profile, space, event):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (TicketType, {'name': 'name', 'proposal_space': 'space'}, 'ticket_type'),
-    permission='ticket-type-view')
+    permission='view-ticket-type')
 def ticket_type(profile, space, ticket_type):
     participants = Participant.query.join(SyncTicket).filter(SyncTicket.ticket_type == ticket_type).all()
     return render_template('ticket_type.html', profile=profile, space=space, ticket_type=ticket_type, participants=participants)
@@ -108,7 +108,7 @@ def new_ticket_type(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (TicketType, {'name': 'name', 'proposal_space': 'space'}, 'ticket_type'),
-    permission='event-edit')
+    permission='edit-event')
 def ticket_type_edit(profile, space, ticket_type):
     form = TicketTypeForm(obj=ticket_type, model=TicketType)
     form.events.query = space.events
@@ -147,7 +147,7 @@ def new_ticket_client(profile, space):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (TicketClient, {'id': 'id', 'proposal_space': 'space'}, 'ticket_client'),
-    permission='ticket-client-edit')
+    permission='edit-ticket-client')
 def ticket_client_edit(profile, space, ticket_client):
     form = TicketClientForm(obj=ticket_client, model=TicketClient)
     if form.validate_on_submit():
@@ -164,7 +164,7 @@ def ticket_client_edit(profile, space, ticket_client):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    permission='event-view')
+    permission='view-event')
 def event(profile, space, event):
     participants = Participant.checkin_list(event)
     form = ParticipantBadgeForm()
