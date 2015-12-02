@@ -41,8 +41,7 @@ def new_event(profile, space):
         form.populate_obj(event)
         event.make_name()
         try:
-            db.session.add(event)
-            db.session.commit()
+            db.session().add_and_commit(event)
         except IntegrityError:
             db.session.rollback()
             flash(_(u"This event already exists."), 'info')
@@ -93,8 +92,7 @@ def new_ticket_type(profile, space):
         form.populate_obj(ticket_type)
         ticket_type.make_name()
         try:
-            db.session.add(ticket_type)
-            db.session.commit()
+            db.session().add_and_commit(ticket_type)
         except IntegrityError:
             db.session.rollback()
             flash(_(u"This ticket type already exists."), 'info')
@@ -132,8 +130,7 @@ def new_ticket_client(profile, space):
         ticket_client = TicketClient(proposal_space=space)
         form.populate_obj(ticket_client)
         try:
-            db.session.add(ticket_client)
-            db.session.commit()
+            db.session().add_and_commit(ticket_client)
         except IntegrityError:
             db.session.rollback()
             flash(_(u"This ticket client already exists."), 'info')
