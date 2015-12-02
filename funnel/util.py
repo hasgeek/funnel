@@ -57,8 +57,10 @@ def split_name(fullname):
     a first name, and a concanetated last name.
     Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
     """
+    if not fullname:
+        return fullname
     name_splits = fullname.split()
-    return name_splits[0], " ".join([s for s in name_splits[1:]])
+    return unicode(name_splits[0]), unicode(" ".join([s for s in name_splits[1:]]))
 
 
 def make_qrcode(data):
