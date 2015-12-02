@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import redirect, render_template, url_for, flash
 from coaster.views import load_models
+from coaster.utils import getbool
 from sqlalchemy.exc import IntegrityError
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, TicketType, TicketClient, SyncTicket)
@@ -166,7 +167,7 @@ def event(profile, space, event):
     participants = Participant.checkin_list(event)
     form = ParticipantBadgeForm()
     if form.validate_on_submit():
-        badge_printed = True if form.data.get('badge_printed') == 't' else False
+        badge_printed = True if getbool(form.data.get('badge_printed')) else False
         db.session.query(Participant).filter(Participant.id.in_([participant.id for participant in event.participants])).\
             update({'badge_printed': badge_printed}, False)
         db.session.commit()
