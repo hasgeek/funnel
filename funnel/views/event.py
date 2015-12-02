@@ -3,7 +3,7 @@ from flask import redirect, render_template, url_for, flash
 from coaster.views import load_models
 from sqlalchemy.exc import IntegrityError
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, TicketType, TicketClient)
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, TicketType, TicketClient, SyncTicket)
 from baseframe import forms
 from baseframe import _
 from baseframe.forms import render_form
@@ -75,7 +75,8 @@ def event_edit(profile, space, event):
     (TicketType, {'name': 'name', 'proposal_space': 'space'}, 'ticket_type'),
     permission='ticket-type-view')
 def ticket_type(profile, space, ticket_type):
-    return render_template('ticket_type.html', profile=profile, space=space, ticket_type=ticket_type, participants=Participant.filter_by_ticket_type(ticket_type))
+    participants = Participant.query.join(SyncTicket).filter(SyncTicket.ticket_type == ticket_type).all()
+    return render_template('ticket_type.html', profile=profile, space=space, ticket_type=ticket_type, participants=participants)
 
 
 @app.route('/<space>/ticket_type/new', methods=['GET', 'POST'], subdomain='<profile>')
