@@ -22,7 +22,7 @@ def admin(profile, space):
     if attendee_sync_form.validate_on_submit():
         for ticket_client in space.ticket_clients:
             if ticket_client and ticket_client.name == u'explara':
-                import_tickets.delay(app.config['ENV'], ticket_client.id)
+                import_tickets.delay(ticket_client.id)
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(space.url_for('admin'), code=303)
     return render_template('admin.html', profile=profile, space=space, events=space.events, attendee_sync_form=attendee_sync_form)

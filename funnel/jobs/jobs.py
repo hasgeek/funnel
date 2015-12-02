@@ -5,7 +5,7 @@ from funnel import app
 
 
 @job('funnel')
-def import_tickets(env, ticket_client_id):
+def import_tickets(ticket_client_id):
     with app.test_request_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
         if ticket_client and ticket_client.name == u'explara':

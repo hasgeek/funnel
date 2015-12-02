@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rqworker -c rqdev talkfunnel
+rqworker -c rqdev funnel
