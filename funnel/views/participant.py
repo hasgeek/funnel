@@ -55,10 +55,7 @@ def participant_checkin_data(participant, space, event):
         'company': participant.company,
         'email': participant.email,
         'badge_printed': participant.badge_printed,
-        'checked_in': participant.checked_in,
-        'showbadge_url': url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id=participant.id),
-        'edit_url': url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id=participant.id),
-        'checkin_url': url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name)
+        'checked_in': participant.checked_in
     }
 
 
@@ -152,7 +149,7 @@ def participant_badge(profile, space, participant):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    permission='participant-view')
+    permission='event-checkin')
 def event_participants_json(profile, space, event):
     total_participants = len(Participant.checkin_list(event))
     total_checkedin = len([p for p in Participant.checkin_list(event) if p.checked_in])

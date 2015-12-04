@@ -66,13 +66,13 @@
           <td>
             <ul class="list-inline status-btn-list">
               <li>
-                <a href="{{ showbadge_url }}" {{#badge_printed}} class="btn btn-xs btn-success" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
+                <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="btn btn-xs btn-success" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
               </li>
               <li>
-                <a href="{{ edit_url }}" class="btn btn-xs btn-default" target="_blank">Edit</a>
+                <a href="{{ getEditUrl(pid) }}" class="btn btn-xs btn-default" target="_blank">Edit</a>
               </li>
               <li>
-                <form action="{{ checkin_url }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
+                <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
                   <div style="display:none;">
                     <input id="csrf_token" name="csrf_token" value="{{ getCsrfToken() }}" type="hidden">
                   </div>
@@ -121,6 +121,17 @@
         participants: '',
         getCsrfToken: function() {
           return $('meta[name="csrf-token"]').attr('content');
+        },
+        getBadgeUrl: function(pid) {
+          var url = "{{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id='participant-id') }}";
+          return url.replace('participant-id',pid);
+        },
+        getEditUrl: function(pid) {
+          var url = "{{ url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id='participant-id') }}";
+          return url.replace('participant-id',pid);
+        },
+        getCheckinUrl: function() {
+          return "{{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name) }}";
         }
       }
     });
