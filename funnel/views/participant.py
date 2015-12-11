@@ -72,7 +72,9 @@ def new_participant(profile, space):
         participant = Participant(proposal_space=space)
         form.populate_obj(participant)
         try:
-            db.session().add_and_commit(participant)
+            # db.session().add_and_commit(participant)
+            db.session.add(participant)
+            db.session.commit()
         except IntegrityError:
             db.session.rollback()
             flash(_(u"This participant already exists."), 'info')
@@ -111,7 +113,9 @@ def participant(profile, space):
     elif participant.key == request.args.get('key'):
         try:
             contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
-            db.session().add_and_commit(contact_exchange)
+            # db.session().add_and_commit(contact_exchange)
+            db.session.add(contact_exchange)
+            db.session.commit()
         except IntegrityError:
             app.logger.warning(u"Contact Exchange already present")
             db.session.rollback()
