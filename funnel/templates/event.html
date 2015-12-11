@@ -173,7 +173,7 @@
         type: 'GET',
         url:  "{{ url_for('event_participants_json', profile=space.profile.name, space=space.name, name=event.name) }}",
         timeout: 5000,
-        dataType: 'jsonp',
+        dataType: 'json',
         success: function(data) {
           participantTableContent.set('participants', data.participants).then(function() {
             if (Modernizr.localstorage) {
@@ -289,14 +289,14 @@
       setInterval(processQueues, 8000);
 
       //Get participants data from server every 1 min
-      setInterval(updateParticipantList, 60000);
+      setInterval(updateParticipantList, 10000);
     }
 
     $('#badge_form').on("submit", function(){
-       if ($('#badge_form select.field-badge_printed').val() === "") {
+      if ($('#badge_form select.field-badge_printed').val() === "") {
         return false;
-       }
-       return window.confirm("Are you sure? Selected action will apply to all listed participants.");
+      }
+      return window.confirm("Are you sure? Selected action will apply to all listed participants.");
     });
 
     var tableSearch = new window.TableSearch('participants-table');
