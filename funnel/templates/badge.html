@@ -1,41 +1,31 @@
 <!DOCTYPE html>
 <head>
   <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
-  <script src="{{ url_for('static', filename='js/libs/jquery.textfill.min.js') }}"></script>
-  <link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
   <style>
     @page {
-      size: 3.75in 11.2in;  /* width height */
+      size: 3.75in 10.5in;  /* width height */
       margin: 0;
     }
     body {
-      font-family: 'Inconsolata';
       margin: 0;
       padding: 0;
       background: transparent;
     }
-    .badge-wrapper{
-      width: 3.75in;
-      height: 10.5in;
-      page-break-after: always;
-    }
     .badge{
-      width: 3.75in;
-      height: 5.25in;
+      width: 3.9in;
+      height: 5.6in;
       position: relative;
-      page-break-inside: avoid;
-    }
-    .badge.backside{
-      -moz-transform: rotate(180deg);
-      -webkit-transform: rotate(180deg);
-      -o-transform: rotate(180deg);
-      -ms-transform: rotate(180deg);
-      transform: rotate(180deg);
+      page-break-after: always;
+      background-image: url('https://images.hasgeek.com/embed/file/673508a0e5a3472c80ce7f4310151006');
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      font-family: 'Droid Sans', sans-serif;
     }
     .badge-content { 
-      width: 3in;
+      width: 2.8in;
       margin: 0 auto;
-      padding-top: 1.7in;
+      padding-top: 2.33in;
     }
     .label {
       text-align: center;
@@ -43,59 +33,52 @@
       line-height: 1;
     }
     .first-name {
-      font-size: 70px;
+      font-size: 65px;
+      max-height: 65px; /* fit text in one line */
       text-transform: uppercase;
       font-weight: 700;
     }
     .last-name {
-      font-size: 40px;
-      margin-bottom: 10px;
+      font-size: 38px;
+      max-height: 38px; /* fit text in one line */
       text-transform: uppercase;
       font-weight: 400;
+      margin-bottom: 3px;
     }
     .last-name-box {
-      border-bottom: 3px solid #000;
-      margin-bottom: 10px;
+      min-height: 42px;
+      margin-bottom: 11px;
     }
     .company-name{
       font-size: 28px;
+      max-height: 50px; /* fit text within two lines */
       color: #df5e0e;
-      line-height: 1;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       font-weight: 700;
     }
-    .company-name span{
-      max-height: 50px;
-      overflow: hidden;      
-    }
-    .twitter-handle {
+    .twitter-handle { 
       font-size: 28px;
-      color: #0ea5b0;
+      max-height: 28px; /* fit text in one line */
+      color: #165a5f;
       font-weight: 700;
-    }
-    img.center {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      height: 1em;
     }
     .qrcode {
       text-align: center;
       position: absolute;
-      bottom: 0.4in;
+      bottom: 0.55in;
       left: 0;
       right: 0;
       margin: auto;
+      line-height: 1;
     }
     .qrcode svg {
-      height: 6em;
+      height: 5.2em;
     }
   </style>
 </head>
 <body>
-{%- for badge in badges %}
-  {% macro badgeContent( badgeSide=none ) %}
-    <div class="badge {% if badgeSide %} {{ badgeSide }} {% endif %}">
+{%- for badge in badges|sort(attribute='first_name') %}
+    <div class="badge">
       <div class="badge-content">
         <div class="label first-name">
           <span>{{ badge['first_name'] }}</span>
@@ -118,43 +101,32 @@
         <div class="qrcode">{{ badge['qrcode_content']|safe }}</div>
       </div>
     </div>
-  {% endmacro %}
-  <div class="badge-wrapper">
-    {{ badgeContent() }}
-    {{ badgeContent(badgeSide="backside") }}
-  </div>
 {%- endfor %}
 <script>
   $(function() {
-    var getFontSize = function(nameLen){
-      if (nameLen > 60){
-        return '18px';
+    var updateFontSize = function(elem) {
+      var fontStep = 1;
+      var parentWidth = $(elem).width();
+      var parentHeight = parseInt($(elem).css('max-height'), 10);
+      var childElem = $(elem).find('span');
+      while ((childElem.width() > parentWidth) || (childElem.height() > parentHeight)) {
+        childElem.css('font-size', parseInt(childElem.css('font-size'), 10) - fontStep + 'px');
       }
-      else if (nameLen > 40){
-        return '20px';
-      }
-      else if (nameLen > 30){
-        return '22px';
-      }
-      else if (nameLen > 16){
-        return '25px';
-      }
+      /* Update parent div line-height */
+      $(elem).css('line-height', childElem.css('font-size'));
     }
-    $('.first-name').textfill({
-        maxFontPixels: 70,
-        changeLineHeight: 1,
+    $.each($('.first-name'), function(index, firstName){
+      updateFontSize(firstName);
     });
-    $('.last-name').textfill({
-        maxFontPixels: 40,
-        changeLineHeight: 1
+    $.each($('.last-name'), function(index, lastName){
+      updateFontSize(lastName);
     });
       
     $.each($('.company-name'), function(index, companyName){
-      newFontSize = getFontSize($(companyName).find('span').html().length);
-      $(companyName).css('font-size', newFontSize)
+      updateFontSize(companyName);
     });
-    $('.twitter-handle').textfill({
-      maxFontPixels: 28
+    $.each($('.twitter-handle'), function(index, twitterHandle){
+      updateFontSize(twitterHandle);
     });
   });
 </script>
