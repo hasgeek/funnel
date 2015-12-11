@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, g, url_for
+from flask import flash, redirect, render_template, request, g, url_for, jsonify
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.views import load_models, jsonp
+from coaster.views import load_models
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
 from ..forms import ParticipantForm
@@ -56,7 +56,7 @@ def participant_data(participant, space_id, full=False):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def participants_json(profile, space):
-    return jsonp(participants=[participant_data(participant, space.id) for participant in space.participants])
+    return jsonify(participants=[participant_data(participant, space.id) for participant in space.participants])
 
 
 @app.route('/<space>/participants/new', methods=['GET', 'POST'], subdomain='<profile>')
@@ -107,7 +107,7 @@ def participant_edit(profile, space, participant):
 def participant(profile, space):
     participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
     if not participant:
-        return jsonp(message=u"Not found", code=404)
+        return jsonify(message=u"Not found", code=404)
     elif participant.key == request.args.get('key'):
         try:
             contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
@@ -115,9 +115,9 @@ def participant(profile, space):
         except IntegrityError:
             app.logger.warning(u"Contact Exchange already present")
             db.session.rollback()
-        return jsonp(participant=participant_data(participant, space.id, full=True))
+        return jsonify(participant=participant_data(participant, space.id, full=True))
     else:
-        return jsonp(message=u"Unauthorized", code=401)
+        return jsonify(message=u"Unauthorized", code=401)
 
 
 @app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
