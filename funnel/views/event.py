@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from rq import Queue
+from redis import Redis
 from flask import redirect, render_template, url_for, flash
 from coaster.views import load_models
 from coaster.utils import getbool
@@ -12,6 +14,10 @@ from ..forms import EventForm, TicketTypeForm, ParticipantBadgeForm, TicketClien
 from ..jobs import import_tickets
 
 
+redis_connection = Redis()
+funnelq = Queue('funnel', connection=redis_connection)
+
+
 @app.route('/<space>/admin', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -23,7 +29,7 @@ def admin(profile, space):
     if csrf_form.validate_on_submit():
         for ticket_client in space.ticket_clients:
             if ticket_client and ticket_client.name == u'explara':
-                import_tickets.delay(ticket_client.id)
+                funnelq.enqueue(import_tickets, ticket_client.id)
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(space.url_for('admin'), code=303)
     return render_template('admin.html', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
