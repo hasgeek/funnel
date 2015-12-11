@@ -1,7 +1,4 @@
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from StringIO import StringIO
 import requests
 from urlparse import urljoin
 from urlparse import urlparse
