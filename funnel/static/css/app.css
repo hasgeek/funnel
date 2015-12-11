@@ -716,3 +716,31 @@ td .status-btn-list li:last-child {
     padding-right: 0;
   }
 }
+.footable .form-inline .btn {
+  vertical-align: middle;
+}
+
+.js-loader, .js-abort {
+  display: none;
+  margin: 0 2px;
+}
+
+.js-abort {
+  cursor: pointer;
+}
+
+.js-checkin {
+  background-color: #EC971F;
+  border-bottom: 2px solid #D58512;
+  color: #fff;
+}
+
+.js-cancel-checkin {
+  background-color: #D9534F;
+  border-bottom: 2px solid #AC2925;
+  color: #fff;
+}
+
+td .btn:hover, td .btn:active, td .btn:focus {
+  color: #fff;
+}

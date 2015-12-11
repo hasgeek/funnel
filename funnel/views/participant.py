@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.views import load_models
+from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
 from ..forms import ParticipantForm
@@ -47,6 +47,17 @@ def participant_data(participant, space_id, full=False):
             'company': participant.company,
             'space_id': space_id
         }
+
+
+def participant_checkin_data(participant, space, event):
+    return {
+        'pid': participant.id,
+        'fullname': participant.fullname,
+        'company': participant.company,
+        'email': participant.email,
+        'badge_printed': participant.badge_printed,
+        'checked_in': participant.checked_in
+    }
 
 
 @app.route('/<space>/participants/json', subdomain='<profile>')
@@ -131,7 +142,7 @@ def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -143,10 +154,29 @@ def event_checkin(profile, space, event, participant):
     attendee = Attendee.get(event, participant)
     form = forms.Form()
     if form.validate_on_submit():
-        # Toggle check-in status
-        attendee.checked_in = not attendee.checked_in
-        db.session.commit()
+        checked_in = True if request.form.get('checkin') == 't' else False
+        participant_ids = request.form.getlist('pid')
+        for participant_id in participant_ids:
+            participant = Participant.query.filter_by(id=participant_id).first()
+            attendee = Attendee.get(event, participant)
+            attendee.checked_in = checked_in
+            db.session.commit()
+        if request.is_xhr:
+            return jsonify(status=True, participant_ids=participant_ids, checked_in=checked_in)
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
+
+
+@app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='checkin-event')
+def event_participants_json(profile, space, event):
+    total_participants = len(Participant.checkin_list(event))
+    total_checkedin = len([p for p in Participant.checkin_list(event) if p.checked_in])
+    return jsonp(participants=[participant_checkin_data(participant, space, event) for participant in Participant.checkin_list(event)], total_participants=total_participants, total_checkedin=total_checkedin)
 
 
 @app.route('/<space>/event/<name>/badges', subdomain='<profile>')
