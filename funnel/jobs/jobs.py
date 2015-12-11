@@ -1,10 +1,8 @@
 from ..models import (db, TicketClient, SyncTicket)
 from ..extapi.explara import ExplaraAPI
-from flask.ext.rq import job
 from funnel import app
 
 
-@job('funnel')
 def import_tickets(ticket_client_id):
     with app.test_request_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
