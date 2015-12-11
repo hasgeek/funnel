@@ -148,10 +148,8 @@ def participant_badge(profile, space, participant):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    (Participant, {'id': 'participant_id'}, 'participant'),
     permission='checkin-event')
-def event_checkin(profile, space, event, participant):
-    attendee = Attendee.get(event, participant)
+def event_checkin(profile, space, event):
     form = forms.Form()
     if form.validate_on_submit():
         checked_in = True if request.form.get('checkin') == 't' else False
