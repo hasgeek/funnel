@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<head>
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
+  <link href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+  <style>
+    @page {
+      size: 3.9in 5.6in;  /* width height */
+      margin: 0;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+    }
+    .badge{
+      width: 3.9in;
+      height: 5.6in;
+      position: relative;
+      page-break-after: always;
+      background-image: url('https://images.hasgeek.com/embed/file/673508a0e5a3472c80ce7f4310151006');
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      font-family: 'Droid Sans', sans-serif;
+    }
+    .badge-content { 
+      width: 2.8in;
+      margin: 0 auto;
+      padding-top: 2.33in;
+    }
+    .label {
+      text-align: center;
+      margin: 0;
+      line-height: 1;
+    }
+    .first-name {
+      font-size: 65px;
+      max-height: 65px; /* fit text in one line */
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .last-name {
+      font-size: 38px;
+      max-height: 38px; /* fit text in one line */
+      text-transform: uppercase;
+      font-weight: 400;
+      margin-bottom: 3px;
+    }
+    .last-name-box {
+      min-height: 42px;
+      margin-bottom: 11px;
+    }
+    .company-name{
+      font-size: 28px;
+      max-height: 50px; /* fit text within two lines */
+      color: #df5e0e;
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+    .twitter-handle { 
+      font-size: 28px;
+      max-height: 28px; /* fit text in one line */
+      color: #165a5f;
+      font-weight: 700;
+    }
+    .qrcode {
+      text-align: center;
+      position: absolute;
+      bottom: 0.55in;
+      left: 0;
+      right: 0;
+      margin: auto;
+      line-height: 1;
+    }
+    .qrcode svg {
+      height: 5.2em;
+    }
+  </style>
+</head>
+<body>
+{%- for badge in badges|sort(attribute='first_name') %}
+    <div class="badge">
+      <div class="badge-content">
+        <div class="label first-name">
+          <span>{{ badge['first_name'] }}</span>
+        </div>
+        <div class="last-name-box">
+          <div class="label last-name">
+            <span>{{ badge['last_name'] }} </span>
+          </div>
+        </div>
+        {%- if badge['company'] %}
+          <div class="label company-name">
+            <span>{{ badge['company'] }}</span>
+          </div>
+        {% endif %}
+        {%- if badge['twitter'] %}
+          <div class="label twitter-handle">
+            <span>{{ badge['twitter'] }}</span>
+          </div>
+        {% endif %}
+        <div class="qrcode">{{ badge['qrcode_content']|safe }}</div>
+      </div>
+    </div>
+{%- endfor %}
+<script>
+  $(function() {
+    var updateFontSize = function(elem) {
+      var fontStep = 1;
+      var parentWidth = $(elem).width();
+      var parentHeight = parseInt($(elem).css('max-height'), 10);
+      var childElem = $(elem).find('span');
+      while ((childElem.width() > parentWidth) || (childElem.height() > parentHeight)) {
+        childElem.css('font-size', parseInt(childElem.css('font-size'), 10) - fontStep + 'px');
+      }
+      /* Update parent div line-height */
+      $(elem).css('line-height', childElem.css('font-size'));
+    }
+    $.each($('.first-name'), function(index, firstName){
+      updateFontSize(firstName);
+    });
+    $.each($('.last-name'), function(index, lastName){
+      updateFontSize(lastName);
+    });
+      
+    $.each($('.company-name'), function(index, companyName){
+      updateFontSize(companyName);
+    });
+    $.each($('.twitter-handle'), function(index, twitterHandle){
+      updateFontSize(twitterHandle);
+    });
+  });
+</script>
+</body>
+</html>

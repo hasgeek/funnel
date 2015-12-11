@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
+{% block title %}{{ space.title }}{% endblock %}
+{% block pageheaders %}
+{% endblock %}
+{% block headline %}
+  <div class="page-header">
+    {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
+    <h1>{{ space.title }}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-3 col-md-6 col-sm-4 col-xs-6">
+      <h3>{{event.title}}</h3>
+    </div>
+    <div class='col-lg-9 col-md-6 col-sm-8 col-xs-6'>
+      <h3 class='pull-right'>
+        Total: {{participants | length}}
+        Checked In: {{checked_in_count}}
+      </h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-3 col-xs-4">
+      <form class="search-participant">
+          <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
+      </form>
+    </div>
+    <div class="col-lg-9 col-xs-12">
+      <ul class="list-inline status-btn-list">
+        <li>
+          <a href={{ url_for('event_edit', profile=space.profile.name, space=space.name, name=event.name) }} class='btn btn-primary'>Edit event title</a>
+        </li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} target="_blank" class='btn btn-info'>Badges to be printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} target="_blank" class='btn btn-success'>Badges printed</a></li>
+        <li class="badge-print-status-btn">
+          <form method="POST" id="badge_form" class="form-inline">
+              {{ badge_form.hidden_tag() }}
+              {{ renderfield(badge_form.badge_printed, style='wide', nolabel=true) }}
+            <input id="badge-form-submit" class="btn btn-danger" type="submit" value="{% trans %}Update badges{% endtrans %}"/>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <table class="table footable" id='participants-table'>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th data-hide="phone">Email</th>
+        <th data-hide="tablet, phone">Company</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for p in participants %}
+        <tr id="p-{{ p.id }}">
+          <td class='js-searchable'>{{ p.fullname }}</td>
+          <td class='js-searchable'>{{ p.email }}</td>
+          <td class='js-searchable'>{{ p.company }}</td>
+          <td>
+            <ul class="list-inline status-btn-list">
+            <li>
+              <a href={{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id=p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
+            </li>
+            <li>
+              <a href={{ url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id=p.id) }} class='btn btn-xs btn-default'>Edit</a>
+            </li>
+            <li>
+              <form action={{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name, participant_id=p.id) }} method='POST' class='checkin_form' class='form-inline'>
+                {{ checkin_form.hidden_tag() }}
+                {%- if p.checked_in %}
+                  <input class='btn btn-xs btn-danger margin-top' type='submit' value="{% trans %}Cancel Check-in{% endtrans %}"/>
+                {%- else %}
+                  <input class='btn btn-xs btn-warning margin-top' type='submit' value="{% trans %}Check-in{% endtrans %}"/>
+                {%- endif %}
+              </form>
+            </li>
+            </ul>
+          </td>
+        </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+{% block footerscripts %}
+<script>
+  $(document).ready(function() {
+    $('#badge_form').on("submit", function(){
+       if ($('#badge_form select.field-badge_printed').val() === "") {
+        return false;
+       }
+       return window.confirm("Are you sure? Selected action will apply to all listed participants.")
+    });
+
+    var tableSearch = new window.TableSearch('participants-table');
+    $('input#search').keyup(function(e){
+      $('#participants-table tbody tr').addClass('hidden');
+      var hits = tableSearch.searchRows($(this).val());
+      $(hits.join(",")).removeClass('hidden');
+    });
+    
+    $('.footable').footable({
+      breakpoints: {
+        phone: 600,
+        tablet: 768,
+      }
+    });
+  });
+</script>
+{% endblock %}

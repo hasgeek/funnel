@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
+{% block title %}{{ space.title }}{% endblock %}
+{% block pageheaders %}
+{% endblock %}
+{% block headline %}
+  <div class="page-header">
+    {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
+    <h1>{{ space.title }}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-3 col-sm-4 col-xs-6">
+      <h3>{{ticket_type.title}}</h3>
+    </div>
+    <div class="col-lg-9 col-sm-8 col-xs-6">
+      <h3 class='pull-right'>
+        Total: {{participants | length}}
+      </h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-3 col-sm-4 col-xs-6">
+      <form class="search-participant">
+        <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
+      </form>
+    </div>
+    <div class="col-lg-9 col-xs-12">
+      <ul class="list-inline">
+        <li>
+          <a href={{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }}>Edit Ticket Type</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-md-12 col-lg-12">
+      <table class="table footable" id='participants-table'>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th data-hide="phone">Email</th>
+            <th data-hide="tablet, phone">Company</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for p in participants %}
+            <tr id="p-{{ p.id }}">
+              <td class='js-searchable'>{{ p.fullname }}</td>
+              <td class='js-searchable'>{{ p.email }}</td>
+              <td class='js-searchable'>{{ p.company }}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+{% block footerscripts %}
+<script>
+  $(document).ready(function() {
+    var tableSearch = new window.TableSearch('participants-table');
+
+    $('input#search').keyup(function(e){
+      $('#participants-table tbody tr').addClass('hidden');
+      var hits = tableSearch.searchRows($(this).val());
+      $(hits.join(",")).removeClass('hidden');
+    });
+
+    $('.footable').footable({
+      breakpoints: {
+        phone: 600,
+        tablet: 768,
+      }
+    });
+
+  });
+</script>
+{% endblock %}
