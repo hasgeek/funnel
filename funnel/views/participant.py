@@ -162,7 +162,7 @@ def event_checkin(profile, space, event):
             participant = Participant.query.filter_by(id=participant_id).first()
             attendee = Attendee.get(event, participant)
             attendee.checked_in = checked_in
-            db.session.commit()
+        db.session.commit()
         if request.is_xhr:
             return jsonify(status=True, participant_ids=participant_ids, checked_in=checked_in)
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
@@ -176,9 +176,14 @@ def event_checkin(profile, space, event):
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='checkin-event')
 def event_participants_json(profile, space, event):
-    total_participants = len(Participant.checkin_list(event))
-    total_checkedin = len([p for p in Participant.checkin_list(event) if p.checked_in])
-    return jsonp(participants=[participant_checkin_data(participant, space, event) for participant in Participant.checkin_list(event)], total_participants=total_participants, total_checkedin=total_checkedin)
+    checkin_count = 0
+    participants = []
+    for participant in Participant.checkin_list(event):
+        participants.append(participant_checkin_data(participant, space, event))
+        if participant.checked_in:
+            checkin_count += 1
+
+    return jsonify(participants=participants, total_participants=len(participants), total_checkedin=checkin_count)
 
 
 @app.route('/<space>/event/<name>/badges', subdomain='<profile>')
