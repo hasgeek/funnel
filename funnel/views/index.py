@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import g, render_template, redirect
+from flask import g, render_template, redirect, jsonify
 from .. import app
 from ..models import Profile, ProposalSpace, Proposal
 from coaster.views import jsonp, load_model
@@ -13,6 +13,14 @@ def index():
     g.permissions = []
     spaces = ProposalSpace.query.filter_by(parent_space=None).filter(ProposalSpace.profile != None).filter(ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()  # NOQA
     return render_template('index.html', spaces=spaces)
+
+
+@app.route('/api/whoami')
+def whoami():
+    if g.user:
+        return jsonify(message="Hey {0}!".format(g.user.fullname), code=200)
+    else:
+        return jsonify(message="Hmm, so who _are_ you?", code=401)
 
 
 @app.route('/json')
