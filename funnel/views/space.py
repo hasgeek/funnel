@@ -19,6 +19,7 @@ from .section import section_data
 
 def space_data(space):
     return {
+        'id': space.id,
         'name': space.name,
         'title': space.title,
         'datelocation': space.datelocation,
