@@ -23,12 +23,12 @@ def geonameid_from_location(text):
     return None
 
 
-def format_twitter_handle(handle):
+def extract_twitter_handle(handle):
     """
-    Formats a user-provided twitter handle.
+    Extracts a twitter handle from a user input.
 
     Usage::
-      >>> format_twitter_handle('https://twitter.com/marscuriosity')
+      >>> extract_twitter_handle('https://twitter.com/marscuriosity')
       u'marscuriosity'
 
     **Notes**
@@ -49,6 +49,10 @@ def format_twitter_handle(handle):
         return None
 
     return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace('@', '')
+
+
+def format_twitter_handle(handle):
+    return "@{handle}".format(handle=handle) if handle else ""
 
 
 def split_name(fullname):
