@@ -20,7 +20,7 @@ def participant_badge_data(participants, space):
             'last_name': last_name,
             'twitter': format_twitter_handle(participant.twitter),
             'company': participant.company,
-            'qrcode_content': make_qrcode(u"{participant.puk}{participant.key}")
+            'qrcode_content': make_qrcode(u"{puk}{key}".format(puk=participant.puk, key=participant.key))
         })
     return badges
 
