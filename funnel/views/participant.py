@@ -7,8 +7,8 @@ from baseframe.forms import render_form
 from coaster.views import load_models
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
-from ..forms import ParticipantForm
-from funnel.util import split_name, format_twitter_handle, make_qrcode
+from ..forms import ParticipantForm, ParticipantImportForm
+from funnel.util import split_name, format_twitter_handle, make_qrcode, csv_to_rows
 
 
 def participant_badge_data(participants, space):
@@ -80,6 +80,28 @@ def new_participant(profile, space):
             flash(_(u"This participant already exists."), 'info')
         return redirect(space.url_for('admin'), code=303)
     return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
+
+
+@app.route('/<space>/participants/import', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='new-participant')
+def import_participant(profile, space):
+    form = ParticipantImportForm()
+    form.events.query = space.events
+    if form.validate_on_submit():
+        participant_list_csv = request.files['participant_list']
+        if participant_list_csv:
+            rows = csv_to_rows(participant_list_csv.read())
+            for row in rows:
+                fields = {'events': form.data['events'], 'fullname': row.get('name'), 'phone': row.get('phone'), 'twitter': row.get('twitter'), 'company': row.get('company')}
+                Participant.upsert(space, row.get('email'), **fields)
+            db.session.commit()
+            flash(_(u"Participants were imported from {filename}.".format(filename=participant_list_csv.filename)), 'info')
+            return redirect(space.url_for('admin'), code=303)
+    return render_form(form=form, title=_("Import Participants"), submit=_("Import"))
 
 
 @app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
