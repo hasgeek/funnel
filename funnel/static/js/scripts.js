@@ -1,17 +1,16 @@
 
 window.Talkfunnel = {};
 
-if (Modernizr.localstorage) {
-  window.Talkfunnel.Store = {};
-
-  //Local storage can only save strings, so value is converted into strings and stored.
-  window.Talkfunnel.Store.add = function(key, value) {
-    return localStorage.setItem(key, JSON.stringify(value));
-  };
-
-  //Reads from LocalStorage.
-  window.Talkfunnel.Store.read = function(key) {
-    return JSON.parse(localStorage.getItem(key));
+if (true) {
+  window.Talkfunnel.Store = {
+    //Local storage can only save strings, so value is converted into strings and stored.
+    add: function(key, value) {
+      return localStorage.setItem(key, JSON.stringify(value));
+    },
+    //Reads from LocalStorage.
+    read: function(key) {
+      return JSON.parse(localStorage.getItem(key));
+    }
   };
 
   window.Talkfunnel.Queue = function(queueName) {
@@ -40,15 +39,184 @@ if (Modernizr.localstorage) {
     this.dequeue = function(participant_id) {
       var participantList = window.Talkfunnel.Store.read(this.queueName);
       var index = participantList ? participantList.indexOf(participant_id) : -1;
-      if(index !== -1) {
+      if (index !== -1) {
         //Remove item from queue and add updated queue to localStorage
         participantList.splice(index, 1);
         window.Talkfunnel.Store.add(this.queueName, participantList);
         return participant_id;
       }
     };
-  }
+
+    //updateQueue: If participant in "checkin-queue" has already been checked-in then it is removed from checkin queue
+    this.updateQueue = function(participants) {
+      var queue = this;
+      var participantIDs = queue.readAll();
+      if (participantIDs) {
+        participantIDs.forEach(function(participantID) {
+          if (queue.queueName === "checkin-queue") {
+            if (participants[participantID].checked_in) {
+              //Participant has been checked-in so remove from 'checkin-queue' 
+              queue.dequeue(participantID);
+            }
+            else {
+              $('#' + participantID).find('.js-loader').show();
+            }
+          }
+          else {
+            if(!participants[participantID].checked_in) {
+              //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
+              queue.dequeue(participantID);
+            }
+            else {
+              $('#' + participantID).find('.js-loader').show();
+            }
+          }
+        });
+      }
+    };
+  };
 }
+
+window.Talkfunnel.ParticipantTable = {
+  init: function(config, checkinQ, cancelcheckinQ) {
+    this.Config = {
+      checkinUrl: config.checkinUrl,
+      participantlistUrl: config.participantlistUrl
+    };
+    if (Modernizr.localstorage) {
+      this.checkinQ = checkinQ;
+      this.cancelcheckinQ = cancelcheckinQ;
+    }
+
+    Ractive.DEBUG = false;
+
+    this.participantTableContent = new Ractive({
+      el: '#participants-table-content',
+      template: '#participant-row',
+      data: {
+        participants: '',
+        getCsrfToken: function() {
+          return $('meta[name="csrf-token"]').attr('content');
+        },
+        getBadgeUrl: function(pid) {
+          return config.badgeUrl.replace('participant-id',pid);
+        },
+        getEditUrl: function(pid) {
+          return config.editUrl.replace('participant-id',pid);
+        },
+        getCheckinUrl: function() {
+          return config.checkinUrl;
+        }
+      }
+    });
+  },
+  update: function() {
+    var participantTable = this;
+    
+    $.ajax({
+      type: 'GET',
+      url: participantTable.Config.participantlistUrl,
+      timeout: 5000,
+      dataType: 'json',
+      success: function(data) {
+        participantTable.participantTableContent.set('participants', data.participants).then(function() {
+          $('.js-loader').hide();
+          $('.js-total').text(data.total_participants);
+          $('.js-totalcheckin').text(data.total_checkedin);
+          if (Modernizr.localstorage) {
+            var participants = tohashMap(data.participants, "pid");
+            participantTable.checkinQ.updateQueue(participants);
+            participantTable.cancelcheckinQ.updateQueue(participants);
+          }
+        });
+        $('.footable').trigger('footable_redraw');
+      }
+    });
+  },
+  handleCheckIn: function() {
+    var participantTable = this;
+
+    $('#participants-table-content').on('submit', '.checkin_form', function(event) {
+      event.preventDefault();
+      var formValues = {};
+      $(this).serializeArray().map(function(obj) {
+        formValues[obj.name] = obj.value;
+      });
+      if (formValues["checkin"] === "t") {
+        participantTable.checkinQ.enqueue(formValues["pid"]);
+      }
+      else {
+        participantTable.cancelcheckinQ.enqueue(formValues["pid"]);
+      }
+      $(this).find('.js-loader').show();
+    });
+  },
+  handleAbortCheckIn: function() {
+    var participantTable = this;
+
+    $('#participants-table-content').on('click', '.js-abort', function(event) {
+      event.preventDefault();
+      var participantID = $(this).siblings('input[name="pid"]').val();
+      var checkinStatus = $(this).siblings('input[name="checkin"]').val();
+
+      if (checkinStatus === "t") {
+        // Case 1: On abort, participantID is removed from "checkin-queue" if present.
+        // Case 2: On abort, if participantID is not present in the "checkin-queue" it implies check-in request has been sent to server, so check-in has to be cancelled, hence add it to "cancelcheckin-queue".
+        if (!participantTable.checkinQ.dequeue(participantID)) {
+          participantTable.cancelcheckinQ.enqueue(participantID);
+        }
+      }
+      else{
+        if (!participantTable.cancelcheckinQ.dequeue(participantID)) {
+          participantTable.checkinQ.enqueue(participantID);
+        }
+      }
+      //Hide loader and abort
+      $('#' + participantID).find('.js-loader').hide();
+    });
+  },
+  postCheckinStatus: function(participantIDs, action) {
+    var participantTable = this;
+
+    var formValues = $.param({"pid":participantIDs}, true);
+    if(action) {
+      formValues += "&checkin=t";
+    }
+    formValues += "&csrf_token=" + $("meta[name='csrf-token']").attr('content');
+    $.ajax({
+      type: 'POST',
+      url:  participantTable.Config.checkinUrl,
+      data : formValues,
+      timeout: 5000,
+      dataType: "json",
+      success: function(data) {
+        if (data.checked_in) {
+          data.participant_ids.forEach(function(participant_id) {
+            participantTable.checkinQ.dequeue(participant_id);
+          });
+        }
+        else {
+          data.participant_ids.forEach(function(participant_id) {
+            participantTable.cancelcheckinQ.dequeue(participant_id);
+          });
+        }
+      }
+    });
+  },
+  processQueues: function() {
+    var participantTable = this;
+
+    var participantIDs = participantTable.checkinQ.readAll();
+    if (participantIDs) {
+      participantTable.postCheckinStatus(participantIDs, true);
+    }
+
+    participantIDs = participantTable.cancelcheckinQ.readAll();
+    if (participantIDs) {
+      participantTable.postCheckinStatus(participantIDs, false);
+    }
+  }
+};
 
 function radioHighlight(radioName, highlightClass) {
   var selector = "input[name='" + radioName + "']";
