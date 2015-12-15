@@ -41,7 +41,7 @@ def spaces_json(profile):
 @app.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
-    spaces = ProposalSpace.query.filter(ProposalSpace.profile == profile).filter(
+    spaces = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.parent_space == None).filter(
         ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()
     return render_template('index.html', spaces=spaces)
 
