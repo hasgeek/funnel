@@ -1,7 +1,7 @@
 
 window.Talkfunnel = {};
 
-if (true) {
+if (Modernizr.localstorage) {
   window.Talkfunnel.Store = {
     //Local storage can only save strings, so value is converted into strings and stored.
     add: function(key, value) {
