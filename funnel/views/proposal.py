@@ -5,6 +5,7 @@ from bleach import linkify
 
 from flask import g, render_template, redirect, request, Markup, abort, flash, escape
 from flask.ext.mail import Message
+from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
@@ -100,7 +101,7 @@ def proposal_data_flat(proposal, groups=[]):
 def proposal_new(profile, space):
     form = ProposalForm(model=Proposal, parent=space)
     del form.session_type  # We don't use this anymore
-    form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
@@ -134,7 +135,7 @@ def proposal_edit(profile, space, proposal):
     form = ProposalForm(obj=proposal.formdata, model=Proposal, parent=space)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
-    form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
