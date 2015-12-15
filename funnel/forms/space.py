@@ -42,6 +42,7 @@ class ProposalSpaceForm(forms.Form):
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
         validators=[forms.validators.Optional()])
+    parent_space = QuerySelectField(__(u"Parent space"), get_label='title', allow_blank=True)
 
     status = forms.SelectField(__("Status"), coerce=int, choices=[
         (0, __("Draft")),
