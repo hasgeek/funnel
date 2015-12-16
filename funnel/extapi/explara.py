@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import requests
-from ..util import extract_twitter_handle
+from ..util import extract_twitter_handle, strip_or_empty
 
 __all__ = ['ExplaraAPI']
-
-
-def strip_or_empty(val):
-    return val.strip() if val else ''
 
 
 class ExplaraAPI(object):

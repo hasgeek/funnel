@@ -32,7 +32,7 @@ class ParticipantBadgeForm(forms.Form):
 class ValidFile(object):
     def __init__(self, allowed_exts=[], message=None):
         if not message:
-            message = __(u"Please upload a valid file.")
+            message = __(u"Please upload a valid file")
         self.message = message
         self.allowed_exts = allowed_exts
 
@@ -43,9 +43,10 @@ class ValidFile(object):
 
 
 class ParticipantImportForm(forms.Form):
+    error_msg = __(u"Please upload a valid CSV file")
     participant_list = forms.FileField(__("Participant list"),
-        description=u"Expected Attributes: name, email, phone, twitter, company.",
-        validators=[forms.validators.DataRequired(u"Please upload a valid CSV file."), ValidFile(allowed_exts=['csv'], message=u"Please upload a valid CSV file.")])
+        description=u"Expected headers: fullname*, email*, phone, twitter, company, job_title, city",
+        validators=[forms.validators.DataRequired(error_msg), ValidFile(allowed_exts=['csv'], message=error_msg)])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
         get_label='title',

@@ -82,11 +82,8 @@ def make_qrcode(data):
     return qrcode_svg
 
 
-def lowercase_dict_keys(dictlist):
-    """
-    Returns the list of dicts with its keys lowercased
-    """
-    return [dict((k.lower(), v) for k, v in d.iteritems()) for d in dictlist]
+def strip_or_empty(val):
+    return val.strip() if val else ''
 
 
 def csv_to_rows(csv):
@@ -94,7 +91,14 @@ def csv_to_rows(csv):
     Converts a CSV string, in any encoding, to an array of dicts, with each dict
     representing a row in the CSV. Assumes that the CSV has a header.
     """
+    if not csv:
+        return None
     # Use Beautiful Soup's UnicodeDammit to guess encoding and attempt to convert to unicode
     csv_unicode = UnicodeDammit(csv).unicode_markup
-    rows = unicodecsv.DictReader([row for row in StringIO(csv_unicode)])
-    return lowercase_dict_keys(rows)
+    stream = StringIO(csv_unicode)
+    # unicodecsv expects a bytestream
+    rows = unicodecsv.DictReader([row for row in stream])
+    stream.close()
+    return [dict((header.strip().lower().replace(' ', '_'), strip_or_empty(value))
+            for header, value in row.iteritems())
+            for row in rows]

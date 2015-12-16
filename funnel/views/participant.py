@@ -93,14 +93,16 @@ def import_participant(profile, space):
     form.events.query = space.events
     if form.validate_on_submit():
         participant_list_csv = request.files['participant_list']
-        if participant_list_csv:
-            rows = csv_to_rows(participant_list_csv.read())
+        rows = csv_to_rows(participant_list_csv.read())
+        if participant_list_csv and rows and rows[0].get('email') and rows[0].get('fullname'):
             for row in rows:
-                fields = {'events': form.data['events'], 'fullname': row.get('name'), 'phone': row.get('phone'), 'twitter': row.get('twitter'), 'company': row.get('company')}
+                fields = {'events': form.data['events'], 'fullname': row.get('fullname'), 'phone': row.get('phone'), 'twitter': row.get('twitter'), 'company': row.get('company'), 'job_title': row.get('job_title'), 'city': row.get('city')}
                 Participant.upsert(space, row.get('email'), **fields)
             db.session.commit()
-            flash(_(u"Participants were imported from {filename}.".format(filename=participant_list_csv.filename)), 'info')
+            flash(_(u"Participants were imported from {filename}".format(filename=participant_list_csv.filename)), 'info')
             return redirect(space.url_for('admin'), code=303)
+        else:
+            form.participant_list.errors.append(_(u"Please ensure that the file has the required headers"))
     return render_form(form=form, title=_("Import Participants"), submit=_("Import"))
 
 
