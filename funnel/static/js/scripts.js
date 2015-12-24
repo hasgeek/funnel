@@ -81,10 +81,8 @@ window.Talkfunnel.ParticipantTable = {
       checkinUrl: config.checkinUrl,
       participantlistUrl: config.participantlistUrl
     };
-    if (Modernizr.localstorage) {
-      this.checkinQ = checkinQ;
-      this.cancelcheckinQ = cancelcheckinQ;
-    }
+    this.checkinQ = checkinQ;
+    this.cancelcheckinQ = cancelcheckinQ;
 
     Ractive.DEBUG = false;
 
@@ -121,11 +119,9 @@ window.Talkfunnel.ParticipantTable = {
           $('.js-loader').hide();
           $('.js-total').text(data.total_participants);
           $('.js-totalcheckin').text(data.total_checkedin);
-          if (Modernizr.localstorage) {
-            var participants = tohashMap(data.participants, "pid");
-            participantTable.checkinQ.updateQueue(participants);
-            participantTable.cancelcheckinQ.updateQueue(participants);
-          }
+          var participants = tohashMap(data.participants, "pid");
+          participantTable.checkinQ.updateQueue(participants);
+          participantTable.cancelcheckinQ.updateQueue(participants);
         });
         $('.footable').trigger('footable_redraw');
       }
