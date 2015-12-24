@@ -109,46 +109,39 @@
 
   $(document).ready(function() {
 
-    //If localStorage is available, register event handlers for check-in, cancel-checkin and abort
-    if (Modernizr.localstorage) {
-      /* Check-in scenarios:
-      1. A participant is checked-in & Internet is available. Also verify for cancel check-in and multiple participants check-in.
-      2. A participant is checked-in & Internet is down.
-      3. Abort a participant's check-in(A wrong particpant was checked in so cancel check-in immediately using abort) when Internet is available.
-      4. Abort a participant's check-in when Internet is down.
-      5. There are two check-in counters & both counters have internet: They have checked-in different participants. Verify both counters have the recent check-in status of participants.
-      6. There are two check-in counters & both counter's internet is down: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
-      7. There are two check-in counters & both counters have internet: They checked-in few same participants. Verify both counters have the recent check-in status of participants.
-      8. There are two check-in counters & both counter's internet is down: They checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
-      8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
-      9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
+    /* Check-in scenarios:
+    1. A participant is checked-in & Internet is available. Also verify for cancel check-in and multiple participants check-in.
+    2. A participant is checked-in & Internet is down.
+    3. Abort a participant's check-in(A wrong particpant was checked in so cancel check-in immediately using abort) when Internet is available.
+    4. Abort a participant's check-in when Internet is down.
+    5. There are two check-in counters & both counters have internet: They have checked-in different participants. Verify both counters have the recent check-in status of participants.
+    6. There are two check-in counters & both counter's internet is down: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    7. There are two check-in counters & both counters have internet: They checked-in few same participants. Verify both counters have the recent check-in status of participants.
+    8. There are two check-in counters & both counter's internet is down: They checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
 
-      var checkinQ = new Talkfunnel.Queue("checkin-queue");
-      var cancelcheckinQ = new Talkfunnel.Queue("cancelcheckin-queue");
+    var checkinQ = new Talkfunnel.Queue("checkin-queue");
+    var cancelcheckinQ = new Talkfunnel.Queue("cancelcheckin-queue");
 
-      Talkfunnel.ParticipantTable.init(Talkfunnel.Config, checkinQ, cancelcheckinQ);
-      Talkfunnel.ParticipantTable.update();
-      
-      Talkfunnel.ParticipantTable.handleCheckIn();
-      Talkfunnel.ParticipantTable.handleAbortCheckIn();
-      
-      //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds and batch post check-in/cancel check-in status to server
-      setInterval(function() { Talkfunnel.ParticipantTable.processQueues(); }, 8000);
+    Talkfunnel.ParticipantTable.init(Talkfunnel.Config, checkinQ, cancelcheckinQ);
+    Talkfunnel.ParticipantTable.update();
+    
+    Talkfunnel.ParticipantTable.handleCheckIn();
+    Talkfunnel.ParticipantTable.handleAbortCheckIn();
+    
+    //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds and batch post check-in/cancel check-in status to server
+    setInterval(function() { Talkfunnel.ParticipantTable.processQueues(); }, 8000);
 
-      //Get participants data from server every 15 seconds
-      setInterval(function() { Talkfunnel.ParticipantTable.update(); }, 15000);
+    //Get participants data from server every 15 seconds
+    setInterval(function() { Talkfunnel.ParticipantTable.update(); }, 15000);
 
-      //If there is no network, display a confirmation dialog when user closes/reloades the page
-      window.onbeforeunload = function() {
-        if(!navigator.onLine) {
-          return 'There is no network!';
-        }
-      };
-    }
-    else {
-      Talkfunnel.ParticipantTable.init(Talkfunnel.Config);
-      Talkfunnel.ParticipantTable.update();
-    }
+    //If there is no network, display a confirmation dialog when user closes/reloades the page
+    window.onbeforeunload = function() {
+      if(!navigator.onLine) {
+        return 'There is no network!';
+      }
+    };
 
     $('#badge_form').on("submit", function(){
       if ($('#badge_form select.field-badge_printed').val() === "") {

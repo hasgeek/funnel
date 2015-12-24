@@ -1,81 +1,79 @@
 
 window.Talkfunnel = {};
 
-if (Modernizr.localstorage) {
-  window.Talkfunnel.Store = {
-    //Local storage can only save strings, so value is converted into strings and stored.
-    add: function(key, value) {
-      return localStorage.setItem(key, JSON.stringify(value));
-    },
-    //Reads from LocalStorage.
-    read: function(key) {
-      return JSON.parse(localStorage.getItem(key));
+window.Talkfunnel.Store = {
+  //Local storage can only save strings, so value is converted into strings and stored.
+  add: function(key, value) {
+    return localStorage.setItem(key, JSON.stringify(value));
+  },
+  //Reads from LocalStorage.
+  read: function(key) {
+    return JSON.parse(localStorage.getItem(key));
+  }
+};
+
+window.Talkfunnel.Queue = function(queueName) {
+  this.queueName = queueName;
+
+  //Adds a participant_id to queue
+  this.enqueue = function(participant_id) {
+    var participantList = window.Talkfunnel.Store.read(this.queueName) || [];
+    if (participantList.indexOf(participant_id) === -1) {
+      participantList.push(participant_id);
+      return window.Talkfunnel.Store.add(this.queueName, participantList);
     }
   };
 
-  window.Talkfunnel.Queue = function(queueName) {
-    this.queueName = queueName;
+  //Reads and returns all items from queue
+  //Returns undefined when queue is empty or not defined
+  this.readAll = function() {
+    var participantList = window.Talkfunnel.Store.read(this.queueName);
+    if (participantList && participantList.length) {
+      return participantList;
+    }
+  };
 
-    //Adds a participant_id to queue
-    this.enqueue = function(participant_id) {
-      var participantList = window.Talkfunnel.Store.read(this.queueName) || [];
-      if(participantList.indexOf(participant_id) === -1) {
-        participantList.push(participant_id);
-        return window.Talkfunnel.Store.add(this.queueName, participantList);
-      }
-    };
+  //Removes item from queue and returns true
+  //Returns undefined when item not present in queue
+  this.dequeue = function(participant_id) {
+    var participantList = window.Talkfunnel.Store.read(this.queueName);
+    var index = participantList ? participantList.indexOf(participant_id) : -1;
+    if (index !== -1) {
+      //Remove item from queue and add updated queue to localStorage
+      participantList.splice(index, 1);
+      window.Talkfunnel.Store.add(this.queueName, participantList);
+      return participant_id;
+    }
+  };
 
-    //Reads and returns all items from queue
-    //Returns undefined when queue is empty or not defined
-    this.readAll = function() {
-      var participantList = window.Talkfunnel.Store.read(this.queueName);
-      if(participantList && participantList.length) {
-        return participantList;
-      }
-    };
-
-    //Removes item from queue and returns true
-    //Returns undefined when item not present in queue
-    this.dequeue = function(participant_id) {
-      var participantList = window.Talkfunnel.Store.read(this.queueName);
-      var index = participantList ? participantList.indexOf(participant_id) : -1;
-      if (index !== -1) {
-        //Remove item from queue and add updated queue to localStorage
-        participantList.splice(index, 1);
-        window.Talkfunnel.Store.add(this.queueName, participantList);
-        return participant_id;
-      }
-    };
-
-    //updateQueue: If participant in "checkin-queue" has already been checked-in then it is removed from checkin queue
-    this.updateQueue = function(participants) {
-      var queue = this;
-      var participantIDs = queue.readAll();
-      if (participantIDs) {
-        participantIDs.forEach(function(participantID) {
-          if (queue.queueName === "checkin-queue") {
-            if (participants[participantID].checked_in) {
-              //Participant has been checked-in so remove from 'checkin-queue' 
-              queue.dequeue(participantID);
-            }
-            else {
-              $('#' + participantID).find('.js-loader').show();
-            }
+  //updateQueue: If participant in "checkin-queue" has already been checked-in then it is removed from checkin queue
+  this.updateQueue = function(participants) {
+    var queue = this;
+    var participantIDs = queue.readAll();
+    if (participantIDs) {
+      participantIDs.forEach(function(participantID) {
+        if (queue.queueName === "checkin-queue") {
+          if (participants[participantID].checked_in) {
+            //Participant has been checked-in so remove from 'checkin-queue' 
+            queue.dequeue(participantID);
           }
           else {
-            if(!participants[participantID].checked_in) {
-              //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
-              queue.dequeue(participantID);
-            }
-            else {
-              $('#' + participantID).find('.js-loader').show();
-            }
+            $('#' + participantID).find('.js-loader').show();
           }
-        });
-      }
-    };
+        }
+        else {
+          if (!participants[participantID].checked_in) {
+            //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
+            queue.dequeue(participantID);
+          }
+          else {
+            $('#' + participantID).find('.js-loader').show();
+          }
+        }
+      });
+    }
   };
-}
+};
 
 window.Talkfunnel.ParticipantTable = {
   init: function(config, checkinQ, cancelcheckinQ) {
@@ -179,7 +177,7 @@ window.Talkfunnel.ParticipantTable = {
     var participantTable = this;
 
     var formValues = $.param({"pid":participantIDs}, true);
-    if(action) {
+    if (action) {
       formValues += "&checkin=t";
     }
     formValues += "&csrf_token=" + $("meta[name='csrf-token']").attr('content');
