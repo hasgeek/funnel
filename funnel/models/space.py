@@ -64,6 +64,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     parent_space_id = db.Column(None, db.ForeignKey('proposal_space.id', ondelete='SET NULL'), nullable=True)
     parent_space = db.relationship('ProposalSpace', remote_side='ProposalSpace.id', backref='subspaces')
+    inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
