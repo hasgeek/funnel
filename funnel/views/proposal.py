@@ -101,7 +101,10 @@ def proposal_data_flat(proposal, groups=[]):
 def proposal_new(profile, space):
     form = ProposalForm(model=Proposal, parent=space)
     del form.session_type  # We don't use this anymore
-    form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    if space.inherit_sections:
+        form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    else:
+        form.section.query = ProposalSpaceSection.query.filter(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
@@ -135,7 +138,10 @@ def proposal_edit(profile, space, proposal):
     form = ProposalForm(obj=proposal.formdata, model=Proposal, parent=space)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
-    form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    if space.inherit_sections:
+        form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    else:
+        form.section.query = ProposalSpaceSection.query.filter(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section

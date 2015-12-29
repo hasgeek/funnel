@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm', 'TicketClientForm']
+__all__ = ['ProposalSpaceForm', 'ProposalSubspaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm', 'TicketClientForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -73,6 +73,10 @@ class ProposalSpaceForm(forms.Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+
+class ProposalSubspaceForm(ProposalSpaceForm):
+    inherit_sections = forms.BooleanField(__("Inherit sections from parent space?"), default=True)
 
 
 class RsvpForm(forms.Form):
