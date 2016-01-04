@@ -17,9 +17,13 @@
       <h3>{{event.title}}</h3>
     </div>
     <div class='col-lg-9 col-md-6 col-sm-8 col-xs-6'>
-      <h3 class='pull-right'>
-        Checked In: <span class="js-totalcheckin"></span> |
-        Total: <span class="js-total"></span>
+      <h3 class='pull-right' id="participants-count">
+        {% raw %}
+        <script id='participants-count-template' type='text/ractive'>
+          Checked In: <span class="js-totalcheckin">{{ total_checkedin }}</span> |
+          Total: <span class="js-total">{{ total_participants }}</span>
+        </script>
+        {% endraw %}
       </h3>
     </div>
   </div>
@@ -99,6 +103,7 @@
   </table>
 {% endblock %}
 {% block footerscripts %}
+<script type="text/javascript" src="{{ url_for("static", filename="js/modernizr.min.js") }}"></script>
 <script>
   window.Talkfunnel.Config = {
     badgeUrl: "{{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
@@ -121,8 +126,9 @@
     8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
     9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
 
-    var checkinQ = new Talkfunnel.Queue("checkin-queue");
-    var cancelcheckinQ = new Talkfunnel.Queue("cancelcheckin-queue");
+    var eventName = "{{ space.name }}" + "-" + "{{event.title}}".replace(/ /g,'-');
+    var checkinQ = new Talkfunnel.Queue(eventName + "-" + "checkin-queue");
+    var cancelcheckinQ = new Talkfunnel.Queue(eventName + "-" + "cancelcheckin-queue");
 
     Talkfunnel.ParticipantTable.init(Talkfunnel.Config, checkinQ, cancelcheckinQ);
     Talkfunnel.ParticipantTable.update();

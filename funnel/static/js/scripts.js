@@ -52,9 +52,9 @@ window.Talkfunnel.Queue = function(queueName) {
     var participantIDs = queue.readAll();
     if (participantIDs) {
       participantIDs.forEach(function(participantID) {
-        if (queue.queueName === "checkin-queue") {
-          if (participants[participantID].checked_in) {
-            //Participant has been checked-in so remove from 'checkin-queue' 
+        if (queue.queueName.indexOf("cancelcheckin-queue") > -1) {
+          if (!participants[participantID].checked_in) {
+            //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue'
             queue.dequeue(participantID);
           }
           else {
@@ -62,8 +62,8 @@ window.Talkfunnel.Queue = function(queueName) {
           }
         }
         else {
-          if (!participants[participantID].checked_in) {
-            //Participant's check-in has been cancelled so remove from 'cancelcheckin-queue' 
+          if (participants[participantID].checked_in) {
+            //Participant has been checked-in so remove from 'checkin-queue'
             queue.dequeue(participantID);
           }
           else {
@@ -85,6 +85,15 @@ window.Talkfunnel.ParticipantTable = {
     this.cancelcheckinQ = cancelcheckinQ;
 
     Ractive.DEBUG = false;
+
+    this.participantTableCount = new Ractive({
+      el: '#participants-count',
+      template: '#participants-count-template',
+      data: {
+        total_participants: '',
+        total_checkedin: ''
+      }
+    });
 
     this.participantTableContent = new Ractive({
       el: '#participants-table-content',
@@ -115,10 +124,12 @@ window.Talkfunnel.ParticipantTable = {
       timeout: 5000,
       dataType: 'json',
       success: function(data) {
+        participantTable.participantTableCount.set({
+          total_participants: data.total_participants,
+          total_checkedin: data.total_checkedin
+        });
         participantTable.participantTableContent.set('participants', data.participants).then(function() {
           $('.js-loader').hide();
-          $('.js-total').text(data.total_participants);
-          $('.js-totalcheckin').text(data.total_checkedin);
           var participants = tohashMap(data.participants, "pid");
           participantTable.checkinQ.updateQueue(participants);
           participantTable.cancelcheckinQ.updateQueue(participants);
