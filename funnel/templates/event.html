@@ -103,7 +103,6 @@
   </table>
 {% endblock %}
 {% block footerscripts %}
-<script type="text/javascript" src="{{ url_for("static", filename="js/modernizr.min.js") }}"></script>
 <script>
   window.Talkfunnel.Config = {
     badgeUrl: "{{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
