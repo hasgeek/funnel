@@ -93,11 +93,11 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
     objective = MarkdownColumn('objective', nullable=True)
-    partA = db.synonym('objective')
+    part_a = db.synonym('objective')
     session_type = db.Column(db.Unicode(40), nullable=True)
     technical_level = db.Column(db.Unicode(40), nullable=True)
     description = MarkdownColumn('description', nullable=True)
-    partB = db.synonym('description')
+    part_b = db.synonym('description')
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(db.Unicode(250), nullable=True)
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)

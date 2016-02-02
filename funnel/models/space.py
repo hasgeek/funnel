@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 from flask import url_for
 from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn, JsonDict
 from .user import User, Team
@@ -22,27 +21,6 @@ class SPACESTATUS:
     FEEDBACK = 4
     CLOSED = 5
     WITHDRAWN = 6
-
-
-def labels_default():
-    """
-    Returns the default label configuration for customizable fields.
-
-    Currently, the 'partA' and 'partB' fields in 'Proposal'
-    are allowed to be customized per proposal space.
-    """
-    return {
-        "proposal": {
-            "partA": {
-                "title": "Abstract",
-                "hint": "Give us a brief description of your talk, key takeaways for the audience and the intended audience."
-            },
-            "partB": {
-                "title": "Outline",
-                "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or text description."
-            }
-        }
-    }
 
 
 # --- Models ------------------------------------------------------------------
@@ -87,7 +65,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     parent_space_id = db.Column(None, db.ForeignKey('proposal_space.id', ondelete='SET NULL'), nullable=True)
     parent_space = db.relationship('ProposalSpace', remote_side='ProposalSpace.id', backref='subspaces')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
-    labels = db.Column(JsonDict, nullable=False, server_default=json.dumps(labels_default()))
+    labels = db.Column(JsonDict, nullable=False)
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
@@ -153,6 +131,31 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     @cached_property
     def location_geonameid(self):
         return geonameid_from_location(self.datelocation)
+
+    def set_labels(self, value=None):
+        """
+        Sets 'labels' with the provided JSON, else with a default configuration
+        for fields with customizable labels.
+
+        Currently, the 'part_a' and 'part_b' fields in 'Proposal'
+        are allowed to be customized per proposal space.
+        """
+        if value and type(value)is dict:
+            self.labels = value
+        else:
+            self.labels = {
+                "proposal": {
+                    "part_a": {
+                        "title": "Abstract",
+                        "hint": "Give us a brief description of your talk, key takeaways for the audience and the intended audience."
+                    },
+                    "part_b": {
+                        "title": "Outline",
+                        "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or text description."
+                    }
+                }
+            }
+
 
     def user_in_group(self, user, group):
         for grp in self.usergroups:

@@ -1,9 +1,7 @@
-import json
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql import table, column
 from coaster.sqlalchemy import JsonDict
-from funnel.models.space import labels_default
 
 """add labels to proposal space
 
@@ -20,9 +18,9 @@ down_revision = '3b189f2e5c56'
 
 def upgrade():
     proposal_space = table('proposal_space', column('labels'))
-    op.add_column(u'proposal_space', sa.Column('labels', JsonDict(), server_default=json.dumps(labels_default()), nullable=False))
+    op.add_column(u'proposal_space', sa.Column('labels', JsonDict()))
     op.execute(
-      proposal_space.update().values({'labels': '{"proposal": {"partA": {"title": "Objective", "hint": "What is the expected benefit for someone attending this?"}, "partB": {"title": "Description", "hint": "A detailed description of the session."}}}'})
+      proposal_space.update().values({'labels': '{"proposal": {"part_a": {"title": "Objective", "hint": "What is the expected benefit for someone attending this?"}, "part_b": {"title": "Description", "hint": "A detailed description of the session."}}}'})
     )
 
 
