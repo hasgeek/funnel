@@ -140,7 +140,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         Currently, the 'part_a' and 'part_b' fields in 'Proposal'
         are allowed to be customized per proposal space.
         """
-        if value and type(value) is dict:
+        if value and isinstance(value, dict):
             self.labels = value
         else:
             self.labels = {
