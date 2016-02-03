@@ -132,6 +132,15 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     def location_geonameid(self):
         return geonameid_from_location(self.datelocation)
 
+    @property
+    def proposal_part_a(self):
+        return self.labels.get('proposal', {}).get('part_a', {})
+
+    @property
+    def proposal_part_b(self):
+        return self.labels.get('proposal', {}).get('part_b', {})
+
+
     def set_labels(self, value=None):
         """
         Sets 'labels' with the provided JSON, else with a default configuration

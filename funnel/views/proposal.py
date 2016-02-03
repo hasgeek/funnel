@@ -296,7 +296,9 @@ def proposal_view(profile, space, proposal):
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
-        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform)
+        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform,
+        part_a=space.proposal_part_a.get('title', 'Objective'),
+        part_b=space.proposal_part_b.get('title', 'Description'))
 
 
 @app.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')

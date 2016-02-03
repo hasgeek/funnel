@@ -63,10 +63,14 @@ class ProposalForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ProposalForm, self).__init__(*args, **kwargs)
         space = kwargs.get('parent')
-        self.objective.label.text = space.labels.get('proposal', {}).get('part_a', {}).get('title', {})
-        self.objective.description = space.labels.get('proposal', {}).get('part_a', {}).get('hint', {})
-        self.description.label.text = space.labels.get('proposal', {}).get('part_b', {}).get('title', {})
-        self.description.description = space.labels.get('proposal', {}).get('part_a', {}).get('hint', {})
+        if space.proposal_part_a.get('title'):
+            self.objective.label.text = space.proposal_part_a.get('title')
+        if space.proposal_part_a.get('hint'):
+            self.objective.description = space.proposal_part_a.get('hint')
+        if space.proposal_part_b.get('title'):
+            self.description.label.text = space.proposal_part_b.get('title')
+        if space.proposal_part_b.get('hint'):
+            self.description.description = space.proposal_part_b.get('hint')
 
 
 
