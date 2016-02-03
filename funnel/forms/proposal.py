@@ -20,7 +20,7 @@ class ProposalForm(forms.Form):
         description=__("The title of your session"))
     section = QuerySelectField(__("Section"), get_label='title', validators=[forms.validators.DataRequired()],
         widget=forms.ListWidget(prefix_label=False), option_widget=forms.RadioInput())
-    part_a = forms.MarkdownField(__("Objective"), validators=[forms.validators.DataRequired()],
+    objective = forms.MarkdownField(__("Objective"), validators=[forms.validators.DataRequired()],
         description=__("What is the expected benefit for someone attending this?"))
     session_type = forms.RadioField(__("Session type"), validators=[forms.validators.DataRequired()], choices=[
         ('Lecture', __("Lecture")),
@@ -35,7 +35,7 @@ class ProposalForm(forms.Form):
         ('Intermediate', __("Intermediate")),
         ('Advanced', __("Advanced")),
         ])
-    part_b = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
+    description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("A detailed description of the session"))
     requirements = forms.MarkdownField(__("Requirements"),
         description=__("For workshops, what must participants bring to the session?"))
@@ -63,10 +63,10 @@ class ProposalForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ProposalForm, self).__init__(*args, **kwargs)
         space = kwargs.get('parent')
-        self.part_a.label.text = space.labels.get('proposal', {}).get('part_a', {}).get('title', {})
-        self.part_a.description = space.labels.get('proposal', {}).get('part_a', {}).get('hint', {})
-        self.part_b.label.text = space.labels.get('proposal', {}).get('part_b', {}).get('title', {})
-        self.part_b.description = space.labels.get('proposal', {}).get('part_a', {}).get('hint', {})
+        self.objective.label.text = space.labels.get('proposal', {}).get('part_a', {}).get('title', {})
+        self.objective.description = space.labels.get('proposal', {}).get('part_a', {}).get('hint', {})
+        self.description.label.text = space.labels.get('proposal', {}).get('part_b', {}).get('title', {})
+        self.description.description = space.labels.get('proposal', {}).get('part_a', {}).get('hint', {})
 
 
 
