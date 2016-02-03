@@ -74,6 +74,8 @@ def space_new(profile):
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user, profile=profile)
         form.populate_obj(space)
+        # Set labels with default configuration
+        space.set_labels()
         db.session.add(space)
         db.session.commit()
         flash(_("Your new space has been created"), 'info')
@@ -143,7 +145,6 @@ def space_edit(profile, space):
     else:
         form = ProposalSpaceForm(obj=space, model=ProposalSpace)
     form.parent_space.query = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.id != space.id, ProposalSpace.parent_space == None)
-
     if request.method == 'GET' and not space.timezone:
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
