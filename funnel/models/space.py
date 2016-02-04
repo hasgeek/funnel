@@ -209,7 +209,13 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'new-ticket-client',
                     'edit-ticket-client',
                     'edit-event',
-                    'admin'
+                    'admin',
+                    'checkin-event',
+                    'view-event',
+                    'view-ticket-type',
+                    'edit-participant',
+                    'view-participant',
+                    'new-participant'
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
