@@ -21,6 +21,7 @@ def on_update(mapper, connection, target):
 
 from trello import TrelloClient
 from flask import current_app as app
+from funnel import db
 from baseframe import __
 
 api_key = app.config.get('TRELLO_API_KEY')
@@ -31,47 +32,57 @@ token_secret = app.config.get('TRELLO_SECRET')
 client = TrelloClient(api_key=api_key, api_secret=api_secret, token=token, token_secret=token_secret)
 
 
-def create_or_update_proposal_card(proposal):
+def on_proposal_create_or_update(proposal):
     """
-    Adds a Trello card in a list and board for a proposal if possible, updates it if it exists already.
     """
     space = proposal.space
     # Is there a board associated with this proposal's space?
     if space.trello_board_id:
         tboard = client.get_board(proposal.space.trello_board_id)
 
-        # Is there a list for the space's updates? Else create it.
+        # Is there a list for the space's updates? If not, create it.
         if space.trello_list_id is None:
             tlist = tboard.add_list(__(u"Talkfunnel"))
             space.trello_list_id = tlist.id
+            db.session.add(space)
+            add_missing_proposals_to_list()
         else:
             tlist = tboard.get_list(space.trello_list_id)
-
-        # Is there a card for this proposal? Else create one.
-        if proposal.trello_card_id is None:
-            tcard = tlist.add_card(name=proposal.title, desc=make_card_summary(proposal))
-            proposal.trello_card_id = tcard.id
-        # Get card associated with this proposal
-        else:
-            tcard = client.get_card(proposal.trello_card_id)
-            if tcard.name is not proposal.title:
-                tcard.set_name(proposal.title)
-                tcard.comment(text=__(u"Title updated"))
-            if tcard.desc is not make_card_summary(proposal):
-                tcard.set_decription(make_card_summary(proposal))
-                tcard.comment(text=__(u"Updated decription"))
-            tcard.comment(text=make_changelog(proposal))
+        create_or_update_proposal_card(proposal)
 
     else:
         pass
 
 
+def create_or_update_proposal_card(proposal):
+    """
+    Adds a Trello card in a list and board for a proposal if possible, updates it if it exists already.
+    """
+    # Is there a card for this proposal? If not, create one.
+    if proposal.trello_card_id is None:
+        tboard = client.get_board(proposal.space.trello_board_id)
+        tlist = tboard.add_list(__(u"Talkfunnel"))
+        tcard = tlist.add_card(name=proposal.title, desc=make_card_summary(proposal))
+        proposal.trello_card_id = tcard.id
+        db.session.add(proposal)
+    else:
+        # Get card associated with this proposal
+        tcard = client.get_card(proposal.trello_card_id)
+        if tcard.name is not proposal.title:
+            tcard.set_name(proposal.title)
+            tcard.comment(text=__(u"Title updated"))
+        if tcard.desc is not make_card_summary(proposal):
+            tcard.set_decription(make_card_summary(proposal))
+            tcard.comment(text=__(u"Description updated"))
+        tcard.comment(text=make_changelog(proposal))
+
+
 def make_changelog(proposal):
     """
-    Makes a changelog of what was changed in the proposal
+    Makes a changelog of what has changed in the proposal
     """
     # TODO: Make verbose changelog
-    return "Proposal has been updated"
+    return __(u"Proposal has been updated")
 
 
 def make_card_summary(proposal):
