@@ -115,6 +115,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     # Additional form data
     data = db.Column(JsonDict, nullable=False, server_default='{}')
+    external_config = db.Column(JsonDict, nullable=False, server_default='{}')
 
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
 
@@ -185,6 +186,23 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     @property
     def status_title(self):
         return PROPOSALSTATUS[self.status]
+
+    @property
+    def trello_card_id(self):
+        return self.external_config.get('trello', {}).get('card_id', '')
+
+    @trello_card_id.setter
+    def trello_card_id(self, id):
+        if self.external_config.get('trello', None):
+            self.external_config.get('trello', {}).update({
+                'card_id': id
+            })
+        else:
+            self.external_config.update({
+                'trello': {
+                    'card_id': id
+                }
+            })
 
     @hybrid_property
     def confirmed(self):

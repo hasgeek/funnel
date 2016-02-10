@@ -20,51 +20,75 @@ def on_update(mapper, connection, target):
 """
 
 from trello import TrelloClient
-from flask import current_app as app
-from funnel import db
+from funnel import app
+from funnel.models import db, Proposal
 from baseframe import __
 
-api_key = app.config.get('TRELLO_API_KEY')
-api_secret = app.config.get('TRELLO_API_SECRET')
-token = app.config.get('TRELLO_TOKEN')
-token_secret = app.config.get('TRELLO_SECRET')
 
-client = TrelloClient(api_key=api_key, api_secret=api_secret, token=token, token_secret=token_secret)
-
-
-def on_proposal_create_or_update(proposal):
+def on_proposal_create_or_update(proposalid):
     """
     """
-    space = proposal.space
-    # Is there a board associated with this proposal's space?
+    with app.test_request_context():
+        proposal = Proposal.query.get(proposalid)
+        space = proposal.proposal_space
+        # Is there a board associated with this proposal's space?
+        if space.trello_board_id:
+            tlist = get_or_create_trello_list(space)
+            create_or_update_proposal_card(proposalid, tlist=tlist)
+
+        else:
+            pass
+
+
+def get_or_create_trello_list(space):
+    """
+    Returns the trello list object for a given space. Creates it if not available
+    """
+    api_key = app.config.get('TRELLO_API_KEY')
+    api_secret = app.config.get('TRELLO_API_SECRET')
+    token = app.config.get('TRELLO_TOKEN')
+    token_secret = app.config.get('TRELLO_SECRET')
+
+    client = TrelloClient(api_key=api_key, api_secret=api_secret, token=token, token_secret=token_secret)
+
+    tlist = None
     if space.trello_board_id:
-        tboard = client.get_board(proposal.space.trello_board_id)
-
+        tboard = client.get_board(space.trello_board_id)
         # Is there a list for the space's updates? If not, create it.
-        if space.trello_list_id is None:
-            tlist = tboard.add_list(__(u"Talkfunnel"))
+        try:
+            tlist = tboard.get_list(space.trello_list_id)
+        except:
+            tlist = tboard.add_list("Talkfunnel")
             space.trello_list_id = tlist.id
             db.session.add(space)
-            add_missing_proposals_to_list()
-        else:
-            tlist = tboard.get_list(space.trello_list_id)
-        create_or_update_proposal_card(proposal)
-
-    else:
-        pass
+            db.session.commit()
+            # add_missing_proposals_to_list()
+    return tlist
 
 
-def create_or_update_proposal_card(proposal):
+def create_or_update_proposal_card(proposalid, tlist=None):
     """
     Adds a Trello card in a list and board for a proposal if possible, updates it if it exists already.
     """
+    api_key = app.config.get('TRELLO_API_KEY')
+    api_secret = app.config.get('TRELLO_API_SECRET')
+    token = app.config.get('TRELLO_TOKEN')
+    token_secret = app.config.get('TRELLO_SECRET')
+
+    client = TrelloClient(api_key=api_key, api_secret=api_secret, token=token, token_secret=token_secret)
+
+    proposal = Proposal.query.get(proposalid)
+    space = proposal.proposal_space
     # Is there a card for this proposal? If not, create one.
-    if proposal.trello_card_id is None:
-        tboard = client.get_board(proposal.space.trello_board_id)
-        tlist = tboard.add_list(__(u"Talkfunnel"))
-        tcard = tlist.add_card(name=proposal.title, desc=make_card_summary(proposal))
-        proposal.trello_card_id = tcard.id
-        db.session.add(proposal)
+
+    if proposal.trello_card_id == '':
+        if tlist is None:
+            tlist = get_or_create_trello_list(space)
+        if tlist:
+            tcard = tlist.add_card(name=proposal.title, desc=make_card_summary(proposal))
+            proposal.trello_card_id = tcard.id
+            db.session.add(proposal)
+            db.session.commit()
     else:
         # Get card associated with this proposal
         tcard = client.get_card(proposal.trello_card_id)
@@ -81,7 +105,7 @@ def make_changelog(proposal):
     """
     Makes a changelog of what has changed in the proposal
     """
-    # TODO: Make verbose changelog
+    # TODO: Make a more verbose changelog
     return __(u"Proposal has been updated")
 
 
@@ -89,7 +113,7 @@ def make_card_summary(proposal):
     """
     Makes a readable summary of the proposal
     """
-    return proposal.part_a+"\n\n"+proposal.part_b
+    return proposal.description_text+"\n\n"+proposal.objective_text
 
 
 def add_missing_proposals_to_list(space):

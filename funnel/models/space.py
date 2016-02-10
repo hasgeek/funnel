@@ -66,6 +66,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     parent_space = db.relationship('ProposalSpace', remote_side='ProposalSpace.id', backref='subspaces')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
+    external_config = db.Column(JsonDict, nullable=False, server_default='{}')
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
@@ -76,6 +77,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         super(ProposalSpace, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSALSPACE)
+        self.labels = {}
+        self.external_config = {}
 
     def __repr__(self):
         return '<ProposalSpace %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
@@ -140,6 +143,39 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     def proposal_part_b(self):
         return self.labels.get('proposal', {}).get('part_b', {})
 
+    @property
+    def trello_board_id(self):
+        return self.external_config.get('trello', {}).get('board_id', '')
+
+    @property
+    def trello_list_id(self):
+        return self.external_config.get('trello', {}).get('list_id', '')
+
+    @trello_board_id.setter
+    def trello_board_id(self, id):
+        if self.external_config.get('trello', None):
+            self.external_config.get('trello', {}).update({
+                'board_id': id
+            })
+        else:
+            self.external_config.update({
+                'trello': {
+                    'board_id': id
+                }
+            })
+
+    @trello_list_id.setter
+    def trello_list_id(self, id):
+        if self.external_config.get('trello', None):
+            self.external_config.get('trello', {}).update({
+                'list_id': id
+            })
+        else:
+            self.external_config.update({
+                'trello': {
+                    'list_id': id
+                }
+            })
 
     def set_labels(self, value=None):
         """
@@ -164,7 +200,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     }
                 }
             }
-
 
     def user_in_group(self, user, group):
         for grp in self.usergroups:

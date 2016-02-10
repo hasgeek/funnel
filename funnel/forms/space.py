@@ -66,6 +66,9 @@ class ProposalSpaceForm(forms.Form):
         description=__(u"Eg: Explara, Instamojo"),
         validators=[forms.validators.Optional()])
 
+    trello_board_id = forms.StringField(__("ID of Trello board"), validators=[forms.validators.Optional()],
+        description=__("The ID of the Trello board to send proposal updates to"))
+
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
             raise forms.ValidationError(_("End date cannot be before start date"))

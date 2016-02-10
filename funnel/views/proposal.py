@@ -16,6 +16,14 @@ from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm
+from ..extapi import on_proposal_create_or_update
+
+from rq import Queue
+from redis import Redis
+
+
+redis_connection = Redis()
+funnelq = Queue('funnel', connection=redis_connection)
 
 proposal_headers = [
     'id',
@@ -120,6 +128,8 @@ def proposal_new(profile, space):
         db.session.add(proposal)
         db.session.commit()
         flash(_("Your new session has been saved"), 'info')
+        # funnelq.enqueue(on_proposal_create_or_update, proposal.id)
+        on_proposal_create_or_update(proposal.id)
         return redirect(proposal.url_for(), code=303)
     return render_form(form=form, title=_("Submit a session proposal"),
         submit=_("Submit proposal"),
@@ -153,6 +163,7 @@ def proposal_edit(profile, space, proposal):
         proposal.edited_at = datetime.utcnow()
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')
+        funnelq.enqueue(on_proposal_create_or_update, proposal.id)
         return redirect(proposal.url_for(), code=303)
     return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
         message=Markup(

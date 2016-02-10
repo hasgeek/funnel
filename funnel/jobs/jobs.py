@@ -1,3 +1,4 @@
+from rq import Queue
 from ..models import (db, TicketClient, SyncTicket)
 from ..extapi.explara import ExplaraAPI
 from funnel import app
