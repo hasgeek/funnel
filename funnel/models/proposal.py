@@ -133,6 +133,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         super(Proposal, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSAL)
         self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
+        self.external_config = {}
 
     def __repr__(self):
         return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
@@ -189,20 +190,11 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     @property
     def trello_card_id(self):
-        return self.external_config.get('trello', {}).get('card_id', '')
+        return self.external_config.get('trello_card_id', '')
 
     @trello_card_id.setter
     def trello_card_id(self, id):
-        if self.external_config.get('trello', None):
-            self.external_config.get('trello', {}).update({
-                'card_id': id
-            })
-        else:
-            self.external_config.update({
-                'trello': {
-                    'card_id': id
-                }
-            })
+        self.external_config['trello_card_id'] = id
 
     @hybrid_property
     def confirmed(self):

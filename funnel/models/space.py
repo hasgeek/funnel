@@ -145,37 +145,19 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     @property
     def trello_board_id(self):
-        return self.external_config.get('trello', {}).get('board_id', '')
+        return self.external_config.get('trello_board_id', '')
 
     @property
     def trello_list_id(self):
-        return self.external_config.get('trello', {}).get('list_id', '')
+        return self.external_config.get('trello_list_id', '')
 
     @trello_board_id.setter
     def trello_board_id(self, id):
-        if self.external_config.get('trello', None):
-            self.external_config.get('trello', {}).update({
-                'board_id': id
-            })
-        else:
-            self.external_config.update({
-                'trello': {
-                    'board_id': id
-                }
-            })
+        self.external_config['trello_board_id'] = id
 
     @trello_list_id.setter
     def trello_list_id(self, id):
-        if self.external_config.get('trello', None):
-            self.external_config.get('trello', {}).update({
-                'list_id': id
-            })
-        else:
-            self.external_config.update({
-                'trello': {
-                    'list_id': id
-                }
-            })
+        self.external_config['trello_list_id'] = id
 
     def set_labels(self, value=None):
         """

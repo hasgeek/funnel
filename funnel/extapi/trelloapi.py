@@ -22,7 +22,6 @@ def on_update(mapper, connection, target):
 from trello import TrelloClient
 from funnel import app
 from funnel.models import db, Proposal
-from baseframe import __
 
 
 def on_proposal_create_or_update(proposalid):
@@ -55,11 +54,15 @@ def get_or_create_trello_list(space):
     if space.trello_board_id:
         tboard = client.get_board(space.trello_board_id)
         # Is there a list for the space's updates? If not, create it.
-        try:
-            tlist = tboard.get_list(space.trello_list_id)
-        except:
+        if space.trello_list_id == '':
             tlist = tboard.add_list("Talkfunnel")
             space.trello_list_id = tlist.id
+        else:
+            try:
+                tlist = tboard.get_list(space.trello_list_id)
+            except:
+                tlist = tboard.add_list("Talkfunnel")
+                space.trello_list_id = tlist.id
             db.session.add(space)
             db.session.commit()
             # add_missing_proposals_to_list()
@@ -79,8 +82,8 @@ def create_or_update_proposal_card(proposalid, tlist=None):
 
     proposal = Proposal.query.get(proposalid)
     space = proposal.proposal_space
-    # Is there a card for this proposal? If not, create one.
 
+    # Is there a card for this proposal? If not, create one.
     if proposal.trello_card_id == '':
         if tlist is None:
             tlist = get_or_create_trello_list(space)
@@ -94,11 +97,9 @@ def create_or_update_proposal_card(proposalid, tlist=None):
         tcard = client.get_card(proposal.trello_card_id)
         if tcard.name is not proposal.title:
             tcard.set_name(proposal.title)
-            tcard.comment(text=__(u"Title updated"))
         if tcard.desc is not make_card_summary(proposal):
-            tcard.set_decription(make_card_summary(proposal))
-            tcard.comment(text=__(u"Description updated"))
-        tcard.comment(text=make_changelog(proposal))
+            tcard.set_description(make_card_summary(proposal))
+        tcard.comment(comment_text=make_changelog(proposal))
 
 
 def make_changelog(proposal):
@@ -106,14 +107,15 @@ def make_changelog(proposal):
     Makes a changelog of what has changed in the proposal
     """
     # TODO: Make a more verbose changelog
-    return __(u"Proposal has been updated")
+    return "Proposal has been updated"
 
 
 def make_card_summary(proposal):
     """
     Makes a readable summary of the proposal
     """
-    return proposal.description_text+"\n\n"+proposal.objective_text
+    return """##{speaker}##\n_{section}_\n{description}\n\n{objective}\n\n-------------------------------\n\n{url}
+    """.format(speaker=proposal.speaker.pickername if proposal.speaker else None, section=proposal.section.title if proposal.section else None, description=proposal.description_text, objective=proposal.objective_text, url=proposal.url_for(_external=True))
 
 
 def add_missing_proposals_to_list(space):

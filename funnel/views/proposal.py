@@ -128,8 +128,7 @@ def proposal_new(profile, space):
         db.session.add(proposal)
         db.session.commit()
         flash(_("Your new session has been saved"), 'info')
-        # funnelq.enqueue(on_proposal_create_or_update, proposal.id)
-        on_proposal_create_or_update(proposal.id)
+        funnelq.enqueue(on_proposal_create_or_update, proposal.id)
         return redirect(proposal.url_for(), code=303)
     return render_form(form=form, title=_("Submit a session proposal"),
         submit=_("Submit proposal"),
