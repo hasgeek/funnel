@@ -48,7 +48,6 @@ def new_event(profile, space):
         form.populate_obj(event)
         event.make_name()
         try:
-            # db.session().add_and_commit(event)
             db.session.add(event)
             db.session.commit()
         except IntegrityError:
@@ -101,7 +100,8 @@ def new_ticket_type(profile, space):
         form.populate_obj(ticket_type)
         ticket_type.make_name()
         try:
-            db.session().add_and_commit(ticket_type)
+            db.session.add(ticket_type)
+            db.session.commit()
         except IntegrityError:
             db.session.rollback()
             flash(_(u"This ticket type already exists."), 'info')
@@ -139,8 +139,6 @@ def new_ticket_client(profile, space):
         ticket_client = TicketClient(proposal_space=space)
         form.populate_obj(ticket_client)
         try:
-            # TODO move to add_and_commit, but add_and_commit fails to save
-            # db.session().add_and_commit(ticket_client)
             db.session.add(ticket_client)
             db.session.commit()
         except IntegrityError:
