@@ -192,7 +192,12 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     @cached_property
     def has_outstation_speaker(self):
-        return self.proposal_space.location_geonameid.isdisjoint(geonameid_from_location(self.location))
+        """
+        Returns True iff the location can be geocoded and is found to be different
+        compared to the proposal space's location.
+        """
+        geonameid = geonameid_from_location(self.location)
+        return bool(geonameid) and self.proposal_space.location_geonameid.isdisjoint(geonameid)
 
     def getnext(self):
         return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
