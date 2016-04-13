@@ -28,7 +28,7 @@ def admin(profile, space):
     csrf_form = forms.Form()
     if csrf_form.validate_on_submit():
         for ticket_client in space.ticket_clients:
-            if ticket_client and ticket_client.name == u'explara':
+            if ticket_client and ticket_client.name.lower() in [u'explara', u'boxoffice']:
                 funnelq.enqueue(import_tickets, ticket_client.id)
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(space.url_for('admin'), code=303)
