@@ -12,13 +12,11 @@ def strip_or_empty(val):
 
 class Boxoffice(object):
     """
-    An interface that enables data retrieval from Explara.
-    Reference : https://developers.explara.com/api-document
+    An interface that enables data retrieval from Boxoffice.
     """
     def __init__(self, access_token):
         self.access_token = access_token
-        # self.base_url = 'https://boxoffice.hasgeek.com/api/{0}'
-        self.base_url = 'http://shreyas-wlan.dev:6500'
+        self.base_url = 'https://boxoffice.hasgeek.com/api/1'
 
     def url_for(self, endpoint):
         return self.base_url.format(endpoint)
@@ -39,7 +37,7 @@ class Boxoffice(object):
                         'phone': strip_or_empty(line_item.get('assignee', {}).get('phone')),
                         'twitter': extract_twitter_handle(strip_or_empty(line_item.get('assignee', {}).get('twitter'))),
                         'company': strip_or_empty(line_item.get('assignee', {}).get('company')),
-                        'company': strip_or_empty(line_item.get('assignee', {}).get('city'), ''),
+                        'city': strip_or_empty(line_item.get('assignee', {}).get('city')),
                         'ticket_no': strip_or_empty(line_item.get('line_item_seq')),
                         'ticket_type': strip_or_empty(line_item.get('item', {}).get('title')),
                         'order_no': strip_or_empty(order.get('invoice_no')),
