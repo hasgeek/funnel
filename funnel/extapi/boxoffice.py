@@ -22,7 +22,7 @@ class Boxoffice(object):
         return self.base_url.format(endpoint)
 
     def get_orders(self, ic):
-        resp = requests.get(self.base_url + '/ic/{ic}/orders?access_token={token}'.format(ic=ic, token='xxx'))
+        resp = requests.get(self.base_url + '/ic/{ic}/orders?access_token={token}'.format(ic=ic, token=self.access_token))
         return resp.json().get('orders')
 
     def get_tickets(self, ic):
