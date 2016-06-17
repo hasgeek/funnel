@@ -10,7 +10,7 @@ from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     PROPOSALSTATUS, Rsvp, RSVP_STATUS)
-from ..forms import ProposalSpaceForm, RsvpForm
+from ..forms import ProposalSpaceForm, ProposalSubspaceForm, RsvpForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
@@ -68,12 +68,14 @@ def space_form_test(profile):
     permission='new-space')
 def space_new(profile):
     form = ProposalSpaceForm(model=ProposalSpace, parent=profile)
-    form.parent_space.query = profile.spaces
+    form.parent_space.query_factory = lambda: profile.spaces
     if request.method == 'GET':
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user, profile=profile)
         form.populate_obj(space)
+        # Set labels with default configuration
+        space.set_labels()
         db.session.add(space)
         db.session.commit()
         flash(_("Your new space has been created"), 'info')
@@ -138,8 +140,11 @@ def space_view_csv(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def space_edit(profile, space):
-    form = ProposalSpaceForm(obj=space, model=ProposalSpace)
-    form.parent_space.query = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.id != space.id)
+    if space.parent_space:
+        form = ProposalSubspaceForm(obj=space, model=ProposalSpace)
+    else:
+        form = ProposalSpaceForm(obj=space, model=ProposalSpace)
+    form.parent_space.query = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.id != space.id, ProposalSpace.parent_space == None)
     if request.method == 'GET' and not space.timezone:
         form.timezone.data = app.config.get('TIMEZONE')
     if form.validate_on_submit():

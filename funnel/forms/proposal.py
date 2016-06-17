@@ -60,6 +60,19 @@ class ProposalForm(forms.Form):
     location = forms.StringField(__("Your location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         description=__("Your location, to help plan for your travel if required"))
 
+    def __init__(self, *args, **kwargs):
+        super(ProposalForm, self).__init__(*args, **kwargs)
+        space = kwargs.get('parent')
+        if space.proposal_part_a.get('title'):
+            self.objective.label.text = space.proposal_part_a.get('title')
+        if space.proposal_part_a.get('hint'):
+            self.objective.description = space.proposal_part_a.get('hint')
+        if space.proposal_part_b.get('title'):
+            self.description.label.text = space.proposal_part_b.get('title')
+        if space.proposal_part_b.get('hint'):
+            self.description.description = space.proposal_part_b.get('hint')
+
+
 
 class ProposalStatusForm(forms.Form):
     status = forms.SelectField(
