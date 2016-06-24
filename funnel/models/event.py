@@ -200,6 +200,7 @@ class TicketClient(BaseMixin, db.Model):
                              phone=ticket_dict['phone'],
                              twitter=ticket_dict['twitter'],
                              company=ticket_dict['company'],
+                             job_title=ticket_dict['job_title'],
                              city=ticket_dict['city']
                             )
 
