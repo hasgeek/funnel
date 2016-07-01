@@ -1,12 +1,22 @@
 language: python
 python:
-  - "2.7"
-# command to install dependencies
+  - 2.7
+cache:
+  directories:
+    - $HOME/.cache/pip
+before_script:
+  - sudo -- sh -c "echo '127.0.0.1  funnel.travis.dev' >> /etc/hosts"
+  - psql -c 'create database funnel_testing;' -U postgres
 install:
-  - pip install -r requirements.txt --use-mirrors
-  - pip install nose coverage
-# command to run tests
-script: nosetests funnel tests
+  - pip install -U pip wheel
+  - pip install -r requirements.txt
+script:
+  - nosetests -v tests
+  - nohup python runtestserver.py &
+  - sleep 10
+addons:
+  postgresql: "9.4"
+services:
+  - redis-server
 notifications:
   email: false
-  irc: "irc.freenode.net#hasgeek-dev"

@@ -83,7 +83,6 @@ def new_participant(profile, space):
         participant = Participant(proposal_space=space)
         form.populate_obj(participant)
         try:
-            # db.session().add_and_commit(participant)
             db.session.add(participant)
             db.session.commit()
         except IntegrityError:
@@ -124,7 +123,6 @@ def participant(profile, space):
     elif participant.key == request.args.get('key'):
         try:
             contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
-            # db.session().add_and_commit(contact_exchange)
             db.session.add(contact_exchange)
             db.session.commit()
         except IntegrityError:
@@ -144,6 +142,17 @@ def participant(profile, space):
     permission='view-participant')
 def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
+
+
+@app.route('/<space>/participant/<participant_id>/sticker', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Participant, {'id': 'participant_id'}, 'participant'),
+    permission='view-participant')
+def participant_sticker(profile, space, participant):
+    return render_template('sticker.html', badges=participant_badge_data([participant], space))
 
 
 @app.route('/<space>/event/<name>/checkin', methods=['POST'], subdomain='<profile>')
@@ -197,3 +206,16 @@ def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
     return render_template('badge.html', badges=participant_badge_data(participants, space))
+
+
+@app.route('/<space>/event/<name>/stickers', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='view-event')
+def event_sticker(profile, space, event):
+    badge_printed = True if request.args.get('badge_printed') == 't' else False
+    participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
+    return render_template('sticker.html', badges=participant_badge_data(participants, space))

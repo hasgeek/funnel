@@ -205,9 +205,9 @@
               </div>
             </p>
           {% endif %}
-          <h2>{% trans %}Objective{% endtrans %}</h2>
+          <h2>{% trans %}{{part_a}}{% endtrans %}</h2>
           {{ proposal.objective }}
-          <h2>{% trans %}Description{% endtrans %}</h2>
+          <h2>{% trans %}{{part_b}}{% endtrans %}</h2>
           {{ proposal.description }}
           {% if proposal.requirements.text -%}
             <h2>{% trans %}Requirements{% endtrans %}</h2>
