@@ -26,15 +26,15 @@ class Boxoffice(object):
         tickets = []
         for order in self.get_orders(ic):
             for line_item in order.get('line_items'):
-                if line_item.get('assignee', {}).get('email'):
+                if line_item.get('assignee'):
                     tickets.append({
-                        'fullname': line_item.get('assignee', {}).get('fullname', ''),
-                        'email': line_item.get('assignee', {}).get('email'),
-                        'phone': line_item.get('assignee', {}).get('phone', ''),
-                        'twitter': extract_twitter_handle(line_item.get('assignee', {}).get('twitter', '')),
-                        'company': line_item.get('assignee', {}).get('company'),
-                        'city': line_item.get('assignee', {}).get('city', ''),
-                        'job_title': line_item.get('assignee', {}).get('jobtitle', ''),
+                        'fullname': line_item.get('assignee').get('fullname', ''),
+                        'email': line_item.get('assignee').get('email'),
+                        'phone': line_item.get('assignee').get('phone', ''),
+                        'twitter': extract_twitter_handle(line_item.get('assignee').get('twitter', '')),
+                        'company': line_item.get('assignee').get('company'),
+                        'city': line_item.get('assignee').get('city', ''),
+                        'job_title': line_item.get('assignee').get('jobtitle', ''),
                         'ticket_no': unicode(line_item.get('line_item_seq')),
                         'ticket_type': line_item.get('item', {}).get('title'),
                         'order_no': unicode(order.get('invoice_no')),
