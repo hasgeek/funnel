@@ -46,13 +46,13 @@
       </ul>
     </div>
   </div>
-  <table class="table footable" id='participants-table'>
+  <table class="table footable" id='participants-table' data-page-size="200">
     <thead>
       <tr>
         <th>Name</th>
         <th data-hide="phone">Email</th>
         <th data-hide="tablet, phone">Company</th>
-        <th>Actions</th>
+        <th data-sort-ignore="true">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -84,6 +84,13 @@
         </tr>
       {%- endfor %}
     </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="10">
+          <div class="pagination pagination-centered"></div>
+        </td>
+      </tr>
+    </tfoot>
   </table>
 {% endblock %}
 {% block footerscripts %}
