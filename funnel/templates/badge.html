@@ -4,7 +4,7 @@
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <style>
     @page {
-      size: 4.129in 11.34in;  /* width height */
+      size: 170mm 108mm;  /* width height */
       margin: 0;
     }
     body {
@@ -13,33 +13,26 @@
       background: transparent;
     }
     .badge-wrapper{
-      width: 4.129in;
-      height: 11.34in;
+      width: 170mm;
+      height: 108mm;
       page-break-after: always;
-      background-image: url('https://images.hasgeek.com/embed/file/07067dc9807e4caabfb205de30bb0c65');
+      background-image: url('https://images.hasgeek.com/embed/file/99486e6552054bcfbd6eed74a3c1bfd0');
       background-repeat: no-repeat;
       background-size: 100% 100%;
       font-family: 'Open Sans', sans-serif;
     }
     .badge{
-      width: 4.129in;
-      height: 5.67in;
+      width: 82.29mm;
+      height: 82.29mm;
       position: relative;
+      left: 83mm;
+      top: 16mm;
       page-break-inside: avoid;
-    }
-    .badge.frontside{
-      -moz-transform: rotate(180deg);
-      -webkit-transform: rotate(180deg);
-      -o-transform: rotate(180deg);
-      -ms-transform: rotate(180deg);
-      transform: rotate(180deg);
     }
     .badge-content { 
       width: 2.75in;
       height: 2.75in;
       margin: 0 auto;
-      padding-top: 1.9in;
-      position: relative;
     }
     .label {
       text-align: center;
@@ -59,15 +52,15 @@
       min-height: 40px;
       text-transform: uppercase;
       font-weight: 400;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
     }
     .last-name-box {
       border-bottom: 3px solid #000;
-      margin: 7px 0 11px;
+      margin: 5px 0 10px;
     }
     .company-name{
       font-size: 25px;
-      max-height: 52px; /* fit text within two lines */
+      max-height: 49px; /* fit text within two lines */
       min-height: 25px;
       color: #df5e0e;
       margin-bottom: 10px;
@@ -76,14 +69,14 @@
     }
     .twitter-handle {  
       font-size: 25px;
-      max-height: 25px; /* fit text in one line */
+      max-height: 30px; /* fit text in one line */
       color: #0ea5b0;
       font-weight: 700;
     }
     .qrcode {
       text-align: center;
       position: absolute;
-      bottom: -0.15in;
+      bottom: 0;
       left: 0;
       right: 0;
       margin: auto;
@@ -95,37 +88,39 @@
   </style>
 </head>
 <body>
-{%- for badge in badges|sort(attribute='first_name') %}
-  {% macro badgeContent( badgeSide=none ) %}
-    <div class="badge {% if badgeSide %} {{ badgeSide }} {% endif %}">
-      <div class="badge-content">
-        <div class="label first-name">
-          <span>{{ badge['first_name'] }}</span>
-        </div>
-        <div class="last-name-box">
-          <div class="label last-name">
-            <span>{{ badge['last_name'] }} </span>
-          </div>
-        </div>
-        {%- if badge['company'] %}
-          <div class="label company-name">
-            <span>{{ badge['company'] }}</span>
-          </div>
-        {% endif %}
-        {%- if badge['twitter'] %}
-          <div class="label twitter-handle">
-            <span>{{ badge['twitter'] }}</span>
-          </div>
-        {% endif %}
-        <div class="qrcode">{{ badge['qrcode_content']|safe }}</div>
+
+{% macro badgeContent(badge) %}
+  <div class="badge">
+    <div class="badge-content">
+      <div class="label first-name">
+        <span>{{ badge['first_name'] }}</span>
       </div>
+      <div class="last-name-box">
+        <div class="label last-name">
+          <span>{{ badge['last_name'] }} </span>
+        </div>
+      </div>
+      {%- if badge['company'] %}
+        <div class="label company-name">
+          <span>{{ badge['company'] }}</span>
+        </div>
+      {% endif %}
+      {%- if badge['twitter'] %}
+        <div class="label twitter-handle">
+          <span>{{ badge['twitter'] }}</span>
+        </div>
+      {% endif %}
+      <div class="qrcode">{{ badge['qrcode_content']|safe }}</div>
     </div>
-  {% endmacro %}
+  </div>
+{% endmacro %}
+
+{%- for badge in badges|sort(attribute='first_name') %}
   <div class="badge-wrapper">
-    {{ badgeContent(badgeSide="frontside") }}
-    {{ badgeContent(badgeSide="backside") }}
+    {{ badgeContent(badge) }}
   </div>
 {%- endfor %}
+
 <script>
   $(function() {
     var updateFontSize = function(elem) {
@@ -136,8 +131,6 @@
       while ((childElem.width() > parentWidth) || (childElem.height() > parentHeight)) {
         childElem.css('font-size', parseInt(childElem.css('font-size'), 10) - fontStep + 'px');
       }
-      /* Update parent div line-height */
-      $(elem).css('line-height', childElem.css('font-size'));
     }
     $.each($('.first-name'), function(index, firstName){
       updateFontSize(firstName);

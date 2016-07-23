@@ -18,8 +18,8 @@
     .badge-content { 
       width: 2.75in;
       height: 2.75in;
-      margin: 14mm 17mm;
-      padding: 0;
+      margin: 9mm;
+      padding: 3mm;
       position: relative;
       float: left;
     }
@@ -80,34 +80,35 @@
   </style>
 </head>
 <body>
-{%- for badge in badges|sort(attribute='first_name') %}
-  {% macro badgeContent() %}
-    <div class="badge-content">
-      <div class="label first-name">
-        <span>{{ badge['first_name'] }}</span>
-      </div>
-      <div class="last-name-box">
-        <div class="label last-name">
-          <span>{{ badge['last_name'] }} </span>
-        </div>
-      </div>
-      {%- if badge['company'] %}
-        <div class="label company-name">
-          <span>{{ badge['company'] }}</span>
-        </div>
-      {% endif %}
-      {%- if badge['twitter'] %}
-        <div class="label twitter-handle">
-          <span>{{ badge['twitter'] }}</span>
-        </div>
-      {% endif %}
-      <div class="qrcode">{{ badge['qrcode_content']|safe }}</div>
+
+{% macro badgeContent(badge) %}
+  <div class="badge-content">
+    <div class="label first-name">
+      <span>{{ badge['first_name'] }}</span>
     </div>
-  {% endmacro %}
-  <div class="badge-wrapper">
-    {{ badgeContent() }}
+    <div class="last-name-box">
+      <div class="label last-name">
+        <span>{{ badge['last_name'] }} </span>
+      </div>
+    </div>
+    {%- if badge['company'] %}
+      <div class="label company-name">
+        <span>{{ badge['company'] }}</span>
+      </div>
+    {% endif %}
+    {%- if badge['twitter'] %}
+      <div class="label twitter-handle">
+        <span>{{ badge['twitter'] }}</span>
+      </div>
+    {% endif %}
+    <div class="qrcode">{{ badge['qrcode_content']|safe }}</div>
   </div>
+{% endmacro %}
+
+{%- for badge in badges|sort(attribute='first_name') %}
+  {{ badgeContent(badge) }}
 {%- endfor %}
+
 <script>
   $(function() {
     var updateFontSize = function(elem) {

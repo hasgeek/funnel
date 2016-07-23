@@ -141,18 +141,15 @@ def participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='view-participant')
 def participant_badge(profile, space, participant):
-    return render_template('badge.html', badges=participant_badge_data([participant], space))
-
-
-@app.route('/<space>/participant/<participant_id>/sticker', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='view-participant')
-def participant_sticker(profile, space, participant):
-    return render_template('sticker.html', badges=participant_badge_data([participant], space))
+    badge_type = request.args.getlist('type')
+    position = request.args.getlist('pos')
+    if badge_type and 'sticker' in badge_type:
+        return render_template('sticker.html', badges=participant_badge_data([participant], space))
+    else:
+        if badge_type and 'blank_badge' in badge_type:
+            return render_template('blank_badge.html', badges=participant_badge_data([participant], space))
+        else:
+            return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
 @app.route('/<space>/event/<name>/checkin', methods=['POST'], subdomain='<profile>')
@@ -205,17 +202,8 @@ def event_participants_json(profile, space, event):
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    return render_template('badge.html', badges=participant_badge_data(participants, space))
-
-
-@app.route('/<space>/event/<name>/stickers', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    permission='view-event')
-def event_sticker(profile, space, event):
-    badge_printed = True if request.args.get('badge_printed') == 't' else False
-    participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    return render_template('sticker.html', badges=participant_badge_data(participants, space))
+    badge_type = request.args.getlist('type')
+    if badge_type and 'stickers' in badge_type:
+        return render_template('sticker.html', badges=participant_badge_data(participants, space))
+    else:
+        return render_template('badge.html', badges=participant_badge_data(participants, space))
