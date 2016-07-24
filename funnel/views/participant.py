@@ -206,4 +206,7 @@ def event_badges(profile, space, event):
     if badge_type and 'stickers' in badge_type:
         return render_template('sticker.html', badges=participant_badge_data(participants, space))
     else:
-        return render_template('badge.html', badges=participant_badge_data(participants, space))
+        if badge_type and 'blank_badges' in badge_type:
+            return render_template('blank_badge.html', badges=participant_badge_data(participants, space))
+        else:
+            return render_template('badge.html', badges=participant_badge_data(participants, space))
