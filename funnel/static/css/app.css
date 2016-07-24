@@ -744,3 +744,21 @@ td .status-btn-list li:last-child {
 td .btn:hover, td .btn:active, td .btn:focus {
   color: #fff;
 }
+
+.footable > tfoot > tr > td {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.footable > tfoot .pagination {
+  float: right;
+  margin: 15px auto;
+}
+
+.footable > tfoot .pagination ul li a {
+  color: #888;
+}
+
+.footable tfoot .pagination ul li.active a {
+  border-color: #888;
+}

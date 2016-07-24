@@ -39,7 +39,7 @@
   <br>
   <div class="row">
     <div class="col-md-12 col-lg-12">
-      <table class="table footable" id='participants-table'>
+      <table class="table footable" id='participants-table' data-page-size="500">
         <thead>
           <tr>
             <th>Name</th>
@@ -56,6 +56,13 @@
             </tr>
           {%- endfor %}
         </tbody>
+        <tfoot>
+         <tr>
+           <td colspan="10">
+             <div class="pagination pagination-centered"></div>
+           </td>
+         </tr>
+       </tfoot>
       </table>
     </div>
   </div>
