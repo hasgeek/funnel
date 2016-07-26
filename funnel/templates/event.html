@@ -50,7 +50,8 @@
       </ul>
     </div>
   </div>
-  <table class="table footable" id='participants-table'>
+  <div class="table-responsive">
+  <table class="table table-bordered" id='participants-table'>
     <thead>
       <tr>
         <th>Name</th>
@@ -101,6 +102,7 @@
       {% endraw %}
     </tbody>
     </table>
+  </div>
 {% endblock %}
 {% block footerscripts %}
 <script>
@@ -162,12 +164,6 @@
       $(hits.join(",")).removeClass('hidden');
     });
     
-    $('.footable').footable({
-      breakpoints: {
-        phone: 600,
-        tablet: 768,
-      }
-    });
   });
 </script>
 {% endblock %}
