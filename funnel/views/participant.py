@@ -146,7 +146,7 @@ def participant_badge(profile, space, participant):
     if badge_type and 'sticker' in badge_type:
         return render_template('sticker.html', badges=participant_badge_data([participant], space))
     else:
-        if badge_type and 'blank_badge' in badge_type:
+        if badge_type and 'blank' in badge_type:
             return render_template('blank_badge.html', badges=participant_badge_data([participant], space))
         else:
             return render_template('badge.html', badges=participant_badge_data([participant], space))
@@ -203,10 +203,10 @@ def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
     badge_type = request.args.getlist('type')
-    if badge_type and 'stickers' in badge_type:
+    if badge_type and 'sticker' in badge_type:
         return render_template('sticker.html', badges=participant_badge_data(participants, space))
     else:
-        if badge_type and 'blank_badges' in badge_type:
+        if badge_type and 'blank' in badge_type:
             return render_template('blank_badge.html', badges=participant_badge_data(participants, space))
         else:
             return render_template('badge.html', badges=participant_badge_data(participants, space))
