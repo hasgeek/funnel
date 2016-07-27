@@ -181,7 +181,7 @@ def event_checkin(profile, space, event):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='checkin-event')
-def event_checkin_api(profile, space, event):
+def checkin_puk(profile, space, event):
     checked_in = True if request.form.get('checkin') == 't' else False
     participant_puks = request.form.getlist('puk')
     attendees = []
