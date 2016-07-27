@@ -48,7 +48,7 @@ def events_json(profile, space):
             'title': event.title,
             'name': event.name,
             })
-    return jsonify(events)
+    return jsonify(result=events)
 
 
 @app.route('/<space>/events/new', methods=['GET', 'POST'], subdomain='<profile>')

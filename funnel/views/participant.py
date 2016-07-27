@@ -195,7 +195,7 @@ def checkin_puk(profile, space, event):
             'checked_in': attendee.checked_in
             })
     db.session.commit()
-    return jsonify(attendees)
+    return jsonify(result=attendees)
 
 
 @app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
