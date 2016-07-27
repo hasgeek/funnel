@@ -174,6 +174,30 @@ def event_checkin(profile, space, event):
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
 
 
+@app.route('/<space>/event/<name>/checkin/api', methods=['POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='checkin-event')
+def checkin_puk(profile, space, event):
+    checked_in = True if request.form.get('checkin') == 't' else False
+    participant_puks = request.form.getlist('puk')
+    attendees = []
+    for participant_puk in participant_puks:
+        participant = Participant.query.filter_by(puk=participant_puk).first()
+        attendee = Attendee.get(event, participant)
+        attendee.checked_in = checked_in
+        attendees.append({
+            'puk': participant_puk,
+            'fullname': participant.fullname,
+            'checked_in': attendee.checked_in
+            })
+    db.session.commit()
+    return jsonify(attendees)
+
+
 @app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

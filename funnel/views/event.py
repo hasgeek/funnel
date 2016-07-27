@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rq import Queue
 from redis import Redis
-from flask import redirect, render_template, url_for, flash
+from flask import redirect, render_template, url_for, flash, jsonify
 from coaster.views import load_models
 from coaster.utils import getbool
 from sqlalchemy.exc import IntegrityError
@@ -33,6 +33,22 @@ def admin(profile, space):
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(space.url_for('admin'), code=303)
     return render_template('admin.html', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
+
+
+@app.route('/<space>/events/json', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='admin')
+def events_json(profile, space):
+    events = []
+    for event in space.events:
+        events.append({
+            'title': event.title,
+            'name': event.name,
+            })
+    return jsonify(events)
 
 
 @app.route('/<space>/events/new', methods=['GET', 'POST'], subdomain='<profile>')
