@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, g, url_for, jsonify
+from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.views import load_models, jsonp
+from coaster.views import load_models
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
 from ..forms import ParticipantForm
@@ -188,6 +188,8 @@ def checkin_puk(profile, space, event):
     for participant_puk in participant_puks:
         participant = Participant.query.filter_by(puk=participant_puk).first()
         attendee = Attendee.get(event, participant)
+        if not attendee:
+            return make_response(jsonify(error='not_found', error_description="Attendee not found"), 404)
         attendee.checked_in = checked_in
         attendees.append({
             'puk': participant_puk,
