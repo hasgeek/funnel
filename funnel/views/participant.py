@@ -190,6 +190,7 @@ def event_checkin_api(profile, space, event):
         attendee = Attendee.get(event, participant)
         attendee.checked_in = checked_in
         attendees.append({
+            'puk': participant_puk,
             'fullname': participant.fullname,
             'checked_in': attendee.checked_in
             })
