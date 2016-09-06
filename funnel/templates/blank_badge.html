@@ -4,7 +4,7 @@
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <style>
     @page {
-      size: 104.09mm 166.452mm;  /* width height */
+      size: 3.82in 11.02in;  /* width height */
       margin: 0;
     }
     body {
@@ -12,38 +12,34 @@
       padding: 0;
       background: transparent;
     }
-    .wrapper {
-      min-height: 166.452mm;
-    }
     .badge-wrapper{
-      width: 166.452mm;
-      height: 104.09mm;
+      width: 3.82in;
+      height: 11.02in;
       page-break-after: always;
-      background-image: url('https://images.hasgeek.com/embed/file/abf3bff259aa4dcc8611836e0999b52f');
+      background-image: url({{ badge_template }});
       background-repeat: no-repeat;
       background-size: 100% 100%;
       font-family: 'Open Sans', sans-serif;
-      -moz-transform: rotate(90deg);
-      -webkit-transform: rotate(90deg);
-      -o-transform: rotate(90deg);
-      -ms-transform: rotate(90deg);
-      transform: rotate(90deg);
-      position: relative;
-      left: -31.2mm;
-      top: 31.1mm;
     }
     .badge{
-      width: 82.29mm;
-      height: 82.29mm;
+      width: 3.82in;
+      height: 5.51in;
       position: relative;
-      left: 81mm;
-      top: 14mm;
       page-break-inside: avoid;
+    }
+    .badge.frontside{
+      -moz-transform: rotate(180deg);
+      -webkit-transform: rotate(180deg);
+      -o-transform: rotate(180deg);
+      -ms-transform: rotate(180deg);
+      transform: rotate(180deg);
     }
     .badge-content { 
       width: 2.75in;
       height: 2.75in;
       margin: 0 auto;
+      padding-top: 2.3in;
+      position: relative;
     }
     .label {
       text-align: center;
@@ -63,15 +59,15 @@
       min-height: 40px;
       text-transform: uppercase;
       font-weight: 400;
-      margin-bottom: 5px;
+      margin-bottom: 3px;
     }
     .last-name-box {
       border-bottom: 3px solid #000;
-      margin: 5px 0 10px;
+      margin: 7px 0 11px;
     }
     .company-name{
       font-size: 25px;
-      max-height: 49px; /* fit text within two lines */
+      max-height: 52px; /* fit text within two lines */
       min-height: 25px;
       color: #df5e0e;
       margin-bottom: 10px;
@@ -80,14 +76,14 @@
     }
     .twitter-handle {  
       font-size: 25px;
-      max-height: 30px; /* fit text in one line */
+      max-height: 25px; /* fit text in one line */
       color: #0ea5b0;
       font-weight: 700;
     }
     .qrcode {
       text-align: center;
       position: absolute;
-      bottom: 0;
+      bottom: -0.15in;
       left: 0;
       right: 0;
       margin: auto;
@@ -100,8 +96,8 @@
 </head>
 <body>
 {%- for badge in badges|sort(attribute='first_name') %}
-  {% macro badgeContent( ) %}
-    <div class="badge">
+  {% macro badgeContent( badgeSide=none ) %}
+    <div class="badge {% if badgeSide %} {{ badgeSide }} {% endif %}">
       <div class="badge-content">
         <div class="label first-name">
           <span>{{ badge['first_name'] }}</span>
@@ -125,10 +121,9 @@
       </div>
     </div>
   {% endmacro %}
-  <div class="wrapper">
   <div class="badge-wrapper">
-    {{ badgeContent() }}
-  </div>
+    {{ badgeContent(badgeSide="frontside") }}
+    {{ badgeContent(badgeSide="backside") }}
   </div>
 {%- endfor %}
 <script>
@@ -141,6 +136,8 @@
       while ((childElem.width() > parentWidth) || (childElem.height() > parentHeight)) {
         childElem.css('font-size', parseInt(childElem.css('font-size'), 10) - fontStep + 'px');
       }
+      /* Update parent div line-height */
+      $(elem).css('line-height', childElem.css('font-size'));
     }
     $.each($('.first-name'), function(index, firstName){
       updateFontSize(firstName);
