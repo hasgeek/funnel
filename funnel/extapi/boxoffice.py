@@ -27,6 +27,12 @@ class Boxoffice(object):
         for order in self.get_orders(ic):
             for line_item in order.get('line_items'):
                 if line_item.get('assignee'):
+                    if line_item.get('line_item_status') == u'confirmed':
+                        status = u'confirmed'
+                    elif line_item.get('line_item_status') == u'cancelled':
+                        status = u'cancelled'
+                    else:
+                        status = unicode(line_item.get('line_item_status'))
                     tickets.append({
                         'fullname': line_item.get('assignee').get('fullname', ''),
                         'email': line_item.get('assignee').get('email'),
@@ -38,5 +44,7 @@ class Boxoffice(object):
                         'ticket_no': unicode(line_item.get('line_item_seq')),
                         'ticket_type': line_item.get('item', {}).get('title', '')[:80],
                         'order_no': unicode(order.get('invoice_no')),
-                    })
+                        'status': status
+                        })
+
         return tickets
