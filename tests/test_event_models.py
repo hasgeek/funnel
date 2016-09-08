@@ -73,6 +73,8 @@ class TestEventModels(unittest.TestCase):
 
         # test_transfers
         self.ticket_client.import_from_list(ticket_list3)
-        self.assertEquals(len(p1.events), 3)
+        p4 = Participant.query.filter_by(email='participant4@gmail.com', proposal_space=self.space).one_or_none()
+        self.assertEquals(len(p1.events), 2)
         self.assertEquals(len(p2.events), 0)
         self.assertEquals(len(p3.events), 0)
+        self.assertEquals(len(p4.events), 1)
