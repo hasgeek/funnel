@@ -66,13 +66,13 @@ class TestEventModels(unittest.TestCase):
         self.assertEquals(len(p3.events), 1)
 
         # test cancellations
-        cancel_list = [SyncTicket.get(self.space, 'o2', 't2')]
-        self.ticket_client.import_from_list(ticket_list2, cancel_list=cancel_list)
+        self.ticket_client.import_from_list(ticket_list2)
         self.assertEquals(len(p1.events), 2)
         self.assertEquals(len(p2.events), 0)
+        self.assertEquals(len(p3.events), 1)
 
         # test_transfers
         self.ticket_client.import_from_list(ticket_list3)
-        self.assertEquals(len(p2.events), 1)
-        self.assertEquals(p2.events[0], Event.get(self.space, current_name='spacecon'))
+        self.assertEquals(len(p1.events), 3)
+        self.assertEquals(len(p2.events), 0)
         self.assertEquals(len(p3.events), 0)
