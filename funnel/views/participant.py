@@ -150,9 +150,9 @@ def participant_badge(profile, space, participant):
         else:
             if 'nofrill' in badge_type:
                 print 'nofrill'
-                badge_template = 'https://images.hasgeek.com/embed/file/949fe38ebdf94d00ac1188017a7795d0'
+                badge_template = 'https://images.hasgeek.com/embed/file/1ef2570d7a234a65b1b5ae4745533eea'
             if 'premium' in badge_type:
-                badge_template = 'https://images.hasgeek.com/embed/file/2193f450441740d188e933a5a6a9497c'
+                badge_template = 'https://images.hasgeek.com/embed/file/835a0f131adc48bb8578a30c2eb2dad1'
     return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
 
 
@@ -240,7 +240,7 @@ def event_badges(profile, space, event):
             return render_template('blank_badge', badge_template=badge_template, badges=participant_badge_data(participants, space))
         else:
             if 'nofrill' in badge_type:
-                badge_template = 'https://images.hasgeek.com/embed/file/949fe38ebdf94d00ac1188017a7795d0'
+                badge_template = 'https://images.hasgeek.com/embed/file/1ef2570d7a234a65b1b5ae4745533eea'
             if 'premium' in badge_type:
-                badge_template = 'https://images.hasgeek.com/embed/file/2193f450441740d188e933a5a6a9497c'
+                badge_template = 'https://images.hasgeek.com/embed/file/835a0f131adc48bb8578a30c2eb2dad1'
     return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
