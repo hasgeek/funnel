@@ -237,7 +237,7 @@ def event_badges(profile, space, event):
     if badge_type:
         if 'blank' in badge_type:
             badge_template = 'https://images.hasgeek.com/embed/file/24e9bafb1f6445038c8f5d5026b410b9'
-            return render_template('blank_badge', badge_template=badge_template, badges=participant_badge_data(participants, space))
+            return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
         else:
             if 'nofrill' in badge_type:
                 badge_template = 'https://images.hasgeek.com/embed/file/1ef2570d7a234a65b1b5ae4745533eea'
