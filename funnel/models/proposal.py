@@ -31,6 +31,11 @@ class PROPOSALSTATUS(LabeledEnum):
     REJECTED = (5, __("Rejected"))
     CANCELLED = (6, __("Cancelled"))
 
+    AWAITING_DETAILS = (7, __("Awaiting details"))
+    UNDER_EVALUATION = (8, __("Under evaluation"))
+    SHORTLISTED_FOR_REHEARSAL = (9, __("Shortlisted for rehearsal"))
+    REHEARSAL = (10, __("Rehearsal ongoing"))
+
 
 # --- Models ------------------------------------------------------------------
 
