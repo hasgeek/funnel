@@ -58,6 +58,7 @@
         <th data-hide="phone">Email</th>
         <th data-hide="tablet, phone">Company</th>
         <th data-sort-ignore="true">Actions</th>
+        <th data-sort-ignore="true">Tickets</th>
       </tr>
     </thead>
     <tbody id="participants-table-content">
@@ -68,6 +69,7 @@
           <td class='js-searchable'>{{ fullname }}</td>
           <td class='js-searchable'>{{ email }}</td>
           <td class='js-searchable'>{{ company }}</td>
+          <td class='js-searchable'>{{ ticket_type_titles }}</td>
           <td>
             <ul class="list-inline status-btn-list">
               <li>
