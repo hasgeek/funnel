@@ -56,7 +56,8 @@ def participant_checkin_data(participant, space, event):
         'company': participant.company,
         'email': participant.email,
         'badge_printed': participant.badge_printed,
-        'checked_in': participant.checked_in
+        'checked_in': participant.checked_in,
+        'ticket_type_titles': participant.ticket_type_titles
     }
 
 
