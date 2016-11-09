@@ -4,7 +4,7 @@
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <style>
     @page {
-      size: 3.82in 11.02in;  /* width height */
+      size: 4.129in 11.34in;  /* width height */
       margin: 0;
     }
     body {
@@ -13,8 +13,8 @@
       background: transparent;
     }
     .badge-wrapper{
-      width: 3.82in;
-      height: 11.02in;
+      width: 4.129in;
+      height: 11.34in;
       page-break-after: always;
       background-image: url({{ badge_template }});
       background-repeat: no-repeat;
@@ -22,12 +22,12 @@
       font-family: 'Open Sans', sans-serif;
     }
     .badge{
-      width: 3.82in;
-      height: 5.51in;
+      width: 4.129in;
+      height: 5.67in;
       position: relative;
       page-break-inside: avoid;
     }
-    .badge.frontside{
+    .badge.frontside {
       -moz-transform: rotate(180deg);
       -webkit-transform: rotate(180deg);
       -o-transform: rotate(180deg);
@@ -40,6 +40,9 @@
       margin: 0 auto;
       padding-top: 2.3in;
       position: relative;
+    }
+    .badge.frontside .badge-content {
+      padding-top: 2.35in;
     }
     .label {
       text-align: center;
