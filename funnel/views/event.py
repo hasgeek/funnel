@@ -189,7 +189,6 @@ def ticket_client_edit(profile, space, ticket_client):
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='view-event')
 def event(profile, space, event):
-    participants = Participant.checkin_list(event)
     form = ParticipantBadgeForm()
     if form.validate_on_submit():
         badge_printed = True if getbool(form.data.get('badge_printed')) else False
@@ -197,4 +196,4 @@ def event(profile, space, event):
             update({'badge_printed': badge_printed}, False)
         db.session.commit()
         return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
-    return render_template('event.html', profile=profile, space=space, event=event, badge_form=ParticipantBadgeForm(model=Participant))
+    return render_template('event.html', profile=profile, space=space, event=event, badge_form=ParticipantBadgeForm(model=Participant), checkin_form=forms.Form())
