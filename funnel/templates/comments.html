@@ -1,38 +1,44 @@
-{% macro commentvote(comment, currentuser, votelinkbase) %}
+{% macro commentvote(comment, currentuser, votelinkbase, csrf_form) %}
   <div class="comment-vote">
     {%- set comvote = comment.votes.getvote(currentuser) %}
     {%- if not comvote -%}
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/voteup">
+        {{ csrf_form.hidden_tag() }}
         <button class="comment-vote-up no-bg" title="{% trans %}Vote up{% endtrans %}" type="submit">&#x25b2;</button>
       </form>
       <span class="count">{{ comment.votes.count }}</span><br/>
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown">
+        {{ csrf_form.hidden_tag() }}
         <button class="comment-vote-down no-bg" title="{% trans %}Vote down{% endtrans %}" type="submit">&#x25bc;</button>
       </form>
     {%- elif not comvote.votedown -%}
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/cancelvote">
+        {{ csrf_form.hidden_tag() }}
         <button class="no-bg comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">&#x25b2;</button>
       </form>
       <span class="count">{{ comment.votes.count }}</span><br/>
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown">
+        {{ csrf_form.hidden_tag() }}
         <button class="comment-vote-down no-bg" title="{% trans %}Vote down{% endtrans %}" type="submit">&#x25bc;</button>
       </form>
     {%- else -%}
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/voteup">
+        {{ csrf_form.hidden_tag() }}
         <button class="comment-vote-up no-bg" title="{% trans %}Vote up{% endtrans %}" type="submit">&#x25b2;</button>
       </form>
       <span class="count">{{ comment.votes.count }}</span><br/>
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/cancelvote">
+        {{ csrf_form.hidden_tag() }}
         <button class="comment-vote-cancel no-bg" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">&#x25bc;</button>
       </form>
     {%- endif %}
   </div>
 {% endmacro %}
-{% macro commenttree(comments, document, currentuser, documenturl) %}
+{% macro commenttree(comments, document, currentuser, documenturl, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
     <div id="c{{ comment.id }}">
-      {{ commentvote(comment, currentuser, documenturl+'/comments') }}
+      {{ commentvote(comment, currentuser, documenturl+'/comments', csrf_form) }}
       <div class="com-header">
         <a class="collapse" href="#">[-]</a><a class="uncollapse hidden" href="#">[+]</a>
         {% if comment.is_deleted -%}
