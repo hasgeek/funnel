@@ -8,8 +8,7 @@ from .. import app, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal, ProposalRedirect, Comment
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/voteup', subdomain='<profile>')
+@app.route('/<space>/<proposal>/voteup', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -23,8 +22,7 @@ def proposal_voteup(profile, space, proposal):
     return redirect(proposal.url_for())
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/votedown', subdomain='<profile>')
+@app.route('/<space>/<proposal>/votedown', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -38,8 +36,7 @@ def proposal_votedown(profile, space, proposal):
     return redirect(proposal.url_for())
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/cancelvote', subdomain='<profile>')
+@app.route('/<space>/<proposal>/cancelvote', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -67,8 +64,7 @@ def comment_json(profile, space, proposal, comment):
         return jsonp(message='')
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/voteup', subdomain='<profile>')
+@app.route('/<space>/<proposal>/comments/<int:comment>/voteup', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -83,8 +79,7 @@ def comment_voteup(profile, space, proposal, comment):
     return redirect(comment.url_for(proposal=proposal))
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>')
+@app.route('/<space>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -99,8 +94,7 @@ def comment_votedown(profile, space, proposal, comment):
     return redirect(comment.url_for(proposal=proposal))
 
 
-# FIXME: This voting method uses GET but makes db changes. Not correct. Should be POST
-@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>')
+@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

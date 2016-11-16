@@ -2,17 +2,29 @@
   <div class="comment-vote">
     {%- set comvote = comment.votes.getvote(currentuser) %}
     {%- if not comvote -%}
-      <a class="comment-vote-up" title="{% trans %}Vote up{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/voteup">
+        <button class="comment-vote-up no-bg" title="{% trans %}Vote up{% endtrans %}" type="submit">&#x25b2;</button>
+      </form>
       <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-down" title="{% trans %}Vote down{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown">
+        <button class="comment-vote-down no-bg" title="{% trans %}Vote down{% endtrans %}" type="submit">&#x25bc;</button>
+      </form>
     {%- elif not comvote.votedown -%}
-      <a class="comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25b2;</a><br/>
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/cancelvote">
+        <button class="no-bg comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">&#x25b2;</button>
+      </form>
       <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-down" title="{% trans %}Vote down{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/votedown">&#x25bc;</a><br/>
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown">
+        <button class="comment-vote-down no-bg" title="{% trans %}Vote down{% endtrans %}" type="submit">&#x25bc;</button>
+      </form>
     {%- else -%}
-      <a class="comment-vote-up" title="{% trans %}Vote up{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/voteup">&#x25b2;</a><br/>
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/voteup">
+        <button class="comment-vote-up no-bg" title="{% trans %}Vote up{% endtrans %}" type="submit">&#x25b2;</button>
+      </form>
       <span class="count">{{ comment.votes.count }}</span><br/>
-      <a class="comment-vote-cancel" title="{% trans %}Withdraw vote{% endtrans %}" href="{{ votelinkbase }}/{{ comment.id }}/cancelvote">&#x25bc;</a><br/>
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/cancelvote">
+        <button class="comment-vote-cancel no-bg" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">&#x25bc;</button>
+      </form>
     {%- endif %}
   </div>
 {% endmacro %}
