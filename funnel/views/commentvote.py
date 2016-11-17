@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import redirect, g, flash, abort
+from flask import redirect, g, flash, abort, jsonify, request
 from coaster.views import jsonp, load_models
 from baseframe import _, forms
 
@@ -18,11 +18,14 @@ from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal
 def proposal_voteup(profile, space, proposal):
     csrf_form = forms.Form()
     if not csrf_form.validate_on_submit():
-        abort(401)
+        abort(403)
     proposal.votes.vote(g.user, votedown=False)
     db.session.commit()
-    flash(_("Your vote has been recorded"), 'info')
-    return redirect(proposal.url_for())
+    message = _("Your vote has been recorded")
+    if request.is_xhr:
+        return jsonify(message=message, code=200)
+    flash(message, 'info')
+    return redirect(proposal.url_for(), code=303)
 
 
 @app.route('/<space>/<proposal>/votedown', subdomain='<profile>', methods=['POST'])
@@ -35,11 +38,14 @@ def proposal_voteup(profile, space, proposal):
 def proposal_votedown(profile, space, proposal):
     csrf_form = forms.Form()
     if not csrf_form.validate_on_submit():
-        abort(401)
+        abort(403)
     proposal.votes.vote(g.user, votedown=True)
     db.session.commit()
-    flash(_("Your vote has been recorded"), 'info')
-    return redirect(proposal.url_for())
+    message = _("Your vote has been recorded")
+    if request.is_xhr:
+        return jsonify(message=message, code=200)
+    flash(message, 'info')
+    return redirect(proposal.url_for(), code=303)
 
 
 @app.route('/<space>/<proposal>/cancelvote', subdomain='<profile>', methods=['POST'])
@@ -52,11 +58,14 @@ def proposal_votedown(profile, space, proposal):
 def proposal_cancelvote(profile, space, proposal):
     csrf_form = forms.Form()
     if not csrf_form.validate_on_submit():
-        abort(401)
+        abort(403)
     proposal.votes.cancelvote(g.user)
     db.session.commit()
-    flash(_("Your vote has been withdrawn"), 'info')
-    return redirect(proposal.url_for())
+    message = _("Your vote has been withdrawn")
+    if request.is_xhr:
+        return jsonify(message=message, code=200)
+    flash(message, 'info')
+    return redirect(proposal.url_for(), code=303)
 
 
 @app.route('/<space>/<proposal>/comments/<int:comment>/json', subdomain='<profile>')
@@ -84,11 +93,14 @@ def comment_json(profile, space, proposal, comment):
 def comment_voteup(profile, space, proposal, comment):
     csrf_form = forms.Form()
     if not csrf_form.validate_on_submit():
-        abort(401)
+        abort(403)
     comment.votes.vote(g.user, votedown=False)
     db.session.commit()
-    flash(_("Your vote has been recorded"), 'info')
-    return redirect(comment.url_for(proposal=proposal))
+    message = _("Your vote has been recorded")
+    if request.is_xhr:
+        return jsonify(message=message, code=200)
+    flash(message, 'info')
+    return redirect(comment.url_for(proposal=proposal), code=303)
 
 
 @app.route('/<space>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>', methods=['POST'])
@@ -102,11 +114,14 @@ def comment_voteup(profile, space, proposal, comment):
 def comment_votedown(profile, space, proposal, comment):
     csrf_form = forms.Form()
     if not csrf_form.validate_on_submit():
-        abort(401)
+        abort(403)
     comment.votes.vote(g.user, votedown=True)
     db.session.commit()
-    flash(_("Your vote has been recorded"), 'info')
-    return redirect(comment.url_for(proposal=proposal))
+    message = _("Your vote has been recorded")
+    if request.is_xhr:
+        return jsonify(message=message, code=200)
+    flash(message, 'info')
+    return redirect(comment.url_for(proposal=proposal), code=303)
 
 
 @app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>', methods=['POST'])
@@ -120,8 +135,11 @@ def comment_votedown(profile, space, proposal, comment):
 def comment_cancelvote(profile, space, proposal, comment):
     csrf_form = forms.Form()
     if not csrf_form.validate_on_submit():
-        abort(401)
+        abort(403)
     comment.votes.cancelvote(g.user)
     db.session.commit()
-    flash(_("Your vote has been withdrawn"), 'info')
-    return redirect(comment.url_for(proposal=proposal))
+    message = _("Your vote has been withdrawn")
+    if request.is_xhr:
+        return jsonify(message=message, code=200)
+    flash(message, 'info')
+    return redirect(comment.url_for(proposal=proposal), code=303)
