@@ -11,7 +11,7 @@ body {
   overflow: hidden;
   text-align: left;
   text-transform: capitalize;
-  background-image: url('../img/logo.png?1427694745');
+  background-image: url('../img/logo.png?1417622562');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 110px;
@@ -20,7 +20,7 @@ body {
 
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
   #logo {
-    background-image: url('../img/logo@2x.png?1427694745');
+    background-image: url('../img/logo@2x.png?1417622562');
     -moz-background-size: 110px 75px;
     -o-background-size: 110px 75px;
     -webkit-background-size: 110px 75px;
@@ -34,7 +34,7 @@ body {
   overflow: hidden;
   text-align: left;
   text-transform: capitalize;
-  background-image: url('../img/logo@2x.png?1427694745');
+  background-image: url('../img/logo@2x.png?1417622562');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 221px;
@@ -113,12 +113,18 @@ table.listing {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
-  padding: 0 3px;
+  padding: 5px;
+  margin-left: -30px;
+}
+.infosheet .votebox .choices form {
+  margin-top: 0;
+  width: 20%;
 }
 .infosheet .votebox .choices span.indicator {
+  margin-left: -15px;
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
 }
-.infosheet .votebox .choices a.votechoice {
+.infosheet .votebox .choices button.votechoice, .infosheet .votebox .choices a.votechoice {
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
   border: 1px solid transparent;
   -moz-border-radius: 3px;
@@ -126,11 +132,11 @@ table.listing {
   border-radius: 3px;
   padding: 0 3px;
 }
-.infosheet .votebox .choices a.votechoice:hover {
+.infosheet .votebox .choices button.votechoice:hover, .infosheet .votebox .choices a.votechoice:hover {
   border: 1px solid #b7b7b7;
   text-decoration: none;
 }
-.infosheet .votebox .choices a.votechoice:active, .infosheet .votebox .choices a.votechoice.selected {
+.infosheet .votebox .choices button.votechoice:active, .infosheet .votebox .choices button.votechoice.selected, .infosheet .votebox .choices a.votechoice:active, .infosheet .votebox .choices a.votechoice.selected {
   background-color: #D9E8F0;
   color: #444;
 }
@@ -484,14 +490,17 @@ dl.bar dd:last-child {
   width: 2em;
   font-size: 80%;
 }
-.comments .comment-vote a {
+.comments .comment-vote form {
+  margin-top: 0;
+}
+.comments .comment-vote button {
   color: #b7b7b7;
 }
-.comments .comment-vote a:hover {
+.comments .comment-vote button:hover {
   text-decoration: none;
   color: #816894;
 }
-.comments .comment-vote a.comment-vote-cancel {
+.comments .comment-vote button.comment-vote-cancel {
   color: #816894;
 }
 .comments .com-children {
@@ -715,4 +724,12 @@ td .status-btn-list li:last-child {
   .status-btn-list li:last-child {
     padding-right: 0;
   }
+}
+button.no-bg {
+  background-color: Transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
 }
