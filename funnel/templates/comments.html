@@ -70,7 +70,7 @@
     </div>
     {% if comment.children %}
       <ul class="com-children">
-        {{ commenttree(comment.sorted_children(), document, currentuser, documenturl) }}
+        {{ commenttree(comment.sorted_children(), document, currentuser, documenturl, csrf_form) }}
       </ul>
     {% endif %}
   </li>
