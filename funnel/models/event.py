@@ -153,7 +153,7 @@ class Participant(BaseMixin, db.Model):
         """
         participant_list = db.session.query('id', 'fullname', 'email', 'company', 'twitter', 'puk', 'key', 'checked_in', 'badge_printed', 'ticket_type_titles').from_statement(text('''
             SELECT distinct(participant.id), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed, (select string_agg(title, ',') from sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
-            FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id INNER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
+            FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
             WHERE attendee.event_id = {event_id}
             ORDER BY participant.fullname
         '''.format(event_id=event.id))).all()
