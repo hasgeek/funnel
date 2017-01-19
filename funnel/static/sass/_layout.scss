@@ -118,22 +118,28 @@ table.listing {
                 font-family: $font-monospace;
                 border: 1px solid $color-outline;
                 @include border-radius(3px);
-                padding: 0 3px;
+                padding: 5px;
+                margin-left: -30px;
+            }
+            form {
+                margin-top: 0;
+                width: 20%;
             }
             span.indicator {
+                margin-left: -15px;
                 font-family: $font-monospace;
             }
-            a.votechoice {
+            button.votechoice, a.votechoice {
                 font-family: $font-monospace;
                 border: 1px solid transparent;
                 @include border-radius(3px);
                 padding: 0 3px;
             }
-            a.votechoice:hover {
+            button.votechoice:hover, a.votechoice:hover {
                 border: 1px solid $color-outline;
                 text-decoration: none;
             }
-            a.votechoice:active, a.votechoice.selected {
+            button.votechoice:active, button.votechoice.selected, a.votechoice:active, a.votechoice.selected {
                 background-color: $color-section-heading-background;
                 color: $color-section-heading;
             }
@@ -483,14 +489,17 @@ dl.bar {
         left: -2em;
         width: 2em;
         font-size: 80%;
-        a {
+        form {
+            margin-top: 0;
+        }
+        button {
             color: $color-link-metadata;
         }
-        a:hover {
+        button:hover {
             text-decoration: none;
             color: $color-link;
         }
-        a.comment-vote-cancel {
+        button.comment-vote-cancel {
             color: $color-link;
         }
     }
@@ -758,4 +767,11 @@ td .btn:hover, td .btn:active, td .btn:focus {
   color:#fff;
 }
 
-
+button.no-bg {
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
