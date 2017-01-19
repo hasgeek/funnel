@@ -143,12 +143,12 @@ def participant(profile, space):
     permission='view-participant')
 def participant_badge(profile, space, participant):
     badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/06d9384be48c4806bc6ceb51a3d29ab8'
+    badge_template = 'https://images.hasgeek.com/embed/file/626160390c4947a29ec9390ec66a7d23'
     if badge_type:
         if 'blank' in badge_type:
             return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
         if 'nofrill' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/5de027ad1a984a159a7091bba0e6ba69'
+            badge_template = 'https://images.hasgeek.com/embed/file/cfa29b830afd41289a6090703b4f8718'
         if 'premium' in badge_type:
             badge_template = 'https://images.hasgeek.com/embed/file/835a0f131adc48bb8578a30c2eb2dad1'
     return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
@@ -231,12 +231,12 @@ def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
     badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/06d9384be48c4806bc6ceb51a3d29ab8'
+    badge_template = 'https://images.hasgeek.com/embed/file/626160390c4947a29ec9390ec66a7d23'
     if badge_type:
         if 'blank' in badge_type:
             return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
         if 'nofrill' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/5de027ad1a984a159a7091bba0e6ba69'
+            badge_template = 'https://images.hasgeek.com/embed/file/cfa29b830afd41289a6090703b4f8718'
         if 'premium' in badge_type:
             badge_template = 'https://images.hasgeek.com/embed/file/835a0f131adc48bb8578a30c2eb2dad1'
     return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
