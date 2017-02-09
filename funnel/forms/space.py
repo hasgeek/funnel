@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-
+import os
 import re
+import wtforms
 from coaster.utils import sorted_timezones
 from baseframe import _, __
 import baseframe.forms as forms
@@ -10,7 +11,7 @@ from ..models import RSVP_STATUS
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm', 'ParticipantForm', 'ParticipantBadgeForm']
+__all__ = ['ProposalSpaceForm', 'RsvpForm', 'ParticipantForm', 'ParticipantBadgeForm', 'ParticipantImportForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -86,6 +87,30 @@ class ParticipantForm(forms.Form):
     company = forms.StringField(__("Company"), validators=[forms.validators.Length(max=80)])
     job_title = forms.StringField(__("Job Title"), validators=[forms.validators.Length(max=80)])
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
+    events = QuerySelectMultipleField(__("Events"),
+        widget=ListWidget(), option_widget=CheckboxInput(),
+        get_label='title',
+        validators=[forms.validators.DataRequired(u"Select at least one event")])
+
+
+# TODO: Move to Baseframe
+class ValidFile(object):
+    def __init__(self, allowed_exts=[], message=None):
+        if not message:
+            message = __(u"Please upload a valid file.")
+        self.message = message
+        self.allowed_exts = allowed_exts
+
+    def __call__(self, form, field):
+        ext = os.path.splitext(field.data.filename)[1].strip(".")
+        if ext and ext.lower() not in self.allowed_exts:
+            raise wtforms.validators.StopValidation(self.message)
+
+
+class ParticipantImportForm(forms.Form):
+    participant_list = forms.FileField(__("Participant list"),
+        description=u"Expected Attributes: name, email, phone, twitter, company.",
+        validators=[forms.validators.DataRequired(u"Please upload a valid CSV file."), ValidFile(allowed_exts=['csv'], message=u"Please upload a valid CSV file.")])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
         get_label='title',

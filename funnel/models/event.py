@@ -4,6 +4,7 @@ import base64
 import logging
 from datetime import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm.exc import NoResultFound
 from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
 from .user import User
@@ -125,6 +126,24 @@ class Participant(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
 
     @classmethod
+    def get(cls, space, email, fields={}, create=False):
+        participant = cls.query.filter_by(proposal_space=space, email=email).first()
+        if create and not participant:
+            participant = cls(
+                fullname=fields.get('fullname'),
+                email=email,
+                phone=fields.get('phone'),
+                twitter=fields.get('twitter'),
+                job_title=fields.get('job_title'),
+                company=fields.get('company'),
+                city=fields.get('city'),
+                events=fields.get('events', []),
+                proposal_space=space
+            )
+            db.session.add(participant)
+        return participant
+
+    @classmethod
     def update_badge_printed(cls, event, badge_printed):
         participant_ids = [participant.id for participant in event.participants]
         db.session.query(cls).filter(cls.id.in_(participant_ids)).update({'badge_printed': badge_printed}, False)
@@ -136,32 +155,18 @@ class Participant(BaseMixin, db.Model):
         return db.session.execute(stmt).fetchall()
 
     @classmethod
-    def make_from_dict(cls, participant_dict, space):
-        return Participant(
-            fullname=participant_dict.get('fullname'),
-            email=participant_dict.get('email'),
-            phone=participant_dict.get('phone'),
-            twitter=participant_dict.get('twitter'),
-            job_title=participant_dict.get('job_title'),
-            company=participant_dict.get('company'),
-            city=participant_dict.get('city'),
-            proposal_space=space
-        )
-
-    @classmethod
-    def update_from_dict(cls, updated_participant):
-        participant = Participant.query.filter_by(email=updated_participant.get('email')).first()
+    def update_from_dict(cls, space, fields):
+        participant = cls.get(space, fields.get('email'))
         if participant:
-            participant.fullname = updated_participant.get('fullname')
-            participant.phone = updated_participant.get('phone')
-            participant.twitter = updated_participant.get('twitter')
-            participant.job_title = updated_participant.get('job_title')
-            participant.company = updated_participant.get('company')
-            participant.city = updated_participant.get('city')
-            db.session.add(participant)
+            participant.fullname = fields.get('fullname')
+            participant.phone = fields.get('phone')
+            participant.twitter = fields.get('twitter')
+            participant.job_title = fields.get('job_title')
+            participant.company = fields.get('company')
+            participant.city = fields.get('city')
             return participant
         else:
-            return None
+            raise NoResultFound
 
 
 class Attendee(BaseMixin, db.Model):
@@ -175,6 +180,14 @@ class Attendee(BaseMixin, db.Model):
     event = db.relationship(Event,
         backref=db.backref('attendees', cascade='all, delete-orphan', lazy='dynamic'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
+
+    @classmethod
+    def get(cls, participant, event, create=False):
+        attendee = cls.query.filter_by(participant=participant, event=event).first()
+        if create and not attendee:
+            attendee = cls(event=event, participant=participant)
+            db.session.add(attendee)
+        return attendee
 
 
 class TicketClient(BaseMixin, db.Model):
@@ -221,12 +234,7 @@ class SyncTicket(BaseMixin, db.Model):
         for ticket_dict in ticket_list:
             ticket = SyncTicket.fetch(ticket_dict.get('ticket_no'), ticket_dict.get('order_no'), space)
             ticket_ticket_type = TicketType.get(ticket_dict.get('ticket_type'), space, create=True)
-            # get or create participant
-            ticket_participant = Participant.query.filter_by(email=ticket_dict.get('email'), proposal_space=space).first()
-            if not ticket_participant:
-                # create a new participant record if required
-                ticket_participant = Participant.make_from_dict(ticket_dict, space)
-                db.session.add(ticket_participant)
+            ticket_participant = Participant.get(space, ticket_dict.get('email'), fields=ticket_dict, create=True)
 
             if ticket:
                 # check if participant has changed
@@ -246,10 +254,7 @@ class SyncTicket(BaseMixin, db.Model):
             current_ticket_ids.append(ticket.id)
             if ticket.ticket_type:
                 for event in ticket.ticket_type.events:
-                    a = Attendee.query.filter_by(event_id=event.id, participant_id=ticket.participant.id).first()
-                    if not a:
-                        a = Attendee(event_id=event.id, participant_id=ticket.participant.id)
-                        db.session.add(a)
+                    Attendee.get(participant=ticket.participant, event=event, create=True)
 
         # sweep cancelled tickets
         cancelled_tickets = SyncTicket.query.filter_by(proposal_space=space).filter(~SyncTicket.id.in_(current_ticket_ids)).all()

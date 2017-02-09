@@ -23,8 +23,7 @@
       </form>
     </div>
     <div class="col-lg-9 col-xs-12">
-      <ul class="list-inline status-btn-list">
-        <li><a href={{ space.url_for('new-participant') }} class='btn btn-primary'>New Participant</a></li>
+      <ul class="list-inline status-btn-list pull-right">
         <li><a href={{ "{0}event/{1}/badges".format(space.url_for(), event.name) }} class='btn btn-info' target="_blank">Badges to be printed</a></li>
         <li><a href={{ "{0}event/{1}/badges?badge_printed=t".format(space.url_for(), event.name) }} class='btn btn-success' target="_blank">Badges printed</a></li>
         <li class="badge-print-status-btn">
