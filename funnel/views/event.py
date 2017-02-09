@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, render_template, request, g
+from flask import flash, redirect, render_template, request, g, jsonify
 from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
@@ -195,7 +195,7 @@ def participant_badge(profile, space, participant):
     return render_template('badge.html', badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -209,4 +209,6 @@ def event_checkin(profile, space, event, participant):
     a.checked_in = checked_in
     db.session.add(a)
     db.session.commit()
+    if request.is_xhr:
+        return jsonify(status=True, participant_id=participant.id, checked_in=checked_in)
     return redirect("{0}event/{1}".format(space.url_for(), event.name), code=303)

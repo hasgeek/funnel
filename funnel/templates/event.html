@@ -62,9 +62,9 @@
             </li>
             <li>
             {%- if p.checked_in %}
-              <a href="{{ event.name }}/checkin/{{ p.id }}" class='btn btn-xs btn-danger'>Cancel Check-in</a>
+              <a href="{{ event.name }}/checkin/{{ p.id }}" data-pid="{{ p.id }}" data-tocheckin="false" class='btn btn-xs cancel-checkin'>Cancel Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif')}}" class="loader"/>
             {%- else %}
-            <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" class='btn btn-xs btn-warning'>Check-in</a>
+              <a href="{{ event.name }}/checkin/{{ p.id }}?checkin=t" data-pid="{{ p.id }}" data-tocheckin="true" class='btn btn-xs checkin'>Check-in</a><img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" class="loader"/>
             {%- endif %}
             </li>
             </ul>
@@ -76,6 +76,45 @@
 {% endblock %}
 {% block footerscripts %}
 <script>
+  if (Modernizr.localstorage) {
+    LocalStorageKey = 'p-id';
+
+    Storage.prototype.set = function(key, value) {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      if(participantList) {
+        participantList[key] = value;
+      }
+      else {
+        participantList = {};
+        participantList[key] = value;
+      }
+      return this.setItem(LocalStorageKey, JSON.stringify(participantList))
+    }
+    Storage.prototype.get = function(key) {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      return participantList[key];
+    }
+    Storage.prototype.getItems = function() {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      if(participantList && Object.keys(participantList).length > 0) {
+        return participantList;
+      }
+    }
+    Storage.prototype.getItemKeys = function() {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      if(participantList && Object.keys(participantList).length > 0) {
+        return Object.keys(participantList);
+      }
+    }
+    Storage.prototype.remove = function(key) {
+      var participantList = JSON.parse(this.getItem(LocalStorageKey));
+      if(participantList) {
+        delete participantList[key];
+      }
+      return this.setItem(LocalStorageKey, JSON.stringify(participantList))
+    }
+  }
+
   $(document).ready(function() {
     $('#badge_form').on("submit", function(){
        if ($('#badge_form select.field-badge_printed').val() === "") {
@@ -160,6 +199,58 @@
         tablet: 768,
       }
     });
+
+    if (Modernizr.localstorage) {
+      $('.checkin, .cancel-checkin').on('click', function(event) {
+        event.preventDefault();
+        localStorage.set($(this).data('pid'), $(this).attr('href'));
+        $(this).next('.loader').show();
+      });
+
+      // On page reload, for the all the participants in localStorage['p-id'] array show the ajax-loader image
+      var participantList = localStorage.getItems();
+      if(participantList) {
+        for(key in participantList) {
+          $("[data-pid=" + key +"]").next('.loader').show();
+        }
+      }
+
+      // Check localStorage['p-id'] array every 1 second, for any participant
+      // whose check-in status needs to be updated.
+      setInterval(setCheckInStatus, 1000);
+    }
+
+    function setCheckInStatus() {
+      var items = localStorage.getItemKeys();
+      if(items) {
+        var posturl = localStorage.get(items[0]);
+        $.ajax({
+          type: 'post',
+          url:  posturl,
+          timeout: 5000,
+          dataType: "json",
+          success: function(data) {
+            var selectedParticipant = "[data-pid=" + data.participant_id +"]";
+            // To handle cases where response was lost due to page reload
+            if($(selectedParticipant).attr('data-tocheckin') === String(data.checked_in)) {
+              if(data.checked_in) {
+                $(selectedParticipant).attr('data-tocheckin', "false");
+                var link = $(selectedParticipant).attr('href');
+                $(selectedParticipant).attr('href', link.substring(0, link.indexOf('?')));
+                $(selectedParticipant).removeClass('checkin').addClass('cancel-checkin').html('Cancel Check-in');
+              }
+              else {
+                $(selectedParticipant).attr('data-tocheckin', "true");
+                $(selectedParticipant).attr('href', $(selectedParticipant).attr('href') + "?checkin=t");
+                $(selectedParticipant).removeClass('cancel-checkin').addClass('checkin').html('Check-in');
+              }
+            }
+            localStorage.remove(data.participant_id);
+            $(selectedParticipant).next('.loader').hide();
+          }
+        });
+      }
+    }
 
   });
 </script>

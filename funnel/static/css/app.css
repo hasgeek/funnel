@@ -692,6 +692,10 @@ td .status-btn-list li:last-child {
   margin: 0;
 }
 
+td .status-btn-list li:last-child a {
+  margin-right: 10px;
+}
+
 .status-btn-list .controls {
   padding-left: 0;
   padding-right: 5px;
@@ -705,4 +709,28 @@ td .status-btn-list li:last-child {
   td .status-btn-list li {
     margin: 0 0 5px;
   }
+}
+.loader {
+  display: none;
+}
+
+.error-txt {
+  color: #f0a40c;
+  margin: 5px 0;
+}
+
+.checkin {
+  background-color: #EC971F;
+  border-bottom: 2px solid #D58512;
+  color: #fff;
+}
+
+.cancel-checkin {
+  background-color: #D9534F;
+  border-bottom: 2px solid #AC2925;
+  color: #fff;
+}
+
+td .btn:hover, td .btn:active, td .btn:focus {
+  color: #fff;
 }
