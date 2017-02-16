@@ -233,6 +233,11 @@ $(function() {
                         month: 'ddd',  // Mon
                         week: 'ddd d', // Mon 31
                         day: 'dddd d'  // Monday 31
+                    },
+                    eventRender: function(event, element) {
+                      if (event.speaker) {
+                        element.find('.fc-event-title').append("<br/> by <b>" + event.speaker + "</b>"); 
+                      }
                     }
                 },
                 init: function(scheduled) {
@@ -251,7 +256,7 @@ $(function() {
                     if(settings.editable) config.eventResize = config.eventDrop = events.onChange;
                 }
             },
-            init_obj: {id: null, start: null, end: null, title: null, is_break: null},
+            init_obj: {id: null, start: null, end: null, title: null, is_break: null, speaker: null},
             add: function(event) {
                 this.container.fullCalendar('renderEvent', event, true);
                 events.add_obj_data(event);
@@ -276,7 +281,6 @@ $(function() {
                 init_buttons();
                 init_autosave();
                 events.height(this.container.find('.fc-content').height());
-                $('#rooms-list').height(this.container.find('.fc-content').height());
                 var rooms_list = $('#rooms-list').find('.room .title');
                 rooms_list.each(function() {
                     var bgcol = $(this).attr('data-bgcolor')
@@ -442,7 +446,7 @@ $(function() {
             current: null,
             autosave: true,
             init_open: null,
-            init_obj: {id: null, start: null, end: null, title: null, proposal_id: null},
+            init_obj: {id: null, start: null, end: null, title: null, proposal_id: null, speaker: null},
             add_obj_data: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
@@ -580,6 +584,7 @@ $(function() {
                 end: new Date(scheduled[i].end),
                 modal_url: scheduled[i].modal_url,
                 title: scheduled[i].title,
+                speaker: scheduled[i].speaker,
                 proposal_id: scheduled[i].proposal_id,
                 saved: true,
                 unscheduled: null,

@@ -23,6 +23,7 @@ def session_data(sessions, timezone=None, with_modal_url=False, with_delete_url=
             "title": session.title,
             "start": session.start.isoformat() + 'Z',
             "end": session.end.isoformat() + 'Z',
+            "speaker": session.speaker if session.speaker else None,
             "room_scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
             "url_name": session.url_name,
