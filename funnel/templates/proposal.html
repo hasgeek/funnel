@@ -64,14 +64,10 @@
                     </form>
                   </div>
                   <div class='col-xs-2 col-sm-3 col-md-3'>
-                    {%- if not g.user %}
-                      <a class="votechoice" title="{% trans %}Login to vote down{% endtrans %}" type="submit" href="{{url_for('login')}}">-1</a>
-                    {%- else %}
-                      <form method="post" action="{{ proposal.url_for('votedown') }}">
-                        {{ csrf_form.hidden_tag() }}
-                        <button class="votechoice" title="{% trans %}Vote down{% endtrans %}" type="submit">-1</button>
-                      </form>
-                    {%- endif %}
+                    <form method="post" action="{{ proposal.url_for('votedown') }}">
+                      {{ csrf_form.hidden_tag() }}
+                      <button class="votechoice" title="{% trans %}Vote down{% endtrans %}" type="submit">-1</button>
+                    </form>
                   </div>
                 {%- elif vote.votedown %}
                   <div class='col-xs-2 col-sm-3 col-md-3'>
