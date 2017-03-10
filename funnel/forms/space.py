@@ -21,9 +21,9 @@ class ProposalSpaceForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)])
     date = forms.DateField(__("Start date (for sorting)"),
-        validators=[forms.validators.DataRequired(__("Enter a valid date in YYYY-MM-DD format"))])
+        validators=[forms.validators.DataRequired(__("Enter a valid date in DD-MM-YYYY format"))])
     date_upto = forms.DateField(__("End date (for sorting)"),
-        validators=[forms.validators.DataRequired(__("Enter a valid date in YYYY-MM-DD format"))])
+        validators=[forms.validators.DataRequired(__("Enter a valid date in DD-MM-YYYY format"))])
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired()],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
