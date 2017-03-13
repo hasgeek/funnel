@@ -107,7 +107,7 @@ def comment_voteup(profile, space, proposal, comment):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
@@ -128,7 +128,7 @@ def comment_votedown(profile, space, proposal, comment):
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space'}, 'space'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     (Comment, {'id': 'comment'}, 'comment'),
     permission='vote-comment', addlperms=lastuser.permissions)
