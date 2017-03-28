@@ -113,12 +113,18 @@ table.listing {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
-  padding: 0 3px;
+  padding: 5px;
+  margin-left: -30px;
+}
+.infosheet .votebox .choices form {
+  margin-top: 0;
+  width: 20%;
 }
 .infosheet .votebox .choices span.indicator {
+  margin-left: -15px;
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
 }
-.infosheet .votebox .choices a.votechoice {
+.infosheet .votebox .choices button.votechoice, .infosheet .votebox .choices a.votechoice {
   font-family: inconsolata-1, inconsolata-2, Inconsolata, monospace;
   border: 1px solid transparent;
   -moz-border-radius: 3px;
@@ -126,11 +132,11 @@ table.listing {
   border-radius: 3px;
   padding: 0 3px;
 }
-.infosheet .votebox .choices a.votechoice:hover {
+.infosheet .votebox .choices button.votechoice:hover, .infosheet .votebox .choices a.votechoice:hover {
   border: 1px solid #b7b7b7;
   text-decoration: none;
 }
-.infosheet .votebox .choices a.votechoice:active, .infosheet .votebox .choices a.votechoice.selected {
+.infosheet .votebox .choices button.votechoice:active, .infosheet .votebox .choices button.votechoice.selected, .infosheet .votebox .choices a.votechoice:active, .infosheet .votebox .choices a.votechoice.selected {
   background-color: #D9E8F0;
   color: #444;
 }
@@ -484,14 +490,17 @@ dl.bar dd:last-child {
   width: 2em;
   font-size: 80%;
 }
-.comments .comment-vote a {
+.comments .comment-vote form {
+  margin-top: 0;
+}
+.comments .comment-vote button {
   color: #b7b7b7;
 }
-.comments .comment-vote a:hover {
+.comments .comment-vote button:hover {
   text-decoration: none;
   color: #816894;
 }
-.comments .comment-vote a.comment-vote-cancel {
+.comments .comment-vote button.comment-vote-cancel {
   color: #816894;
 }
 .comments .com-children {
@@ -716,6 +725,19 @@ td .status-btn-list li:last-child {
     padding-right: 0;
   }
 }
+td .btn:hover, td .btn:active, td .btn:focus {
+  color: #fff;
+}
+
+button.no-bg {
+  background-color: Transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+}
+
 .footable .form-inline .btn {
   vertical-align: middle;
 }
@@ -741,8 +763,4 @@ td .status-btn-list li:last-child {
   border-bottom: 2px solid #AC2925;
   color: #fff;
   margin: 10px 0 0;
-}
-
-td .btn:hover, td .btn:active, td .btn:focus {
-  color: #fff;
 }

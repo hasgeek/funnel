@@ -10,7 +10,7 @@ from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
 from baseframe import _
-from baseframe.forms import render_form, render_delete_sqla
+from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
@@ -298,7 +298,7 @@ def proposal_view(profile, space, proposal):
         votes_groups=proposal.votes_by_group(),
         PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform,
         part_a=space.proposal_part_a.get('title', 'Objective'),
-        part_b=space.proposal_part_b.get('title', 'Description'))
+        part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 
 
 @app.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
