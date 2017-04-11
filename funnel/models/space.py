@@ -36,6 +36,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
+    criteria = MarkdownColumn('criteria', default=u'')
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)
@@ -296,6 +297,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('new_ticket_type', profile=self.profile.name, space=self.name)
         elif action == 'new-ticket-client':
             return url_for('new_ticket_client', profile=self.profile.name, space=self.name)
+        elif action == 'criteria':
+            return url_for('space_criteria', profile=self.profile.name, space=self.name)
 
     @classmethod
     def all(cls):

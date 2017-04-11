@@ -161,6 +161,11 @@
   {% endif %}
 {%- endif %}
 {{ description }}
+{% if space.status == 1 -%}
+  <p>
+    <a class="btn btn-primary" href="{{ space.url_for('criteria') }}">{% trans %}Selection Criteria{% endtrans %}</a>
+  </p>
+{% endif %}
 {%- if space.subspaces %}
   <ul class="cardset row">
     {% for subspace in space.subspaces %}

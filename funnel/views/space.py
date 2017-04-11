@@ -91,7 +91,7 @@ def space_new(profile):
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
-    return render_template('space.html', space=space, description=space.description, sections=sections,
+    return render_template('space.html', space=space, description=space.description, criteria=space.criteria, sections=sections,
         PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form)
 
 
@@ -183,3 +183,13 @@ def rsvp(profile, space):
     permission='edit-space')
 def rsvp_list(profile, space):
     return render_template('space_rsvp_list.html', space=space, statuses=RSVP_STATUS)
+
+
+@app.route('/<space>/criteria', subdomain='<profile>')
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='view')
+def space_criteria(profile, space):
+    sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
+    return render_template('space_criteria.html', space=space, description=space.description, criteria=space.criteria, sections=sections)
