@@ -91,7 +91,7 @@ def space_new(profile):
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
-    return render_template('space.html', space=space, description=space.description, criteria=space.criteria, sections=sections,
+    return render_template('space.html', space=space, description=space.description, sections=sections,
         PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form)
 
 
