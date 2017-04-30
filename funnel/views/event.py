@@ -35,6 +35,16 @@ def admin(profile, space):
     return render_template('admin.html', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
 
 
+@app.route('/<space>/events', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='admin')
+def events(profile, space):
+    return render_template('event_list.html', profile=profile, space=space, events=space.events)
+
+
 @app.route('/<space>/events/json', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -197,3 +207,14 @@ def event(profile, space, event):
         db.session.commit()
         return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
     return render_template('event.html', profile=profile, space=space, event=event, badge_form=ParticipantBadgeForm(model=Participant), checkin_form=forms.Form())
+
+
+@app.route('/<space>/event/<name>/scan_badge', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='view-event')
+def scan_badge(profile, space, event):
+    return render_template('scan_badge.html', profile=profile, space=space, event=event)

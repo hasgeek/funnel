@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
+{% block title %}{{ space.title }}{% endblock %}
+{% block pageheaders %}
+{% endblock %}
+{% block headline %}
+{% endblock %}
+
+{% block content %}
+  <div class="row" id="scan-badge-wrapper">
+    {% raw %}
+    <script id='scan-badge-template' type='text/ractive'>
+
+      <div class="col-lg-4 col-xs-12">
+        <h1>{{ spaceTitle }}</h1>
+        <h3>{{ eventTitle }}</h3>
+        <h5>Please scan your badge to check-in</h5>
+        {{#if qrReaderOn}}
+          <button type="button" class="btn btn-danger btn-sm" on-click="toggleQrReader(false)">Stop scan</button>
+        {{else}}
+          <button type="button" class="btn btn-danger btn-sm" on-click="toggleQrReader(true)">Start scan</button>
+        {{/if}}
+      </div>
+
+      <div class="col-lg-8 col-xs-12">
+        {{#if qrReaderOn}}
+          <div id="reader" class="qrcode-reader">
+          </div>
+        {{/if}}
+      </div>
+
+      <div class="modal fade" id="status-msg" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header {{#if !scanning && !attendeeFound}}bg-danger{{/if}}">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Check in status</h4>
+            </div>
+            <div class="modal-body">
+              {{#if scanning}}
+                <h4>Scanning <i class="fa fa-spinner fa-spin fa-2x"></i></h4>
+              {{elseif attendeeFound}}
+                <h4>Hello {{attendeeName}},</h4>
+                <p>Thank you for checking in</p>
+                <p>Hope you enjoy the conference.</p>
+              {{else}}
+                <h4>Attendee details not found</h4>
+              {{/if}}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </script>
+    {% endraw %}
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  {% assets "js_html5-qrcode" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+<script>
+  $(document).ready(function() {
+
+    var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name) }}"
+
+    var scanBadge = new Ractive({
+      el: '#scan-badge-wrapper',
+      template: '#scan-badge-template',
+      data: {
+        spaceTitle: "{{ space.title }}",
+        eventTitle: "{{ event.title }}",
+        qrReaderOn: false,
+        scanning: false,
+        attendeeName: "",
+        attendeeFound: false
+      },
+      toggleQrReader: function(action) {
+        if (action) {
+          this.set('qrReaderOn', true);
+          this.startQrcodeReader();
+        }
+        else {
+          $('#reader').html5_qrcode_stop();
+          this.set('qrReaderOn', false);
+        }
+      },
+      startQrcodeReader: function() {
+        var ractiveComponent = this;
+
+        $('#reader').html5_qrcode(function (qrcode) {
+          console.log("data", qrcode);
+          if (qrcode.length === 16) {
+            ractiveComponent.set('scanning', true);
+            var puk = qrcode.substring(0,8);
+            var formValues = $.param({"puk":[puk]}, true);
+            formValues += "&checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
+            $.ajax({
+              type: 'POST',
+              url:  checkinApiUrl,
+              data : formValues,
+              timeout: 5000,
+              dataType: "json",
+              success: function(response) {
+                ractiveComponent.set({
+                  'scanning':false,
+                  'attendeeFound': true
+                });
+                ractiveComponent.set('attendeeName', response.result[0].fullname);
+                $("#status-msg").modal('show');
+              },
+              error: function() {
+                ractiveComponent.set({
+                  'scanning': false,
+                  'attendeeFound': false
+                });
+                $("#status-msg").modal('show');
+              }
+            });
+          }
+        },
+        function (error){
+          console.log("Error");
+        }, function (videoError) {
+          console.log("Video error");
+        });
+      }
+    });
+    
+  });
+</script>
+{% endblock %}

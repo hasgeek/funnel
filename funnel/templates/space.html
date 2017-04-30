@@ -133,9 +133,14 @@
 <ul class="list-inline">
   {%- if 'admin' in space.permissions(g.user) %}
     <li>
+      <a href="{{ space.url_for('events') }}" class='btn btn-danger btn-sm'>{% trans %}Mange check-in{% endtrans %}</a>
+    </li>
+  {%- endif %}
+  {%- if 'admin' in space.permissions(g.user) %}
+    <li>
       <a href="{{ space.url_for('admin') }}" class='btn btn-danger btn-sm'>{% trans %}Manage Event{% endtrans %}</a>
     </li>
-  {%- endif %}  
+  {%- endif %}
   {%- if space.sessions %}
     <li>
       <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>

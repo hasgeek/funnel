@@ -26,6 +26,8 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.css'][version] = 'css/schedules.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['screens.css'][version] = 'css/screens.css'
+assets['html5-qrcode.js'][version] = 'js/libs/html5-qrcode.js'
+assets['jsqrcode-combined.js'][version] = 'js/libs/jsqrcode-combined.js'
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -59,3 +61,6 @@ def init_for(env):
     app.assets.register('css_screens',
         Bundle(assets.require('screens.css'),
             output='css/screens.packed.css', filters='cssmin'))
+    app.assets.register('js_html5-qrcode',
+        Bundle(assets.require('html5-qrcode.js', 'jsqrcode-combined.js'),
+            output='js/html5-qrcode.packed.js', filters='uglipyjs'))
