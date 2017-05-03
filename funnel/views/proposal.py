@@ -4,7 +4,7 @@ from datetime import datetime
 from bleach import linkify
 
 from flask import g, render_template, redirect, request, Markup, abort, flash, escape
-from flask.ext.mail import Message
+from flask_mail import Message
 from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
