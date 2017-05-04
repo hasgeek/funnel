@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 import coaster.app
 from flask import Flask
+from flask_migrate import Migrate
 from flask_mail import Mail
 from flask_lastuser import Lastuser
 from flask_lastuser.sqlalchemy import UserManager
@@ -39,7 +40,7 @@ from .models import db
 coaster.app.init_app(app)
 db.init_app(app)
 db.app = app
-
+migrate = Migrate(app, db)
 mail.init_app(app)
 lastuser.init_app(app)
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))

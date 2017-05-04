@@ -13,3 +13,4 @@ alembic
 qrcode
 rq
 psycopg2
+Flask-Migrate
