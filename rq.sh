@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rqworker -c rqdev funnel
+rqworker -c rqinit funnel
