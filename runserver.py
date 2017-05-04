@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-from funnel import app, init_for
-init_for('dev')
+from funnel import app
 
 try:
     port = int(sys.argv[1])

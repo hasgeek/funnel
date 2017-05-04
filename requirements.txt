@@ -9,9 +9,7 @@ icalendar
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
-Flask-Script==0.5.3
 alembic
-git+https://github.com/tobiasandtobias/flask-alembic.git
 qrcode
 rq
 psycopg2

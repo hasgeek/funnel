@@ -36,26 +36,25 @@ from .models import db
 
 # --- Configuration------------------------------------------------------------
 
-def init_for(env):
-    coaster.app.init_app(app, env)
-    db.init_app(app)
-    db.app = app
+coaster.app.init_app(app)
+db.init_app(app)
+db.app = app
 
-    mail.init_app(app)
-    lastuser.init_app(app)
-    lastuser.init_usermanager(UserManager(db, models.User, models.Team))
-    baseframe.init_app(app, requires=['funnel'], ext_requires=[
-        ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-bs3', 'fontawesome>=4.0.0',
-        'baseframe-footable'])
-    app.assets.register('js_fullcalendar',
-        Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
-            output='js/fullcalendar.packed.js', filters='uglipyjs'))
-    app.assets.register('css_fullcalendar',
-        Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css', 'schedules.css'),
-            output='css/fullcalendar.packed.css', filters='cssmin'))
-    app.assets.register('js_schedules',
-        Bundle(assets.require('schedules.js'),
-            output='js/schedules.packed.js', filters='uglipyjs'))
-    app.assets.register('css_screens',
-        Bundle(assets.require('screens.css'),
-            output='css/screens.packed.css', filters='cssmin'))
+mail.init_app(app)
+lastuser.init_app(app)
+lastuser.init_usermanager(UserManager(db, models.User, models.Team))
+baseframe.init_app(app, requires=['funnel'], ext_requires=[
+    ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-bs3', 'fontawesome>=4.0.0',
+    'baseframe-footable'])
+app.assets.register('js_fullcalendar',
+    Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
+        output='js/fullcalendar.packed.js', filters='uglipyjs'))
+app.assets.register('css_fullcalendar',
+    Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css', 'schedules.css'),
+        output='css/fullcalendar.packed.css', filters='cssmin'))
+app.assets.register('js_schedules',
+    Bundle(assets.require('schedules.js'),
+        output='js/schedules.packed.js', filters='uglipyjs'))
+app.assets.register('css_screens',
+    Bundle(assets.require('screens.css'),
+        output='css/screens.packed.css', filters='cssmin'))
