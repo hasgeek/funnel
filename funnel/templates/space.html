@@ -72,7 +72,7 @@
               {% endif %}
             </a></td>
             <td class="num"><a href="{{ link }}">{{ proposal.comments.count }}</a></td>
-            <td><a href="{{ link }}">{{ proposal.datetime.strftime("%a, %b %e") }}</a></td>
+            <td><a href="{{ link }}">{{ proposal.datetime.strftime("%a, %e %b") }}</a></td>
           </tr>
         </tbody>
       {% else %}

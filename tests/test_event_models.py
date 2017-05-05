@@ -21,7 +21,6 @@ class TestEventModels(unittest.TestCase):
     def setUp(self):
         self.ctx = self.app.test_request_context()
         self.ctx.push()
-        init_for('test')
         db.create_all()
         # Initial Setup
         random_user_id = random.randint(1, 1000)
