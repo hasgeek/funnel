@@ -143,9 +143,10 @@ def participant(profile, space):
     permission='view-participant')
 def participant_badge(profile, space, participant):
     badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'
+    badge_template = 'https://images.hasgeek.com/embed/file/255da4692aec4ce7b17e258d0c94336a'
     if badge_type:
         if 'blank' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
             return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
         if 'nofrill' in badge_type:
             badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'
@@ -231,9 +232,10 @@ def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
     badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'
+    badge_template = 'https://images.hasgeek.com/embed/file/255da4692aec4ce7b17e258d0c94336a'
     if badge_type:
         if 'blank' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
             return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
         if 'nofrill' in badge_type:
             badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from flask.ext.lastuser.sqlalchemy import ProfileBase
+from flask_lastuser.sqlalchemy import ProfileBase
 from . import db, MarkdownColumn
 from .user import Team
 
