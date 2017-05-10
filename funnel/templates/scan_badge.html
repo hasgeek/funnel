@@ -21,10 +21,10 @@
           {{#cameras:camera}}
             {{#if activeCameraId === cameras[camera].id}}
               {{#if !qrReaderOn}}
-              <button on-click="startCamera(cameras[camera])" class="btn btn-default">Start {{ formatName(cameras[camera].name) }}</button>
+              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
               {{/if}}
             {{else}}
-              <button on-click="startCamera(cameras[camera])" class="btn btn-default">Start {{ formatName(cameras[camera].name) }}</button>
+              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
             {{/if}}
           {{/}}
         {{else}}
@@ -48,8 +48,8 @@
                 <h4>Scanning <i class="fa fa-spinner fa-spin fa-2x"></i></h4>
               {{elseif attendeeFound}}
                 <h4>Hello {{attendeeName}},</h4>
-                <p>Thank you for checking in</p>
-                <p>Hope you enjoy the conference.</p>
+                <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
+                <p>HasGeek</p>
               {{else}}
                 <h4>Attendee details not found</h4>
               {{/if}}
@@ -103,6 +103,7 @@
             console.log("qrcode", qrcode);
             if (qrcode.length === 16) {
               ractiveComponent.set('scanning', true);
+              $("#status-msg").modal('show');
               var puk = qrcode.substring(0,8);
               var formValues = $.param({"puk":[puk]}, true);
               formValues += "&checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
@@ -118,18 +119,17 @@
                     'attendeeFound': true
                   });
                   ractiveComponent.set('attendeeName', response.result[0].fullname);
-                  $("#status-msg").modal('show');
                 },
                 error: function() {
                   ractiveComponent.set({
                     'scanning': false,
                     'attendeeFound': false
                   });
-                  $("#status-msg").modal('show');
                 }
               });
             }
           });
+
           Instascan.Camera.getCameras().then(function (cameras) {
             ractiveComponent.set('cameras', cameras);
           }).catch(function (e) {
