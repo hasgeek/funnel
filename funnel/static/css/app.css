@@ -766,17 +766,5 @@ button.no-bg {
 }
 
 .qrcode-reader {
-  height: 300px;
-}
-
-@media (min-width: 768px) {
-  .qrcode-reader {
-    height: 400px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .qrcode-reader {
-    height: 500px;
-  }
+  width: 100%;
 }
