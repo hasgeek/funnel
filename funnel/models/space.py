@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn
+from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn, JsonDict
 from .user import User, Team
 from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
@@ -64,6 +64,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     parent_space_id = db.Column(None, db.ForeignKey('proposal_space.id', ondelete='SET NULL'), nullable=True)
     parent_space = db.relationship('ProposalSpace', remote_side='ProposalSpace.id', backref='subspaces')
+    inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
+    labels = db.Column(JsonDict, nullable=False, server_default='{}')
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
@@ -130,6 +132,40 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     def location_geonameid(self):
         return geonameid_from_location(self.datelocation)
 
+    @property
+    def proposal_part_a(self):
+        return self.labels.get('proposal', {}).get('part_a', {})
+
+    @property
+    def proposal_part_b(self):
+        return self.labels.get('proposal', {}).get('part_b', {})
+
+
+    def set_labels(self, value=None):
+        """
+        Sets 'labels' with the provided JSON, else with a default configuration
+        for fields with customizable labels.
+
+        Currently, the 'part_a' and 'part_b' fields in 'Proposal'
+        are allowed to be customized per proposal space.
+        """
+        if value and isinstance(value, dict):
+            self.labels = value
+        else:
+            self.labels = {
+                "proposal": {
+                    "part_a": {
+                        "title": "Abstract",
+                        "hint": "Give us a brief description of your talk, key takeaways for the audience and the intended audience."
+                    },
+                    "part_b": {
+                        "title": "Outline",
+                        "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or text description."
+                    }
+                }
+            }
+
+
     def user_in_group(self, user, group):
         for grp in self.usergroups:
             if grp.name == group:
@@ -173,7 +209,13 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'new-ticket-client',
                     'edit-ticket-client',
                     'edit-event',
-                    'admin'
+                    'admin',
+                    'checkin-event',
+                    'view-event',
+                    'view-ticket-type',
+                    'edit-participant',
+                    'view-participant',
+                    'new-participant'
                     ])
             if self.review_team and user in self.review_team.users:
                 perms.update([

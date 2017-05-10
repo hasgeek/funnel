@@ -17,6 +17,7 @@ class ParticipantForm(forms.Form):
     company = forms.StringField(__("Company"), validators=[forms.validators.Length(max=80)])
     job_title = forms.StringField(__("Job Title"), validators=[forms.validators.Length(max=80)])
     twitter = forms.StringField(__("Twitter"), validators=[forms.validators.Length(max=15)])
+    badge_printed = forms.BooleanField(__("Badge Printed"))
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(),
         get_label='title',

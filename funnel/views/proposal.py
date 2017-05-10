@@ -4,12 +4,13 @@ from datetime import datetime
 from bleach import linkify
 
 from flask import g, render_template, redirect, request, Markup, abort, flash, escape
-from flask.ext.mail import Message
+from flask_mail import Message
+from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
 from baseframe import _
-from baseframe.forms import render_form, render_delete_sqla
+from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
@@ -100,7 +101,10 @@ def proposal_data_flat(proposal, groups=[]):
 def proposal_new(profile, space):
     form = ProposalForm(model=Proposal, parent=space)
     del form.session_type  # We don't use this anymore
-    form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    if space.inherit_sections:
+        form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    else:
+        form.section.query = ProposalSpaceSection.query.filter(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
@@ -134,7 +138,10 @@ def proposal_edit(profile, space, proposal):
     form = ProposalForm(obj=proposal.formdata, model=Proposal, parent=space)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
-    form.section.query = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title')
+    if space.inherit_sections:
+        form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    else:
+        form.section.query = ProposalSpaceSection.query.filter(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
@@ -289,7 +296,9 @@ def proposal_view(profile, space, proposal):
     return render_template('proposal.html', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
-        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform)
+        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform,
+        part_a=space.proposal_part_a.get('title', 'Objective'),
+        part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 
 
 @app.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')

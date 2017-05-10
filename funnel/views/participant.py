@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, g, url_for, jsonify
+from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
@@ -20,7 +20,7 @@ def participant_badge_data(participants, space):
             'last_name': last_name,
             'twitter': format_twitter_handle(participant.twitter),
             'company': participant.company,
-            'qrcode_content': make_qrcode(u"{participant.puk}{participant.key}")
+            'qrcode_content': make_qrcode(u"{puk}{key}".format(puk=participant.puk, key=participant.key))
         })
     return badges
 
@@ -49,6 +49,18 @@ def participant_data(participant, space_id, full=False):
         }
 
 
+def participant_checkin_data(participant, space, event):
+    return {
+        'pid': participant.id,
+        'fullname': participant.fullname,
+        'company': participant.company,
+        'email': participant.email,
+        'badge_printed': participant.badge_printed,
+        'checked_in': participant.checked_in,
+        'ticket_type_titles': participant.ticket_type_titles
+    }
+
+
 @app.route('/<space>/participants/json', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -72,7 +84,8 @@ def new_participant(profile, space):
         participant = Participant(proposal_space=space)
         form.populate_obj(participant)
         try:
-            db.session().add_and_commit(participant)
+            db.session.add(participant)
+            db.session.commit()
         except IntegrityError:
             db.session.rollback()
             flash(_(u"This participant already exists."), 'info')
@@ -111,7 +124,8 @@ def participant(profile, space):
     elif participant.key == request.args.get('key'):
         try:
             contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
-            db.session().add_and_commit(contact_exchange)
+            db.session.add(contact_exchange)
+            db.session.commit()
         except IntegrityError:
             app.logger.warning(u"Contact Exchange already present")
             db.session.rollback()
@@ -128,25 +142,83 @@ def participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='view-participant')
 def participant_badge(profile, space, participant):
-    return render_template('badge.html', badges=participant_badge_data([participant], space))
+    badge_type = request.args.getlist('type')
+    badge_template = 'https://images.hasgeek.com/embed/file/255da4692aec4ce7b17e258d0c94336a'
+    if badge_type:
+        if 'blank' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
+            return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
+        if 'nofrill' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'
+        if 'premium' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'
+    return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    (Participant, {'id': 'participant_id'}, 'participant'),
     permission='checkin-event')
-def event_checkin(profile, space, event, participant):
-    attendee = Attendee.get(event, participant)
+def event_checkin(profile, space, event):
     form = forms.Form()
     if form.validate_on_submit():
-        # Toggle check-in status
-        attendee.checked_in = not attendee.checked_in
+        checked_in = True if request.form.get('checkin') == 't' else False
+        participant_ids = request.form.getlist('pid')
+        for participant_id in participant_ids:
+            participant = Participant.query.filter_by(id=participant_id).first()
+            attendee = Attendee.get(event, participant)
+            attendee.checked_in = checked_in
         db.session.commit()
+        if request.is_xhr:
+            return jsonify(status=True, participant_ids=participant_ids, checked_in=checked_in)
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
+
+
+@app.route('/<space>/event/<name>/checkin/api', methods=['POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='checkin-event')
+def checkin_puk(profile, space, event):
+    checked_in = True if request.form.get('checkin') == 't' else False
+    participant_puks = request.form.getlist('puk')
+    attendees = []
+    for participant_puk in participant_puks:
+        participant = Participant.query.filter_by(puk=participant_puk).first()
+        attendee = Attendee.get(event, participant)
+        if not attendee:
+            return make_response(jsonify(error='not_found', error_description="Attendee not found"), 404)
+        attendee.checked_in = checked_in
+        attendees.append({
+            'puk': participant_puk,
+            'fullname': participant.fullname,
+            'checked_in': attendee.checked_in
+            })
+    db.session.commit()
+    return jsonify(result=attendees)
+
+
+@app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='checkin-event')
+def event_participants_json(profile, space, event):
+    checkin_count = 0
+    participants = []
+    for participant in Participant.checkin_list(event):
+        participants.append(participant_checkin_data(participant, space, event))
+        if participant.checked_in:
+            checkin_count += 1
+
+    return jsonify(participants=participants, total_participants=len(participants), total_checkedin=checkin_count)
 
 
 @app.route('/<space>/event/<name>/badges', subdomain='<profile>')
@@ -159,4 +231,14 @@ def event_checkin(profile, space, event, participant):
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    return render_template('badge.html', badges=participant_badge_data(participants, space))
+    badge_type = request.args.getlist('type')
+    badge_template = 'https://images.hasgeek.com/embed/file/255da4692aec4ce7b17e258d0c94336a'
+    if badge_type:
+        if 'blank' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
+            return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
+        if 'nofrill' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'
+        if 'premium' in badge_type:
+            badge_template = 'https://images.hasgeek.com/embed/file/02f9b190577a44f48b8816af1dc4928c'
+    return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))

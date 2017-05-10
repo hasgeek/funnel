@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm', 'TicketClientForm']
+__all__ = ['ProposalSpaceForm', 'ProposalSubspaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm', 'TicketClientForm']
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -21,9 +21,9 @@ class ProposalSpaceForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)])
     date = forms.DateField(__("Start date (for sorting)"),
-        validators=[forms.validators.DataRequired(__("Enter a valid date in YYYY-MM-DD format"))])
+        validators=[forms.validators.DataRequired(__("This is required"))])
     date_upto = forms.DateField(__("End date (for sorting)"),
-        validators=[forms.validators.DataRequired(__("Enter a valid date in YYYY-MM-DD format"))])
+        validators=[forms.validators.DataRequired(__("This is required"))])
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired()],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
@@ -42,6 +42,7 @@ class ProposalSpaceForm(forms.Form):
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
         validators=[forms.validators.Optional()])
+    parent_space = QuerySelectField(__(u"Parent space"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     status = forms.SelectField(__("Status"), coerce=int, choices=[
         (0, __("Draft")),
@@ -72,6 +73,10 @@ class ProposalSpaceForm(forms.Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+
+class ProposalSubspaceForm(ProposalSpaceForm):
+    inherit_sections = forms.BooleanField(__("Inherit sections from parent space?"), default=True)
 
 
 class RsvpForm(forms.Form):

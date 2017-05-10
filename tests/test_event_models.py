@@ -21,7 +21,6 @@ class TestEventModels(unittest.TestCase):
     def setUp(self):
         self.ctx = self.app.test_request_context()
         self.ctx.push()
-        init_for('test')
         db.create_all()
         # Initial Setup
         random_user_id = random.randint(1, 1000)
@@ -55,7 +54,7 @@ class TestEventModels(unittest.TestCase):
 
     def test_import_from_list(self):
         # test bookings
-        self.ticket_client.import_from_list(self.space, ticket_list)
+        self.ticket_client.import_from_list(ticket_list)
         p1 = Participant.query.filter_by(email='participant1@gmail.com', proposal_space=self.space).one_or_none()
         p2 = Participant.query.filter_by(email='participant2@gmail.com', proposal_space=self.space).one_or_none()
         p3 = Participant.query.filter_by(email='participant3@gmail.com', proposal_space=self.space).one_or_none()
@@ -66,13 +65,15 @@ class TestEventModels(unittest.TestCase):
         self.assertEquals(len(p3.events), 1)
 
         # test cancellations
-        cancel_list = [SyncTicket.get(self.space, 'o2', 't2')]
-        self.ticket_client.import_from_list(self.space, ticket_list2, cancel_list=cancel_list)
+        self.ticket_client.import_from_list(ticket_list2)
         self.assertEquals(len(p1.events), 2)
         self.assertEquals(len(p2.events), 0)
+        self.assertEquals(len(p3.events), 1)
 
         # test_transfers
-        self.ticket_client.import_from_list(self.space, ticket_list3)
-        self.assertEquals(len(p2.events), 1)
-        self.assertEquals(p2.events[0], Event.get(self.space, current_name='spacecon'))
+        self.ticket_client.import_from_list(ticket_list3)
+        p4 = Participant.query.filter_by(email='participant4@gmail.com', proposal_space=self.space).one_or_none()
+        self.assertEquals(len(p1.events), 2)
+        self.assertEquals(len(p2.events), 0)
         self.assertEquals(len(p3.events), 0)
+        self.assertEquals(len(p4.events), 1)

@@ -13,22 +13,28 @@ def geonameid_from_location(text):
     """ Accepts a string, checks hascore if there's a location embedded
         in the string, and returns a set of matched geonameids.
         Eg: "Bangalore" -> {1277333}
+
+        Returns an empty set if the request timed out, or if the Hascore config
+        wasn't set.
         To detect multiple locations, split them up and pass each location individually
     """
     if 'HASCORE_SERVER' in app.config:
         url = urljoin(app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
-        response = requests.get(url, params={'q': text}).json()
-        geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]
-        return set(geonameids)
-    return None
+        try:
+            response = requests.get(url, params={'q': text}, timeout=2.0).json()
+            geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]
+            return set(geonameids)
+        except requests.exceptions.Timeout:
+            pass
+    return set()
 
 
-def format_twitter_handle(handle):
+def extract_twitter_handle(handle):
     """
-    Formats a user-provided twitter handle.
+    Extracts a twitter handle from a user input.
 
     Usage::
-      >>> format_twitter_handle('https://twitter.com/marscuriosity')
+      >>> extract_twitter_handle('https://twitter.com/marscuriosity')
       u'marscuriosity'
 
     **Notes**
@@ -49,6 +55,10 @@ def format_twitter_handle(handle):
         return None
 
     return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace('@', '')
+
+
+def format_twitter_handle(handle):
+    return "@{handle}".format(handle=handle) if handle else ""
 
 
 def split_name(fullname):
