@@ -11,9 +11,11 @@ install:
   - pip install -U pip wheel
   - pip install -r requirements.txt
 script:
-  - nosetests -v tests
+  - ./runtests.sh
   - nohup python runtestserver.py &
   - sleep 10
+after_success:
+  - coveralls
 addons:
   postgresql: "9.4"
 services:
