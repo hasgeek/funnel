@@ -13,8 +13,6 @@ install:
   - pip install -r test_requirements.txt
 script:
   - ./runtests.sh
-  - nohup python runtestserver.py &
-  - sleep 10
 after_success:
   - coveralls
 addons:
