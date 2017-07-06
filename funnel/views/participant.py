@@ -143,7 +143,7 @@ def participant(profile, space):
     permission='view-participant')
 def participant_badge(profile, space, participant):
     badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/255da4692aec4ce7b17e258d0c94336a'
+    badge_template = 'https://images.hasgeek.com/embed/file/4cea6c203c764a1da9fe07cc6b6b1ce0'
     if badge_type:
         if 'blank' in badge_type:
             badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
@@ -232,7 +232,7 @@ def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
     badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/255da4692aec4ce7b17e258d0c94336a'
+    badge_template = 'https://images.hasgeek.com/embed/file/4cea6c203c764a1da9fe07cc6b6b1ce0'
     if badge_type:
         if 'blank' in badge_type:
             badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
