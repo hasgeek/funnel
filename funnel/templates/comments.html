@@ -34,7 +34,7 @@
     {%- endif %}
   </div>
 {% endmacro %}
-{% macro commenttree(comments, document, currentuser, documenturl, csrf_form) %}
+{% macro commenttree(comments, document, space, currentuser, documenturl, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
     <div id="c{{ comment.id }}">
@@ -45,6 +45,9 @@
           <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
         {%- else -%}
           <span class="commenter {%- if comment.user == document.user %} selected{% endif %}">{{ comment.user.pickername }}</span>
+          {% if not comment.is_deleted and space.review_team and comment.user in space.review_team.users %}
+            <span class="label label-primary">Reviewer</span>
+          {% endif %}
           {{ comment.created_at|age }}
           {%- if comment.edited_at %}
             ({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})
@@ -70,7 +73,7 @@
     </div>
     {% if comment.children %}
       <ul class="com-children">
-        {{ commenttree(comment.sorted_children(), document, currentuser, documenturl, csrf_form) }}
+        {{ commenttree(comment.sorted_children(), document, space, currentuser, documenturl, csrf_form) }}
       </ul>
     {% endif %}
   </li>
