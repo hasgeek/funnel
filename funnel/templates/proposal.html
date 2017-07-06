@@ -268,7 +268,7 @@
           <h2 id="comments">{% trans %}Comments{% endtrans %}</h2>
           {% if comments %}
             <ul class="comments">
-              {{ commenttree(comments, proposal, g.user, request.base_url, csrf_form) }}
+              {{ commenttree(comments, proposal, space, g.user, request.base_url, csrf_form) }}
             </ul>
           {% endif %}
           {% if not g.user -%}
