@@ -46,7 +46,7 @@
         {%- else -%}
           <span class="commenter">{{ comment.user.pickername }}</span>
           {%- if comment.user == document.user %}
-            <span class="label label-success">Proposer</span>
+            <span class="label label-default">Proposer</span>
           {% endif %}
           {% if not comment.is_deleted and space.review_team and comment.user in space.review_team.users %}
             <span class="label label-primary">Reviewer</span>
