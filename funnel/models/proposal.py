@@ -7,6 +7,7 @@ from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
+from coaster.sqlalchemy import SqlSplitIdComparator
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
@@ -297,17 +298,32 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
 
 class ProposalRedirect(TimestampMixin, db.Model):
-    __tablename__ = "proposal_redirect"
+    __tablename__ = 'proposal_redirect'
 
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposal_redirects', cascade="all, delete-orphan"))
     parent = db.synonym('proposal_space')
     url_id = db.Column(db.Integer, nullable=False, primary_key=True)
-    url_id_attr = 'url_id'
 
     proposal_id = db.Column(None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True)
     proposal = db.relationship(Proposal, backref='redirects')
+
+    @hybrid_property
+    def url_id_name(self):
+        """
+        Returns a URL name that is just :attr:`url_id`. This property is also
+        available as :attr:`url_name` for legacy reasons. This property will
+        likely never be called directly on an instance. It exists for the SQL
+        comparator that will be called to load the instance.
+        """
+        return unicode(self.url_id)
+
+    @url_id_name.comparator
+    def url_id_name(cls):
+        return SqlSplitIdComparator(cls.url_id, splitindex=0)
+
+    url_name = url_id_name  # Legacy name
 
     def __repr__(self):
         return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
