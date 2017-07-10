@@ -58,10 +58,10 @@ class ProposalSpaceLabelset(TimestampMixin, db.Model):
 
 
 # TODO: Should this be just a secondary table?
-class ProposalLabel(TimestampMixin, db.Model):
-    __tablename__ = 'proposal_label'
+# class ProposalLabel(TimestampMixin, db.Model):
+#     __tablename__ = 'proposal_label'
 
-    proposal_id = db.Column(None, db.ForeignKey('proposal.id'), nullable=False, primary_key=True)
-    proposal = db.relationship(Proposal, backref=db.backref('label_links', cascade='all, delete-orphan'))
-    label_id = db.Column(None, db.ForeignKey('label.id'), nullable=False, primary_key=True)
-    label = db.relationship(Label, backref=db.backref('proposal_links', cascade='all, delete-orphan'))
+#     proposal_id = db.Column(None, db.ForeignKey('proposal.id'), nullable=False, primary_key=True)
+#     proposal = db.relationship(Proposal, backref=db.backref('label_links', cascade='all, delete-orphan'))
+#     label_id = db.Column(None, db.ForeignKey('label.id'), nullable=False, primary_key=True)
+#     label = db.relationship(Label, backref=db.backref('proposal_links', cascade='all, delete-orphan'))
