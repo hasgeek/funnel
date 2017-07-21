@@ -73,7 +73,6 @@ class ProposalForm(forms.Form):
             self.description.description = space.proposal_part_b.get('hint')
 
 
-
 class ProposalStatusForm(forms.Form):
     status = forms.SelectField(
         __("Status"), coerce=int,
