@@ -47,7 +47,7 @@ def cors(any_get=False):
     Requires `app.config['ALLOWED_ORIGINS']` to be defined with a list
     of permitted domains. Eg: app.config['ALLOWED_ORIGINS'] = ['https://example.com']
 
-    :param any_get: Specify * on the Access-Control-Allow-Origin for any GET request
+    :param any_get: Specify * on the Access-Control-Allow-Origin header for any GET request
     """
     def inner(f):
         def add_headers(resp, origin):
