@@ -133,7 +133,7 @@
 <ul class="list-inline">
   {%- if 'admin' in space.permissions(g.user) %}
     <li>
-      <a href="{{ space.url_for('events') }}" class='btn btn-danger btn-sm btn-block'>{% trans %}Mange check-in{% endtrans %}</a>
+      <a href="{{ space.url_for('events') }}" class='btn btn-danger btn-sm btn-block'>{% trans %}Manage check-in{% endtrans %}</a>
     </li>
   {%- endif %}
   {%- if 'admin' in space.permissions(g.user) %}
