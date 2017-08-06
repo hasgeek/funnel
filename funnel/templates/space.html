@@ -23,16 +23,18 @@
           <tr>
             <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
             <td colspan="6">
-              <a href="{{ link }}"><strong>{{ proposal.title }}</strong></a>
-              {% if proposal.preview_video %}
-                <span data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" class="tooltip icon-film" style="opacity: 1"></span>
-              {% endif %}
-              {% if proposal.slides %}
-                <span  data-toggle="tooltip" data-placement="top" title="This proposal has slides" class="tooltip icon-desktop" style="opacity: 1"></span>
-              {% endif %}
-              {% if proposal.blog_post %}
-                <span  data-toggle="tooltip" data-placement="top" title="This proposal has a blog post" class="tooltip icon-list-alt" style="opacity: 1"></span>
-              {% endif %}
+              <a href="{{ link }}">
+                <strong>{{ proposal.title }}</strong>
+                {% if proposal.preview_video %}
+                  &nbsp;<span data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" class="fa fa-film"></span>
+                {% endif %}
+                {% if proposal.slides %}
+                  &nbsp;<span data-toggle="tooltip" data-placement="top" title="This proposal has slides" class="fa fa-desktop media-middle"></span>
+                {% endif %}
+                {% if proposal.blog_post %}
+                  &nbsp;<span data-toggle="tooltip" data-placement="top" title="This proposal has a blog post" class="fa fa-list-alt"></span>
+                {% endif %}
+              </a>
             </td>
           </tr>
           <tr>
