@@ -47,3 +47,4 @@ WELCOME_MESSAGE = "The funnel is a space for proposals and voting on events. Pic
 HASCORE_SERVER = 'https://api.hasgeek.com/'
 CACHE_TYPE = 'redis'
 DEBUG = True
+ALLOWED_ORIGINS = ['']

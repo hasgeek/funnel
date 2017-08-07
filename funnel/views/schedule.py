@@ -13,7 +13,7 @@ from coaster.views import load_models, requestargs, jsonp
 
 from .. import app, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Session, VenueRoom, Venue
-from .helpers import localize_date
+from .helpers import localize_date, cors
 from .venue import venue_data, room_data
 
 
@@ -141,6 +141,7 @@ def schedule_subscribe(profile, space):
 
 
 @app.route('/<space>/schedule/json', subdomain='<profile>')
+@cors(any_get=True)
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
