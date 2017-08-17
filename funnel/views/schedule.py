@@ -141,11 +141,11 @@ def schedule_subscribe(profile, space):
 
 
 @app.route('/<space>/schedule/json', subdomain='<profile>')
+@cors(lambda origin: True)
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
-@cors(lambda origin: True)
 def schedule_json(profile, space):
     return jsonp(schedule=schedule_data(space),
         venues=[venue_data(venue) for venue in space.venues],
