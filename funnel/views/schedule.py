@@ -141,7 +141,7 @@ def schedule_subscribe(profile, space):
 
 
 @app.route('/<space>/schedule/json', subdomain='<profile>')
-@cors(lambda origin: True)
+@cors('*')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
