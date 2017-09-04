@@ -3,6 +3,7 @@
 from baseframe import _
 from flask import request, render_template, jsonify
 from coaster.views import load_models
+from coaster.sqlalchemy import failsafe_add
 
 from .helpers import localize_date
 from .. import app, lastuser
@@ -42,7 +43,7 @@ def session_form(space, proposal=None, session=None):
             session.parent = space
             session.make_id()  # FIXME: This should not be required
             session.make_name()
-            db.session.add(session)
+            session = failsafe_add(db.session, session, proposal_space_id=space.id, url_id=session.url_id)
         db.session.commit()
         data = dict(
             id=session.url_id, title=session.title, room_scoped_name=session.venue_room.scoped_name if session.venue_room else None,
