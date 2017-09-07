@@ -9,7 +9,7 @@ from time import mktime
 
 from flask import render_template, json, jsonify, request, Response
 
-from coaster.views import load_models, requestargs, jsonp
+from coaster.views import load_models, requestargs, jsonp, cors
 
 from .. import app, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Session, VenueRoom, Venue
@@ -141,6 +141,7 @@ def schedule_subscribe(profile, space):
 
 
 @app.route('/<space>/schedule/json', subdomain='<profile>')
+@cors('*')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
