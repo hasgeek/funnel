@@ -15,13 +15,14 @@ def participant_badge_data(participants, space):
     badges = []
     for participant in participants:
         first_name, last_name = split_name(participant.fullname)
+        ticket = SyncTicket.query.filter_by(participant=participant).first()
         badges.append({
             'first_name': first_name,
             'last_name': last_name,
             'twitter': format_twitter_handle(participant.twitter),
             'company': participant.company,
             'qrcode_content': make_qrcode(u"{puk}{key}".format(puk=participant.puk, key=participant.key)),
-            'order_no': SyncTicket.query.filter_by(participant=participant).first().order_no
+            'order_no': ticket.order_no if ticket else ''
         })
     return badges
 
