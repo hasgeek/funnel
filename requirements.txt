@@ -6,7 +6,7 @@ Flask-WTF
 pytz
 unicodecsv
 icalendar
-git+https://github.com/hasgeek/coaster.git
+coaster
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
 alembic
