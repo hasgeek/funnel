@@ -5,7 +5,8 @@ from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models
-from datetime import datetime, date
+from coaster.utils import midnight_to_utc
+from datetime import datetime, date, timedelta
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
 from ..forms import ParticipantForm
@@ -107,8 +108,9 @@ def participant_edit(profile, space, participant):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def participant(profile, space):
-    if space.date_upto and datetime.combine(space.date_upto, datetime.max.time()) < datetime.utcnow():
-        return jsonify(message=u"This event has concluded", code=401)
+    if space.date_upto:
+        if midnight_to_utc(space.date_upto + timedelta(days=1), space.timezone, naive=True) < datetime.utcnow():
+            return jsonify(message=u"This event has concluded", code=401)
     participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
     if not participant:
         return jsonify(message=u"Not found", code=404)
