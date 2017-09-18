@@ -5,6 +5,7 @@ from pytz import timezone, utc
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event, Alarm
 from sqlalchemy import or_
+from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
 from flask import render_template, json, jsonify, request, Response
@@ -270,8 +271,11 @@ def schedule_edit(profile, space):
 @requestargs(('sessions', json.loads))
 def schedule_update(profile, space, sessions):
     for session in sessions:
-        s = Session.query.filter_by(proposal_space=space, url_id=session['id']).one()
-        s.start = session['start']
-        s.end = session['end']
-        db.session.commit()
+        try:
+            s = Session.query.filter_by(proposal_space=space, url_id=session['id']).one()
+            s.start = session['start']
+            s.end = session['end']
+            db.session.commit()
+        except NoResultFound:
+            app.logger.error('{space} schedule update error: session = {session}'.format(space=space.name, session=session))
     return jsonify(status=True)
