@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 from flask import flash, redirect, render_template, request, g, url_for, jsonify
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
@@ -6,7 +7,6 @@ from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models
 from coaster.utils import midnight_to_utc
-from datetime import datetime, date, timedelta
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
 from ..forms import ParticipantForm
