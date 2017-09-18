@@ -30,6 +30,8 @@ class ProposalSpaceForm(forms.Form):
         validators=[forms.validators.Optional()])
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("About Event"))
+    criteria = forms.MarkdownField(__("Selection Criteria"), validators=[forms.validators.DataRequired()],
+        description=__("Selection process and required criteria for a talk"))
     timezone = forms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')

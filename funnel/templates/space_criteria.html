@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block title %}{{ space.title + ' - Selection Criteria' }}{% endblock %}
+{% block description %}{{ space.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
+
+{% block headline %}
+  <div class="page-header">
+    {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
+    <h1>{{ space.title + ' - Selection Criteria' }}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+<p>
+  {{ space.datelocation }}<br>
+  <strong>Status:
+    {% if space.status == 0 -%}
+      {% trans %}Draft{% endtrans %}
+    {%- elif space.status == 1 -%}
+      {% trans %}Accepting submissions{% endtrans %}
+    {%- elif space.status == 2 -%}
+      {% trans %}Accepting votes{% endtrans %}
+    {%- elif space.status == 3 -%}
+      {% trans %}Submissions and voting closed, awaiting jury selection{% endtrans %}
+    {%- elif space.status == 4 -%}
+      {% trans %}Open for post-event feedback{% endtrans %}
+    {%- elif space.status == 5 -%}
+      {% trans %}Closed{% endtrans %}
+    {%- elif space.status == 6 -%}
+      {% trans %}Withdrawn{% endtrans %}
+    {%- endif -%}
+  </strong>
+</p>
+{{ criteria }}
+{% if space.status == 1 -%}
+  <p>
+    <a class="btn btn-success" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+  </p>
+{% endif %}
+{% endblock %}
+{% block footerscripts %}
+{% endblock %}
