@@ -12,7 +12,7 @@ def index():
     g.profile = None
     g.permissions = []
     spaces = ProposalSpace.query.filter_by(parent_space=None).filter(ProposalSpace.profile != None).filter(ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()  # NOQA
-    return render_template('index.html', spaces=spaces)
+    return render_template('index.html.jinja2', spaces=spaces)
 
 
 @app.route('/api/whoami')
@@ -43,7 +43,7 @@ def spaces_json(profile):
 def profile_view(profile):
     spaces = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.parent_space == None).filter(
         ProposalSpace.status >= 1).filter(ProposalSpace.status <= 4).order_by(ProposalSpace.date.desc()).all()
-    return render_template('index.html', spaces=spaces)
+    return render_template('index.html.jinja2', spaces=spaces)
 
 
 # Legacy routes for funnel to talkfunnel migration

@@ -1,4 +1,4 @@
-{% from "baseframe/forms.html" import renderform %}
+{% from "baseframe/forms.html.jinja2" import renderform %}
 {% macro rsvpform(space, form) %}{% with counts=space.rsvp_counts() %}
   <form id="rsvp-form" action="{{ space.url_for('rsvp') }}" method="POST">
     {{ form.hidden_tag() }}

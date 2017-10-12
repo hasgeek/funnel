@@ -1,6 +1,6 @@
-{% extends "layout.html" %}
-{% from "macros.html" import rsvpform, rsvpscript %}
-{% from "baseframe/forms.html" import renderfield %}
+{% extends "layout.html.jinja2" %}
+{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{{ space.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
