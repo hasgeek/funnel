@@ -135,7 +135,7 @@ def participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='view-participant')
 def participant_badge(profile, space, participant):
-    return render_template('badge.html', badges=participant_badge_data([participant], space))
+    return render_template('badge.html.jinja2', badges=participant_badge_data([participant], space))
 
 
 @app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
@@ -166,4 +166,4 @@ def event_checkin(profile, space, event, participant):
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    return render_template('badge.html', badges=participant_badge_data(participants, space))
+    return render_template('badge.html.jinja2', badges=participant_badge_data(participants, space))

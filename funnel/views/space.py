@@ -91,7 +91,7 @@ def space_new(profile):
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
-    return render_template('space.html', space=space, description=space.description, sections=sections,
+    return render_template('space.html.jinja2', space=space, description=space.description, sections=sections,
         PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form)
 
 
@@ -168,7 +168,7 @@ def rsvp(profile, space):
         form.populate_obj(rsvp)
         db.session.commit()
         if request.is_xhr:
-            return make_response(render_template('rsvp.html', space=space, rsvp=rsvp, rsvp_form=form))
+            return make_response(render_template('rsvp.html.jinja2', space=space, rsvp=rsvp, rsvp_form=form))
         else:
             return redirect(space.url_for(), code=303)
     else:
@@ -182,4 +182,4 @@ def rsvp(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def rsvp_list(profile, space):
-    return render_template('space_rsvp_list.html', space=space, statuses=RSVP_STATUS)
+    return render_template('space_rsvp_list.html.jinja2', space=space, statuses=RSVP_STATUS)

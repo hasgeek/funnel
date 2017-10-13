@@ -41,7 +41,7 @@ def lastuser_error(error, error_description=None, error_uri=None):
     if error == 'access_denied':
         flash("You denied the request to login", category='error')
         return redirect(get_next_url())
-    return render_template("autherror.html",
+    return render_template("autherror.html.jinja2",
         error=error,
         error_description=error_description,
         error_uri=error_uri)

@@ -28,7 +28,7 @@ def section_data(section):
     permission='view-section')
 def section_list(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space).all()
-    return render_template('sections.html', space=space, sections=sections)
+    return render_template('sections.html.jinja2', space=space, sections=sections)
 
 
 @app.route('/<space>/sections/<section>', subdomain='<profile>')
@@ -39,7 +39,7 @@ def section_list(profile, space):
     (ProposalSpaceSection, {'name': 'section', 'proposal_space': 'space'}, 'section'),
     permission='view-section')
 def section_view(profile, space, section):
-    return render_template('section.html', space=space, section=section)
+    return render_template('section.html.jinja2', space=space, section=section)
 
 
 @app.route('/<space>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')

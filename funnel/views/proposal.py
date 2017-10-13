@@ -296,7 +296,7 @@ def proposal_view(profile, space, proposal):
     else:
         statusform = None
 
-    return render_template('proposal.html', space=space, proposal=proposal,
+    return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
         PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform,
