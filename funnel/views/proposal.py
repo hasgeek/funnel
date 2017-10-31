@@ -126,7 +126,7 @@ def proposal_new(profile, space):
         return redirect(proposal.url_for(), code=303)
     return render_form(form=form, title=_("Submit a session proposal"),
         submit=_("Submit proposal"),
-        message=Markup(
+        message=space.instructions or Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
@@ -158,7 +158,7 @@ def proposal_edit(profile, space, proposal):
         flash(_("Your changes have been saved"), 'info')
         return redirect(proposal.url_for(), code=303)
     return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
-        message=Markup(
+        message=space.instructions or Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
