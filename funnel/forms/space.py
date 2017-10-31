@@ -31,7 +31,7 @@ class ProposalSpaceForm(forms.Form):
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("About Event"))
     instructions = forms.MarkdownField(__("Instructions"),
-        description=__("Instructions for submitting a Proposal"))
+        description=__("Instructions for submitting a Proposal"), default=u'')
     timezone = forms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')
