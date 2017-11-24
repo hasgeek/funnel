@@ -1,5 +1,5 @@
-{% extends "layout.html" %}
-{% from "baseframe/forms.html" import ajaxform %}
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import ajaxform %}
 {% block content %}
 <p>{{ message }}</p>
 <form id="delete" method="POST">

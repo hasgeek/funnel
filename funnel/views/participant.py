@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response
+from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models
+from coaster.utils import midnight_to_utc
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
@@ -120,6 +122,9 @@ def participant_edit(profile, space, participant):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def participant(profile, space):
+    if space.date_upto:
+        if midnight_to_utc(space.date_upto + timedelta(days=1), space.timezone, naive=True) < datetime.utcnow():
+            return jsonify(message=u"This event has concluded", code=401)
     participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
     if not participant:
         return jsonify(message=u"Not found", code=404)
@@ -144,20 +149,10 @@ def participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='view-participant')
 def participant_badge(profile, space, participant):
-    badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/957f904ce24b4de391240043e5808e43'
-    if badge_type:
-        if 'blank' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
-            return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
-        if 'combo' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/6e90f0be92ae43cd952e44793da093dd'
-        if 'anthill' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/d3e1069053174ba98dc1e9b6cb494166'
-    return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data([participant], space))
+    return render_template('badge.html.jinja2', badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -233,14 +228,4 @@ def event_participants_json(profile, space, event):
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    badge_type = request.args.getlist('type')
-    badge_template = 'https://images.hasgeek.com/embed/file/957f904ce24b4de391240043e5808e43'
-    if badge_type:
-        if 'blank' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/4b8c0b4abe8142978cc11b02494f540f'
-            return render_template('blank_badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
-        if 'combo' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/6e90f0be92ae43cd952e44793da093dd'
-        if 'anthill' in badge_type:
-            badge_template = 'https://images.hasgeek.com/embed/file/d3e1069053174ba98dc1e9b6cb494166'
-    return render_template('badge.html', badge_template=badge_template, badges=participant_badge_data(participants, space))
+    return render_template('badge.html.jinja2', badges=participant_badge_data(participants, space))

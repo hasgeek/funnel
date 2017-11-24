@@ -1,5 +1,5 @@
-{% extends "layout.html" %}
-{% from "macros.html" import rsvpform, rsvpscript %}
+{% extends "layout.html.jinja2" %}
+{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% block title %}{{ space.title }}{% endblock %}
 {% block description %}{{ space.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 

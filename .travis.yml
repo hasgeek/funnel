@@ -1,9 +1,6 @@
 language: python
 python:
   - 2.7
-cache:
-  directories:
-    - $HOME/.cache/pip
 before_script:
   - sudo -- sh -c "echo '127.0.0.1  funnel.travis.dev' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres

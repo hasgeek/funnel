@@ -30,7 +30,7 @@ def session_form(space, proposal=None, session=None):
             form.speaker_bio.data = proposal.bio
             form.speaker.data = proposal.owner.fullname
             form.title.data = proposal.title
-        return render_template('session_form.html', form=form, formid='session_form')
+        return render_template('session_form.html.jinja2', form=form, formid='session_form')
     if form.validate_on_submit():
         new = False
         if not session:
@@ -52,7 +52,7 @@ def session_form(space, proposal=None, session=None):
         return jsonify(status=True, data=data)
     return jsonify(
         status=False,
-        form=render_template('session_form.html', form=form, formid='session_new'))
+        form=render_template('session_form.html.jinja2', form=form, formid='session_new'))
 
 
 @app.route('/<space>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')
@@ -83,7 +83,7 @@ def proposal_schedule(profile, space, proposal):
     (Session, {'url_name': 'session', 'proposal_space': 'space'}, 'session'),
     permission='view')
 def session_view_popup(profile, space, session):
-    return render_template('session_view_popup.html', session=session, timezone=space.timezone, localize_date=localize_date)
+    return render_template('session_view_popup.html.jinja2', session=session, timezone=space.timezone, localize_date=localize_date)
 
 
 @app.route('/<space>/<session>/editsession', methods=['GET', 'POST'], subdomain='<profile>')

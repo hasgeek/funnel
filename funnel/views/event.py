@@ -32,7 +32,7 @@ def admin(profile, space):
                 funnelq.enqueue(import_tickets, ticket_client.id)
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(space.url_for('admin'), code=303)
-    return render_template('admin.html', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
+    return render_template('admin.html.jinja2', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
 
 
 @app.route('/<space>/events', methods=['GET', 'POST'], subdomain='<profile>')
@@ -109,7 +109,7 @@ def event_edit(profile, space, event):
     permission='view-ticket-type')
 def ticket_type(profile, space, ticket_type):
     participants = Participant.query.join(SyncTicket).filter(SyncTicket.ticket_type == ticket_type).all()
-    return render_template('ticket_type.html', profile=profile, space=space, ticket_type=ticket_type, participants=participants)
+    return render_template('ticket_type.html.jinja2', profile=profile, space=space, ticket_type=ticket_type, participants=participants)
 
 
 @app.route('/<space>/ticket_type/new', methods=['GET', 'POST'], subdomain='<profile>')

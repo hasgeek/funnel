@@ -17,7 +17,7 @@ from ..forms import UserGroupForm
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view-usergroup')
 def usergroup_list(profile, space):
-    return render_template('usergroups.html', space=space, usergroups=space.usergroups)
+    return render_template('usergroups.html.jinja2', space=space, usergroups=space.usergroups)
 
 
 @app.route('/<space>/users/<group>', subdomain='<profile>')
@@ -28,7 +28,7 @@ def usergroup_list(profile, space):
     (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
     permission='view-usergroup')
 def usergroup_view(profile, space, usergroup):
-    return render_template('usergroup.html', space=space, usergroup=usergroup)
+    return render_template('usergroup.html.jinja2', space=space, usergroup=usergroup)
 
 
 @app.route('/<space>/users/new',

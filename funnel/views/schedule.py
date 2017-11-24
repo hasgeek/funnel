@@ -5,6 +5,7 @@ from pytz import timezone, utc
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event, Alarm
 from sqlalchemy import or_
+from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
 from flask import render_template, json, jsonify, request, Response
@@ -123,7 +124,7 @@ def session_ical(session):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_view(profile, space):
-    return render_template('schedule.html', space=space, venues=space.venues,
+    return render_template('schedule.html.jinja2', space=space, venues=space.venues,
         from_date=date_js(space.date), to_date=date_js(space.date_upto),
         sessions=session_data(space.sessions, timezone=space.timezone, with_modal_url='view-popup'),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
@@ -136,7 +137,7 @@ def schedule_view(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def schedule_subscribe(profile, space):
-    return render_template('schedule_subscribe.html',
+    return render_template('schedule_subscribe.html.jinja2',
         space=space, venues=space.venues, rooms=space.rooms)
 
 
@@ -233,7 +234,7 @@ def schedule_room_updates(profile, space, venue, room):
         nextdiff = next.start.date() - now.date()
         nextdiff = nextdiff.total_seconds() / 86400
     print current, next
-    return render_template('room_updates.html', room=room, current=current, next=next, nextdiff=nextdiff)
+    return render_template('room_updates.html.jinja2', room=room, current=current, next=next, nextdiff=nextdiff)
 
 
 @app.route('/<space>/schedule/edit', subdomain='<profile>')
@@ -255,7 +256,7 @@ def schedule_edit(profile, space):
     last_session = Session.query.filter_by(proposal_space=space).order_by("created_at desc").first()
     from_date = (first_session and first_session.start.date() < space.date and first_session.start) or space.date
     to_date = (last_session and last_session.start.date() > space.date_upto and last_session.start) or space.date_upto
-    return render_template('schedule_edit.html', space=space, proposals=proposals,
+    return render_template('schedule_edit.html.jinja2', space=space, proposals=proposals,
         from_date=date_js(from_date), to_date=date_js(to_date),
         timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
         rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
@@ -270,8 +271,11 @@ def schedule_edit(profile, space):
 @requestargs(('sessions', json.loads))
 def schedule_update(profile, space, sessions):
     for session in sessions:
-        s = Session.query.filter_by(proposal_space=space, url_id=session['id']).one()
-        s.start = session['start']
-        s.end = session['end']
-        db.session.commit()
+        try:
+            s = Session.query.filter_by(proposal_space=space, url_id=session['id']).one()
+            s.start = session['start']
+            s.end = session['end']
+            db.session.commit()
+        except NoResultFound:
+            app.logger.error('{space} schedule update error: session = {session}'.format(space=space.name, session=session))
     return jsonify(status=True)

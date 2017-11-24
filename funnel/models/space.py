@@ -36,6 +36,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
+    instructions = MarkdownColumn('instructions', default=u'', nullable=True)
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)

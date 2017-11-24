@@ -50,7 +50,7 @@ def room_data(room):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
 def venue_list(profile, space):
-    return render_template('venues.html', space=space, venues=space.venues)
+    return render_template('venues.html.jinja2', space=space, venues=space.venues)
 
 
 @app.route('/<space>/venues/new', methods=['GET', 'POST'], subdomain='<profile>')

@@ -1,6 +1,6 @@
-{% extends "layout.html" %}
-{% from "baseframe/forms.html" import renderfield, renderform %}
-{% from "comments.html" import commenttree %}
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderfield, renderform %}
+{% from "comments.html.jinja2" import commenttree %}
 {% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
@@ -48,47 +48,53 @@
           <div class="choices">
             <div class="row">
               <div class='col-xs-2 visible-xs'></div>
-              {%- if not vote %}
-                <div class='col-xs-2 col-sm-3 col-md-3'>
-                  <form method="post" action="{{ proposal.url_for('voteup') }}">
-                    {{ csrf_form.hidden_tag() }}
-                    <button class="votechoice" title="{% trans %}Vote up{% endtrans %}" type="submit">+1</button>
-                  </form>
-                </div>
-                <div class='col-xs-2 col-sm-3 col-md-3'>
-                  <form method="post" action="{{ proposal.url_for('votedown') }}">
-                    {{ csrf_form.hidden_tag() }}
-                    <button class="votechoice" title="{% trans %}Vote down{% endtrans %}" type="submit">-1</button>
-                  </form>
-                </div>
-              {%- elif vote.votedown %}
-                <div class='col-xs-2 col-sm-3 col-md-3'>
-                  <form method="post" action="{{ proposal.url_for('voteup') }}">
-                    {{ csrf_form.hidden_tag() }}
-                    <button class="votechoice" title="{% trans %}Vote up{% endtrans %}" type="submit">+1</button>
-                  </form>
-                </div>
-                <div class='col-xs-2 col-sm-3 col-md-3'>
-                  <form method="post" action="{{ proposal.url_for('votecancel') }}">
-                    {{ csrf_form.hidden_tag() }}
-                    <button class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">-1</button>
-                  </form>
-                </div>
+              {%- if g.user %}
+                {%- if not vote %}
+                  <div class='col-xs-2 col-sm-3 col-md-3'>
+                    <form method="post" action="{{ proposal.url_for('voteup') }}">
+                      {{ csrf_form.hidden_tag() }}
+                      <button class="votechoice" title="{% trans %}Vote up{% endtrans %}" type="submit">+1</button>
+                    </form>
+                  </div>
+                  <div class='col-xs-2 col-sm-3 col-md-3'>
+                    <form method="post" action="{{ proposal.url_for('votedown') }}">
+                      {{ csrf_form.hidden_tag() }}
+                      <button class="votechoice" title="{% trans %}Vote down{% endtrans %}" type="submit">-1</button>
+                    </form>
+                  </div>
+                {%- elif vote.votedown %}
+                  <div class='col-xs-2 col-sm-3 col-md-3'>
+                    <form method="post" action="{{ proposal.url_for('voteup') }}">
+                      {{ csrf_form.hidden_tag() }}
+                      <button class="votechoice" title="{% trans %}Vote up{% endtrans %}" type="submit">+1</button>
+                    </form>
+                  </div>
+                  <div class='col-xs-2 col-sm-3 col-md-3'>
+                    <form method="post" action="{{ proposal.url_for('votecancel') }}">
+                      {{ csrf_form.hidden_tag() }}
+                      <button class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">-1</button>
+                    </form>
+                  </div>
+                {%- else %}
+                  <div class='col-xs-2 col-sm-3 col-md-3'>
+                    <form method="post" action="{{ proposal.url_for('votecancel') }}">
+                      {{ csrf_form.hidden_tag() }}
+                      <button class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">+1</button>
+                    </form>
+                  </div>
+                  <div class='col-xs-2 col-sm-3 col-md-3'>
+                    <form method="post" action="{{ proposal.url_for('votedown') }}">
+                      {{ csrf_form.hidden_tag() }}
+                      <button class="votechoice" title="{% trans %}Vote down{% endtrans %}" type="submit">-1</button>
+                    </form>
+                  </div>
+                {% endif %}
               {%- else %}
-                <div class='col-xs-2 col-sm-3 col-md-3'>
-                  <form method="post" action="{{ proposal.url_for('votecancel') }}">
-                    {{ csrf_form.hidden_tag() }}
-                    <button class="votechoice selected" title="{% trans %}Withdraw vote{% endtrans %}" type="submit">+1</button>
-                  </form>
+                <div class='col-xs-4 col-sm-3 col-md-7 no-padding-right'>
+                  <a href="{{url_for('login')}}" class='login-vote'>Login to vote</a>
                 </div>
-                <div class='col-xs-2 col-sm-3 col-md-3'>
-                  <form method="post" action="{{ proposal.url_for('votedown') }}">
-                    {{ csrf_form.hidden_tag() }}
-                    <button class="votechoice" title="{% trans %}Vote down{% endtrans %}" type="submit">-1</button>
-                  </form>
-                </div>
-              {% endif %}
-              <div class='col-xs-2 col-sm-3 col-md-2'>
+              {%- endif %}
+              <div class='col-xs-2 col-sm-3 col-md-2 no-padding-left'>
                 <span class="indicator">&rarr;</span>
               </div>
               <div class='col-xs-2 col-sm-3 col-md-3'>
