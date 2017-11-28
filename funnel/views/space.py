@@ -26,7 +26,7 @@ def space_data(space):
         'timezone': space.timezone,
         'start': space.date.isoformat() if space.date else None,
         'end': space.date_upto.isoformat() if space.date_upto else None,
-        'status': space.status,
+        'status': space.status.value,
         'url': space.url_for(_external=True),
         'website': space.website,
         'json_url': space.url_for('json', _external=True),

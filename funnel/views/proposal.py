@@ -80,7 +80,7 @@ def proposal_data(proposal):
             ('votes_count', proposal.votes_count()),
             ('votes_groups', proposal.votes_by_group()),
             ('votes_bydate', proposal.votes_by_date()),
-            ('status', proposal.status),
+            ('status', proposal.status.value),
         ] if 'view-contactinfo' in g.permissions else []))
 
 
@@ -89,7 +89,7 @@ def proposal_data_flat(proposal, groups=[]):
     cols = [data.get(header) for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
     for name in groups:
         cols.append(data['votes_groups'][name])
-    cols.append(PROPOSALSTATUS[proposal.status])
+    cols.append(PROPOSALSTATUS[proposal.status.value])
     return cols
 
 
@@ -184,9 +184,9 @@ def proposal_edit(profile, space, proposal):
 def proposal_status(profile, space, proposal):
     form = ProposalStatusForm()
     if form.validate_on_submit():
-        proposal.status = form.status.data
+        proposal._status = form.status.data
         db.session.commit()
-        flash(_("The proposal has been ") + PROPOSALSTATUS[proposal.status].lower(), 'success')
+        flash(_("The proposal has been ") + PROPOSALSTATUS[proposal.status.value].lower(), 'success')
     return redirect(proposal.url_for())
 
 
@@ -291,8 +291,8 @@ def proposal_view(profile, space, proposal):
                 flash(_("No such comment"), 'error')
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
-    if proposal.status != PROPOSALSTATUS.DRAFT:
-        statusform = ProposalStatusForm(status=proposal.status)
+    if proposal.status.value != PROPOSALSTATUS.DRAFT:
+        statusform = ProposalStatusForm(status=.value)
     else:
         statusform = None
 

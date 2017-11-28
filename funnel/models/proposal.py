@@ -8,6 +8,7 @@ from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator
+from coaster.sqlalchemy.statemanager import StateManager
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
@@ -108,7 +109,10 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     slides = db.Column(db.Unicode(250), nullable=True)
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
-    status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
+
+    _status = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSALSTATUS),
+        default=PROPOSALSTATUS.SUBMITTED, nullable=False)
+    status = StateManager('_status', PROPOSALSTATUS, doc="The proposal's status")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
@@ -194,7 +198,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     @hybrid_property
     def confirmed(self):
-        return self.status == PROPOSALSTATUS.CONFIRMED
+        return self.status.value == PROPOSALSTATUS.CONFIRMED
 
     @cached_property
     def has_outstation_speaker(self):

@@ -7,6 +7,7 @@ from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
+from coaster.sqlalchemy.statemanager import StateManager
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
@@ -42,7 +43,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     date_upto = db.Column(db.Date, nullable=True)
     website = db.Column(db.Unicode(250), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
-    status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
+
+    _status = db.Column('status', db.Integer, StateManager.check_constraint('status', SPACESTATUS),
+        default=SPACESTATUS.DRAFT, nullable=False)
+    status = StateManager('_status', SPACESTATUS, doc="This Proposal Space's status")
 
     # Columns for mobile
     bg_image = db.Column(db.Unicode(250), nullable=True)
@@ -115,7 +119,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
-        return dict((status, basequery.filter_by(status=status).order_by(db.desc('created_at')).all()) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT)
+        return dict((status, basequery.filter_by(_status=status).order_by(db.desc('created_at')).all()) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT)
 
     @property
     def proposals_by_confirmation(self):
@@ -125,8 +129,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
         response = dict(
-            confirmed=basequery.filter_by(status=PROPOSALSTATUS.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=basequery.filter(Proposal.status != PROPOSALSTATUS.CONFIRMED, Proposal.status != PROPOSALSTATUS.DRAFT).order_by(db.desc('created_at')).all())
+            confirmed=basequery.filter_by(_status=PROPOSALSTATUS.CONFIRMED).order_by(db.desc('created_at')).all(),
+            unconfirmed=basequery.filter(~Proposal._status.in_([PROPOSALSTATUS.CONFIRMED, PROPOSALSTATUS.DRAFT])).order_by(db.desc('created_at')).all())
         return response
 
     @cached_property
@@ -178,7 +182,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         perms = super(ProposalSpace, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
-            if self.status == SPACESTATUS.SUBMISSIONS:
+            if self.status.value == SPACESTATUS.SUBMISSIONS:
                 perms.add('new-proposal')
             if ((self.admin_team and user in self.admin_team.users) or
                 (self.profile.admin_team and user in self.profile.admin_team.users) or
@@ -303,7 +307,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls.status >= 1).filter(cls.status <= 4).order_by(cls.date.desc()).all()
+        return cls.query.filter(cls._status >= 1).filter(cls._status <= 4).order_by(cls.date.desc()).all()
 
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):
