@@ -7,21 +7,23 @@ from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
+from coaster.utils import LabeledEnum
 from coaster.sqlalchemy.statemanager import StateManager
+from baseframe import __
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
 
-class SPACESTATUS:
-    DRAFT = 0
-    SUBMISSIONS = 1
-    VOTING = 2
-    JURY = 3
-    FEEDBACK = 4
-    CLOSED = 5
-    WITHDRAWN = 6
+class SPACESTATUS(LabeledEnum):
+    DRAFT = (0, __(u"Draft"))
+    SUBMISSIONS = (1, __(u"Accepting submissions"))
+    VOTING = (2, __(u"Accepting votes"))
+    JURY = (3, __(u"Awaiting jury selection"))
+    FEEDBACK = (4, __(u"Open for feedback"))
+    CLOSED = (5, __(u"Closed"))
+    WITHDRAWN = (6, __(u"Withdrawn"))
 
 
 # --- Models ------------------------------------------------------------------

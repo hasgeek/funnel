@@ -292,7 +292,7 @@ def proposal_view(profile, space, proposal):
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
     if proposal.status.value != PROPOSALSTATUS.DRAFT:
-        statusform = ProposalStatusForm(status=.value)
+        statusform = ProposalStatusForm(status=proposal.status.value)
     else:
         statusform = None
 
