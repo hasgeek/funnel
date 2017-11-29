@@ -72,7 +72,7 @@ def proposal_data(proposal):
             ('votes', proposal.votes.count),
             ('comments', proposal.comments.count),
             ('submitted', proposal.created_at.isoformat() + 'Z'),
-            ('confirmed', proposal.confirmed),
+            ('confirmed', proposal.state.CONFIRMED),
         ] + ([
             ('email', proposal.email),
             ('phone', proposal.phone),
@@ -89,7 +89,7 @@ def proposal_data_flat(proposal, groups=[]):
     cols = [data.get(header) for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
     for name in groups:
         cols.append(data['votes_groups'][name])
-    cols.append(PROPOSALSTATUS[proposal.status.value])
+    cols.append(proposal.state.label)
     return cols
 
 
@@ -186,7 +186,7 @@ def proposal_status(profile, space, proposal):
     if form.validate_on_submit():
         proposal._status = form.status.data
         db.session.commit()
-        flash(_("The proposal has been ") + PROPOSALSTATUS[proposal.status.value].lower(), 'success')
+        flash(_("The proposal has been ") + proposal.state.label.lower(), 'success')
     return redirect(proposal.url_for())
 
 

@@ -7,8 +7,8 @@ from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
+from coaster.sqlalchemy import StateManager
 from coaster.utils import LabeledEnum
-from coaster.sqlalchemy.statemanager import StateManager
 from baseframe import __
 
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']

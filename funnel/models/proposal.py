@@ -7,8 +7,7 @@ from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import SqlSplitIdComparator
-from coaster.sqlalchemy.statemanager import StateManager
+from coaster.sqlalchemy import SqlSplitIdComparator, StateManager
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
@@ -110,9 +109,9 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
-    _status = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSALSTATUS),
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSALSTATUS),
         default=PROPOSALSTATUS.SUBMITTED, nullable=False)
-    status = StateManager('_status', PROPOSALSTATUS, doc="The proposal's status")
+    state = StateManager('_state', PROPOSALSTATUS, doc="Current state of the proposal.")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
@@ -191,14 +190,6 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     @property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
-
-    @property
-    def status_title(self):
-        return PROPOSALSTATUS[self.status]
-
-    @hybrid_property
-    def confirmed(self):
-        return self.status.value == PROPOSALSTATUS.CONFIRMED
 
     @cached_property
     def has_outstation_speaker(self):
