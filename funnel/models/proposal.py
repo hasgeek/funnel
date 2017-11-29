@@ -24,18 +24,26 @@ _marker = object()
 
 class PROPOSALSTATUS(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
-    DRAFT = (0, __("Draft"))
-    SUBMITTED = (1, __("Submitted"))
-    CONFIRMED = (2, __("Confirmed"))
-    WAITLISTED = (3, __("Waitlisted"))
-    SHORTLISTED = (4, __("Shortlisted"))
-    REJECTED = (5, __("Rejected"))
-    CANCELLED = (6, __("Cancelled"))
+    DRAFT = (0, 'draft', __("Draft"))
+    SUBMITTED = (1, 'submitted', __("Submitted"))
+    CONFIRMED = (2, 'confirmed', __("Confirmed"))
+    WAITLISTED = (3, 'waitlisted', __("Waitlisted"))
+    SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
+    REJECTED = (5, 'rejected', __("Rejected"))
+    CANCELLED = (6, 'cancelled', __("Cancelled"))
 
-    AWAITING_DETAILS = (7, __("Awaiting details"))
-    UNDER_EVALUATION = (8, __("Under evaluation"))
-    SHORTLISTED_FOR_REHEARSAL = (9, __("Shortlisted for rehearsal"))
-    REHEARSAL = (10, __("Rehearsal ongoing"))
+    AWAITING_DETAILS = (7, 'awaiting_details', __("Awaiting details"))
+    UNDER_EVALUATION = (8, 'under_evaluation', __("Under evaluation"))
+    SHORTLISTED_FOR_REHEARSAL = (9, 'shortlisted_for_rehearsal', __("Shortlisted for rehearsal"))
+    REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
+
+    CURRENTLY_LISTED = {SUBMITTED, CONFIRMED, WAITLISTED, SHORTLISTED}
+    # everything except draft and confirmed
+    UNCONFIRMED = {SUBMITTED, WAITLISTED, SHORTLISTED, REJECTED, CANCELLED, AWAITING_DETAILS,
+                   UNDER_EVALUATION, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
+    # everything except draft
+    NOT_DRAFT = {SUBMITTED, CONFIRMED, WAITLISTED, SHORTLISTED, REJECTED, CANCELLED,
+                 AWAITING_DETAILS, UNDER_EVALUATION, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
 
 
 # --- Models ------------------------------------------------------------------

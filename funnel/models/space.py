@@ -11,19 +11,21 @@ from coaster.sqlalchemy import StateManager
 from coaster.utils import LabeledEnum
 from baseframe import __
 
+from collections import defaultdict
+
 __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
 
 class SPACESTATUS(LabeledEnum):
-    DRAFT = (0, __(u"Draft"))
-    SUBMISSIONS = (1, __(u"Accepting submissions"))
-    VOTING = (2, __(u"Accepting votes"))
-    JURY = (3, __(u"Awaiting jury selection"))
-    FEEDBACK = (4, __(u"Open for feedback"))
-    CLOSED = (5, __(u"Closed"))
-    WITHDRAWN = (6, __(u"Withdrawn"))
+    DRAFT = (0, 'draft', __(u"Draft"))
+    SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
+    VOTING = (2, 'voting', __(u"Accepting votes"))
+    JURY = (3, 'jury', __(u"Awaiting jury selection"))
+    FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
+    CLOSED = (5, 'closed', __(u"Closed"))
+    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
 
 
 # --- Models ------------------------------------------------------------------
@@ -46,9 +48,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     website = db.Column(db.Unicode(250), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
 
-    _status = db.Column('status', db.Integer, StateManager.check_constraint('status', SPACESTATUS),
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', SPACESTATUS),
         default=SPACESTATUS.DRAFT, nullable=False)
-    status = StateManager('_status', SPACESTATUS, doc="This Proposal Space's status")
+    state = StateManager('_state', SPACESTATUS, doc="State of this proposal space.")
 
     # Columns for mobile
     bg_image = db.Column(db.Unicode(250), nullable=True)
@@ -116,23 +118,27 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     @property
     def proposals_by_status(self):
-        from .proposal import Proposal, PROPOSALSTATUS
+        from .proposal import Proposal
         if self.subspaces:
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
-        return dict((status, basequery.filter_by(_status=status).order_by(db.desc('created_at')).all()) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT)
+        all_proposals = basequery.filter(Proposal.state.NOT_DRAFT).order_by(db.desc('created_at')).all()
+        proposals_by_status = defaultdict(list)
+        for p in all_proposals:
+            proposals_by_status[p.state.value].append(p)
+        return proposals_by_status
 
     @property
     def proposals_by_confirmation(self):
-        from .proposal import Proposal, PROPOSALSTATUS
+        from .proposal import Proposal
         if self.subspaces:
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
         response = dict(
-            confirmed=basequery.filter_by(_status=PROPOSALSTATUS.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=basequery.filter(~Proposal._status.in_([PROPOSALSTATUS.CONFIRMED, PROPOSALSTATUS.DRAFT])).order_by(db.desc('created_at')).all())
+            confirmed=basequery.filter(Proposal.state.CONFIRMED).order_by(db.desc('created_at')).all(),
+            unconfirmed=basequery.filter(Proposal.state.UNCONFIRMED).order_by(db.desc('created_at')).all())
         return response
 
     @cached_property
@@ -146,7 +152,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     @property
     def proposal_part_b(self):
         return self.labels.get('proposal', {}).get('part_b', {})
-
 
     def set_labels(self, value=None):
         """
@@ -172,7 +177,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                 }
             }
 
-
     def user_in_group(self, user, group):
         for grp in self.usergroups:
             if grp.name == group:
@@ -184,7 +188,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         perms = super(ProposalSpace, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
-            if self.status.value == SPACESTATUS.SUBMISSIONS:
+            if self.state.SUBMISSIONS:
                 perms.add('new-proposal')
             if ((self.admin_team and user in self.admin_team.users) or
                 (self.profile.admin_team and user in self.profile.admin_team.users) or
@@ -309,7 +313,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls._status >= 1).filter(cls._status <= 4).order_by(cls.date.desc()).all()
+        return cls.query.filter(cls._state >= 1).filter(cls._state <= 4).order_by(cls.date.desc()).all()
 
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):

@@ -111,23 +111,7 @@
 #}
 <p>
   {{ space.datelocation }}<br>
-  <strong>Status:
-    {% if space.status.value == 0 -%}
-      {% trans %}Draft{% endtrans %}
-    {%- elif space.status.value == 1 -%}
-      {% trans %}Accepting submissions{% endtrans %}
-    {%- elif space.status.value == 2 -%}
-      {% trans %}Accepting votes{% endtrans %}
-    {%- elif space.status.value == 3 -%}
-      {% trans %}Submissions and voting closed, awaiting jury selection{% endtrans %}
-    {%- elif space.status.value == 4 -%}
-      {% trans %}Open for post-event feedback{% endtrans %}
-    {%- elif space.status.value == 5 -%}
-      {% trans %}Closed{% endtrans %}
-    {%- elif space.status.value == 6 -%}
-      {% trans %}Withdrawn{% endtrans %}
-    {%- endif -%}
-  </strong>
+  <strong>Status: {{ space.state.label.title }}</strong>
 </p>
 <ul class="list-inline">
   {%- if 'admin' in space.permissions(g.user) %}
@@ -177,7 +161,7 @@
     {% endfor %}
   </ul>
 {%- endif %}
-{% if space.status.value == 1 -%}
+{% if space.state.SUBMISSIONS -%}
   <p>
     <a class="btn btn-success" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
   </p>
