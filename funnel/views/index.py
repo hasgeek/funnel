@@ -11,7 +11,7 @@ from .space import space_data
 def index():
     g.profile = None
     g.permissions = []
-    spaces = ProposalSpace.query.filter_by(parent_space=None).filter(ProposalSpace.profile != None).filter(ProposalSpace._status >= 1).filter(ProposalSpace._status <= 4).order_by(ProposalSpace.date.desc()).all()  # NOQA
+    spaces = ProposalSpace.query.filter_by(parent_space=None).filter(ProposalSpace.profile != None).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()  # NOQA
     return render_template('index.html.jinja2', spaces=spaces)
 
 
@@ -41,8 +41,7 @@ def spaces_json(profile):
 @app.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
-    spaces = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.parent_space == None).filter(
-        ProposalSpace._status >= 1).filter(ProposalSpace._status <= 4).order_by(ProposalSpace.date.desc()).all()
+    spaces = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.parent_space == None).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()
     return render_template('index.html.jinja2', spaces=spaces)
 
 

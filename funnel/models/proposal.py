@@ -37,7 +37,6 @@ class PROPOSALSTATUS(LabeledEnum):
     SHORTLISTED_FOR_REHEARSAL = (9, 'shortlisted_for_rehearsal', __("Shortlisted for rehearsal"))
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
-    CURRENTLY_LISTED = {SUBMITTED, CONFIRMED, WAITLISTED, SHORTLISTED}
     # everything except draft and confirmed
     UNCONFIRMED = {SUBMITTED, WAITLISTED, SHORTLISTED, REJECTED, CANCELLED, AWAITING_DETAILS,
                    UNDER_EVALUATION, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}

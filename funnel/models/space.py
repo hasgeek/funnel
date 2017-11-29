@@ -27,6 +27,8 @@ class SPACESTATUS(LabeledEnum):
     CLOSED = (5, 'closed', __(u"Closed"))
     WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
 
+    CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
+
 
 # --- Models ------------------------------------------------------------------
 
@@ -124,10 +126,12 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
         all_proposals = basequery.filter(Proposal.state.NOT_DRAFT).order_by(db.desc('created_at')).all()
-        proposals_by_status = defaultdict(list)
+        all_by_status = defaultdict(list)
         for p in all_proposals:
-            proposals_by_status[p.state.value].append(p)
-        return proposals_by_status
+            # returning title instead of value because this is only used in space.html.jnja2,
+            # and that template requires the status title, not the value
+            all_by_status[p.state.label.title].append(p)
+        return all_by_status
 
     @property
     def proposals_by_confirmation(self):
@@ -313,7 +317,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls._state >= 1).filter(cls._state <= 4).order_by(cls.date.desc()).all()
+        return cls.query.filter(cls.state.CURRENTLY_LISTED).order_by(cls.date.desc()).all()
 
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):

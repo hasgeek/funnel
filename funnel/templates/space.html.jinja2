@@ -173,7 +173,7 @@
 #}
       {%- if 'view-status' in g.permissions %}
         {%- for status, proposal_group in space.proposals_by_status.iteritems() if proposal_group -%}
-            <h3>{{ PROPOSALSTATUS[status] }} {% trans %}proposals{% endtrans %}</h3>
+            <h3>{{ status }} {% trans %}proposals{% endtrans %}</h3>
             {{ proposal_table(space, proposal_group) }}
         {%- endfor -%}
       {%- else %}
