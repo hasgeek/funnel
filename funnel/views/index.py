@@ -27,15 +27,13 @@ def whoami():
 def all_spaces_json():
     g.profile = None
     g.permissions = []
-    # FIXME: Only return active spaces
-    return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.filter(ProposalSpace.profile != None).order_by(ProposalSpace.date.desc()).all()])  # NOQA
+    return jsonp(spaces=map(space_data, ProposalSpace.query.filter(ProposalSpace.profile != None).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()))  # NOQA
 
 
 @app.route('/json', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def spaces_json(profile):
-    # FIXME: Only return active spaces
-    return jsonp(spaces=[space_data(space) for space in ProposalSpace.query.filter_by(profile=profile).order_by(ProposalSpace.date.desc()).all()])
+    return jsonp(spaces=map(space_data, ProposalSpace.query.filter_by(profile=profile).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()))
 
 
 @app.route('/', subdomain='<profile>')

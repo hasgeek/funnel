@@ -109,7 +109,7 @@ def space_view_json(profile, space):
         'sections': [section_data(s) for s in sections],
         'venues': [venue_data(venue) for venue in space.venues],
         'rooms': [room_data(room) for room in space.rooms],
-        'proposals': [proposal_data(proposal) for proposal in proposals],
+        'proposals': map(proposal_data, proposals),
         'schedule': schedule_data(space),
         })
 
