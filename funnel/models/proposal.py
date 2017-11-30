@@ -150,7 +150,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
 
     def __repr__(self):
-        return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
+        return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(
+            proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
 
     @db.validates('proposal_space')
     def _validate_proposal_space(self, key, value):
@@ -222,8 +223,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     def votes_by_group(self):
         votes_groups = dict([(group.name, 0) for group in self.proposal_space.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users])
-            for group in self.proposal_space.usergroups])
+        groupuserids = dict([(group.name, [user.userid for user in group.users]) for group in self.proposal_space.usergroups])
         for vote in self.votes.votes:
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:

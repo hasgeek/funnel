@@ -8,8 +8,8 @@ from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
-    PROPOSALSTATUS, Rsvp, RSVP_STATUS)
+from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection,
+    Proposal, Rsvp)
 from ..forms import ProposalSpaceForm, ProposalSubspaceForm, RsvpForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -93,7 +93,7 @@ def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
     return render_template('space.html.jinja2', space=space, description=space.description, sections=sections,
-        PROPOSALSTATUS=PROPOSALSTATUS, rsvp_form=rsvp_form)
+        rsvp_form=rsvp_form)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -183,4 +183,4 @@ def rsvp(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def rsvp_list(profile, space):
-    return render_template('space_rsvp_list.html.jinja2', space=space, statuses=RSVP_STATUS)
+    return render_template('space_rsvp_list.html.jinja2', space=space)
