@@ -322,13 +322,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         now = db.func.utcnow()
         currently_listed_spaces = cls.query.filter_by(parent_space=None).filter(
             cls.state.CURRENTLY_LISTED
-        )
-        upcoming = currently_listed_spaces.filter(
-            cls.date >= now
-        ).order_by(cls.date.asc())
-        past = currently_listed_spaces.filter(
-            cls.date < now
-        ).order_by(cls.date.desc())
+            )
+        upcoming = currently_listed_spaces.filter(cls.date >= now).order_by(cls.date.asc())
+        past = currently_listed_spaces.filter(cls.date < now).order_by(cls.date.desc())
 
         # union_all() because union() doesn't respect the orders mentioned in subqueries
         all_spaces = upcoming.union_all(past)
