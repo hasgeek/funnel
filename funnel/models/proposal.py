@@ -165,7 +165,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return value
 
     @state.transition(None, state.DELETED)
-    def soft_delete(self):
+    def delete(self):
         pass
 
     def move_to(self, space):

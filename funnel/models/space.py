@@ -120,15 +120,15 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return self.proposals
 
     @property
-    def proposals_by_status(self):
+    def proposals_by_state(self):
         from .proposal import Proposal
         if self.subspaces:
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
         all_proposals = basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
-        all_by_status = Proposal.state.group(all_proposals)
-        return all_by_status
+        all_by_state = Proposal.state.group(all_proposals)
+        return all_by_state
 
     @property
     def proposals_by_confirmation(self):

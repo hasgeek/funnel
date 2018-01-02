@@ -12,23 +12,18 @@ down_revision = 'd576f55f9eba'
 
 from alembic import op
 import sqlalchemy as sa
-from funnel.models.proposal import PROPOSALSTATUS
-from funnel.models.commentvote import COMMENTSTATUS
-from funnel.models.rsvp import RSVP_STATUS
-from funnel.models.space import SPACESTATUS
-from sqlalchemy.sql import column
 
 
 def upgrade():
     op.create_check_constraint(
         'ck_proposal_state_valid',
         'proposal',
-        column('status').in_(PROPOSALSTATUS.keys())
+        'status IN (10, 11, 7, 2, 1, 9, 0, 5, 3, 6, 8, 4)'
     )
     op.create_check_constraint(
         'ck_comment_state_valid',
         'comment',
-        column('status').in_(COMMENTSTATUS.keys())
+        'status IN (3, 4, 1, 2, 0)'
     )
     # rsvp status field already has a constraint, dropping it and creating a new one
     op.drop_constraint(
@@ -38,12 +33,12 @@ def upgrade():
     op.create_check_constraint(
         'ck_rsvp_state_valid',
         'rsvp',
-        column('status').in_(RSVP_STATUS.keys())
+        "status IN ('A', 'M', 'N', 'Y')"
     )
     op.create_check_constraint(
         'ck_proposal_space_state_valid',
         'proposal_space',
-        column('status').in_(SPACESTATUS.keys())
+        'status IN (3, 4, 0, 5, 2, 1, 6)'
     )
 
 

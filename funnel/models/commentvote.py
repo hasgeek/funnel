@@ -113,18 +113,15 @@ class Comment(BaseMixin, db.Model):
         self.votes = VoteSpace(type=SPACETYPE.COMMENT)
 
     @state.transition(None, state.DELETED)
-    def soft_delete(self):
-        self.user = None
-        self.message = ''
-
     def delete(self):
         """
         Delete this comment.
         """
         if len(self.children) > 0:
-            self.soft_delete()
+            self.user = None
+            self.message = ''
         else:
-            if self.parent and self.parent.is_deleted:
+            if self.parent and self.parent.state.DELETED:
                 # If the parent is deleted, ask it to reconsider removing itself
                 parent = self.parent
                 parent.children.remove(self)

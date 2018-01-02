@@ -172,8 +172,8 @@
     <div class="tab-pane" id="proposals">
 #}
       {%- if 'view-status' in g.permissions %}
-        {%- for status, proposal_group in space.proposals_by_status.iteritems() if proposal_group -%}
-            <h3>{{ status.label.title }} {% trans %}proposals{% endtrans %}</h3>
+        {%- for state, proposal_group in space.proposals_by_state.iteritems() if proposal_group -%}
+            <h3>{{ state.label.title }} {% trans %}proposals{% endtrans %}</h3>
             {{ proposal_table(space, proposal_group) }}
         {%- endfor -%}
       {%- else %}
