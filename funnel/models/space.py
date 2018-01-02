@@ -125,12 +125,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
-        all_proposals = basequery.filter(Proposal.state.NOT_DRAFT).order_by(db.desc('created_at')).all()
-        all_by_status = defaultdict(list)
-        for p in all_proposals:
-            # returning title instead of value because this is only used in space.html.jnja2,
-            # and that template requires the status title, not the value
-            all_by_status[p.state.label.title].append(p)
+        all_proposals = basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
+        all_by_status = Proposal.state.group(all_proposals)
         return all_by_status
 
     @property
@@ -142,7 +138,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             basequery = Proposal.query.filter_by(proposal_space=self)
         response = dict(
             confirmed=basequery.filter(Proposal.state.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=basequery.filter(Proposal.state.UNCONFIRMED).order_by(db.desc('created_at')).all())
+            unconfirmed=basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(db.desc('created_at')).all())
         return response
 
     @cached_property

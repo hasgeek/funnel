@@ -37,13 +37,7 @@ class PROPOSALSTATUS(LabeledEnum):
     SHORTLISTED_FOR_REHEARSAL = (9, 'shortlisted_for_rehearsal', __("Shortlisted for rehearsal"))
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
-    # everything except draft and confirmed
-    UNCONFIRMED = {SUBMITTED, WAITLISTED, SHORTLISTED, REJECTED, CANCELLED, AWAITING_DETAILS,
-                   UNDER_EVALUATION, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
-    # everything except draft
-    NOT_DRAFT = {SUBMITTED, CONFIRMED, WAITLISTED, SHORTLISTED, REJECTED, CANCELLED,
-                 AWAITING_DETAILS, UNDER_EVALUATION, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
-
+    DELETED = (11, 'deleted', __("Deleted"))
 
 # --- Models ------------------------------------------------------------------
 
@@ -121,10 +115,12 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     state = StateManager('_state', PROPOSALSTATUS, doc="Current state of the proposal.")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
-    votes = db.relationship(VoteSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
+    votes = db.relationship(VoteSpace, uselist=False,
+                            cascade='all, delete-orphan', single_parent=True)
 
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
-    comments = db.relationship(CommentSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
+    comments = db.relationship(CommentSpace, uselist=False,
+                               cascade='all, delete-orphan', single_parent=True)
 
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
@@ -166,6 +162,10 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             else:
                 redirect.proposal = self
         return value
+
+    @state.transition(None, state.DELETED)
+    def soft_delete(self):
+        pass
 
     def move_to(self, space):
         """

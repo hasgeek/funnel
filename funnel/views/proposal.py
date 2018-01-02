@@ -175,6 +175,7 @@ def proposal_edit(profile, space, proposal):
 #     workflow=proposal.workflow()
 
 
+# TODO: Replace this view with a state transition
 @app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

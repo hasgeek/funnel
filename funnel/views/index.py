@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from flask import g, render_template, redirect, jsonify
+from coaster.views import jsonp, load_model
 from .. import app
 from ..models import Profile, ProposalSpace, Proposal
-from coaster.views import jsonp, load_model
 from .space import space_data
 
 
@@ -11,7 +11,9 @@ from .space import space_data
 def index():
     g.profile = None
     g.permissions = []
-    spaces = ProposalSpace.query.filter_by(parent_space=None).filter(ProposalSpace.profile != None).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()  # NOQA
+    spaces = ProposalSpace.query.filter_by(parent_space=None).filter(
+        ProposalSpace.profile != None
+    ).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()  # NOQA
     return render_template('index.html.jinja2', spaces=spaces)
 
 
@@ -27,19 +29,25 @@ def whoami():
 def all_spaces_json():
     g.profile = None
     g.permissions = []
-    return jsonp(spaces=map(space_data, ProposalSpace.query.filter(ProposalSpace.profile != None).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()))  # NOQA
+    return jsonp(spaces=map(space_data, ProposalSpace.query.filter(
+        ProposalSpace.profile != None
+    ).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()))  # NOQA
 
 
 @app.route('/json', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def spaces_json(profile):
-    return jsonp(spaces=map(space_data, ProposalSpace.query.filter_by(profile=profile).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()))
+    return jsonp(spaces=map(space_data, ProposalSpace.query.filter_by(profile=profile).filter(
+        ProposalSpace.state.CURRENTLY_LISTED
+    ).order_by(ProposalSpace.date.desc()).all()))
 
 
 @app.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
-    spaces = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.parent_space == None).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()
+    spaces = ProposalSpace.query.filter(
+        ProposalSpace.profile == profile, ProposalSpace.parent_space == None
+    ).filter(ProposalSpace.state.CURRENTLY_LISTED).order_by(ProposalSpace.date.desc()).all()
     return render_template('index.html.jinja2', spaces=spaces)
 
 
