@@ -316,6 +316,24 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         """
         return cls.query.filter(cls.state.CURRENTLY_LISTED).order_by(cls.date.desc()).all()
 
+    @classmethod
+    def fetch_sorted(cls, profile=None, any_profile=True):
+        # sorts the spaces so that both new and old spaces are sorted from closest to farthest
+        now = db.func.utcnow()
+        currently_listed_spaces = cls.query.filter_by(parent_space=None).filter(
+            cls.state.CURRENTLY_LISTED
+        )
+        upcoming = currently_listed_spaces.filter(
+            cls.date >= now
+        ).order_by(cls.date.asc())
+        past = currently_listed_spaces.filter(
+            cls.date < now
+        ).order_by(cls.date.desc())
+
+        # union_all() because union() doesn't respect the orders mentioned in subqueries
+        all_spaces = upcoming.union_all(past)
+        return all_spaces
+
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):
     __tablename__ = "proposal_space_redirect"
