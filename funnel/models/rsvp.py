@@ -11,6 +11,7 @@ __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
 class RSVP_STATUS(LabeledEnum):
+    # If you add any new state, you need to add a migration to modify the check constraint
     Y = ('Y', 'yes', __("Yes"))
     N = ('N', 'no', __("No"))
     M = ('M', 'maybe', __("Maybe"))

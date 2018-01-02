@@ -24,6 +24,7 @@ _marker = object()
 
 class PROPOSALSTATUS(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
+    # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __("Draft"))
     SUBMITTED = (1, 'submitted', __("Submitted"))
     CONFIRMED = (2, 'confirmed', __("Confirmed"))

@@ -19,6 +19,7 @@ __all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
 # --- Constants ---------------------------------------------------------------
 
 class SPACESTATUS(LabeledEnum):
+    # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __(u"Draft"))
     SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
     VOTING = (2, 'voting', __(u"Accepting votes"))

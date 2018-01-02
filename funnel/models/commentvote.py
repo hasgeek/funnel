@@ -13,6 +13,7 @@ __all__ = ['VoteSpace', 'Vote', 'CommentSpace', 'Comment']
 # --- Constants ---------------------------------------------------------------
 
 class COMMENTSTATUS(LabeledEnum):
+    # If you add any new state, you need to add a migration to modify the check constraint
     PUBLIC = (0, 'public', __("Public"))
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
