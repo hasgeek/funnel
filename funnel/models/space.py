@@ -126,9 +126,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
-        all_proposals = basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
-        all_by_state = Proposal.state.group(all_proposals)
-        return all_by_state
+        return Proposal.state.group(
+            basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
+        )
 
     @property
     def proposals_by_confirmation(self):
@@ -137,10 +137,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
-        response = dict(
+        return dict(
             confirmed=basequery.filter(Proposal.state.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(db.desc('created_at')).all())
-        return response
+            unconfirmed=basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(db.desc('created_at')).all()
+            )
 
     @cached_property
     def location_geonameid(self):
@@ -327,8 +327,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         past = currently_listed_spaces.filter(cls.date < now).order_by(cls.date.desc())
 
         # union_all() because union() doesn't respect the orders mentioned in subqueries
-        all_spaces = upcoming.union_all(past)
-        return all_spaces
+        return upcoming.union_all(past)
+
 
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):
