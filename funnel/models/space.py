@@ -317,7 +317,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         return cls.query.filter(cls.state.CURRENTLY_LISTED).order_by(cls.date.desc()).all()
 
     @classmethod
-    def fetch_sorted(cls, profile=None, any_profile=True):
+    def fetch_sorted(cls):
         # sorts the spaces so that both new and old spaces are sorted from closest to farthest
         now = db.func.utcnow()
         currently_listed_spaces = cls.query.filter_by(parent_space=None).filter(
