@@ -532,6 +532,9 @@ dl.bar {
         color: $color-link;
         text-decoration: none;
     }
+    img {
+        width: 100%;
+    }
 }
 form#newcomment{
     #field-comment_message{
