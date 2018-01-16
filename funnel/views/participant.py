@@ -149,7 +149,10 @@ def participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='view-participant')
 def participant_badge(profile, space, participant):
-    return render_template('badge.html.jinja2', badges=participant_badge_data([participant], space))
+    # badge_type = request.args.getlist('type')
+    badge_template = 'https://images.hasgeek.com/embed/file/8c17b42474bf4c2cbf6a0452b70537ca'
+    return render_template('badge.html.jinja2', badge_template=badge_template,
+        badges=participant_badge_data([participant], space))
 
 
 @app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
@@ -228,4 +231,6 @@ def event_participants_json(profile, space, event):
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    return render_template('badge.html.jinja2', badges=participant_badge_data(participants, space))
+    badge_template = 'https://images.hasgeek.com/embed/file/8c17b42474bf4c2cbf6a0452b70537ca'
+    return render_template('badge.html.jinja2', badge_template=badge_template,
+        badges=participant_badge_data(participants, space))

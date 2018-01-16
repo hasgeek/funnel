@@ -111,7 +111,7 @@
   window.Talkfunnel.Config = {
     badgeUrl: "{{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
     editUrl: "{{ url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
-    checkinUrl: "{{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name) }}",
+    checkinUrl: "{{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name, participant_id='participant-id') }}",
     participantlistUrl: "{{ url_for('event_participants_json', profile=space.profile.name, space=space.name, name=event.name) }}"
   };
 
