@@ -2,6 +2,7 @@
 import os
 import base64
 from datetime import datetime
+from sqlalchemy.sql import text
 from . import db, BaseMixin, BaseScopedNameMixin
 from .space import ProposalSpace
 from .user import User
@@ -146,9 +147,18 @@ class Participant(BaseMixin, db.Model):
 
     @classmethod
     def checkin_list(cls, event):
-        participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
-        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in, Participant.badge_printed]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
-        return db.session.execute(stmt).fetchall()
+        """
+        Returns participant details along with their associated ticket types as a comma-separated string.
+        WARNING: This query uses `string_agg` and hence will only work in PostgreSQL >= 9.0
+        """
+        participant_list = db.session.query('id', 'fullname', 'email', 'company', 'twitter', 'puk', 'key', 'checked_in', 'badge_printed', 'ticket_type_titles').from_statement(text('''
+            SELECT distinct(participant.id), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
+            (select string_agg(title, ',') from sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
+            FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
+            WHERE attendee.event_id = {event_id}
+            ORDER BY participant.fullname
+        '''.format(event_id=event.id))).all()
+        return participant_list
 
 
 class Attendee(BaseMixin, db.Model):
@@ -184,14 +194,11 @@ class TicketClient(BaseMixin, db.Model):
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('ticket_clients', cascade='all, delete-orphan'))
 
-    def import_from_list(self, ticket_list, cancel_list=[]):
+    def import_from_list(self, ticket_list):
         """
         Batch upserts the tickets and its associated ticket types and participants.
         Cancels the tickets in cancel_list.
         """
-        for ticket in cancel_list:
-            ticket.participant.remove_events(ticket.ticket_type.events)
-
         for ticket_dict in ticket_list:
             ticket_type = TicketType.upsert(self.proposal_space, current_title=ticket_dict['ticket_type'])
 
@@ -200,19 +207,21 @@ class TicketClient(BaseMixin, db.Model):
                              phone=ticket_dict['phone'],
                              twitter=ticket_dict['twitter'],
                              company=ticket_dict['company'],
+                             job_title=ticket_dict['job_title'],
                              city=ticket_dict['city']
                             )
 
             ticket = SyncTicket.get(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'))
-            if ticket and ticket.participant is not participant:
-                # Ensure that the previous participant does not have access to
+            if ticket and (ticket.participant is not participant or ticket_dict.get('status') == u'cancelled'):
+                # Ensure that the participant of a transferred or cancelled ticket does not have access to
                 # this ticket's events
                 ticket.participant.remove_events(ticket_type.events)
 
-            ticket = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
-                participant=participant, ticket_type=ticket_type)
-            # Ensure that the new or updated participant has access to events
-            ticket.participant.add_events(ticket_type.events)
+            if ticket_dict.get('status') == u'confirmed':
+                ticket = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
+                    participant=participant, ticket_type=ticket_type)
+                # Ensure that the new or updated participant has access to events
+                ticket.participant.add_events(ticket_type.events)
 
 
 class SyncTicket(BaseMixin, db.Model):
@@ -250,11 +259,7 @@ class SyncTicket(BaseMixin, db.Model):
             fields.pop('order_no', None)
             fields.pop('ticket_no', None)
             ticket = SyncTicket(ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no, **fields)
+
             db.session.add(ticket)
 
         return ticket
-
-    @classmethod
-    def exclude(cls, ticket_client, ticket_nos):
-        return cls.query.filter_by(ticket_client=ticket_client
-            ).filter(~cls.ticket_no.in_(ticket_nos))

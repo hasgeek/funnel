@@ -17,14 +17,18 @@
       <h3>{{event.title}}</h3>
     </div>
     <div class='col-lg-9 col-md-6 col-sm-8 col-xs-6'>
-      <h3 class='pull-right'>
-        Total: {{participants | length}}
-        Checked In: {{checked_in_count}}
+      <h3 class='pull-right' id="participants-count">
+        {% raw %}
+        <script id='participants-count-template' type='text/ractive'>
+          Checked In: <span class="js-totalcheckin">{{ total_checkedin }}</span> |
+          Total: <span class="js-total">{{ total_participants }}</span>
+        </script>
+        {% endraw %}
       </h3>
     </div>
   </div>
   <div class="row">
-    <div class="col-lg-3 col-xs-4">
+    <div class="col-lg-3 col-sm-4 col-xs-6">
       <form class="search-participant">
           <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
       </form>
@@ -46,61 +50,113 @@
       </ul>
     </div>
   </div>
-  <table class="table footable" id='participants-table' data-page-size="200">
+  <div class="table-responsive">
+  <table class="table table-bordered" id='participants-table'>
     <thead>
-      <tr>
+      <tr class="active">
         <th>Name</th>
+        <th data-sort-ignore="true">Tickets</th>
         <th data-hide="phone">Email</th>
         <th data-hide="tablet, phone">Company</th>
         <th data-sort-ignore="true">Actions</th>
       </tr>
     </thead>
-    <tbody>
-      {%- for p in participants %}
-        <tr id="p-{{ p.id }}">
-          <td class='js-searchable'>{{ p.fullname }}</td>
-          <td class='js-searchable'>{{ p.email }}</td>
-          <td class='js-searchable'>{{ p.company }}</td>
+    <tbody id="participants-table-content">
+      {% raw %}
+      <script id='participant-row' type='text/ractive'>
+      {{#each participants}}
+        <tr id="p-{{ pid }}">
+          <td class='js-searchable'>{{ fullname }}</td>
+          <td class='js-searchable'>{{ ticket_type_titles }}</td>
+          <td class='js-searchable'>{{ email }}</td>
+          <td class='js-searchable'>{{ company }}</td>
           <td>
             <ul class="list-inline status-btn-list">
-            <li>
-              <a href={{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id=p.id) }} class={% if p.badge_printed %} 'btn btn-xs btn-success'  {% else %} 'btn btn-xs btn-info' {% endif %} target="_blank">Show badge</a>
-            </li>
-            <li>
-              <a href={{ url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id=p.id) }} class='btn btn-xs btn-default'>Edit</a>
-            </li>
-            <li>
-              <form action={{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name, participant_id=p.id) }} method='POST' class='checkin_form' class='form-inline'>
-                {{ checkin_form.hidden_tag() }}
-                {%- if p.checked_in %}
-                  <input class='btn btn-xs btn-danger margin-top' type='submit' value="{% trans %}Cancel Check-in{% endtrans %}"/>
-                {%- else %}
-                  <input class='btn btn-xs btn-warning margin-top' type='submit' value="{% trans %}Check-in{% endtrans %}"/>
-                {%- endif %}
-              </form>
-            </li>
+              <li>
+                <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="btn btn-xs btn-success" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
+              </li>
+              <li>
+                <a href="{{ getEditUrl(pid) }}" class="btn btn-xs btn-default" target="_blank">Edit</a>
+              </li>
+              <li>
+                <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
+                  <div style="display:none;">
+                    <input id="csrf_token" name="csrf_token" value="{{ getCsrfToken() }}" type="hidden">
+                  </div>
+                  <input type="hidden" name="pid" value="{{ pid }}">
+                  {{#checked_in}}
+                    <input type="hidden" name="checkin" value="f">
+                    <input value="Cancel Check-in" class="btn btn-xs js-cancel-checkin" type="submit">
+                  {{/checked_in}}
+                  {{^checked_in}}
+                    <input type="hidden" name="checkin" value="t">
+                    <input value="Check-in" class="btn btn-xs js-checkin" type="submit">
+                  {{/checked_in}}
+                  <i class="fa fa-spinner fa-pulse js-loader"></i>
+                  <i class="fa fa-close js-loader js-abort"></i>
+                </form>
+              </li>
             </ul>
           </td>
         </tr>
-      {%- endfor %}
+      {{/each}}
+      </script>
+      {% endraw %}
     </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="10">
-          <div class="pagination pagination-centered"></div>
-        </td>
-      </tr>
-    </tfoot>
-  </table>
+    </table>
+  </div>
 {% endblock %}
 {% block footerscripts %}
 <script>
+  window.Talkfunnel.Config = {
+    badgeUrl: "{{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
+    editUrl: "{{ url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
+    checkinUrl: "{{ url_for('event_checkin', profile=space.profile.name, space=space.name, name=event.name) }}",
+    participantlistUrl: "{{ url_for('event_participants_json', profile=space.profile.name, space=space.name, name=event.name) }}"
+  };
+
   $(document).ready(function() {
+
+    /* Check-in scenarios:
+    1. A participant is checked-in & Internet is available. Also verify for cancel check-in and multiple participants check-in.
+    2. A participant is checked-in & Internet is down.
+    3. Abort a participant's check-in(A wrong particpant was checked in so cancel check-in immediately using abort) when Internet is available.
+    4. Abort a participant's check-in when Internet is down.
+    5. There are two check-in counters & both counters have internet: They have checked-in different participants. Verify both counters have the recent check-in status of participants.
+    6. There are two check-in counters & both counter's internet is down: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    7. There are two check-in counters & both counters have internet: They checked-in few same participants. Verify both counters have the recent check-in status of participants.
+    8. There are two check-in counters & both counter's internet is down: They checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
+    9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
+
+    var eventName = "{{ space.name }}" + "-" + "{{event.title}}".replace(/ /g,'-');
+    var checkinQ = new Talkfunnel.Queue(eventName + "-" + "checkin-queue");
+    var cancelcheckinQ = new Talkfunnel.Queue(eventName + "-" + "cancelcheckin-queue");
+
+    Talkfunnel.ParticipantTable.init(Talkfunnel.Config, checkinQ, cancelcheckinQ);
+    Talkfunnel.ParticipantTable.update();
+    
+    Talkfunnel.ParticipantTable.handleCheckIn();
+    Talkfunnel.ParticipantTable.handleAbortCheckIn();
+    
+    //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds and batch post check-in/cancel check-in status to server
+    setInterval(function() { Talkfunnel.ParticipantTable.processQueues(); }, 8000);
+
+    //Get participants data from server every 15 seconds
+    setInterval(function() { Talkfunnel.ParticipantTable.update(); }, 15000);
+
+    //If there is no network, display a confirmation dialog when user closes/reloades the page
+    window.onbeforeunload = function() {
+      if(!navigator.onLine) {
+        return 'There is no network!';
+      }
+    };
+
     $('#badge_form').on("submit", function(){
-       if ($('#badge_form select.field-badge_printed').val() === "") {
+      if ($('#badge_form select.field-badge_printed').val() === "") {
         return false;
-       }
-       return window.confirm("Are you sure? Selected action will apply to all listed participants.")
+      }
+      return window.confirm("Are you sure? Selected action will apply to all listed participants.");
     });
 
     var tableSearch = new window.TableSearch('participants-table');
@@ -110,12 +166,6 @@
       $(hits.join(",")).removeClass('hidden');
     });
     
-    $('.footable').footable({
-      breakpoints: {
-        phone: 600,
-        tablet: 768,
-      }
-    });
   });
 </script>
 {% endblock %}

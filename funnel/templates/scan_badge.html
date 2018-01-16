@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
+{% block title %}{{ space.title }}{% endblock %}
+{% block pageheaders %}
+{% endblock %}
+{% block headline %}
+{% endblock %}
+
+{% block content %}
+  <div class="row" id="scan-badge-wrapper">
+    {% raw %}
+    <script id='scan-badge-template' type='text/ractive'>
+
+      <div class="col-lg-4 col-xs-12">
+        <h1>{{ spaceTitle }}</h1>
+        <h3>{{ eventTitle }}</h3>
+        <h5>Please scan your badge to check-in</h5>
+        {{#if cameras}}
+          <h5>Cameras</h5>
+          {{#cameras:camera}}
+            {{#if activeCameraId === cameras[camera].id}}
+              {{#if !qrReaderOn}}
+              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
+              {{/if}}
+            {{else}}
+              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
+            {{/if}}
+          {{/}}
+        {{else}}
+          <p>No camera found</p>
+        {{/if}}
+      </div>
+
+      <div class="col-lg-8 col-xs-12">
+        <video id="reader" class="qrcode-reader"></video>
+      </div>
+
+      <div class="modal fade" id="status-msg" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header {{#if !scanning && !attendeeFound}}bg-danger{{/if}}">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Check in status</h4>
+            </div>
+            <div class="modal-body">
+              {{#if scanning}}
+                <h4>Scanning <i class="fa fa-spinner fa-spin fa-2x"></i></h4>
+              {{elseif attendeeFound}}
+                <h4>Hello {{attendeeName}},</h4>
+                <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
+                <p>HasGeek</p>
+              {{else}}
+                <h4>Attendee details not found</h4>
+              {{/if}}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </script>
+    {% endraw %}
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/3.3.3/adapter.min.js"></script>
+  <script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+  <script>
+    $(document).ready(function() {
+
+      var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name) }}"
+
+      window.scanBadge = new Ractive({
+        el: '#scan-badge-wrapper',
+        template: '#scan-badge-template',
+        data: {
+          spaceTitle: "{{ space.title }}",
+          eventTitle: "{{ event.title }}",
+          scanner: {},
+          activeCameraId: "",
+          cameras: [],
+          scanning: false,
+          attendeeName: "",
+          attendeeFound: false,
+          formatName: function (cameraName) {
+          return cameraName || "camera";
+          }
+        },
+        startCamera: function (camera) {
+          var ractiveComponent = this;
+          ractiveComponent.set('activeCameraId', camera.id);
+          ractiveComponent.set('qrReaderOn', true);
+          window.scanner.start(camera);
+        },
+        oncomplete: function() {
+          var ractiveComponent = this;
+          window.scanner = new Instascan.Scanner({ video: document.getElementById('reader'), scanPeriod: 5 });
+          window.scanner.addListener('scan', function (qrcode) {
+            console.log("qrcode", qrcode);
+            if (qrcode.length === 16) {
+              ractiveComponent.set('scanning', true);
+              $("#status-msg").modal('show');
+              var puk = qrcode.substring(0,8);
+              var formValues = $.param({"puk":[puk]}, true);
+              formValues += "&checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
+              $.ajax({
+                type: 'POST',
+                url:  checkinApiUrl,
+                data : formValues,
+                timeout: 5000,
+                dataType: "json",
+                success: function(response) {
+                  ractiveComponent.set({
+                    'scanning':false,
+                    'attendeeFound': true
+                  });
+                  ractiveComponent.set('attendeeName', response.result[0].fullname);
+                },
+                error: function() {
+                  ractiveComponent.set({
+                    'scanning': false,
+                    'attendeeFound': false
+                  });
+                }
+              });
+            }
+          });
+
+          Instascan.Camera.getCameras().then(function (cameras) {
+            ractiveComponent.set('cameras', cameras);
+          }).catch(function (e) {
+            console.error(e);
+          });
+        }
+      });
+      
+    });
+  </script>
+{% endblock %}

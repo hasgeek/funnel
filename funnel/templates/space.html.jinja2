@@ -132,17 +132,22 @@
 <ul class="list-inline">
   {%- if 'admin' in space.permissions(g.user) %}
     <li>
-      <a href="{{ space.url_for('admin') }}" class='btn btn-danger btn-sm'>{% trans %}Manage Event{% endtrans %}</a>
+      <a href="{{ space.url_for('events') }}" class='btn btn-danger btn-sm btn-block'>{% trans %}Manage check-in{% endtrans %}</a>
     </li>
-  {%- endif %}  
+  {%- endif %}
+  {%- if 'admin' in space.permissions(g.user) %}
+    <li>
+      <a href="{{ space.url_for('admin') }}" class='btn btn-danger btn-sm btn-block'>{% trans %}Manage Event{% endtrans %}</a>
+    </li>
+  {%- endif %}
   {%- if space.sessions %}
     <li>
-      <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
+      <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm btn-block'>{% trans %}View Schedule{% endtrans %}</a>
     </li>
   {%- endif %}
   {%- if space.buy_tickets_url %}
     <li>
-      <a href="{{ space.buy_tickets_url }}" class='btn btn-danger btn-sm' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
+      <a href="{{ space.buy_tickets_url }}" class='btn btn-danger btn-sm btn-block' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
     </li>
   {%- endif %}
 </ul>

@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% from "macros.html" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html" import renderfield %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <ul class="list-group">
+      {%- for event in events %}
+        <li class="list-group-item">
+          <a href="{{ url_for('scan_badge', profile=space.profile.name, space=space.name, name=event.name) }}" class='btn btn-danger btn-sm pull-right'>{% trans %}Scan badge{% endtrans %}</a>
+          <p>{{ event.title }}</p>
+        </li>
+      {%- endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rq import Queue
 from redis import Redis
-from flask import redirect, render_template, url_for, flash
+from flask import redirect, render_template, url_for, flash, jsonify
 from coaster.views import load_models
 from coaster.utils import getbool
 from sqlalchemy.exc import IntegrityError
@@ -28,11 +28,37 @@ def admin(profile, space):
     csrf_form = forms.Form()
     if csrf_form.validate_on_submit():
         for ticket_client in space.ticket_clients:
-            if ticket_client and ticket_client.name == u'explara':
+            if ticket_client and ticket_client.name.lower() in [u'explara', u'boxoffice']:
                 funnelq.enqueue(import_tickets, ticket_client.id)
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(space.url_for('admin'), code=303)
     return render_template('admin.html.jinja2', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
+
+
+@app.route('/<space>/events', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='admin')
+def events(profile, space):
+    return render_template('event_list.html', profile=profile, space=space, events=space.events)
+
+
+@app.route('/<space>/events/json', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='admin')
+def events_json(profile, space):
+    events = []
+    for event in space.events:
+        events.append({
+            'title': event.title,
+            'name': event.name,
+            })
+    return jsonify(result=events)
 
 
 @app.route('/<space>/events/new', methods=['GET', 'POST'], subdomain='<profile>')
@@ -173,7 +199,6 @@ def ticket_client_edit(profile, space, ticket_client):
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
     permission='view-event')
 def event(profile, space, event):
-    participants = Participant.checkin_list(event)
     form = ParticipantBadgeForm()
     if form.validate_on_submit():
         badge_printed = True if getbool(form.data.get('badge_printed')) else False
@@ -181,5 +206,15 @@ def event(profile, space, event):
             update({'badge_printed': badge_printed}, False)
         db.session.commit()
         return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
-    checked_in_count = len([p for p in participants if p.checked_in])
-    return render_template('event.html.jinja2', profile=profile, space=space, participants=participants, event=event, badge_form=ParticipantBadgeForm(model=Participant), checked_in_count=checked_in_count, checkin_form=forms.Form())
+    return render_template('event.html', profile=profile, space=space, event=event, badge_form=ParticipantBadgeForm(model=Participant), checkin_form=forms.Form())
+
+
+@app.route('/<space>/event/<name>/scan_badge', methods=['GET', 'POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='view-event')
+def scan_badge(profile, space, event):
+    return render_template('scan_badge.html', profile=profile, space=space, event=event)
