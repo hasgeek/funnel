@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from coaster.utils import LabeledEnum
+from coaster.sqlalchemy import StateManager
 from baseframe import __
 from . import db, TimestampMixin
 from .space import ProposalSpace
@@ -10,6 +11,7 @@ __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
 class RSVP_STATUS(LabeledEnum):
+    # If you add any new state, you need to add a migration to modify the check constraint
     Y = ('Y', 'yes', __("Yes"))
     N = ('N', 'no', __("No"))
     M = ('M', 'maybe', __("Maybe"))
@@ -27,9 +29,9 @@ class Rsvp(TimestampMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, primary_key=True)
     user = db.relationship(User)
 
-    status = db.Column(db.CHAR(1),
-        db.CheckConstraint('status IN (%s)' % ', '.join(["'%s'" % value for value in RSVP_STATUS.keys()])),
+    _state = db.Column('status', db.CHAR(1), StateManager.check_constraint('status', RSVP_STATUS),
         default=RSVP_STATUS.A, nullable=False)
+    state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
 
     @classmethod
     def get_for(cls, space, user, create=False):
@@ -46,12 +48,12 @@ def _space_rsvp_for(self, user, create=False):
 
 
 def _space_rsvps_with(self, status):
-    return self.rsvps.filter_by(status=status)
+    return self.rsvps.filter_by(_state=status)
 
 
 def _space_rsvp_counts(self):
-    return {value: count for value, count in db.session.query(Rsvp.status, db.func.count(Rsvp.status)).filter(
-        Rsvp.proposal_space == self).group_by(Rsvp.status)}
+    return dict(db.session.query(Rsvp._state, db.func.count(Rsvp._state)).filter(
+        Rsvp.proposal_space == self).group_by(Rsvp._state).all())
 
 
 ProposalSpace.rsvp_for = _space_rsvp_for

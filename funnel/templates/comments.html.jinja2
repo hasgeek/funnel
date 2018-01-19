@@ -41,14 +41,14 @@
       {{ commentvote(comment, currentuser, documenturl+'/comments', csrf_form) }}
       <div class="com-header">
         <a class="collapse" href="#">[-]</a><a class="uncollapse hidden" href="#">[+]</a>
-        {% if comment.is_deleted -%}
+        {% if comment.state.DELETED -%}
           <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
         {%- else -%}
           <span class="commenter">{{ comment.user.pickername }}</span>
           {%- if comment.user == document.user %}
             <span class="label label-default">Proposer</span>
           {% endif %}
-          {% if not comment.is_deleted and space.review_team and comment.user in space.review_team.users %}
+          {% if not comment.state.DELETED and space.review_team and comment.user in space.review_team.users %}
             <span class="label label-primary">Reviewer</span>
           {% endif %}
           {{ comment.created_at|age }}
@@ -58,11 +58,11 @@
         {%- endif %}
       </div>
       <div class="com-body">
-        {% if not comment.is_deleted -%}
+        {% if not comment.state.DELETED -%}
           {{ comment.message }}
         {%- endif %}
         <div data-id="{{ comment.id }}" class="com-footer">
-          {% if not comment.is_deleted %}
+          {% if not comment.state.DELETED %}
             {% if g.user %}<a title="{% trans %}Reply{% endtrans %}" class="comment-reply" href="#c{{ comment.id }}">[reply]</a>{% endif %}
             {%- with cperms = comment.permissions(g.user, g.permissions) %}
               {% if 'edit-comment' in cperms %}<a title="{% trans %}Edit{% endtrans %}" class="comment-edit" href="#c{{ comment.id }}">[{% trans %}edit{% endtrans %}]</a>{% endif %}
