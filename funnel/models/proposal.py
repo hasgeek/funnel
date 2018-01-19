@@ -7,7 +7,7 @@ from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import SqlSplitIdComparator
+from coaster.sqlalchemy import SqlSplitIdComparator, StateManager
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
@@ -24,19 +24,21 @@ _marker = object()
 
 class PROPOSALSTATUS(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
-    DRAFT = (0, __("Draft"))
-    SUBMITTED = (1, __("Submitted"))
-    CONFIRMED = (2, __("Confirmed"))
-    WAITLISTED = (3, __("Waitlisted"))
-    SHORTLISTED = (4, __("Shortlisted"))
-    REJECTED = (5, __("Rejected"))
-    CANCELLED = (6, __("Cancelled"))
+    # If you add any new state, you need to add a migration to modify the check constraint
+    DRAFT = (0, 'draft', __("Draft"))
+    SUBMITTED = (1, 'submitted', __("Submitted"))
+    CONFIRMED = (2, 'confirmed', __("Confirmed"))
+    WAITLISTED = (3, 'waitlisted', __("Waitlisted"))
+    SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
+    REJECTED = (5, 'rejected', __("Rejected"))
+    CANCELLED = (6, 'cancelled', __("Cancelled"))
 
-    AWAITING_DETAILS = (7, __("Awaiting details"))
-    UNDER_EVALUATION = (8, __("Under evaluation"))
-    SHORTLISTED_FOR_REHEARSAL = (9, __("Shortlisted for rehearsal"))
-    REHEARSAL = (10, __("Rehearsal ongoing"))
+    AWAITING_DETAILS = (7, 'awaiting_details', __("Awaiting details"))
+    UNDER_EVALUATION = (8, 'under_evaluation', __("Under evaluation"))
+    SHORTLISTED_FOR_REHEARSAL = (9, 'shortlisted_for_rehearsal', __("Shortlisted for rehearsal"))
+    REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
+    DELETED = (11, 'deleted', __("Deleted"))
 
 # --- Models ------------------------------------------------------------------
 
@@ -108,13 +110,18 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     slides = db.Column(db.Unicode(250), nullable=True)
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
-    status = db.Column(db.Integer, default=PROPOSALSTATUS.SUBMITTED, nullable=False)
+
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSALSTATUS),
+        default=PROPOSALSTATUS.SUBMITTED, nullable=False)
+    state = StateManager('_state', PROPOSALSTATUS, doc="Current state of the proposal.")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
-    votes = db.relationship(VoteSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
+    votes = db.relationship(VoteSpace, uselist=False,
+                            cascade='all, delete-orphan', single_parent=True)
 
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
-    comments = db.relationship(CommentSpace, uselist=False, cascade='all, delete-orphan', single_parent=True)
+    comments = db.relationship(CommentSpace, uselist=False,
+                               cascade='all, delete-orphan', single_parent=True)
 
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
@@ -140,7 +147,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
 
     def __repr__(self):
-        return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
+        return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(
+            proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
 
     @db.validates('proposal_space')
     def _validate_proposal_space(self, key, value):
@@ -155,6 +163,10 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             else:
                 redirect.proposal = self
         return value
+
+    @state.transition(None, state.DELETED)
+    def delete(self):
+        pass
 
     def move_to(self, space):
         """
@@ -188,14 +200,6 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
 
-    @property
-    def status_title(self):
-        return PROPOSALSTATUS[self.status]
-
-    @hybrid_property
-    def confirmed(self):
-        return self.status == PROPOSALSTATUS.CONFIRMED
-
     @cached_property
     def has_outstation_speaker(self):
         """
@@ -220,8 +224,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     def votes_by_group(self):
         votes_groups = dict([(group.name, 0) for group in self.proposal_space.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users])
-            for group in self.proposal_space.usergroups])
+        groupuserids = dict([(group.name, [user.userid for user in group.users]) for group in self.proposal_space.usergroups])
         for vote in self.votes.votes:
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:

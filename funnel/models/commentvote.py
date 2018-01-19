@@ -3,18 +3,22 @@
 from flask import url_for
 from . import db, BaseMixin, MarkdownColumn
 from .user import User
+from coaster.utils import LabeledEnum
+from coaster.sqlalchemy import StateManager
+from baseframe import __
 
 __all__ = ['VoteSpace', 'Vote', 'CommentSpace', 'Comment']
 
 
 # --- Constants ---------------------------------------------------------------
 
-class COMMENTSTATUS:
-    PUBLIC = 0
-    SCREENED = 1
-    HIDDEN = 2
-    SPAM = 3
-    DELETED = 4  # For when there are children to be preserved
+class COMMENTSTATUS(LabeledEnum):
+    # If you add any new state, you need to add a migration to modify the check constraint
+    PUBLIC = (0, 'public', __("Public"))
+    SCREENED = (1, 'screened', __("Screened"))
+    HIDDEN = (2, 'hidden', __("Hidden"))
+    SPAM = (3, 'spam', __("Spam"))
+    DELETED = (4, 'deleted', __("Deleted"))  # For when there are children to be preserved
 
 
 # What is this VoteSpace or CommentSpace attached to?
@@ -95,7 +99,9 @@ class Comment(BaseMixin, db.Model):
 
     message = MarkdownColumn('message', nullable=False)
 
-    status = db.Column(db.Integer, default=0, nullable=False)
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', COMMENTSTATUS),
+        default=COMMENTSTATUS.PUBLIC, nullable=False)
+    state = StateManager('_state', COMMENTSTATUS, doc="Current state of the comment.")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
@@ -106,16 +112,16 @@ class Comment(BaseMixin, db.Model):
         super(Comment, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.COMMENT)
 
+    @state.transition(None, state.DELETED)
     def delete(self):
         """
         Delete this comment.
         """
         if len(self.children) > 0:
-            self.status = COMMENTSTATUS.DELETED
             self.user = None
             self.message = ''
         else:
-            if self.parent and self.parent.is_deleted:
+            if self.parent and self.parent.state.DELETED:
                 # If the parent is deleted, ask it to reconsider removing itself
                 parent = self.parent
                 parent.children.remove(self)
@@ -123,10 +129,6 @@ class Comment(BaseMixin, db.Model):
                 parent.delete()
             else:
                 db.session.delete(self)
-
-    @property
-    def is_deleted(self):
-        return self.status == COMMENTSTATUS.DELETED
 
     def sorted_children(self):
         return sorted(self.children, key=lambda child: child.votes.count)
