@@ -76,4 +76,4 @@ class ProposalForm(forms.Form):
 class ProposalStatusForm(forms.Form):
     status = forms.SelectField(
         __("Status"), coerce=int,
-        choices=[(status, title) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+        choices=[(status, label.title) for (status, label) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])

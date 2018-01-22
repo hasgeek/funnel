@@ -14,7 +14,7 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
-    ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
+    ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm
 
 proposal_headers = [
@@ -72,7 +72,7 @@ def proposal_data(proposal):
             ('votes', proposal.votes.count),
             ('comments', proposal.comments.count),
             ('submitted', proposal.created_at.isoformat() + 'Z'),
-            ('confirmed', proposal.confirmed),
+            ('confirmed', proposal.state.CONFIRMED),
         ] + ([
             ('email', proposal.email),
             ('phone', proposal.phone),
@@ -80,7 +80,8 @@ def proposal_data(proposal):
             ('votes_count', proposal.votes_count()),
             ('votes_groups', proposal.votes_by_group()),
             ('votes_bydate', proposal.votes_by_date()),
-            ('status', proposal.status),
+            ('status', proposal.state.value),
+            ('state', proposal.state.label.name),
         ] if 'view-contactinfo' in g.permissions else []))
 
 
@@ -89,7 +90,7 @@ def proposal_data_flat(proposal, groups=[]):
     cols = [data.get(header) for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
     for name in groups:
         cols.append(data['votes_groups'][name])
-    cols.append(PROPOSALSTATUS[proposal.status])
+    cols.append(proposal.state.label.name)
     return cols
 
 
@@ -174,6 +175,7 @@ def proposal_edit(profile, space, proposal):
 #     workflow=proposal.workflow()
 
 
+# TODO: Replace this view with a state transition
 @app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -184,9 +186,10 @@ def proposal_edit(profile, space, proposal):
 def proposal_status(profile, space, proposal):
     form = ProposalStatusForm()
     if form.validate_on_submit():
-        proposal.status = form.status.data
+        proposal._status = form.status.data
         db.session.commit()
-        flash(_("The proposal has been ") + PROPOSALSTATUS[proposal.status].lower(), 'success')
+        flash(_("The proposal's status has changed to ") +
+              proposal.state.label.title, 'success')
     return redirect(proposal.url_for())
 
 
@@ -291,20 +294,22 @@ def proposal_view(profile, space, proposal):
                 flash(_("No such comment"), 'error')
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
-    if proposal.status != PROPOSALSTATUS.DRAFT:
-        statusform = ProposalStatusForm(status=proposal.status)
+    if not proposal.state.DRAFT:
+        statusform = ProposalStatusForm(status=proposal.state.value)
     else:
         statusform = None
 
-    movable_spaces = None
+    movable_spaces = []
     print g.user.teams, dir(proposal.proposal_space.profile)
     if 'move-proposal' in g.permissions:
         movable_spaces = ProposalSpace.query.filter(ProposalSpace.admin_team_id.in_([t.id for t in g.user.teams])).all()
+        for profile in Profile.query.filter(Profile.admin_team_id.in_([t.id for t in g.user.teams])):
+            movable_spaces += [space for space in profile.spaces if space not in movable_spaces]
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(), movable_spaces=movable_spaces,
-        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform,
+        links=links, statusform=statusform,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 

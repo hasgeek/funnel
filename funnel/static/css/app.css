@@ -11,7 +11,7 @@ body {
   overflow: hidden;
   text-align: left;
   text-transform: capitalize;
-  background-image: url('../img/logo.png?1496741443');
+  background-image: url('../img/logo.png?1427694745');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 110px;
@@ -20,7 +20,7 @@ body {
 
 @media all and (-webkit-min-device-pixel-ratio: 1.5) {
   #logo {
-    background-image: url('../img/logo@2x.png?1496741443');
+    background-image: url('../img/logo@2x.png?1427694745');
     -moz-background-size: 110px 75px;
     -o-background-size: 110px 75px;
     -webkit-background-size: 110px 75px;
@@ -34,7 +34,7 @@ body {
   overflow: hidden;
   text-align: left;
   text-transform: capitalize;
-  background-image: url('../img/logo@2x.png?1496741443');
+  background-image: url('../img/logo@2x.png?1427694745');
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 221px;
@@ -533,6 +533,9 @@ dl.bar dd:last-child {
 .comments .com-footer a:hover {
   color: #816894;
   text-decoration: none;
+}
+.comments img {
+  width: 100%;
 }
 
 form#newcomment #field-comment_message .control-label {
