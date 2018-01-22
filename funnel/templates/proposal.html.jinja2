@@ -142,7 +142,7 @@
                 Move <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu">
-                {%- for movespace in proposal.proposal_space.profile.spaces %}
+                {%- for movespace in movable_spaces %}
                   <li><a href="{{ proposal.url_for('move-to', target=movespace) }}">{{ movespace.title }}</a></li>
                 {%- endfor %}
               </ul>

@@ -300,11 +300,12 @@ def proposal_view(profile, space, proposal):
         statusform = None
 
     movable_spaces = []
-    print g.user.teams, dir(proposal.proposal_space.profile)
     if 'move-proposal' in g.permissions:
-        movable_spaces = ProposalSpace.query.filter(ProposalSpace.admin_team_id.in_([t.id for t in g.user.teams])).all()
-        for profile in Profile.query.filter(Profile.admin_team_id.in_([t.id for t in g.user.teams])):
-            movable_spaces += [space for space in profile.spaces if space not in movable_spaces]
+        team_ids = [t.id for t in g.user.teams]
+        movable_spaces = ProposalSpace.query.join(ProposalSpace.profile).filter(
+            (ProposalSpace.admin_team_id.in_(team_ids)) |
+            (Profile.admin_team_id.in_(team_ids))
+            ).order_by(ProposalSpace.date.desc())
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
