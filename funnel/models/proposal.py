@@ -297,7 +297,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         elif action == 'status':
             return url_for('proposal_status', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'move-to':
-            return url_for('proposal_moveto', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, target="%s/%s" % (kwargs['target'].profile.name, kwargs['target'].name))
+            return url_for('proposal_moveto', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
 
 
 class ProposalRedirect(TimestampMixin, db.Model):

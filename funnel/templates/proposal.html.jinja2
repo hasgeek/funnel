@@ -142,8 +142,11 @@
                 Move <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu">
+                <form id="form-move-proposal" action="{{ proposal.url_for('move-to') }}" method="POST">
+                  <input id="input-move-target" type="hidden" name="target" value="" />
+                </form>
                 {%- for movespace in movable_spaces %}
-                  <li><a href="{{ proposal.url_for('move-to', target=movespace) }}">{{ movespace.title }}</a></li>
+                  <li><a href="#" onClick="moveProposalTo('{{movespace.profile.name}}/{{movespace.name}}')">{{ movespace.title }}</a></li>
                 {%- endfor %}
               </ul>
             </div>
@@ -352,4 +355,11 @@
 </script>
 <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+
+<script type="text/javascript">
+var moveProposalTo = function (target) {
+  $('#input-move-target').val(target);
+  $('#form-move-proposal').submit();
+}
+</script>
 {% endblock %}

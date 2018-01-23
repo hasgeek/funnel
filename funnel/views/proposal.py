@@ -394,14 +394,14 @@ def proposal_prev(profile, space, proposal):
         return redirect(space.url_for())
 
 
-@app.route('/<space>/<proposal>/move', subdomain='<profile>')
+@app.route('/<space>/<proposal>/move', methods=['POST',], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='move-proposal', addlperms=lastuser.permissions)
 def proposal_moveto(profile, space, proposal):
-    target_name = request.args.get('target')
+    target_name = request.values.get('target')
     if not target_name:
         abort(404)
     profile_name, space_name = target_name.split('/', 1)
