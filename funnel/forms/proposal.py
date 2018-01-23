@@ -81,7 +81,8 @@ class ProposalStatusForm(forms.Form):
 
 
 class ProposalMoveForm(forms.Form):
-    target = QuerySelectField(__("Move proposal to"), get_label='title')
+    target = QuerySelectField(__("Move proposal to"), validators=[
+                              forms.validators.DataRequired()], get_label='title')
 
     def set_queries(self):
         team_ids = [t.id for t in g.user.teams]
