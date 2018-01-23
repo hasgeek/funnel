@@ -300,7 +300,7 @@ def proposal_view(profile, space, proposal):
         statusform = None
 
     movable_spaces = []
-    if 'move-proposal' in g.permissions:
+    if 'move-proposal' in space.permissions(g.user, g.permissions):
         team_ids = [t.id for t in g.user.teams]
         movable_spaces = ProposalSpace.query.join(ProposalSpace.profile).filter(
             (ProposalSpace.admin_team_id.in_(team_ids)) |
@@ -406,9 +406,15 @@ def proposal_moveto(profile, space, proposal):
         abort(404)
     profile_name, space_name = target_name.split('/', 1)
     target_space = ProposalSpace.query.filter(ProposalSpace.name == space_name).join(Profile).filter(Profile.name == profile_name).one_or_none()
-    if target_space:
-        proposal.move_to(target_space)
-        db.session.commit()  # WARNING: GET request!
-        return redirect(proposal.url_for(), 303)
-    else:
+
+    if not target_space:
         abort(404)
+
+    if not (target_space.profile.admin_team in g.user.teams or target_space.admin_team in g.user.teams):
+        flash(_("You do not have permission to move this proposal to {space}.".format(space=target_space.title)))
+        abort(403)
+
+    proposal.move_to(target_space)
+    db.session.commit()  # WARNING: GET request!
+    flash(_("The proposal has been successfully moved to {space}.".format(space=target_space.title)))
+    return redirect(proposal.url_for(), 303)
