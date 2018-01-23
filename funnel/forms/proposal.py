@@ -5,7 +5,7 @@ import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 from ..models import PROPOSALSTATUS
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalStatusForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalStatusForm', 'ProposalMoveForm']
 
 
 class TransferProposal(forms.Form):
@@ -77,3 +77,7 @@ class ProposalStatusForm(forms.Form):
     status = forms.SelectField(
         __("Status"), coerce=int,
         choices=[(status, label.title) for (status, label) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+
+
+class ProposalMoveForm(forms.Form):
+    target = forms.SelectField(__("Move Proposal To"))
