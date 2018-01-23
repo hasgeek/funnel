@@ -397,10 +397,6 @@ def proposal_prev(profile, space, proposal):
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='move-proposal', addlperms=lastuser.permissions)
 def proposal_moveto(profile, space, proposal):
-    csrf_form = Form()
-    if not csrf_form.validate_on_submit():
-        abort(403)
-
     proposal_move_form = ProposalMoveForm()
     if not proposal_move_form.validate_on_submit():
         flash(_("Please choose a proposal space you want to move this proposal to."))
