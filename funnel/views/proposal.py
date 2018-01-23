@@ -401,9 +401,14 @@ def proposal_prev(profile, space, proposal):
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='move-proposal', addlperms=lastuser.permissions)
 def proposal_moveto(profile, space, proposal):
+    csrf_form = Form()
+    if not csrf_form.validate_on_submit():
+        abort(403)
+
     target_name = request.values.get('target')
     if not target_name:
         abort(404)
+
     profile_name, space_name = target_name.split('/', 1)
     target_space = ProposalSpace.query.filter(ProposalSpace.name == space_name).join(Profile).filter(Profile.name == profile_name).one_or_none()
 

@@ -143,6 +143,7 @@
               </button>
               <ul class="dropdown-menu" role="menu">
                 <form id="form-move-proposal" action="{{ proposal.url_for('move-to') }}" method="POST">
+                  {{ csrf_form.hidden_tag() }}
                   <input id="input-move-target" type="hidden" name="target" value="" />
                 </form>
                 {%- for movespace in movable_spaces %}
