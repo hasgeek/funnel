@@ -302,18 +302,11 @@ def proposal_view(profile, space, proposal):
     movable_spaces = []
     proposal_move_form = None
     if 'move-proposal' in space.permissions(g.user, g.permissions):
-        team_ids = [t.id for t in g.user.teams]
-        movable_spaces = ProposalSpace.query.join(ProposalSpace.profile).filter(
-            (ProposalSpace.admin_team_id.in_(team_ids)) |
-            (Profile.admin_team_id.in_(team_ids))
-            ).order_by(ProposalSpace.date.desc())
-
         proposal_move_form = ProposalMoveForm()
-        proposal_move_form.target.choices = [(space.id, space.title) for space in movable_spaces]
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        votes_groups=proposal.votes_by_group(), movable_spaces=movable_spaces,
+        votes_groups=proposal.votes_by_group(),
         links=links, statusform=statusform, proposal_move_form=proposal_move_form,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
@@ -409,11 +402,12 @@ def proposal_moveto(profile, space, proposal):
     if not csrf_form.validate_on_submit():
         abort(403)
 
-    target_space_id = request.values.get('target')
-    if not target_space_id:
-        abort(404)
+    proposal_move_form = ProposalMoveForm()
+    if not proposal_move_form.validate_on_submit():
+        flash(_("Please choose a proposal space you want to move this proposal to."))
+        return redirect(proposal.url_for(), 303)
 
-    target_space = ProposalSpace.query.get(target_space_id)
+    target_space = proposal_move_form.target.data
     if not target_space:
         abort(404)
 

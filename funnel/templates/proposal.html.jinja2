@@ -135,7 +135,7 @@
           {% if proposal.session %}
             <a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
           {% endif %}
-          {%- if 'move-proposal' in g.permissions and proposal_move_form %}
+          {%- if 'move-proposal' in g.permissions %}
             <br>
             {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move', style=None) }}
           {%- endif %}
