@@ -15,7 +15,7 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
-from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm
+from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm, ProposalMoveForm
 
 proposal_headers = [
     'id',
@@ -299,10 +299,14 @@ def proposal_view(profile, space, proposal):
     else:
         statusform = None
 
+    proposal_move_form = None
+    if 'move-proposal' in space.permissions(g.user, g.permissions):
+        proposal_move_form = ProposalMoveForm()
+
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
-        links=links, statusform=statusform,
+        links=links, statusform=statusform, proposal_move_form=proposal_move_form,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 
@@ -386,21 +390,24 @@ def proposal_prev(profile, space, proposal):
         return redirect(space.url_for())
 
 
-@app.route('/<space>/<proposal>/move', subdomain='<profile>')
+@app.route('/<space>/<proposal>/move', methods=['POST',], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='move-proposal', addlperms=lastuser.permissions)
 def proposal_moveto(profile, space, proposal):
-    target_name = request.args.get('target')
-    if not target_name:
-        abort(404)
-    profile_name, space_name = target_name.split('/', 1)
-    target_space = ProposalSpace.query.filter(ProposalSpace.name == space_name).join(Profile).filter(Profile.name == profile_name).one_or_none()
-    if target_space:
-        proposal.move_to(target_space)
-        db.session.commit()  # WARNING: GET request!
+    proposal_move_form = ProposalMoveForm()
+    if not proposal_move_form.validate_on_submit():
+        flash(_("Please choose a proposal space you want to move this proposal to."))
         return redirect(proposal.url_for(), 303)
-    else:
-        abort(404)
+
+    target_space = proposal_move_form.target.data
+    if not (target_space.profile.admin_team in g.user.teams or target_space.admin_team in g.user.teams):
+        flash(_("You do not have permission to move this proposal to {space}.".format(space=target_space.title)))
+        abort(403)
+
+    proposal.move_to(target_space)
+    db.session.commit()
+    flash(_("The proposal has been successfully moved to {space}.".format(space=target_space.title)))
+    return redirect(proposal.url_for(), 303)

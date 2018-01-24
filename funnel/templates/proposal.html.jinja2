@@ -115,12 +115,12 @@
       </div>
       <div class="row">
         <!-- Social buttons -->
-        <div class="social col-md-9 col-lg-9 col-sm-12 col-xs-12">
+        <div class="social col-md-6 col-lg-6 col-sm-12 col-xs-12">
           <a href="//twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{ config['TWITTER_ID'] }}">Tweet</a>
           <g:plusone size="medium"></g:plusone>
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
         </div>
-        <div class="col-md-3 col-lg-3 col-sm-12 col-xs-12">
+        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
           Status:
           {%- if 'view-status' in g.permissions %}
             {{ proposal.state.label.title }}
@@ -133,20 +133,11 @@
             {% endif %}
           {% endif %}
           {% if proposal.session %}
-            <br><a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
+            <a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
           {% endif %}
           {%- if 'move-proposal' in g.permissions %}
             <br>
-            <div class="btn-group">
-              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                Move <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu" role="menu">
-                {%- for movespace in proposal.proposal_space.profile.spaces %}
-                  <li><a href="{{ proposal.url_for('move-to', target=movespace) }}">{{ movespace.title }}</a></li>
-                {%- endfor %}
-              </ul>
-            </div>
+            {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move', style=None) }}
           {%- endif %}
         </div>
       </div>
