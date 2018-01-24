@@ -2,10 +2,11 @@
 
 from baseframe import __
 import baseframe.forms as forms
+from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import PROPOSALSTATUS
+from ..models import PROPOSALSTATUS, ProposalSpace, Profile
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalStatusForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalStatusForm', 'ProposalMoveForm']
 
 
 class TransferProposal(forms.Form):
@@ -77,3 +78,15 @@ class ProposalStatusForm(forms.Form):
     status = forms.SelectField(
         __("Status"), coerce=int,
         choices=[(status, label.title) for (status, label) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+
+
+class ProposalMoveForm(forms.Form):
+    target = QuerySelectField(__("Move proposal to"), validators=[
+                              forms.validators.DataRequired()], get_label='title')
+
+    def set_queries(self):
+        team_ids = [t.id for t in g.user.teams]
+        self.target.query = ProposalSpace.query.join(ProposalSpace.profile).filter(
+            (ProposalSpace.admin_team_id.in_(team_ids)) |
+            (Profile.admin_team_id.in_(team_ids))
+            ).order_by(ProposalSpace.date.desc())
