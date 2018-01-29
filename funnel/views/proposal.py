@@ -186,7 +186,7 @@ def proposal_edit(profile, space, proposal):
 def proposal_status(profile, space, proposal):
     form = ProposalStatusForm()
     if form.validate_on_submit():
-        proposal._status = form.status.data
+        proposal._state = form.status.data
         db.session.commit()
         flash(_("The proposal's status has changed to ") +
               proposal.state.label.title, 'success')
