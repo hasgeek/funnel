@@ -213,7 +213,7 @@
               {% endfor %}
             </div>
 
-            <p>{{ renderform(transitionform, 'proposal-status', action=proposal.url_for('transition'), submit='Save') }}</p>
+            <p>{{ renderform(transitionform, 'proposal-status-transition', action=proposal.url_for('transition'), submit='Save') }}</p>
           {% endif %}
           {% if proposal.preview_video or proposal.slides %}
             <h2>{% trans %}Media{% endtrans %}</h2>

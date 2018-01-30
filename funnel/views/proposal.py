@@ -172,7 +172,8 @@ def proposal_edit(profile, space, proposal):
     permission='confirm-proposal')
 def proposal_transition(profile, space, proposal):
     transitionform = ProposalTransitionForm()
-    transitionform.populate_transitions(proposal)  # fill up the form choices with the given proposal's transitions
+    # fill up the form choices with the given proposal's transitions for validation
+    transitionform.populate_transitions(proposal)
 
     if transitionform.validate_on_submit():  # check if the provided transition is valid
         getattr(proposal, transitionform.transition.data)()  # call the transition
@@ -215,6 +216,7 @@ def proposal_view(profile, space, proposal):
         key=lambda c: c.votes.count, reverse=True)
     commentform = CommentForm(model=Comment)
     delcommentform = DeleteCommentForm()
+    # TODO: Remove comment methods to a separate view
     if request.method == 'POST':
         if request.form.get('form.id') == 'newcomment' and commentform.validate() and 'new-comment' in g.permissions:
             send_mail_info = []
@@ -289,6 +291,7 @@ def proposal_view(profile, space, proposal):
     transitionform = None
     if not proposal.state.DRAFT:
         transitionform = ProposalTransitionForm()
+        # fill up the form choices with the given proposal's transitions
         transitionform.populate_transitions(proposal)
 
     proposal_move_form = None

@@ -78,9 +78,11 @@ class ProposalTransitionForm(forms.Form):
     transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
 
     def populate_transitions(self, proposal):
-        self.transition.choices = [
+        # value: transition method name
+        # label: method name in title case, after removing underscores
+        self.transition.choices = sorted([
             (tname, tname.replace("_", " ").title()) for (tname, t) in proposal.state.transitions.iteritems() if t.is_available
-        ]
+        ])
 
 
 class ProposalMoveForm(forms.Form):
