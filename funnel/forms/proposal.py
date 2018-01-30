@@ -4,9 +4,9 @@ from baseframe import __
 import baseframe.forms as forms
 from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import PROPOSALSTATUS, ProposalSpace, Profile
+from ..models import ProposalSpace, Profile, Proposal
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalStatusForm', 'ProposalMoveForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
 
 
 class TransferProposal(forms.Form):
@@ -74,10 +74,13 @@ class ProposalForm(forms.Form):
             self.description.description = space.proposal_part_b.get('hint')
 
 
-class ProposalStatusForm(forms.Form):
-    status = forms.SelectField(
-        __("Status"), coerce=int,
-        choices=[(status, label.title) for (status, label) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+class ProposalTransitionForm(forms.Form):
+    transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
+
+    def populate_transitions(self, proposal):
+        self.transition.choices = [
+            (tname, tname.replace("_", " ").title()) for (tname, t) in proposal.state.transitions.iteritems() if t.is_available
+        ]
 
 
 class ProposalMoveForm(forms.Form):

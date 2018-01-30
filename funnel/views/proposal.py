@@ -15,7 +15,7 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
-from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm, ProposalMoveForm
+from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
 
 proposal_headers = [
     'id',
@@ -163,33 +163,24 @@ def proposal_edit(profile, space, proposal):
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-# @app.route('/<space>/<proposal>/<transition>', methods=['GET', 'POST'], subdomain='<profile>')
-# @lastuser.requires_login
-# @load_models(
-#     (Profile, {'name': 'profile'}, 'g.profile'),
-#     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-#     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-#     kwargs=True)
-# def proposal_transition(profile, space, proposal, kwargs):
-#     transition = kwargs['transition']
-#     workflow=proposal.workflow()
-
-
-# TODO: Replace this view with a state transition
-@app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/<proposal>/transition', methods=['POST',], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='confirm-proposal')
-def proposal_status(profile, space, proposal):
-    form = ProposalStatusForm()
-    if form.validate_on_submit():
-        proposal._state = form.status.data
+def proposal_transition(profile, space, proposal):
+    transitionform = ProposalTransitionForm()
+    transitionform.populate_transitions(proposal)  # fill up the form choices with the given proposal's transitions
+
+    if transitionform.validate_on_submit():  # check if the provided transition is valid
+        getattr(proposal, transitionform.transition.data)()  # call the transition
         db.session.commit()
-        flash(_("The proposal's status has changed to ") +
-              proposal.state.label.title, 'success')
+        flash(_("The proposal's status has changed to ") + proposal.state.label.title, 'success')
+    else:
+        flash(_("Invalid state for this proposal."), 'error')
+        abort(403)
     return redirect(proposal.url_for())
 
 
@@ -294,10 +285,11 @@ def proposal_view(profile, space, proposal):
                 flash(_("No such comment"), 'error')
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
+
+    transitionform = None
     if not proposal.state.DRAFT:
-        statusform = ProposalStatusForm(status=proposal.state.value)
-    else:
-        statusform = None
+        transitionform = ProposalTransitionForm()
+        transitionform.populate_transitions(proposal)
 
     proposal_move_form = None
     if 'move-proposal' in space.permissions(g.user, g.permissions):
@@ -306,7 +298,7 @@ def proposal_view(profile, space, proposal):
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
-        links=links, statusform=statusform, proposal_move_form=proposal_move_form,
+        links=links, transitionform=transitionform, proposal_move_form=proposal_move_form,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 

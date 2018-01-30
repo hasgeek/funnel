@@ -164,6 +164,50 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 redirect.proposal = self
         return value
 
+    @state.transition(None, state.DRAFT)
+    def draft(self):
+        pass
+
+    @state.transition(None, state.SUBMITTED)
+    def submit(self):
+        pass
+
+    @state.transition(None, state.CONFIRMED)
+    def confirm(self):
+        pass
+
+    @state.transition(None, state.WAITLISTED)
+    def waitlist(self):
+        pass
+
+    @state.transition(None, state.SHORTLISTED)
+    def shortlist(self):
+        pass
+
+    @state.transition(None, state.REJECTED)
+    def reject(self):
+        pass
+
+    @state.transition(None, state.CANCELLED)
+    def cancel(self):
+        pass
+
+    @state.transition(None, state.AWAITING_DETAILS)
+    def awaiting_details(self):
+        pass
+
+    @state.transition(None, state.UNDER_EVALUATION)
+    def under_evaluation(self):
+        pass
+
+    @state.transition(None, state.SHORTLISTED_FOR_REHEARSAL)
+    def shortlist_for_rehearsal(self):
+        pass
+
+    @state.transition(None, state.REHEARSAL)
+    def rehearsal(self):
+        pass
+
     @state.transition(None, state.DELETED)
     def delete(self):
         pass
@@ -294,8 +338,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             return url_for('proposal_prev', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'schedule':
             return url_for('proposal_schedule', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'status':
-            return url_for('proposal_status', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+        elif action == 'transition':
+            return url_for('proposal_transition', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'move-to':
             return url_for('proposal_moveto', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
 
