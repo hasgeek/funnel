@@ -132,12 +132,13 @@
               Submitted
             {% endif %}
           {% endif %}
-          {% if proposal.session %}
+          {% if proposal.state.CONFIRMED %}
             <a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
           {% endif %}
+        </div>
+          <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
           {%- if 'move-proposal' in g.permissions %}
-            <br>
-            {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move', style=None) }}
+          {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move') }}
           {%- endif %}
         </div>
       </div>
