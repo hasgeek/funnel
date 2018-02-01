@@ -167,7 +167,7 @@
               If you’d like to speak, leave a comment.{% endtrans %}</em>
             </p>
           {%- endif -%}
-          {% if transitionform and 'confirm-proposal' in g.permissions %}
+          {% if 'confirm-proposal' in g.permissions %}
             <h2>{% trans %}Proposal Stats &amp; Status{% endtrans %}</h2>
 
             <div class="row text-center">
@@ -211,9 +211,20 @@
                   {% endfor %}
                 {% endif %}
               {% endfor %}
-            </div>
 
-            <p>{{ renderform(transitionform, 'proposal-status-transition', action=proposal.url_for('transition'), submit='Save') }}</p>
+              <div class="col-md-3 col-lg-3 col-sm-6 col-xs-12">
+                <h3>Status Actions</h3>
+                <p>
+                {% for name, transition in proposal.state.transitions.iteritems() %}
+                  <form action="{{ proposal.url_for('transition') }}" method="post">
+                    {{ csrf_form.hidden_tag() }}
+                    <input type="hidden" name="transition" value="{{ name }}">
+                    <button class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
+                  </form>
+                {% endfor %}
+                </p>
+              </div>
+            </div>
           {% endif %}
           {% if proposal.preview_video or proposal.slides %}
             <h2>{% trans %}Media{% endtrans %}</h2>

@@ -7,7 +7,7 @@ from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import SqlSplitIdComparator, StateManager
+from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
@@ -81,6 +81,7 @@ class ProposalFormData(object):
 
 class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
@@ -164,51 +165,80 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 redirect.proposal = self
         return value
 
-    @state.transition(None, state.DRAFT)
+    @with_roles(call={'editor'})
+    # XXX: Added `type` metadata just to decide color on the front end button. Needed?
+    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title='Draft it', type='danger')
     def draft(self):
         pass
 
-    @state.transition(None, state.SUBMITTED)
+    @with_roles(call={'owner', 'author', 'creator'})
+    @state.transition(state.DRAFT, state.SUBMITTED, type='success')
     def submit(self):
         pass
 
-    @state.transition(None, state.CONFIRMED)
+    state.add_state_group('CONFIRMABLE', state.SUBMITTED, state.WAITLISTED, state.SHORTLISTED)
+
+    @with_roles(call={'editor'})
+    @state.transition(state.CONFIRMABLE, state.CONFIRMED, type='success')
     def confirm(self):
         pass
 
-    @state.transition(None, state.WAITLISTED)
+    @with_roles(call={'editor'})
+    @state.transition(state.CONFIRMED, state.SUBMITTED, type='danger')
+    def unconfirm(self):
+        pass
+
+    state.add_state_group('WAITLISTABLE', state.SUBMITTED, state.CONFIRMED,
+                          state.SHORTLISTED, state.REJECTED, state.CANCELLED)
+
+    @with_roles(call={'editor'})
+    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title='Put in waitlist', type='primary')
     def waitlist(self):
         pass
 
-    @state.transition(None, state.SHORTLISTED)
+    @with_roles(call={'editor'})
+    @state.transition(state.SUBMITTED, state.SHORTLISTED, type='success')
     def shortlist(self):
         pass
 
-    @state.transition(None, state.REJECTED)
+    @with_roles(call={'editor'})
+    @state.transition(state.SUBMITTED, state.REJECTED, type='danger')
     def reject(self):
         pass
 
-    @state.transition(None, state.CANCELLED)
+    @with_roles(call={'editor'})
+    @state.transition(state.SUBMITTED, state.CANCELLED, type='danger')
     def cancel(self):
         pass
 
-    @state.transition(None, state.AWAITING_DETAILS)
+    @with_roles(call={'editor'})
+    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title='Wait for details', type='primary')
     def awaiting_details(self):
         pass
 
-    @state.transition(None, state.UNDER_EVALUATION)
+    state.add_state_group('EVALUATEABLE', state.SUBMITTED, state.AWAITING_DETAILS)
+
+    @with_roles(call={'editor'})
+    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title='Evaluate', type='success')
     def under_evaluation(self):
         pass
 
-    @state.transition(None, state.SHORTLISTED_FOR_REHEARSAL)
+    state.add_state_group('SHORLISTABLE', state.SUBMITTED,
+                          state.AWAITING_DETAILS, state.UNDER_EVALUATION)
+
+    @with_roles(call={'editor'})
+    @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title='Shortlist for rehearsal', type='success')
     def shortlist_for_rehearsal(self):
         pass
 
-    @state.transition(None, state.REHEARSAL)
+    @with_roles(call={'editor'})
+    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title='Let\'s rehearse!', type='success')
     def rehearsal(self):
         pass
 
-    @state.transition(None, state.DELETED)
+    @with_roles(call={'owner', 'editor', 'author', 'creator'})
+    # XXX: Delete transition is allowed from any other state?
+    @state.transition(None, state.DELETED, type='danger')
     def delete(self):
         pass
 
@@ -316,6 +346,20 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
         return perms
+
+    def roles_for(self, user=None, token=None):
+        if not user and not token:
+            return set()
+        roles = super(Proposal, self).roles_for(user, token)
+        if self.speaker and self.speaker == user:
+            roles.add('author')
+            roles.add('owner')
+        if self.user == user:
+            roles.add('creator')
+            roles.add('owner')
+        if self.proposal_space.admin_team in user.teams or self.proposal_space.profile.admin_team in user.teams:
+            roles.add('editor')
+        return roles
 
     def url_for(self, action='view', _external=False, **kwargs):
         if action == 'view':
