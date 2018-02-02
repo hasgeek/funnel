@@ -210,13 +210,8 @@
               <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12 pull-right">
                 <h3>Status:
                     {{ proposal.state.label.title }}
-                    {% if proposal.session and proposal.state.CONFIRMED %} &amp; Scheduled{% endif %}
+                    {% if proposal.session and proposal.state.CONFIRMED %} &amp; <mark><a class="" href="{{ proposal.session.url_for() }}">Scheduled</a></mark>{% endif %}
                 </h3>
-                {% if proposal.state.CONFIRMED %}
-                  <p>
-                    <a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
-                  </p>
-                {% endif %}
                 <ul class="list-inline">
                 {% for name, transition in proposal.state.transitions.iteritems() %}
                   <li>
