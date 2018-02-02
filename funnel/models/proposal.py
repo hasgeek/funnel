@@ -236,7 +236,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def rehearsal(self):
         pass
 
-    @with_roles(call={'owner', 'editor', 'author', 'creator'})
+    @with_roles(call={'editor', 'reviewer'})
     # XXX: Delete transition is allowed from any other state?
     @state.transition(None, state.DELETED, type='danger')
     def delete(self):
