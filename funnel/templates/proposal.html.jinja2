@@ -120,11 +120,11 @@
           <g:plusone size="medium"></g:plusone>
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
         </div>
+        {%- if proposal_move_form %}
         <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
-          {%- if 'editor' in proposal.roles_for(g.user) %}
           {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move') }}
-          {%- endif %}
         </div>
+        {%- endif %}
       </div>
     </div>
     <div class="section bar">

@@ -295,7 +295,7 @@ def proposal_view(profile, space, proposal):
         transitionform.populate_transitions(proposal)
 
     proposal_move_form = None
-    if 'move-proposal' in space.permissions(g.user, g.permissions):
+    if 'editor' in proposal.roles_for(g.user):
         proposal_move_form = ProposalMoveForm()
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,

@@ -171,7 +171,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def draft(self):
         pass
 
-    @with_roles(call={'owner', 'author', 'creator'})
+    @with_roles(call={'author', 'creator'})
     @state.transition(state.DRAFT, state.SUBMITTED, type='success')
     def submit(self):
         pass
@@ -238,7 +238,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     @with_roles(call={'editor', 'reviewer'})
     # XXX: Delete transition is allowed from any other state?
-    @state.transition(None, state.DELETED, type='danger')
+    @state.transition([state.DRAFT, state.SUBMITTED], state.DELETED, type='danger')
     def delete(self):
         pass
 
@@ -353,10 +353,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         roles = super(Proposal, self).roles_for(user, token)
         if self.speaker and self.speaker == user:
             roles.add('author')
-            roles.add('owner')
         if self.user == user:
             roles.add('creator')
-            roles.add('owner')
         if self.proposal_space.admin_team in user.teams or self.proposal_space.profile.admin_team in user.teams:
             roles.add('editor')
         if self.proposal_space.review_team in user.teams:
