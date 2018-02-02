@@ -81,7 +81,7 @@ class ProposalTransitionForm(forms.Form):
         # value: transition method name
         # label: method name in title case, after removing underscores
         self.transition.choices = sorted([
-            (tname, tname.replace("_", " ").title()) for (tname, t) in proposal.state.transitions.iteritems()
+            (tname, tname.replace("_", " ").title()) for tname in proposal.state.transitions.iterkeys()
         ])
 
 
