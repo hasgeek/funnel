@@ -236,9 +236,11 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def rehearsal(self):
         pass
 
+    state.add_state_group('DELETABLE', state.DRAFT, state.SUBMITTED)
+
     @with_roles(call={'editor', 'reviewer'})
     # XXX: Delete transition is allowed from any other state?
-    @state.transition([state.DRAFT, state.SUBMITTED], state.DELETED, type='danger')
+    @state.transition(state.DELETABLE, state.DELETED, type='danger')
     def delete(self):
         pass
 
