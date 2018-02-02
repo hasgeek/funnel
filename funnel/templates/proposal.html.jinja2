@@ -115,13 +115,13 @@
       </div>
       <div class="row">
         <!-- Social buttons -->
-        <div class="social col-md-6 col-lg-6 col-sm-12 col-xs-12">
+        <div class="social col-xs-12">
           <a href="//twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{ config['TWITTER_ID'] }}">Tweet</a>
           <g:plusone size="medium"></g:plusone>
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
         </div>
         {%- if proposal_move_form %}
-        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+        <div class="col-xs-12 col-lg-9 col-lg-offset-3">
           {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move') }}
         </div>
         {%- endif %}
@@ -197,7 +197,7 @@
                 {% endif %}
               {% endfor %}
 
-              <div class="col-md-6 col-lg-6 col-sm-6 col-xs-12">
+              <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12 pull-right">
                 <h3>Status:
                   {%- if 'view-status' in g.permissions %}
                     {{ proposal.state.label.title }}
@@ -215,15 +215,17 @@
                     <a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
                   </p>
                 {% endif %}
-                <p>
+                <ul class="list-inline">
                 {% for name, transition in proposal.state.transitions.iteritems() %}
-                  <form action="{{ proposal.url_for('transition') }}" method="post">
-                    {{ csrf_form.hidden_tag() }}
-                    <input type="hidden" name="transition" value="{{ name }}">
-                    <button class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
-                  </form>
+                  <li>
+                    <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
+                      {{ csrf_form.hidden_tag() }}
+                      <input type="hidden" name="transition" value="{{ name }}">
+                      <button class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
+                    </form>
+                  </li>
                 {% endfor %}
-                </p>
+                </ul>
               </div>
             </div>
           {% endif %}
