@@ -120,24 +120,8 @@
           <g:plusone size="medium"></g:plusone>
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
         </div>
-        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
-          Status:
-          {%- if 'view-status' in g.permissions %}
-            {{ proposal.state.label.title }}
-            {% if proposal.session and proposal.state.CONFIRMED %} &amp; Scheduled{% endif %}
-          {%- else %}
-            {% if proposal.state.CONFIRMED %}
-              Confirmed {% if proposal.session %} &amp; Scheduled{% endif %}
-            {% else %}
-              Submitted
-            {% endif %}
-          {% endif %}
-          {% if proposal.state.CONFIRMED %}
-            <a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
-          {% endif %}
-        </div>
-          <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
-          {%- if 'move-proposal' in g.permissions %}
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+          {%- if 'editor' in proposal.roles_for(g.user) %}
           {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move') }}
           {%- endif %}
         </div>
@@ -168,7 +152,7 @@
               If you’d like to speak, leave a comment.{% endtrans %}</em>
             </p>
           {%- endif -%}
-          {% if 'confirm-proposal' in g.permissions %}
+          {% if 'editor' in proposal.roles_for(g.user) %}
             <h2>{% trans %}Proposal Stats &amp; Status{% endtrans %}</h2>
 
             <div class="row text-center">
@@ -213,8 +197,24 @@
                 {% endif %}
               {% endfor %}
 
-              <div class="col-md-3 col-lg-3 col-sm-6 col-xs-12">
-                <h3>Status Actions</h3>
+              <div class="col-md-6 col-lg-6 col-sm-6 col-xs-12">
+                <h3>Status:
+                  {%- if 'view-status' in g.permissions %}
+                    {{ proposal.state.label.title }}
+                    {% if proposal.session and proposal.state.CONFIRMED %} &amp; Scheduled{% endif %}
+                  {%- else %}
+                    {% if proposal.state.CONFIRMED %}
+                      Confirmed {% if proposal.session %} &amp; Scheduled{% endif %}
+                    {% else %}
+                      Submitted
+                    {% endif %}
+                  {% endif %}
+                </h3>
+                {% if proposal.state.CONFIRMED %}
+                  <p>
+                    <a class="btn btn-xs btn-info" href="{{ proposal.session.url_for() }}">View session in schedule</a>
+                  </p>
+                {% endif %}
                 <p>
                 {% for name, transition in proposal.state.transitions.iteritems() %}
                   <form action="{{ proposal.url_for('transition') }}" method="post">

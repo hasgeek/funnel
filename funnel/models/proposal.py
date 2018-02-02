@@ -359,6 +359,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             roles.add('owner')
         if self.proposal_space.admin_team in user.teams or self.proposal_space.profile.admin_team in user.teams:
             roles.add('editor')
+        if self.proposal_space.review_team in user.teams:
+            roles.add('reviewer')
         return roles
 
     def url_for(self, action='view', _external=False, **kwargs):
