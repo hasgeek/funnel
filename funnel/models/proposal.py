@@ -165,18 +165,23 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 redirect.proposal = self
         return value
 
+    # State transitions
+
+    state.add_state_group('CONFIRMABLE', state.SUBMITTED, state.WAITLISTED, state.SHORTLISTED)
+    state.add_state_group('WAITLISTABLE', state.SUBMITTED, state.CONFIRMED, state.SHORTLISTED, state.REJECTED, state.CANCELLED)
+    state.add_state_group('EVALUATEABLE', state.SUBMITTED, state.AWAITING_DETAILS)
+    state.add_state_group('SHORLISTABLE', state.SUBMITTED, state.AWAITING_DETAILS, state.UNDER_EVALUATION)
+    state.add_state_group('DELETABLE', state.DRAFT, state.SUBMITTED)
+
     @with_roles(call={'admin'})
-    # XXX: Added `type` metadata just to decide color on the front end button. Needed?
-    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title='Draft it', type='danger')
+    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title='Draft', type='danger')
     def draft(self):
         pass
 
-    @with_roles(call={'author', 'creator'})
+    @with_roles(call={'speaker', 'proposer'})
     @state.transition(state.DRAFT, state.SUBMITTED, type='success')
     def submit(self):
         pass
-
-    state.add_state_group('CONFIRMABLE', state.SUBMITTED, state.WAITLISTED, state.SHORTLISTED)
 
     @with_roles(call={'admin'})
     @state.transition(state.CONFIRMABLE, state.CONFIRMED, type='success')
@@ -187,9 +192,6 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     @state.transition(state.CONFIRMED, state.SUBMITTED, type='danger')
     def unconfirm(self):
         pass
-
-    state.add_state_group('WAITLISTABLE', state.SUBMITTED, state.CONFIRMED,
-                          state.SHORTLISTED, state.REJECTED, state.CANCELLED)
 
     @with_roles(call={'admin'})
     @state.transition(state.WAITLISTABLE, state.WAITLISTED, title='Put in waitlist', type='primary')
@@ -216,15 +218,10 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def awaiting_details(self):
         pass
 
-    state.add_state_group('EVALUATEABLE', state.SUBMITTED, state.AWAITING_DETAILS)
-
     @with_roles(call={'admin'})
     @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title='Evaluate', type='success')
     def under_evaluation(self):
         pass
-
-    state.add_state_group('SHORLISTABLE', state.SUBMITTED,
-                          state.AWAITING_DETAILS, state.UNDER_EVALUATION)
 
     @with_roles(call={'admin'})
     @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title='Shortlist for rehearsal', type='success')
@@ -236,10 +233,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def rehearsal(self):
         pass
 
-    state.add_state_group('DELETABLE', state.DRAFT, state.SUBMITTED)
-
     @with_roles(call={'admin', 'reviewer'})
-    # XXX: Delete transition is allowed from any other state?
     @state.transition(state.DELETABLE, state.DELETED, type='danger')
     def delete(self):
         pass
@@ -349,20 +343,25 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                     perms.add('decline-proposal')  # Decline speaking
         return perms
 
+    # Roles
+
     def roles_for(self, user=None, token=None):
         if not user and not token:
             return set()
         roles = super(Proposal, self).roles_for(user, token)
         if self.speaker and self.speaker == user:
-            roles.add('author')
+            roles.add('speaker')
         if self.user == user:
-            roles.add('creator')
+            roles.add('proposer')
         if self.proposal_space.admin_team in user.teams or self.proposal_space.profile.admin_team in user.teams:
             roles.add('admin')
         if self.proposal_space.review_team in user.teams:
             roles.add('reviewer')
             roles.add('admin')
         return roles
+
+    def is_admin(self, user):
+        return 'admin' in self.roles_for(user)
 
     def url_for(self, action='view', _external=False, **kwargs):
         if action == 'view':

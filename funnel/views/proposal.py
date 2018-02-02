@@ -295,7 +295,7 @@ def proposal_view(profile, space, proposal):
         transitionform.populate_transitions(proposal)
 
     # considering the user an admin of the proposal if they have either one of the roles
-    user_is_admin = 'admin' in proposal.roles_for(g.user)
+    user_is_admin = proposal.is_admin(g.user)
 
     proposal_move_form = None
     if user_is_admin:
