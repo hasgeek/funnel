@@ -115,13 +115,23 @@
       </div>
       <div class="row">
         <!-- Social buttons -->
-        <div class="social col-xs-12">
+        <div class="social col-md-6 col-lg-6 col-sm-12 col-xs-12">
           <a href="//twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{ config['TWITTER_ID'] }}">Tweet</a>
           <g:plusone size="medium"></g:plusone>
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
         </div>
-        {%- if proposal_move_form %}
-        <div class="col-xs-12 col-lg-9 col-lg-offset-3">
+        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+          Status:
+          {% if proposal.state.CONFIRMED %}
+            Confirmed {% if proposal.session %} &amp; Scheduled{% endif %}
+          {% else %}
+            Submitted
+          {% endif %}
+        </div>
+      </div>
+      <div class="row">
+        {%- if user_is_admin %}
+        <div class="col-xs-12 col-lg-12">
           {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move') }}
         </div>
         {%- endif %}
@@ -152,7 +162,7 @@
               If you’d like to speak, leave a comment.{% endtrans %}</em>
             </p>
           {%- endif -%}
-          {% if 'editor' in proposal.roles_for(g.user) %}
+          {% if user_is_admin %}
             <h2>{% trans %}Proposal Stats &amp; Status{% endtrans %}</h2>
 
             <div class="row text-center">
@@ -199,16 +209,8 @@
 
               <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12 pull-right">
                 <h3>Status:
-                  {%- if 'view-status' in g.permissions %}
                     {{ proposal.state.label.title }}
                     {% if proposal.session and proposal.state.CONFIRMED %} &amp; Scheduled{% endif %}
-                  {%- else %}
-                    {% if proposal.state.CONFIRMED %}
-                      Confirmed {% if proposal.session %} &amp; Scheduled{% endif %}
-                    {% else %}
-                      Submitted
-                    {% endif %}
-                  {% endif %}
                 </h3>
                 {% if proposal.state.CONFIRMED %}
                   <p>

@@ -294,13 +294,16 @@ def proposal_view(profile, space, proposal):
         # fill up the form choices with the given proposal's transitions
         transitionform.populate_transitions(proposal)
 
+    # considering the user an admin of the proposal if they have either one of the roles
+    user_is_admin = 'admin' in proposal.roles_for(g.user)
+
     proposal_move_form = None
-    if 'editor' in proposal.roles_for(g.user):
+    if user_is_admin:
         proposal_move_form = ProposalMoveForm()
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        votes_groups=proposal.votes_by_group(),
+        votes_groups=proposal.votes_by_group(), user_is_admin=user_is_admin,
         links=links, transitionform=transitionform, proposal_move_form=proposal_move_form,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
