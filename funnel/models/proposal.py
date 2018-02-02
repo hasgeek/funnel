@@ -194,7 +194,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title='Put in waitlist', type='primary')
+    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title='Waitlist', type='primary')
     def waitlist(self):
         pass
 
@@ -214,12 +214,12 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title='Wait for details', type='primary')
+    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title='Awaiting details', type='primary')
     def awaiting_details(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title='Evaluate', type='success')
+    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title='Under evaluation', type='success')
     def under_evaluation(self):
         pass
 
@@ -229,7 +229,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title='Let\'s rehearse!', type='success')
+    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title='Rehearsal', type='success')
     def rehearsal(self):
         pass
 
