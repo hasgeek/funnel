@@ -357,11 +357,13 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             roles.add('admin')
         if self.proposal_space.review_team in user.teams:
             roles.add('reviewer')
-            roles.add('admin')
         return roles
 
     def is_admin(self, user):
         return 'admin' in self.roles_for(user)
+
+    def is_reviewer(self, user):
+        return 'reviewer' in self.roles_for(user)
 
     def url_for(self, action='view', _external=False, **kwargs):
         if action == 'view':
