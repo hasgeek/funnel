@@ -213,15 +213,14 @@
                     {% if proposal.session and proposal.state.CONFIRMED %} &amp; <mark><a class="" href="{{ proposal.session.url_for() }}">Scheduled</a></mark>{% endif %}
                 </h3>
                 <ul class="list-inline">
-                {% for name, transition in proposal.state.transitions.iteritems() %}
-                  <li>
-                    <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
-                      {{ csrf_form.hidden_tag() }}
-                      <input type="hidden" name="transition" value="{{ name }}">
-                      <button class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
-                    </form>
-                  </li>
-                {% endfor %}
+                  <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
+                    {{ csrf_form.hidden_tag() }}
+                    {% for name, transition in proposal.state.transitions.iteritems() %}
+                      <li>
+                        <button name="transition" value="{{ name }}" class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
+                      </li>
+                    {% endfor %}
+                  </form>
                 </ul>
               </div>
             </div>
