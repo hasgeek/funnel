@@ -212,17 +212,15 @@
                     {{ proposal.state.label.title }}
                     {% if proposal.state.SCHEDULED %} &amp; <mark><a class="" href="{{ proposal.session.url_for() }}">Scheduled</a></mark>{% endif %}
                 </h3>
-                <ul class="list-inline">
-                  <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
-                    {{ csrf_form.hidden_tag() }}
-                    {% for name, transition in proposal.state.transitions.iteritems() %}
-                      <li>
-                        <button name="transition" value="{{ name }}" class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
-                      </li>
-                    {% endfor %}
-                  </form>
-                </ul>
-              </div>
+                <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
+                  {{ csrf_form.hidden_tag() }}
+                  <p>
+                  {% for name, transition in proposal.state.transitions.iteritems() %}
+                    <button name="transition" value="{{ name }}" class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
+                  {% endfor %}
+                  </p>
+                </form>
+            </div>
             </div>
           {% endif %}
           {% if proposal.preview_video or proposal.slides %}
