@@ -173,12 +173,12 @@ def proposal_edit(profile, space, proposal):
 def proposal_transition(profile, space, proposal):
     transitionform = ProposalTransitionForm(obj=proposal)
     if transitionform.validate_on_submit():  # check if the provided transition is valid
-        transition = getattr(proposal.access_for(actor=current_auth.user), transitionform.transition.data)
+        transition = getattr(proposal.current_access(), transitionform.transition.data)
         transition()  # call the transition
         db.session.commit()
         flash(transition.data['message'], 'success')
     else:
-        flash(_("Invalid state for this proposal."), 'error')
+        flash(_("Invalid transition for this proposal."), 'error')
         abort(403)
     return redirect(proposal.url_for())
 
