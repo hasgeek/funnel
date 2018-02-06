@@ -172,69 +172,70 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     state.add_state_group('EVALUATEABLE', state.SUBMITTED, state.AWAITING_DETAILS)
     state.add_state_group('SHORLISTABLE', state.SUBMITTED, state.AWAITING_DETAILS, state.UNDER_EVALUATION)
     state.add_state_group('DELETABLE', state.DRAFT, state.SUBMITTED)
+    state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session)
 
     @with_roles(call={'admin'})
-    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title='Draft', type='danger')
-    def draft(self):
+    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title=__("Draft"), message=__("This proposal is now withdrawn."), type='danger')
+    def withdraw(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.DRAFT, state.SUBMITTED, type='success')
+    @state.transition(state.DRAFT, state.SUBMITTED, message=__("This proposal is now submitted."), type='success')
     def submit(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMABLE, state.CONFIRMED, type='success')
+    @state.transition(state.CONFIRMABLE, state.CONFIRMED, message=__("This proposal is now confirmed."), type='success')
     def confirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMED, state.SUBMITTED, type='danger')
+    @state.transition(state.CONFIRMED, state.SUBMITTED, message=__("This proposal is no longer confirmed."), type='danger')
     def unconfirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title='Waitlist', type='primary')
+    @state.transition(state.WAITLISTABLE, state.WAITLISTED, message=__("This proposal is now waitlisted."), title='Waitlist', type='primary')
     def waitlist(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.SHORTLISTED, type='success')
+    @state.transition(state.SUBMITTED, state.SHORTLISTED, message=__("This proposal is now shortlisted."), type='success')
     def shortlist(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.REJECTED, type='danger')
+    @state.transition(state.SUBMITTED, state.REJECTED, message=__("This proposal is now rejected."), type='danger')
     def reject(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.CANCELLED, type='danger')
+    @state.transition(state.SUBMITTED, state.CANCELLED, message=__("This proposal is now cancelled."), type='danger')
     def cancel(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title='Awaiting details', type='primary')
+    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, message=__("Awaiting details for this proposal."), title='Awaiting details', type='primary')
     def awaiting_details(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title='Under evaluation', type='success')
+    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, message=__("This proposal is now under evaludation."), title='Under evaluation', type='success')
     def under_evaluation(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title='Shortlist for rehearsal', type='success')
+    @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, message=__("This proposal is now shortlisted for rehearsal."), title='Shortlist for rehearsal', type='success')
     def shortlist_for_rehearsal(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title='Rehearsal', type='success')
-    def rehearsal(self):
+    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, message=__("Rehearsal is now ongoing for this proposal."), title=__("Rehearsal ongoing"), type='success')
+    def rehearsal_ongoing(self):
         pass
 
     @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.DELETABLE, state.DELETED, type='danger')
+    @state.transition(state.DELETABLE, state.DELETED, message=__("This proposal is now deleted."), type='danger')
     def delete(self):
         pass
 

@@ -12,7 +12,7 @@ from coaster.gfm import markdown
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
-from .. import app, mail, lastuser
+from .. import app, mail, lastuser, current_auth
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
@@ -171,14 +171,12 @@ def proposal_edit(profile, space, proposal):
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='confirm-proposal')
 def proposal_transition(profile, space, proposal):
-    transitionform = ProposalTransitionForm()
-    # fill up the form choices with the given proposal's transitions for validation
-    transitionform.populate_transitions(proposal)
-
+    transitionform = ProposalTransitionForm(obj=proposal)
     if transitionform.validate_on_submit():  # check if the provided transition is valid
-        getattr(proposal, transitionform.transition.data)()  # call the transition
+        transition = getattr(proposal.access_for(actor=current_auth.user), transitionform.transition.data)
+        transition()  # call the transition
         db.session.commit()
-        flash(_("The proposal's status has changed to ") + proposal.state.label.title, 'success')
+        flash(transition.data['message'], 'success')
     else:
         flash(_("Invalid state for this proposal."), 'error')
         abort(403)
@@ -290,20 +288,15 @@ def proposal_view(profile, space, proposal):
 
     transitionform = None
     if not proposal.state.DRAFT:
-        transitionform = ProposalTransitionForm()
-        # fill up the form choices with the given proposal's transitions
-        transitionform.populate_transitions(proposal)
-
-    # considering the user an admin of the proposal if they have either one of the roles
-    user_is_admin = proposal.is_admin(g.user) or proposal.is_reviewer(g.user)
+        transitionform = ProposalTransitionForm(obj=proposal)
 
     proposal_move_form = None
-    if user_is_admin:
+    if proposal.is_admin(current_auth.user):
         proposal_move_form = ProposalMoveForm()
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
-        votes_groups=proposal.votes_by_group(), user_is_admin=user_is_admin,
+        votes_groups=proposal.votes_by_group(),
         links=links, transitionform=transitionform, proposal_move_form=proposal_move_form,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
