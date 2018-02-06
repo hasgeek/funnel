@@ -345,17 +345,15 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     # Roles
 
-    def roles_for(self, user=None, token=None):
-        if not user and not token:
-            return set()
-        roles = super(Proposal, self).roles_for(user, token)
-        if self.speaker and self.speaker == user:
+    def roles_for(self, actor=None, anchors=None):
+        roles = super(Proposal, self).roles_for(actor, anchors)
+        if self.speaker and self.speaker == actor:
             roles.add('speaker')
-        if self.user == user:
+        if self.user == actor:
             roles.add('proposer')
-        if self.proposal_space.admin_team in user.teams or self.proposal_space.profile.admin_team in user.teams:
+        if self.proposal_space.admin_team in actor.teams or self.proposal_space.profile.admin_team in actor.teams:
             roles.add('admin')
-        if self.proposal_space.review_team in user.teams:
+        if self.proposal_space.review_team in actor.teams:
             roles.add('reviewer')
         return roles
 
