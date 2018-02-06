@@ -211,7 +211,7 @@
                   {{ csrf_form.hidden_tag() }}
                   <p>
                   {% for name, transition in proposal.state.transitions.iteritems() %}
-                    <button name="transition" value="{{ name }}" class="transition btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
+                    <button name="transition" value="{{ name }}" class="transition control-group btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
                   {% endfor %}
                   </p>
                 </form>
