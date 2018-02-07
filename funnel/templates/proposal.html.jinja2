@@ -127,7 +127,7 @@
       <div class="row">
         {%- if proposal_move_form %}
         <div class="col-xs-12 col-lg-12">
-          {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit='Move') }}
+          {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move") }}
         </div>
         {%- endif %}
       </div>
@@ -157,7 +157,7 @@
               If you’d like to speak, leave a comment.{% endtrans %}</em>
             </p>
           {%- endif -%}
-          {% if proposal.is_admin(current_auth.user) %}
+          {% if proposal.current_roles.admin %}
             <h2>{% trans %}Proposal Stats &amp; Status{% endtrans %}</h2>
 
             <div class="row text-center">
@@ -208,10 +208,10 @@
                     {% if proposal.state.SCHEDULED %} &amp; <mark><a class="" href="{{ proposal.session.url_for() }}">Scheduled</a></mark>{% endif %}
                 </h3>
                 <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
-                  {{ csrf_form.hidden_tag() }}
+                  {{ transitionform.hidden_tag() }}
                   <p>
-                  {% for name, transition in proposal.state.transitions.iteritems() %}
-                    <button name="transition" value="{{ name }}" class="transition control-group btn btn-{{ transition.data['type'] }}">{{ transition.data.get('title', '') or name.title() }}</button>
+                  {% for name, transition in transitionform.transition.choices %}
+                    <button name="transition" value="{{ name }}" class="transition control-group btn btn-{{ transition.data['type'] }}">{{ transition.data['title'] }}</button>
                   {% endfor %}
                   </p>
                 </form>

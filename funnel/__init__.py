@@ -3,7 +3,6 @@
 
 from __future__ import absolute_import
 import coaster.app
-from coaster.auth import current_auth
 from flask import Flask
 from flask_migrate import Migrate
 from flask_mail import Mail

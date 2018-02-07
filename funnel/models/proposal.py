@@ -15,14 +15,14 @@ from pytz import timezone, utc, UnknownTimeZoneError
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
 
-__all__ = ['PROPOSALSTATUS', 'Proposal', 'ProposalRedirect']
+__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
 _marker = object()
 
 # --- Constants ------------------------------------------------------------------
 
 
-class PROPOSALSTATUS(LabeledEnum):
+class PROPOSAL_STATE(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __("Draft"))
@@ -39,6 +39,12 @@ class PROPOSALSTATUS(LabeledEnum):
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
     DELETED = (11, 'deleted', __("Deleted"))
+
+    CONFIRMABLE = {SUBMITTED, WAITLISTED, SHORTLISTED, REHEARSAL}
+    WAITLISTABLE = {SUBMITTED, CONFIRMED, SHORTLISTED, REJECTED, CANCELLED}
+    EVALUATEABLE = {SUBMITTED, AWAITING_DETAILS}
+    SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
+    DELETABLE = {DRAFT, SUBMITTED}
 
 # --- Models ------------------------------------------------------------------
 
@@ -112,9 +118,9 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
-    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSALSTATUS),
-        default=PROPOSALSTATUS.SUBMITTED, nullable=False)
-    state = StateManager('_state', PROPOSALSTATUS, doc="Current state of the proposal")
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSAL_STATE),
+        default=PROPOSAL_STATE.SUBMITTED, nullable=False)
+    state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False,
@@ -166,76 +172,70 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return value
 
     # State transitions
+    state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session is not None)
 
-    state.add_state_group('CONFIRMABLE', state.SUBMITTED, state.WAITLISTED, state.SHORTLISTED, state.REHEARSAL)
-    state.add_state_group('WAITLISTABLE', state.SUBMITTED, state.CONFIRMED, state.SHORTLISTED, state.REJECTED, state.CANCELLED)
-    state.add_state_group('EVALUATEABLE', state.SUBMITTED, state.AWAITING_DETAILS)
-    state.add_state_group('SHORLISTABLE', state.SUBMITTED, state.AWAITING_DETAILS, state.UNDER_EVALUATION)
-    state.add_state_group('DELETABLE', state.DRAFT, state.SUBMITTED)
-    state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session)
-
-    @with_roles(call={'admin'})
+    @with_roles(call={'speaker', 'proposer'})
     @state.transition(state.AWAITING_DETAILS, state.DRAFT, title=__("Draft"), message=__("This proposal has been withdrawn"), type='danger')
     def withdraw(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.DRAFT, state.SUBMITTED, message=__("This proposal has been submitted"), type='success')
+    @state.transition(state.DRAFT, state.SUBMITTED, title=__("Submit"), message=__("This proposal has been submitted"), type='success')
     def submit(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMABLE, state.CONFIRMED, message=__("This proposal has been confirmed"), type='success')
+    @state.transition(state.CONFIRMABLE, state.CONFIRMED, title=__("Confirm"), message=__("This proposal has been confirmed"), type='success')
     def confirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMED, state.SUBMITTED, message=__("This proposal is no longer confirmed"), type='danger')
+    @state.transition(state.CONFIRMED, state.SUBMITTED, title=__("Unconfirm"), message=__("This proposal is no longer confirmed"), type='danger')
     def unconfirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.WAITLISTABLE, state.WAITLISTED, message=__("This proposal has been waitlisted"), title='Waitlist', type='primary')
+    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title=__("Waitlist"), message=__("This proposal has been waitlisted"), type='primary')
     def waitlist(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.SHORTLISTED, message=__("This proposal has been shortlisted"), type='success')
+    @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
     def shortlist(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.REJECTED, message=__("This proposal has been rejected"), type='danger')
+    @state.transition(state.SUBMITTED, state.REJECTED, title=__("Reject"), message=__("This proposal has been rejected"), type='danger')
     def reject(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.CANCELLED, message=__("This proposal has been cancelled"), type='danger')
+    @state.transition(state.SUBMITTED, state.CANCELLED, title=__("Cancel"), message=__("This proposal has been cancelled"), type='danger')
     def cancel(self):
         pass
 
-    @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, message=__("Awaiting details for this proposal"), title='Awaiting details', type='primary')
+    @with_roles(call={'reviewer'})
+    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title=__("Awaiting details"), message=__("Awaiting details for this proposal"), type='primary')
     def awaiting_details(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, message=__("This proposal has been put under evaluation"), title='Under evaluation', type='success')
+    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title=__("Under evaluation"), message=__("This proposal has been put under evaluation"), type='success')
     def under_evaluation(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, message=__("This proposal has been shortlisted for rehearsal"), title='Shortlist for rehearsal', type='success')
+    @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title=__("Shortlist for rehearsal"), message=__("This proposal has been shortlisted for rehearsal"), type='success')
     def shortlist_for_rehearsal(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, message=__("Rehearsal is now ongoing for this proposal"), title=__("Rehearsal ongoing"), type='success')
+    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title=__("Rehearsal ongoing"), message=__("Rehearsal is now ongoing for this proposal"), type='success')
     def rehearsal_ongoing(self):
         pass
 
-    @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.DELETABLE, state.DELETED, message=__("This proposal has been deleted"), type='danger')
+    @with_roles(call={'admin', 'speaker', 'proposer'})
+    @state.transition(state.DELETABLE, state.DELETED, title=__("Delete"), message=__("This proposal has been deleted"), type='danger')
     def delete(self):
         pass
 
@@ -346,23 +346,14 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     # Roles
 
-    def roles_for(self, actor=None, anchors=None):
+    def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
         if self.speaker and self.speaker == actor:
             roles.add('speaker')
         if self.user == actor:
             roles.add('proposer')
-        if self.proposal_space.admin_team in actor.teams or self.proposal_space.profile.admin_team in actor.teams:
-            roles.add('admin')
-        if self.proposal_space.review_team in actor.teams:
-            roles.add('reviewer')
+        roles.update(self.proposal_space.roles_for(actor, anchors))
         return roles
-
-    def is_admin(self, user):
-        return 'admin' in self.roles_for(user)
-
-    def is_reviewer(self, user):
-        return 'reviewer' in self.roles_for(user)
 
     def url_for(self, action='view', _external=False, **kwargs):
         if action == 'view':

@@ -80,9 +80,7 @@ class ProposalTransitionForm(forms.Form):
     def set_queries(self):
         # value: transition method name
         # label: method name in title case, after removing underscores
-        self.transition.choices = sorted([
-            (tname, tname.replace("_", " ").title()) for tname in self.edit_obj.state.transitions.iterkeys()
-        ])
+        self.transition.choices = sorted(self.edit_obj.state.transitions.items())
 
 
 class ProposalMoveForm(forms.Form):

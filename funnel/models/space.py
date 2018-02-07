@@ -329,6 +329,15 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         # union_all() because union() doesn't respect the orders mentioned in subqueries
         return upcoming.union_all(past)
 
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(ProposalSpace, self).roles_for(actor, anchors)
+        if self.admin_team in actor.teams:
+            roles.add('admin')
+        if self.review_team in actor.teams:
+            roles.add('reviewer')
+        roles.update(self.profile.roles_for(actor, anchors))
+        return roles
+
 
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):

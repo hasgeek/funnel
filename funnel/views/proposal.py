@@ -9,10 +9,11 @@ from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
+from coaster.auth import current_auth
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
-from .. import app, mail, lastuser, current_auth
+from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
@@ -286,12 +287,10 @@ def proposal_view(profile, space, proposal):
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
 
-    transitionform = None
-    if not proposal.state.DRAFT:
-        transitionform = ProposalTransitionForm(obj=proposal)
+    transitionform = ProposalTransitionForm(obj=proposal)
 
     proposal_move_form = None
-    if proposal.is_admin(current_auth.user):
+    if proposal.current_roles.admin:
         proposal_move_form = ProposalMoveForm()
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
