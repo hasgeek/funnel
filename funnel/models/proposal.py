@@ -239,6 +239,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def delete(self):
         pass
 
+    @with_roles(call={'admin'})
     def move_to(self, space):
         """
         Move to a new proposal space and reset the url_id

@@ -290,7 +290,7 @@ def proposal_view(profile, space, proposal):
     transitionform = ProposalTransitionForm(obj=proposal)
 
     proposal_move_form = None
-    if proposal.current_roles.admin:
+    if 'move_to' in proposal.current_access():
         proposal_move_form = ProposalMoveForm()
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
@@ -388,16 +388,12 @@ def proposal_prev(profile, space, proposal):
     permission='move-proposal', addlperms=lastuser.permissions)
 def proposal_moveto(profile, space, proposal):
     proposal_move_form = ProposalMoveForm()
-    if not proposal_move_form.validate_on_submit():
+    if proposal_move_form.validate_on_submit():
+        target_space = proposal_move_form.target.data
+        if target_space != proposal.proposal_space:
+            proposal.current_access().move_to(target_space)
+            db.session.commit()
+        flash(_("The proposal has been successfully moved to {space}.".format(space=target_space.title)))
+    else:
         flash(_("Please choose a proposal space you want to move this proposal to."))
-        return redirect(proposal.url_for(), 303)
-
-    target_space = proposal_move_form.target.data
-    if not (target_space.profile.admin_team in g.user.teams or target_space.admin_team in g.user.teams):
-        flash(_("You do not have permission to move this proposal to {space}.".format(space=target_space.title)))
-        abort(403)
-
-    proposal.move_to(target_space)
-    db.session.commit()
-    flash(_("The proposal has been successfully moved to {space}.".format(space=target_space.title)))
     return redirect(proposal.url_for(), 303)
