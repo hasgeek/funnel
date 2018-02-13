@@ -121,7 +121,7 @@
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
         </div>
         <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
-          Status: {% if proposal.state.SCHEDULED %}Confirmed and scheduled{% elif proposal.state.CONFIRMED %}Confirmed{% else %}Submitted{% endif %}
+          Status: {% if proposal.state.SCHEDULED %}{{ proposal.state.SCHEDULED.label }}{% elif proposal.state.CONFIRMED %}{{ proposal.state.CONFIRMED.label }}{% else %}Submitted{% endif %}
         </div>
       </div>
       <div class="row">
@@ -204,8 +204,11 @@
 
               <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12 pull-right">
                 <h3>Status:
+                  {% if proposal.state.SCHEDULED %}
+                    <mark><a class="" href="{{ proposal.session.url_for() }}">{{ proposal.state.SCHEDULED.label }}</a></mark>
+                  {% else %}
                     {{ proposal.state.label.title }}
-                    {% if proposal.state.SCHEDULED %} &amp; <mark><a class="" href="{{ proposal.session.url_for() }}">Scheduled</a></mark>{% endif %}
+                  {% endif %}
                 </h3>
                 <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
                   {{ transitionform.hidden_tag() }}
