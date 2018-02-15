@@ -331,10 +331,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(ProposalSpace, self).roles_for(actor, anchors)
-        if self.admin_team in actor.teams:
-            roles.add('admin')
-        if self.review_team in actor.teams:
-            roles.add('reviewer')
+        if actor is not None:
+            if self.admin_team in actor.teams:
+                roles.add('admin')
+            if self.review_team in actor.teams:
+                roles.add('reviewer')
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
 

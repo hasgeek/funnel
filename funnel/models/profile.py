@@ -38,6 +38,6 @@ class Profile(ProfileBase, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)
-        if self.admin_team in actor.teams:
+        if actor is not None and self.admin_team in actor.teams:
             roles.add('admin')
         return roles
