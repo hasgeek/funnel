@@ -78,9 +78,14 @@ class ProposalTransitionForm(forms.Form):
     transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
 
     def set_queries(self):
-        # value: transition method name
-        # label: method name in title case, after removing underscores
-        self.transition.choices = sorted(self.edit_obj.state.transitions.items())
+        """
+        value: transition method name
+        label: transition object itself
+        We need the whole object to get the additional metadata in templates
+        """
+        self.transition.choices = sorted([
+            (name, transition) for name, transition in self.edit_obj.state.transitions.items() if hasattr(self.edit_obj.current_access(), name)
+            ])
 
 
 class ProposalMoveForm(forms.Form):
