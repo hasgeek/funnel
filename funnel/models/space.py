@@ -336,6 +336,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                 roles.add('admin')
             if self.review_team in actor.teams:
                 roles.add('reviewer')
+            roles.add('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
 

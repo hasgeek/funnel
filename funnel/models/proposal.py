@@ -351,9 +351,11 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         roles = super(Proposal, self).roles_for(actor, anchors)
         if self.speaker and self.speaker == actor:
             roles.add('speaker')
-        if self.user == actor:
+        if self.user and self.user == actor:
             roles.add('proposer')
         roles.update(self.proposal_space.roles_for(actor, anchors))
+        if self.state.DRAFT and 'reader' in roles:
+            roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
 
     def url_for(self, action='view', _external=False, **kwargs):

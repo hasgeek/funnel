@@ -121,7 +121,7 @@
           <iframe class="facebooklike" src="//www.facebook.com/plugins/like.php?app_id=114496105304651&amp;href={{ request.url }}&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:150px; height:21px;" allowTransparency="true"></iframe>
         </div>
         <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
-          Status: {% if proposal.state.SCHEDULED %}{{ proposal.state.SCHEDULED.label }}{% elif proposal.state.CONFIRMED %}{{ proposal.state.CONFIRMED.label }}{% else %}Submitted{% endif %}
+          Status: {% if proposal.state.CONFIRMED %}{{ proposal.state.label }}{% else %}{% trans %}Submitted{% endtrans %}{% endif %}
         </div>
       </div>
       <div class="row">
