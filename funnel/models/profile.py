@@ -35,3 +35,9 @@ class Profile(ProfileBase, db.Model):
             return url_for('profile_edit', profile=self.name, _external=_external)
         elif action == 'new-space':
             return url_for('space_new', profile=self.name, _external=_external)
+
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(Profile, self).roles_for(actor, anchors)
+        if actor is not None and self.admin_team in actor.teams:
+            roles.add('admin')
+        return roles
