@@ -84,7 +84,7 @@ class ProposalTransitionForm(forms.Form):
         We need the whole object to get the additional metadata in templates
         """
         self.transition.choices = sorted([
-            (name, transition) for name, transition in self.edit_obj.state.transitions.items() if hasattr(self.edit_obj.current_access(), name)
+            (name, transition) for name, transition in self.edit_obj.state.transitions().items()
             ])
 
 
