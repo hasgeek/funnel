@@ -7,7 +7,7 @@ from .space import ProposalSpace
 from .section import ProposalSpaceSection
 from .commentvote import CommentSpace, VoteSpace, SPACETYPE
 from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import SqlSplitIdComparator, StateManager
+from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import request
@@ -15,14 +15,14 @@ from pytz import timezone, utc, UnknownTimeZoneError
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
 
-__all__ = ['PROPOSALSTATUS', 'Proposal', 'ProposalRedirect']
+__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
 _marker = object()
 
 # --- Constants ------------------------------------------------------------------
 
 
-class PROPOSALSTATUS(LabeledEnum):
+class PROPOSAL_STATE(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __("Draft"))
@@ -39,6 +39,12 @@ class PROPOSALSTATUS(LabeledEnum):
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
     DELETED = (11, 'deleted', __("Deleted"))
+
+    CONFIRMABLE = {SUBMITTED, WAITLISTED, SHORTLISTED, REHEARSAL}
+    WAITLISTABLE = {SUBMITTED, CONFIRMED, SHORTLISTED, REJECTED, CANCELLED}
+    EVALUATEABLE = {SUBMITTED, AWAITING_DETAILS}
+    SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
+    DELETABLE = {DRAFT, SUBMITTED}
 
 # --- Models ------------------------------------------------------------------
 
@@ -81,6 +87,7 @@ class ProposalFormData(object):
 
 class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
@@ -111,9 +118,9 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
-    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSALSTATUS),
-        default=PROPOSALSTATUS.SUBMITTED, nullable=False)
-    state = StateManager('_state', PROPOSALSTATUS, doc="Current state of the proposal.")
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSAL_STATE),
+        default=PROPOSAL_STATE.SUBMITTED, nullable=False)
+    state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False,
@@ -164,10 +171,75 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 redirect.proposal = self
         return value
 
-    @state.transition(None, state.DELETED)
+    # State transitions
+    state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session is not None, label=__("Confirmed & Scheduled"))
+
+    @with_roles(call={'speaker', 'proposer'})
+    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title=__("Draft"), message=__("This proposal has been withdrawn"), type='danger')
+    def withdraw(self):
+        pass
+
+    @with_roles(call={'speaker', 'proposer'})
+    @state.transition(state.DRAFT, state.SUBMITTED, title=__("Submit"), message=__("This proposal has been submitted"), type='success')
+    def submit(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CONFIRMABLE, state.CONFIRMED, title=__("Confirm"), message=__("This proposal has been confirmed"), type='success')
+    def confirm(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CONFIRMED, state.SUBMITTED, title=__("Unconfirm"), message=__("This proposal is no longer confirmed"), type='danger')
+    def unconfirm(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title=__("Waitlist"), message=__("This proposal has been waitlisted"), type='primary')
+    def waitlist(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
+    def shortlist(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.SUBMITTED, state.REJECTED, title=__("Reject"), message=__("This proposal has been rejected"), type='danger')
+    def reject(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.SUBMITTED, state.CANCELLED, title=__("Cancel"), message=__("This proposal has been cancelled"), type='danger')
+    def cancel(self):
+        pass
+
+    @with_roles(call={'reviewer'})
+    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title=__("Awaiting details"), message=__("Awaiting details for this proposal"), type='primary')
+    def awaiting_details(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title=__("Under evaluation"), message=__("This proposal has been put under evaluation"), type='success')
+    def under_evaluation(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title=__("Shortlist for rehearsal"), message=__("This proposal has been shortlisted for rehearsal"), type='success')
+    def shortlist_for_rehearsal(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title=__("Rehearsal ongoing"), message=__("Rehearsal is now ongoing for this proposal"), type='success')
+    def rehearsal_ongoing(self):
+        pass
+
+    @with_roles(call={'admin', 'speaker', 'proposer'})
+    @state.transition(state.DELETABLE, state.DELETED, title=__("Delete"), message=__("This proposal has been deleted"), type='danger')
     def delete(self):
         pass
 
+    @with_roles(call={'admin'})
     def move_to(self, space):
         """
         Move to a new proposal space and reset the url_id
@@ -273,6 +345,19 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                     perms.add('decline-proposal')  # Decline speaking
         return perms
 
+    # Roles
+
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(Proposal, self).roles_for(actor, anchors)
+        if self.speaker and self.speaker == actor:
+            roles.add('speaker')
+        if self.user and self.user == actor:
+            roles.add('proposer')
+        roles.update(self.proposal_space.roles_for(actor, anchors))
+        if self.state.DRAFT and 'reader' in roles:
+            roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
+        return roles
+
     def url_for(self, action='view', _external=False, **kwargs):
         if action == 'view':
             return url_for('proposal_view', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
@@ -294,8 +379,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             return url_for('proposal_prev', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'schedule':
             return url_for('proposal_schedule', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'status':
-            return url_for('proposal_status', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+        elif action == 'transition':
+            return url_for('proposal_transition', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'move-to':
             return url_for('proposal_moveto', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
 
