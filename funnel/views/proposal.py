@@ -50,7 +50,6 @@ def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
-
     return dict([
             ('id', proposal.id),
             ('name', proposal.url_name),
@@ -73,7 +72,7 @@ def proposal_data(proposal):
             ('votes', proposal.votes.count),
             ('comments', proposal.comments.count),
             ('submitted', proposal.created_at.isoformat() + 'Z'),
-            ('confirmed', proposal.state.CONFIRMED),
+            ('confirmed', bool(proposal.state.CONFIRMED)),
         ] + ([
             ('email', proposal.email),
             ('phone', proposal.phone),
