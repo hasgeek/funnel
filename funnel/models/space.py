@@ -123,7 +123,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     def proposals_by_state(self):
         from .proposal import Proposal
         if self.subspaces:
-            basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
+            basequery = Proposal.query.filter(
+                Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces])
+            )
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
         return Proposal.state.group(
