@@ -117,6 +117,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
+    @state.transition(state.CLOSED, state.SUBMISSIONS, title=__("Reopen"), message=__("This proposal space has been reopened"), type='success')
+    def reopen(self):
+        pass
+
+    @with_roles(call={'admin'})
     @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Accept Submissions"), message=__("This proposal space has been withdrawn"), type='success')
     def withdraw(self):
         pass
