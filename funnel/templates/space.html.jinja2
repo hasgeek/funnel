@@ -148,6 +148,7 @@
   </li>
 </ul>
 <hr>
+<h3>Status: {{ space.state.label.title }}</h3>
 <form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
   {{ transition_form.hidden_tag() }}
   <p>
@@ -156,6 +157,7 @@
   {% endfor %}
   </p>
 </form>
+<hr>
 {% endif %}
 {%- if space.allow_rsvp %}
   <h3>{% trans %}Attending this event?{% endtrans %}</h3>
