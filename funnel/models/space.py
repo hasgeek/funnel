@@ -31,7 +31,6 @@ class SPACE_STATE(LabeledEnum):
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
     FEEDBACKABLE = {SUBMISSIONS, VOTING}
-    CLOSABLE = {SUBMISSIONS, VOTING, FEEDBACK, JURY}
     VOTABLE = {SUBMISSIONS, JURY}
 
 
@@ -112,7 +111,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CLOSABLE, state.SUBMISSIONS, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
+    @state.transition(state.CURRENTLY_LISTED, state.SUBMISSIONS, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
     def close(self):
         pass
 
