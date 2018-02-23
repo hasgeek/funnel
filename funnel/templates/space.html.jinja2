@@ -114,11 +114,6 @@
   <strong>Status: {{ space.state.label.title }}</strong>
 </p>
 <ul class="list-inline">
-  {%- if 'admin' in space.permissions(g.user) %}
-    <li>
-      <a href="{{ space.url_for('admin') }}" class='btn btn-danger btn-sm'>{% trans %}Manage Event{% endtrans %}</a>
-    </li>
-  {%- endif %}
   {%- if space.sessions %}
     <li>
       <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
@@ -126,10 +121,42 @@
   {%- endif %}
   {%- if space.buy_tickets_url %}
     <li>
-      <a href="{{ space.buy_tickets_url }}" class='btn btn-danger btn-sm' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
+      <a href="{{ space.buy_tickets_url }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
     </li>
   {%- endif %}
 </ul>
+{%- if space.current_roles.admin %}
+<hr>
+<ul class="list-inline">
+  <li>
+    <a href="{{ space.url_for('admin') }}" class='btn btn-success btn-sm'>{% trans %}Manage Event{% endtrans %}</a>
+  </li>
+  <li>
+    <a href="{{ space.url_for('edit') }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Edit Event{% endtrans %}</a>
+  </li>
+  <li>
+    <a href="{{ space.url_for('sections') }}" class='btn btn-primary btn-sm' target="_blank">{% trans %}Sections{% endtrans %}</a>
+  </li>
+  <li>
+    <a href="{{ space.url_for('venues') }}" class='btn btn-primary btn-sm' target="_blank">{% trans %}Venues{% endtrans %}</a>
+  </li>
+  <li>
+    <a href="{{ space.url_for('csv') }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Download CSV{% endtrans %}</a>
+  </li>
+  <li>
+    <a href="{{ space.url_for('json') }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Download JSON{% endtrans %}</a>
+  </li>
+</ul>
+<hr>
+<form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
+  {{ transition_form.hidden_tag() }}
+  <p>
+  {% for name, transition in transition_form.transition.choices %}
+    <button name="transition" value="{{ name }}" class="transition control-group btn btn-sm btn-{{ transition.data['type'] }}">{{ transition.data['title'] }}</button>
+  {% endfor %}
+  </p>
+</form>
+{% endif %}
 {%- if space.allow_rsvp %}
   <h3>{% trans %}Attending this event?{% endtrans %}</h3>
   {%- if g.user %}

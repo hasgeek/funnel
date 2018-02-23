@@ -7,7 +7,7 @@ from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
-from coaster.sqlalchemy import StateManager
+from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 from baseframe import __
 
@@ -23,12 +23,16 @@ class SPACESTATUS(LabeledEnum):
     DRAFT = (0, 'draft', __(u"Draft"))
     SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
     VOTING = (2, 'voting', __(u"Accepting votes"))
-    JURY = (3, 'jury', __(u"Awaiting jury selection"))
     FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
     CLOSED = (5, 'closed', __(u"Closed"))
     WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
+    # Not used anymore
+    JURY = (3, 'jury', __(u"Awaiting jury selection"))
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
+    FEEDBACKABLE = {SUBMISSIONS, VOTING}
+    CLOSABLE = {SUBMISSIONS, VOTING, FEEDBACK, JURY}
+    VOTABLE = {SUBMISSIONS, JURY}
 
 
 # --- Models ------------------------------------------------------------------
@@ -91,6 +95,31 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         return '<ProposalSpace %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
+
+    @with_roles(call={'admin'})
+    @state.transition(state.DRAFT, state.SUBMISSIONS, title=__("Accept submissions"), message=__("This proposal space has been opened to accept submissions"), type='success')
+    def accept_submissions(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.VOTABLE, state.VOTING, title=__("Accept votes"), message=__("This proposal space has been opened to accept votes"), type='success')
+    def accept_votes(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.FEEDBACKABLE, state.FEEDBACK, title=__("Accept feedback"), message=__("This proposal space has been opened to accept feedback"), type='success')
+    def accept_feedback(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CLOSABLE, state.SUBMISSIONS, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
+    def close(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Accept Submissions"), message=__("This proposal space has been withdrawn"), type='success')
+    def withdraw(self):
+        pass
 
     @db.validates('name')
     def _validate_name(self, key, value):
@@ -262,6 +291,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('space_view_csv', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'edit':
             return url_for('space_edit', profile=self.profile.name, space=self.name, _external=_external)
+        elif action == 'transition':
+            return url_for('space_transition', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'sections':
             return url_for('section_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-section':
