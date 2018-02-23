@@ -13,12 +13,12 @@ from baseframe import __
 
 from collections import defaultdict
 
-__all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
+__all__ = ['ProposalSpace', 'ProposalSpaceRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
 
-class SPACESTATUS(LabeledEnum):
+class SPACE_STATE(LabeledEnum):
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __(u"Draft"))
     SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
@@ -55,9 +55,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     website = db.Column(db.Unicode(250), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
 
-    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', SPACESTATUS),
-        default=SPACESTATUS.DRAFT, nullable=False)
-    state = StateManager('_state', SPACESTATUS, doc="State of this proposal space.")
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', SPACE_STATE),
+        default=SPACE_STATE.DRAFT, nullable=False)
+    state = StateManager('_state', SPACE_STATE, doc="State of this proposal space.")
 
     # Columns for mobile
     bg_image = db.Column(db.Unicode(250), nullable=True)
