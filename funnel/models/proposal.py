@@ -29,22 +29,26 @@ class PROPOSAL_STATE(LabeledEnum):
     SUBMITTED = (1, 'submitted', __("Submitted"))
     CONFIRMED = (2, 'confirmed', __("Confirmed"))
     WAITLISTED = (3, 'waitlisted', __("Waitlisted"))
-    SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
     REJECTED = (5, 'rejected', __("Rejected"))
     CANCELLED = (6, 'cancelled', __("Cancelled"))
-
     AWAITING_DETAILS = (7, 'awaiting_details', __("Awaiting details"))
     UNDER_EVALUATION = (8, 'under_evaluation', __("Under evaluation"))
+    DELETED = (11, 'deleted', __("Deleted"))
+
+    # These 3 are not in the editorial workflow anymore - Feb 23 2018
+    SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
     SHORTLISTED_FOR_REHEARSAL = (9, 'shortlisted_for_rehearsal', __("Shortlisted for rehearsal"))
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
-    DELETED = (11, 'deleted', __("Deleted"))
-
-    CONFIRMABLE = {SUBMITTED, WAITLISTED, SHORTLISTED, REHEARSAL}
-    WAITLISTABLE = {SUBMITTED, CONFIRMED, SHORTLISTED, REJECTED, CANCELLED}
+    # Groups
+    CONFIRMABLE = {WAITLISTED, UNDER_EVALUATION}
+    REJECTABLE = {WAITLISTED, UNDER_EVALUATION}
+    WAITLISTABLE = {CONFIRMED, UNDER_EVALUATION}
     EVALUATEABLE = {SUBMITTED, AWAITING_DETAILS}
-    SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
-    DELETABLE = {DRAFT, SUBMITTED}
+    DELETABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
+    CANCELLABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
+    UNDO_TO_SUBMITTED = {AWAITING_DETAILS, UNDER_EVALUATION}
+    # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
 
 # --- Models ------------------------------------------------------------------
 
@@ -93,7 +97,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         backref=db.backref('proposals', cascade="all, delete-orphan"))
 
     speaker_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    speaker = db.relationship(User, primaryjoin=speaker_id == User.id,
+    speaker = db.relationship(User, primaryjoin=speaker_id == User.id, lazy='joined',
         backref=db.backref('speaker_at', cascade="all"))
 
     email = db.Column(db.Unicode(80), nullable=True)
@@ -123,11 +127,11 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
     votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
-    votes = db.relationship(VoteSpace, uselist=False,
+    votes = db.relationship(VoteSpace, uselist=False, lazy='joined',
                             cascade='all, delete-orphan', single_parent=True)
 
     comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
-    comments = db.relationship(CommentSpace, uselist=False,
+    comments = db.relationship(CommentSpace, uselist=False, lazy='joined',
                                cascade='all, delete-orphan', single_parent=True)
 
     edited_at = db.Column(db.DateTime, nullable=True)
@@ -184,6 +188,11 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def submit(self):
         pass
 
+    @with_roles(call={'admin', 'reviewer'})
+    @state.transition(state.UNDO_TO_SUBMITTED, state.SUBMITTED, title=__("Send Back to Submitted"), message=__("This proposal has been submitted"), type='danger')
+    def undo_to_submitted(self):
+        pass
+
     @with_roles(call={'admin'})
     @state.transition(state.CONFIRMABLE, state.CONFIRMED, title=__("Confirm"), message=__("This proposal has been confirmed"), type='success')
     def confirm(self):
@@ -200,44 +209,46 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
-    def shortlist(self):
-        pass
-
-    @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.REJECTED, title=__("Reject"), message=__("This proposal has been rejected"), type='danger')
+    @state.transition(state.REJECTABLE, state.REJECTED, title=__("Reject"), message=__("This proposal has been rejected"), type='danger')
     def reject(self):
         pass
 
-    @with_roles(call={'admin'})
-    @state.transition(state.SUBMITTED, state.CANCELLED, title=__("Cancel"), message=__("This proposal has been cancelled"), type='danger')
+    @with_roles(call={'speaker', 'proposer'})
+    @state.transition(state.CANCELLABLE, state.CANCELLED, title=__("Cancel"), message=__("This proposal has been cancelled"), type='danger')
     def cancel(self):
         pass
 
-    @with_roles(call={'reviewer'})
+    @with_roles(call={'admin', 'reviewer'})
     @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title=__("Awaiting details"), message=__("Awaiting details for this proposal"), type='primary')
     def awaiting_details(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'admin', 'reviewer'})
     @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title=__("Under evaluation"), message=__("This proposal has been put under evaluation"), type='success')
     def under_evaluation(self):
         pass
 
-    @with_roles(call={'admin'})
-    @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title=__("Shortlist for rehearsal"), message=__("This proposal has been shortlisted for rehearsal"), type='success')
-    def shortlist_for_rehearsal(self):
-        pass
-
-    @with_roles(call={'admin'})
-    @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title=__("Rehearsal ongoing"), message=__("Rehearsal is now ongoing for this proposal"), type='success')
-    def rehearsal_ongoing(self):
-        pass
-
-    @with_roles(call={'admin', 'speaker', 'proposer'})
+    @with_roles(call={'speaker', 'proposer'})
     @state.transition(state.DELETABLE, state.DELETED, title=__("Delete"), message=__("This proposal has been deleted"), type='danger')
     def delete(self):
         pass
+
+    # These 3 transitions are not in the editorial workflow anymore - Feb 23 2018
+
+    # @with_roles(call={'admin'})
+    # @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
+    # def shortlist(self):
+    #     pass
+
+    # @with_roles(call={'admin'})
+    # @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title=__("Shortlist for rehearsal"), message=__("This proposal has been shortlisted for rehearsal"), type='success')
+    # def shortlist_for_rehearsal(self):
+    #     pass
+
+    # @with_roles(call={'admin'})
+    # @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title=__("Rehearsal ongoing"), message=__("Rehearsal is now ongoing for this proposal"), type='success')
+    # def rehearsal_ongoing(self):
+    #     pass
 
     @with_roles(call={'admin'})
     def move_to(self, space):
