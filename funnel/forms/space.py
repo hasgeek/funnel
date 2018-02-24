@@ -79,9 +79,7 @@ class ProposalSpaceTransitionForm(forms.Form):
         label: transition object itself
         We need the whole object to get the additional metadata in templates
         """
-        self.transition.choices = sorted([
-            (name, transition) for name, transition in self.edit_obj.state.transitions().items()
-        ])
+        self.transition.choices = sorted(self.edit_obj.state.transitions().items())
 
 
 class ProposalSubspaceForm(ProposalSpaceForm):

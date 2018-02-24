@@ -233,6 +233,8 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def delete(self):
         pass
 
+    # These 3 transitions are not in the editorial workflow anymore - Feb 23 2018
+
     # @with_roles(call={'admin'})
     # @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
     # def shortlist(self):

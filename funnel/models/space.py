@@ -26,7 +26,7 @@ class SPACE_STATE(LabeledEnum):
     FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
     CLOSED = (5, 'closed', __(u"Closed"))
     WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
-    # Not used anymore
+    # Jury state are not in the editorial workflow anymore - Feb 24 2018
     JURY = (3, 'jury', __(u"Awaiting jury selection"))
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
