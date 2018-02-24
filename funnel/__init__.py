@@ -31,7 +31,7 @@ assets['screens.css'][version] = 'css/screens.css'
 
 # --- Import rest of the app --------------------------------------------------
 
-from . import models, forms, workflows, views  # NOQA
+from . import models, forms, views  # NOQA
 from .models import db
 
 

@@ -10,7 +10,10 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from .profile import profile_teams
 from ..models import RSVP_STATUS
 
-__all__ = ['ProposalSpaceForm', 'ProposalSubspaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm', 'TicketClientForm']
+__all__ = [
+    'ProposalSpaceForm', 'ProposalSubspaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
+    'TicketClientForm', 'ProposalSpaceTransitionForm'
+]
 
 
 valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
@@ -46,17 +49,6 @@ class ProposalSpaceForm(forms.Form):
         validators=[forms.validators.Optional()])
     parent_space = QuerySelectField(__(u"Parent space"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
-    status = forms.SelectField(__("Status"), coerce=int, choices=[
-        (0, __("Draft")),
-        (1, __("Open")),
-        (2, __("Voting")),
-        (3, __("Jury selection")),
-        (4, __("Feedback")),
-        (5, __("Closed")),
-        (6, __("Withdrawn")),
-        ],
-        description=__(u"Proposals can only be submitted in the “Open” state. "
-            u"“Closed” and “Withdrawn” are hidden from homepage"))
     admin_team = QuerySelectField(u"Admin Team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"The administrators of this proposal space"))
@@ -75,6 +67,19 @@ class ProposalSpaceForm(forms.Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+
+class ProposalSpaceTransitionForm(forms.Form):
+    transition = forms.SelectField(__("Status"), validators=[
+                                   forms.validators.DataRequired()])
+
+    def set_queries(self):
+        """
+        value: transition method name
+        label: transition object itself
+        We need the whole object to get the additional metadata in templates
+        """
+        self.transition.choices = sorted(self.edit_obj.state.transitions().items())
 
 
 class ProposalSubspaceForm(ProposalSpaceForm):

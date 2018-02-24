@@ -10,7 +10,7 @@ from coaster.views import load_models, jsonp
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection,
     Proposal, Rsvp)
-from ..forms import ProposalSpaceForm, ProposalSubspaceForm, RsvpForm
+from ..forms import ProposalSpaceForm, ProposalSubspaceForm, RsvpForm, ProposalSpaceTransitionForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
@@ -92,8 +92,9 @@ def space_new(profile):
 def space_view(profile, space):
     sections = ProposalSpaceSection.query.filter_by(proposal_space=space, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=space.rsvp_for(g.user))
+    transition_form = ProposalSpaceTransitionForm(obj=space)
     return render_template('space.html.jinja2', space=space, description=space.description, sections=sections,
-        rsvp_form=rsvp_form)
+        rsvp_form=rsvp_form, transition_form=transition_form)
 
 
 @app.route('/<space>/json', subdomain='<profile>')
@@ -184,3 +185,23 @@ def rsvp(profile, space):
     permission='edit-space')
 def rsvp_list(profile, space):
     return render_template('space_rsvp_list.html.jinja2', space=space)
+
+
+@app.route('/<space>/transition', methods=['POST', ], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    permission='edit-space')
+def space_transition(profile, space):
+    transitionform = ProposalSpaceTransitionForm(obj=space)
+    if transitionform.validate_on_submit():  # check if the provided transition is valid
+        transition = getattr(space.current_access(),
+                             transitionform.transition.data)
+        transition()  # call the transition
+        db.session.commit()
+        flash(transition.data['message'], 'success')
+    else:
+        flash(_("Invalid transition for this space."), 'error')
+        abort(403)
+    return redirect(space.url_for())
