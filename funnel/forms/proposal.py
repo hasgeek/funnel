@@ -2,10 +2,11 @@
 
 from baseframe import __
 import baseframe.forms as forms
+from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import PROPOSALSTATUS
+from ..models import ProposalSpace, Profile, Proposal
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalStatusForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
 
 
 class TransferProposal(forms.Form):
@@ -73,7 +74,25 @@ class ProposalForm(forms.Form):
             self.description.description = space.proposal_part_b.get('hint')
 
 
-class ProposalStatusForm(forms.Form):
-    status = forms.SelectField(
-        __("Status"), coerce=int,
-        choices=[(status, title) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT])
+class ProposalTransitionForm(forms.Form):
+    transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
+
+    def set_queries(self):
+        """
+        value: transition method name
+        label: transition object itself
+        We need the whole object to get the additional metadata in templates
+        """
+        self.transition.choices = sorted(self.edit_obj.state.transitions().items())
+
+
+class ProposalMoveForm(forms.Form):
+    target = QuerySelectField(__("Move proposal to"), validators=[
+                              forms.validators.DataRequired()], get_label='title')
+
+    def set_queries(self):
+        team_ids = [t.id for t in g.user.teams]
+        self.target.query = ProposalSpace.query.join(ProposalSpace.profile).filter(
+            (ProposalSpace.admin_team_id.in_(team_ids)) |
+            (Profile.admin_team_id.in_(team_ids))
+            ).order_by(ProposalSpace.date.desc())
