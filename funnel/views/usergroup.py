@@ -51,23 +51,13 @@ def usergroup_edit(profile, space, kwargs):
         if request.method == 'GET':
             form.name.data = usergroup.name
             form.title.data = usergroup.title
-            form.users.data = '\r\n'.join([u.email or u.username or '' for u in usergroup.users])
+            form.users.data = usergroup.users
     if form.validate_on_submit():
         if group is None:
             usergroup = UserGroup(proposal_space=space)
         usergroup.name = form.name.data
         usergroup.title = form.title.data
-        formdata = [line.strip() for line in
-            form.users.data.replace('\r', '\n').replace(',', '\n').split('\n') if line]
-        usersdata = lastuser.getusers(names=formdata)
-        users = []
-        for userdata in usersdata or []:
-            user = User.query.filter_by(userid=userdata['userid']).first()
-            if user is None:
-                user = User(userid=userdata['userid'], fullname=userdata['title'])
-                db.session.add(user)
-            users.append(user)
-        usergroup.users = users
+        usergroup.users = form.users.data
         db.session.commit()
         return redirect(usergroup.url_for(), code=303)
     if group is None:

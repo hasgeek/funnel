@@ -10,8 +10,25 @@
 {% block content %}
   <div class="row">
     <div class="col-xs-12">
-      <a href="{{ space.url_for('subscribe-schedule') }}" class="pull-right btn btn-xs btn-primary" data-toggle="modal" data-target="#popup_subscribe">{% trans %}Subscribe{% endtrans %}</a>
-      <div id="popup_subscribe" class="modal fade viewer"></div>
+      <ul class="list-inline pull-right">
+        <li>
+          <a href="{{ space.url_for('subscribe-schedule') }}" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#popup_subscribe">{% trans %}Subscribe{% endtrans %}</a>
+        </li>
+        {% if current_auth.is_authenticated and space.current_roles.admin %}
+        <li>
+          <a href="{{ space.url_for('edit-schedule') }}" class="btn btn-xs btn-success">{% trans %}Edit Schedule{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ space.url_for('json-schedule') }}" class="btn btn-xs btn-success">{% trans %}Download JSON{% endtrans %}</a>
+        </li>
+        {% endif %}
+      </ul>
+      <div id="popup_subscribe" class="modal fade viewer">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+          </div>
+        </div>
+      </div>
       <div id="calendar"></div>
     </div>
     <div class="col-xs-12 col-sm-6">

@@ -9,13 +9,14 @@ from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import jsonp, load_models, requestargs
 from coaster.gfm import markdown
+from coaster.auth import current_auth
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
-    ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE, PROPOSALSTATUS)
-from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalStatusForm
+    ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
+from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
 
 proposal_headers = [
     'id',
@@ -49,7 +50,6 @@ def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
-
     return dict([
             ('id', proposal.id),
             ('name', proposal.url_name),
@@ -72,7 +72,7 @@ def proposal_data(proposal):
             ('votes', proposal.votes.count),
             ('comments', proposal.comments.count),
             ('submitted', proposal.created_at.isoformat() + 'Z'),
-            ('confirmed', proposal.confirmed),
+            ('confirmed', bool(proposal.state.CONFIRMED)),
         ] + ([
             ('email', proposal.email),
             ('phone', proposal.phone),
@@ -80,7 +80,8 @@ def proposal_data(proposal):
             ('votes_count', proposal.votes_count()),
             ('votes_groups', proposal.votes_by_group()),
             ('votes_bydate', proposal.votes_by_date()),
-            ('status', proposal.status),
+            ('status', proposal.state.value),
+            ('state', proposal.state.label.name),
         ] if 'view-contactinfo' in g.permissions else []))
 
 
@@ -89,7 +90,7 @@ def proposal_data_flat(proposal, groups=[]):
     cols = [data.get(header) for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
     for name in groups:
         cols.append(data['votes_groups'][name])
-    cols.append(PROPOSALSTATUS[proposal.status])
+    cols.append(proposal.state.label.name)
     return cols
 
 
@@ -162,31 +163,23 @@ def proposal_edit(profile, space, proposal):
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-# @app.route('/<space>/<proposal>/<transition>', methods=['GET', 'POST'], subdomain='<profile>')
-# @lastuser.requires_login
-# @load_models(
-#     (Profile, {'name': 'profile'}, 'g.profile'),
-#     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-#     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
-#     kwargs=True)
-# def proposal_transition(profile, space, proposal, kwargs):
-#     transition = kwargs['transition']
-#     workflow=proposal.workflow()
-
-
-@app.route('/<space>/<proposal>/status', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/<proposal>/transition', methods=['POST',], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='confirm-proposal')
-def proposal_status(profile, space, proposal):
-    form = ProposalStatusForm()
-    if form.validate_on_submit():
-        proposal.status = form.status.data
+def proposal_transition(profile, space, proposal):
+    transitionform = ProposalTransitionForm(obj=proposal)
+    if transitionform.validate_on_submit():  # check if the provided transition is valid
+        transition = getattr(proposal.current_access(), transitionform.transition.data)
+        transition()  # call the transition
         db.session.commit()
-        flash(_("The proposal has been ") + PROPOSALSTATUS[proposal.status].lower(), 'success')
+        flash(transition.data['message'], 'success')
+    else:
+        flash(_("Invalid transition for this proposal."), 'error')
+        abort(403)
     return redirect(proposal.url_for())
 
 
@@ -221,6 +214,7 @@ def proposal_view(profile, space, proposal):
         key=lambda c: c.votes.count, reverse=True)
     commentform = CommentForm(model=Comment)
     delcommentform = DeleteCommentForm()
+    # TODO: Remove comment methods to a separate view
     if request.method == 'POST':
         if request.form.get('form.id') == 'newcomment' and commentform.validate() and 'new-comment' in g.permissions:
             send_mail_info = []
@@ -291,15 +285,17 @@ def proposal_view(profile, space, proposal):
                 flash(_("No such comment"), 'error')
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
-    if proposal.status != PROPOSALSTATUS.DRAFT:
-        statusform = ProposalStatusForm(status=proposal.status)
-    else:
-        statusform = None
+
+    transitionform = ProposalTransitionForm(obj=proposal)
+
+    proposal_move_form = None
+    if 'move_to' in proposal.current_access():
+        proposal_move_form = ProposalMoveForm()
 
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
-        PROPOSALSTATUS=PROPOSALSTATUS, links=links, statusform=statusform,
+        links=links, transitionform=transitionform, proposal_move_form=proposal_move_form,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 
@@ -383,21 +379,20 @@ def proposal_prev(profile, space, proposal):
         return redirect(space.url_for())
 
 
-@app.route('/<space>/<proposal>/move', subdomain='<profile>')
+@app.route('/<space>/<proposal>/move', methods=['POST',], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='move-proposal', addlperms=lastuser.permissions)
 def proposal_moveto(profile, space, proposal):
-    target_name = request.args.get('target')
-    if not target_name:
-        abort(404)
-    profile_name, space_name = target_name.split('/', 1)
-    target_space = ProposalSpace.query.filter(ProposalSpace.name == space_name).join(Profile).filter(Profile.name == profile_name).one_or_none()
-    if target_space:
-        proposal.move_to(target_space)
-        db.session.commit()  # WARNING: GET request!
-        return redirect(proposal.url_for(), 303)
+    proposal_move_form = ProposalMoveForm()
+    if proposal_move_form.validate_on_submit():
+        target_space = proposal_move_form.target.data
+        if target_space != proposal.proposal_space:
+            proposal.current_access().move_to(target_space)
+            db.session.commit()
+        flash(_("The proposal has been successfully moved to {space}.".format(space=target_space.title)))
     else:
-        abort(404)
+        flash(_("Please choose a proposal space you want to move this proposal to."))
+    return redirect(proposal.url_for(), 303)

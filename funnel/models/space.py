@@ -7,20 +7,31 @@ from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
+from coaster.sqlalchemy import StateManager, with_roles
+from coaster.utils import LabeledEnum
+from baseframe import __
 
-__all__ = ['SPACESTATUS', 'ProposalSpace', 'ProposalSpaceRedirect']
+from collections import defaultdict
+
+__all__ = ['ProposalSpace', 'ProposalSpaceRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
 
-class SPACESTATUS:
-    DRAFT = 0
-    SUBMISSIONS = 1
-    VOTING = 2
-    JURY = 3
-    FEEDBACK = 4
-    CLOSED = 5
-    WITHDRAWN = 6
+class SPACE_STATE(LabeledEnum):
+    # If you add any new state, you need to add a migration to modify the check constraint
+    DRAFT = (0, 'draft', __(u"Draft"))
+    SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
+    VOTING = (2, 'voting', __(u"Accepting votes"))
+    FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
+    CLOSED = (5, 'closed', __(u"Closed"))
+    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
+    # Jury state are not in the editorial workflow anymore - Feb 24 2018
+    JURY = (3, 'jury', __(u"Awaiting jury selection"))
+
+    CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
+    FEEDBACKABLE = {SUBMISSIONS, VOTING}
+    VOTABLE = {SUBMISSIONS, JURY}
 
 
 # --- Models ------------------------------------------------------------------
@@ -42,7 +53,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     date_upto = db.Column(db.Date, nullable=True)
     website = db.Column(db.Unicode(250), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
-    status = db.Column(db.Integer, default=SPACESTATUS.DRAFT, nullable=False)
+
+    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', SPACE_STATE),
+        default=SPACE_STATE.DRAFT, nullable=False)
+    state = StateManager('_state', SPACE_STATE, doc="State of this proposal space.")
 
     # Columns for mobile
     bg_image = db.Column(db.Unicode(250), nullable=True)
@@ -81,6 +95,36 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<ProposalSpace %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
+    @with_roles(call={'admin'})
+    @state.transition(state.DRAFT, state.SUBMISSIONS, title=__("Accept submissions"), message=__("This proposal space has been opened to accept submissions"), type='success')
+    def accept_submissions(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.VOTABLE, state.VOTING, title=__("Accept votes"), message=__("This proposal space has been opened to accept votes"), type='success')
+    def accept_votes(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.FEEDBACKABLE, state.FEEDBACK, title=__("Accept feedback"), message=__("This proposal space has been opened to accept feedback"), type='success')
+    def accept_feedback(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CURRENTLY_LISTED, state.SUBMISSIONS, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
+    def close(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CLOSED, state.SUBMISSIONS, title=__("Reopen"), message=__("This proposal space has been reopened"), type='success')
+    def reopen(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Accept Submissions"), message=__("This proposal space has been withdrawn"), type='success')
+    def withdraw(self):
+        pass
+
     @db.validates('name')
     def _validate_name(self, key, value):
         value = unicode(value).strip() if value is not None else None
@@ -109,25 +153,29 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return self.proposals
 
     @property
-    def proposals_by_status(self):
-        from .proposal import Proposal, PROPOSALSTATUS
+    def proposals_by_state(self):
+        from .proposal import Proposal
         if self.subspaces:
-            basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
+            basequery = Proposal.query.filter(
+                Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces])
+            )
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
-        return dict((status, basequery.filter_by(status=status).order_by(db.desc('created_at')).all()) for (status, title) in PROPOSALSTATUS.items() if status != PROPOSALSTATUS.DRAFT)
+        return Proposal.state.group(
+            basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
+        )
 
     @property
     def proposals_by_confirmation(self):
-        from .proposal import Proposal, PROPOSALSTATUS
+        from .proposal import Proposal
         if self.subspaces:
             basequery = Proposal.query.filter(Proposal.proposal_space_id.in_([self.id] + [s.id for s in self.subspaces]))
         else:
             basequery = Proposal.query.filter_by(proposal_space=self)
-        response = dict(
-            confirmed=basequery.filter_by(status=PROPOSALSTATUS.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=basequery.filter(Proposal.status != PROPOSALSTATUS.CONFIRMED, Proposal.status != PROPOSALSTATUS.DRAFT).order_by(db.desc('created_at')).all())
-        return response
+        return dict(
+            confirmed=basequery.filter(Proposal.state.CONFIRMED).order_by(db.desc('created_at')).all(),
+            unconfirmed=basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(db.desc('created_at')).all()
+            )
 
     @cached_property
     def location_geonameid(self):
@@ -140,7 +188,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     @property
     def proposal_part_b(self):
         return self.labels.get('proposal', {}).get('part_b', {})
-
 
     def set_labels(self, value=None):
         """
@@ -166,7 +213,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                 }
             }
 
-
     def user_in_group(self, user, group):
         for grp in self.usergroups:
             if grp.name == group:
@@ -178,7 +224,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         perms = super(ProposalSpace, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
-            if self.status == SPACESTATUS.SUBMISSIONS:
+            if self.state.SUBMISSIONS:
                 perms.add('new-proposal')
             if ((self.admin_team and user in self.admin_team.users) or
                 (self.profile.admin_team and user in self.profile.admin_team.users) or
@@ -249,6 +295,8 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             return url_for('space_view_csv', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'edit':
             return url_for('space_edit', profile=self.profile.name, space=self.name, _external=_external)
+        elif action == 'transition':
+            return url_for('space_transition', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'sections':
             return url_for('section_list', profile=self.profile.name, space=self.name, _external=_external)
         elif action == 'new-section':
@@ -303,7 +351,32 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls.status >= 1).filter(cls.status <= 4).order_by(cls.date.desc()).all()
+        return cls.query.filter(cls.state.CURRENTLY_LISTED).order_by(cls.date.desc()).all()
+
+    @classmethod
+    def fetch_sorted(cls):
+        # sorts the spaces so that both new and old spaces are sorted from closest to farthest
+        now = db.func.utcnow()
+        currently_listed_spaces = cls.query.filter_by(parent_space=None).filter(
+            cls.state.CURRENTLY_LISTED
+            )
+        upcoming = currently_listed_spaces.filter(cls.date >= now).order_by(cls.date.asc())
+        past = currently_listed_spaces.filter(cls.date < now).order_by(cls.date.desc())
+
+        # union_all() because union() doesn't respect the orders mentioned in subqueries
+        return upcoming.union_all(past)
+
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(ProposalSpace, self).roles_for(actor, anchors)
+        if actor is not None:
+            if self.admin_team in actor.teams:
+                roles.add('admin')
+            if self.review_team in actor.teams:
+                roles.add('reviewer')
+            roles.add('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
+        roles.update(self.profile.roles_for(actor, anchors))
+        return roles
+
 
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):

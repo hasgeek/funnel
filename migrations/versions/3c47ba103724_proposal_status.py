@@ -13,7 +13,18 @@ down_revision = '6f98e24760d'
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql import table, column
-from funnel.models import PROPOSALSTATUS
+
+
+# The PROPOSALSTATUS class as it was when this migration was created
+class PROPOSALSTATUS:
+    # Draft-state for future use, so people can save their proposals and submit only when ready
+    DRAFT = 0
+    SUBMITTED = 1
+    CONFIRMED = 2
+    REJECTED = 3
+    SHORTLISTED = 4
+    BACKUP = 5
+    CANCELLED = 6
 
 
 def upgrade():
