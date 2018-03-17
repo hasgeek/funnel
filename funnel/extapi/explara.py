@@ -55,18 +55,24 @@ class ExplaraAPI(object):
             for attendee in order.get('attendee'):
                 # cancelled tickets are in this list too, hence the check
                 if attendee.get('status') == 'attending':
-                    # we sometimes get an empty array for details
-                    details = attendee.get('details') or {}
-                    tickets.append({
-                        'fullname': strip_or_empty(attendee.get('name')),
-                        'email': strip_or_empty(attendee.get('email')),
-                        'phone': strip_or_empty(details.get('Phone') or order.get('phoneNo')),
-                        'twitter': extract_twitter_handle(strip_or_empty(details.get('Twitter handle'))),
-                        'job_title': strip_or_empty(details.get('Job title')),
-                        'company': strip_or_empty(details.get('Company name')),
-                        'city': strip_or_empty(order.get('city')),
-                        'ticket_no': strip_or_empty(attendee.get('ticketNo')),
-                        'ticket_type': strip_or_empty(attendee.get('ticketName')),
-                        'order_no': strip_or_empty(order.get('orderNo')),
-                    })
+                    status = u'confirmed'
+                elif attendee.get('status') in [u'cancelled', u'lcancelled']:
+                    status = u'cancelled'
+                else:
+                    status = unicode(attendee.get('status'))
+                # we sometimes get an empty array for details
+                details = attendee.get('details') or {}
+                tickets.append({
+                    'fullname': strip_or_empty(attendee.get('name')),
+                    'email': strip_or_empty(attendee.get('email')),
+                    'phone': strip_or_empty(details.get('Phone') or order.get('phoneNo')),
+                    'twitter': extract_twitter_handle(strip_or_empty(details.get('Twitter handle'))),
+                    'job_title': strip_or_empty(details.get('Job title')),
+                    'company': strip_or_empty(details.get('Company name')),
+                    'city': strip_or_empty(order.get('city')),
+                    'ticket_no': strip_or_empty(attendee.get('ticketNo')),
+                    'ticket_type': strip_or_empty(attendee.get('ticketName')),
+                    'order_no': strip_or_empty(order.get('orderNo')),
+                    'status': status
+                })
         return tickets
