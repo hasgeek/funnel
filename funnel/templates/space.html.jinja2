@@ -114,7 +114,7 @@
   <strong>Status: {{ space.state.label.title }}</strong>
 </p>
 <ul class="list-inline">
-  {%- if space.sessions %}
+ {%- if space.sessions %}
     <li>
       <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
     </li>
