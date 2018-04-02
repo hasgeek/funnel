@@ -177,6 +177,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     # State transitions
     state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session is not None, label=('scheduled', __("Confirmed & Scheduled")))
+    state.add_conditional_state('MOVABLE', state.DELETABLE, lambda proposal: proposal.session is None, label=('movable', __("Movable")))
 
     @with_roles(call={'speaker', 'proposer'})
     @state.transition(state.AWAITING_DETAILS, state.DRAFT, title=__("Draft"), message=__("This proposal has been withdrawn"), type='danger')
@@ -258,6 +259,23 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.proposal_space = space
         self.url_id = None
         self.make_id()
+
+    @with_roles(call={'admin'})
+    def copy_to(self, space, user=None):
+        """
+        Make a copy of the proposal in a new proposal space
+        """
+        new_proposal = Proposal(
+            name=self.name, title=self.title,
+            user=user or self.user, speaker=self.speaker, proposal_space=space,
+            email=self.email, phone=self.phone, bio=self.bio,  # section=?
+            objective=self.objective, part_a=self.part_a, session_type=self.session_type,
+            technical_level=self.technical_level, description=self.description, part_b=self.part_b,
+            requirements=self.requirements, slides=self.slides, preview_video=self.preview_video,
+            links=self.links, location=self.location
+        )
+        db.session.add(new_proposal)
+        return new_proposal
 
     @property
     def formdata(self):

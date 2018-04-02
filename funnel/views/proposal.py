@@ -390,7 +390,10 @@ def proposal_moveto(profile, space, proposal):
     if proposal_move_form.validate_on_submit():
         target_space = proposal_move_form.target.data
         if target_space != proposal.proposal_space:
-            proposal.current_access().move_to(target_space)
+            if proposal.state.MOVABLE:
+                proposal.current_access().move_to(target_space)
+            else:
+                proposal = proposal.current_access().copy_to(target_space)
             db.session.commit()
         flash(_("The proposal has been successfully moved to {space}.".format(space=target_space.title)))
     else:
