@@ -261,13 +261,13 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.make_id()
 
     @with_roles(call={'admin'})
-    def copy_to(self, space, user=None):
+    def copy_to(self, space):
         """
         Make a copy of the proposal in a new proposal space
         """
         new_proposal = Proposal(
             name=self.name, title=self.title,
-            user=user or self.user, speaker=self.speaker, proposal_space=space,
+            user=self.user, speaker=self.speaker, proposal_space=space,
             email=self.email, phone=self.phone, bio=self.bio,  # section=?
             objective=self.objective, part_a=self.part_a, session_type=self.session_type,
             technical_level=self.technical_level, description=self.description, part_b=self.part_b,
