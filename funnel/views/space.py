@@ -9,7 +9,7 @@ from coaster.views import load_models, jsonp
 
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection,
-    Proposal, Rsvp)
+    Proposal, Rsvp, RSVP_STATUS)
 from ..forms import ProposalSpaceForm, ProposalSubspaceForm, RsvpForm, ProposalSpaceTransitionForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -184,7 +184,7 @@ def rsvp(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def rsvp_list(profile, space):
-    return render_template('space_rsvp_list.html.jinja2', space=space)
+    return render_template('space_rsvp_list.html.jinja2', space=space, statuses=RSVP_STATUS)
 
 
 @app.route('/<space>/transition', methods=['POST', ], subdomain='<profile>')
