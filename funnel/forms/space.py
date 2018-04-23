@@ -55,6 +55,9 @@ class ProposalSpaceForm(forms.Form):
     review_team = QuerySelectField(u"Review Team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
+    checkin_team = QuerySelectField(u"Checkin Team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
+        query_factory=profile_teams, get_label='title', allow_blank=False,
+        description=__(u"Checkin team can scan badge to checkin users to event"))
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
     buy_tickets_url = forms.URLField(__("URL to buy tickets"),
         description=__(u"Eg: Explara, Instamojo"),
@@ -92,6 +95,8 @@ class RsvpForm(forms.Form):
 
 class EventForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    badge_template = forms.URLField(__("Badge template URL"), description=u"Url of background image for the badge",
+        validators=[forms.validators.Optional()])
 
 
 class TicketClientForm(forms.Form):

@@ -77,6 +77,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     review_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
     review_team = db.relationship(Team, foreign_keys=[review_team_id])
 
+    checkin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    checkin_team = db.relationship(Team, foreign_keys=[checkin_team_id])
+
     parent_space_id = db.Column(None, db.ForeignKey('proposal_space.id', ondelete='SET NULL'), nullable=True)
     parent_space = db.relationship('ProposalSpace', remote_side='ProposalSpace.id', backref='subspaces')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
@@ -275,12 +278,15 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'edit-schedule',
                     'new-session',
                     'edit-session',
-                    'checkin-event',
                     'view-event',
                     'view-ticket-type',
                     'edit-participant',
                     'view-participant',
                     'new-participant'
+                    ])
+            if self.checkin_team and user in self.checkin_team.users:
+                perms.update([
+                    'checkin-event'
                     ])
         return perms
 

@@ -161,6 +161,13 @@
   </p>
 </form>
 <hr>
+{% elif 'checkin-event' in g.permissions %}
+<hr>
+<ul class="list-inline">
+  <li>
+    <a href="{{ space.url_for('events') }}" class='btn btn-success btn-sm'>{% trans %}Manage Check-in{% endtrans %}</a>
+  </li>
+</ul>
 {% endif %}
 {%- if space.allow_rsvp %}
   <h3>{% trans %}Attending this event?{% endtrans %}</h3>
