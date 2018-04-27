@@ -229,6 +229,5 @@ def event_participants_json(profile, space, event):
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    print 'event', event.title, event.badge_template
     return render_template('badge.html.jinja2', badge_template=event.badge_template,
         badges=participant_badge_data(participants, space))
