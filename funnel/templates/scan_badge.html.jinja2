@@ -74,7 +74,7 @@
 
       var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name) }}"
 
-      window.scanBadge = new Ractive({
+      var badgeScanComponent = new Ractive({
         el: '#scan-badge-wrapper',
         template: '#scan-badge-template',
         data: {
@@ -87,22 +87,24 @@
           attendeeName: "",
           attendeeFound: false,
           formatName: function (cameraName) {
-          return cameraName || "camera";
+            return cameraName || "camera";
           }
         },
         startCamera: function (camera) {
-          var ractiveComponent = this;
-          ractiveComponent.set('activeCameraId', camera.id);
-          ractiveComponent.set('qrReaderOn', true);
+          this.set('activeCameraId', camera.id);
+          this.set('qrReaderOn', true);
           window.scanner.start(camera);
         },
         oncomplete: function() {
-          var ractiveComponent = this;
-          window.scanner = new Instascan.Scanner({ video: document.getElementById('reader'), scanPeriod: 5 });
+
+          window.scanner = new Instascan.Scanner({
+            video: document.getElementById('reader'),
+            scanPeriod: 5
+          });
+
           window.scanner.addListener('scan', function (qrcode) {
-            console.log("qrcode", qrcode);
             if (qrcode.length === 16) {
-              ractiveComponent.set('scanning', true);
+              badgeScanComponent.set('scanning', true);
               $("#status-msg").modal('show');
               var puk = qrcode.substring(0,8);
               var formValues = $.param({"puk":[puk]}, true);
@@ -114,14 +116,14 @@
                 timeout: 5000,
                 dataType: "json",
                 success: function(response) {
-                  ractiveComponent.set({
+                  badgeScanComponent.set({
                     'scanning':false,
                     'attendeeFound': true
                   });
-                  ractiveComponent.set('attendeeName', response.result[0].fullname);
+                  badgeScanComponent.set('attendeeName', response.result[0].fullname);
                 },
                 error: function() {
-                  ractiveComponent.set({
+                  badgeScanComponent.set({
                     'scanning': false,
                     'attendeeFound': false
                   });
@@ -131,7 +133,7 @@
           });
 
           Instascan.Camera.getCameras().then(function (cameras) {
-            ractiveComponent.set('cameras', cameras);
+            badgeScanComponent.set('cameras', cameras);
           }).catch(function (e) {
             console.error(e);
           });
