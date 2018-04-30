@@ -95,7 +95,7 @@ class RsvpForm(forms.Form):
 
 class EventForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
-    badge_template = forms.URLField(__("Badge template URL"), description=u"Url of background image for the badge",
+    badge_template = forms.URLField(__("Badge template URL"), description=u"URL of background image for the badge",
         validators=[forms.validators.Optional()])
 
 
