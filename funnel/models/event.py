@@ -72,7 +72,7 @@ class Event(ScopedNameTitleMixin, db.Model):
     parent = db.synonym('proposal_space')
     ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
     participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
-    badge_template = db.Column(db.UnicodeText, nullable=True, default=u'')
+    badge_template = db.Column(db.Unicode(250), nullable=True)
     __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
 
 
