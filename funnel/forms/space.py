@@ -49,13 +49,13 @@ class ProposalSpaceForm(forms.Form):
         validators=[forms.validators.Optional()])
     parent_space = QuerySelectField(__(u"Parent space"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
-    admin_team = QuerySelectField(u"Admin Team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
+    admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"The administrators of this proposal space"))
-    review_team = QuerySelectField(u"Review Team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
+    review_team = QuerySelectField(u"Review team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
-    checkin_team = QuerySelectField(u"Checkin Team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
+    checkin_team = QuerySelectField(u"Checkin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"Team members can check in users at an event"))
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
