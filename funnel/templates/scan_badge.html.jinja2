@@ -72,7 +72,7 @@
   <script>
     $(document).ready(function() {
 
-      var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name) }}"
+      var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name, puk='puk') }}"
 
       var badgeScanComponent = new Ractive({
         el: '#scan-badge-wrapper',
@@ -81,10 +81,10 @@
           spaceTitle: "{{ space.title }}",
           eventTitle: "{{ event.title }}",
           scanner: {},
-          activeCameraId: "",
+          activeCameraId: '',
           cameras: [],
           scanning: false,
-          attendeeName: "",
+          attendeeName: '',
           attendeeFound: false,
           formatName: function (cameraName) {
             return cameraName || "camera";
@@ -106,21 +106,20 @@
             if (qrcode.length === 16) {
               badgeScanComponent.set('scanning', true);
               $("#status-msg").modal('show');
-              var puk = qrcode.substring(0,8);
-              var formValues = $.param({"puk":[puk]}, true);
-              formValues += "&checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
+              var url = checkinApiUrl.replace('puk', qrcode.substring(0,8));
+              var formValues = "checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
               $.ajax({
                 type: 'POST',
-                url:  checkinApiUrl,
+                url:  url,
                 data : formValues,
                 timeout: 5000,
-                dataType: "json",
+                dataType: 'json',
                 success: function(response) {
                   badgeScanComponent.set({
                     'scanning':false,
                     'attendeeFound': true
                   });
-                  badgeScanComponent.set('attendeeName', response.result[0].fullname);
+                  badgeScanComponent.set('attendeeName', response.attendee.fullname);
                 },
                 error: function() {
                   badgeScanComponent.set({

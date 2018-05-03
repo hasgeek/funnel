@@ -6,7 +6,7 @@ from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models
-from coaster.utils import midnight_to_utc
+from coaster.utils import midnight_to_utc, getbool
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
@@ -153,7 +153,7 @@ def participant_badge(profile, space, participant):
         badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/participants/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -163,11 +163,10 @@ def participant_badge(profile, space, participant):
 def event_checkin(profile, space, event):
     form = forms.Form()
     if form.validate_on_submit():
-        checked_in = True if request.form.get('checkin') == 't' else False
+        checked_in = getbool(request.form.get('checkin'))
         participant_ids = request.form.getlist('pid')
         for participant_id in participant_ids:
-            participant = Participant.query.filter_by(id=participant_id).first()
-            attendee = Attendee.get(event, participant)
+            attendee = Attendee.get(event, participant_id)
             attendee.checked_in = checked_in
         db.session.commit()
         if request.is_xhr:
@@ -175,30 +174,22 @@ def event_checkin(profile, space, event):
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
 
 
-@app.route('/<space>/event/<name>/checkin/api', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/participant/<puk>/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    (Participant, {'puk': 'puk'}, 'participant'),
     permission='checkin-event')
-def checkin_puk(profile, space, event):
-    checked_in = True if request.form.get('checkin') == 't' else False
-    participant_puks = request.form.getlist('puk')
-    attendees = []
-    for participant_puk in participant_puks:
-        participant = Participant.query.filter_by(puk=participant_puk).first()
-        attendee = Attendee.get(event, participant)
-        if not attendee:
-            return make_response(jsonify(error='not_found', error_description="Attendee not found"), 404)
-        attendee.checked_in = checked_in
-        attendees.append({
-            'puk': participant_puk,
-            'fullname': participant.fullname,
-            'checked_in': attendee.checked_in
-            })
+def checkin_puk(profile, space, event, participant):
+    checked_in = getbool(request.form.get('checkin'))
+    attendee = Attendee.get(event, participant.id)
+    if not attendee:
+        return make_response(jsonify(error='not_found', error_description="Attendee not found"), 404)
+    attendee.checked_in = checked_in
     db.session.commit()
-    return jsonify(result=attendees)
+    return jsonify(attendee={'fullname': participant.fullname})
 
 
 @app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')

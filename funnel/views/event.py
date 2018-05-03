@@ -52,13 +52,7 @@ def events(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='admin')
 def events_json(profile, space):
-    events = []
-    for event in space.events:
-        events.append({
-            'title': event.title,
-            'name': event.name,
-            })
-    return jsonify(result=events)
+    return jsonify(events=[{'name': e.name, 'title': e.title} for e in space.events])
 
 
 @app.route('/<space>/events/new', methods=['GET', 'POST'], subdomain='<profile>')
