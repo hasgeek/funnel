@@ -40,7 +40,7 @@ def admin(profile, space):
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    permission='admin')
+    permission='checkin-event')
 def events(profile, space):
     return render_template('event_list.html.jinja2', profile=profile, space=space, events=space.events)
 
@@ -209,6 +209,6 @@ def event(profile, space, event):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    permission='view-event')
+    permission='checkin-event')
 def scan_badge(profile, space, event):
     return render_template('scan_badge.html.jinja2', profile=profile, space=space, event=event)
