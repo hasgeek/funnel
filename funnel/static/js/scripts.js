@@ -203,6 +203,8 @@ window.Talkfunnel.ParticipantTable = {
     var formValues = $.param({"pid":participantIDs}, true);
     if (action) {
       formValues += "&checkin=t";
+    } else {
+      formValues += "&checkin=f";
     }
     formValues += "&csrf_token=" + $("meta[name='csrf-token']").attr('content');
     $.ajax({

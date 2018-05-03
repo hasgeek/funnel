@@ -179,8 +179,8 @@ class Attendee(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('event_id', 'participant_id'),)
 
     @classmethod
-    def get(cls, event, participant):
-        return cls.query.filter_by(event=event, participant=participant).one_or_none()
+    def get(cls, event, participant_id):
+        return cls.query.filter_by(event=event, participant_id=participant_id).one_or_none()
 
 
 class TicketClient(BaseMixin, db.Model):
