@@ -25,8 +25,8 @@ class SPACE_STATE(LabeledEnum):
     VOTING = (2, 'voting', __(u"Accepting votes"))
     FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
     CLOSED = (5, 'closed', __(u"Closed"))
-    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
     # Jury state are not in the editorial workflow anymore - Feb 24 2018
+    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
     JURY = (3, 'jury', __(u"Awaiting jury selection"))
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
@@ -114,7 +114,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CURRENTLY_LISTED, state.SUBMISSIONS, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
+    @state.transition(state.CURRENTLY_LISTED, state.CLOSED, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
     def close(self):
         pass
 
@@ -123,10 +123,12 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     def reopen(self):
         pass
 
-    @with_roles(call={'admin'})
-    @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Accept Submissions"), message=__("This proposal space has been withdrawn"), type='success')
-    def withdraw(self):
-        pass
+    # TODO: Confirm with the media team whether they need the withdraw proposal spaces
+    #
+    # @with_roles(call={'admin'})
+    # @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Withdraw"), message=__("This proposal space has been withdrawn"), type='success')
+    # def withdraw(self):
+    #     pass
 
     @db.validates('name')
     def _validate_name(self, key, value):

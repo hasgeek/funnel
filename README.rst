@@ -1,31 +1,15 @@
-HasGeek Funnel -- beta
-======================
+HasGeek Talkfunnel
+==================
 
-Code for HasGeek's Funnel at http://funnel.hasgeek.com/
+Code for HasGeek's Talkfunnel at https://talkfunnel.com/
 
-You are welcome to contribute a patch or use this code to run your own funnel
-under the terms of the BSD license, specified in LICENSE.txt.
+Copyright © 2010-2018 by HasGeek
 
-This code runs on `Python`_ with the `Flask`_ microframework. You will need a
-bunch of requirements that can be installed with::
+Talkfunnel’s code is open source under the AGPL v3 license (see LICENSE.txt). We welcome your examination of our code to:
 
-  $ pip install -r requirements.txt
+* Establish trust and transparency on how it works, and
+* Allow contributions to Talkfunnel.
 
-Copy `settings-sample.py` to `settings.py`, edit as necessary, and start the
-server with::
+Our workflow assumes this code is for use on a single production website. Using this to operate your own website is not recommended. The name ‘Talkfunnel’ and the distinctive appearance of the website are not part of the open source code.
 
-  $ python runserver.py
-
-You may also want to setup the database with::
-
-  $ python manage.py db create
-
-
-WSGI is recommended for production. Enable ``mod_wsgi`` in Apache and make a
-``VirtualHost`` with::
-
-  WSGIScriptAlias / /path/to/website.wsgi
-
-.. _Python: http://python.org/
-.. _Flask: http://flask.pocoo.org/
-.. _lastuser: https://github.com/hasgeek/lastuser
+To establish our intent, we use the AGPL v3 license, which requires you to release all your modifications to the public under the same license. You may not make a proprietary fork. To have your contributions merged back into the master repository, you must agree to assign copyright to HasGeek, and must assert that you have the right to make this assignment.
