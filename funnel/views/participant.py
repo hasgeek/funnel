@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
+from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response
 from datetime import datetime, timedelta
-from flask import flash, redirect, render_template, request, g, url_for, jsonify
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models
-from coaster.utils import midnight_to_utc
+from coaster.utils import midnight_to_utc, getbool
 from .. import app, lastuser
-from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange)
+from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
 
@@ -17,12 +17,14 @@ def participant_badge_data(participants, space):
     badges = []
     for participant in participants:
         first_name, last_name = split_name(participant.fullname)
+        ticket = SyncTicket.query.filter_by(participant=participant).first()
         badges.append({
             'first_name': first_name,
             'last_name': last_name,
             'twitter': format_twitter_handle(participant.twitter),
             'company': participant.company,
-            'qrcode_content': make_qrcode(u"{puk}{key}".format(puk=participant.puk, key=participant.key))
+            'qrcode_content': make_qrcode(u"{puk}{key}".format(puk=participant.puk, key=participant.key)),
+            'order_no': ticket.order_no if ticket else ''
         })
     return badges
 
@@ -49,6 +51,18 @@ def participant_data(participant, space_id, full=False):
             'company': participant.company,
             'space_id': space_id
         }
+
+
+def participant_checkin_data(participant, space, event):
+    return {
+        'pid': participant.id,
+        'fullname': participant.fullname,
+        'company': participant.company,
+        'email': participant.email,
+        'badge_printed': participant.badge_printed,
+        'checked_in': participant.checked_in,
+        'ticket_type_titles': participant.ticket_type_titles
+    }
 
 
 @app.route('/<space>/participants/json', subdomain='<profile>')
@@ -135,25 +149,65 @@ def participant(profile, space):
     (Participant, {'id': 'participant_id'}, 'participant'),
     permission='view-participant')
 def participant_badge(profile, space, participant):
-    return render_template('badge.html.jinja2', badges=participant_badge_data([participant], space))
+    return render_template('badge.html.jinja2',
+        badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/checkin/<participant_id>', methods=['POST'], subdomain='<profile>')
+@app.route('/<space>/event/<name>/participants/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
-    (Participant, {'id': 'participant_id'}, 'participant'),
     permission='checkin-event')
-def event_checkin(profile, space, event, participant):
-    attendee = Attendee.get(event, participant)
+def event_checkin(profile, space, event):
     form = forms.Form()
     if form.validate_on_submit():
-        # Toggle check-in status
-        attendee.checked_in = not attendee.checked_in
+        checked_in = getbool(request.form.get('checkin'))
+        participant_ids = request.form.getlist('pid')
+        for participant_id in participant_ids:
+            attendee = Attendee.get(event, participant_id)
+            attendee.checked_in = checked_in
         db.session.commit()
+        if request.is_xhr:
+            return jsonify(status=True, participant_ids=participant_ids, checked_in=checked_in)
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
+
+
+@app.route('/<space>/event/<name>/participant/<puk>/checkin', methods=['POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    (Participant, {'puk': 'puk'}, 'participant'),
+    permission='checkin-event')
+def checkin_puk(profile, space, event, participant):
+    checked_in = getbool(request.form.get('checkin'))
+    attendee = Attendee.get(event, participant.id)
+    if not attendee:
+        return make_response(jsonify(error='not_found', error_description="Attendee not found"), 404)
+    attendee.checked_in = checked_in
+    db.session.commit()
+    return jsonify(attendee={'fullname': participant.fullname})
+
+
+@app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    (Event, {'name': 'name', 'proposal_space': 'space'}, 'event'),
+    permission='checkin-event')
+def event_participants_json(profile, space, event):
+    checkin_count = 0
+    participants = []
+    for participant in Participant.checkin_list(event):
+        participants.append(participant_checkin_data(participant, space, event))
+        if participant.checked_in:
+            checkin_count += 1
+
+    return jsonify(participants=participants, total_participants=len(participants), total_checkedin=checkin_count)
 
 
 @app.route('/<space>/event/<name>/badges', subdomain='<profile>')
@@ -166,4 +220,5 @@ def event_checkin(profile, space, event, participant):
 def event_badges(profile, space, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    return render_template('badge.html.jinja2', badges=participant_badge_data(participants, space))
+    return render_template('badge.html.jinja2', badge_template=event.badge_template,
+        badges=participant_badge_data(participants, space))
