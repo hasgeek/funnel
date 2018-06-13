@@ -2,7 +2,7 @@ Flask
 Flask-Assets
 Flask-Mail
 Flask-SQLAlchemy
-Flask-WTF
+Flask-WTF==0.14.2
 pytz
 unicodecsv
 icalendar
