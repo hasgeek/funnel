@@ -3,7 +3,7 @@ Flask-Assets
 Flask-Mail
 Flask-SQLAlchemy
 Flask-WTF
-pytz
+pytz==2018.4
 unicodecsv
 icalendar
 git+https://github.com/hasgeek/coaster.git
