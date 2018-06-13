@@ -11,6 +11,6 @@ git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
 alembic
 qrcode
-rq
+rq==0.11.0
 psycopg2
 Flask-Migrate
