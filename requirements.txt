@@ -4,7 +4,7 @@ Flask-Mail
 Flask-SQLAlchemy
 Flask-WTF
 pytz
-unicodecsv
+unicodecsv==0.14.1
 icalendar
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
