@@ -1,4 +1,4 @@
-Flask
+Flask==1.0.2
 Flask-Assets
 Flask-Mail
 Flask-SQLAlchemy
