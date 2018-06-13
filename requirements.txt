@@ -1,6 +1,6 @@
 Flask
 Flask-Assets
-Flask-Mail
+Flask-Mail==0.9.1
 Flask-SQLAlchemy
 Flask-WTF
 pytz
