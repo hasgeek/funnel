@@ -9,7 +9,7 @@ icalendar==4.0.1
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
-alembic
+alembic==0.9.9
 qrcode
 rq
 psycopg2==2.7.5
