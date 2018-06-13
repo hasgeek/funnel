@@ -1,5 +1,5 @@
 Flask
-Flask-Assets
+Flask-Assets==0.12
 Flask-Mail
 Flask-SQLAlchemy
 Flask-WTF
