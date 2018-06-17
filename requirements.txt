@@ -12,5 +12,5 @@ git+https://github.com/hasgeek/baseframe.git
 alembic
 qrcode
 rq
-psycopg2
+psycopg2==2.7.5
 Flask-Migrate
