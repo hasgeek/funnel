@@ -10,7 +10,7 @@ git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
 alembic==0.9.9
-qrcode
+qrcode==6.0
 rq
 psycopg2==2.7.5
 Flask-Migrate==2.2.0
