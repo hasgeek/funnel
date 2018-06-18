@@ -13,4 +13,4 @@ alembic==0.9.9
 qrcode==6.0
 rq==0.11.0
 psycopg2==2.7.5
-Flask-Migrate==2.2.0
+Flask-Migrate==2.2.1
