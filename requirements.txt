@@ -1,7 +1,7 @@
 Flask==1.0.2
 Flask-Assets==0.12
 Flask-Mail==0.9.1
-Flask-SQLAlchemy
+Flask-SQLAlchemy==2.3.2
 Flask-WTF
 pytz
 unicodecsv
