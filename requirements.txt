@@ -1,6 +1,6 @@
-Flask
-Flask-Assets
-Flask-Mail
+Flask==1.0.2
+Flask-Assets==0.12
+Flask-Mail==0.9.1
 Flask-SQLAlchemy
 Flask-WTF
 pytz
@@ -12,5 +12,5 @@ git+https://github.com/hasgeek/baseframe.git
 alembic
 qrcode
 rq
-psycopg2
+psycopg2==2.7.5
 Flask-Migrate
