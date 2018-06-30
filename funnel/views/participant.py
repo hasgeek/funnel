@@ -9,7 +9,7 @@ from coaster.views import load_models
 from coaster.utils import midnight_to_utc, getbool
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange, SyncTicket)
-from ..forms import ParticipantForm
+from ..forms import ParticipantForm, ParticipantContactExchangeForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
 
 
@@ -115,7 +115,7 @@ def participant_edit(profile, space, participant):
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
-@app.route('/<space>/participant', subdomain='<profile>')
+@app.route('/<space>/participant', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -125,10 +125,9 @@ def participant(profile, space):
     if space.date_upto:
         if midnight_to_utc(space.date_upto + timedelta(days=1), space.timezone, naive=True) < datetime.utcnow():
             return jsonify(message=u"This event has concluded", code=401)
-    participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
-    if not participant:
-        return jsonify(message=u"Not found", code=404)
-    elif participant.key == request.args.get('key'):
+    form = ParticipantContactExchangeForm(parent=space)
+    if form.validate_on_submit():
+        participant = form.edit_obj
         try:
             contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
             db.session.add(contact_exchange)
@@ -138,6 +137,7 @@ def participant(profile, space):
             db.session.rollback()
         return jsonify(participant=participant_data(participant, space.id, full=True))
     else:
+        app.logger.warning(form.errors)
         return jsonify(message=u"Unauthorized", code=401)
 
 
