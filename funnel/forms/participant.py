@@ -7,7 +7,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
 from ..models import Participant
 
-__all__ = ['ParticipantForm', 'ParticipantBadgeForm', 'ParticipantContactExchangeForm']
+__all__ = ['ParticipantForm', 'ParticipantBadgeForm']
 
 
 class ParticipantForm(forms.Form):
@@ -28,20 +28,3 @@ class ParticipantForm(forms.Form):
 class ParticipantBadgeForm(forms.Form):
     choices = [('', "Badge printing status"), ('t', "Printed"), ('f', "Not printed")]
     badge_printed = forms.SelectField("", choices=[(val_title[0], val_title[1]) for val_title in choices])
-
-
-class ParticipantContactExchangeForm(forms.Form):
-    puk = forms.StringField(__("Public key"), validators=[forms.validators.DataRequired()])
-    key = forms.StringField(__("Private key"), validators=[forms.validators.DataRequired()])
-
-    class Meta:
-        # Disable CSRF as this form will most likely be used over API
-        # XXX: Do we need to disable CSRF for this?
-        csrf = False
-
-    def validate_key(form, field):
-        form.edit_obj = Participant.query.filter_by(puk=form.puk.data, proposal_space=form.edit_parent).first()
-        if not form.edit_obj:
-            raise forms.ValidationError("Participant not found")
-        if form.edit_obj.key != field.data:
-            raise forms.ValidationError("Unauthorized contact exchange")
