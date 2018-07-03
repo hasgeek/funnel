@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.views import load_models
+from coaster.views import load_models, requestargs
 from coaster.utils import midnight_to_utc, getbool
 from .. import app, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange, SyncTicket)
@@ -115,20 +115,26 @@ def participant_edit(profile, space, participant):
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
-@app.route('/<space>/participant', subdomain='<profile>')
+@app.route('/<space>/participant', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='view')
-def participant(profile, space):
+@requestargs('puk', 'key')
+def participant(profile, space, puk, key):
+    """
+    Endpoint for contact exchange.
+
+    TODO: The GET method to this endpoint is deprecated and will be removed by 1st September, 2018
+    """
     if space.date_upto:
         if midnight_to_utc(space.date_upto + timedelta(days=1), space.timezone, naive=True) < datetime.utcnow():
             return jsonify(message=u"This event has concluded", code=401)
-    participant = Participant.query.filter_by(puk=request.args.get('puk')).first()
+    participant = Participant.query.filter_by(puk=puk, proposal_space=space).first()
     if not participant:
-        return jsonify(message=u"Not found", code=404)
-    elif participant.key == request.args.get('key'):
+        return jsonify(message=u"Participant not found", code=404)
+    elif participant.key == key:
         try:
             contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, proposal_space_id=space.id)
             db.session.add(contact_exchange)
@@ -138,7 +144,7 @@ def participant(profile, space):
             db.session.rollback()
         return jsonify(participant=participant_data(participant, space.id, full=True))
     else:
-        return jsonify(message=u"Unauthorized", code=401)
+        return jsonify(message=u"Unauthorized contact exchange", code=401)
 
 
 @app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
