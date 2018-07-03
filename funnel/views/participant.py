@@ -126,7 +126,7 @@ def participant(profile, space, puk, key):
     """
     Endpoint for contact exchange.
 
-    Notice: The GET method to this endpoint is deprecated and will be removed by 1st September, 2018
+    TODO: The GET method to this endpoint is deprecated and will be removed by 1st September, 2018
     """
     if space.date_upto:
         if midnight_to_utc(space.date_upto + timedelta(days=1), space.timezone, naive=True) < datetime.utcnow():
