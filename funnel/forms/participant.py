@@ -5,7 +5,6 @@ import baseframe.forms as forms
 from baseframe import __
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
-from ..models import Participant
 
 __all__ = ['ParticipantForm', 'ParticipantBadgeForm']
 
