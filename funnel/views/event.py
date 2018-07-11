@@ -18,6 +18,7 @@ redis_connection = Redis()
 funnelq = Queue('funnel', connection=redis_connection)
 
 
+@app.route('/<profile>/<space>/admin', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/admin', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -35,6 +36,7 @@ def admin(profile, space):
     return render_template('admin.html.jinja2', profile=profile, space=space, events=space.events, csrf_form=csrf_form)
 
 
+@app.route('/<profile>/<space>/events', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/events', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -45,6 +47,7 @@ def events(profile, space):
     return render_template('event_list.html.jinja2', profile=profile, space=space, events=space.events)
 
 
+@app.route('/<profile>/<space>/events/json', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/events/json', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -55,6 +58,7 @@ def events_json(profile, space):
     return jsonify(events=[{'name': e.name, 'title': e.title} for e in space.events])
 
 
+@app.route('/<profile>/<space>/events/new', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/events/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -77,6 +81,7 @@ def new_event(profile, space):
     return render_form(form=form, title=_(u"New Event"), submit=_(u"Add Event"))
 
 
+@app.route('/<profile>/<space>/event/<name>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/event/<name>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -94,6 +99,7 @@ def event_edit(profile, space, event):
     return render_form(form=form, title=_(u"Edit event"), submit=_(u"Save changes"))
 
 
+@app.route('/<profile>/<space>/ticket_type/<name>', methods=['GET'])
 @funnelapp.route('/<space>/ticket_type/<name>', methods=['GET'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -106,6 +112,7 @@ def ticket_type(profile, space, ticket_type):
     return render_template('ticket_type.html.jinja2', profile=profile, space=space, ticket_type=ticket_type, participants=participants)
 
 
+@app.route('/<profile>/<space>/ticket_type/new', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/ticket_type/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -129,6 +136,7 @@ def new_ticket_type(profile, space):
     return render_form(form=form, title=_(u"New Ticket Type"), submit=_(u"Add ticket type"))
 
 
+@app.route('/<profile>/<space>/ticket_type/<name>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/ticket_type/<name>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -147,6 +155,7 @@ def ticket_type_edit(profile, space, ticket_type):
     return render_form(form=form, title=_(u"Edit ticket type"), submit=_(u"Save changes"))
 
 
+@app.route('/<profile>/<space>/ticket_client/new', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/ticket_client/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -168,6 +177,7 @@ def new_ticket_client(profile, space):
     return render_form(form=form, title=_(u"New Ticket Client"), submit=_(u"Add Ticket Client"))
 
 
+@app.route('/<profile>/<space>/ticket_client/<id>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/ticket_client/<id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -185,6 +195,7 @@ def ticket_client_edit(profile, space, ticket_client):
     return render_form(form=form, title=_(u"Edit ticket client"), submit=_(u"Save changes"))
 
 
+@app.route('/<profile>/<space>/event/<name>', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/event/<name>', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -203,6 +214,7 @@ def event(profile, space, event):
     return render_template('event.html.jinja2', profile=profile, space=space, event=event, badge_form=ParticipantBadgeForm(model=Participant), checkin_form=forms.Form())
 
 
+@app.route('/<profile>/<space>/event/<name>/scan_badge', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/event/<name>/scan_badge', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

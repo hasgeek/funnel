@@ -8,12 +8,14 @@ from .. import funnelapp, app, lastuser
 from ..models import db, Profile
 
 
+@app.route('/login')
 @funnelapp.route('/login')
 @lastuser.login_handler
 def login():
     return {'scope': 'id email phone organizations teams'}
 
 
+@app.route('/logout')
 @funnelapp.route('/logout')
 @lastuser.logout_handler
 def logout():
@@ -21,6 +23,7 @@ def logout():
     return get_next_url()
 
 
+@app.route('/login/redirect')
 @funnelapp.route('/login/redirect')
 @lastuser.auth_handler
 def lastuserauth():
@@ -29,6 +32,7 @@ def lastuserauth():
     return redirect(get_next_url())
 
 
+@app.route('/login/notify', methods=['POST'])
 @funnelapp.route('/login/notify', methods=['POST'])
 @lastuser.notification_handler
 def lastusernotify(user):

@@ -9,6 +9,7 @@ from ..forms import NewProfileForm, EditProfileForm
 from .. import funnelapp, app, lastuser
 
 
+@app.route('/new', methods=['GET', 'POST'])
 @funnelapp.route('/new', methods=['GET', 'POST'])
 @lastuser.requires_scope('teams')
 def profile_new():
@@ -58,6 +59,7 @@ def profile_new():
         ajax=False)
 
 
+@app.route('/<profile>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

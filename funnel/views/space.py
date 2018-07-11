@@ -38,6 +38,7 @@ def space_data(space):
 
 
 # Test endpoint
+@app.route('/<profile>/form', methods=['GET', 'POST'])
 @funnelapp.route('/form', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -62,6 +63,7 @@ def space_form_test(profile):
     return render_form(form=form, title=_("Test form"), submit=_("Test submit"), cancel_url=profile.url_for())
 
 
+@app.route('/<profile>/new', methods=['GET', 'POST'])
 @funnelapp.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -84,6 +86,7 @@ def space_new(profile):
     return render_form(form=form, title=_("Create a new proposal space"), submit=_("Create space"), cancel_url=profile.url_for())
 
 
+@app.route('/<profile>/<space>/')
 @funnelapp.route('/<space>/', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -97,6 +100,7 @@ def space_view(profile, space):
         rsvp_form=rsvp_form, transition_form=transition_form)
 
 
+@app.route('/<space>/json')
 @funnelapp.route('/<space>/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -115,6 +119,7 @@ def space_view_json(profile, space):
         })
 
 
+@app.route('/<profile>/<space>/csv')
 @funnelapp.route('/<space>/csv', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -135,6 +140,7 @@ def space_view_csv(profile, space):
     return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
 
 
+@app.route('/<profile>/<space>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -157,6 +163,7 @@ def space_edit(profile, space):
     return render_form(form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
 
+@app.route('/<profile>/<space>/rsvp', methods=['POST'])
 @funnelapp.route('/<space>/rsvp', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -177,6 +184,7 @@ def rsvp(profile, space):
         abort(400)
 
 
+@app.route('/<profile>/<space>/rsvp_list')
 @funnelapp.route('/<space>/rsvp_list', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -187,6 +195,7 @@ def rsvp_list(profile, space):
     return render_template('space_rsvp_list.html.jinja2', space=space, statuses=RSVP_STATUS)
 
 
+@app.route('/<profile>/<space>/transition', methods=['POST'])
 @funnelapp.route('/<space>/transition', methods=['POST', ], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

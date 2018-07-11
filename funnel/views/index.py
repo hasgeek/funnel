@@ -8,6 +8,7 @@ from ..models import Profile, ProposalSpace, Proposal
 from .space import space_data
 
 
+@app.route('/')
 @funnelapp.route('/')
 def index():
     g.profile = None
@@ -16,6 +17,7 @@ def index():
     return render_template('index.html.jinja2', spaces=spaces)
 
 
+@app.route('/api/whoami')
 @funnelapp.route('/api/whoami')
 def whoami():
     if g.user:
@@ -24,6 +26,7 @@ def whoami():
         return jsonify(message="Hmm, so who _are_ you?", code=401)
 
 
+@app.route('/json')
 @funnelapp.route('/json')
 def all_spaces_json():
     g.profile = None
@@ -32,6 +35,7 @@ def all_spaces_json():
     return jsonp(spaces=map(space_data, spaces))
 
 
+@app.route('/<profile>/json')
 @funnelapp.route('/json', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def spaces_json(profile):
@@ -39,6 +43,7 @@ def spaces_json(profile):
     return jsonp(spaces=map(space_data, spaces))
 
 
+@app.route('/<profile>/')
 @funnelapp.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
@@ -51,24 +56,29 @@ def profile_view(profile):
 # Legacy routes for funnel to talkfunnel migration
 # Figure out how to restrict these routes to just the funnel.hasgeek.com domain
 
+@app.route('/<space>/')
 @funnelapp.route('/<space>/')
 @load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
 def space_redirect(space):
     return redirect(space.url_for())
 
 
+@app.route('/<space>/json')
 @funnelapp.route('/<space>/json')
 @load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
 def space_redirect_json(space):
     return redirect(space.url_for('json'))
 
 
+@app.route('/<space>/csv')
 @funnelapp.route('/<space>/csv')
 @load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
 def space_redirect_csv(space):
     return redirect(space.url_for('csv'))
 
 
+@app.route('/<space>/<int:id>-<name>')
+@app.route('/<space>/<int:id>')
 @funnelapp.route('/<space>/<int:id>-<name>')
 @funnelapp.route('/<space>/<int:id>')
 @load_model(Proposal, {'id': 'id'}, 'proposal')

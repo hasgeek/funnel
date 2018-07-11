@@ -20,6 +20,7 @@ def section_data(section):
         }
 
 
+@app.route('/<profile>/<space>/sections')
 @funnelapp.route('/<space>/sections', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -31,6 +32,7 @@ def section_list(profile, space):
     return render_template('sections.html.jinja2', space=space, sections=sections)
 
 
+@app.route('/<profile>/<space>/sections/<section>')
 @funnelapp.route('/<space>/sections/<section>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -42,6 +44,7 @@ def section_view(profile, space, section):
     return render_template('section.html.jinja2', space=space, section=section)
 
 
+@app.route('/<profile>/<space>/sections/new', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -60,6 +63,7 @@ def section_new(profile, space):
     return render_form(form=form, title=_("New section"), submit=_("Create section"))
 
 
+@app.route('/<profile>/<space>/sections/<section>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -77,6 +81,7 @@ def section_edit(profile, space, section):
     return render_form(form=form, title=_("Edit section"), submit=_("Save changes"))
 
 
+@app.route('/<profile>/<space>/sections/<section>/delete', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

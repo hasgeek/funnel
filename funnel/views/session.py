@@ -55,6 +55,7 @@ def session_form(space, proposal=None, session=None):
         form=render_template('session_form.html.jinja2', form=form, formid='session_new'))
 
 
+@app.route('/<profile>/<space>/sessions/new', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -65,6 +66,7 @@ def session_new(profile, space):
     return session_form(space)
 
 
+@app.route('/<profile>/<space>/<proposal>/schedule', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -76,6 +78,7 @@ def proposal_schedule(profile, space, proposal):
     return session_form(space, proposal=proposal)
 
 
+@app.route('/<profile>/<space>/<session>/viewsession-popup', methods=['GET'])
 @funnelapp.route('/<space>/<session>/viewsession-popup', methods=['GET'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -86,6 +89,7 @@ def session_view_popup(profile, space, session):
     return render_template('session_view_popup.html.jinja2', session=session, timezone=space.timezone, localize_date=localize_date)
 
 
+@app.route('/<profile>/<space>/<session>/editsession', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/<session>/editsession', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -97,6 +101,7 @@ def session_edit(profile, space, session):
     return session_form(space, session=session)
 
 
+@app.route('/<profile>/<space>/<session>/deletesession', methods=['POST'])
 @funnelapp.route('/<space>/<session>/deletesession', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

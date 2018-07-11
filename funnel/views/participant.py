@@ -65,6 +65,7 @@ def participant_checkin_data(participant, space, event):
     }
 
 
+@app.route('/<profile>/<space>/participants/json')
 @funnelapp.route('/<space>/participants/json', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -75,6 +76,7 @@ def participants_json(profile, space):
     return jsonify(participants=[participant_data(participant, space.id) for participant in space.participants])
 
 
+@app.route('/<profile>/<space>/participants/new', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/participants/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -97,6 +99,7 @@ def new_participant(profile, space):
     return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
 
 
+@app.route('/<profile>/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -115,6 +118,7 @@ def participant_edit(profile, space, participant):
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
+@app.route('/<profile>/<space>/participant', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/participant', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -147,6 +151,7 @@ def participant(profile, space, puk, key):
         return jsonify(message=u"Unauthorized contact exchange", code=401)
 
 
+@app.route('/<profile>/<space>/participant/<participant_id>/badge')
 @funnelapp.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -159,6 +164,7 @@ def participant_badge(profile, space, participant):
         badges=participant_badge_data([participant], space))
 
 
+@app.route('/<profile>/<space>/event/<name>/participants/checkin', methods=['POST'])
 @funnelapp.route('/<space>/event/<name>/participants/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -180,6 +186,7 @@ def event_checkin(profile, space, event):
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
 
 
+@app.route('/<profile>/<space>/event/<name>/participant/<puk>/checkin', methods=['POST'])
 @funnelapp.route('/<space>/event/<name>/participant/<puk>/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -198,6 +205,7 @@ def checkin_puk(profile, space, event, participant):
     return jsonify(attendee={'fullname': participant.fullname})
 
 
+@app.route('/<profile>/<space>/event/<name>/participants/json')
 @funnelapp.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -216,6 +224,7 @@ def event_participants_json(profile, space, event):
     return jsonify(participants=participants, total_participants=len(participants), total_checkedin=checkin_count)
 
 
+@app.route('/<profile>/<space>/event/<name>/badges')
 @funnelapp.route('/<space>/event/<name>/badges', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

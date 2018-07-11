@@ -10,6 +10,7 @@ from ..models import db, Profile, User, UserGroup, ProposalSpace, ProposalSpaceR
 from ..forms import UserGroupForm
 
 
+@app.route('/<profile>/<space>/users')
 @funnelapp.route('/<space>/users', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -20,6 +21,7 @@ def usergroup_list(profile, space):
     return render_template('usergroups.html.jinja2', space=space, usergroups=space.usergroups)
 
 
+@app.route('/<profile>/<space>/users/<group>')
 @funnelapp.route('/<space>/users/<group>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -31,11 +33,11 @@ def usergroup_view(profile, space, usergroup):
     return render_template('usergroup.html.jinja2', space=space, usergroup=usergroup)
 
 
-@funnelapp.route('/<space>/users/new',
-    defaults={'group': None},
-    endpoint='usergroup_new',
-    methods=['GET', 'POST'],
-    subdomain='<profile>')
+@app.route('/<profile>/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new',
+    methods=['GET', 'POST'])
+@funnelapp.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new',
+    methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/users/<group>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
@@ -67,6 +69,7 @@ def usergroup_edit(profile, space, kwargs):
         return render_form(form=form, title=_("Edit user group"), submit=_("Save changes"))
 
 
+@app.route('/<profile>/<space>/users/<group>/delete', methods=['GET', 'POST'])
 @funnelapp.route('/<space>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
