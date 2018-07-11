@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response
+from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response, current_app
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
@@ -144,7 +144,7 @@ def participant(profile, space, puk, key):
             db.session.add(contact_exchange)
             db.session.commit()
         except IntegrityError:
-            app.logger.warning(u"Contact Exchange already present")
+            current_app.logger.warning(u"Contact Exchange already present")
             db.session.rollback()
         return jsonify(participant=participant_data(participant, space.id, full=True))
     else:

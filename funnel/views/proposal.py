@@ -165,8 +165,8 @@ def proposal_edit(profile, space, proposal):
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<profile>/<space>/<proposal>/transition', methods=['POST',])
-@funnelapp.route('/<space>/<proposal>/transition', methods=['POST',], subdomain='<profile>')
+@app.route('/<profile>/<space>/<proposal>/transition', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/transition', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

@@ -4,8 +4,8 @@ from urlparse import urljoin
 from urlparse import urlparse
 import qrcode
 import qrcode.image.svg
+from flask import current_app
 from baseframe import cache
-from . import funnelapp, app
 
 
 @cache.memoize(timeout=86400)
@@ -18,8 +18,8 @@ def geonameid_from_location(text):
         wasn't set.
         To detect multiple locations, split them up and pass each location individually
     """
-    if 'HASCORE_SERVER' in app.config:
-        url = urljoin(app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
+    if 'HASCORE_SERVER' in current_app.config:
+        url = urljoin(current_app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
         try:
             response = requests.get(url, params={'q': text}, timeout=2.0).json()
             geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]

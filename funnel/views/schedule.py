@@ -8,7 +8,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
-from flask import render_template, json, jsonify, request, Response
+from flask import render_template, json, jsonify, request, Response, current_app
 
 from coaster.views import load_models, requestargs, jsonp, cors
 
@@ -285,5 +285,5 @@ def schedule_update(profile, space, sessions):
             s.end = session['end']
             db.session.commit()
         except NoResultFound:
-            app.logger.error('{space} schedule update error: session = {session}'.format(space=space.name, session=session))
+            current_app.logger.error('{space} schedule update error: session = {session}'.format(space=space.name, session=session))
     return jsonify(status=True)

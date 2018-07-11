@@ -2,7 +2,7 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request, make_response, abort
+from flask import g, flash, redirect, render_template, Response, request, make_response, abort, current_app
 from baseframe import _
 from baseframe.forms import render_form, render_message, FormGenerator
 from coaster.views import load_models, jsonp
@@ -73,7 +73,7 @@ def space_new(profile):
     form = ProposalSpaceForm(model=ProposalSpace, parent=profile)
     form.parent_space.query_factory = lambda: profile.spaces
     if request.method == 'GET':
-        form.timezone.data = app.config.get('TIMEZONE')
+        form.timezone.data = current_app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user, profile=profile)
         form.populate_obj(space)
@@ -154,7 +154,7 @@ def space_edit(profile, space):
         form = ProposalSpaceForm(obj=space, model=ProposalSpace)
     form.parent_space.query = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.id != space.id, ProposalSpace.parent_space == None)
     if request.method == 'GET' and not space.timezone:
-        form.timezone.data = app.config.get('TIMEZONE')
+        form.timezone.data = current_app.config.get('TIMEZONE')
     if form.validate_on_submit():
         form.populate_obj(space)
         db.session.commit()
