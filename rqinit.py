@@ -1,6 +1,6 @@
 from urlparse import urlparse
 
-from funnel import app
+from funnel import funnelapp, app
 
 REDIS_URL = app.config.get('REDIS_URL', 'redis://localhost:6379/0')
 

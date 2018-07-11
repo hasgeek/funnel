@@ -2,7 +2,7 @@
 
 from coaster.manage import init_manager
 
-from funnel import app, models
+from funnel import funnelapp, app, models
 
 
 if __name__ == "__main__":

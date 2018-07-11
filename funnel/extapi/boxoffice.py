@@ -3,7 +3,7 @@
 from urlparse import urljoin
 import requests
 from ..util import extract_twitter_handle
-from .. import app
+from .. import funnelapp, app
 
 __all__ = ['Boxoffice']
 

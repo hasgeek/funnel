@@ -5,7 +5,7 @@ from urlparse import urlparse
 import qrcode
 import qrcode.image.svg
 from baseframe import cache
-from . import app
+from . import funnelapp, app
 
 
 @cache.memoize(timeout=86400)

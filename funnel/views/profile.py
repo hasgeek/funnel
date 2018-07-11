@@ -6,10 +6,10 @@ from baseframe import _
 from baseframe.forms import render_message, render_redirect, render_form
 from ..models import db, Profile, Team
 from ..forms import NewProfileForm, EditProfileForm
-from .. import app, lastuser
+from .. import funnelapp, app, lastuser
 
 
-@app.route('/new', methods=['GET', 'POST'])
+@funnelapp.route('/new', methods=['GET', 'POST'])
 @lastuser.requires_scope('teams')
 def profile_new():
     # Step 1: Get a list of organizations this user owns
@@ -58,7 +58,7 @@ def profile_new():
         ajax=False)
 
 
-@app.route('/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     permission='edit-profile')

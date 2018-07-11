@@ -13,7 +13,7 @@ from coaster.auth import current_auth
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
-from .. import app, mail, lastuser
+from .. import funnelapp, app, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
@@ -96,7 +96,7 @@ def proposal_data_flat(proposal, groups=[]):
 
 # --- Routes ------------------------------------------------------------------
 
-@app.route('/<space>/new', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -131,7 +131,7 @@ def proposal_new(profile, space):
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<space>/<proposal>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -163,7 +163,7 @@ def proposal_edit(profile, space, proposal):
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<space>/<proposal>/transition', methods=['POST',], subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/transition', methods=['POST',], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -183,7 +183,7 @@ def proposal_transition(profile, space, proposal):
     return redirect(proposal.url_for())
 
 
-@app.route('/<space>/<proposal>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -200,7 +200,7 @@ def proposal_delete(profile, space, proposal):
         cancel_url=proposal.url_for())
 
 
-@app.route('/<space>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -300,7 +300,7 @@ def proposal_view(profile, space, proposal):
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 
 
-@app.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -339,7 +339,7 @@ def session_feedback(profile, space, proposal, id_type, userid, content, present
         return "Saved\n", 201
 
 
-@app.route('/<space>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -349,7 +349,7 @@ def proposal_json(profile, space, proposal):
     return jsonp(proposal_data(proposal))
 
 
-@app.route('/<space>/<proposal>/next', subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/next', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -364,7 +364,7 @@ def proposal_next(profile, space, proposal):
         return redirect(space.url_for())
 
 
-@app.route('/<space>/<proposal>/prev', subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/prev', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -379,7 +379,7 @@ def proposal_prev(profile, space, proposal):
         return redirect(space.url_for())
 
 
-@app.route('/<space>/<proposal>/move', methods=['POST',], subdomain='<profile>')
+@funnelapp.route('/<space>/<proposal>/move', methods=['POST',], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),

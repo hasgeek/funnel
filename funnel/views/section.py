@@ -5,7 +5,7 @@ from coaster.views import load_models
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
-from .. import app, lastuser
+from .. import funnelapp, app, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection
 from ..forms import SectionForm
 
@@ -20,7 +20,7 @@ def section_data(section):
         }
 
 
-@app.route('/<space>/sections', subdomain='<profile>')
+@funnelapp.route('/<space>/sections', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -31,7 +31,7 @@ def section_list(profile, space):
     return render_template('sections.html.jinja2', space=space, sections=sections)
 
 
-@app.route('/<space>/sections/<section>', subdomain='<profile>')
+@funnelapp.route('/<space>/sections/<section>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -42,7 +42,7 @@ def section_view(profile, space, section):
     return render_template('section.html.jinja2', space=space, section=section)
 
 
-@app.route('/<space>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -60,7 +60,7 @@ def section_new(profile, space):
     return render_form(form=form, title=_("New section"), submit=_("Create section"))
 
 
-@app.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/sections/<section>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -77,7 +77,7 @@ def section_edit(profile, space, section):
     return render_form(form=form, title=_("Edit section"), submit=_("Save changes"))
 
 
-@app.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/sections/<section>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
