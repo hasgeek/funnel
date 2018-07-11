@@ -1,8 +1,8 @@
 from urlparse import urlparse
 
-from funnel import app
+from funnel import funnelapp
 
-REDIS_URL = app.config.get('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_URL = funnelapp.config.get('REDIS_URL', 'redis://localhost:6379/0')
 
 # REDIS_URL is not taken by setup_default_arguments function of rq/scripts/__init__.py
 # so, parse that into pieces and give it
