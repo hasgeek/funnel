@@ -40,6 +40,9 @@ from .models import db
 coaster.app.init_app(funnelapp)
 coaster.app.init_app(app)
 
+coaster.app.load_config_from_file(funnelapp, 'funnelapp.py')
+coaster.app.load_config_from_file(app, 'hasgeekapp.py')
+
 db.init_app(funnelapp)
 db.init_app(app)
 
