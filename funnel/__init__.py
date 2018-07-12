@@ -40,6 +40,9 @@ from .models import db
 coaster.app.init_app(funnelapp)
 coaster.app.init_app(app)
 
+# These are app specific confguration files that must exist
+# inside the `instance/` directory. Sample config files are
+# provided as example.
 coaster.app.load_config_from_file(funnelapp, 'funnelapp.py')
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
 
