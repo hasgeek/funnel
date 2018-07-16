@@ -4,231 +4,243 @@
 {% block description %}{{ space.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
 {%- macro proposal_table(space, proposals) %}
-  <div class="table-responsive">
-    <table class="table table-bordered listing">
+  <div class="table-wrapper">
+    <table class="mui-table mui-table--bordered">
       <thead>
         <tr>
-          <th class="num">#</th>
+          <th>#</th>
           <th>{% trans %}Speaker{% endtrans %}</th>
           <th>{% trans %}Section{% endtrans %}</th>
           <th>{% trans %}Level{% endtrans %}</th>
-          <th class="num">{% trans %}+1{% endtrans %}</th>
-          <th class="num"><i class="fa fa-comment-o"></i></th>
+          <th>{% trans %}+1{% endtrans %}</th>
+          <th><i class="material-icons mui--align-middle">comment</i></th>
           <th>{% trans %}Submitted{% endtrans %}</th>
         </tr>
       </thead>
+      <tbody>
       {% for proposal in proposals %}
-        <tbody class="link">
-          {%- set link=proposal.url_for() -%}
-          <tr>
-            <td class="num"><a href="{{ link }}">{{ loop.index }}</a></td>
-            <td colspan="6">
-              <a href="{{ link }}">
-                <strong>{{ proposal.title }}</strong>
-                {% if proposal.preview_video %}
-                  &nbsp;<span data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" class="fa fa-film"></span>
-                {% endif %}
-                {% if proposal.slides %}
-                  &nbsp;<span data-toggle="tooltip" data-placement="top" title="This proposal has slides" class="fa fa-desktop media-middle"></span>
-                {% endif %}
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td><a href="{{ link }}">
-              {%- if proposal.speaker -%}
-                {{ proposal.speaker.pickername }}
-                {%- if proposal.user != proposal.speaker %}
-                  <small>via {{ proposal.user.pickername }}</small>
-                {%- endif %}
-                {%- if g.user and 'edit-space' in g.permissions %}
-                  {%- if proposal.has_outstation_speaker %}
-                    <i class="fa fa-plane" aria-label="Outstation Speaker"></i>
-                  {%- endif %}
-                {%- endif %}
-              {%- else -%}
-                {{ proposal.user.pickername }} <em>{% trans %}(proposing){% endtrans %}</em>
-              {%- endif -%}
-            </a></td>
-            <td><a href="{{ link }}">{%- if proposal.proposal_space != space %}{{ proposal.proposal_space.short_title() }}{% else %}{{ proposal.section.title }}{% endif %}</a></td>
-            <td><a href="{{ link }}">{{ proposal.technical_level }}</a></td>
-            <td class="num"><a href="{{ link }}">
-              {{ proposal.votes.count }}
-              {% if 'view-voteinfo' in g.permissions %}
-                {% set breakups = dict() %}
-                {% set groups = proposal.votes_by_group() %}
-                {% if 'participants' in groups %}{% if breakups.update({'P': groups['participants']}) %}{% endif %}{% endif %}
-                {% if 'editorial-panel' in groups %}{% if breakups.update({'EP': groups['editorial-panel']}) %}{% endif %}{% endif %}
-                {% if breakups.__len__() %}
-                  (
-                  {%- for item in breakups -%}
-                    {%- if loop.index != 1 %}, {% endif %}
-                    {{ item }}: {{ breakups[item] }}
-                  {%- endfor -%}
-                  )
-                {% endif %}
+        {%- set link=proposal.url_for() -%}
+        <tr>
+          <td><a href="{{ link }}" class="mui--text-body2 mui--text-dark nounderline">{{ loop.index }}</a></td>
+          <td colspan="6">
+            <a href="{{ link }}" class="mui--text-subhead mui--text-dark nounderline">
+              <strong>{{ proposal.title }}</strong>
+              {% if proposal.preview_video %}
+                &nbsp;<!-- <span data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" class="fa fa-film"></span> --><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons mui--align-middle">movie</i>
               {% endif %}
-            </a></td>
-            <td class="num"><a href="{{ link }}">{{ proposal.comments.count }}</a></td>
-            <td><a href="{{ link }}">{{ proposal.datetime.strftime("%a, %e %b") }}</a></td>
-          </tr>
-        </tbody>
+              {% if proposal.slides %}
+                &nbsp;<!-- <span data-toggle="tooltip" data-placement="top" title="This proposal has slides" class="fa fa-desktop media-middle"></span> --><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons mui--align-middle">slideshow</i>
+              {% endif %}
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><a href="{{ link }}" class="mui--text-body2 mui--text-dark nounderline">
+            {%- if proposal.speaker -%}
+              {{ proposal.speaker.pickername }}
+              {%- if proposal.user != proposal.speaker %}
+                <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
+              {%- endif %}
+              {%- if g.user and 'edit-space' in g.permissions %}
+                {%- if proposal.has_outstation_speaker %}
+                  <i class="material-icons mui--align-middle" aria-label="Outstation Speaker">flight</i>
+                {%- endif %}
+              {%- endif %}
+            {%- else -%}
+              {{ proposal.user.pickername }} <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
+            {%- endif -%}
+          </a></td>
+          <td><a href="{{ link }}" class="mui--text-body2 mui--text-dark nounderline">{%- if proposal.proposal_space != space %}{{ proposal.proposal_space.short_title() }}{% else %}{{ proposal.section.title }}{% endif %}</a></td>
+          <td><a href="{{ link }}" class="mui--text-body2 mui--text-dark">{{ proposal.technical_level }}</a></td>
+          <td><a href="{{ link }}" class="mui--text-body2 mui--text-dark nounderline">
+            {{ proposal.votes.count }}
+            {% if 'view-voteinfo' in g.permissions %}
+              {% set breakups = dict() %}
+              {% set groups = proposal.votes_by_group() %}
+              {% if 'participants' in groups %}{% if breakups.update({'P': groups['participants']}) %}{% endif %}{% endif %}
+              {% if 'editorial-panel' in groups %}{% if breakups.update({'EP': groups['editorial-panel']}) %}{% endif %}{% endif %}
+              {% if breakups.__len__() %}
+                (
+                {%- for item in breakups -%}
+                  {%- if loop.index != 1 %}, {% endif %}
+                  {{ item }}: {{ breakups[item] }}
+                {%- endfor -%}
+                )
+              {% endif %}
+            {% endif %}
+          </a></td>
+          <td><a href="{{ link }}" class="mui--text-body2 mui--text-dark nounderline">{{ proposal.comments.count }}</a></td>
+          <td><a href="{{ link }}" class="mui--text-body2 mui--text-dark nounderline">{{ proposal.datetime.strftime("%a, %e %b") }}</a></td>
+        </tr>
       {% else %}
-        <tbody>
-          <tr>
-            <td colspan="9">
-              <em>{% trans %}(No sessions have been submitted){% endtrans %}</em>
-            </td>
-          </tr>
-        </tbody>
+        <tr>
+          <td colspan="9">
+            <em>{% trans %}(No sessions have been submitted){% endtrans %}</em>
+          </td>
+        </tr>
       {% endfor %}
+      </tbody>
     </table>
-  </div><!-- /.table-responsive -->
-  <hr>
+  </div>
 {%- endmacro %}
 
-{% block headline %}
-  <div class="page-header">
-    {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
-    <h1>{{ space.title }}</h1>
-  </div>
+{% block contenthead %}
 {% endblock %}
 
 {% block content %}
-{#
-  <ul class="nav nav-tabs">
-    <li class="active"><a href="#info" data-toggle="tab">{% trans %}Info{% endtrans %}</a></li>
-    <li><a href="#proposals" data-toggle="tab">{% trans %}Proposals{% endtrans %}</a></li>
-{ #-    {%- if sections %}{% for section in sections %}
-      <li><a href="#section-{{ section.name }}" data-toggle="tab">{{ section.title }}</a></li>
-    {% endfor %}{% endif %} # }
-  </ul>
-#}
-{#
-  <div class="tab-content section">
-    <div class="tab-pane active" id="info">
-#}
-<p>
-  {{ space.datelocation }}<br>
-  <strong>Status: {{ space.state.label.title }}</strong>
-</p>
-<ul class="list-inline">
- {%- if space.sessions %}
-    <li>
-      <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
-    </li>
-  {%- endif %}
-  {%- if space.buy_tickets_url %}
-    <li>
-      <a href="{{ space.buy_tickets_url }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
-    </li>
-  {%- endif %}
-</ul>
-{%- if space.current_roles.admin %}
-<hr>
-<ul class="list-inline">
-  <li>
-    <a href="{{ space.url_for('admin') }}" class='btn btn-success btn-sm'>{% trans %}Manage Event{% endtrans %}</a>
-  </li>
-  <li>
-    <a href="{{ space.url_for('events') }}" class='btn btn-success btn-sm'>{% trans %}Manage Check-in{% endtrans %}</a>
-  </li>
-  <li>
-    <a href="{{ space.url_for('edit') }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Edit space{% endtrans %}</a>
-  </li>
-  <li>
-    <a href="{{ space.url_for('sections') }}" class='btn btn-primary btn-sm' target="_blank">{% trans %}Sections{% endtrans %}</a>
-  </li>
-  <li>
-    <a href="{{ space.url_for('venues') }}" class='btn btn-primary btn-sm' target="_blank">{% trans %}Venues{% endtrans %}</a>
-  </li>
-  <li>
-    <a href="{{ space.url_for('csv') }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Download CSV{% endtrans %}</a>
-  </li>
-  <li>
-    <a href="{{ space.url_for('json') }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Download JSON{% endtrans %}</a>
-  </li>
-</ul>
-<hr>
-<h3>Status: {{ space.state.label.title }}</h3>
-<form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
-  {{ transition_form.hidden_tag() }}
-  <p>
-  {% for name, transition in transition_form.transition.choices %}
-    <button name="transition" value="{{ name }}" class="transition control-group btn btn-sm btn-{{ transition.data['type'] }}">{{ transition.data['title'] }}</button>
-  {% endfor %}
-  </p>
-</form>
-<hr>
-{% elif 'checkin-event' in g.permissions %}
-<hr>
-<ul class="list-inline">
-  <li>
-    <a href="{{ space.url_for('events') }}" class='btn btn-success btn-sm'>{% trans %}Manage Check-in{% endtrans %}</a>
-  </li>
-</ul>
-{% endif %}
-{%- if space.allow_rsvp %}
-  <h3>{% trans %}Attending this event?{% endtrans %}</h3>
-  {%- if g.user %}
-    {{ rsvpform(space, rsvp_form) }}
-  {%- else %}
-    <p>
-      <a href="{{ url_for('login') }}" class='btn btn-primary btn-sm'>{% trans %}Login to RSVP{% endtrans %}</a>
-    </p>
-  {%- endif %}
-  {% if g.user and 'view-rsvps' in g.permissions %}
-    <a href="{{ space.url_for('rsvp-list') }}">See RSVP list</a>
-  {% endif %}
-{%- endif %}
-{{ description }}
-{%- if space.subspaces %}
-  <ul class="cardset row">
-    {% for subspace in space.subspaces %}
-      <li class="col-md-4 col-sm-6">
-        <a href="{{ subspace.url_for() }}">
-          <div class="card-title">
-            <h2>{{ subspace.title }}</h2>
-            <h3>{{ subspace.datelocation }}</h3>
-          </div>
-          <div class="card-body">
-            <p>{{ subspace.tagline }}</p>
-          </div>
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-{%- endif %}
-{% if space.state.SUBMISSIONS -%}
-  <p>
-    <a class="btn btn-success" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
-  </p>
-{% endif %}
-{#
+  <div class="grid">
+    <div class="grid__col-xs-12">
+      <h1 class="mui--text-headline">{{ space.title }}</h1> 
+      <p class="mui--text-subhead">{{ space.datelocation }}</p>
     </div>
+    <div class="grid__col-xs-12">
+    <!-- {#
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#info" data-toggle="tab">{% trans %}Info{% endtrans %}</a></li>
+        <li><a href="#proposals" data-toggle="tab">{% trans %}Proposals{% endtrans %}</a></li>
+    { #-    {%- if sections %}{% for section in sections %}
+          <li><a href="#section-{{ section.name }}" data-toggle="tab">{{ section.title }}</a></li>
+        {% endfor %}{% endif %} # }
+      </ul>
+    #}
+    {#
+      <div class="tab-content section">
+        <div class="tab-pane active" id="info">
+    #} -->
 
-    <div class="tab-pane" id="proposals">
-#}
-      {%- if 'view-status' in g.permissions %}
-        {%- for state, proposal_group in space.proposals_by_state.items() if proposal_group -%}
-            <h3>{{ state.label.title }} {% trans %}proposals{% endtrans %}</h3>
-            {{ proposal_table(space, proposal_group) }}
-        {%- endfor -%}
-      {%- else %}
-        {%- if space.proposals_by_confirmation['confirmed'] %}
-          <h3>{% trans %}Confirmed sessions{% endtrans %}</h3>
-          {{ proposal_table(space, space.proposals_by_confirmation['confirmed']) }}
-        {%- endif %}
-        {%- if space.proposals_by_confirmation['unconfirmed'] %}
-          {%- if space.proposals_by_confirmation['confirmed'] %}<h3>{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
-          {{ proposal_table(space, space.proposals_by_confirmation['unconfirmed']) }}
-        {%- endif %}
+    <ul class="mui-list--inline">
+     {%- if space.sessions %}
+        <li>
+          <a href="{{ space.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}View Schedule{% endtrans %}</a>
+        </li>
       {%- endif %}
-{#
+      {%- if space.buy_tickets_url %}
+        <li>
+          <a href="{{ space.buy_tickets_url }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" target="_blank">{% trans %}Buy Tickets{% endtrans %}</a>
+        </li>
+      {%- endif %}
+      <hr class="mui-divider">
+    </ul>
+
+    {%- if space.current_roles.admin %}
+      <ul class="mui-list--inline">
+        <li>
+          <a href="{{ space.url_for('admin') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage Event{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ space.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage Check-in{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ space.url_for('edit') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" target="_blank">{% trans %}Edit space{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ space.url_for('sections') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary"target="_blank">{% trans %}Sections{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ space.url_for('venues') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" target="_blank">{% trans %}Venues{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ space.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" target="_blank">{% trans %}Download CSV{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ space.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" target="_blank">{% trans %}Download JSON{% endtrans %}</a>
+        </li>
+      </ul>
+      <hr class="mui-divider">
+      <h3 class="mui--text-title">Status: {{ space.state.label.title }}</h3>
+      <form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
+        {{ transition_form.hidden_tag() }}
+        <p>
+        {% for name, transition in transition_form.transition.choices %}
+          <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised mui-btn--{{ transition.data['type'] }}">{{ transition.data['title'] }}</button>
+        {% endfor %}
+        </p>
+      </form>
+      <hr class="mui-divider">
+    {% elif 'checkin-event' in g.permissions %}
+      <ul class="mui-list--inline">
+        <li>
+          <a href="{{ space.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage Check-in{% endtrans %}</a>
+        </li>
+      </ul>
+      <hr class="mui-divider">
+    {% endif %}
+
+    {%- if space.allow_rsvp %}
+      <h3 class="mui--text-subhead">{% trans %}Attending this event?{% endtrans %}</h3>
+      {%- if g.user %}
+        {{ rsvpform(space, rsvp_form) }}
+      {%- else %}
+        <p>
+          <a href="{{ url_for('login') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Login to RSVP{% endtrans %}</a>
+        </p>
+      {%- endif %}
+      {% if g.user and 'view-rsvps' in g.permissions %}
+        <a href="{{ space.url_for('rsvp-list') }}">See RSVP list</a>
+      {% endif %}
+      <hr class="mui-divider">
+    {%- endif %}
+
+    <div class="space-description">{{ description }}</div>
+
+    {%- if space.subspaces %}
+      <hr class="mui-divider">
+      <ul class="grid">
+        {% for subspace in space.subspaces %}
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+            <div class="grid__cell">
+              <a href="{{ subspace.url_for() }}" class="clickable-card">
+                <div class="card">
+                  <div class="card__title">
+                    <h3 class="mui--text-title card__title__heading">{{ subspace.title }}</h3>
+                    <h4 class="mui--text-subhead card__title__heading">{{ subspace.datelocation }}</h4>
+                  </div>
+                  {% if space.tagline %}
+                    <div class="card__body">
+                      <p>{{ subspace.tagline }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+              </a>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif %}
+
+    {% if space.state.SUBMISSIONS -%}
+      <p>
+        <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+      </p>
+    {% endif %}
+    <hr class="mui-divider">
+<!--     {#
+        </div>
+
+        <div class="tab-pane" id="proposals">
+    #} -->
+          {%- if 'view-status' in g.permissions %}
+            {%- for state, proposal_group in space.proposals_by_state.items() if proposal_group -%}
+                <h3 class="mui--text-title">{{ state.label.title }} {% trans %}proposals{% endtrans %}</h3>
+                {{ proposal_table(space, proposal_group) }}
+            {%- endfor -%}
+          {%- else %}
+            {%- if space.proposals_by_confirmation['confirmed'] %}
+              <h3 class="mui--text-title">{% trans %}Confirmed sessions{% endtrans %}</h3>
+              {{ proposal_table(space, space.proposals_by_confirmation['confirmed']) }}
+            {%- endif %}
+            {%- if space.proposals_by_confirmation['unconfirmed'] %}
+              {%- if space.proposals_by_confirmation['confirmed'] %}<h3 class="mui--text-title">{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
+              {{ proposal_table(space, space.proposals_by_confirmation['unconfirmed']) }}
+            {%- endif %}
+          {%- endif %}
+<!--     {#
+        </div>
+      </div>
+    #} -->
     </div>
   </div>
-#}
 {% endblock %}
 {% block footerscripts %}
   {{ rsvpscript() }}

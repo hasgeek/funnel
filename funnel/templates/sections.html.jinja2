@@ -1,14 +1,22 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}Sections &mdash; {{ space.title }}{% endblock %}
 {% block content %}
-  <ol>
-    {%- for section in sections %}
-      <li><a href="{{ section.url_for('edit') }}">{{ section.title }}</a> &mdash; {{ section.description }}</li>
-    {% else %}
-      <li><em>{% trans %}(No sections){% endtrans %}</em></li>
-    {%- endfor %}
-  </ol>
-  <p>
-    <a class="btn btn-info" href="{{ space.url_for('new-section') }}">{% trans %}Add new section{% endtrans %}</a>
-  </p>
+  <div class="grid">
+    <div class="grid__col-xs-12">
+      <ol>
+        {%- for section in sections %}
+          <li>
+            <span class="mui--text-subhead"><strong>{{ section.title }}</strong> &mdash; {{ section.description }}</span>&nbsp;
+            <a href="{{ section.url_for('edit') }}"><i class="material-icons mui--text-subhead mui--align-top">edit</i></a>
+            <a href="{{ section.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top">delete</i></a>
+          </li>
+        {% else %}
+          <li class="mui--text-subhead"><em>{% trans %}(No sections){% endtrans %}</em></li>
+        {%- endfor %}
+      </ol>
+      <p>
+        <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-section') }}">{% trans %}Add new section{% endtrans %}</a>
+      </p>
+    </div>
+  </div>
 {% endblock %}

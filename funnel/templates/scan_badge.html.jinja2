@@ -4,64 +4,53 @@
 {% block title %}{{ space.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
-{% block headline %}
-{% endblock %}
 
 {% block content %}
-  <div class="row" id="scan-badge-wrapper">
+  <div class="grid" id="scan-badge-wrapper">
     {% raw %}
-    <script id='scan-badge-template' type='text/ractive'>
+      <script id='scan-badge-template' type='text/ractive'>
 
-      <div class="col-lg-4 col-xs-12">
-        <h1>{{ spaceTitle }}</h1>
-        <h3>{{ eventTitle }}</h3>
-        <h5>Please scan your badge to check-in</h5>
-        {{#if cameras}}
-          <h5>Cameras</h5>
-          {{#cameras:camera}}
-            {{#if activeCameraId === cameras[camera].id}}
-              {{#if !qrReaderOn}}
-              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
-              {{/if}}
-            {{else}}
-              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
-            {{/if}}
-          {{/}}
-        {{else}}
-          <p>No camera found</p>
-        {{/if}}
-      </div>
-
-      <div class="col-lg-8 col-xs-12">
-        <video id="reader" class="qrcode-reader"></video>
-      </div>
-
-      <div class="modal fade" id="status-msg" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header {{#if !scanning && !attendeeFound}}bg-danger{{/if}}">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Check in status</h4>
-            </div>
-            <div class="modal-body">
-              {{#if scanning}}
-                <h4>Scanning <i class="fa fa-spinner fa-spin fa-2x"></i></h4>
-              {{elseif attendeeFound}}
-                <h4>Hello {{attendeeName}},</h4>
-                <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
-                <p>HasGeek</p>
+        <div class="grid__col-xs-12 grid__col-lg-4">
+          <h3 class="mui--text-title">{{ eventTitle }}</h3>
+          <p class="mui--text-subhead">Please scan your badge to check-in</p>
+          {{#if cameras}}
+            <h5>Cameras</h5>
+            {{#cameras:camera}}
+              {{#if activeCameraId === cameras[camera].id}}
+                {{#if !qrReaderOn}}
+                <button on-click="startCamera(cameras[camera])" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Start {{ formatName(cameras[camera].name) }}</button>
+                {{/if}}
               {{else}}
-                <h4>Attendee details not found</h4>
+                <button on-click="startCamera(cameras[camera])" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Start {{ formatName(cameras[camera].name) }}</button>
               {{/if}}
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-          </div>
+            {{/}}
+          {{else}}
+            <p>No camera found</p>
+          {{/if}}
         </div>
-      </div>
 
-    </script>
+        <div class="grid__col-xs-12 grid__col-lg-8">
+          <video id="reader" class="qrcode-reader"></video>
+        </div>
+
+        <div id="status-msg" class="modal mui--hide" tabindex="-1" role="dialog">
+          <div class="modal__header">
+            <a class="modal__close" href="javascript:void(0);" aria-label="close" rel="modal:close"><i class="material-icons">clear</i></a>
+            <h3 class="mui--text-title">Check in status</h3>
+          </div>
+          <div class="modal__body">
+            {{#if scanning}}
+              <h4>Scanning <i class="fa fa-spinner fa-spin fa-2x"></i></h4>
+            {{elseif attendeeFound}}
+              <h4>Hello {{attendeeName}},</h4>
+              <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
+              <p>HasGeek</p>
+            {{else}}
+              <h4>Attendee details not found</h4>
+            {{/if}}
+            <button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-dismiss="modal">Close</button>
+          </div>
+      </script>
     {% endraw %}
   </div>
 {% endblock %}
@@ -105,7 +94,7 @@
           window.scanner.addListener('scan', function (qrcode) {
             if (qrcode.length === 16) {
               badgeScanComponent.set('scanning', true);
-              $("#status-msg").modal('show');
+              $("#status-msg").modal();
               var url = checkinApiUrl.replace('puk', qrcode.substring(0,8));
               var formValues = "checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
               $.ajax({
