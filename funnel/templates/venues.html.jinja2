@@ -6,7 +6,7 @@
       <li>
         <p>
           <a href="{{ venue.url_for('edit') }}">{{ venue.title }}</a>
-          <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="icon-trash"></i></a>
+          <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="fa fa-trash"></i></a>
         </p>
         {{ venue.description }}
         {%- if venue.rooms %}
@@ -15,7 +15,7 @@
               <li>
                 <p>
                   <a href="{{ room.url_for('edit') }}">{{ room.title }}</a>
-                  <a href="{{ room.url_for('delete') }}"><i class="icon-trash"></i></a>
+                  <a href="{{ room.url_for('delete') }}"><i class="fa fa-trash"></i></a>
                 </p>
                 {{ room.description }}
               </li>
