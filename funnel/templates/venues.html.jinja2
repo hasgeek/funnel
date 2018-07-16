@@ -1,34 +1,40 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% trans %}Venues{% endtrans %} &mdash; {{ space.title }}{% endblock %}
 {% block content %}
-  <ol>
-    {%- for venue in venues %}
-      <li>
-        <p>
-          <a href="{{ venue.url_for('edit') }}">{{ venue.title }}</a>
-          <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="icon-trash"></i></a>
-        </p>
-        {{ venue.description }}
-        {%- if venue.rooms %}
-          <ol>
-            {%- for room in venue.rooms %}
-              <li>
-                <p>
-                  <a href="{{ room.url_for('edit') }}">{{ room.title }}</a>
-                  <a href="{{ room.url_for('delete') }}"><i class="icon-trash"></i></a>
-                </p>
-                {{ room.description }}
-              </li>
-            {%- endfor %}
-          </ol>
-        {%- endif %}
-        <p><a href="{{ venue.url_for('new-room') }}" class="btn btn-info btn-xs">{% trans %}Add room{% endtrans %}</a></p>
-      </li>
-    {% else %}
-      <li><em>{% trans %}(No venues){% endtrans %}</em></li>
-    {%- endfor %}
-  </ol>
-  <p>
-    <a class="btn btn-info" href="{{ space.url_for('new-venue') }}">{% trans %}Add venue{% endtrans %}</a>
-  </p>
+  <div class="grid">
+    <div class="grid__col-xs-12">
+      <ol>
+        {%- for venue in venues %}
+          <li>
+            <p>
+              <span class="mui--text-subhead"><strong>{{ venue.title }}</strong></span>&nbsp;
+              <a href="{{ venue.url_for('edit') }}"><i class="material-icons mui--text-subhead mui--align-top">edit</i></a>
+              <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top">delete</i></a>
+            </p>
+            <div class="mui--text-body2">{{ venue.description }}</div>
+            {%- if venue.rooms %}
+              <ol>
+                {%- for room in venue.rooms %}
+                  <li>
+                    <p>
+                      <span class="mui--text-subhead"><strong>{{ room.title }}</strong></spam>&nbsp;
+                      <a href="{{ room.url_for('edit') }}"><i class="material-icons mui--text-subhead mui--align-top">edit</i></a>
+                      <a href="{{ room.url_for('delete') }}"><i class="material-icons mui--text-subhead mui--align-top">delete</i></a>
+                    </p>
+                    <div class="mui--text-body2">{{ room.description }}</div>
+                  </li>
+                {%- endfor %}
+              </ol>
+            {%- endif %}
+            <p><a class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" href="{{ venue.url_for('new-room') }}">{% trans %}Add room{% endtrans %}</a></p>
+          </li>
+        {% else %}
+          <li class="mui--text-subhead"><em>{% trans %}(No venues){% endtrans %}</em></li>
+        {%- endfor %}
+      </ol>
+      <p>
+        <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-venue') }}">{% trans %}Add venue{% endtrans %}</a>
+      </p>
+  </div>
+</div>
 {% endblock %}

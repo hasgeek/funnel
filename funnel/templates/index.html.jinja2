@@ -7,40 +7,53 @@
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
-{% block baseheadline -%}
-  {% block headline -%}{%- endblock %}
-{%- endblock %}
+{% block top_title %}
+  <h1 id="channel-header" class="mui--text-headline">
+    {%- if g.profile %}
+      {{ g.profile.description }}
+    {%- else %}
+      {{ config['WELCOME_MESSAGE'] }}
+    {% endif %}
+  </h1>
+{% endblock %}
 
 {% block content %}
-  {% block heading %}
-    {#
-    <div class="page-header">
-      <h1>{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}</h1>
-    </div>
-    #}
-  {% endblock %}
-  {%- if g.profile %}
-    {{ g.profile.description }}
-  {%- else %}
-    <p>
-      {{ config['WELCOME_MESSAGE'] }}
-    </p>
-  {% endif %}
   {% if spaces %}
-    <ul class="cardset row">
+    <ul class="grid">
       {% for space in spaces %}
-        <li class="col-md-4 col-sm-6">
-          <a href="{{ space.url_for() }}">
-            <div class="card-title">
-              <h2>{{ space.title }}</h2>
-              <h3>{{ space.datelocation }}</h3>
-            </div>
-            <div class="card-body">
-              <p>{{ space.tagline }}</p>
-            </div>
-          </a>
+        <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+          <div class="grid__cell">
+            <a href="{{ space.url_for() }}" class="clickable-card">
+              <div class="card">
+                <div class="card__image-wrapper">
+                  {% if space.bg_image %}
+                    <img class="card__image" src="{{ space.bg_image }}" alt="{{ space.title }}"/>
+                  {% else %}
+                    <div class="card__image--default">
+                      <img class="card__image" src="https://images.hasgeek.com/embed/file/5084bed3b3254c548bdcc119cd7b12ef" alt="{{ space.title }}"/>
+                      <p class="card__image__tagline">{{ space.title }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="card__title">
+                  <h3 class="mui--text-title card__title__heading">{{ space.title }}</h3>
+                  <h4 class="mui--text-caption card__title__heading">{{ space.datelocation }}</h4>
+                </div>
+                {% if space.tagline %}
+                  <div class="card__body">
+                    <p class="mui--text-body2">{{ space.tagline }}</p>
+                  </div>
+                {% endif %}
+                <div class="mui-divider"></div>
+                <div class="card__footer">
+                  <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--flat mui-btn--accent">Tickets</a>
+                  <a href="{{ space.url_for() }}" class="mui-btn mui-btn--flat mui-btn--accent">Proposals</a>
+                </div>
+              </div>
+            </a>
+          </div>
         </li>
-      {% endfor %}
+      {%- endfor -%}
     </ul>
   {% else %}
     <p>{% trans %}There are no proposal spaces at this time.{% endtrans %}
