@@ -14,12 +14,12 @@
         <h3>{{ eventTitle }}</h3>
         {{#video}}
           <h4>Please scan your badge to check-in</h4>
-          <button type="button" class="btn btn-primary btn-sm" on-click="setupVideo(event)">Restart QR reader</button>
+          <p><button type="button" class="btn btn-primary btn-xs" on-click="setupVideo(event)">Restart QR reader</button></p>
         {{/}}
       </div>
 
       <div class="col-lg-8 col-xs-12">
-        <canvas id="canvas"></canvas>
+        <canvas id="qrreader-canvas"></canvas>
       </div>
 
       <div class="modal fade" id="status-msg" tabindex="-1" role="dialog">
@@ -109,7 +109,7 @@
           });
         },
         renderFrame: function () {
-          var canvasElement = document.getElementById("canvas");
+          var canvasElement = document.getElementById("qrreader-canvas");
           var canvas = canvasElement.getContext("2d");
 
           if (badgeScanComponent.get('video').readyState === badgeScanComponent.get('video').HAVE_ENOUGH_DATA) {
