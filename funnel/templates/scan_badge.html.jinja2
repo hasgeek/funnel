@@ -4,8 +4,6 @@
 {% block title %}{{ space.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
-{% block headline %}
-{% endblock %}
 
 {% block content %}
   <div class="row" id="scan-badge-wrapper">
@@ -13,34 +11,22 @@
     <script id='scan-badge-template' type='text/ractive'>
 
       <div class="col-lg-4 col-xs-12">
-        <h1>{{ spaceTitle }}</h1>
         <h3>{{ eventTitle }}</h3>
-        <h5>Please scan your badge to check-in</h5>
-        {{#if cameras}}
-          <h5>Cameras</h5>
-          {{#cameras:camera}}
-            {{#if activeCameraId === cameras[camera].id}}
-              {{#if !qrReaderOn}}
-              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
-              {{/if}}
-            {{else}}
-              <button on-click="startCamera(cameras[camera])" class="btn btn-primary btn-sm btn-block">Start {{ formatName(cameras[camera].name) }}</button>
-            {{/if}}
-          {{/}}
-        {{else}}
-          <p>No camera found</p>
-        {{/if}}
+        {{#video}}
+          <h4>Please scan your badge to check-in</h4>
+          <button type="button" class="btn btn-primary btn-sm" on-click="setupVideo(event)">Restart QR reader</button>
+        {{/}}
       </div>
 
       <div class="col-lg-8 col-xs-12">
-        <video id="reader" class="qrcode-reader"></video>
+        <canvas id="canvas"></canvas>
       </div>
 
       <div class="modal fade" id="status-msg" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header {{#if !scanning && !attendeeFound}}bg-danger{{/if}}">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <button type="button" class="close" on-click="closeModal(event)" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">Check in status</h4>
             </div>
             <div class="modal-body">
@@ -55,7 +41,7 @@
               {{/if}}
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" on-click="closeModal(event)">Close</button>
             </div>
           </div>
         </div>
@@ -67,8 +53,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/3.3.3/adapter.min.js"></script>
-  <script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.min.js"></script>
   <script>
     $(document).ready(function() {
 
@@ -80,62 +65,81 @@
         data: {
           spaceTitle: "{{ space.title }}",
           eventTitle: "{{ event.title }}",
-          scanner: {},
-          activeCameraId: '',
-          cameras: [],
-          scanning: false,
+          video: {},
           attendeeName: '',
           attendeeFound: false,
-          formatName: function (cameraName) {
-            return cameraName || "camera";
-          }
+          scanning: false,
+          showModal: false,
         },
-        startCamera: function (camera) {
-          this.set('activeCameraId', camera.id);
-          this.set('qrReaderOn', true);
-          window.scanner.start(camera);
+        closeModal: function(event) {
+          event.original.preventDefault();
+          $("#status-msg").modal('hide');
+          badgeScanComponent.set('showModal', false);
         },
-        oncomplete: function() {
-
-          window.scanner = new Instascan.Scanner({
-            video: document.getElementById('reader'),
-            scanPeriod: 5
+        checkinAttendee: function(qrcode) {
+          this.set({
+            'scanning': true,
+            'showModal': true
           });
 
-          window.scanner.addListener('scan', function (qrcode) {
-            if (qrcode.length === 16) {
-              badgeScanComponent.set('scanning', true);
-              $("#status-msg").modal('show');
-              var url = checkinApiUrl.replace('puk', qrcode.substring(0,8));
-              var formValues = "checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
-              $.ajax({
-                type: 'POST',
-                url:  url,
-                data : formValues,
-                timeout: 5000,
-                dataType: 'json',
-                success: function(response) {
-                  badgeScanComponent.set({
-                    'scanning':false,
-                    'attendeeFound': true
-                  });
-                  badgeScanComponent.set('attendeeName', response.attendee.fullname);
-                },
-                error: function() {
-                  badgeScanComponent.set({
-                    'scanning': false,
-                    'attendeeFound': false
-                  });
-                }
+          $("#status-msg").modal('show');
+
+          var url = checkinApiUrl.replace('puk', qrcode.substring(0,8));
+          var formValues = "checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
+
+          $.ajax({
+            type: 'POST',
+            url:  url,
+            data : formValues,
+            timeout: 5000,
+            dataType: 'json',
+            success: function(response) {
+              badgeScanComponent.set({
+                'scanning': false,
+                'attendeeFound': true,
+                'attendeeName': response.attendee.fullname
+              });
+            },
+            error: function() {
+              badgeScanComponent.set({
+                'scanning': false,
+                'attendeeFound': false
               });
             }
           });
+        },
+        renderFrame: function () {
+          var canvasElement = document.getElementById("canvas");
+          var canvas = canvasElement.getContext("2d");
 
-          Instascan.Camera.getCameras().then(function (cameras) {
-            badgeScanComponent.set('cameras', cameras);
-          }).catch(function (e) {
-            console.error(e);
+          if (badgeScanComponent.get('video').readyState === badgeScanComponent.get('video').HAVE_ENOUGH_DATA) {
+            canvasElement.height = badgeScanComponent.get('video').videoHeight;
+            canvasElement.width = badgeScanComponent.get('video').videoWidth;
+            canvas.drawImage(badgeScanComponent.get('video'), 0, 0, canvasElement.width, canvasElement.height);
+            var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+            var qrcode = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (qrcode && qrcode.data.length === 16 && !badgeScanComponent.get('showModal')) {
+              badgeScanComponent.checkinAttendee(qrcode.data);
+            }
+          }
+          requestAnimationFrame(badgeScanComponent.renderFrame);
+        },
+        setupVideo: function(event) {
+          if (event) event.original.preventDefault();
+          var video = document.createElement("video");
+          badgeScanComponent.set('video', video);
+
+          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+            badgeScanComponent.get('video').srcObject = stream;
+            badgeScanComponent.get('video').setAttribute("playsinline", true);
+            badgeScanComponent.get('video').play();
+
+            requestAnimationFrame(badgeScanComponent.renderFrame);
           });
+        },
+        oncomplete: function() {
+          badgeScanComponent.setupVideo('');
         }
       });
       
