@@ -12,10 +12,12 @@
 
       <div class="col-lg-4 col-xs-12">
         <h3>{{ eventTitle }}</h3>
-        {{#video}}
+        {{#if video}}
           <h4>Please scan your badge to check-in</h4>
           <p><button type="button" class="btn btn-primary btn-xs" on-click="setupVideo(event)">Restart QR reader</button></p>
-        {{/}}
+        {{elseif error}}
+          <p class="text-danger">{{ error }}</p>
+        {{/if}}
       </div>
 
       <div class="col-lg-8 col-xs-12">
@@ -66,6 +68,7 @@
           spaceTitle: "{{ space.title }}",
           eventTitle: "{{ event.title }}",
           video: {},
+          error: "Unable to access video. Please make sure you have a camera enabled",
           attendeeName: '',
           attendeeFound: false,
           scanning: false,
@@ -128,9 +131,9 @@
         setupVideo: function(event) {
           if (event) event.original.preventDefault();
           var video = document.createElement("video");
-          badgeScanComponent.set('video', video);
 
           navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+            badgeScanComponent.set('video', video);
             badgeScanComponent.get('video').srcObject = stream;
             badgeScanComponent.get('video').setAttribute("playsinline", true);
             badgeScanComponent.get('video').play();
