@@ -173,7 +173,7 @@ window.Talkfunnel.ParticipantTable = {
               Talkfunnel.ParticipantTable.checkinQ.updateQueue(participants);
               Talkfunnel.ParticipantTable.cancelcheckinQ.updateQueue(participants);
             });
-            $('.footable').trigger('footable_redraw');
+            // $('.footable').trigger('footable_redraw');
           }
         });
       },
@@ -242,17 +242,17 @@ function radioHighlight(radioName, highlightClass) {
 
 function commentsInit(pageURL) {
   $(".comments .collapse").click(function() {
-    $(this).addClass('hidden');
-    $(this).parent().find('.uncollapse').removeClass('hidden');
-    $(this).parent().parent().find('.com-body').slideUp("fast");
-    $(this).parent().parent().parent().find('.com-children').slideUp("fast");
+    $(this).addClass('mui--hide');
+    $(this).parent().find('.uncollapse').removeClass('mui--hide');
+    $(this).parent().parent().find('.comment--body').slideUp("fast");
+    $(this).parent().parent().parent().find('.comment--children').slideUp("fast");
     return false;
   });
 
   $(".comments .uncollapse").click(function() {
-    $(this).addClass('hidden');
-    $(this).parent().find('.collapse').removeClass('hidden');
-    $(this).parent().parent().find('.com-body').slideDown("fast");
+    $(this).addClass('mui--hide');
+    $(this).parent().find('.collapse').removeClass('mui--hide');
+    $(this).parent().parent().find('.comment--body').slideDown("fast");
     $(this).parent().parent().parent().find('.com-children').slideDown("fast");
     return false;
   });
@@ -261,7 +261,7 @@ function commentsInit(pageURL) {
     var cfooter = $(this).parent();
     $('#newcomment input[name="parent_id"]').val(cfooter.attr('data-id'));
     $('#newcomment input[name="comment_edit_id"]').val('');
-    $("#toplevel-comment").removeClass('hidden');
+    $("#toplevel-comment").removeClass('mui--hide');
     $("#comment-submit").val("Reply"); // i18n gotcha
     cfooter.after($("#newcomment"));
     $("#newcomment textarea").focus();
@@ -273,7 +273,7 @@ function commentsInit(pageURL) {
     $('#newcomment input[name="comment_edit_id"]').val('');
     $("#comment-submit").val("Post comment"); // i18n gotcha
     $(this).parent().after($("#newcomment"));
-    $(this).parent().addClass('hidden');
+    $(this).parent().addClass('mui--hide');
     $("#newcomment textarea").focus();
     return false;
   });
@@ -281,7 +281,7 @@ function commentsInit(pageURL) {
   $(".comments .comment-delete").click(function() {
     var cfooter = $(this).parent();
     $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
-    $("#delcomment").removeClass('hidden').hide().insertAfter(cfooter).slideDown("fast");
+    $("#delcomment").removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
     return false;
   });
 
@@ -299,7 +299,7 @@ function commentsInit(pageURL) {
     });
     $('#newcomment input[name="parent_id"]').val('');
     $('#newcomment input[name="comment_edit_id"]').val(cid);
-    $("#toplevel-comment").removeClass('hidden');
+    $("#toplevel-comment").removeClass('mui--hide');
     $("#comment-submit").val("Save changes"); // i18n gotcha
     cfooter.after($("#newcomment"));
     $("#newcomment textarea").focus();

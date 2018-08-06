@@ -1,44 +1,43 @@
-<div class="infosheet">
-    <div class="section first">
-        <div class="row">
-            <button type="button" class="close pull-right" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h1>{{ session.title }}</h1>
-            {% if session.speaker %}
-                <h4><small>by</small> {{ session.speaker }}</h4>
-            {% endif %}
-            <h3>
-                <small>at</small>
-                {{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}
-                <small>on</small>
-                {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
-            </h3>
-            {% if session.proposal %}
-                <a class="pull-right btn btn-info btn-xs" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
-            {% endif %}
-            {% if session.venue_room %}
-                <h4><small>in</small> {{ session.venue_room.title }} <small>{{ session.venue_room.venue.title }}</small></h4>
-            {% endif %}
-        </div>
-    </div>
-    <div class="section bar">
-        <dl class="bar">
-            {% if session.proposal %}
-                <br class="hide-desktop">
-                {% if session.proposal.section %}
-                    <dt>Section</dt><dd>{{ session.proposal.section.title }}</dd>
-                {% endif %}
-                <dt>Technical Level</dt><dd>{{ session.proposal.technical_level }}
-            {% endif %}
-        </dl>
-    </div>
-    <div class="section">
-        {% if session.description_html %}
-            <h2>{% trans %}Description{% endtrans %}</h2>
-            {{ session.description_html|safe }}
+<div class="modal__header">
+  <a class="modal__close" href="javascript:void(0);" aria-label="close" rel="modal:close"><i class="material-icons">clear</i></a>
+  <h2 class="mui--text-headline">{{ session.title }}</h2>
+  {% if session.proposal %}
+    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary mui--pull-right" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
+  {% endif %}
+  {% if session.speaker %}
+    <h3 class="mui--text-title"><small>by</small> {{ session.speaker }}</h3>
+  {% endif %}
+  <h4 class="mui--text-subhead">
+    <small>at</small>
+    {{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}
+    <small>on</small>
+    {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
+  </h3>
+  {% if session.venue_room %}
+    <h4 class="mui--text-subhead"><small>in</small> {{ session.venue_room.title }} <small>{{ session.venue_room.venue.title }}</small></h4>
+  {% endif %}
+  <hr class="mui-divider">
+</div>
+<div class="modal__body">
+  <div class="section bar">
+    <dl class="bar">
+      {% if session.proposal %}
+        <br class="hide-desktop">
+        {% if session.proposal.section %}
+          <dt>Section</dt><dd>{{ session.proposal.section.title }}</dd>
         {% endif %}
-        {% if session.speaker_bio_html %}
-            <h2>{% trans %}Speaker Bio{% endtrans %}</h2>
-            {{ session.speaker_bio_html|safe }}
-        {% endif %}
-    </div>
+        <dt>Technical Level</dt><dd>{{ session.proposal.technical_level }}
+      {% endif %}
+    </dl>
+  </div>
+  <div class="section">
+    {% if session.description_html %}
+      <h2 class="mui--text-title">{% trans %}Description{% endtrans %}</h2>
+      <div class="mui--text-body2">{{ session.description_html|safe }}</div>
+    {% endif %}
+    {% if session.speaker_bio_html %}
+      <h2 class="mui--text-title">{% trans %}Speaker Bio{% endtrans %}</h2>
+      <div class="mui--text-body2">{{ session.speaker_bio_html|safe }}</div>
+    {% endif %}
+  </div>
 </div>

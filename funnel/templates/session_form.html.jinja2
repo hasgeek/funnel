@@ -1,7 +1,16 @@
-{% from "baseframe/forms.html.jinja2" import renderform_inner %}
-<form id="{{ formid }}" method="POST" action="javascript:void(0);" accept-charset="UTF-8" class="form-horizontal">
-    {{ renderform_inner(form, formid or None) }}
-</form>
-<script>
-    SHOW_SAVE_BUTTON = true;
-</script>
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderform_inner, rendersubmit %}
+{% block title %}{{ space.title }}{% endblock %}
+
+{% block content %}
+	<form id="{{ formid }}" method="POST" accept-charset="UTF-8" class="mui-form">
+	  {{ renderform_inner(form, formid or None) }}
+	  {{ rendersubmit([(None, "Submit", '')]) }}
+	</form>
+{% endblock %}
+
+{% block footerscripts %}
+	<script>
+	  SHOW_SAVE_BUTTON = true;
+	</script>
+{% endblock %}
