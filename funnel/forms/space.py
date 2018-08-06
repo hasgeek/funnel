@@ -31,9 +31,9 @@ class ProposalSpaceForm(forms.Form):
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
         validators=[forms.validators.Optional()])
-    description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
+    description = forms.TinyMce4Field(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("About Event"))
-    instructions = forms.MarkdownField(__("Instructions"),
+    instructions = forms.TinyMce4Field(__("Instructions"),
         description=__("These instructions will be shown to the proposer with their submission form"), default=u'')
     timezone = forms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),

@@ -4,54 +4,45 @@
 {% block title %}{{ space.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
-{% block headline %}
-  <div class="page-header">
-    {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
-    <h1>{{ space.title }}</h1>
-  </div>
-{% endblock %}
 
-{% block content %}
-  <div class="row">
-    <div class="col-lg-3 col-md-6 col-sm-4 col-xs-6">
-      <h3>{{event.title}}</h3>
+{% block contentwrapper %}
+  <div class="grid">
+    <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
+      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href={{ url_for('event_edit', profile=space.profile.name, space=space.name, name=event.name) }}><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary">edit</i></a></h3>
     </div>
-    <div class='col-lg-9 col-md-6 col-sm-8 col-xs-6'>
-      <h3 class='pull-right' id="participants-count">
+    <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
+      <h3 class="mui--text-right" id="participants-count">
         {% raw %}
-        <script id='participants-count-template' type='text/ractive'>
-          Checked In: <span class="js-totalcheckin">{{ total_checkedin }}</span> |
-          Total: <span class="js-total">{{ total_participants }}</span>
+        <script id="participants-count-template" type="text/ractive">
+          Checked In: <span class="js-totalcheckin mui--text-title">{{ total_checkedin }}</span> |
+          Total: <span class="js-total mui--text-title">{{ total_participants }}</span>
         </script>
         {% endraw %}
       </h3>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-lg-3 col-sm-4 col-xs-6">
-      <form class="search-participant">
-          <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
+    <div class="grid__col-xs-12 grid__col-md-3">
+      <form class="search-participant mui-form mui-form--margins">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input autofocus class="field-title search-query" id="search" type="text" name="key" value=""/>
+          <label>Search</label>
+        </div>
       </form>
     </div>
-    <div class="col-lg-9 col-xs-12">
-      <ul class="list-inline status-btn-list">
-        <li>
-          <a href={{ url_for('event_edit', profile=space.profile.name, space=space.name, name=event.name) }} class='btn btn-primary'>Edit event title</a>
-        </li>
-        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} target="_blank" class='btn btn-info'>Badges to be printed</a></li>
-        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} target="_blank" class='btn btn-success'>Badges printed</a></li>
+    <div class="grid__col-xs-12 grid__col-md-9">
+      <ul class="mui-list--inline">
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name) }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Badges to be printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=space.profile.name, space=space.name, name=event.name, badge_printed='t') }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Badges printed</a></li>
         <li class="badge-print-status-btn">
-          <form method="POST" id="badge_form" class="form-inline">
+          <form method="POST" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
-              {{ renderfield(badge_form.badge_printed, style='wide', nolabel=true) }}
-            <input id="badge-form-submit" class="btn btn-danger" type="submit" value="{% trans %}Update badges{% endtrans %}"/>
+              {{ renderfield(badge_form.badge_printed, css_class="select2-inline", nolabel=true) }}
+            <input id="badge-form-submit"  class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="{% trans %}Update badges{% endtrans %}"/>
           </form>
         </li>
       </ul>
     </div>
   </div>
-  <div class="table-responsive">
-  <table class="table table-bordered" id='participants-table'>
+  <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
     <thead>
       <tr class="active">
         <th>Name</th>
@@ -71,12 +62,12 @@
           <td class='js-searchable'>{{ email }}</td>
           <td class='js-searchable'>{{ company }}</td>
           <td>
-            <ul class="list-inline status-btn-list">
+            <ul class="mui-list--unstyled">
               <li>
-                <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="btn btn-xs btn-success" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
+                <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
               </li>
               <li>
-                <a href="{{ getEditUrl(pid) }}" class="btn btn-xs btn-default" target="_blank">Edit</a>
+                <a href="{{ getEditUrl(pid) }}" class="mui-btn mui-btn--small mui-btn--raised" target="_blank">Edit</a>
               </li>
               <li>
                 <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
@@ -85,15 +76,15 @@
                   </div>
                   <input type="hidden" name="pid" value="{{ pid }}">
                   {{#if checked_in}}
-                    <button class="btn btn-xs btn-danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}}>Cancel Check-in  {{#submitting}}<i class="fa fa-spinner fa-pulse"></i>{{/submitting}}</button>
+                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}}>Cancel Check-in  {{#submitting}}<i class="material-icons mui--align-middle mui--text-dark-secondary">refresh</i>{{/submitting}}</button>
                   {{else}}
-                    <button class="btn btn-xs btn-success" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}}>Check-in {{#submitting}}<i class="fa fa-spinner fa-pulse"></i>{{/submitting}}</button>
+                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}}>Check-in {{#submitting}}<i class="material-icons mui--align-middle mui--text-dark-secondary">refresh</i>{{/submitting}}</button>
                   {{/if}}
                   {{#if submitting}}
                     {{#if checked_in}}
-                      <button class="btn btn-xs btn-warning" on-click="handleAbortCheckIn(event, 0)"><i class="fa fa-close"></i></button>
+                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--fab" on-click="handleAbortCheckIn(event, 0)">x</button>
                     {{else}}
-                      <button class="btn btn-xs btn-warning" on-click="handleAbortCheckIn(event, 1)"><i class="fa fa-close"></i></button>
+                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--fab" on-click="handleAbortCheckIn(event, 1)">x</button>
                     {{/if}}
                   {{/if}}
                 </form>
@@ -105,8 +96,7 @@
       </script>
       {% endraw %}
     </tbody>
-    </table>
-  </div>
+  </table>
 {% endblock %}
 {% block footerscripts %}
 <script>

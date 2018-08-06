@@ -90,8 +90,8 @@ $(function() {
         var obj = {};
         var popup = {
             container: $('#popup'),
-            title: function() {return this.container.find('.modal-title')},
-            body: function() {return this.container.find('.modal-body')},
+            title: function() {return this.container.find('.modal__header .mui--text-title')},
+            body: function() {return this.container.find('.modal__inner')},
             activated: false,
             options: {
                 backdrop: 'static'

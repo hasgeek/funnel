@@ -45,7 +45,7 @@ lastuser.init_app(app)
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
-    'baseframe-footable', 'ractive'], theme='mui')
+     'ractive', 'jquery-easytabs'], theme='mui')
 app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))

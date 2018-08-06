@@ -3,17 +3,17 @@
 {% block pageheaders %}
 {% endblock %}
 
-{% block content %}
+{% block contentwrapper %}
   <div class="grid">
     <div class="grid__col-xs-6">
-      <h3 class="mui--text-title">{{ticket_type.title}}</h3>
+      <h3 class="mui--text-title">{{ticket_type.title}} <a href={{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }}><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary">edit</i></a></h3>
     </div>
     <div class="grid__col-xs-6">
       <h3 class="mui--text-title mui--text-right">
         Total: {{participants | length}}
       </h3>
     </div>
-    <div class="grid__col-xs-6">
+    <div class="grid__col-xs-6 grid__col-md-4">
       <form class="search-participant mui-form">
         <div class="mui-textfield mui-textfield--float-label">
           <input autofocus class="field-title search-query" id="search" type="text" name="key" value=""/>
@@ -21,17 +21,13 @@
         </div>
       </form>
     </div>
-    <div class="grid__col-xs-6">
-      <p class="mui--text-right">
-      <a href={{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }} class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Edit Ticket Type</a></p>
-    </div>
     <div class="grid__col-xs-12">
-      <table class="mui-table footable" id='participants-table'>
+      <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
         <thead>
           <tr>
             <th>Name</th>
-            <th data-hide="phone">Email</th>
-            <th data-hide="tablet, phone">Company</th>
+            <th>Email</th>
+            <th>Company</th>
           </tr>
         </thead>
         <tbody>
@@ -56,13 +52,6 @@
       $('#participants-table tbody tr').addClass('mui--hide');
       var hits = tableSearch.searchRows($(this).val());
       $(hits.join(",")).removeClass('mui--hide');
-    });
-
-    $('.footable').footable({
-      breakpoints: {
-        phone: 600,
-        tablet: 768,
-      }
     });
 
   });

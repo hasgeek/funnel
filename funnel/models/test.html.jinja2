@@ -1,0 +1,20 @@
+{% block jquery -%}
+  <script type="text/javascript" src="{{ url_for("static", filename="js/jquery.js") }}"></script>
+{%- endblock %}
+  {%- block image_src %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-4.4.css') }}" />
+  {%- endblock %}
+{% block footerscripts %}
+<script type="text/javascript" src="{{ url_for("static", filename="js/modernizr.min.js") }}"></script>
+
+    $(window).on('onbeforeunload', function() {
+      if(!navigator.onLine) {
+        return 'There is no network!';
+      }
+    });
+
+        window.onbeforeunload = function() {
+      if(!navigator.onLine) {
+        return 'There is no network!';
+      }
+    }

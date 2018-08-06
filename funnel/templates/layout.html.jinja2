@@ -8,10 +8,10 @@
 
 {% block header -%}
   {% macro site_title() %}
-    <div class-"mui--text-dark">
+    <div>
       {%- if g.profile -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item mui--text-accent"><i class="material-icons mui--text-subhead mui--align-center">filter_list</i></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-        <a href="{{ g.profile.url_for() }}" class="header__site-title__item">{{ g.profile.title }}</a>
+        <a href="{{ url_for('index') }}" class="header__site-title__item"><i class="material-icons mui--text-subhead mui--align-center">filter_list</i></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
         {%- if space %}
           {%- if space.parent_space %}
             <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
@@ -33,14 +33,18 @@
   <meta property="og:image" content="{{ url_for('static', filename='img/logo_og.png') }}" />
 {%- endblock %}
 
+{% block bodytag %}<body class="mui--bg-primary">{% endblock %}
+
 {% block contenthead %}
+  {% block banner %}
+  {% endblock %}
   {% block headline -%}
-    <div class="content-head">
+    <div class="content-head content-head--top-padding mui--bg-accent">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-xs-12">
             {% block top_title %}
-            <h1 id="channel-header" class="mui--text-headline">
+            <h1 class="mui--text-display1">
               {{ self.title()|e }}
             </h1>
             {% endblock %}
@@ -58,6 +62,12 @@
 
 {% block basecontent %}
   <div class="page-content">
-    {% block content %}{% endblock %}
+    {% block contentwrapper %}
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+    {% endblock %}
   </div>
 {% endblock %}

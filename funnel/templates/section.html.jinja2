@@ -1,11 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ section.title }} &mdash; {{ space.title }}{% endblock %}
 {% block content %}
-  <div class="grid">
-    <div class="grid__col-xs-12">
-  	  <p class="mui--text-body2">
-  	    {{ section.description }}
-  	  </p>
-	  </div>
-  </div>
+  <p class="mui--text-body2">
+    {{ section.description }}
+  </p>
 {% endblock %}
