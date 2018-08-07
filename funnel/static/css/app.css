@@ -6,7 +6,7 @@
 .content-head--top-padding {
   padding-top: 1em;
   padding-bottom: 1em;
-  border-bottom: 2px solid rgba(132, 146, 166, 0.3);
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 .banner {
@@ -142,6 +142,11 @@
 }
 .space-description img {
   width: 100%;
+}
+
+.space-description h2 {
+  margin-top: 24px;
+  font-weight: 700;
 }
 
 #qrreader-canvas {
