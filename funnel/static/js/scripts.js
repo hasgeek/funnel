@@ -241,44 +241,44 @@ function radioHighlight(radioName, highlightClass) {
 }
 
 function commentsInit(pageURL) {
-  $(".comments .collapse").click(function() {
+  $(".comment .js-collapse").click(function() {
     $(this).addClass('mui--hide');
-    $(this).parent().find('.uncollapse').removeClass('mui--hide');
-    $(this).parent().parent().find('.comment--body').slideUp("fast");
-    $(this).parent().parent().parent().find('.comment--children').slideUp("fast");
+    $(this).siblings('.js-uncollapse').removeClass('mui--hide');
+    $(this).parent().siblings('.comment--body').slideUp("fast");
+    $(this).parent().siblings('.comment--children').slideUp("fast");
     return false;
   });
 
-  $(".comments .uncollapse").click(function() {
+  $(".comment .js-uncollapse").click(function() {
     $(this).addClass('mui--hide');
-    $(this).parent().find('.collapse').removeClass('mui--hide');
-    $(this).parent().parent().find('.comment--body').slideDown("fast");
-    $(this).parent().parent().parent().find('.com-children').slideDown("fast");
+    $(this).siblings('.js-collapse').removeClass('mui--hide');
+    $(this).parent().siblings('.comment--body').slideDown("fast");
+    $(this).parent().siblings('.comment--children').slideDown("fast");
     return false;
   });
 
-  $(".comments .comment-reply").click(function() {
+  $(".comment .js-comment-reply").click(function() {
     var cfooter = $(this).parent();
-    $('#newcomment input[name="parent_id"]').val(cfooter.attr('data-id'));
-    $('#newcomment input[name="comment_edit_id"]').val('');
+    $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
+    $('#comment-form  input[name="comment_edit_id"]').val('');
     $("#toplevel-comment").removeClass('mui--hide');
     $("#comment-submit").val("Reply"); // i18n gotcha
-    cfooter.after($("#newcomment"));
-    $("#newcomment textarea").focus();
+    cfooter.after($("#comment-form"));
+    $("#comment-form textarea").focus();
     return false;
   });
 
   $("#toplevel-comment a").click(function() {
-    $('#newcomment input[name="parent_id"]').val('');
-    $('#newcomment input[name="comment_edit_id"]').val('');
+    $('#comment-form  input[name="parent_id"]').val('');
+    $('#comment-form  input[name="comment_edit_id"]').val('');
     $("#comment-submit").val("Post comment"); // i18n gotcha
-    $(this).parent().after($("#newcomment"));
+    $(this).parent().after($("#comment-form"));
     $(this).parent().addClass('mui--hide');
-    $("#newcomment textarea").focus();
+    $("#comment-form textarea").focus();
     return false;
   });
 
-  $(".comments .comment-delete").click(function() {
+  $(".comment .js-comment-delete").click(function() {
     var cfooter = $(this).parent();
     $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
     $("#delcomment").removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
@@ -290,19 +290,19 @@ function commentsInit(pageURL) {
     return false;
   });
 
-  $(".comments .comment-edit").click(function() {
+  $(".comment .js-comment-edit").click(function() {
     var cfooter = $(this).parent();
     var cid = cfooter.attr('data-id');
-    $("#newcomment textarea").val("Loading..."); // i18n gotcha
+    $("#comment-form textarea").val("Loading..."); // i18n gotcha
     $.getJSON(pageURL+'/comments/'+cid+'/json', function(data) {
-      $("#newcomment textarea").val(data.message);
+      $("#comment-form textarea").val(data.message);
     });
-    $('#newcomment input[name="parent_id"]').val('');
-    $('#newcomment input[name="comment_edit_id"]').val(cid);
+    $('#comment-form input[name="parent_id"]').val('');
+    $('#comment-form input[name="comment_edit_id"]').val(cid);
     $("#toplevel-comment").removeClass('mui--hide');
     $("#comment-submit").val("Save changes"); // i18n gotcha
-    cfooter.after($("#newcomment"));
-    $("#newcomment textarea").focus();
+    cfooter.after($("#comment-form"));
+    $("#comment-form textarea").focus();
     return false;
   });
 }

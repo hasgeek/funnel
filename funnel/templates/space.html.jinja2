@@ -118,7 +118,7 @@
             {%- if space.current_roles.admin %}
               <div>
                 <p class="mui--text-body2 mui--text-accent zero-bottom-margin">Change status</p>
-                <form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
+                <form action="{{ space.url_for('transition') }}" method="post" class="mui-form--inline">
                   {{ transition_form.hidden_tag() }}
                   <select>
                   {% for name, transition in transition_form.transition.choices %}
