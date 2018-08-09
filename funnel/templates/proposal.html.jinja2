@@ -195,7 +195,7 @@
         <div class="grid">
           <div class="col-auto columns proposal-move-form">
             {%- if proposal_move_form %}
-              {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move") }}
+              {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move", style='horiz') }}
             {%- endif %}
           </div>
 
