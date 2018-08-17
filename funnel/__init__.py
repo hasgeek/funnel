@@ -36,7 +36,6 @@ from .models import db
 
 
 # --- Configuration------------------------------------------------------------
-
 coaster.app.init_app(app)
 db.init_app(app)
 db.app = app
@@ -46,7 +45,7 @@ lastuser.init_app(app)
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-bs3', 'fontawesome>=4.0.0',
-    'baseframe-footable'])
+    'baseframe-footable', 'ractive'])
 app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))

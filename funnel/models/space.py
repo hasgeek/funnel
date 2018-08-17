@@ -25,8 +25,8 @@ class SPACE_STATE(LabeledEnum):
     VOTING = (2, 'voting', __(u"Accepting votes"))
     FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
     CLOSED = (5, 'closed', __(u"Closed"))
-    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
     # Jury state are not in the editorial workflow anymore - Feb 24 2018
+    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
     JURY = (3, 'jury', __(u"Awaiting jury selection"))
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
@@ -77,6 +77,9 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     review_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
     review_team = db.relationship(Team, foreign_keys=[review_team_id])
 
+    checkin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    checkin_team = db.relationship(Team, foreign_keys=[checkin_team_id])
+
     parent_space_id = db.Column(None, db.ForeignKey('proposal_space.id', ondelete='SET NULL'), nullable=True)
     parent_space = db.relationship('ProposalSpace', remote_side='ProposalSpace.id', backref='subspaces')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
@@ -111,7 +114,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CURRENTLY_LISTED, state.SUBMISSIONS, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
+    @state.transition(state.CURRENTLY_LISTED, state.CLOSED, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
     def close(self):
         pass
 
@@ -120,10 +123,12 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     def reopen(self):
         pass
 
-    @with_roles(call={'admin'})
-    @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Accept Submissions"), message=__("This proposal space has been withdrawn"), type='success')
-    def withdraw(self):
-        pass
+    # TODO: Confirm with the media team whether they need the withdraw proposal spaces
+    #
+    # @with_roles(call={'admin'})
+    # @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Withdraw"), message=__("This proposal space has been withdrawn"), type='success')
+    # def withdraw(self):
+    #     pass
 
     @db.validates('name')
     def _validate_name(self, key, value):
@@ -275,12 +280,15 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
                     'edit-schedule',
                     'new-session',
                     'edit-session',
-                    'checkin-event',
                     'view-event',
                     'view-ticket-type',
                     'edit-participant',
                     'view-participant',
                     'new-participant'
+                    ])
+            if self.checkin_team and user in self.checkin_team.users:
+                perms.update([
+                    'checkin-event'
                     ])
         return perms
 
