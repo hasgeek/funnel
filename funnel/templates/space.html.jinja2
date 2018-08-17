@@ -108,86 +108,81 @@
     <div class="grid__col--bleed-y">
       <hr class="mui-divider">
     </div>
-    {% if space.state.SUBMISSIONS -%}
-      <div class="grid__col-xs-12 grid__col-sm-5 grid__col-md-4">
-        <div class="sticky-admin-panel">
-          {%- if space.current_roles.admin or'checkin-event' in g.permissions %}
-            <div class="card">
-              <div class="card__header">
-                <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
-              </div>
-              <div class="card__body">
-                {%- if space.current_roles.admin %}
-                  <div>
-                    <p class="mui--text-body2 mui--text-light zero-bottom-margin">CHANGE STATUS</p>
-                    <form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
-                      {{ transition_form.hidden_tag() }}
-                      <select>
-                      {% for name, transition in transition_form.transition.choices %}
-                        <option name="transition" value="{{ name }}">{{ transition.data['title'] }}</option>
-                      {% endfor %}
-                      </select>
-                      &nbsp;&nbsp;<input class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="{% trans %}Update{% endtrans %}"/>
-                    </form>
-                  </div>
-                  <hr class="mui-divider">
-                  <div>
-                    <ol class="mui-list--aligned">
-                      <li>
-                        <a href="{{ space.url_for('edit') }}">{% trans %}Edit space{% endtrans %}</a>
-                      </li>
-                      <li>
-                        <a href="{{ space.url_for('edit-schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
-                      </li>
-                      <li>
-                        <a href="{{ space.url_for('admin') }}">{% trans %}Manage event{% endtrans %}</a>
-                      </li>
-                      <li>
-                        <a href="{{ space.url_for('events') }}">{% trans %}Manage check-in{% endtrans %}</a>
-                      </li>
-                      <li>
-                        <a href="{{ space.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
-                      </li>
-                      <li>
-                        <a href="{{ space.url_for('venues') }}">{% trans %}Manage venues{% endtrans %}</a>
-                      </li>
-                    </ol>
-                  </div>
-                  <hr class="mui-divider">
-                  <div>
-                    <p class="mui--text-body2 mui--text-light zero-bottom-margin">DOWNLOADS</p>
-                    <ul class="mui-list--inline">
-                      <li>
-                        <a href="{{ space.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                      </li>
-                      <li>
-                        <a href="{{ space.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}JSON{% endtrans %}</a>
-                      </li>
-                    </ul>
-                  </div>
-                {% elif 'checkin-event' in g.permissions %}
-                  <div>
-                    <ol>
-                      <li>
-                        <a href="{{ space.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage Check-in{% endtrans %}</a>
-                      </li>
-                    </ol>
-                  </div>
-                {% endif %}
-              </div>
+    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
+      <div class="sticky-admin-panel">
+        {%- if space.current_roles.admin or'checkin-event' in g.permissions %}
+          <div class="card">
+            <div class="card__header">
+              <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
             </div>
-          {% endif %}
+            <div class="card__body">
+              {%- if space.current_roles.admin %}
+                <div>
+                  <p class="mui--text-body2 mui--text-light zero-bottom-margin">CHANGE STATUS</p>
+                  <form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
+                    {{ transition_form.hidden_tag() }}
+                    <p class="btn-group">
+                      {% for name, transition in transition_form.transition.choices %}
+                        <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
+                      {% endfor %}
+                    </p>
+                  </form>
+                </div>
+                <hr class="mui-divider">
+                <div>
+                  <ol class="mui-list--aligned">
+                    <li>
+                      <a href="{{ space.url_for('edit') }}">{% trans %}Edit space{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ space.url_for('edit-schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ space.url_for('admin') }}">{% trans %}Manage event{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ space.url_for('events') }}">{% trans %}Manage check-in{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ space.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ space.url_for('venues') }}">{% trans %}Manage venues{% endtrans %}</a>
+                    </li>
+                  </ol>
+                </div>
+                <hr class="mui-divider">
+                <div>
+                  <p class="mui--text-body2 mui--text-light zero-bottom-margin">DOWNLOADS</p>
+                  <p class="btn-group">
+                    <a href="{{ space.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}CSV{% endtrans %}</a>
+                    <a href="{{ space.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}JSON{% endtrans %}</a>
+                  </p>
+                </div>
+              {% elif 'checkin-event' in g.permissions %}
+                <div>
+                  <ol>
+                    <li>
+                      <a href="{{ space.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage Check-in{% endtrans %}</a>
+                    </li>
+                  </ol>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+        {% if space.state.SUBMISSIONS -%}
           <div class="card mui--hidden-xs">
             <div class="card__body">
               <p class="mui--text-body2 mui--text-light zero-bottom-margin">SUBMIT A PROPOSAL</p>
               <a class="mui-btn mui-btn--medium mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
             </div>
           </div>
-        </div>
+        {% endif %}
       </div>
-    {% endif %}
+    </div>
 
-    <div class="grid__col-xs-12 {%- if space.state.SUBMISSIONS %} grid__col-sm-7 grid__col-md-8{% endif %}">
+    <div class="grid__col-xs-12 {%- if space.state.SUBMISSIONS or space.current_roles.admin or'checkin-event' in g.permissions %} grid__col-md-7 grid__col-lg-8{% endif %}">
       <div class="space-description">{{ description }}</div>
       {%- if space.subspaces %}
         <hr class="mui-divider">

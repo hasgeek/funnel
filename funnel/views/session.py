@@ -30,7 +30,7 @@ def session_form(space, proposal=None, session=None):
             form.speaker_bio.data = proposal.bio
             form.speaker.data = proposal.owner.fullname
             form.title.data = proposal.title
-        return render_template('session_form.html.jinja2', space=space, form=form, formid='session_form')
+        return render_template('session_form.html.jinja2', form=form, formid='session_form')
     if form.validate_on_submit():
         new = False
         if not session:
@@ -49,9 +49,10 @@ def session_form(space, proposal=None, session=None):
             id=session.url_id, title=session.title, room_scoped_name=session.venue_room.scoped_name if session.venue_room else None,
             is_break=session.is_break, modal_url=session.url_for('edit'), delete_url=session.url_for('delete'),
             proposal_id=session.proposal_id)
-        flash(_("Your new session has been created"), 'info')
-        return redirect(space.url_for(), code=303)
-    return render_template('session_form.html.jinja2', space=space, form=form, formid='session_form')
+        return jsonify(status=True, data=data)
+    return jsonify(
+        status=False,
+        form=render_template('session_form.html.jinja2', form=form, formid='session_new'))
 
 
 @app.route('/<space>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')

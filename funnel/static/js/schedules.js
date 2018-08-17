@@ -90,8 +90,8 @@ $(function() {
         var obj = {};
         var popup = {
             container: $('#popup'),
-            title: function() {return this.container.find('.modal__header .mui--text-title')},
-            body: function() {return this.container.find('.modal__inner')},
+            title: function() {return this.container.find('.js-modal-title')},
+            body: function() {return this.container.find('.js-modal-inner')},
             activated: false,
             options: {
                 backdrop: 'static'
@@ -101,16 +101,18 @@ $(function() {
                 if(settings.editable) {
                     if(!this.activated) {
                         this.activated = true;
-                        this.container.on('hidden.bs.modal', function() {
+                        this.container.on($.modal.BEFORE_CLOSE, function() {
                             popup.close();
                         });
-                        this.container.on('shown.bs.modal', function() {
+                        this.container.on($.modal.OPEN, function() {
                             activate_widgets(true);
                         });
                     }
                 }
             },
-            hide: function() {this.container.modal('hide');},
+            hide: function() {
+                $.modal.close();
+            },
             close: function() {
                 if(settings.editable) if(events.current.unscheduled) calendar.remove(events.current);
                 events.current = null;
@@ -281,7 +283,7 @@ $(function() {
                 init_buttons();
                 init_autosave();
                 events.height(this.container.find('.fc-content').height());
-                var rooms_list = $('#rooms-list').find('.room .title');
+                var rooms_list = $('#rooms-list').find('.room .js-title');
                 rooms_list.each(function() {
                     var bgcol = $(this).attr('data-bgcolor')
                     $(this).css({'background': bgcol, 'color': invert(bgcol)});
@@ -548,7 +550,7 @@ $(function() {
             };
 
             var unscheduled_events = {
-                container: $('#proposals .list'),
+                container: $('#proposals-tab #list'),
                 add: function(element) {
                     element.draggable(this.options.draggable);
                     element.data('info', {
@@ -567,11 +569,11 @@ $(function() {
                     }
                 },
                 create: function(title, modal_url) {
-                    unscheduled_events.container.prepend('<div class="unscheduled" data-modal-url="' + modal_url + '">' + title + '</div>');
-                    unscheduled_events.add(unscheduled_events.container.find('.unscheduled').first());
+                    unscheduled_events.container.prepend('<div class="js-unscheduled proposal-box" data-modal-url="' + modal_url + '">' + title + '</div>');
+                    unscheduled_events.add(unscheduled_events.container.find('.js-unscheduled').first());
                 }
             };
-            unscheduled_events.container.find('.unscheduled').each(function() {
+            unscheduled_events.container.find('.js-unscheduled').each(function() {
                 unscheduled_events.add($(this));
             });
 
