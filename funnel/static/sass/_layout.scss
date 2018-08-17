@@ -739,6 +739,10 @@ td .status-btn-list li:last-child {
   }
 }
 
+td .btn:hover, td .btn:active, td .btn:focus {
+  color:#fff;
+}
+
 button.no-bg {
     background-color: Transparent;
     background-repeat:no-repeat;
@@ -748,15 +752,14 @@ button.no-bg {
     outline:none;
 }
 
-a.login-vote {
-    font-size: 16px;
-    margin-left: 8%;
+.footable .form-inline .btn {
+  vertical-align: middle;
 }
 
-.no-padding-right {
-    padding-right: 0;
+.js-abort {
+  cursor: pointer;
 }
 
-.no-padding-left {
-    padding-left: 0;
+#qrreader-canvas {
+  max-width: 100%;
 }

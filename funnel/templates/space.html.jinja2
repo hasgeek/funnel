@@ -114,7 +114,7 @@
   <strong>Status: {{ space.state.label.title }}</strong>
 </p>
 <ul class="list-inline">
-  {%- if space.sessions %}
+ {%- if space.sessions %}
     <li>
       <a href="{{ space.url_for('schedule') }}" class='btn btn-primary btn-sm'>{% trans %}View Schedule{% endtrans %}</a>
     </li>
@@ -130,6 +130,9 @@
 <ul class="list-inline">
   <li>
     <a href="{{ space.url_for('admin') }}" class='btn btn-success btn-sm'>{% trans %}Manage Event{% endtrans %}</a>
+  </li>
+  <li>
+    <a href="{{ space.url_for('events') }}" class='btn btn-success btn-sm'>{% trans %}Manage Check-in{% endtrans %}</a>
   </li>
   <li>
     <a href="{{ space.url_for('edit') }}" class='btn btn-success btn-sm' target="_blank">{% trans %}Edit space{% endtrans %}</a>
@@ -158,6 +161,13 @@
   </p>
 </form>
 <hr>
+{% elif 'checkin-event' in g.permissions %}
+<hr>
+<ul class="list-inline">
+  <li>
+    <a href="{{ space.url_for('events') }}" class='btn btn-success btn-sm'>{% trans %}Manage Check-in{% endtrans %}</a>
+  </li>
+</ul>
 {% endif %}
 {%- if space.allow_rsvp %}
   <h3>{% trans %}Attending this event?{% endtrans %}</h3>
