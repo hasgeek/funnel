@@ -8,9 +8,11 @@
 {% endblock %}
 
 {% block content %}
+  <div class="btns">
+    <div class="mui--pull-right">
       <ul class="mui-list--inline">
         <li>
-          <a href="{{ space.url_for('subscribe-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-toggle="modal" data-target="#popup_subscribe">{% trans %}Subscribe{% endtrans %}</a>
+          <a href="{{ space.url_for('subscribe-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
         </li>
         {% if current_auth.is_authenticated and space.current_roles.admin %}
         <li>
@@ -21,36 +23,33 @@
         </li>
         {% endif %}
       </ul>
-<!--       <div id="popup_subscribe" class="modal fade viewer">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-          </div>
-        </div>
-      </div> -->
-      <div id="calendar"></div>
-    <div>
-      <div class="fc-header-title"><h2>{% trans %}Venues{% endtrans %}</h2></div>
-      <div id="rooms-list">
-        {%- for venue in space.venues %}
-          <h2 class="venue">{{ venue.title }}</h2>
-          <div class="venue_desc">{{ venue.description }}</div>
-          {%- for room in venue.rooms %}
-            <div class="room">
-              <h4 class="title" data-bgcolor="#{{ room.bgcolor }}">
-                <a href="{{ room.url_for('ical-schedule', _external=True) }}" class="pull-right small">{% trans %}Subscribe{% endtrans %}</a>
-                {{ room.title }}
-              </h4>
-              <div class="desc">{{ room.description }}</div>
-            </div>
-          {%- endfor %}
-        {%- else %}
-          <p>{% trans %}This event does not have a venue{% endtrans %}</p>
-        {%- endfor %}
-      </div>
+    </div>
+    <div id="popup_subscribe" class="modal">
     </div>
   </div>
-  <div id="popup" class="modal">
-    <div class="modal__inner">
+  <div id="calendar"></div>
+  <div>
+    <div class="fc-header-title"><h3 class="mui--text-title"><strong>{% trans %}Venues{% endtrans %}</strong></h3></div>
+    <div id="rooms-list">
+      {%- for venue in space.venues %}
+        <h4 class="venue mui--text-subhead">{{ venue.title }}</h4>
+        <div class="venue_desc mui--text-body2 mui--text-light">{{ venue.description }}</div>
+        {%- for room in venue.rooms %}
+          <div class="room">
+            <h4 class="room__title js-title" data-bgcolor="#{{ room.bgcolor }}">
+              <a href="{{ room.url_for('ical-schedule', _external=True) }}" class=" mui-btn mui-btn--accent mui-btn--small room__title__subsc-btn">{% trans %}Subscribe{% endtrans %}</a>
+              {{ room.title }}
+            </h4>
+            <div class="room__description mui--text-light">{{ room.description }}</div>
+          </div>
+        {%- endfor %}
+      {%- else %}
+        <p>{% trans %}This event does not have a venue{% endtrans %}</p>
+      {%- endfor %}
+    </div>
+  </div>
+  <div id="popup" class="modal session-modal session-modal--nopadding">
+    <div class="js-modal-inner">
     </div>
   </div>
 {% endblock %}

@@ -1,3 +1,15 @@
+.zero-bottom-margin {
+  margin-bottom: 0;
+}
+
+.separator {
+  padding: 0 5px;
+}
+
+.btn-group .mui-btn {
+  margin-right: 5px;
+}
+
 .mui-appbar--custom {
   background: #0b0a1a;
   color: #fff;
@@ -174,18 +186,6 @@
   margin-top: 1em;
 }
 
-.zero-bottom-margin {
-  margin-bottom: 0;
-}
-
-.separator {
-  padding: 0 5px;
-}
-
-.left-margin {
-  margin-left: 10px;
-}
-
 @media (min-width: 768px) {
   .details-section {
     flex-direction: row-reverse;
@@ -243,6 +243,9 @@
 
 .proposal__section {
   padding: 1em;
+}
+
+.proposal__section--border {
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 
@@ -261,6 +264,19 @@
   .proposal__section .grid .columns:first-child {
     padding: 0 2em 0 0;
   }
+
+  .proposal__section--left {
+    float: left;
+    width: 70%;
+    padding-bottom: 2em;
+  }
+
+  .proposal__admin-panel {
+    float: right;
+    width: calc(30% - 1em);
+    margin-right: 1em;
+    margin-top: 2em;
+  }
 }
 .proposal__section--bleed-y {
   padding: 1em 0;
@@ -268,6 +284,55 @@
 
 .proposal__section--heading {
   margin-bottom: 1em;
+}
+
+.proposal-details {
+  margin-top: 15px;
+  min-height: 170px;
+}
+
+.proposal-video {
+  width: 100%;
+  min-height: 140px;
+  position: relative;
+}
+
+.proposal-video iframe {
+  width: 100%;
+  height: 250px;
+}
+
+@media (min-width: 960px) {
+  .proposal-details {
+    margin-top: 30px;
+  }
+
+  .proposal-details--left {
+    float: left;
+  }
+
+  .proposal-details--right {
+    float: right;
+  }
+
+  .proposal-video iframe {
+    width: 450px;
+    height: 250px;
+  }
+}
+@media (min-width: 1200px) {
+  .proposal-video iframe {
+    width: 500px;
+    height: 280px;
+  }
+}
+.proposal-video .no-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 32px;
+  color: #8492A6;
 }
 
 .proposal-move-form div {

@@ -73,7 +73,7 @@
         <div class="card__footer">
           <a href="{{ space.url_for('new-ticket-client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New client</a>
           {%- if space.ticket_clients %}
-            <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form--inline">
+            <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form mui-form--inline">
               <div class="form-group">
                 {{ csrf_form.hidden_tag() }}
               </div>

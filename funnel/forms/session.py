@@ -12,5 +12,5 @@ class SessionForm(forms.Form):
     speaker = forms.StringField(__("Speaker"), validators=[forms.validators.Optional(), forms.validators.Length(max=200)])
     speaker_bio = forms.MarkdownField(__("Speaker bio"), validators=[forms.validators.Optional()])
     is_break = forms.BooleanField(__("This session is a break period"), default=False)
-    start = forms.DateTimeField(__("Start Time"), validators=[forms.validators.DataRequired()])
-    end = forms.DateTimeField(__("End Time"), validators=[forms.validators.DataRequired()])
+    start = forms.HiddenField(__("Start Time"), validators=[forms.validators.DataRequired()])
+    end = forms.HiddenField(__("End Time"), validators=[forms.validators.DataRequired()])
