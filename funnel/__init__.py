@@ -12,7 +12,7 @@ from baseframe import baseframe, assets, Version, Bundle
 from ._version import __version__
 
 
-app = Flask(__name__, instance_relative_config=True)
+app = Flask(__name__, instance_relative_config=True, subdomain_matching=True)
 mail = Mail()
 lastuser = Lastuser()
 
@@ -59,3 +59,10 @@ app.assets.register('js_schedules',
 app.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
+
+# FIXME: Hack for external build system generating relative /static URLs.
+# Fix this by generating absolute URLs to the static subdomain during build.
+app.add_url_rule('/static/<path:filename>', endpoint='static',
+    view_func=app.send_static_file, subdomain=None)
+app.add_url_rule('/static/<path:filename>', endpoint='static',
+    view_func=app.send_static_file, subdomain='<subdomain>')
