@@ -6,7 +6,7 @@ from coaster.views import load_models
 from coaster.sqlalchemy import failsafe_add
 
 from .helpers import localize_date
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Proposal, ProposalRedirect, ProposalSpace, ProposalSpaceRedirect, Session
 from ..forms import SessionForm
 

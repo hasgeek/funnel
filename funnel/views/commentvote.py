@@ -4,7 +4,7 @@ from flask import redirect, g, flash, abort, jsonify, request
 from coaster.views import jsonp, load_models
 from baseframe import _, forms
 
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal, ProposalRedirect, Comment
 
 

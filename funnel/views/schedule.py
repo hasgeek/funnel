@@ -12,7 +12,7 @@ from flask import render_template, json, jsonify, request, Response, current_app
 
 from coaster.views import load_models, requestargs, jsonp, cors
 
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Session, VenueRoom, Venue
 from .helpers import localize_date
 from .venue import venue_data, room_data

@@ -7,7 +7,7 @@ from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models, requestargs
 from coaster.utils import midnight_to_utc, getbool
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode

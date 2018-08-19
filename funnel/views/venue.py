@@ -5,7 +5,7 @@ from coaster.views import load_models, requestargs
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Venue, VenueRoom
 from ..forms.venue import VenueForm, VenueRoomForm
 

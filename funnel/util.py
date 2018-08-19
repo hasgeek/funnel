@@ -2,10 +2,10 @@ from StringIO import StringIO
 import requests
 from urlparse import urljoin
 from urlparse import urlparse
-import qrcode
-import qrcode.image.svg
 from flask import current_app
 from baseframe import cache
+import qrcode
+import qrcode.image.svg
 
 
 @cache.memoize(timeout=86400)

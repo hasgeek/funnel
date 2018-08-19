@@ -13,7 +13,7 @@ from coaster.auth import current_auth
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
-from .. import funnelapp, app, mail, lastuser
+from .. import app, funnelapp, mail, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
@@ -388,8 +388,8 @@ def proposal_prev(profile, space, proposal):
         return redirect(space.url_for())
 
 
-@app.route('/<profile>/<space>/<proposal>/move', methods=['POST',])
-@funnelapp.route('/<space>/<proposal>/move', methods=['POST',], subdomain='<profile>')
+@app.route('/<profile>/<space>/<proposal>/move', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/move', methods=['POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),

@@ -90,6 +90,23 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'json_url',
+                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url'
+                },
+            },
+        }
+
+    @property
+    def url(self):
+        return self.url_for(_external=True)
+
+    @property
+    def json_url(self):
+        return self.url_for('json', _external=True)
+
     def __init__(self, **kwargs):
         super(ProposalSpace, self).__init__(**kwargs)
         self.votes = VoteSpace(type=SPACETYPE.PROPOSALSPACE)
@@ -384,7 +401,6 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
             roles.add('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
-
 
 
 class ProposalSpaceRedirect(TimestampMixin, db.Model):

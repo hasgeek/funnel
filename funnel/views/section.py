@@ -5,7 +5,7 @@ from coaster.views import load_models
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection
 from ..forms import SectionForm
 

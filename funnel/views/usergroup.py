@@ -5,7 +5,7 @@ from coaster.views import load_models
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, User, UserGroup, ProposalSpace, ProposalSpaceRedirect
 from ..forms import UserGroupForm
 
@@ -33,11 +33,9 @@ def usergroup_view(profile, space, usergroup):
     return render_template('usergroup.html.jinja2', space=space, usergroup=usergroup)
 
 
-@app.route('/<profile>/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new',
-    methods=['GET', 'POST'])
-@funnelapp.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new',
-    methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
 @app.route('/<profile>/<space>/users/<group>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'], subdomain='<profile>')
 @funnelapp.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

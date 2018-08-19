@@ -4,7 +4,7 @@ from flask import g, flash, redirect, render_template
 from coaster.views import get_next_url
 from baseframe import _
 
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile
 
 

@@ -5,7 +5,7 @@ from flask import redirect, render_template, url_for, flash, jsonify
 from coaster.views import load_models
 from coaster.utils import getbool
 from sqlalchemy.exc import IntegrityError
-from .. import funnelapp, app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, Participant, Event, TicketType, TicketClient, SyncTicket)
 from baseframe import forms
 from baseframe import _
