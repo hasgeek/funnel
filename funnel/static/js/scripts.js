@@ -173,7 +173,6 @@ window.Talkfunnel.ParticipantTable = {
               Talkfunnel.ParticipantTable.checkinQ.updateQueue(participants);
               Talkfunnel.ParticipantTable.cancelcheckinQ.updateQueue(participants);
             });
-            // $('.footable').trigger('footable_redraw');
           }
         });
       },

@@ -47,6 +47,7 @@
   z-index: 40;
   display: none;
 }
+
 .fc-event:hover .fc-event-custom {
   display: block;
   padding: 1px 5px;
@@ -54,19 +55,20 @@
   background: rgba(255,255,255,0.6);
   border-top-left-radius: 3px;
 }
+
 .fc-event .fc-event-custom a {
   font-weight: bolder;
   color: #c33;
   font-size: 1.2em;
 }
+
 .fc-event .fc-event-custom a:hover {
   color: #c00;
   text-decoration: none;
 }
+
 .proposal-box,
-body>.proposal-box.ui-draggable,
-.unscheduled /* Class added by the ui draggable library */
-{
+body>.proposal-box.ui-draggable {
   margin: 10px 0;
   padding: 2px 4px;
   background: #FFF;
