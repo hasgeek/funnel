@@ -5,7 +5,6 @@ from flask_lastuser.sqlalchemy import ProfileBase
 from werkzeug.utils import cached_property
 from . import db, MarkdownColumn
 from .user import Team
-from .space import ProposalSpace
 
 __all__ = ['Profile']
 
@@ -28,6 +27,7 @@ class Profile(ProfileBase, db.Model):
 
     @cached_property
     def spaces(self):
+        from .space import ProposalSpace
         spaces_all = ProposalSpace.fetch_sorted().filter(
             ProposalSpace.profile == self, ProposalSpace.parent_space == None
         ).all()
