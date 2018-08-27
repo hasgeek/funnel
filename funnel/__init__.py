@@ -13,7 +13,7 @@ from ._version import __version__
 
 
 app = Flask(__name__, instance_relative_config=True)
-funnelapp = Flask(__name__, instance_relative_config=True)
+funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=True)
 mail = Mail()
 lastuser = Lastuser()
 
@@ -90,3 +90,10 @@ funnelapp.assets.register('js_schedules',
 funnelapp.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
+
+# FIXME: Hack for external build system generating relative /static URLs.
+# Fix this by generating absolute URLs to the static subdomain during build.
+funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
+    view_func=funnelapp.send_static_file, subdomain=None)
+funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
+    view_func=funnelapp.send_static_file, subdomain='<subdomain>')
