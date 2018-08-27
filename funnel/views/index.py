@@ -8,7 +8,7 @@ from ..models import Profile, ProposalSpace, Proposal
 from .space import space_data
 
 
-def index_view(data):
+def index_jsonify(data):
     spaces_data = list()
     for space in data['spaces']:
         space_dict = dict(space.current_access())
@@ -18,7 +18,7 @@ def index_view(data):
 
 
 @app.route('/')
-@render_with({'text/html': 'index.html.jinja2', 'application/json': index_view})
+@render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
 def index():
     g.profile = None
     g.permissions = []
@@ -27,7 +27,7 @@ def index():
 
 
 @funnelapp.route('/', endpoint='index')
-@render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_view})
+@render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
 def funnelindex():
     g.profile = None
     g.permissions = []
@@ -59,6 +59,17 @@ def all_spaces_json():
 def spaces_json(profile):
     spaces = ProposalSpace.fetch_sorted().filter_by(profile=profile).all()
     return jsonp(spaces=map(space_data, spaces))
+
+
+def profile_view_jsonify(data):
+    spaces_data = list()
+    for space in data['spaces']:
+        space_dict = dict(space.current_access())
+        if space_dict:
+            spaces_data.append(space_dict)
+    return jsonify(
+        profile=dict(data['profile'].current_access()),
+        spaces=spaces_data)
 
 
 @app.route('/<profile>/')
