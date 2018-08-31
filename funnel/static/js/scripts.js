@@ -20,6 +20,98 @@ window.Talkfunnel.Utils = {
   }
 }
 
+window.Talkfunnel.Comments = {
+  init: function(pageURL) {
+    $(".comment .js-collapse").click(function() {
+      $(this).addClass('mui--hide');
+      $(this).siblings('.js-uncollapse').removeClass('mui--hide');
+      $(this).parent().siblings('.comment--body').slideUp("fast");
+      $(this).parent().siblings('.comment--children').slideUp("fast");
+      return false;
+    });
+
+    $(".comment .js-uncollapse").click(function() {
+      $(this).addClass('mui--hide');
+      $(this).siblings('.js-collapse').removeClass('mui--hide');
+      $(this).parent().siblings('.comment--body').slideDown("fast");
+      $(this).parent().siblings('.comment--children').slideDown("fast");
+      return false;
+    });
+
+    $(".comment .js-comment-reply").click(function() {
+      var cfooter = $(this).parent();
+      $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
+      $('#comment-form  input[name="comment_edit_id"]').val('');
+      $("#toplevel-comment").removeClass('mui--hide');
+      $("#comment-submit").val("Reply"); // i18n gotcha
+      cfooter.after($("#comment-form"));
+      $("#comment-form textarea").focus();
+      return false;
+    });
+
+    $("#toplevel-comment a").click(function() {
+      $('#comment-form  input[name="parent_id"]').val('');
+      $('#comment-form  input[name="comment_edit_id"]').val('');
+      $("#comment-submit").val("Post comment"); // i18n gotcha
+      $(this).parent().after($("#comment-form"));
+      $(this).parent().addClass('mui--hide');
+      $("#comment-form textarea").focus();
+      return false;
+    });
+
+    $(".comment .js-comment-delete").click(function() {
+      var cfooter = $(this).parent();
+      $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
+      $("#delcomment").removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
+      return false;
+    });
+
+    $("#comment-delete-cancel").click(function() {
+      $("#delcomment").slideUp("fast");
+      return false;
+    });
+
+    $(".comment .js-comment-edit").click(function() {
+      var cfooter = $(this).parent();
+      var cid = cfooter.attr('data-id');
+      $("#comment-form textarea").val("Loading..."); // i18n gotcha
+      $.getJSON(pageURL+'/comments/'+cid+'/json', function(data) {
+        $("#comment-form textarea").val(data.message);
+      });
+      $('#comment-form input[name="parent_id"]').val('');
+      $('#comment-form input[name="comment_edit_id"]').val(cid);
+      $("#toplevel-comment").removeClass('mui--hide');
+      $("#comment-submit").val("Save changes"); // i18n gotcha
+      cfooter.after($("#comment-form"));
+      $("#comment-form textarea").focus();
+      return false;
+    });
+  }
+}
+
+window.Talkfunnel.Video = {
+  /* Takes argument 
+     `videoWrapper`: video container element,
+     'videoUrl': video url
+    Video id is extracted from the video url.  
+    The videoID is then used to generate the iframe html. 
+    The generated iframe is added to the video container element.
+  */
+  embedIframe: function(videoWrapper, videoUrl) {
+    var videoId, videoEmbedUrl, noVideoUrl;
+
+    if(videoUrl.indexOf('youtube') > 0 && videoUrl.indexOf('watch') > 0) {
+      videoId = videoUrl.split('?v=')[1];
+      videoEmbedUrl = '<iframe id="youtube_player" src="//www.youtube.com/embed/' + videoId + '?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>';
+      videoWrapper.innerHTML = videoEmbedUrl;
+    } else if(videoUrl.indexOf('youtu.be') > 0) {
+      videoId = videoUrl.split('youtu.be/')[1];
+      videoEmbedUrl = '<iframe id="youtube_player" src="//www.youtube.com/embed/' + videoId + '?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>';
+      videoWrapper.innerHTML = videoEmbedUrl;
+    }
+  }
+}
+
 window.Talkfunnel.Store = {
   //Local storage can only save strings, so value is converted into strings and stored.
   add: function(key, value) {
@@ -228,84 +320,6 @@ window.Talkfunnel.ParticipantTable = {
   }
 };
 
-function radioHighlight(radioName, highlightClass) {
-  var selector = "input[name='" + radioName + "']";
-  $(selector + ":checked").parent().addClass(highlightClass);
-  var handler = function() {
-    $(selector).parent().removeClass(highlightClass);
-    $(selector + ":checked").parent().addClass(highlightClass);
-  };
-  $(selector).change(handler);
-  $(selector).click(handler);
-}
-
-function commentsInit(pageURL) {
-  $(".comment .js-collapse").click(function() {
-    $(this).addClass('mui--hide');
-    $(this).siblings('.js-uncollapse').removeClass('mui--hide');
-    $(this).parent().siblings('.comment--body').slideUp("fast");
-    $(this).parent().siblings('.comment--children').slideUp("fast");
-    return false;
-  });
-
-  $(".comment .js-uncollapse").click(function() {
-    $(this).addClass('mui--hide');
-    $(this).siblings('.js-collapse').removeClass('mui--hide');
-    $(this).parent().siblings('.comment--body').slideDown("fast");
-    $(this).parent().siblings('.comment--children').slideDown("fast");
-    return false;
-  });
-
-  $(".comment .js-comment-reply").click(function() {
-    var cfooter = $(this).parent();
-    $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
-    $('#comment-form  input[name="comment_edit_id"]').val('');
-    $("#toplevel-comment").removeClass('mui--hide');
-    $("#comment-submit").val("Reply"); // i18n gotcha
-    cfooter.after($("#comment-form"));
-    $("#comment-form textarea").focus();
-    return false;
-  });
-
-  $("#toplevel-comment a").click(function() {
-    $('#comment-form  input[name="parent_id"]').val('');
-    $('#comment-form  input[name="comment_edit_id"]').val('');
-    $("#comment-submit").val("Post comment"); // i18n gotcha
-    $(this).parent().after($("#comment-form"));
-    $(this).parent().addClass('mui--hide');
-    $("#comment-form textarea").focus();
-    return false;
-  });
-
-  $(".comment .js-comment-delete").click(function() {
-    var cfooter = $(this).parent();
-    $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
-    $("#delcomment").removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
-    return false;
-  });
-
-  $("#comment-delete-cancel").click(function() {
-    $("#delcomment").slideUp("fast");
-    return false;
-  });
-
-  $(".comment .js-comment-edit").click(function() {
-    var cfooter = $(this).parent();
-    var cid = cfooter.attr('data-id');
-    $("#comment-form textarea").val("Loading..."); // i18n gotcha
-    $.getJSON(pageURL+'/comments/'+cid+'/json', function(data) {
-      $("#comment-form textarea").val(data.message);
-    });
-    $('#comment-form input[name="parent_id"]').val('');
-    $('#comment-form input[name="comment_edit_id"]').val(cid);
-    $("#toplevel-comment").removeClass('mui--hide');
-    $("#comment-submit").val("Save changes"); // i18n gotcha
-    cfooter.after($("#comment-form"));
-    $("#comment-form textarea").focus();
-    return false;
-  });
-}
-
 window.TableSearch = function(tableId){
   // a little library that takes a table id
   // and provides a method to search the table's rows for a given query.
@@ -362,17 +376,3 @@ window.TableSearch.prototype.searchRows = function(q){
   }
   return matchedIds;
 };
-
-// ROT13 link handler
-$(function() {
-  $("a.rot13").each(function() {
-    if ($(this).attr('data-href')) {
-      var decoded = $(this).attr('data-href').replace(/[a-zA-Z]/g, function(c) {
-        return String.fromCharCode((c<="Z"?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);
-      });
-      $(this).attr('href', decoded);
-      $(this).removeAttr('data-href');
-      $(this).removeClass('rot13');
-    }
-  });
-});

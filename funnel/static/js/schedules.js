@@ -101,11 +101,12 @@ $(function() {
                 if(settings.editable) {
                     if(!this.activated) {
                         this.activated = true;
-                        this.container.on($.modal.BEFORE_CLOSE, function() {
+                        this.container.on($.modal.CLOSE, function() {
                             popup.close();
                         });
+                        activate_widgets();
                         this.container.on($.modal.OPEN, function() {
-                            activate_widgets(true);
+                            activate_widgets();
                         });
                     }
                 }
@@ -146,6 +147,7 @@ $(function() {
                         }
                         else {
                             popup.body().html(result.form);
+                            activate_widgets();
                         }
                     },
                     complete: function(xhr, type) {
