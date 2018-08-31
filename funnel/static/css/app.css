@@ -6,13 +6,12 @@
   padding: 0 5px;
 }
 
-.btn-group .mui-btn {
-  margin-right: 5px;
+.mui-divider--custom {
+  margin: 5px 0 20px;
 }
 
-.mui-appbar--custom {
-  background: #0b0a1a;
-  color: #fff;
+.btn-group .mui-btn {
+  margin-right: 5px;
 }
 
 .content-head--top-padding {
@@ -24,24 +23,12 @@
 .banner {
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 .banner__img {
   width: 100%;
   min-height: 200px;
-}
-
-.banner::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 0;
-  width: 100%;
-  height: 110%;
-  -webkit-filter: blur(4px);
-  filter: blur(4px);
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1;
 }
 
 .banner__img--web {
@@ -65,11 +52,10 @@
 .banner__headline {
   position: absolute;
   top: 50%;
-  left: 0;
+  left: 15px;
   right: 0;
-  text-align: center;
   transform: translate(0%, -50%);
-  color: #f0a40c;
+  color: #816894;
   font-weight: 700;
   font-size: 32px;
   line-height: 40px;
@@ -77,16 +63,14 @@
   z-index: 2;
 }
 
-@media (min-width: 600px) {
+.banner__headline-txt {
+  color: #f0a40c;
+}
+
+@media (min-width: 1200px) {
   .banner__headline {
     font-size: 48px;
     line-height: 58px;
-  }
-}
-@media (min-width: 1200px) {
-  .banner__headline {
-    font-size: 64px;
-    line-height: 64px;
   }
 }
 .page-content {
@@ -273,7 +257,7 @@
 
   .proposal__admin-panel {
     float: right;
-    width: calc(30% - 1em);
+    width: calc(30% - 2em);
     margin-right: 1em;
     margin-top: 2em;
   }
@@ -293,13 +277,30 @@
 
 .proposal-video {
   width: 100%;
+  min-width: 300px;
   min-height: 140px;
   position: relative;
+  background-color: #EFF2F7;
 }
-
+.proposal-video .video_txt {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  left: 50%;
+}
 .proposal-video iframe {
   width: 100%;
   height: 250px;
+  display: block;
+}
+.proposal-video .no-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 32px;
+  color: #8492A6;
 }
 
 @media (min-width: 960px) {
@@ -326,15 +327,6 @@
     height: 280px;
   }
 }
-.proposal-video .no-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 32px;
-  color: #8492A6;
-}
-
 .proposal-move-form div {
   display: inline-block;
 }

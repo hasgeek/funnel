@@ -88,7 +88,7 @@
 
           {%- set vote = proposal.votes.getvote(g.user) %}
           {%- if g.user %}
-            <div class="grid__col-xs-8 grid__col--bleed">
+            <div class="grid__col-xs-8 grid__col-sm-12 grid__col--bleed">
               <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Vote on this proposal{% endtrans %}</p>
               {%- if not vote %}
                 <div class="grid grid--justify-space-between vote-wrapper">
@@ -182,7 +182,11 @@
 
         <div class="proposal-details proposal-details--right">
           {% if proposal.preview_video %}
-            <div class="proposal-video js-embed" data-href="{{ proposal.preview_video }}">
+            <div class="proposal-video" data-href="{{ proposal.preview_video }}" id="js-embed">
+              <p class="video_txt">
+                <i class="material-icons">videocam</i><br>
+                <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-subhead">Preview video</a>
+              </p>
             </div>
           {%- else %}
             <div class="proposal-video mui--bg-primary-light">
@@ -203,8 +207,8 @@
           <div class="card__body">
             {%- if proposal.user == g.user %}
               <ul class="mui-list--aligned">
-                <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit proposal{% endtrans %}</a></li>
-                <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete proposal{% endtrans %}</a></li>
+                <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit{% endtrans %}</a></li>
+                <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
               </ul>
             {%- endif %}
             {% if proposal.current_roles.admin %}
@@ -344,28 +348,14 @@
 {% block footerscripts %}
 <script type="text/javascript">
   $(function() {
-    commentsInit({{ request.base_url|tojson }});
+    var videoWrapper = document.getElementById('js-embed'),
+      videoUrl = videoWrapper.getAttribute('data-href');
+
+    // Initialize tabs functionality
     $('#tab-container').easytabs();
-    var videoWrapper = $('.js-embed'),
-      videoUrl = $('.js-embed').data('href'),
-      videoId, videoEmbedUrl;
-    if(videoUrl.indexOf('youtube') > 0 && videoUrl.indexOf('watch') > 0) {
-      videoEmbedUrl = '<iframe id="youtube_player" src="' + videoUrl + '?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>';
-      videoWrapper.html(videoUrl);
-    } else if(videoUrl.indexOf('youtu.be') > 0) {
-      videoId = videoUrl.split('youtu.be/')[1];
-      console.log('youtube videoId', videoId);
-      videoEmbedUrl = '<iframe id="youtube_player" src="//www.youtube.com/embed/' + videoId + '?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>';
-      videoWrapper.html(videoEmbedUrl);
-    } else if(videoUrl.indexOf('vimeo') > 0) {
-      videoId = videoUrl.split('vimeo/')[1];
-      console.log('videoId', videoId);
-      videoEmbedUrl = '<iframe id="vimeo_player" src="//player.vimeo.com/video/' + videoId + '?api=1&autoplay=1" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
-      videoWrapper.html(videoEmbedUrl);
-    }
-    else {
-      videoWrapper.html('<i class="material-icons no-video">videocam_off</i>')
-    }
+
+    window.Talkfunnel.Comments.init({{ request.base_url|tojson }});
+    window.Talkfunnel.Video.embedIframe(videoWrapper, videoUrl);
   });
 </script>
 <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>
