@@ -140,9 +140,9 @@
 
     var tableSearch = new window.TableSearch('participants-table');
     $('input#search').keyup(function(e){
-      $('#participants-table tbody tr').addClass('hidden');
+      $('#participants-table tbody tr').addClass('mui--hide');
       var hits = tableSearch.searchRows($(this).val());
-      $(hits.join(",")).removeClass('hidden');
+      $(hits.join(",")).removeClass('mui--hide');
     });
     
   });

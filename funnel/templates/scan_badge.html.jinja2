@@ -31,7 +31,7 @@
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4>Scanning <i class="fa fa-spinner fa-spin fa-2x"></i></h4>
+              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
               <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
@@ -52,8 +52,10 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.min.js"></script>
   <script>
     $(document).ready(function() {
+
       var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name, puk='puk') }}"
-      var badgeScanComponent = new Ractive({
+
+      window.badgeScanComponent = new Ractive({
         el: '#scan-badge-wrapper',
         template: '#scan-badge-template',
         data: {
@@ -63,22 +65,25 @@
           error: "Unable to access video. Please make sure you have a camera enabled",
           attendeeName: '',
           attendeeFound: false,
-          scanning: false,
+          scanning: true,
           showModal: false,
         },
         closeModal: function(event) {
           event.original.preventDefault();
-          $("#status-msg").modal('hide');
+          $.modal.close();
           badgeScanComponent.set('showModal', false);
         },
         checkinAttendee: function(qrcode) {
-          this.set({
+          badgeScanComponent.set({
             'scanning': true,
             'showModal': true
           });
+
           $("#status-msg").modal('show');
+
           var url = checkinApiUrl.replace('puk', qrcode.substring(0,8));
           var formValues = "checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
+
           $.ajax({
             type: 'POST',
             url:  url,
@@ -103,12 +108,14 @@
         renderFrame: function () {
           var canvasElement = document.getElementById("qrreader-canvas");
           var canvas = canvasElement.getContext("2d");
+
           if (badgeScanComponent.get('video').readyState === badgeScanComponent.get('video').HAVE_ENOUGH_DATA) {
             canvasElement.height = badgeScanComponent.get('video').videoHeight;
             canvasElement.width = badgeScanComponent.get('video').videoWidth;
             canvas.drawImage(badgeScanComponent.get('video'), 0, 0, canvasElement.width, canvasElement.height);
             var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
             var qrcode = jsQR(imageData.data, imageData.width, imageData.height);
+
             if (qrcode && qrcode.data.length === 16 && !badgeScanComponent.get('showModal')) {
               badgeScanComponent.checkinAttendee(qrcode.data);
             }
@@ -118,11 +125,13 @@
         setupVideo: function(event) {
           if (event) event.original.preventDefault();
           var video = document.createElement("video");
+
           navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
             badgeScanComponent.set('video', video);
             badgeScanComponent.get('video').srcObject = stream;
             badgeScanComponent.get('video').setAttribute("playsinline", true);
             badgeScanComponent.get('video').play();
+
             requestAnimationFrame(badgeScanComponent.renderFrame);
           });
         },
@@ -134,4 +143,3 @@
     });
   </script>
 {% endblock %}
-

@@ -101,7 +101,7 @@ window.Talkfunnel.Video = {
     var videoId, videoEmbedUrl, noVideoUrl;
 
     if(videoUrl.indexOf('youtube') > 0 && videoUrl.indexOf('watch') > 0) {
-      videoId = videoUrl.split('?v=')[1];
+      videoId = videoUrl.split('v=')[1];
       videoEmbedUrl = '<iframe id="youtube_player" src="//www.youtube.com/embed/' + videoId + '?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>';
       videoWrapper.innerHTML = videoEmbedUrl;
     } else if(videoUrl.indexOf('youtu.be') > 0) {

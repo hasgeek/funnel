@@ -8,22 +8,20 @@
 
 {% block header -%}
   {% macro site_title() %}
-    <div>
-      {%- if g.profile -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item"><i class="material-icons mui--text-subhead mui--align-center">filter_list</i></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
-        {%- if space %}
-          {%- if space.parent_space %}
-            <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-            <a href="{{ space.parent_space.url_for() }}" class="header__site-title__item">{{ space.parent_space.short_title() }}</a>
-          {%- endif %}
+    {%- if g.profile -%}
+      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+      <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
+      {%- if space %}
+        {%- if space.parent_space %}
           <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-          <a href="{{ space.url_for() }}" class="header__site-title__item">{{ space.short_title() }}</a>
+          <a href="{{ space.parent_space.url_for() }}" class="header__site-title__item">{{ space.parent_space.short_title() }}</a>
         {%- endif %}
-      {%- else -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item"><i class="material-icons mui--text-subhead mui--align-center">filter_list</i> {{ config['SITE_TITLE'] }}</a>
-      {%- endif -%}
-    </div>
+        <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+        <a href="{{ space.url_for() }}" class="header__site-title__item">{{ space.short_title() }}</a>
+      {%- endif %}
+    {%- else -%}
+      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/> {{ config['SITE_TITLE'] }}</a>
+    {%- endif -%}
   {% endmacro %}
   {{ hgtopnav(site_title=site_title()) }}
 {%- endblock %}

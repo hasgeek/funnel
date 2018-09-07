@@ -1,3 +1,16 @@
+.header__site-title {
+  width: 75%;
+}
+
+.header__right-nav {
+  width: 15%;
+}
+
+.header__site-title__logo {
+  width: 35px;
+  vertical-align: top;
+}
+
 .zero-bottom-margin {
   margin-bottom: 0;
 }
@@ -23,12 +36,16 @@
 .banner {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(132, 146, 166, 0.3);
 }
 
+@media (min-width: 1200px) {
+  .banner {
+    border: 1px solid rgba(132, 146, 166, 0.3);
+  }
+}
 .banner__img {
   width: 100%;
-  min-height: 200px;
+  display: block;
 }
 
 .banner__img--web {
@@ -50,11 +67,6 @@
   }
 }
 .banner__headline {
-  position: absolute;
-  top: 50%;
-  left: 15px;
-  right: 0;
-  transform: translate(0%, -50%);
   color: #816894;
   font-weight: 700;
   font-size: 32px;
@@ -63,16 +75,21 @@
   z-index: 2;
 }
 
-.banner__headline-txt {
-  color: #f0a40c;
-}
-
 @media (min-width: 1200px) {
   .banner__headline {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    right: 0;
+    transform: translate(0%, -50%);
     font-size: 48px;
     line-height: 58px;
   }
 }
+.banner__headline-txt {
+  color: #f0a40c;
+}
+
 .page-content {
   padding-top: 2em;
 }
@@ -276,10 +293,10 @@
 }
 
 .proposal-video {
-  width: 100%;
-  min-width: 300px;
-  min-height: 140px;
   position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56%;
   background-color: #EFF2F7;
 }
 .proposal-video .video_txt {
@@ -290,8 +307,11 @@
   left: 50%;
 }
 .proposal-video iframe {
+  position: absolute;
   width: 100%;
-  height: 250px;
+  height: 100%;
+  left: 0;
+  top: 0;
   display: block;
 }
 .proposal-video .no-video {
@@ -304,6 +324,10 @@
 }
 
 @media (min-width: 960px) {
+  .proposal-video {
+    min-width: 300px;
+  }
+
   .proposal-details {
     margin-top: 30px;
   }
@@ -314,17 +338,7 @@
 
   .proposal-details--right {
     float: right;
-  }
-
-  .proposal-video iframe {
-    width: 450px;
-    height: 250px;
-  }
-}
-@media (min-width: 1200px) {
-  .proposal-video iframe {
-    width: 500px;
-    height: 280px;
+    min-width: 400px;
   }
 }
 .proposal-move-form div {
@@ -444,4 +458,18 @@
 
 #qrreader-canvas {
   max-width: 100%;
+}
+
+.spinner {
+  position: relative;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
