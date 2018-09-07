@@ -9,9 +9,9 @@
 
 {% block banner %}
   <div class="banner">
-    <img src="https://images.hasgeek.com/embed/file/1209a4470acf471c8c6c13495b48b0bc" class="banner__img banner__img--mobile"/>
-    <img src="https://images.hasgeek.com/embed/file/94552de7bd1b428a8831593241ab850c" class="banner__img banner__img--web"/>
-    <h1 class="banner__headline"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-md-block mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="mui--visible-md-block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
+    <img src="https://images.hasgeek.com/embed/file/7b85c5c57c86417aa775d5d24d910832" class="banner__img banner__img--mobile"/>
+    <img src="https://images.hasgeek.com/embed/file/4e439ffc2b334e4b9732a292a541137c" class="banner__img banner__img--web"/>
+    <h1 class="banner__headline">HasGeek creates discussion<br class="mui--visible-md-block mui--visible-lg-block mui--visible-xl-block"> spaces for geeks</h1>
   </div>
 {% endblock %}
 
@@ -21,6 +21,21 @@
 {% block basecontent %}
   <div class="page-content page-content--top-padding">
     <div class="grid">
+      <div class="grid__col-sm-6">
+        <p class="mui--text-headline">
+          We operate <a href="https://hasjob.co/" class="click">Hasjob</a>,
+          hang out on a <a href="https://friends.hasgeek.com/" class="click">Slack channel</a>, and
+          <a href="https://github.com/hasgeek" class="click">publish our code</a>.
+          Our activities reach thousands of developers every month.
+        </p>
+      </div>
+      <div class="grid__col-sm-6">
+        <p class="mui--text-headline">
+          <a href="https://talkfunnel.com/" class="click">Speak at our events</a>,
+          or <a href="http://eepurl.com/cygsfr" class="click">sign up to be notified</a> when we do one.
+          Watch videos from past events on <a href="https://hasgeek.tv/" class="click">HasGeek TV</a>.
+        </p>
+      </div>
       <div class="grid__col-sm-12">
         <h1 class="mui--text-headline">
           {%- if g.profile %}
