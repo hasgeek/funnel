@@ -9,8 +9,8 @@
 
 {% block banner %}
   <div class="banner">
-    <img src="https://images.hasgeek.com/embed/file/1209a4470acf471c8c6c13495b48b0bc" class="banner__img banner__img--mobile"/>
-    <img src="https://images.hasgeek.com/embed/file/94552de7bd1b428a8831593241ab850c" class="banner__img banner__img--web"/>
+    <img src="{{ url_for('static', filename='img/banner-mobile.png') }}" class="banner__img banner__img--mobile"/>
+    <img src="{{ url_for('static', filename='img/banner-desktop.png') }}" class="banner__img banner__img--web"/>
     <h1 class="banner__headline"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-md-block mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="mui--visible-md-block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
   </div>
 {% endblock %}
@@ -22,13 +22,11 @@
   <div class="page-content page-content--top-padding">
     <div class="grid">
       <div class="grid__col-sm-12">
-        <h1 class="mui--text-headline">
-          {%- if g.profile %}
-            {{ g.profile.description }}
-          {%- else %}
-            {{ config['WELCOME_MESSAGE'] }}
-          {% endif %}
-        </h1>
+        {%- if g.profile %}
+          <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
+        {%- elif config['WELCOME_MESSAGE'] %}
+          <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
+        {% endif %}
       </div>
     </div>
     {% if spaces %}
@@ -43,7 +41,7 @@
                       <img class="card__image" src="{{ space.bg_image }}" alt="{{ space.title }}"/>
                     {% else %}
                       <div class="card__image--default">
-                        <img class="card__image" src="https://images.hasgeek.com/embed/file/5084bed3b3254c548bdcc119cd7b12ef" alt="{{ space.title }}"/>
+                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ space.title }}"/>
                         <p class="card__image__tagline">{{ space.title }}</p>
                       </div>
                     {% endif %}

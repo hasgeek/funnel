@@ -197,7 +197,7 @@ def space_transition(profile, space):
     transition_form = ProposalSpaceTransitionForm(obj=space)
     if transition_form.validate_on_submit():  # check if the provided transition is valid
         transition = getattr(space.current_access(),
-                             transition_form.transition.data)
+            transition_form.transition.data)
         transition()  # call the transition
         db.session.commit()
         flash(transition.data['message'], 'success')
