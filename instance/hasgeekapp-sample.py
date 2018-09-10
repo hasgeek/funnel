@@ -4,3 +4,4 @@ SERVER_NAME = 'hasgeek.com'
 LASTUSER_CLIENT_ID = ''
 #: LastUser client secret
 LASTUSER_CLIENT_SECRET = ''
+LASTUSER_COOKIE_DOMAIN = ''
