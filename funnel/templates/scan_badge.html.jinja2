@@ -50,7 +50,7 @@
 
 {% block footerscripts %}
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.min.js"></script>
-  <script>
+  <script type="text/javascript">
     $(document).ready(function() {
 
       var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name, puk='puk') }}"

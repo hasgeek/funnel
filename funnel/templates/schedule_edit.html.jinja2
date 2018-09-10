@@ -58,7 +58,7 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {% assets "js_schedules" -%}
-    <script>
+    <script type="text/javascript">
       var UPDATE_URL = "{{ space.url_for('update-schedule') }}";
       var TIMEZONE = {{ timezone }} * 1000;
       var NEW_SESSION_URL = "{{ space.url_for('new-session') }}";
@@ -71,7 +71,7 @@
       var CALENDAR_SLOT_MINUTES = 5;
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    <script>
+    <script type="text/javascript">
       $(document).ready(function(){
         $('#proposals-tab').easytabs();
       });

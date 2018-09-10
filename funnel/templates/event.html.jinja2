@@ -98,8 +98,9 @@
     </tbody>
   </table>
 {% endblock %}
+
 {% block footerscripts %}
-<script>
+<script type="text/javascript">
   window.Talkfunnel.Config = {
     badgeUrl: "{{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
     editUrl: "{{ url_for('participant_edit', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",

@@ -21,7 +21,7 @@
             {%- for room in venue.rooms %}
               <li>
                 <p>
-                  <span class="mui--text-subhead"><strong>{{ room.title }}</strong></spam>&nbsp;
+                  <span class="mui--text-subhead"><strong>{{ room.title }}</strong></span>&nbsp;
                   <a href="{{ room.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
                   <a href="{{ room.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
                 </p>
