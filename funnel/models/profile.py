@@ -26,7 +26,7 @@ class Profile(ProfileBase, db.Model):
         }
 
     @cached_property
-    def spaces(self):
+    def parent_spaces(self):
         from .space import ProposalSpace
         spaces_all = ProposalSpace.fetch_sorted().filter(
             ProposalSpace.profile == self, ProposalSpace.parent_space == None

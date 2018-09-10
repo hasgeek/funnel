@@ -11,8 +11,6 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 from baseframe import __
 
-from collections import defaultdict
-
 __all__ = ['ProposalSpace', 'ProposalSpaceRedirect']
 
 
@@ -93,7 +91,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'json_url',
+                'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url'
                 },
             },
@@ -104,7 +102,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         return self.url_for(_external=True)
 
     @property
-    def json_url(self):
+    def url_json(self):
         return self.url_for('json', _external=True)
 
     def __init__(self, **kwargs):

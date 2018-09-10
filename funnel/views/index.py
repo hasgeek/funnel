@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from flask import g, render_template, redirect, jsonify
-from datetime import datetime
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp
 from ..models import Profile, ProposalSpace, Proposal
@@ -76,10 +75,7 @@ def profile_view_jsonify(data):
 @funnelapp.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
-    spaces = ProposalSpace.fetch_sorted().filter(
-        ProposalSpace.profile == profile, ProposalSpace.parent_space == None
-    ).all()
-    return render_template('index.html.jinja2', spaces=spaces)
+    return render_template('index.html.jinja2', spaces=profile.parent_spaces)
 
 
 # Legacy routes for funnel to talkfunnel migration
