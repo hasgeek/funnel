@@ -24,14 +24,15 @@
           {%- else -%}
             <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
           {%- endif -%}
-        </p class="mui--text-body2">
+        </p>
+        <ul class="mui-list--inline mui--text-body2 proposal_list--details">
           {%- if proposal.proposal_space != space %}
-            {{ proposal.proposal_space.short_title() }}
+            <li>{{ proposal.proposal_space.short_title() }}</li>
           {% else %}
-            {{ proposal.section.title }}
-          {% endif %} |
-          {{ proposal.technical_level }} |
-          {{ proposal.votes.count }} upvotes
+            <li>{{ proposal.section.title }}</li>
+          {% endif %}
+          <li>{{ proposal.technical_level }}</li>
+          <li>{{ proposal.votes.count }} upvotes
             {% if 'view-voteinfo' in g.permissions %}
               {% set breakups = dict() %}
               {% set groups = proposal.votes_by_group() %}
@@ -45,16 +46,17 @@
                 {%- endfor -%}
                 )
               {% endif %}
-            {% endif %} |
-          {{ proposal.comments.count }} comments |
-          {{ proposal.datetime.strftime("%a, %e %b") }}
+            {% endif %}
+          </li>
+          <li>{{ proposal.comments.count }} comments</li>
+          <li>{{ proposal.datetime.strftime("%a, %e %b") }}</li>
           {% if proposal.preview_video %}
-            <i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons mui--align-middle left-margin">play_arrow</i>
+            <li><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons mui--align-top">play_arrow</i></li>
           {% endif %}
           {% if proposal.slides %}
-            <i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons mui--align-middle left-margin">slideshow</i>
+            <li><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons mui--align-top">slideshow</i></li>
           {% endif %}
-        </p>
+        </ul>
         <hr class="mui-divider">
       </div>
     {% else %}
@@ -118,6 +120,8 @@
             <div class="card__body">
               {%- if space.current_roles.admin %}
                 <div>
+                  <p class="mui--text-body2 mui--text-light zero-bottom-margin">STATUS</p>
+                  <p class="mui--text-subhead">{{ space.state.label.title }}</p>
                   <p class="mui--text-body2 mui--text-light zero-bottom-margin">CHANGE STATUS</p>
                   <form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
                     {{ transition_form.hidden_tag() }}
@@ -132,7 +136,7 @@
                 <div>
                   <ol class="mui-list--aligned">
                     <li>
-                      <a href="{{ space.url_for('edit') }}">{% trans %}Edit{% endtrans %}</a>
+                      <a href="{{ space.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
                     </li>
                     <li>
                       <a href="{{ space.url_for('edit-schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
