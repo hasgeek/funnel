@@ -3,12 +3,12 @@
 {% block content %}
   <ol>
     {%- for group in usergroups %}
-      <li><a href="{{ group.url_for() }}">{{ group.title }}</a></li>
+      <li class="mui--text-subhead"><a href="{{ group.url_for() }}">{{ group.title }}</a></li>
     {% else %}
-      <li><em>{% trans %}(No user groups){% endtrans %}</em></li>
+      <li class="mui--text-subhead"><em>{% trans %}(No user groups){% endtrans %}</em></li>
     {%- endfor %}
   </ol>
   <p>
-    <a class="btn btn-info" href="{{ space.url_for('new-usergroup') }}">{% trans %}Add new group{% endtrans %}</a>
+    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-usergroup') }}">{% trans %}Add new group{% endtrans %}</a>
   </p>
 {% endblock %}

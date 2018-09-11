@@ -7,54 +7,49 @@
   {%- endassets %}
 {% endblock %}
 
-{% block content %}
-  <div class="row">
-    <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+{% block contentwrapper %}
+  <div class="grid">
+    <div class="grid__col-xs-12  grid__col-sm-9">
       <div id="calendar"></div>
     </div>
-    <div id="proposals" class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
-      <ul class="nav nav-tabs">
-        <li class="active"><a href="#list" class="small" data-toggle="tab">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
-        <li><a href="#settings" class="small" data-toggle="tab">{% trans %}Settings{% endtrans %}</a></li>
+    <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
+      <ul class="tab-container">
+        <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
+        <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab">{% trans %}Settings{% endtrans %}</a></li>
       </ul>
-      <div class="tab-content">
-        <div class="list tab-pane active" id="list">
-          {%- for proposal in proposals['unscheduled'] %}
-              <div class="unscheduled" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
-          {%- endfor %}
-        </div>
-        <div id="settings" class="tab-pane">
-          <h2>{% trans %}Room colors{% endtrans %}</h2>
-          <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
-            {% for id in rooms %}
-              <p class="room-color" id="room-color-{{ id }}">
-                <label for="room-color-input-{{ id }}" class="h5">
-                  <input type="hidden" name="id" value="{{ id }}">
-                  {{ rooms[id].vtitle }} <input type="text" name="color" id="room-color-input-{{ id }}" value="{{ rooms[id].bgcolor }}" data-room-id="{{ id }}" data-color="{{ rooms[id].bgcolor }}">
-                </label>
-              </p>
-            {% endfor %}
-            <p>
-              <input type="submit" value="{% trans %}Save{% endtrans %}" class="btn btn-primary">
-              <input type="reset" value="{% trans %}Revert{% endtrans %}" class="btn btn-default">
+      <div id="list">
+        {%- for proposal in proposals['unscheduled'] %}
+          <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
+        {%- endfor %}
+      </div>
+      <div id="settings">
+        <h4 class="mui--text-headline">{% trans %}Room colors{% endtrans %}</h4>
+        <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
+          {% for id in rooms %}
+            <p class="room-color" id="room-color-{{ id }}">
+              <label for="room-color-input-{{ id }}" class="h5">
+                <input type="hidden" name="id" value="{{ id }}">
+                {{ rooms[id].vtitle }} <input type="text" name="color" id="room-color-input-{{ id }}" value="{{ rooms[id].bgcolor }}" data-room-id="{{ id }}" data-color="{{ rooms[id].bgcolor }}">
+              </label>
             </p>
-          </form>
-        </div>
+          {% endfor %}
+          <p>
+            <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
+            <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
+          </p>
+        </form>
       </div>
     </div>
   </div>
-  <div id="popup" class="modal fade editor">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h2 class="modal-title"></h2>
-        </div>
-        <div class="modal-body"></div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary save">{% trans %}Save{% endtrans %}</button>
-        </div>
-      </div>
+  <div id="popup" class="modal session-modal">
+    <div class="modal__header">
+      <a class="modal__close" href="javascript:void(0);" aria-label="close" rel="modal:close"><i class="material-icons">clear</i></a>
+      <h3 class="js-modal-title session-modal__title">{{ session.title }}</h3>
+    </div>
+    <hr class="mui-divider mui-divider--custom">
+    <div class="js-modal-inner"></div>
+    <div class="modal__footer">
+      <button type="button" class="mui-btn mui-btn--small mui-btn--primary save">{% trans %}Save{% endtrans %}</button>
     </div>
   </div>
 {% endblock %}
@@ -63,7 +58,7 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {% assets "js_schedules" -%}
-    <script>
+    <script type="text/javascript">
       var UPDATE_URL = "{{ space.url_for('update-schedule') }}";
       var TIMEZONE = {{ timezone }} * 1000;
       var NEW_SESSION_URL = "{{ space.url_for('new-session') }}";
@@ -76,5 +71,10 @@
       var CALENDAR_SLOT_MINUTES = 5;
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#proposals-tab').easytabs();
+      });
+    </script>
   {%- endassets -%}
 {% endblock %}

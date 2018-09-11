@@ -194,10 +194,10 @@ def rsvp_list(profile, space):
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
     permission='edit-space')
 def space_transition(profile, space):
-    transitionform = ProposalSpaceTransitionForm(obj=space)
-    if transitionform.validate_on_submit():  # check if the provided transition is valid
+    transition_form = ProposalSpaceTransitionForm(obj=space)
+    if transition_form.validate_on_submit():  # check if the provided transition is valid
         transition = getattr(space.current_access(),
-                             transitionform.transition.data)
+            transition_form.transition.data)
         transition()  # call the transition
         db.session.commit()
         flash(transition.data['message'], 'success')

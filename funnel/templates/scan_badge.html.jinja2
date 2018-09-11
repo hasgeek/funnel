@@ -6,62 +6,56 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row" id="scan-badge-wrapper">
+  <div class="grid" id="scan-badge-wrapper">
     {% raw %}
-    <script id='scan-badge-template' type='text/ractive'>
+      <script id='scan-badge-template' type='text/ractive'>
+        <div class="grid__col-xs-12 grid__col-lg-4">
+          <h3 class="mui--text-title">{{ eventTitle }}</h3>
+          {{#if video}}
+            <h4 class="mui--text-subhead">Please scan your badge to check-in</h4>
+            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
+          {{elseif error}}
+            <p class="mui--text-danger">{{ error }}</p>
+          {{/if}}
+        </div>
 
-      <div class="col-lg-4 col-xs-12">
-        <h3>{{ eventTitle }}</h3>
-        {{#if video}}
-          <h4>Please scan your badge to check-in</h4>
-          <p><button type="button" class="btn btn-primary btn-xs" on-click="setupVideo(event)">Restart QR reader</button></p>
-        {{elseif error}}
-          <p class="text-danger">{{ error }}</p>
-        {{/if}}
-      </div>
+        <div class="grid__col-xs-12 grid__col-lg-8">
+          <canvas id="qrreader-canvas"></canvas>
+        </div>
 
-      <div class="col-lg-8 col-xs-12">
-        <canvas id="qrreader-canvas"></canvas>
-      </div>
-
-      <div class="modal fade" id="status-msg" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header {{#if !scanning && !attendeeFound}}bg-danger{{/if}}">
-              <button type="button" class="close" on-click="closeModal(event)" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Check in status</h4>
-            </div>
-            <div class="modal-body">
-              {{#if scanning}}
-                <h4>Scanning <i class="fa fa-spinner fa-spin fa-2x"></i></h4>
-              {{elseif attendeeFound}}
-                <h4>Hello {{attendeeName}},</h4>
-                <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
-                <p>HasGeek</p>
-              {{else}}
-                <h4>Attendee details not found</h4>
-              {{/if}}
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" on-click="closeModal(event)">Close</button>
-            </div>
+        {{#if showModal}}
+        <div id="status-msg" class="modal" tabindex="-1" role="dialog">
+          <div class="modal__header">
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><i class="material-icons">clear</i></a>
+            <h3 class="mui--text-title">Check in status</h3>
+          </div>
+          <div class="modal__body">
+            {{#if scanning}}
+              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
+            {{elseif attendeeFound}}
+              <h4>Hello {{attendeeName}},</h4>
+              <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
+              <p>HasGeek</p>
+            {{else}}
+              <h4>Attendee details not found</h4>
+            {{/if}}
+            <a href="javascript:void(0);" on-click="closeModal(event)" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Close</a>
           </div>
         </div>
-      </div>
-
-    </script>
+        {{/if}}
+      </script>
     {% endraw %}
   </div>
 {% endblock %}
 
 {% block footerscripts %}
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.min.js"></script>
-  <script>
+  <script type="text/javascript">
     $(document).ready(function() {
 
       var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name, puk='puk') }}"
 
-      var badgeScanComponent = new Ractive({
+      window.badgeScanComponent = new Ractive({
         el: '#scan-badge-wrapper',
         template: '#scan-badge-template',
         data: {
@@ -71,16 +65,16 @@
           error: "Unable to access video. Please make sure you have a camera enabled",
           attendeeName: '',
           attendeeFound: false,
-          scanning: false,
+          scanning: true,
           showModal: false,
         },
         closeModal: function(event) {
           event.original.preventDefault();
-          $("#status-msg").modal('hide');
+          $.modal.close();
           badgeScanComponent.set('showModal', false);
         },
         checkinAttendee: function(qrcode) {
-          this.set({
+          badgeScanComponent.set({
             'scanning': true,
             'showModal': true
           });
