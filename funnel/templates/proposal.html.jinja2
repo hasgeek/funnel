@@ -60,6 +60,20 @@
       </p>
       <div class="mui--clearfix">
         <div class="proposal-details proposal-details--left">
+          {% if proposal.preview_video %}
+            <div class="proposal-video" data-href="{{ proposal.preview_video }}" id="js-embed">
+              <p class="video_txt">
+                <i class="material-icons">videocam</i><br>
+                <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-subhead">Preview video</a>
+              </p>
+            </div>
+          {%- else %}
+            <div class="proposal-video mui--bg-primary-light">
+              <i class="material-icons no-video">videocam_off</i>
+            </div>
+          {% endif %}
+        </div>
+        <div class="proposal-details proposal-details--right">
           <div class="grid proposal-status-wrapper">
             <div class="col-auto columns">
               <p class="mui--text-body2 mui--text-light zero-bottom-margin">Technical level</p>
@@ -85,184 +99,143 @@
               {% endif %}
             </div>
           </div>
-
-          {%- set vote = proposal.votes.getvote(g.user) %}
-          {%- if g.user %}
-            <div class="grid__col-xs-8 grid__col-sm-12 grid__col--bleed">
-              <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Vote on this proposal{% endtrans %}</p>
-              {%- if not vote %}
-                <div class="grid grid--justify-space-between vote-wrapper">
-                  <div class="col-auto">
-                    <form method="post" action="{{ proposal.url_for('voteup') }}">
-                      {{ csrf_form.hidden_tag() }}
-                      <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">arrow_drop_up</i>Upvote</button>
-                    </form>
-                  </div>
-                  <div class="col-auto count">
-                    <span class="mui--text-title">
-                      {%- if proposal.votes.count > 0 -%}
-                        +
-                      {%- endif -%}
-                      {{ proposal.votes.count }}
-                    </span>
-                  </div>
-                  <div class="col-auto">
-                    <form method="post" action="{{ proposal.url_for('votedown') }}">
-                      {{ csrf_form.hidden_tag() }}
-                      <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">arrow_drop_down</i>Downvote</button>
-                    </form>
-                  </div>
-                </div>
-              {%- elif vote.votedown %}
-                <div class="grid grid--justify-space-between vote-wrapper">
-                  <div class="col-auto">
-                    <form method="post" action="{{ proposal.url_for('voteup') }}">
-                      {{ csrf_form.hidden_tag() }}
-                      <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">arrow_drop_up</i>Upvote</button>
-                    </form>
-                  </div>
-                  <div class="col-auto count">
-                    <span class="mui--text-title">
-                      {%- if proposal.votes.count > 0 -%}
-                        +
-                      {%- endif -%}
-                      {{ proposal.votes.count }}
-                    </span>
-                  </div>
-                  <div class="col-auto">
-                    <form method="post" action="{{ proposal.url_for('votecancel') }}">
-                      {{ csrf_form.hidden_tag() }}
-                      <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons action-btn__icons--small">clear</i>Withdraw</button>
-                    </form>
-                  </div>
-                </div>
-              {%- else %}
-                <div class="grid grid--justify-space-between vote-wrapper">
-                  <div class="col-auto">
-                    <form method="post" action="{{ proposal.url_for('votecancel') }}">
-                      {{ csrf_form.hidden_tag() }}
-                      <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons action-btn__icons--small">clear</i>Withdraw</button>
-                    </form>
-                  </div>
-                  <div class="col-auto count">
-                    <span class="mui--text-title">
-                      {%- if proposal.votes.count > 0 -%}
-                        +
-                      {%- endif -%}
-                      {{ proposal.votes.count }}
-                    </span>
-                  </div>            
-                  <div class="col-auto">
-                    <form method="post" action="{{ proposal.url_for('votedown') }}">
-                      {{ csrf_form.hidden_tag() }}
-                      <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">arrow_drop_down</i>Downvote</button>
-                    </form>
-                  </div>
-                </div>
-              {% endif %}
-            </div>
-          {%- else %}
-            <div class="grid__col-xs-6 grid__col-sm-5 grid__col-md-4 grid__col--bleed">
-              <div class="grid grid--justify-space-between vote-wrapper">
-                <div class="grid__col-xs-8">
-                  <a href="{{url_for('login')}}" class="mui--text-body1 action-btn action-btn--login action-btn--left">Login to vote</a>
-                </div>
-                <div class="grid__col-xs-4">
-                  <span class="mui--text-title">
-                    {%- if proposal.votes.count > 0 -%}
-                      +
-                    {%- endif -%}
-                    {{ proposal.votes.count }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          {%- endif %}
-        </div>
-
-        <div class="proposal-details proposal-details--right">
-          {% if proposal.preview_video %}
-            <div class="proposal-video" data-href="{{ proposal.preview_video }}" id="js-embed">
-              <p class="video_txt">
-                <i class="material-icons">videocam</i><br>
-                <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-subhead">Preview video</a>
-              </p>
-            </div>
-          {%- else %}
-            <div class="proposal-video mui--bg-primary-light">
-              <i class="material-icons no-video">videocam_off</i>
-            </div>
-          {% endif %}
         </div>
       </div>
     </section>
 
-    <div class="proposal__section--border">
-      {%- if proposal.user == g.user or proposal.current_roles.admin %}
-      <div class="proposal__admin-panel">
+    <section class="proposal__section--border">
+
+      <div class="proposal__admin-panel sticky-admin-panel">
         <div class="card">
-          <div class="card__header">
-            <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
-          </div>
           <div class="card__body">
-            {%- if proposal.user == g.user %}
-              <ul class="mui-list--aligned">
-                <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit{% endtrans %}</a></li>
-                <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
-              </ul>
-            {%- endif %}
-            {% if proposal.current_roles.admin %}
-              <hr class="mui-divider">
-              {%- if proposal_move_form %}
-                {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move", style='horiz') }}
-              {%- endif %}
-              <hr class="mui-divider">
-              <p class="mui--text-subhead">Change status of proposal</p>
-              <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
-                {{ transition_form.hidden_tag() }}
-                <p class="btn-group">
-                  {% for name, transition in transition_form.transition.choices %}
-                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
-                  {% endfor %}
-                </p>
-              </form>
-              <hr class="mui-divider">
-              {% if 'participants' in votes_groups %}
-                <p class="mui--text-subhead">Total Participant Votes</p>
-                <p class="mui--text-body2">
-                  {% if votes_groups['participants'] > 0 %}+{% endif %}{{ votes_groups['participants'] }}
-                </p>
-              {% endif %}
-              {% if 'editorial-panel' in votes_groups %}
-                <p class="mui--text-subhead">Total EP Votes</p>
-                <p class="mui--text-body2">
-                {% if votes_groups['editorial-panel'] > 0 %}+{% endif %}{{ votes_groups['editorial-panel'] }}</p>
-              {% endif %}
-              {% set votes = dict() %}
-              {% for vote in proposal.votes.votes %}
-                {% if votes.update({vote.user.username: vote}) %}{% endif %}
-              {% endfor %}
-              {% for group in proposal.proposal_space.usergroups %}
-                {% if group.name == 'editorial-panel' %}
-                  {% for member in group.users %}
-                    <p class="mui--text-subhead">EP Vote: {% if g.user != member %}{{ member.fullname }}{% else %}You{% endif %}</p>
-                    <p class="mui--text-body2">
-                      {% if member.username in votes %}
-                        {% if votes[member.username].votedown %}-1{% else %}+1{% endif %}
-                      {% else %}
-                        &mdash;
-                      {% endif %}
-                    </p>
-                  {% endfor %}
+            {%- set vote = proposal.votes.getvote(g.user) %}
+            {%- if g.user %}
+              <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Vote on this proposal{% endtrans %}</p>
+              <div class="vote-wrapper">
+                {%- if not vote %}
+                  <form method="post" action="{{ proposal.url_for('voteup') }}">
+                    {{ csrf_form.hidden_tag() }}
+                    <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
+                  </form>
+                  <span class="mui--text-title">
+                    {%- if proposal.votes.count > 0 -%}
+                      +
+                    {%- endif -%}
+                    <b>{{ proposal.votes.count }}</b>
+                  </span>
+                  <form method="post" action="{{ proposal.url_for('votedown') }}">
+                    {{ csrf_form.hidden_tag() }}
+                    <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_down</i></button>
+                  </form>
+                {%- elif vote.votedown %}
+                  <form method="post" action="{{ proposal.url_for('voteup') }}">
+                    {{ csrf_form.hidden_tag() }}
+                    <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
+                  </form>
+                  <span class="mui--text-title">
+                    {%- if proposal.votes.count > 0 -%}
+                      +
+                    {%- endif -%}
+                    <b>{{ proposal.votes.count }}</b>
+                  </span>
+                  <form method="post" action="{{ proposal.url_for('votecancel') }}">
+                    {{ csrf_form.hidden_tag() }}
+                    <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_down</i></button>
+                  </form>
+                {%- else %}
+                  <form method="post" action="{{ proposal.url_for('votecancel') }}">
+                    {{ csrf_form.hidden_tag() }}
+                    <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
+                  </form>
+                  <span class="mui--text-title">
+                    {%- if proposal.votes.count > 0 -%}
+                      +
+                    {%- endif -%}
+                    <b>{{ proposal.votes.count }}</b>
+                  </span>
+                  <form method="post" action="{{ proposal.url_for('votedown') }}">
+                    {{ csrf_form.hidden_tag() }}
+                    <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_down</i></button>
+                  </form>
                 {% endif %}
-              {% endfor %}
-            {% endif %}
+              </div>
+            {%- else %}
+              <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Vote on this proposal{% endtrans %}</p>
+              <a href="{{url_for('login')}}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">Login to vote</a>
+              <p class="mui--text-body2">
+                Total votes: &nbsp;
+                {%- if proposal.votes.count > 0 -%}
+                  +
+                {%- endif -%}
+                <b>{{ proposal.votes.count }}</b>
+              </p>
+            {%- endif %}
           </div>
         </div>
+        {%- if proposal.user == g.user or proposal.current_roles.admin %}
+          <div class="card">
+            <div class="card__header">
+              <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
+            </div>
+            <div class="card__body">
+              {%- if proposal.user == g.user %}
+                <ul class="mui-list--aligned">
+                  <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></li>
+                  <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
+                </ul>
+              {%- endif %}
+              {% if proposal.current_roles.admin %}
+                <hr class="mui-divider">
+                {%- if proposal_move_form %}
+                  {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move", style='horiz') }}
+                {%- endif %}
+                <hr class="mui-divider">
+                <p class="mui--text-subhead">Change status of proposal</p>
+                <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
+                  {{ transition_form.hidden_tag() }}
+                  <p class="btn-group">
+                    {% for name, transition in transition_form.transition.choices %}
+                      <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
+                    {% endfor %}
+                  </p>
+                </form>
+                <hr class="mui-divider">
+                {% if 'participants' in votes_groups %}
+                  <p class="mui--text-subhead">Total Participant Votes</p>
+                  <p class="mui--text-body2">
+                    {% if votes_groups['participants'] > 0 %}+{% endif %}{{ votes_groups['participants'] }}
+                  </p>
+                {% endif %}
+                {% if 'editorial-panel' in votes_groups %}
+                  <p class="mui--text-subhead">Total EP Votes</p>
+                  <p class="mui--text-body2">
+                  {% if votes_groups['editorial-panel'] > 0 %}+{% endif %}{{ votes_groups['editorial-panel'] }}</p>
+                {% endif %}
+                {% set votes = dict() %}
+                {% for vote in proposal.votes.votes %}
+                  {% if votes.update({vote.user.username: vote}) %}{% endif %}
+                {% endfor %}
+                {% for group in proposal.proposal_space.usergroups %}
+                  {% if group.name == 'editorial-panel' %}
+                    {% for member in group.users %}
+                      <p class="mui--text-subhead">EP Vote: {% if g.user != member %}{{ member.fullname }}{% else %}You{% endif %}</p>
+                      <p class="mui--text-body2">
+                        {% if member.username in votes %}
+                          {% if votes[member.username].votedown %}-1{% else %}+1{% endif %}
+                        {% else %}
+                          &mdash;
+                        {% endif %}
+                      </p>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
       </div>
-      {% endif %}
 
-      <section class="proposal__section {%- if proposal.user == g.user or proposal.current_roles.admin %} proposal__section--left {% endif %}">
+      <div class="proposal__section proposal__section--left">
         <div class="proposal-content">
           <h3 class="mui--text-headline">{% trans %}{{part_a}}{% endtrans %}</h3>
           {{ proposal.objective }}
@@ -278,7 +251,7 @@
           {%- endif %}
           {% if proposal.links %}
             <h3 class="mui--text-headline">{% trans %}Links{% endtrans %}</h3>
-            <ul id="links-list">
+            <ul class="links-list">
               {% for link in links -%}
                 <li>{{ link }}</li>
               {% endfor %}
@@ -289,9 +262,9 @@
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
           {% endif %}
         </div>
-      </section>
+      </div>
 
-    </div>
+    </section>
 
     <section class="proposal__section">
       <h3 class="mui--text-headline"><strong>{% trans %}Comments{% endtrans %}</strong></h3>

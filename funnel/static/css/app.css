@@ -247,7 +247,7 @@
   right: calc(50% - 70px);
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1300px) {
   .proposal-wrapper {
     margin-bottom: 15px;
   }
@@ -315,7 +315,6 @@
 
 .proposal-details {
   margin-top: 15px;
-  min-height: 170px;
 }
 
 .proposal-video {
@@ -364,7 +363,11 @@
 
   .proposal-details--right {
     float: right;
-    min-width: 400px;
+  }
+}
+@media (min-width: 1200px) {
+  .proposal-video {
+    min-width: 500px;
   }
 }
 .proposal-move-form div {
@@ -392,13 +395,11 @@
 }
 
 .vote-wrapper {
-  border: 2px solid rgba(132, 146, 166, 0.3);
   margin-top: 0.5em;
 }
 
-.count {
-  min-width: 70px;
-  text-align: center;
+.vote-wrapper form {
+  display: inline-block;
 }
 
 .action-btn {
@@ -406,14 +407,6 @@
   background: none;
   cursor: pointer;
   line-height: 28px;
-}
-
-.action-btn--left {
-  border-right: 2px solid rgba(132, 146, 166, 0.3);
-}
-
-.action-btn--right {
-  border-left: 2px solid rgba(132, 146, 166, 0.3);
 }
 
 .action-btn--login {
@@ -445,6 +438,10 @@
 .proposal-content {
   margin: 2em 0;
   min-height: 100px;
+}
+
+.links-list {
+  word-break: break-all;
 }
 
 .comment {
