@@ -108,8 +108,8 @@ window.Talkfunnel.Video = {
   extractYoutubeId: function(url) {
     var regex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
     var exp = url.match(regex);
-    if (match && match[7].length == 11) {
-      return match[7];
+    if (exp && exp[7].length == 11) {
+      return exp[7];
     }
   }
 }
