@@ -3,17 +3,28 @@
 {% from "baseframe/forms.html" import renderfield %}
 {% block title %}Events{% endblock %}
 
-{% block content %}
-<div class="row">
-  <div class="col-md-6">
-    <ul class="list-group">
-      {%- for event in events %}
-        <li class="list-group-item">
-          <a href="{{ url_for('scan_badge', profile=space.profile.name, space=space.name, name=event.name) }}" class='btn btn-danger btn-sm pull-right'>{% trans %}Scan badge{% endtrans %}</a>
-          <p>{{ event.title }}</p>
-        </li>
-      {%- endfor %}
-    </ul>
+{% block top_title %}
+  <h1 class="mui--text-display1">{{ space.title|e }}</h1>
+  <p class="mui--text-headline">Manage check-in</p>
+{% endblock %}
+
+{% block contentwrapper %}
+  <div class="grid">
+    <div class="grid__col-xs-12 grid__col-sm-6">
+      <div class="card">
+        <div class="card__header">
+          <h3 class="mui--text-title">Events</h3>
+        </div>
+        <div class="card__body">
+          <ol class="mui-list--aligned">
+            {%- for event in events %}
+              <li class="mui--text-title">
+                <a href="{{ url_for('scan_badge', profile=space.profile.name, space=space.name, name=event.name) }}" title="Check-in"><strong>{{ event.title }}</strong></a>
+              </li>
+            {%- endfor %}
+          </ol>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 {% endblock %}
