@@ -142,16 +142,16 @@
                       <a href="{{ space.url_for('edit-schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
                     </li>
                     <li>
-                      <a href="{{ space.url_for('admin') }}">{% trans %}Manage event{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ space.url_for('events') }}">{% trans %}Manage check-in{% endtrans %}</a>
-                    </li>
-                    <li>
                       <a href="{{ space.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
                     </li>
                     <li>
                       <a href="{{ space.url_for('venues') }}">{% trans %}Manage venues{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ space.url_for('admin') }}">{% trans %}Manage event{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ space.url_for('events') }}">{% trans %}Manage attendee check-in{% endtrans %}</a>
                     </li>
                   </ol>
                 </div>
@@ -167,7 +167,7 @@
                 <div>
                   <ol>
                     <li>
-                      <a href="{{ space.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage Check-in{% endtrans %}</a>
+                      <a href="{{ space.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage attendee check-in{% endtrans %}</a>
                     </li>
                   </ol>
                 </div>

@@ -93,21 +93,23 @@ window.Talkfunnel.Video = {
   /* Takes argument 
      `videoWrapper`: video container element,
      'videoUrl': video url
-    Video id is extracted from the video url.  
+    Video id is extracted from the video url (extractYoutubeId) .  
     The videoID is then used to generate the iframe html. 
     The generated iframe is added to the video container element.
   */
   embedIframe: function(videoWrapper, videoUrl) {
     var videoId, videoEmbedUrl, noVideoUrl;
-
-    if(videoUrl.indexOf('youtube') > 0 && videoUrl.indexOf('watch') > 0) {
-      videoId = videoUrl.split('v=')[1];
-      videoEmbedUrl = '<iframe id="youtube_player" src="//www.youtube.com/embed/' + videoId + '?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>';
+    videoId = this.extractYoutubeId(videoUrl);
+    if(videoId) {
+      videoEmbedUrl = '<iframe id="youtube_player" src="//www.youtube.com/embed/' + videoId + '" frameborder="0" allowfullscreen></iframe>';
       videoWrapper.innerHTML = videoEmbedUrl;
-    } else if(videoUrl.indexOf('youtu.be') > 0) {
-      videoId = videoUrl.split('youtu.be/')[1];
-      videoEmbedUrl = '<iframe id="youtube_player" src="//www.youtube.com/embed/' + videoId + '?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>';
-      videoWrapper.innerHTML = videoEmbedUrl;
+    }
+  },
+  extractYoutubeId: function(url) {
+    var regex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+    var exp = url.match(regex);
+    if (match && match[7].length == 11) {
+      return match[7];
     }
   }
 }
