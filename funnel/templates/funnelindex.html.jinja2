@@ -7,45 +7,73 @@
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
-{% block baseheadline -%}
-  {% block headline -%}{%- endblock %}
-{%- endblock %}
+{% block banner %}
+  <div class="banner">
+    <img src="{{ url_for('static', filename='img/banner-mobile.png') }}" class="banner__img banner__img--mobile"/>
+    <img src="{{ url_for('static', filename='img/banner-desktop.png') }}" class="banner__img banner__img--web"/>
+    <h1 class="banner__headline"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-md-block mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="mui--visible-md-block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
+  </div>
+{% endblock %}
 
-{% block content %}
-  {% block heading %}
-    {#
-    <div class="page-header">
-      <h1>{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}</h1>
+{% block headline %}
+{% endblock %}
+
+{% block basecontent %}
+  <div class="page-content page-content--top-padding">
+    <div class="grid">
+      <div class="grid__col-sm-12">
+        {%- if g.profile %}
+          <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
+        {%- elif config['WELCOME_MESSAGE'] %}
+          <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
+        {% endif %}
+      </div>
     </div>
-    #}
-  {% endblock %}
-  {%- if g.profile %}
-    {{ g.profile.description }}
-  {%- else %}
-    <p>
-      {{ config['WELCOME_MESSAGE'] }}
-    </p>
-  {% endif %}
-  {% if spaces %}
-    <ul class="cardset row">
-      {% for space in spaces %}
-        <li class="col-md-4 col-sm-6">
-          <a href="{{ space.url_for() }}">
-            <div class="card-title">
-              <h2>{{ space.title }}</h2>
-              <h3>{{ space.datelocation }}</h3>
+    {% if spaces %}
+      <ul class="grid spaces">
+        {% for space in spaces %}
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+            <div class="grid__cell">
+              <a href="{{ space.url_for() }}" class="clickable-card">
+                <div class="card">
+                  <div class="card__image-wrapper">
+                    {% if space.bg_image %}
+                      <img class="card__image" src="{{ space.bg_image }}" alt="{{ space.title }}"/>
+                    {% else %}
+                      <div class="card__image--default">
+                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ space.title }}"/>
+                        <p class="card__image__tagline">{{ space.title }}</p>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="card__title">
+                    <h3 class="mui--text-title card__title__heading">{{ space.title }}</h3>
+                    <h4 class="mui--text-caption card__title__heading">{{ space.datelocation }}</h4>
+                  </div>
+                  {% if space.tagline %}
+                    <div class="card__body">
+                      <p class="mui--text-body2">{{ space.tagline }}</p>
+                    </div>
+                  {% endif %}
+                  <div class="mui-divider"></div>
+                  <div class="card__footer">
+                    <a href="{{ space.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Proposals</a>
+                    <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
+                  </div>
+                </div>
+              </a>
             </div>
-            <div class="card-body">
-              <p>{{ space.tagline }}</p>
-            </div>
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>{% trans %}There are no proposal spaces at this time.{% endtrans %}
-        {% if 'new-space' in g.permissions %}<a href="{{g.profile.url_for('new-space')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
-    </p>
-  {% endif %}
-
+          </li>
+        {%- endfor -%}
+      </ul>
+    {% else %}
+    <div class="grid">
+      <div class="grid__col-sm-12">
+        <p class="mui--text-headline">{% trans %}There are no proposal spaces at this time.{% endtrans %}
+          {% if 'new-space' in g.permissions %}<a href="{{g.profile.url_for('new-space')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 {% endblock %}
