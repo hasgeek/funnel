@@ -100,7 +100,7 @@ def space_view(profile, space):
         rsvp_form=rsvp_form, transition_form=transition_form)
 
 
-@app.route('/<space>/json')
+@app.route('/<profile>/<space>/json')
 @funnelapp.route('/<space>/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -137,7 +137,8 @@ def space_view_csv(profile, space):
     for proposal in proposals:
         out.writerow(proposal_data_flat(proposal, usergroups))
     outfile.seek(0)
-    return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
+    return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='application/octet-stream',
+        headers=[('Content-Disposition', 'attachment;filename="{space}.csv"'.format(space=space.title))])
 
 
 @app.route('/<profile>/<space>/edit', methods=['GET', 'POST'])
