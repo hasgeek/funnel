@@ -1,46 +1,71 @@
 {% extends "baseframe.html.jinja2" -%}
-{% from "baseframe/components.html.jinja2" import hgnav with context %}
+{% from "baseframe/components.html.jinja2" import hgtopnav with context %}
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
-{% block headerbox %}
-  {% macro site_title() %}
-    <div class="page-header">
-      <h1>
-        {%- if g.profile -%}
-          <a href="{{ url_for('index') }}"><i class="fa fa-filter"></i></a> <i class="fa fa-angle-right"></i>
-          <a href="{{ g.profile.url_for() }}">{{ g.profile.title }}</a>
-          {%- if space %}
-            {%- if space.parent_space %}
-              <i class="fa fa-angle-right"></i>
-              <a href="{{ space.parent_space.url_for() }}">{{ space.parent_space.short_title() }}</a>
-            {%- endif %}
-            <i class="fa fa-angle-right"></i>
-            <a href="{{ space.url_for() }}">{{ space.short_title() }}</a>
-          {%- endif %}
-        {%- else -%}
-          <a href="{{ url_for('index') }}"><i class="fa fa-filter"></i> {{ config['SITE_TITLE'] }}</a>
-        {%- endif -%}
-      </h1>
-    </div>
-  {% endmacro %}
-  {{ hgnav(site_title=site_title()) }}
+{% block sidedrawer -%}
+{%- endblock %}
 
-{% endblock %}
+{% block header -%}
+  {% macro site_title() %}
+    {%- if g.profile -%}
+      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+      <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
+      {%- if space %}
+        {%- if space.parent_space %}
+          <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+          <a href="{{ space.parent_space.url_for() }}" class="header__site-title__item">{{ space.parent_space.short_title() }}</a>
+        {%- endif %}
+        <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+        <a href="{{ space.url_for() }}" class="header__site-title__item">{{ space.short_title() }}</a>
+      {%- endif %}
+    {%- else -%}
+      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/> {{ config['SITE_TITLE'] }}</a>
+    {%- endif -%}
+  {% endmacro %}
+  {{ hgtopnav(site_title=site_title()) }}
+{%- endblock %}
 
 {%- block image_src %}
   <link rel="image_src" href="{{ url_for('static', filename='img/logo_og.png') }}" />
   <meta property="og:image" content="{{ url_for('static', filename='img/logo_og.png') }}" />
 {%- endblock %}
 
-{% block baseheadline -%}
+{% block bodytag %}<body class="mui--bg-primary">{% endblock %}
+
+{% block contenthead %}
+  {% block banner %}
+  {% endblock %}
   {% block headline -%}
-    <div class="page-header">
-      {% block top_title %}<h1>{{ self.title()|e }}</h1>{% endblock %}
+    <div class="content-head content-head--top-padding mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-xs-12">
+            {% block top_title %}
+            <h1 class="mui--text-display1">
+              {{ self.title()|e }}
+            </h1>
+            {% endblock %}
+          </div>
+        </div>
+      </div>
     </div>
   {%- endblock %}
-{%- endblock %}
+{% endblock %}
 
-{% block basecontent -%}
-  {% block content %}{% endblock %}
-{%- endblock %}
+{%- block baseheadline %}
+  {% block ads %}
+  {% endblock %}
+{% endblock %}
+
+{% block basecontent %}
+  <div class="page-content">
+    {% block contentwrapper %}
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+    {% endblock %}
+  </div>
+{% endblock %}

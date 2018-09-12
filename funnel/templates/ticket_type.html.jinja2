@@ -1,50 +1,33 @@
 {% extends "layout.html.jinja2" %}
-{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
-{% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{{ space.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
-{% block headline %}
-  <div class="page-header">
-    {#<h3><a href="{{ space.profile.url_for() }}">{{ space.profile.title }}</a> &nbsp;<i class="fa fa-angle-right"></i></h3>#}
-    <h1>{{ space.title }}</h1>
-  </div>
-{% endblock %}
 
-{% block content %}
-  <div class="row">
-    <div class="col-lg-3 col-sm-4 col-xs-6">
-      <h3>{{ticket_type.title}}</h3>
+{% block contentwrapper %}
+  <div class="grid">
+    <div class="grid__col-xs-6">
+      <h3 class="mui--text-title">{{ticket_type.title}} <a href={{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }}><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary">edit</i></a></h3>
     </div>
-    <div class="col-lg-9 col-sm-8 col-xs-6">
-      <h3 class='pull-right'>
+    <div class="grid__col-xs-6">
+      <h3 class="mui--text-title mui--text-right">
         Total: {{participants | length}}
       </h3>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-lg-3 col-sm-4 col-xs-6">
-      <form class="search-participant">
-        <input autofocus class="form-control search-query" id="search" type="text" name="key" value="" placeholder="Search"/>
+    <div class="grid__col-xs-6 grid__col-md-4">
+      <form class="search-participant mui-form">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input autofocus class="field-title search-query" id="search" type="text" name="key" value=""/>
+          <label>Search</label>
+        </div>
       </form>
     </div>
-    <div class="col-lg-9 col-xs-12">
-      <ul class="list-inline">
-        <li>
-          <a href={{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }}>Edit Ticket Type</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <br>
-  <div class="row">
-    <div class="col-md-12 col-lg-12">
-      <table class="table footable" id='participants-table'>
+    <div class="grid__col-xs-12">
+      <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
         <thead>
           <tr>
             <th>Name</th>
-            <th data-hide="phone">Email</th>
-            <th data-hide="tablet, phone">Company</th>
+            <th>Email</th>
+            <th>Company</th>
           </tr>
         </thead>
         <tbody>
@@ -61,21 +44,14 @@
   </div>
 {% endblock %}
 {% block footerscripts %}
-<script>
+<script type="text/javascript">
   $(document).ready(function() {
     var tableSearch = new window.TableSearch('participants-table');
 
     $('input#search').keyup(function(e){
-      $('#participants-table tbody tr').addClass('hidden');
+      $('#participants-table tbody tr').addClass('mui--hide');
       var hits = tableSearch.searchRows($(this).val());
-      $(hits.join(",")).removeClass('hidden');
-    });
-
-    $('.footable').footable({
-      breakpoints: {
-        phone: 600,
-        tablet: 768,
-      }
+      $(hits.join(",")).removeClass('mui--hide');
     });
 
   });

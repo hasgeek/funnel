@@ -174,9 +174,9 @@ def proposal_edit(profile, space, proposal):
     ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
     permission='confirm-proposal')
 def proposal_transition(profile, space, proposal):
-    transitionform = ProposalTransitionForm(obj=proposal)
-    if transitionform.validate_on_submit():  # check if the provided transition is valid
-        transition = getattr(proposal.current_access(), transitionform.transition.data)
+    transition_form = ProposalTransitionForm(obj=proposal)
+    if transition_form.validate_on_submit():  # check if the provided transition is valid
+        transition = getattr(proposal.current_access(), transition_form.transition.data)
         transition()  # call the transition
         db.session.commit()
         flash(transition.data['message'], 'success')
@@ -291,7 +291,7 @@ def proposal_view(profile, space, proposal):
             return redirect(proposal.url_for(), code=303)
     links = [Markup(linkify(unicode(escape(l)))) for l in proposal.links.replace('\r\n', '\n').split('\n') if l]
 
-    transitionform = ProposalTransitionForm(obj=proposal)
+    transition_form = ProposalTransitionForm(obj=proposal)
 
     proposal_move_form = None
     if 'move_to' in proposal.current_access():
@@ -300,7 +300,7 @@ def proposal_view(profile, space, proposal):
     return render_template('proposal.html.jinja2', space=space, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
-        links=links, transitionform=transitionform, proposal_move_form=proposal_move_form,
+        links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
         part_a=space.proposal_part_a.get('title', 'Objective'),
         part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 
