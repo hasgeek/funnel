@@ -137,7 +137,7 @@ def space_view_csv(profile, space):
     for proposal in proposals:
         out.writerow(proposal_data_flat(proposal, usergroups))
     outfile.seek(0)
-    return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='application/octet-stream',
+    return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
         headers=[('Content-Disposition', 'attachment;filename="{space}.csv"'.format(space=space.title))])
 
 
