@@ -18,17 +18,17 @@
             {%- endif %}
             {%- if g.user and 'edit-space' in g.permissions %}
               {%- if proposal.has_outstation_speaker %}
-                <i class="material-icons mui--align-middle" aria-label="Outstation Speaker">flight</i>
+                <i class="material-icons mui--text-subhead mui--align-middle" aria-label="Outstation Speaker">flight</i>
               {%- endif %}
             {%- endif %}
           {%- else -%}
             <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
           {%- endif -%}
         </p>
-        <ul class="mui-list--inline mui--text-body2 proposal_list--details">
+        <ul class="mui-list--inline mui--text-body2 proposal_list--details list-item-rgborder">
           {%- if proposal.proposal_space != space %}
             <li>{{ proposal.proposal_space.short_title() }}</li>
-          {% else %}
+          {% elif proposal.section.title %}
             <li>{{ proposal.section.title }}</li>
           {% endif %}
           <li>{{ proposal.technical_level }}</li>
@@ -49,12 +49,12 @@
             {% endif %}
           </li>
           <li>{{ proposal.comments.count }} comments</li>
-          <li>{{ proposal.datetime.strftime("%a, %e %b") }}</li>
+          <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
           {% if proposal.preview_video %}
-            <li><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons mui--align-top">play_arrow</i></li>
+            <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons icon-middle">play_arrow</i></li>
           {% endif %}
           {% if proposal.slides %}
-            <li><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons mui--align-top">slideshow</i></li>
+            <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons icon-middle">slideshow</i></li>
           {% endif %}
         </ul>
         <hr class="mui-divider">
@@ -70,21 +70,20 @@
 {% block top_title %}
   <h1 class="mui--text-display2"><strong>{{ space.title|e }}</strong></h1>
   <p class="mui--text-headline">{{ space.tagline|safe }}</p>
-  <ul class="mui-list--inline">
+  <ul class="mui-list--inline list-item-rgborder">
     {% if space.state.SUBMISSIONS -%}
-    <li>
+    <li class="no-border">
       <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
     </li>
     {% endif %}
     {%- if space.sessions %}
-      <li>
-        <a href="{{ space.url_for('schedule') }}" class="mui-btn mui-btn--small mui--text-hyperlink mui--bg-accent">{% trans %}View Schedule{% endtrans %}</a>
+      <li {%- if not space.state.SUBMISSIONS %} class="no-border"{% endif %}>
+        <a href="{{ space.url_for('schedule') }}" class="mui-btn mui-btn--small {%- if not space.state.SUBMISSIONS %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}View Schedule{% endtrans %}</a>
       </li>
-      <span>|</span>
     {%- endif %}
     {%- if space.buy_tickets_url %}
-      <li>
-        <a href="{{ space.buy_tickets_url }}" class="mui-btn mui-btn--small mui--text-hyperlink mui--bg-accent">{% trans %}Buy Tickets{% endtrans %}</a>
+      <li class="no-border">
+        <a href="{{ space.buy_tickets_url }}" class="mui-btn mui-btn--small {%- if not space.state.SUBMISSIONS and not space.sessions %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}Buy Tickets{% endtrans %}</a>
       </li>
     {%- endif %}
   </ul>
