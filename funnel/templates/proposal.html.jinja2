@@ -183,9 +183,9 @@
                   <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></li>
                   <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
                 </ul>
+                <hr class="mui-divider">
               {%- endif %}
               {% if proposal.current_roles.admin %}
-                <hr class="mui-divider">
                 {%- if proposal_move_form %}
                   {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move", style='horiz') }}
                 {%- endif %}
@@ -199,14 +199,15 @@
                     {% endfor %}
                   </p>
                 </form>
-                <hr class="mui-divider">
                 {% if 'participants' in votes_groups %}
+                  <hr class="mui-divider">
                   <p class="mui--text-subhead">Total Participant Votes</p>
                   <p class="mui--text-body2">
                     {% if votes_groups['participants'] > 0 %}+{% endif %}{{ votes_groups['participants'] }}
                   </p>
                 {% endif %}
                 {% if 'editorial-panel' in votes_groups %}
+                  <hr class="mui-divider">
                   <p class="mui--text-subhead">Total EP Votes</p>
                   <p class="mui--text-body2">
                   {% if votes_groups['editorial-panel'] > 0 %}+{% endif %}{{ votes_groups['editorial-panel'] }}</p>
