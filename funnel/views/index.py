@@ -7,23 +7,27 @@ from ..models import Profile, ProposalSpace, Proposal
 from .space import space_data
 
 
+def index_jsonify(data):
+    return jsonify(spaces=[d for d in [dict(s.current_access()) for s in data['spaces']] if d])
+
+
 @app.route('/')
-@render_with({'text/html': 'index.html.jinja2'}, json=True)
+@render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
 def index():
     g.profile = None
     g.permissions = []
     spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
-    return {'spaces': [d for d in [dict(s.current_access()) for s in spaces] if d]}
+    return {'spaces': spaces}
 
 
 @funnelapp.route('/', endpoint='index')
-@render_with({'text/html': 'funnelindex.html.jinja2'}, json=True)
+@render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
 def funnelindex():
     g.profile = None
     g.permissions = []
     spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
     # XXX: Can we just return index() ?
-    return {'spaces': [d for d in [dict(s.current_access()) for s in spaces] if d]}
+    return {'spaces': spaces}
 
 
 @app.route('/api/whoami')
@@ -67,6 +71,7 @@ def profile_view_jsonify(data):
 @funnelapp.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
+    print 'here'
     return render_template('index.html.jinja2', spaces=profile.parent_spaces)
 
 
