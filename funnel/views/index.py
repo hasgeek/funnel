@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import os.path
 from flask import g, render_template, redirect, jsonify
 from datetime import datetime
 from coaster.views import jsonp, load_model
-from .. import app
+from .. import app, pages
 from ..models import Profile, ProposalSpace, Proposal
 from .space import space_data
 
@@ -74,3 +75,10 @@ def space_redirect_csv(space):
 @load_model(Proposal, {'id': 'id'}, 'proposal')
 def proposal_redirect(proposal):
     return redirect(proposal.url_for())
+
+
+@app.route('/about/', defaults={'path': 'index'})
+@app.route('/about/policy/', defaults={'path': 'policy/index'})
+@app.route('/about/<path:path>')
+def about(path):
+    return render_template('about.html.jinja2', page=pages.get_or_404(os.path.join('about', path)))
