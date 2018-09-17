@@ -56,17 +56,6 @@ def spaces_json(profile):
     return jsonp(spaces=map(space_data, spaces))
 
 
-def profile_view_jsonify(data):
-    spaces_data = list()
-    for space in data['spaces']:
-        space_dict = dict(space.current_access())
-        if space_dict:
-            spaces_data.append(space_dict)
-    return jsonify(
-        profile=dict(data['profile'].current_access()),
-        spaces=spaces_data)
-
-
 @app.route('/<profile>/')
 @funnelapp.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
