@@ -4,7 +4,7 @@ import unicodecsv
 from cStringIO import StringIO
 from flask import g, flash, redirect, render_template, Response, request, make_response, abort, current_app
 from baseframe import _
-from baseframe.forms import render_form, render_message, FormGenerator
+from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 
 from .. import app, funnelapp, lastuser
@@ -35,32 +35,6 @@ def space_data(space):
         'bg_color': space.bg_color,
         'explore_url': space.explore_url,
         }
-
-
-# Test endpoint
-@app.route('/<profile>/form', methods=['GET', 'POST'])
-@funnelapp.route('/form', methods=['GET', 'POST'], subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    permission='view')
-def space_form_test(profile):
-    fields = [{
-        'name': 'test',
-        'label': 'Test Field',
-        'validators': ['Required'],
-    }, {
-        'name': 'phone',
-        'type': 'AnnotatedTextField',
-        'prefix': '+91',
-    }]
-    form = FormGenerator().generate(fields)()
-    if form.validate_on_submit():
-        class Target(object):
-            pass
-        target = Target()
-        form.populate_obj(target)
-        return render_message("Form submit", "Form content: " + repr(target.__dict__))
-    return render_form(form=form, title=_("Test form"), submit=_("Test submit"), cancel_url=profile.url_for())
 
 
 @app.route('/<profile>/new', methods=['GET', 'POST'])

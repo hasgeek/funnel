@@ -7,31 +7,23 @@ from ..models import Profile, ProposalSpace, Proposal
 from .space import space_data
 
 
-def index_jsonify(data):
-    spaces_data = list()
-    for space in data['spaces']:
-        space_dict = dict(space.current_access())
-        if space_dict:
-            spaces_data.append(space_dict)
-    return jsonify(spaces=spaces_data)
-
-
 @app.route('/')
-@render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
+@render_with({'text/html': 'index.html.jinja2'}, json=True)
 def index():
     g.profile = None
     g.permissions = []
     spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
-    return dict(spaces=spaces)
+    return {'spaces': [d for d in [dict(s.current_access()) for s in spaces] if d]}
 
 
 @funnelapp.route('/', endpoint='index')
-@render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
+@render_with({'text/html': 'funnelindex.html.jinja2'}, json=True)
 def funnelindex():
     g.profile = None
     g.permissions = []
     spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
-    return dict(spaces=spaces)
+    # XXX: Can we just return index() ?
+    return {'spaces': [d for d in [dict(s.current_access()) for s in spaces] if d]}
 
 
 @app.route('/api/whoami')
