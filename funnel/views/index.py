@@ -60,8 +60,7 @@ def spaces_json(profile):
 @funnelapp.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
-    print 'here'
-    return render_template('index.html.jinja2', spaces=profile.parent_spaces)
+    return render_template('index.html.jinja2', spaces=profile.parent_spaces_test)
 
 
 # Legacy routes for funnel to talkfunnel migration

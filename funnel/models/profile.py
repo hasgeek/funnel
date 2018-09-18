@@ -4,6 +4,7 @@ from flask import url_for
 from flask_lastuser.sqlalchemy import ProfileBase
 from werkzeug.utils import cached_property
 from . import db, MarkdownColumn
+from .space import SPACE_STATE
 from .user import Team
 
 __all__ = ['Profile']
@@ -18,8 +19,9 @@ class Profile(ProfileBase, db.Model):
     description = MarkdownColumn('description', default=u'', nullable=False)
 
     parent_spaces_test = db.relationship('ProposalSpace',
-        lazy='dynamic',
-        primaryjoin="and_(ProposalSpace.profile_id == Profile.id, ProposalSpace.parent_space_id == None)"
+        lazy='dynamic', order_by="ProposalSpace.date.desc()",
+        primaryjoin="and_(ProposalSpace.profile_id == Profile.id, ProposalSpace.parent_space_id == None,"
+            "ProposalSpace._state.in_({states}))".format(states=SPACE_STATE.CURRENTLY_LISTED)
         )
 
     __roles__ = {
