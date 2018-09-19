@@ -26,7 +26,6 @@ def funnelindex():
     g.profile = None
     g.permissions = []
     spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
-    # XXX: Can we just return index() ?
     return {'spaces': spaces}
 
 
