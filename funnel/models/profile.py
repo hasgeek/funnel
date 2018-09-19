@@ -18,12 +18,6 @@ class Profile(ProfileBase, db.Model):
 
     description = MarkdownColumn('description', default=u'', nullable=False)
 
-    parent_spaces_test = db.relationship('ProposalSpace',
-        lazy='dynamic', order_by="ProposalSpace.date.desc()",
-        primaryjoin="and_(ProposalSpace.profile_id == Profile.id, ProposalSpace.parent_space_id == None,"
-            "ProposalSpace._state.in_({states}))".format(states=SPACE_STATE.CURRENTLY_LISTED)
-        )
-
     __roles__ = {
         'all': {
             'read': {
