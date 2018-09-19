@@ -238,20 +238,20 @@
 
       <div class="proposal__section proposal__section--left">
         <div class="proposal-content">
-          <h3 class="mui--text-headline">{% trans %}{{part_a}}{% endtrans %}</h3>
+          <h3 class="mui--text-headline"><strong>{% trans %}{{part_a}}{% endtrans %}</strong></h3>
           {{ proposal.objective }}
-          <h3 class="mui--text-headline">{% trans %}{{part_b}}{% endtrans %}</h3>
+          <h3 class="mui--text-headline"><strong>{% trans %}{{part_b}}{% endtrans %}</strong></h3>
           {{ proposal.description }}
           {% if proposal.requirements.text -%}
-            <h3 class="mui--text-headline">{% trans %}Requirements{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Requirements{% endtrans %}</strong></h3>
             {{ proposal.requirements }}
           {%- endif %}
           {% if proposal.bio.text -%}
-            <h3 class="mui--text-headline">{% trans %}Speaker bio{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Speaker bio{% endtrans %}</strong></h3>
             {{ proposal.bio }}
           {%- endif %}
           {% if proposal.links %}
-            <h3 class="mui--text-headline">{% trans %}Links{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Links{% endtrans %}</strong></h3>
             <ul class="links-list">
               {% for link in links -%}
                 <li>{{ link }}</li>
@@ -259,7 +259,7 @@
             </ul>
           {% endif %}
           {% if proposal.slides %}
-            <h3 class="mui--text-headline">{% trans %}Slides{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Slides{% endtrans %}</strong></h3>
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
           {% endif %}
         </div>
