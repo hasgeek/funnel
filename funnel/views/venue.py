@@ -5,7 +5,7 @@ from coaster.views import load_models, requestargs
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Venue, VenueRoom
 from ..forms.venue import VenueForm, VenueRoomForm
 
@@ -43,7 +43,8 @@ def room_data(room):
         }
 
 
-@app.route('/<space>/venues', subdomain='<profile>')
+@app.route('/<profile>/<space>/venues')
+@funnelapp.route('/<space>/venues', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -53,7 +54,8 @@ def venue_list(profile, space):
     return render_template('venues.html.jinja2', space=space, venues=space.venues)
 
 
-@app.route('/<space>/venues/new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/venues/new', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/venues/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -73,7 +75,8 @@ def venue_new(profile, space):
     return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=space.url_for('venues'), ajax=False)
 
 
-@app.route('/<space>/venues/<venue>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/venues/<venue>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/venues/<venue>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -91,7 +94,8 @@ def venue_edit(profile, space, venue):
     return render_form(form=form, title=_("Edit venue"), submit=_("Save"), cancel_url=space.url_for('venues'), ajax=False)
 
 
-@app.route('/<space>/venues/<venue>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/venues/<venue>/delete', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/venues/<venue>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -105,7 +109,8 @@ def venue_delete(profile, space, venue):
         next=space.url_for('venues'))
 
 
-@app.route('/<space>/venues/<venue>/new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/venues/<venue>/new', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/venues/<venue>/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -126,7 +131,8 @@ def venueroom_new(profile, space, venue):
     return render_form(form=form, title=_("New room"), submit=_("Create"), cancel_url=space.url_for('venues'), ajax=False)
 
 
-@app.route('/<space>/venues/<venue>/<room>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/venues/<venue>/<room>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/venues/<venue>/<room>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -145,7 +151,8 @@ def venueroom_edit(profile, space, venue, room):
     return render_form(form=form, title=_("Edit room"), submit=_("Save"), cancel_url=space.url_for('venues'), ajax=False)
 
 
-@app.route('/<space>/venues/<venue>/<room>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/venues/<venue>/<room>/delete', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/venues/<venue>/<room>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -160,7 +167,8 @@ def venueroom_delete(profile, space, venue, room):
         next=space.url_for('venues'))
 
 
-@app.route('/<space>/update_venue_colors', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/update_venue_colors', methods=['POST'])
+@funnelapp.route('/<space>/update_venue_colors', methods=['POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),

@@ -6,7 +6,7 @@ from coaster.views import load_models
 from coaster.sqlalchemy import failsafe_add
 
 from .helpers import localize_date
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Proposal, ProposalRedirect, ProposalSpace, ProposalSpaceRedirect, Session
 from ..forms import SessionForm
 
@@ -55,7 +55,8 @@ def session_form(space, proposal=None, session=None):
         form=render_template('session_form.html.jinja2', form=form, formid='session_new'))
 
 
-@app.route('/<space>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/sessions/new', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -65,7 +66,8 @@ def session_new(profile, space):
     return session_form(space)
 
 
-@app.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/<proposal>/schedule', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/<proposal>/schedule', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -76,7 +78,8 @@ def proposal_schedule(profile, space, proposal):
     return session_form(space, proposal=proposal)
 
 
-@app.route('/<space>/<session>/viewsession-popup', methods=['GET'], subdomain='<profile>')
+@app.route('/<profile>/<space>/<session>/viewsession-popup', methods=['GET'])
+@funnelapp.route('/<space>/<session>/viewsession-popup', methods=['GET'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -86,7 +89,8 @@ def session_view_popup(profile, space, session):
     return render_template('session_view_popup.html.jinja2', session=session, timezone=space.timezone, localize_date=localize_date)
 
 
-@app.route('/<space>/<session>/editsession', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/<session>/editsession', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/<session>/editsession', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -97,7 +101,8 @@ def session_edit(profile, space, session):
     return session_form(space, session=session)
 
 
-@app.route('/<space>/<session>/deletesession', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/<session>/deletesession', methods=['POST'])
+@funnelapp.route('/<space>/<session>/deletesession', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

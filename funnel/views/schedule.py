@@ -8,11 +8,11 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
-from flask import render_template, json, jsonify, request, Response
+from flask import render_template, json, jsonify, request, Response, current_app
 
 from coaster.views import load_models, requestargs, jsonp, cors
 
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Session, VenueRoom, Venue
 from .helpers import localize_date
 from .venue import venue_data, room_data
@@ -118,7 +118,8 @@ def session_ical(session):
     return event
 
 
-@app.route('/<space>/schedule', subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule')
+@funnelapp.route('/<space>/schedule', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -131,7 +132,8 @@ def schedule_view(profile, space):
         rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
 
 
-@app.route('/<space>/schedule/subscribe', subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule/subscribe')
+@funnelapp.route('/<space>/schedule/subscribe', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -141,7 +143,8 @@ def schedule_subscribe(profile, space):
         space=space, venues=space.venues, rooms=space.rooms)
 
 
-@app.route('/<space>/schedule/json', subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule/json')
+@funnelapp.route('/<space>/schedule/json', subdomain='<profile>')
 @cors('*')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -153,7 +156,8 @@ def schedule_json(profile, space):
         rooms=[room_data(room) for room in space.rooms])
 
 
-@app.route('/<space>/schedule/ical', subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule/ical')
+@funnelapp.route('/<space>/schedule/ical', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -172,7 +176,8 @@ def schedule_ical(profile, space):
     return Response(cal.to_ical(), mimetype='text/calendar')
 
 
-@app.route('/<space>/schedule/<venue>/<room>/ical', subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule/<venue>/<room>/ical')
+@funnelapp.route('/<space>/schedule/<venue>/<room>/ical', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -205,7 +210,8 @@ def schedule_room_ical(profile, space, venue, room):
     return Response(cal.to_ical(), mimetype='text/calendar')
 
 
-@app.route('/<space>/schedule/<venue>/<room>/updates', subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule/<venue>/<room>/updates')
+@funnelapp.route('/<space>/schedule/<venue>/<room>/updates', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -237,7 +243,8 @@ def schedule_room_updates(profile, space, venue, room):
     return render_template('room_updates.html.jinja2', room=room, current=current, next=next, nextdiff=nextdiff)
 
 
-@app.route('/<space>/schedule/edit', subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule/edit')
+@funnelapp.route('/<space>/schedule/edit', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -262,7 +269,8 @@ def schedule_edit(profile, space):
         rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
 
 
-@app.route('/<space>/schedule/update', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/schedule/update', methods=['POST'])
+@funnelapp.route('/<space>/schedule/update', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -277,5 +285,5 @@ def schedule_update(profile, space, sessions):
             s.end = session['end']
             db.session.commit()
         except NoResultFound:
-            app.logger.error('{space} schedule update error: session = {session}'.format(space=space.name, session=session))
+            current_app.logger.error('{space} schedule update error: session = {session}'.format(space=space.name, session=session))
     return jsonify(status=True)
