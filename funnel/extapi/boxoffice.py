@@ -2,8 +2,8 @@
 
 from urlparse import urljoin
 import requests
+from flask import current_app
 from ..util import extract_twitter_handle
-from .. import app
 
 __all__ = ['Boxoffice']
 
@@ -15,7 +15,7 @@ class Boxoffice(object):
     def __init__(self, access_token, base_url=None):
         self.access_token = access_token
         if not base_url:
-            self.base_url = app.config['BOXOFFICE_SERVER']
+            self.base_url = current_app.config['BOXOFFICE_SERVER']
         else:
             self.base_url = base_url
 

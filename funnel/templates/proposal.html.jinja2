@@ -183,9 +183,9 @@
                   <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></li>
                   <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
                 </ul>
+                <hr class="mui-divider">
               {%- endif %}
               {% if proposal.current_roles.admin %}
-                <hr class="mui-divider">
                 {%- if proposal_move_form %}
                   {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move", style='horiz') }}
                 {%- endif %}
@@ -199,14 +199,15 @@
                     {% endfor %}
                   </p>
                 </form>
-                <hr class="mui-divider">
                 {% if 'participants' in votes_groups %}
+                  <hr class="mui-divider">
                   <p class="mui--text-subhead">Total Participant Votes</p>
                   <p class="mui--text-body2">
                     {% if votes_groups['participants'] > 0 %}+{% endif %}{{ votes_groups['participants'] }}
                   </p>
                 {% endif %}
                 {% if 'editorial-panel' in votes_groups %}
+                  <hr class="mui-divider">
                   <p class="mui--text-subhead">Total EP Votes</p>
                   <p class="mui--text-body2">
                   {% if votes_groups['editorial-panel'] > 0 %}+{% endif %}{{ votes_groups['editorial-panel'] }}</p>
@@ -237,20 +238,20 @@
 
       <div class="proposal__section proposal__section--left">
         <div class="proposal-content">
-          <h3 class="mui--text-headline">{% trans %}{{part_a}}{% endtrans %}</h3>
+          <h3 class="mui--text-headline"><strong>{% trans %}{{part_a}}{% endtrans %}</strong></h3>
           {{ proposal.objective }}
-          <h3 class="mui--text-headline">{% trans %}{{part_b}}{% endtrans %}</h3>
+          <h3 class="mui--text-headline"><strong>{% trans %}{{part_b}}{% endtrans %}</strong></h3>
           {{ proposal.description }}
           {% if proposal.requirements.text -%}
-            <h3 class="mui--text-headline">{% trans %}Requirements{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Requirements{% endtrans %}</strong></h3>
             {{ proposal.requirements }}
           {%- endif %}
           {% if proposal.bio.text -%}
-            <h3 class="mui--text-headline">{% trans %}Speaker bio{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Speaker bio{% endtrans %}</strong></h3>
             {{ proposal.bio }}
           {%- endif %}
           {% if proposal.links %}
-            <h3 class="mui--text-headline">{% trans %}Links{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Links{% endtrans %}</strong></h3>
             <ul class="links-list">
               {% for link in links -%}
                 <li>{{ link }}</li>
@@ -258,7 +259,7 @@
             </ul>
           {% endif %}
           {% if proposal.slides %}
-            <h3 class="mui--text-headline">{% trans %}Slides{% endtrans %}</h3>
+            <h3 class="mui--text-headline"><strong>{% trans %}Slides{% endtrans %}</strong></h3>
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
           {% endif %}
         </div>

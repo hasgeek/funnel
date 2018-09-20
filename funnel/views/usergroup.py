@@ -5,12 +5,13 @@ from coaster.views import load_models
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, User, UserGroup, ProposalSpace, ProposalSpaceRedirect
 from ..forms import UserGroupForm
 
 
-@app.route('/<space>/users', subdomain='<profile>')
+@app.route('/<profile>/<space>/users')
+@funnelapp.route('/<space>/users', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -20,7 +21,8 @@ def usergroup_list(profile, space):
     return render_template('usergroups.html.jinja2', space=space, usergroups=space.usergroups)
 
 
-@app.route('/<space>/users/<group>', subdomain='<profile>')
+@app.route('/<profile>/<space>/users/<group>')
+@funnelapp.route('/<space>/users/<group>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -31,12 +33,10 @@ def usergroup_view(profile, space, usergroup):
     return render_template('usergroup.html.jinja2', space=space, usergroup=usergroup)
 
 
-@app.route('/<space>/users/new',
-    defaults={'group': None},
-    endpoint='usergroup_new',
-    methods=['GET', 'POST'],
-    subdomain='<profile>')
-@app.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
+@app.route('/<profile>/<space>/users/<group>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -67,7 +67,8 @@ def usergroup_edit(profile, space, kwargs):
         return render_form(form=form, title=_("Edit user group"), submit=_("Save changes"))
 
 
-@app.route('/<space>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/users/<group>/delete', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

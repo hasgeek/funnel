@@ -1,7 +1,7 @@
+from flask import app
 from ..models import (db, TicketClient)
 from ..extapi.explara import ExplaraAPI
 from ..extapi.boxoffice import Boxoffice
-from funnel import app
 
 
 def import_tickets(ticket_client_id):

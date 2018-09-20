@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response
+from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response, current_app
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
@@ -7,7 +7,7 @@ from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models, requestargs
 from coaster.utils import midnight_to_utc, getbool
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, ProposalSpace, Attendee, ProposalSpaceRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
@@ -65,7 +65,8 @@ def participant_checkin_data(participant, space, event):
     }
 
 
-@app.route('/<space>/participants/json', subdomain='<profile>')
+@app.route('/<profile>/<space>/participants/json')
+@funnelapp.route('/<space>/participants/json', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -75,7 +76,8 @@ def participants_json(profile, space):
     return jsonify(participants=[participant_data(participant, space.id) for participant in space.participants])
 
 
-@app.route('/<space>/participants/new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/participants/new', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/participants/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -97,7 +99,8 @@ def new_participant(profile, space):
     return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
 
 
-@app.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -115,7 +118,8 @@ def participant_edit(profile, space, participant):
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
-@app.route('/<space>/participant', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/participant', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/participant', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -140,14 +144,15 @@ def participant(profile, space, puk, key):
             db.session.add(contact_exchange)
             db.session.commit()
         except IntegrityError:
-            app.logger.warning(u"Contact Exchange already present")
+            current_app.logger.warning(u"Contact Exchange already present")
             db.session.rollback()
         return jsonify(participant=participant_data(participant, space.id, full=True))
     else:
         return jsonify(message=u"Unauthorized contact exchange", code=401)
 
 
-@app.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
+@app.route('/<profile>/<space>/participant/<participant_id>/badge')
+@funnelapp.route('/<space>/participant/<participant_id>/badge', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -159,7 +164,8 @@ def participant_badge(profile, space, participant):
         badges=participant_badge_data([participant], space))
 
 
-@app.route('/<space>/event/<name>/participants/checkin', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/event/<name>/participants/checkin', methods=['POST'])
+@funnelapp.route('/<space>/event/<name>/participants/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -180,7 +186,8 @@ def event_checkin(profile, space, event):
     return redirect(url_for('event', profile=space.profile.name, space=space.name, name=event.name), code=303)
 
 
-@app.route('/<space>/event/<name>/participant/<puk>/checkin', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/event/<name>/participant/<puk>/checkin', methods=['POST'])
+@funnelapp.route('/<space>/event/<name>/participant/<puk>/checkin', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -198,7 +205,8 @@ def checkin_puk(profile, space, event, participant):
     return jsonify(attendee={'fullname': participant.fullname})
 
 
-@app.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
+@app.route('/<profile>/<space>/event/<name>/participants/json')
+@funnelapp.route('/<space>/event/<name>/participants/json', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -216,7 +224,8 @@ def event_participants_json(profile, space, event):
     return jsonify(participants=participants, total_participants=len(participants), total_checkedin=checkin_count)
 
 
-@app.route('/<space>/event/<name>/badges', subdomain='<profile>')
+@app.route('/<profile>/<space>/event/<name>/badges')
+@funnelapp.route('/<space>/event/<name>/badges', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
