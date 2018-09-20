@@ -1,0 +1,81 @@
+{% extends "layout.html.jinja2" %}
+
+{% block titletags -%}
+  <title>{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}</title>
+  <meta name="DC.title" content="{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}"/>
+{%- endblock %}
+
+{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
+
+{% block banner %}
+  {%- if not g.profile %}
+    <div class="banner">
+      <img src="{{ url_for('static', filename='img/banner-mobile.png') }}" class="banner__img banner__img--mobile"/>
+      <img src="{{ url_for('static', filename='img/banner-desktop.png') }}" class="banner__img banner__img--web"/>
+      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block headline %}
+{% endblock %}
+
+{% block basecontent %}
+  <div class="page-content {%- if not g.profile %} page-content--top-padding{% endif %}">
+    <div class="grid">
+      <div class="grid__col-sm-12">
+        {%- if g.profile %}
+          <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
+        {%- elif config['WELCOME_MESSAGE'] %}
+          <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
+        {% endif %}
+      </div>
+    </div>
+    {% if spaces %}
+      <ul class="grid spaces">
+        {% for space in spaces %}
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+            <div class="grid__cell">
+              <a href="{{ space.url_for() }}" class="clickable-card">
+                <div class="card">
+                  <div class="card__image-wrapper">
+                    {% if space.bg_image %}
+                      <img class="card__image" src="{{ space.bg_image }}" alt="{{ space.title }}"/>
+                    {% else %}
+                      <div class="card__image--default">
+                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ space.title }}"/>
+                        <p class="card__image__tagline">{{ space.title }}</p>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="card__title">
+                    <h3 class="mui--text-title card__title__heading">{{ space.title }}</h3>
+                    <h4 class="mui--text-caption card__title__heading">{{ space.datelocation }}</h4>
+                  </div>
+                  {% if space.tagline %}
+                    <div class="card__body">
+                      <p class="mui--text-body2">{{ space.tagline }}</p>
+                    </div>
+                  {% endif %}
+                  <div class="mui-divider"></div>
+                  <div class="card__footer">
+                    <a href="{{ space.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Proposals</a>
+                    <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {% else %}
+    <div class="grid">
+      <div class="grid__col-sm-12">
+        <p class="mui--text-headline">{% trans %}There are no proposal spaces at this time.{% endtrans %}
+          {% if 'new-space' in g.permissions %}<a href="{{g.profile.url_for('new-space')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}

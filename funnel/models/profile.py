@@ -2,7 +2,9 @@
 
 from flask import url_for
 from flask_lastuser.sqlalchemy import ProfileBase
+from werkzeug.utils import cached_property
 from . import db, MarkdownColumn
+from .space import SPACE_STATE
 from .user import Team
 
 __all__ = ['Profile']
@@ -15,6 +17,22 @@ class Profile(ProfileBase, db.Model):
     admin_team = db.relationship(Team)
 
     description = MarkdownColumn('description', default=u'', nullable=False)
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'id', 'name', 'title', 'description'
+                },
+            },
+        }
+
+    @cached_property
+    def parent_spaces(self):
+        from .space import ProposalSpace
+        spaces_all = ProposalSpace.fetch_sorted().filter(
+            ProposalSpace.profile == self, ProposalSpace.parent_space == None
+        ).all()
+        return spaces_all
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
