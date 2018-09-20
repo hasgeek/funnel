@@ -4,11 +4,12 @@ from flask import redirect, g, flash, abort, jsonify, request
 from coaster.views import jsonp, load_models
 from baseframe import _, forms
 
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Proposal, ProposalRedirect, Comment
 
 
-@app.route('/<space>/<proposal>/voteup', subdomain='<profile>', methods=['POST'])
+@app.route('/<profile>/<space>/<proposal>/voteup', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/voteup', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -28,7 +29,8 @@ def proposal_voteup(profile, space, proposal):
     return redirect(proposal.url_for(), code=303)
 
 
-@app.route('/<space>/<proposal>/votedown', subdomain='<profile>', methods=['POST'])
+@app.route('/<profile>/<space>/<proposal>/votedown', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/votedown', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -48,7 +50,8 @@ def proposal_votedown(profile, space, proposal):
     return redirect(proposal.url_for(), code=303)
 
 
-@app.route('/<space>/<proposal>/cancelvote', subdomain='<profile>', methods=['POST'])
+@app.route('/<profile>/<space>/<proposal>/cancelvote', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/cancelvote', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -68,7 +71,8 @@ def proposal_cancelvote(profile, space, proposal):
     return redirect(proposal.url_for(), code=303)
 
 
-@app.route('/<space>/<proposal>/comments/<int:comment>/json', subdomain='<profile>')
+@app.route('/<profile>/<space>/<proposal>/comments/<int:comment>/json')
+@funnelapp.route('/<space>/<proposal>/comments/<int:comment>/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -82,7 +86,8 @@ def comment_json(profile, space, proposal, comment):
         return jsonp(message='')
 
 
-@app.route('/<space>/<proposal>/comments/<int:comment>/voteup', subdomain='<profile>', methods=['POST'])
+@app.route('/<profile>/<space>/<proposal>/comments/<int:comment>/voteup', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/comments/<int:comment>/voteup', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -103,7 +108,8 @@ def comment_voteup(profile, space, proposal, comment):
     return redirect(comment.url_for(proposal=proposal), code=303)
 
 
-@app.route('/<space>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>', methods=['POST'])
+@app.route('/<profile>/<space>/<proposal>/comments/<int:comment>/votedown', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -124,7 +130,8 @@ def comment_votedown(profile, space, proposal, comment):
     return redirect(comment.url_for(proposal=proposal), code=303)
 
 
-@app.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>', methods=['POST'])
+@app.route('/<profile>/<space>/<proposal>/comments/<int:comment>/cancelvote', methods=['POST'])
+@funnelapp.route('/<space>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>', methods=['POST'])
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

@@ -3,15 +3,12 @@
 from flask import url_for
 from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn, JsonDict
 from .user import User, Team
-from .profile import Profile
 from .commentvote import VoteSpace, CommentSpace, SPACETYPE
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 from baseframe import __
-
-from collections import defaultdict
 
 __all__ = ['ProposalSpace', 'ProposalSpaceRedirect']
 
@@ -43,7 +40,7 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('spaces', cascade='all, delete-orphan'))
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True)  # nullable for transition
-    profile = db.relationship(Profile, backref=db.backref('spaces', cascade='all, delete-orphan'))
+    profile = db.relationship('Profile', backref=db.backref('spaces', cascade='all, delete-orphan'))
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
@@ -89,6 +86,23 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
 
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
+                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url'
+                },
+            },
+        }
+
+    @property
+    def url(self):
+        return self.url_for(_external=True)
+
+    @property
+    def url_json(self):
+        return self.url_for('json', _external=True)
 
     def __init__(self, **kwargs):
         super(ProposalSpace, self).__init__(**kwargs)
@@ -386,12 +400,11 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         return roles
 
 
-
 class ProposalSpaceRedirect(TimestampMixin, db.Model):
     __tablename__ = "proposal_space_redirect"
 
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False, primary_key=True)
-    profile = db.relationship(Profile, backref=db.backref('space_redirects', cascade='all, delete-orphan'))
+    profile = db.relationship('Profile', backref=db.backref('space_redirects', cascade='all, delete-orphan'))
     parent = db.synonym('profile')
     name = db.Column(db.Unicode(250), nullable=False, primary_key=True)
 

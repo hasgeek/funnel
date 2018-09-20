@@ -2,12 +2,12 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request, make_response, abort
+from flask import g, flash, redirect, render_template, Response, request, make_response, abort, current_app
 from baseframe import _
-from baseframe.forms import render_form, render_message, FormGenerator
+from baseframe.forms import render_form
 from coaster.views import load_models, jsonp
 
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection,
     Proposal, Rsvp, RSVP_STATUS)
 from ..forms import ProposalSpaceForm, ProposalSubspaceForm, RsvpForm, ProposalSpaceTransitionForm
@@ -37,32 +37,8 @@ def space_data(space):
         }
 
 
-# Test endpoint
-@app.route('/form', methods=['GET', 'POST'], subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    permission='view')
-def space_form_test(profile):
-    fields = [{
-        'name': 'test',
-        'label': 'Test Field',
-        'validators': ['Required'],
-    }, {
-        'name': 'phone',
-        'type': 'AnnotatedTextField',
-        'prefix': '+91',
-    }]
-    form = FormGenerator().generate(fields)()
-    if form.validate_on_submit():
-        class Target(object):
-            pass
-        target = Target()
-        form.populate_obj(target)
-        return render_message("Form submit", "Form content: " + repr(target.__dict__))
-    return render_form(form=form, title=_("Test form"), submit=_("Test submit"), cancel_url=profile.url_for())
-
-
-@app.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/new', methods=['GET', 'POST'])
+@funnelapp.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -71,7 +47,7 @@ def space_new(profile):
     form = ProposalSpaceForm(model=ProposalSpace, parent=profile)
     form.parent_space.query_factory = lambda: profile.spaces
     if request.method == 'GET':
-        form.timezone.data = app.config.get('TIMEZONE')
+        form.timezone.data = current_app.config.get('TIMEZONE')
     if form.validate_on_submit():
         space = ProposalSpace(user=g.user, profile=profile)
         form.populate_obj(space)
@@ -84,7 +60,8 @@ def space_new(profile):
     return render_form(form=form, title=_("Create a new proposal space"), submit=_("Create space"), cancel_url=profile.url_for())
 
 
-@app.route('/<space>/', subdomain='<profile>')
+@app.route('/<profile>/<space>/')
+@funnelapp.route('/<space>/', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -97,7 +74,8 @@ def space_view(profile, space):
         rsvp_form=rsvp_form, transition_form=transition_form)
 
 
-@app.route('/<space>/json', subdomain='<profile>')
+@app.route('/<profile>/<space>/json')
+@funnelapp.route('/<space>/json', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -115,7 +93,8 @@ def space_view_json(profile, space):
         })
 
 
-@app.route('/<space>/csv', subdomain='<profile>')
+@app.route('/<profile>/<space>/csv')
+@funnelapp.route('/<space>/csv', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
@@ -132,10 +111,12 @@ def space_view_csv(profile, space):
     for proposal in proposals:
         out.writerow(proposal_data_flat(proposal, usergroups))
     outfile.seek(0)
-    return Response(unicode(outfile.getvalue(), 'utf-8'), mimetype='text/plain')
+    return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
+        headers=[('Content-Disposition', 'attachment;filename="{space}.csv"'.format(space=space.title))])
 
 
-@app.route('/<space>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<space>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -148,7 +129,7 @@ def space_edit(profile, space):
         form = ProposalSpaceForm(obj=space, model=ProposalSpace)
     form.parent_space.query = ProposalSpace.query.filter(ProposalSpace.profile == profile, ProposalSpace.id != space.id, ProposalSpace.parent_space == None)
     if request.method == 'GET' and not space.timezone:
-        form.timezone.data = app.config.get('TIMEZONE')
+        form.timezone.data = current_app.config.get('TIMEZONE')
     if form.validate_on_submit():
         form.populate_obj(space)
         db.session.commit()
@@ -157,7 +138,8 @@ def space_edit(profile, space):
     return render_form(form=form, title=_("Edit proposal space"), submit=_("Save changes"))
 
 
-@app.route('/<space>/rsvp', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<space>/rsvp', methods=['POST'])
+@funnelapp.route('/<space>/rsvp', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -177,7 +159,8 @@ def rsvp(profile, space):
         abort(400)
 
 
-@app.route('/<space>/rsvp_list', subdomain='<profile>')
+@app.route('/<profile>/<space>/rsvp_list')
+@funnelapp.route('/<space>/rsvp_list', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -187,7 +170,8 @@ def rsvp_list(profile, space):
     return render_template('space_rsvp_list.html.jinja2', space=space, statuses=RSVP_STATUS)
 
 
-@app.route('/<space>/transition', methods=['POST', ], subdomain='<profile>')
+@app.route('/<profile>/<space>/transition', methods=['POST'])
+@funnelapp.route('/<space>/transition', methods=['POST', ], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
