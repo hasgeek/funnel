@@ -17,6 +17,23 @@ window.Talkfunnel.Utils = {
       }
     }
     return index;
+  },
+  collapse: function() {
+    $(".collapsible__header").click(function() {
+      window.vidya = this;
+      console.log("this", this);
+      $(this).find('.collapsible__icon').toggleClass("mui--hide");
+      var bodyEl = $(this).next(".collapsible__body");
+      var height = 0;
+
+      if(parseInt($(bodyEl).css('maxHeight'), 10)) {
+        height = 0 +'px';
+      } else {
+        height = $(bodyEl).prop('scrollHeight') + 'px';
+      }
+      
+      $(bodyEl).css('maxHeight', height);
+    });
   }
 }
 

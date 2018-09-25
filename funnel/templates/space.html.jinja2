@@ -219,8 +219,8 @@
       <hr class="mui-divider">
       {%- if 'view-status' in g.permissions %}
         {%- for state, proposal_group in space.proposals_by_state.items() if proposal_group -%}
-            <h2 class="mui--text-display1">{{ state.label.title }} {% trans %}proposals{% endtrans %}</h2>
-            {{ proposal_list(space, proposal_group) }}
+            <h2 class="mui--text-display1 collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></h2>
+            <div class="collapsible__body">{{ proposal_list(space, proposal_group) }}</div>
         {%- endfor -%}
       {%- else %}
         {%- if space.proposals_by_confirmation['confirmed'] %}
@@ -238,4 +238,9 @@
 
 {% block footerscripts %}
   {{ rsvpscript() }}
+  <script type="text/javascript">
+    $(function() {
+      window.Talkfunnel.Utils.collapse();
+    });
+  </script>
 {% endblock %}
