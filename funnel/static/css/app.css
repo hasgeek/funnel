@@ -241,17 +241,45 @@
 
 .slider-btn {
   position: absolute;
-  bottom: -75px;
+  top: 5px;
+}
+
+.slider-btn .mui-btn {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slider-btn .material-icons {
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 40px;
 }
 
 .slider-btn--left {
-  left: calc(50% - 70px);
+  left: 0;
 }
 
 .slider-btn--right {
-  right: calc(50% - 70px);
+  right: 0;
 }
 
+.proposal__section__headline {
+  margin-top: 40px;
+}
+
+@media (min-width: 768px) {
+  .slider-btn--left {
+    left: -15px;
+  }
+
+  .slider-btn--right {
+    right: -15px;
+  }
+}
 @media (min-width: 1300px) {
   .proposal-wrapper {
     margin-bottom: 15px;
@@ -267,6 +295,10 @@
 
   .slider-btn--right {
     right: -80px;
+  }
+
+  .proposal__section__headline {
+    margin-top: 0px;
   }
 }
 .proposal-status-wrapper {
@@ -431,6 +463,21 @@
   color: #4A90E2;
 }
 
+.proposal__admin-panel .mui-select {
+  width: 100%;
+}
+
+.proposal__admin-panel .btn-group .mui-btn {
+  margin-bottom: 15px;
+  margin-right: 20px;
+}
+
+@medium (min-width: 1200px) {
+  .proposal__admin-panel .btn-group .mui-btn {
+    margin-bottom: 10px;
+    margin-right: 10px;
+  }
+}
 .proposal-content {
   margin: 2em 0;
   min-height: 100px;
@@ -491,4 +538,14 @@
   100% {
     transform: rotate(360deg);
   }
+}
+.collapsible__icon {
+  cursor: pointer;
+}
+
+.collapsible__body {
+  box-sizing: border-box;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.15s ease-out;
 }

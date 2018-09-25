@@ -22,9 +22,9 @@
 
     <div class="slider-btn slider-btn--left">
       {%- if proposal.getprev() -%}
-        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--fab mui-btn--dark"><i class="material-icons mui--text-display2">chevron_left</i></a>
+        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--dark"><i class="material-icons">chevron_left</i></a>
       {%- else -%}
-        <button class="mui-btn mui-btn--fab mui-btn--dark" disabled><i class="material-icons mui--text-display2">chevron_left</i></button>
+        <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_left</i></button>
       {%- endif -%}
     </div>
 
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <h1 class="mui--text-headline"><strong>{{ proposal.title }}</strong></h1>
+      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong></h1>
       <p>
         {% trans %}Submitted by{% endtrans%}
         {%- if proposal.speaker %}
@@ -309,9 +309,9 @@
 
     <div class="slider-btn slider-btn--right">
       {%- if proposal.getnext() -%}
-        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--fab mui-btn--dark"><i class="material-icons mui--text-display2">chevron_right</i></a>
+        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--dark"><i class="material-icons">chevron_right</i></a>
       {%- else -%}
-        <button class="mui-btn mui-btn--fab mui-btn--dark" disabled><i class="material-icons mui--text-display2">chevron_right</i></button>
+        <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_right</i></button>
       {%- endif -%}
     </div>
   </div>
