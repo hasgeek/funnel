@@ -19,27 +19,16 @@ window.Talkfunnel.Utils = {
     return index;
   },
   collapse: function() {
-    $(".collapsible__header").click(function() {
-      window.vidya = this;
-      console.log("this", this);
-      $(this).find('.collapsible__icon').toggleClass("mui--hide");
-      var bodyEl = $(this).next(".collapsible__body");
-      var height = 0;
-
-      if(parseInt($(bodyEl).css('maxHeight'), 10)) {
-        height = 0 +'px';
-      } else {
-        height = $(bodyEl).prop('scrollHeight') + 'px';
-      }
-      
-      $(bodyEl).css('maxHeight', height);
+    $('.collapsible__header').click(function() {
+      $(this).find('.collapsible__icon').toggleClass('mui--hide');
+      $(this).next('.collapsible__body').slideToggle();
     });
   }
 }
 
 window.Talkfunnel.Comments = {
   init: function(pageURL) {
-    $(".comment .js-collapse").click(function() {
+    $('.comment .js-collapse').click(function() {
       $(this).addClass('mui--hide');
       $(this).siblings('.js-uncollapse').removeClass('mui--hide');
       $(this).parent().siblings('.comment--body').slideUp("fast");
@@ -47,7 +36,7 @@ window.Talkfunnel.Comments = {
       return false;
     });
 
-    $(".comment .js-uncollapse").click(function() {
+    $('.comment .js-uncollapse').click(function() {
       $(this).addClass('mui--hide');
       $(this).siblings('.js-collapse').removeClass('mui--hide');
       $(this).parent().siblings('.comment--body').slideDown("fast");
@@ -55,7 +44,7 @@ window.Talkfunnel.Comments = {
       return false;
     });
 
-    $(".comment .js-comment-reply").click(function() {
+    $('.comment .js-comment-reply').click(function() {
       var cfooter = $(this).parent();
       $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
       $('#comment-form  input[name="comment_edit_id"]').val('');
@@ -66,29 +55,29 @@ window.Talkfunnel.Comments = {
       return false;
     });
 
-    $("#toplevel-comment a").click(function() {
+    $('#toplevel-comment a').click(function() {
       $('#comment-form  input[name="parent_id"]').val('');
       $('#comment-form  input[name="comment_edit_id"]').val('');
-      $("#comment-submit").val("Post comment"); // i18n gotcha
-      $(this).parent().after($("#comment-form"));
+      $('#comment-submit').val("Post comment"); // i18n gotcha
+      $(this).parent().after($('#comment-form'));
       $(this).parent().addClass('mui--hide');
-      $("#comment-form textarea").focus();
+      $('#comment-form textarea').focus();
       return false;
     });
 
-    $(".comment .js-comment-delete").click(function() {
+    $('.comment .js-comment-delete').click(function() {
       var cfooter = $(this).parent();
       $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
-      $("#delcomment").removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
+      $('#delcomment').removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
       return false;
     });
 
-    $("#comment-delete-cancel").click(function() {
-      $("#delcomment").slideUp("fast");
+    $('#comment-delete-cancel').click(function() {
+      $('#delcomment').slideUp('fast');
       return false;
     });
 
-    $(".comment .js-comment-edit").click(function() {
+    $('.comment .js-comment-edit').click(function() {
       var cfooter = $(this).parent();
       var cid = cfooter.attr('data-id');
       $("#comment-form textarea").val("Loading..."); // i18n gotcha
@@ -97,10 +86,10 @@ window.Talkfunnel.Comments = {
       });
       $('#comment-form input[name="parent_id"]').val('');
       $('#comment-form input[name="comment_edit_id"]').val(cid);
-      $("#toplevel-comment").removeClass('mui--hide');
-      $("#comment-submit").val("Save changes"); // i18n gotcha
-      cfooter.after($("#comment-form"));
-      $("#comment-form textarea").focus();
+      $('#toplevel-comment').removeClass('mui--hide');
+      $('#comment-submit').val("Save changes"); // i18n gotcha
+      cfooter.after($('#comment-form'));
+      $('#comment-form textarea').focus();
       return false;
     });
   }
