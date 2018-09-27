@@ -60,8 +60,8 @@ lastuser.init_app(funnelapp)
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
-    ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
-     'ractive', 'jquery-easytabs'], theme='mui')
+    'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
+    'jquery-easytabs'], theme='mui')
 app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -71,13 +71,22 @@ app.assets.register('css_fullcalendar',
 app.assets.register('js_schedules',
     Bundle(assets.require('schedules.js'),
         output='js/schedules.packed.js', filters='uglipyjs'))
+app.assets.register('js_codemirrormarkdown',
+    Bundle(assets.require('codemirror-markdown.js'),
+        output='js/codemirror-markdown.packed.js', filters='uglipyjs'))
+app.assets.register('css_codemirrormarkdown',
+    Bundle(assets.require('codemirror-markdown.css', 'pygments.css'),
+        output='css/codemirror-markdown.packed.css', filters='cssmin'))
+app.assets.register('js_ractive',
+    Bundle(assets.require('ractive.js'),
+        output='js/ractive.packed.js', filters='uglipyjs'))
 app.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
 
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
-    ('codemirror-markdown', 'pygments'), 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
-     'ractive', 'jquery-easytabs'], theme='mui')
+    'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
+    'jquery-easytabs'], theme='mui')
 funnelapp.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -87,6 +96,15 @@ funnelapp.assets.register('css_fullcalendar',
 funnelapp.assets.register('js_schedules',
     Bundle(assets.require('schedules.js'),
         output='js/schedules.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('js_codemirrormarkdown',
+    Bundle(assets.require('codemirror-markdown.js'),
+        output='js/codemirror-markdown.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('css_codemirrormarkdown',
+    Bundle(assets.require('codemirror-markdown.css', 'pygments.css'),
+        output='css/codemirror-markdown.packed.css', filters='cssmin'))
+funnelapp.assets.register('js_ractive',
+    Bundle(assets.require('ractive.js'),
+        output='js/ractive.packed.js', filters='uglipyjs'))
 funnelapp.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))

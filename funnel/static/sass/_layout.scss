@@ -75,27 +75,13 @@
 
 @media (min-width: 992px) {
   .banner {
-    border: 1px solid rgba(132,146,166,0.3);
+    border-bottom: 2px solid rgba(132,146,166,0.3);
   }
 }
 
 .banner__img {
   width: 100%;
-  min-height: 150px;
   display: block;
-}
-
-.banner__img--web {
-  display: none;
-}
-
-@media(min-width: 992px) {
-  .banner__img--mobile {
-    display: none;
-  }
-  .banner__img--web {
-    display: block;
-  }
 }
 
 .banner__headline {
