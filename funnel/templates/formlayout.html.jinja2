@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" -%}
+
+{%- block layoutheaders %}
+  {% assets "css_codemirrormarkdown" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
+{% block appscripts %}
+  {% assets "js_codemirrormarkdown" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+{% endblock %}
