@@ -49,6 +49,9 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% assets "js_ractive" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
