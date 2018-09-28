@@ -60,7 +60,7 @@ lastuser.init_app(funnelapp)
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
-    'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
+    'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
     'jquery-easytabs'], theme='mui')
 app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
@@ -75,7 +75,7 @@ app.assets.register('js_codemirrormarkdown',
     Bundle(assets.require('codemirror-markdown.js'),
         output='js/codemirror-markdown.packed.js', filters='uglipyjs'))
 app.assets.register('css_codemirrormarkdown',
-    Bundle(assets.require('codemirror-markdown.css', 'pygments.css'),
+    Bundle(assets.require('codemirror-markdown.css'),
         output='css/codemirror-markdown.packed.css', filters='cssmin'))
 app.assets.register('js_ractive',
     Bundle(assets.require('ractive.js'),
@@ -85,7 +85,7 @@ app.assets.register('css_screens',
         output='css/screens.packed.css', filters='cssmin'))
 
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
-    'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
+    'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
     'jquery-easytabs'], theme='mui')
 funnelapp.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
@@ -100,7 +100,7 @@ funnelapp.assets.register('js_codemirrormarkdown',
     Bundle(assets.require('codemirror-markdown.js'),
         output='js/codemirror-markdown.packed.js', filters='uglipyjs'))
 funnelapp.assets.register('css_codemirrormarkdown',
-    Bundle(assets.require('codemirror-markdown.css', 'pygments.css'),
+    Bundle(assets.require('codemirror-markdown.css'),
         output='css/codemirror-markdown.packed.css', filters='cssmin'))
 funnelapp.assets.register('js_ractive',
     Bundle(assets.require('ractive.js'),
