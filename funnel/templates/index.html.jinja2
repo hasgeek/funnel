@@ -63,7 +63,9 @@
                   <div class="mui-divider"></div>
                   <div class="card__footer">
                     <a href="{{ space.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Proposals</a>
-                    <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
+                    {% if space.buy_tickets_url %}
+                      <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
+                    {% endif %}
                   </div>
                 </div>
               </a>
