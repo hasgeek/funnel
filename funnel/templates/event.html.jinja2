@@ -100,6 +100,9 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% assets "js_ractive" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
 <script type="text/javascript">
   window.Talkfunnel.Config = {
     badgeUrl: "{{ url_for('participant_badge', profile=space.profile.name, space=space.name, participant_id='participant-id') }}",
