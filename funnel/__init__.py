@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 import coaster.app
 from flask import Flask
+from flask_flatpages import FlatPages
 from flask_migrate import Migrate
 from flask_mail import Mail
 from flask_lastuser import Lastuser
@@ -16,6 +17,7 @@ app = Flask(__name__, instance_relative_config=True)
 funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=True)
 mail = Mail()
 lastuser = Lastuser()
+pages = FlatPages()
 
 
 # --- Assets ------------------------------------------------------------------
@@ -58,6 +60,7 @@ lastuser.init_app(app)
 lastuser.init_app(funnelapp)
 
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))
+pages.init_app(app)
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
