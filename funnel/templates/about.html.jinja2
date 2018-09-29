@@ -1,6 +1,18 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ page.title }}{% endblock %}
 
+{% block header -%}
+  {% macro site_title() %}
+    <a href="{{ url_for('index') }}" class="header__site-title__item">{{ config['SITE_TITLE'] }}</a>
+  {%- endmacro -%}
+  {{ hgtopnav(site_title=site_title()) }}
+{%- endblock %}
+
+{%- block image_src %}
+  <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png') }}" />
+  <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png') }}" />
+{%- endblock %}
+
 {% block top_title %}
   <h1 class="mui--text-display1"><strong>{{ self.title() }}</strong></h1>
 {% endblock %}
