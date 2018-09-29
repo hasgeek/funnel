@@ -10,8 +10,11 @@
 {% block banner %}
   {%- if not g.profile %}
     <div class="banner">
-      <img src="{{ url_for('static', filename='img/banner-mobile.png') }}" class="banner__img banner__img--mobile"/>
-      <img src="{{ url_for('static', filename='img/banner-desktop.png') }}" class="banner__img banner__img--web"/>
+      <picture>
+        <source media="(max-width: 992px)" srcset="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
+        <source srcset="{{ url_for('static', filename='img/banner-desktop.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
+        <img src="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
+      </picture>
       <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
     </div>
   {% endif %}
@@ -60,7 +63,9 @@
                   <div class="mui-divider"></div>
                   <div class="card__footer">
                     <a href="{{ space.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Proposals</a>
-                    <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
+                    {% if space.buy_tickets_url %}
+                      <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
+                    {% endif %}
                   </div>
                 </div>
               </a>
