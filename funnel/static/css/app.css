@@ -1,3 +1,26 @@
+.hg-banner {
+  padding-top: 2em;
+}
+
+.logo-wrapper {
+  max-width: 200px;
+}
+
+.hg-logo {
+  width: 185px;
+  height: 139px;
+}
+
+.hg-banner .s1 {
+  color: #df5e0e;
+}
+.hg-banner .s2 {
+  color: #816894;
+}
+.hg-banner .s3 {
+  color: #f0a40c;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;

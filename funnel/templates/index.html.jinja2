@@ -1,21 +1,58 @@
 {% extends "layout.html.jinja2" %}
 
 {% block titletags -%}
-  <title>{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}</title>
-  <meta name="DC.title" content="{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}"/>
+  <title>{% block title %}{{ config['SITE_TITLE'] }}{% endblock %}</title>
+  <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
 {%- endblock %}
 
-{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
+{% block header -%}
+  {% macro site_title() %}
+    <a href="{{ url_for('index') }}" class="header__site-title__item">{{ config['SITE_TITLE'] }}</a>
+  {%- endmacro -%}
+  {{ hgtopnav(site_title=site_title()) }}
+{%- endblock %}
+
+{%- block image_src %}
+  <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png') }}" />
+  <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png') }}" />
+{%- endblock %}
+
+{% block bodytag %}<body class="mui--bg-primary">{% endblock %}
 
 {% block banner %}
   {%- if not g.profile %}
-    <div class="banner">
-      <picture>
-        <source media="(max-width: 992px)" srcset="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
-        <source srcset="{{ url_for('static', filename='img/banner-desktop.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
-        <img src="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
-      </picture>
-      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
+    <div class="mui-container hg-banner">
+      <div class="grid">
+        <div class="grid__col-auto logo-wrapper mui--hidden-xs">
+          <img src="{{ url_for('static', filename='img/hg-logo.png') }}" alt="HasGeek logo" class="hg-logo" />
+        </div>
+        <div class="grid__col-auto">
+          <p class="mui--text-display1">
+            <span class="s1">Hello!</span>
+            <span class="s2">HasGeek creates discussion spaces for geeks.</span>
+            <span class="s3">Come to our events to meet like-minded people,</span>
+            <span class="s1">learn new things</span>
+            <span class="s2">and discover new opportunities.</span>
+          </p>
+        </div>
+      </div>
+      <div class="grid spaces">
+        <div class="grid__col-xs-12 grid__col-sm-6">
+          <p class="mui--text-headline">
+            We operate <a href="https://hasjob.co/" class="click">Hasjob</a>,
+            hang out on a <a href="https://friends.hasgeek.com/" class="click">Slack channel</a>, and
+            <a href="https://github.com/hasgeek" class="click">publish our code</a>.
+            Our activities reach thousands of developers every month.
+          </p>
+        </div>
+        <div class="grid__col-xs-12 grid__col-sm-6">
+          <p class="mui--text-headline">
+            <a href="https://talkfunnel.com/" class="click">Speak at our events</a>,
+            or <a href="http://eepurl.com/cygsfr" class="click">sign up to be notified</a> when we do one.
+            Watch videos from past events on <a href="https://hasgeek.tv/" class="click">HasGeek TV</a>.
+          </p>
+        </div>
+      </div>
     </div>
   {% endif %}
 {% endblock %}
@@ -24,63 +61,232 @@
 {% endblock %}
 
 {% block basecontent %}
-  <div class="page-content {%- if not g.profile %} page-content--top-padding{% endif %}">
+  <div class="page-content">
     <div class="grid">
-      <div class="grid__col-sm-12">
-        {%- if g.profile %}
-          <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
-        {%- elif config['WELCOME_MESSAGE'] %}
-          <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
-        {% endif %}
+      <div class="grid__col-xs-12">
+        <h2><span><span class="mui--text-headline">Upcoming Events</span> <span class="mui--text-caption">(<a href="https://github.com/hasgeek/events" target="_blank" class="click">Add your event</a>)</span></span></h2>
       </div>
     </div>
-    {% if spaces %}
-      <ul class="grid spaces">
-        {% for space in spaces %}
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-            <div class="grid__cell">
-              <a href="{{ space.url_for() }}" class="clickable-card">
-                <div class="card">
-                  <div class="card__image-wrapper">
-                    {% if space.bg_image %}
-                      <img class="card__image" src="{{ space.bg_image }}" alt="{{ space.title }}"/>
-                    {% else %}
-                      <div class="card__image--default">
-                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ space.title }}"/>
-                        <p class="card__image__tagline">{{ space.title }}</p>
-                      </div>
-                    {% endif %}
-                  </div>
-                  <div class="card__title">
-                    <h3 class="mui--text-title card__title__heading">{{ space.title }}</h3>
-                    <h4 class="mui--text-caption card__title__heading">{{ space.datelocation }}</h4>
-                  </div>
-                  {% if space.tagline %}
-                    <div class="card__body">
-                      <p class="mui--text-body2">{{ space.tagline }}</p>
-                    </div>
-                  {% endif %}
-                  <div class="mui-divider"></div>
-                  <div class="card__footer">
-                    <a href="{{ space.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Proposals</a>
-                    {% if space.buy_tickets_url %}
-                      <a href="{{space.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
-                    {% endif %}
-                  </div>
-                </div>
-              </a>
-            </div>
-          </li>
-        {%- endfor -%}
-      </ul>
-    {% else %}
-    <div class="grid">
-      <div class="grid__col-sm-12">
-        <p class="mui--text-headline">{% trans %}There are no proposal spaces at this time.{% endtrans %}
-          {% if 'new-space' in g.permissions %}<a href="{{g.profile.url_for('new-space')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+    <div id="events-container" class="grid spaces">
+      <div class="grid__col-xs-12">
+        <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i>
+      </div>
+    </div>
+
+    <div class="grid spaces">
+      <div class="grid__col-xs-12">
+        <h2 class="mui--text-headline">Upcoming Conferences</h2>
+      </div>
+    </div>
+    <div id="conf-container" class="grid spaces">
+      <div class="grid__col-xs-12">
+        <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <div class="mui-container">
+    <div class="grid mui--text-body2 mui--text-left">
+      <div class="grid__col-sm-6">
+        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-18 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/">About us and site policies</a></p>
+        <p>
+          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com">info@hasgeek.com</a>, <a href="tel:+917676332020">+91 7676 33 2020</a>
+        </p>
+      </div>
+      <div class="grid__col-sm-3">
+        <div>
+          <p id="footer-twitter">
+            <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank">Follow @hasgeek</a>
+          </p>
+          <a class="fb-like separator" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
+        </div>
+      </div>
+      <div class="grid__col-sm-3">
+        <p>
+          Hosted by <a href="http://e2enetworks.com/" target="_blank">E2E Networks</a>
         </p>
       </div>
     </div>
-    {% endif %}
   </div>
+{% endblock %} 
+
+{% block footerscripts %}
+  {% assets "js_ractive" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.13/moment-timezone-with-data.min.js"></script>
+  {% raw %}
+  <script id='event-card' type='text/ractive'>
+    <div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+      <div class="grid__cell">
+        <div class="card">
+          <div class="card__header">
+            <div class="card__header__title mui--d-inlineblock">
+              <h3 class="mui--text-title card__title__heading">{{ title }}</h3>
+              <h4 class="mui--text-subhead card__title__heading">{{ date }}, {{ city }}</h4>
+            </div>
+            {{#if logo}}
+              <img class="card__header__logo-image" src="{{ logo }}">
+            {{/if}}
+          </div>
+          <div class="card__body">
+            <p class="mui--text-body2">{{ blurb }}</p>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__footer">
+            {{#if url}}
+              <a href="{{ url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Attend</a>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+  <script id='conf-card' type='text/ractive'>
+    <div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+      <div class="grid__cell">
+        <div class="card" itemscope itemtype="http://schema.org/Event">
+          <div class="card__image-wrapper">
+            {{#if banner }}
+              <img class="card__image" src="{{ banner }}" alt="{{ title }}"/>
+            {{else }}
+              <div class="card__image--default">
+                <img class="card__image" src="https://static.talkfunnel.com/static/img/card-background.png" alt="{{ title }}"/>
+                <p class="card__image__tagline">{{ title }}</p>
+              </div>
+            {{/if}}
+          </div>
+          <div class="card__title">
+            <h3 class="mui--text-title card__title__heading" itemprop="name">{{ title }}</h3>
+            <h4 class="mui--text-subhead card__title__heading">{{ date }}</h4>
+          </div>
+          <div class="card__body">
+            <div class="mui--text-body2">
+              <span itemprop="startDate" content="{{ start_time }}"></span>
+              <span itemprop="endDate" content="{{ end_time }}"></span>
+              <div class="location" itemprop="location" itemscope itemtype="http://schema.org/Place">
+                <span itemprop="name">{{ venue }}</span>
+                <div class="address" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+                  <span itemprop="addressLocality">{{ city }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__footer">
+            {{#if url}}
+              <a href="{{ url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" target="_blank" data-action="Buy tickets" itemprop="url">Tickets</a>
+            {{/if}}
+            {{#if funnel}}
+              <a href="{{ funnel }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" target="_blank" data-action="View proposals">Proposals</a>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+  <script>
+    $(document).ready(function (argument) {
+      loadEvents();
+    });
+
+    function loadEvents() {
+      $.getJSON("https://hasgeek.github.io/events/api/all.json")
+        .done(function success(data) {
+
+          eventComponent = Ractive.extend({
+            template: '{{#if inFuture}}{{>event-card}}{{/if}}',
+            computed: {
+              inFuture: function() {
+                return new Date(this.get('end_time')) > new Date();
+              },
+              date: function () {
+                startTime = moment(this.get('start_time')).tz("Asia/Kolkata")
+                endTime = moment(this.get('end_time')).tz("Asia/Kolkata")
+                if (startTime.format("D MMM YYYY") === endTime.format("D MMM YYYY")) { // same day
+                  return startTime.format('ddd D MMM, h:mm a')+"–"+endTime.format("h:mm a");
+                }
+                else { // multiple days
+                  return startTime.format("D")+"–"+endTime.format("D MMM YYYY");
+                }
+              },
+            }
+          });
+
+          confComponent = Ractive.extend({
+            template: '{{#if inFuture}}{{>conf-card}}{{/if}}',
+            computed: {
+              inFuture: function() {
+                return new Date(this.get('start_time')) > new Date();
+              },
+              date: function () {
+                startTime = moment(this.get('start_time')).tz("Asia/Kolkata")
+                endTime = moment(this.get('end_time')).tz("Asia/Kolkata")
+                if (startTime.format("D MMM YYYY") === endTime.format("D MMM YYYY")) { // same day
+                  return endTime.format("D MMM YYYY");
+                }
+                else { // multiple days
+                  return startTime.format("D")+"–"+endTime.format("D MMM YYYY");
+                }
+              },
+            }
+          });
+
+          ractive = new Ractive({
+            el: 'events-container',
+            template: '{{#events:idx}}<event/>{{/events}}',
+            data: {
+              events: data.events
+            },
+            oncomplete: function() {
+              $('#events-container .btn').click(function(event) {
+                var target = $(this).attr('href');
+                var action = $(this).data('action');
+                HasWeb.sendGA('click', action, target);
+              });
+            },
+            components: { event: eventComponent }
+          });
+
+          ractive = new Ractive({
+            el: 'conf-container',
+            template: '{{#conferences:idx}}<conf/>{{/conferences}}',
+            data: {
+              conferences: data.conferences
+            },
+            oncomplete: function() {
+              $('#conf-container .btn').click(function(event) {
+                var target = $(this).attr('href');
+                var action = $(this).data('action');
+                HasWeb.sendGA('click', action, target);
+              });
+              $('.card-wrapper').attr('itemscope', '');
+              $('.location').attr('itemscope', '');
+              $('.address').attr('itemscope', '');
+              $('.offers').attr('itemscope', '');
+            },
+            components: { conf: confComponent }
+          });
+
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+          var err = textStatus + ", " + error;
+          console.log("Request Failed: " + err );
+        });
+    }
+
+    function loadConferences() {
+      $.getJSON("https://hasgeek.github.io/events/conferences.json")
+        .done(function success(data) {
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+          var err = textStatus + ", " + error;
+          console.log("Request Failed: " + err );
+        });
+    }
+  </script>
+  {% endraw %}
 {% endblock %}
