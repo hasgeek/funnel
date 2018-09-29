@@ -84,3 +84,26 @@
     {% endif %}
   </div>
 {% endblock %}
+
+{% block footer %}
+  <div class="mui-container">
+    <div class="grid">
+      <div class="grid__col-sm-12 mui--text-body2">
+        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %}Copyright &copy; 2010-18 HasGeek{% endtrans %}{% endif %}</p>
+        <p><a href="/about/">About us and site policies</a></p>
+        <p>
+          #2699, 19th Main, 5th Cross, <br>Indiranagar HAL 2nd Stage, Bangalore - 560008, <br><a href="mailto:info@hasgeek.com">info@hasgeek.com</a>, <a href="tel:+917676332020">+91 7676 33 2020</a>
+        </p>
+        <div>
+          <p id="footer-twitter" class="mui--d-inlineblock">
+            <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank">Follow @hasgeek</a>
+          </p>
+          <a class="fb-like separator" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
+        </div>
+        <p>
+          Hosted by <a href="http://e2enetworks.com/" target="_blank">E2E Networks</a>
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

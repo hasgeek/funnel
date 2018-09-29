@@ -1,0 +1,47 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block top_title %}
+  <h1 class="mui--text-display1"><strong>{{ self.title() }}</strong></h1>
+{% endblock %}
+
+{% block contentwrapper -%}
+  <div class="grid">
+    <div class="grid__col-xs-12 grid__col-sm-5 grid__col-md-4 grid__col-lg-3">
+      <div class="sticky-admin-panel">
+        <div class="card">
+          <div class="card__header">
+            <h3 class="mui--text-title">About</h3>
+          </div>
+          <div class="card__body">
+            <ul class="mui-list--aligned mui-list--unstyled">
+              <li><p><a href="/about/">About HasGeek</a></p></li>
+              <li><p><a href="/about/team">Team &amp; careers</a></p></li>
+              <li><p><a href="/about/media">Media resources</a></p></li>
+              <li><p><a href="/about/contact">Contact</a></p></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__header">
+            <h3 class="mui--text-title">Site Policies</h3>
+          </div>
+          <div class="card__body">
+            <ul class="mui-list--aligned mui-list--unstyled">
+              <li><p><a href="/about/policy/terms">Terms of service</a></p></li>
+              <li><p><a href="/about/policy/adtos">Sponsorship &amp; advertising</a></p></li>
+              <li><p><a href="/about/policy/privacy">Privacy policy</a></p></li>
+              <li><p><a href="/about/policy/refunds">Cancellation &amp; refund policy</a></p></li>
+              <li><p><a href="/about/policy/community">Community guidelines</a></p></li>
+              <li><p><a href="/about/policy/code">Code of conduct</a></p></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8 grid__col-lg-9">
+      {{ page.html | safe }}
+    </div>
+  </div>
+{%- endblock %}
