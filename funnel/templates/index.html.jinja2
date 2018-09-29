@@ -124,13 +124,10 @@
       <div class="grid__cell">
         <div class="card">
           <div class="card__header">
-            <div class="card__header__title mui--d-inlineblock">
-              <h3 class="mui--text-title card__title__heading">{{ title }}</h3>
+            <div class="card__header__title">
+              <h3 class="mui--text-title card__title__heading"><b>{{ title }}</b></h3>
               <h4 class="mui--text-subhead card__title__heading">{{ date }}, {{ city }}</h4>
             </div>
-            {{#if logo}}
-              <img class="card__header__logo-image" src="{{ logo }}">
-            {{/if}}
           </div>
           <div class="card__body">
             <p class="mui--text-body2">{{ blurb }}</p>
@@ -138,7 +135,7 @@
           <div class="mui-divider"></div>
           <div class="card__footer">
             {{#if url}}
-              <a href="{{ url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Attend</a>
+              <a href="{{ url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" target="_blank">Attend</a>
             {{/if}}
           </div>
         </div>
@@ -160,7 +157,7 @@
             {{/if}}
           </div>
           <div class="card__title">
-            <h3 class="mui--text-title card__title__heading" itemprop="name">{{ title }}</h3>
+            <h3 class="mui--text-title card__title__heading" itemprop="name"><b>{{ title }}</b></h3>
             <h4 class="mui--text-subhead card__title__heading">{{ date }}</h4>
           </div>
           <div class="card__body">

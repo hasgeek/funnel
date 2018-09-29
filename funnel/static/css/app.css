@@ -21,6 +21,10 @@
   color: #f0a40c;
 }
 
+.card .card__header__title {
+  width: 100%;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
