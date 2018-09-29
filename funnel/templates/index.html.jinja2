@@ -5,6 +5,34 @@
   <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
 {%- endblock %}
 
+{%- block layoutheaders %}
+<script type="application/ld+json">
+  {  "@context" : "http://schema.org",
+     "@type" : "WebSite",
+     "name" : "{{ config['SITE_TITLE'] }}",
+     "url" : "{{ url_for('index', _external=true) }}"
+  }
+</script>
+<script type="application/ld+json">
+  {
+    "@context" : "http://schema.org",
+    "@type" : "Organization",
+    "name" : "{{ config['SITE_TITLE'] }}",
+    "url" : "{{ url_for('index', _external=true) }}",
+    "logo" : "{{ url_for('static', filename='img/hg-banner.png', _external=true) }}",
+    "contactPoint" : [{
+      "@type" : "ContactPoint",
+      "telephone" : "+91 7676 33 2020",
+      "contactType" : "customer service"
+    }],
+    "sameAs" : [
+      "https://twitter.com/hasgeek",
+      "https://www.facebook.com/hasgeek"
+    ]
+  }
+</script>
+{%- endblock %}
+
 {% block header -%}
   {% macro site_title() %}
     <a href="{{ url_for('index') }}" class="header__site-title__item">{{ config['SITE_TITLE'] }}</a>
@@ -35,8 +63,8 @@
             <span class="s2">and discover new opportunities.</span>
           </p>
         </div>
+        <div class="grid__col-xs-12"><hr class="mui-divider"></div>
       </div>
-      <div class="grid__col-xs-12"><hr class="mui-divider"></div>
       <div class="grid">
         <div class="grid__col-xs-12 grid__col-sm-6">
           <p class="mui--text-headline">
@@ -70,7 +98,7 @@
     </div>
     <div id="events-container" class="grid spaces">
       <div class="grid__col-xs-12">
-        <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i>
+        <span><i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></span>
       </div>
     </div>
 
@@ -81,7 +109,76 @@
     </div>
     <div id="conf-container" class="grid spaces">
       <div class="grid__col-xs-12">
-        <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i>
+        <span><i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></span>
+      </div>
+    </div>
+    <div class="grid spaces">
+      <div class="grid__col-xs-12">
+        <p class="mui--text-subhead">
+          Previously:
+          <a href="https://anthillinside.in/2018/" class="click">Anthill Inside 2018</a>,
+          <a href="https://fifthelephant.in/2018/" class="click">The Fifth Elephant 2018</a>,
+          <a href="https://rootconf.in/2018/" class="click">Rootconf 2018</a>,
+          <a href="https://50p.in/2018/" class="click">50p 2018</a>,
+          <a href="https://jsfoo.in/2017/" class="click">JSFoo 2017</a>,
+          <a href="https://reactfoo.in/2017/" class="click">Reactfoo 2017</a>,
+          <a href="https://fragments.in/2017/" class="click">Fragments 2017</a>,
+          <a href="https://anthillinside.in/2017/" class="click">Anthill Inside 2017</a>,
+          <a href="https://fifthelephant.in/2017/" class="click">The Fifth Elephant 2017</a>,
+          <a href="https://rootconf.in/2017/" class="click">Rootconf 2017</a>,
+          <a href="https://kilter.in/2017/" class="click">Kilter 2017</a>,
+          <a href="https://50p.in/2017/" class="click">50p 2017</a>,
+          <a href="https://droidcon.in/2016/" class="click">droidconIN 2016</a>,
+          <a href="https://metarefresh.in/2016/" class="click">Meta Refresh 2016</a>,
+          <a href="https://jsfoo.in/2016/" class="click">JSFoo 2016</a>,
+          <a href="https://www.instamojo.com/devopsnexus/two-day-container-workshop-on-docker-platfor/" class="click">Two Day Container workshop on Docker platform</a>,
+          <a href="https://pipal.in/workshops/2016/http-bottom-up/" class="click">HTTP Bottom Up</a>,
+          <a href="https://pipal.in/workshops/2016/generators-inside-out/" class="click">Generators Inside Out</a>,
+          <a href="https://jsfoo.in/2016/nodejs-workshop/" class="click">NodeJS Workshop</a>,
+          <a href="https://metarefresh.in/2016/workshop" class="click">Good Enough Design for Responsive Web Apps</a>,
+          <a href="https://fifthelephant.in/2016/" class="click">The Fifth Elephant 2016</a>,
+          <a href="https://fifthelephant.in/2016/deep-learning/" class="click">Deep Learning Conf 2016</a>,
+          <a href="https://rootconf.in/2016/" class="click">Rootconf 2016</a>,
+          <a href="https://droidcon.in/2015/" class="click">droidconIN 2015</a>,
+          <a href="http://www.juliacon.in/2015/" class="click">JuliaCon India 2015</a>,
+          <a href="https://jsfoo.in/2015/" class="click">JSFoo 2015</a>,
+          <a href="https://fifthelephant.talkfunnel.com/2015/" class="click">The Fifth Elephant 2015</a>,
+          <a href="https://rootconf.talkfunnel.com/2015/" class="click">Rootconf 2015</a>,
+          <a href="https://metarefresh.talkfunnel.com/2015/" class="click">Meta Refresh 2015</a>,
+          <a href="https://rootconf.talkfunnel.com/informationsecurityworkshop/" class="click">Information Security workshop</a>,
+          <a href="https://droidcon.in/2014/" class="click">Droidcon India 2014</a>,
+          <a href="https://jsfoo.in/2014/" class="click">JSFoo 2014</a>,
+          <a href="https://fifthelephant.in/2014/" class="click">The Fifth Elephant 2014</a>,
+          <a href="https://rootconf.in/2014/" class="click">Rootconf 2014</a>,
+          <a href="https://funnel.hasgeek.com/redis-miniconf-2014" class="click">Redis Miniconf</a>,
+          <a href="https://metarefresh.in/2014/" class="click">Meta Refresh 2014</a>,
+          <a href="https://metarefresh.in/2014/angularjs-miniconf" class="click">AngularJS Miniconf</a>,
+          <a href="https://droidcon.in/2013/" class="click">Droidcon India 2013</a>,
+          <a href="https://jsfoo.in/2013/" class="click">JSFoo 2013</a>,
+          <a href="https://cssworkshop.metarefresh.in/" class="click">Responsive Web Design workshop</a>,
+          <a href="http://hasgeektv.doattend.com/" class="click">HasGeek TV workshop</a>,
+          <a href="https://advancedpython.hasgeek.com/" class="click">Advanced Python workshop</a>,
+          <a href="https://gitworkshop.hasgeek.com/" class="click">Git workshop</a>,
+          <a href="https://fifthelephant.in/2013/" class="click">The Fifth Elephant 2013</a>,
+          <a href="https://pigworkshop.fifthelephant.in/" class="click">Pig workshop</a>,
+          <a href="https://cssworkshop.metarefresh.in/2013-03/" class="click">CSS for the Soul</a>,
+          <a href="https://metarefresh.in/2013/" class="click">Meta Refresh 2013</a>,
+          <a href="https://droidcon.in/2012/" class="click">Droidcon India 2012</a>,
+          <a href="https://funnel.hasgeek.com/jsfoo/" class="click">JSFoo 2012</a>,
+          <a href="https://cartonama.com/2012/" class="click">Cartonama Conference</a>,
+          <a href="https://fifthelephant.in/2012/" class="click">The Fifth Elephant 2012</a>,
+          <a href="https://rootconf.in/bangalore2012" class="click">Rootconf</a>,
+          <a href="https://metarefresh.in/2012/" class="click">Meta Refresh 2012</a>,
+          <a href="https://workshop.cartonama.com/" class="click">Cartonama Workshop</a>,
+          JSFoo 2011-12 (in
+            <a href="https://jsfoo.in/bangalore2011" class="click">Bangalore</a>,
+            <a href="https://jsfoo.in/pune2012" class="click">Pune</a>, and
+            <a href="https://jsfoo.in/chennai2012" class="click">Chennai</a>),
+          <a href="https://droidcon.in/2011" class="click">Droidcon India 2011</a>,
+          <a href="https://phpcloud.hasgeek.com/" class="click">Scaling PHP in the Cloud</a>,
+          <a href="https://androidcamp.hasgeek.com/" class="click">AndroidCamp</a>
+          and <a href="http://www.doctypehtml5.in/" class="click">DocType HTML5</a>.
+        </p>
       </div>
     </div>
   </div>
@@ -90,7 +187,7 @@
 {% block footer %}
   <div class="mui-container">
     <div class="grid mui--text-body2 mui--text-left">
-      <div class="grid__col-sm-6 grid__col-md-6">
+      <div class="grid__col-sm-6 grid__col-md-5">
         <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-18 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/">About us and site policies</a></p>
         <p>
           #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com">info@hasgeek.com</a>, <a href="tel:+917676332020">+91 7676 33 2020</a>
@@ -101,7 +198,7 @@
           <p id="footer-twitter">
             <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank">Follow @hasgeek</a>
           </p>
-          <a class="fb-like separator" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
+          <a class="fb-like" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
         </div>
       </div>
       <div class="grid__col-sm-3 grid__col-md-3">
@@ -275,16 +372,43 @@
           console.log("Request Failed: " + err );
         });
     }
+  </script>
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0';
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+  <script src="https://platform.twitter.com/widgets.js" type="text/javascript"></script>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-19123154-1', 'auto');
+    ga('send', 'pageview');
+    $(document).ready( function() {
+      window.HasGeek = {};
 
-    function loadConferences() {
-      $.getJSON("https://hasgeek.github.io/events/conferences.json")
-        .done(function success(data) {
-        })
-        .fail(function( jqxhr, textStatus, error ) {
-          var err = textStatus + ", " + error;
-          console.log("Request Failed: " + err );
-        });
-    }
+      HasGeek.sendGA = function (category, action, label) {
+        if (typeof ga !== "undefined") {
+          ga('send', { hitType: 'event', eventCategory: category, eventAction: action, eventLabel: label});
+        }
+      };
+      // Function that tracks a click button in Google Analytics.
+      $('.btn').click(function(event) {
+        var target = $(this).attr('href');
+        var action = $(this).html();
+        HasGeek.sendGA('click', action, target);
+      });
+      $('.click').click(function(event) {
+        var target = $(this).attr('href');
+        var action = "Click"
+        HasGeek.sendGA('click', action, target);
+      });
+    });
   </script>
   {% endraw %}
 {% endblock %}

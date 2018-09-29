@@ -28,3 +28,12 @@
 .card .card__header__title {
   width: 100%
 }
+
+@media screen and (max-width: 600px) {
+  .fb_iframe_widget {
+    overflow-y: scroll;
+    width: 100%;
+    display: inline-block !important;
+  }
+}
+
