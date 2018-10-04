@@ -26,11 +26,6 @@
   {{ hgtopnav(site_title=site_title()) }}
 {%- endblock %}
 
-{%- block image_src %}
-  <link rel="image_src" href="{{ url_for('static', filename='img/logo_og.png') }}" />
-  <meta property="og:image" content="{{ url_for('static', filename='img/logo_og.png') }}" />
-{%- endblock %}
-
 {% block bodytag %}<body class="mui--bg-primary">{% endblock %}
 
 {% block contenthead %}

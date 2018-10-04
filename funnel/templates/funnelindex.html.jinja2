@@ -7,6 +7,11 @@
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
+{%- block image_src %}
+  <link rel="image_src" href="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+  <meta property="og:image" content="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+{%- endblock %}
+
 {% block banner %}
   {%- if not g.profile %}
     <div class="banner">
