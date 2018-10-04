@@ -9,6 +9,13 @@
     {{ proposal.title }}, {{ space.title }}
   {%- endif -%}
 {% endblock %}
+
+{%- block layoutheaders %}
+  {% assets "css_codemirrormarkdown" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 
 {% block top_title %}
@@ -64,7 +71,7 @@
             <div class="proposal-video" data-href="{{ proposal.preview_video }}" id="js-embed">
               <p class="video_txt">
                 <i class="material-icons">videocam</i><br>
-                <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-subhead">Preview video</a>
+                <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-title">Preview video</a>
               </p>
             </div>
           {%- else %}
@@ -110,8 +117,8 @@
           <div class="card__body">
             {%- set vote = proposal.votes.getvote(g.user) %}
             {%- if g.user %}
-              <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Vote on this proposal{% endtrans %}</p>
-              <div class="vote-wrapper">
+              <p class="mui--text-subhead mui--text-center mui--text-light zero-bottom-margin">{% trans %}Vote on this proposal{% endtrans %}</p>
+              <div class="vote-wrapper mui--text-center">
                 {%- if not vote %}
                   <form method="post" action="{{ proposal.url_for('voteup') }}">
                     {{ csrf_form.hidden_tag() }}
@@ -262,6 +269,10 @@
             <h3 class="mui--text-headline"><strong>{% trans %}Slides{% endtrans %}</strong></h3>
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
           {% endif %}
+          {% if proposal.preview_video %}
+            <h3 class="mui--text-headline"><strong>{% trans %}Preview video{% endtrans %}</strong></h3>
+            <a href="{{ proposal.preview_video }}">{{ proposal.preview_video }}</a>
+          {% endif %}
         </div>
       </div>
 
@@ -317,6 +328,12 @@
   </div>
 
 </div>
+{% endblock %}
+
+{% block pagescripts %}
+  {% assets "js_codemirrormarkdown" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
 {% endblock %}
 
 {% block footerscripts %}
