@@ -27,8 +27,7 @@ class SPACE_STATE(LabeledEnum):
     JURY = (3, 'jury', __(u"Awaiting jury selection"))
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
-    FEEDBACKABLE = {SUBMISSIONS, VOTING}
-    VOTABLE = {SUBMISSIONS, JURY}
+    OPENABLE = {VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
 
 
 # --- Models ------------------------------------------------------------------
@@ -113,28 +112,33 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
         return '<ProposalSpace %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     @with_roles(call={'admin'})
-    @state.transition(state.DRAFT, state.SUBMISSIONS, title=__("Accept submissions"), message=__("This proposal space has been opened to accept submissions"), type='success')
+    @state.transition(state.DRAFT, state.SUBMISSIONS, title=__("Open"), message=__("This proposal space has been opened to accept submissions"), type='success')
     def accept_submissions(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.VOTABLE, state.VOTING, title=__("Accept votes"), message=__("This proposal space has been opened to accept votes"), type='success')
+    @state.transition(state.SUBMISSIONS, state.VOTING, title=__("Close submissions"), message=__("This proposal space has now closed submissions, but is still accepting votes"), type='success')
     def accept_votes(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.FEEDBACKABLE, state.FEEDBACK, title=__("Accept feedback"), message=__("This proposal space has been opened to accept feedback"), type='success')
+    @state.transition(state.VOTING, state.FEEDBACK, title=__("Close voting"), message=__("This proposal space has now closed submissions and voting, but is still accepting feedback comments"), type='success')
     def accept_feedback(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CURRENTLY_LISTED, state.CLOSED, title=__("Close"), message=__("This proposal space has been closed"), type='danger')
+    @state.transition(state.OPENABLE, state.SUBMISSIONS, title=__("Reopen Submissions"), message=__("This proposal space has been reopened for submissions"), type='success')
+    def reopen(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @state.transition(state.CURRENTLY_LISTED, state.CLOSED, title=__("Close & Hide"), message=__("This proposal space has been closed and will no longer be listed"), type='danger')
     def close(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CLOSED, state.SUBMISSIONS, title=__("Reopen"), message=__("This proposal space has been reopened"), type='success')
-    def reopen(self):
+    @state.transition(state.CLOSED, state.FEEDBACK, title=__("Relist"), message=__("This proposal space has been relisted, but is only accepting feedback comments"), type='success')
+    def relist(self):
         pass
 
     # TODO: Confirm with the media team whether they need the withdraw proposal spaces

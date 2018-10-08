@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 
-valid_color_re = re.compile("^[a-fA-F\d]{6}|[a-fA-F\d]{3}$")
+valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 
 class ProposalSpaceForm(forms.Form):
@@ -82,7 +82,7 @@ class ProposalSpaceTransitionForm(forms.Form):
         label: transition object itself
         We need the whole object to get the additional metadata in templates
         """
-        self.transition.choices = sorted(self.edit_obj.state.transitions().items())
+        self.transition.choices = self.edit_obj.state.transitions().items()
 
 
 class ProposalSubspaceForm(ProposalSpaceForm):
