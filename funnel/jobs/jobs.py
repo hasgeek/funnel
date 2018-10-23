@@ -1,11 +1,11 @@
-from flask import app
+from funnel import funnelapp
 from ..models import (db, TicketClient)
 from ..extapi.explara import ExplaraAPI
 from ..extapi.boxoffice import Boxoffice
 
 
 def import_tickets(ticket_client_id):
-    with app.test_request_context():
+    with funnelapp.app_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
         if ticket_client:
             if ticket_client.name.lower() == u'explara':
