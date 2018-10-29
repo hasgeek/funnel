@@ -3,7 +3,7 @@ Flask-Assets==0.12
 Flask-Mail==0.9.1
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
-pytz==2018.5
+pytz==2018.7
 unicodecsv==0.14.1
 icalendar==4.0.3
 git+https://github.com/hasgeek/coaster.git
