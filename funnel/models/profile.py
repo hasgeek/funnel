@@ -4,7 +4,6 @@ from flask import url_for
 from flask_lastuser.sqlalchemy import ProfileBase
 from werkzeug.utils import cached_property
 from . import db, MarkdownColumn
-from .space import SPACE_STATE
 from .user import Team
 
 __all__ = ['Profile']
@@ -30,7 +29,7 @@ class Profile(ProfileBase, db.Model):
     def parent_spaces(self):
         from .space import ProposalSpace
         spaces_all = ProposalSpace.fetch_sorted().filter(
-            ProposalSpace.profile == self, ProposalSpace.parent_space == None
+            ProposalSpace.profile == self, ProposalSpace.parent_space == None  # NOQA
         ).all()
         return spaces_all
 
@@ -38,8 +37,8 @@ class Profile(ProfileBase, db.Model):
         perms = super(Profile, self).permissions(user, inherited)
         perms.add('view')
         if user:
-            if (self.userid in user.user_organizations_owned_ids()
-                    or (self.admin_team and user in self.admin_team.users)):
+            if (self.userid in user.user_organizations_owned_ids() or
+                    (self.admin_team and user in self.admin_team.users)):
                 perms.add('edit-profile')
                 perms.add('new-space')
                 perms.add('delete-space')
