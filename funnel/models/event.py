@@ -203,13 +203,13 @@ class TicketClient(BaseMixin, db.Model):
             ticket_type = TicketType.upsert(self.proposal_space, current_title=ticket_dict['ticket_type'])
 
             participant = Participant.upsert(self.proposal_space, ticket_dict['email'],
-                             fullname=ticket_dict['fullname'],
-                             phone=ticket_dict['phone'],
-                             twitter=ticket_dict['twitter'],
-                             company=ticket_dict['company'],
-                             job_title=ticket_dict['job_title'],
-                             city=ticket_dict['city']
-                            )
+                fullname=ticket_dict['fullname'],
+                phone=ticket_dict['phone'],
+                twitter=ticket_dict['twitter'],
+                company=ticket_dict['company'],
+                job_title=ticket_dict['job_title'],
+                city=ticket_dict['city']
+                )
 
             ticket = SyncTicket.get(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'))
             if ticket and (ticket.participant is not participant or ticket_dict.get('status') == u'cancelled'):
