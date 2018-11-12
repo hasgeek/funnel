@@ -93,23 +93,23 @@ class ProposalFormData(object):
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
 
-    speaker_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     speaker = db.relationship(User, primaryjoin=speaker_id == User.id, lazy='joined',
         backref=db.backref('speaker_at', cascade="all"))
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
     bio = MarkdownColumn('bio', nullable=True)
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
     parent = db.synonym('proposal_space')
 
-    section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
+    section_id = db.Column(None, db.ForeignKey('proposal_space_section.id'), nullable=True)
     section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
         backref="proposals")
     objective = MarkdownColumn('objective', nullable=True)
@@ -127,11 +127,11 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         default=PROPOSAL_STATE.SUBMITTED, nullable=False)
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes_id = db.Column(None, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False, lazy='joined',
                             cascade='all, delete-orphan', single_parent=True)
 
-    comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    comments_id = db.Column(None, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False, lazy='joined',
                                cascade='all, delete-orphan', single_parent=True)
 
@@ -400,7 +400,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 class ProposalRedirect(TimestampMixin, db.Model):
     __tablename__ = 'proposal_redirect'
 
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('proposal_redirects', cascade="all, delete-orphan"))
     parent = db.synonym('proposal_space')

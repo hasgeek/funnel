@@ -11,7 +11,7 @@ __all__ = ['Venue', 'VenueRoom']
 class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'venue'
 
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace,
         backref=db.backref('venues', cascade='all, delete-orphan', order_by='Venue.name'))
     parent = db.synonym('proposal_space')
@@ -37,7 +37,7 @@ class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
 class VenueRoom(BaseScopedNameMixin, db.Model):
     __tablename__ = 'venue_room'
 
-    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
+    venue_id = db.Column(None, db.ForeignKey('venue.id'), nullable=False)
     venue = db.relationship(Venue,
         backref=db.backref('rooms', cascade='all, delete-orphan', order_by='VenueRoom.name'))
     parent = db.synonym('venue')
