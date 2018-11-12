@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for, abort
-from . import db, TimestampMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
+from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
 from .user import User
 from .space import ProposalSpace
 from .section import ProposalSpaceSection
@@ -19,8 +19,8 @@ __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
 _marker = object()
 
-# --- Constants ------------------------------------------------------------------
 
+# --- Constants ------------------------------------------------------------------
 
 class PROPOSAL_STATE(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
@@ -49,6 +49,7 @@ class PROPOSAL_STATE(LabeledEnum):
     CANCELLABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
     UNDO_TO_SUBMITTED = {AWAITING_DETAILS, UNDER_EVALUATION}
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
+
 
 # --- Models ------------------------------------------------------------------
 
@@ -89,7 +90,7 @@ class ProposalFormData(object):
             self.data[attr] = value
 
 
-class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
+class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseScopedIdNameMixin, MarkdownColumn
+from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn
 from .space import ProposalSpace
 from .proposal import Proposal
 from .venue import VenueRoom
@@ -10,7 +10,7 @@ from .venue import VenueRoom
 __all__ = ['Session']
 
 
-class Session(BaseScopedIdNameMixin, db.Model):
+class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'session'
 
     proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
