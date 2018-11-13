@@ -38,7 +38,7 @@ class Project(BaseScopedNameMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('projects', cascade='all, delete-orphan'))
-    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True)  # nullable for transition
+    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
     profile = db.relationship('Profile', backref=db.backref('projects', cascade='all, delete-orphan'))
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
