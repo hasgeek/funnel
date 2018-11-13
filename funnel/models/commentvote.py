@@ -64,10 +64,10 @@ class VoteSpace(BaseMixin, db.Model):
 
 class Vote(BaseMixin, db.Model):
     __tablename__ = 'vote'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('votes', lazy='dynamic', cascade="all, delete-orphan"))
-    votespace_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votespace_id = db.Column(None, db.ForeignKey('votespace.id'), nullable=False)
     votespace = db.relationship(VoteSpace, primaryjoin=votespace_id == VoteSpace.id,
         backref=db.backref('votes', cascade="all, delete-orphan"))
     votedown = db.Column(db.Boolean, default=False, nullable=False)
@@ -87,14 +87,14 @@ class CommentSpace(BaseMixin, db.Model):
 
 class Comment(BaseMixin, db.Model):
     __tablename__ = 'comment'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('comments', lazy='dynamic', cascade="all, delete-orphan"))
-    commentspace_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    commentspace_id = db.Column(None, db.ForeignKey('commentspace.id'), nullable=False)
     commentspace = db.relationship(CommentSpace, primaryjoin=commentspace_id == CommentSpace.id,
         backref=db.backref('comments', cascade="all, delete-orphan"))
 
-    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
+    parent_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
     children = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"))
 
     message = MarkdownColumn('message', nullable=False)
@@ -103,7 +103,7 @@ class Comment(BaseMixin, db.Model):
         default=COMMENTSTATUS.PUBLIC, nullable=False)
     state = StateManager('_state', COMMENTSTATUS, doc="Current state of the comment.")
 
-    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes_id = db.Column(None, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
 
     edited_at = db.Column(db.DateTime, nullable=True)

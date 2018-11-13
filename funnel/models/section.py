@@ -12,7 +12,7 @@ __all__ = ['ProposalSpaceSection']
 
 class ProposalSpaceSection(BaseScopedNameMixin, db.Model):
     __tablename__ = 'proposal_space_section'
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('sections', cascade="all, delete-orphan"))
     parent = db.synonym('proposal_space')
@@ -22,10 +22,10 @@ class ProposalSpaceSection(BaseScopedNameMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint("proposal_space_id", "name"), {})
 
-    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes_id = db.Column(None, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
 
-    comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    comments_id = db.Column(None, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False)
 
     def __init__(self, **kwargs):
