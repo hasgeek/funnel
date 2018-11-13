@@ -5,6 +5,9 @@
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
+  {% assets "css_codemirrormarkdown" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
 {% endblock %}
 
 {% block contentwrapper %}
@@ -52,6 +55,11 @@
       <button type="button" class="mui-btn mui-btn--small mui-btn--primary save">{% trans %}Save{% endtrans %}</button>
     </div>
   </div>
+{% endblock %}
+{% block pagescripts %}
+  {% assets "js_codemirrormarkdown" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
 {% endblock %}
 {% block footerscripts %}
   {% assets "js_fullcalendar" -%}
