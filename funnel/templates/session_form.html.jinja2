@@ -1,7 +1,19 @@
 {% from "baseframe/forms.html.jinja2" import renderform_inner, rendersubmit %}
 
+{%- block layoutheaders %}
+  {% assets "css_codemirrormarkdown" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
 {% block content %}
 	<form id="{{ formid }}" method="POST" accept-charset="UTF-8" class="mui-form">
 	  {{ renderform_inner(form, formid or None) }}
 	</form>
+{% endblock %}
+
+{% block pagescripts %}
+  {% assets "js_codemirrormarkdown" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
 {% endblock %}
