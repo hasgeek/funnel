@@ -2,7 +2,7 @@
 
 from flask import url_for
 from . import db, BaseScopedNameMixin, MarkdownColumn, CoordinatesMixin
-from .space import ProposalSpace
+from .project import Project
 
 
 __all__ = ['Venue', 'VenueRoom']
@@ -11,10 +11,10 @@ __all__ = ['Venue', 'VenueRoom']
 class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'venue'
 
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('venues', cascade='all, delete-orphan', order_by='Venue.name'))
-    parent = db.synonym('proposal_space')
+    parent = db.synonym('project')
     description = MarkdownColumn('description', default=u'', nullable=False)
     address1 = db.Column(db.Unicode(160), default=u'', nullable=False)
     address2 = db.Column(db.Unicode(160), default=u'', nullable=False)
@@ -23,15 +23,15 @@ class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
     postcode = db.Column(db.Unicode(20), default=u'', nullable=False)
     country = db.Column(db.Unicode(2), default=u'', nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'),)
+    __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
     def url_for(self, action='new', _external=False):
         if action == 'new-room':
-            return url_for('venueroom_new', profile=self.proposal_space.profile.name, space=self.proposal_space.name, venue=self.name, _external=_external)
+            return url_for('venueroom_new', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
         elif action == 'delete':
-            return url_for('venue_delete', profile=self.proposal_space.profile.name, space=self.proposal_space.name, venue=self.name, _external=_external)
+            return url_for('venue_delete', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
         elif action == 'edit':
-            return url_for('venue_edit', profile=self.proposal_space.profile.name, space=self.proposal_space.name, venue=self.name, _external=_external)
+            return url_for('venue_edit', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
 
 
 class VenueRoom(BaseScopedNameMixin, db.Model):
@@ -52,8 +52,8 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
 
     def url_for(self, action='new', _external=False):
         if action == 'delete':
-            return url_for('venueroom_delete', profile=self.venue.proposal_space.profile.name, space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)
+            return url_for('venueroom_delete', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external)
         if action == 'ical-schedule':
-            return url_for('schedule_room_ical', profile=self.venue.proposal_space.profile.name, space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
+            return url_for('schedule_room_ical', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
         elif action == 'edit':
-            return url_for('venueroom_edit', profile=self.venue.proposal_space.profile.name, space=self.venue.proposal_space.name, venue=self.venue.name, room=self.name, _external=_external)
+            return url_for('venueroom_edit', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external)

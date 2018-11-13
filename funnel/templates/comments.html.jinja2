@@ -1,12 +1,12 @@
 {% macro commentvote(comment, currentuser, votelinkbase, csrf_form) %}
   <div class="comment--vote">
-    {%- set comvote = comment.votes.getvote(currentuser) %}
+    {%- set comvote = comment.voteset.getvote(currentuser) %}
     {%- if not comvote -%}
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/voteup" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_up</i></button>
       </form>
-      <span class="comment--vote--count">{{ comment.votes.count }}</span>
+      <span class="comment--vote--count">{{ comment.voteset.count }}</span>
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_down</i></button>
@@ -16,7 +16,7 @@
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
       </form>
-      <span class="comment--vote--count">{{ comment.votes.count }}</span>
+      <span class="comment--vote--count">{{ comment.voteset.count }}</span>
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_down</i></button>
@@ -26,7 +26,7 @@
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_up</i></button>
       </form>
-      <span class="comment--vote--count">{{ comment.votes.count }}</span>
+      <span class="comment--vote--count">{{ comment.voteset.count }}</span>
       <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/cancelvote" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
@@ -34,7 +34,7 @@
     {%- endif %}
   </div>
 {% endmacro %}
-{% macro commenttree(comments, document, space, currentuser, documenturl, csrf_form) %}
+{% macro commenttree(comments, document, project, currentuser, documenturl, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
     <div id="c{{ comment.id }}">
@@ -52,7 +52,7 @@
                 <span class="chip__text">Proposer</span>
               </span>
             {% endif %}
-            {% if not comment.state.DELETED and space.review_team and comment.user in space.review_team.users %}
+            {% if not comment.state.DELETED and project.review_team and comment.user in project.review_team.users %}
               <span class="chip chip--bg-primary">
                 <span class="chip__text">Reviewer</span>
               </span>
@@ -81,7 +81,7 @@
         </div>
         {% if comment.children %}
           <ul class="mui-list--unstyled comment--children">
-            {{ commenttree(comment.sorted_children(), document, space, currentuser, documenturl, csrf_form) }}
+            {{ commenttree(comment.sorted_children(), document, project, currentuser, documenturl, csrf_form) }}
           </ul>
         {% endif %}
       </div>

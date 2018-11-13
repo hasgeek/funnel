@@ -11,7 +11,7 @@ from .profile import profile_teams
 from ..models import RSVP_STATUS
 
 __all__ = [
-    'ProposalSpaceForm', 'ProposalSubspaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
+    'ProposalSpaceForm', 'ProposalSubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
     'TicketClientForm', 'ProposalSpaceTransitionForm'
 ]
 
@@ -47,11 +47,11 @@ class ProposalSpaceForm(forms.Form):
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
         validators=[forms.validators.Optional()])
-    parent_space = QuerySelectField(__(u"Parent space"), get_label='title', allow_blank=True, blank_text=__(u"None"))
+    parent = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
-        description=__(u"The administrators of this proposal space"))
+        description=__(u"The administrators of this project"))
     review_team = QuerySelectField(u"Review team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
@@ -85,8 +85,8 @@ class ProposalSpaceTransitionForm(forms.Form):
         self.transition.choices = self.edit_obj.state.transitions().items()
 
 
-class ProposalSubspaceForm(ProposalSpaceForm):
-    inherit_sections = forms.BooleanField(__("Inherit sections from parent space?"), default=True)
+class ProposalSubprojectForm(ProposalSpaceForm):
+    inherit_sections = forms.BooleanField(__("Inherit sections from parent project?"), default=True)
 
 
 class RsvpForm(forms.Form):

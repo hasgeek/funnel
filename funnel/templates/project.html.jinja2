@@ -1,9 +1,9 @@
 {% extends "layout.html.jinja2" %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
-{% block title %}{{ space.title }}{% endblock %}
-{% block description %}{{ space.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
-{%- macro proposal_list(space, proposals) %}
+{%- macro proposal_list(project, proposals) %}
   <div class="proposal-list-wrapper">
     {% for proposal in proposals %}
       <div>
@@ -16,7 +16,7 @@
             {%- if proposal.user != proposal.speaker %}
               <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
             {%- endif %}
-            {%- if g.user and 'edit-space' in g.permissions %}
+            {%- if g.user and 'edit-project' in g.permissions %}
               {%- if proposal.has_outstation_speaker %}
                 <i class="material-icons mui--text-subhead mui--align-middle" aria-label="Outstation Speaker">flight</i>
               {%- endif %}
@@ -26,29 +26,29 @@
           {%- endif -%}
         </p>
         <ul class="mui-list--inline mui--text-body2 proposal_list--details list-item-rgborder">
-          {%- if proposal.proposal_space != space %}
-            <li>{{ proposal.proposal_space.short_title() }}</li>
+          {%- if proposal.project != project %}
+            <li>{{ proposal.project.short_title() }}</li>
           {% elif proposal.section.title %}
             <li>{{ proposal.section.title }}</li>
           {% endif %}
           <li>{{ proposal.technical_level }}</li>
-          <li>{{ proposal.votes.count }} upvotes
+          <li>{{ proposal.voteset.count }} upvotes
             {% if 'view-voteinfo' in g.permissions %}
-              {% set breakups = dict() %}
-              {% set groups = proposal.votes_by_group() %}
-              {% if 'participants' in groups %}{% if breakups.update({'P': groups['participants']}) %}{% endif %}{% endif %}
-              {% if 'editorial-panel' in groups %}{% if breakups.update({'EP': groups['editorial-panel']}) %}{% endif %}{% endif %}
-              {% if breakups.__len__() %}
+              {%- set breakups = dict() %}
+              {%- set groups = proposal.votes_by_group() %}
+              {%- if 'participants' in groups %}{% do breakups.update({'P': groups['participants']}) %}{% endif %}
+              {%- if 'editorial-panel' in groups %}{% do breakups.update({'EP': groups['editorial-panel']}) %}{% endif %}
+              {%- if breakups|length %}
                 (
                 {%- for item in breakups -%}
                   {%- if loop.index != 1 %}, {% endif %}
                   ({{ item }}: {{ breakups[item] }})
                 {%- endfor -%}
                 )
-              {% endif %}
-            {% endif %}
+              {%- endif %}
+            {%- endif %}
           </li>
-          <li>{{ proposal.comments.count }} comments</li>
+          <li>{{ proposal.commentset.count }} comments</li>
           <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
           {% if proposal.preview_video %}
             <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons icon-middle">play_arrow</i></li>
@@ -68,22 +68,22 @@
 {%- endmacro %}
 
 {% block top_title %}
-  <h1 class="mui--text-display2"><strong>{{ space.title|e }}</strong></h1>
-  <p class="mui--text-headline">{{ space.tagline|safe }}</p>
+  <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
+  <p class="mui--text-headline">{{ project.tagline|safe }}</p>
   <ul class="mui-list--inline list-item-rgborder">
-    {% if space.state.SUBMISSIONS -%}
+    {% if project.state.SUBMISSIONS -%}
     <li class="no-border">
-      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
     </li>
     {% endif %}
-    {%- if space.sessions %}
-      <li {%- if not space.state.SUBMISSIONS %} class="no-border"{% endif %}>
-        <a href="{{ space.url_for('schedule') }}" class="mui-btn mui-btn--small {%- if not space.state.SUBMISSIONS %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}View Schedule{% endtrans %}</a>
+    {%- if project.sessions %}
+      <li {%- if not project.state.SUBMISSIONS %} class="no-border"{% endif %}>
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small {%- if not project.state.SUBMISSIONS %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {%- endif %}
-    {%- if space.buy_tickets_url %}
+    {%- if project.buy_tickets_url %}
       <li class="no-border">
-        <a href="{{ space.buy_tickets_url }}" class="mui-btn mui-btn--small {%- if not space.state.SUBMISSIONS and not space.sessions %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}Buy Tickets{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--small {%- if not project.state.SUBMISSIONS and not project.sessions %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}Buy Tickets{% endtrans %}</a>
       </li>
     {%- endif %}
   </ul>
@@ -94,13 +94,13 @@
     <div class="col-auto">
       <div class="grid__col--bleed-y">
         <p class="mui--text-subhead mui--text-light zero-bottom-margin">DATE</p>
-        <p class="mui--text-title">{{ space.datelocation }}</p>
+        <p class="mui--text-title">{{ project.datelocation }}</p>
       </div>
     </div>
     <div class="col-auto">
       <div class="grid__col--bleed-y">
         <p class="mui--text-subhead mui--text-light zero-bottom-margin">STATUS</p>
-        <p class="mui--text-title">{{ space.state.label.title }}</p>
+        <p class="mui--text-title">{{ project.state.label.title }}</p>
       </div>
     </div>
   </div>
@@ -111,18 +111,18 @@
     </div>
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
       <div class="sticky-admin-panel">
-        {%- if space.current_roles.admin or'checkin-event' in g.permissions %}
+        {%- if project.current_roles.admin or'checkin-event' in g.permissions %}
           <div class="card">
             <div class="card__header">
               <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
             </div>
             <div class="card__body">
-              {%- if space.current_roles.admin %}
+              {%- if project.current_roles.admin %}
                 <div>
                   <p class="mui--text-body2 mui--text-light zero-bottom-margin">STATUS</p>
-                  <p class="mui--text-subhead">{{ space.state.label.title }}</p>
+                  <p class="mui--text-subhead">{{ project.state.label.title }}</p>
                   <p class="mui--text-body2 mui--text-light zero-bottom-margin">CHANGE STATUS</p>
-                  <form action="{{ space.url_for('transition') }}" method="post" class="form-inline">
+                  <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
                     {{ transition_form.hidden_tag() }}
                     <p class="btn-group">
                       {% for name, transition in transition_form.transition.choices %}
@@ -135,22 +135,22 @@
                 <div>
                   <ol class="mui-list--aligned">
                     <li>
-                      <a href="{{ space.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
+                      <a href="{{ project.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
                     </li>
                     <li>
-                      <a href="{{ space.url_for('edit-schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
+                      <a href="{{ project.url_for('edit-schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
                     </li>
                     <li>
-                      <a href="{{ space.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
+                      <a href="{{ project.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
                     </li>
                     <li>
-                      <a href="{{ space.url_for('venues') }}">{% trans %}Manage venues{% endtrans %}</a>
+                      <a href="{{ project.url_for('venues') }}">{% trans %}Manage venues{% endtrans %}</a>
                     </li>
                     <li>
-                      <a href="{{ space.url_for('admin') }}">{% trans %}Manage event{% endtrans %}</a>
+                      <a href="{{ project.url_for('admin') }}">{% trans %}Manage event{% endtrans %}</a>
                     </li>
                     <li>
-                      <a href="{{ space.url_for('events') }}">{% trans %}Manage attendee check-in{% endtrans %}</a>
+                      <a href="{{ project.url_for('events') }}">{% trans %}Manage attendee check-in{% endtrans %}</a>
                     </li>
                   </ol>
                 </div>
@@ -158,15 +158,15 @@
                 <div>
                   <p class="mui--text-body2 mui--text-light zero-bottom-margin">DOWNLOADS</p>
                   <p class="btn-group">
-                    <a href="{{ space.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                    <a href="{{ space.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}JSON{% endtrans %}</a>
+                    <a href="{{ project.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}CSV{% endtrans %}</a>
+                    <a href="{{ project.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}JSON{% endtrans %}</a>
                   </p>
                 </div>
               {% elif 'checkin-event' in g.permissions %}
                 <div>
                   <ol>
                     <li>
-                      <a href="{{ space.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage attendee check-in{% endtrans %}</a>
+                      <a href="{{ project.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage attendee check-in{% endtrans %}</a>
                     </li>
                   </ol>
                 </div>
@@ -174,34 +174,34 @@
             </div>
           </div>
         {% endif %}
-        {% if space.state.SUBMISSIONS -%}
+        {% if project.state.SUBMISSIONS -%}
           <div class="card mui--hidden-xs">
             <div class="card__body">
               <p class="mui--text-body2 mui--text-light zero-bottom-margin">SUBMIT A PROPOSAL</p>
-              <a class="mui-btn mui-btn--medium mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+              <a class="mui-btn mui-btn--medium mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
             </div>
           </div>
         {% endif %}
       </div>
     </div>
 
-    <div class="grid__col-xs-12 {%- if space.state.SUBMISSIONS or space.current_roles.admin or'checkin-event' in g.permissions %} grid__col-md-7 grid__col-lg-8{% endif %}">
-      <div class="space-description">{{ description }}</div>
-      {%- if space.subspaces %}
+    <div class="grid__col-xs-12 {%- if project.state.SUBMISSIONS or project.current_roles.admin or 'checkin-event' in g.permissions %} grid__col-md-7 grid__col-lg-8{% endif %}">
+      <div class="project-description">{{ description }}</div>
+      {%- if project.subprojects %}
         <hr class="mui-divider">
         <ul class="grid">
-          {% for subspace in space.subspaces %}
+          {% for subproject in project.subprojects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
               <div class="grid__cell">
-                <a href="{{ subspace.url_for() }}" class="clickable-card">
+                <a href="{{ subproject.url_for() }}" class="clickable-card">
                   <div class="card">
                     <div class="card__title">
-                      <h3 class="mui--text-title card__title__heading">{{ subspace.title }}</h3>
-                      <h4 class="mui--text-subhead card__title__heading">{{ subspace.datelocation }}</h4>
+                      <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
+                      <h4 class="mui--text-subhead card__title__heading">{{ subproject.datelocation }}</h4>
                     </div>
-                    {% if space.tagline %}
+                    {% if project.tagline %}
                       <div class="card__body">
-                        <p>{{ subspace.tagline }}</p>
+                        <p>{{ subproject.tagline }}</p>
                       </div>
                     {% endif %}
                   </div>
@@ -218,18 +218,18 @@
     <div class="grid__col-xs-12 proposals-section">
       <hr class="mui-divider">
       {%- if 'view-status' in g.permissions %}
-        {%- for state, proposal_group in space.proposals_by_state.items() if proposal_group -%}
+        {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
             <h2 class="mui--text-display1 collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></h2>
-            <div class="collapsible__body">{{ proposal_list(space, proposal_group) }}</div>
+            <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
         {%- endfor -%}
       {%- else %}
-        {%- if space.proposals_by_confirmation['confirmed'] %}
+        {%- if project.proposals_by_confirmation['confirmed'] %}
           <h2 class="mui--text-display1">{% trans %}Confirmed sessions{% endtrans %}</h2>
-          {{ proposal_list(space, space.proposals_by_confirmation['confirmed']) }}
+          {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
         {%- endif %}
-        {%- if space.proposals_by_confirmation['unconfirmed'] %}
-          {%- if space.proposals_by_confirmation['confirmed'] %}<h2 class="mui--text-display1">{% trans %}Unconfirmed proposals{% endtrans %}</h2>{% endif %}
-          {{ proposal_list(space, space.proposals_by_confirmation['unconfirmed']) }}
+        {%- if project.proposals_by_confirmation['unconfirmed'] %}
+          {%- if project.proposals_by_confirmation['confirmed'] %}<h2 class="mui--text-display1">{% trans %}Unconfirmed proposals{% endtrans %}</h2>{% endif %}
+          {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
         {%- endif %}
       {%- endif %}
     </div>

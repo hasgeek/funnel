@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html" import renderfield %}
-{% block title %}{{ space.title }}{% endblock %}
+{% block title %}{{ project.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
 
@@ -56,13 +56,13 @@
   <script type="text/javascript">
     $(document).ready(function() {
 
-      var checkinApiUrl = "{{ url_for('checkin_puk', profile=space.profile.name, space=space.name, name=event.name, puk='puk') }}"
+      var checkinApiUrl = "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}"
 
       window.badgeScanComponent = new Ractive({
         el: '#scan-badge-wrapper',
         template: '#scan-badge-template',
         data: {
-          spaceTitle: "{{ space.title }}",
+          spaceTitle: "{{ project.title }}",
           eventTitle: "{{ event.title }}",
           video: {},
           error: "Unable to access video. Please make sure you have a camera enabled",

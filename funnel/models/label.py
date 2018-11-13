@@ -2,14 +2,14 @@
 
 from . import db, make_timestamp_columns, TimestampMixin, BaseScopedNameMixin
 from .profile import Profile
-from .space import ProposalSpace
+from .project import Project
 from .proposal import Proposal
 
 
 class Labelset(BaseScopedNameMixin, db.Model):
     """
     A collection of labels, in checkbox mode (select multiple) or radio mode (select one). A profile can
-    contain multiple label sets and a ProposalSpace can enable one or more sets to be used in Proposals.
+    contain multiple label sets and a Project can enable one or more sets to be used in Proposals.
     """
     __tablename__ = 'labelset'
 
@@ -47,13 +47,13 @@ class Label(BaseScopedNameMixin, db.Model):
         return "<Label %s/%s>" % (self.labelset.name, self.name)
 
 
-class ProposalSpaceLabelset(TimestampMixin, db.Model):
-    __tablename__ = 'proposal_space_labelset'
+class ProjectLabelset(TimestampMixin, db.Model):
+    __tablename__ = 'project_labelset'
 
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
-    proposal_space = db.relationship(ProposalSpace, backref=db.backref('labelset_links', cascade='all, delete-orphan'))
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False, primary_key=True)
+    project = db.relationship(Project, backref=db.backref('labelset_links', cascade='all, delete-orphan'))
     labelset_id = db.Column(None, db.ForeignKey('labelset.id'), nullable=False, primary_key=True)
-    labelset = db.relationship(Labelset, backref=db.backref('proposal_space_links', cascade='all, delete-orphan'))
+    labelset = db.relationship(Labelset, backref=db.backref('project_links', cascade='all, delete-orphan'))
     seq = db.Column(db.Integer, nullable=False, default=0)
 
 

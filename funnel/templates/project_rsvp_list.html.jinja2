@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}RSVP List{% endblock %}
 
-{% block content %}{% with counts=space.rsvp_counts() %}
+{% block content %}{% with counts=project.rsvp_counts() %}
   <div role="tabpanel">
     <ul class="mui-tabs__bar mui-tabs__bar--justified" role="tablist">
       {%- for value, status in statuses.items() %}
@@ -21,7 +21,7 @@
             </tr>
           </thead>
           <tbody>
-            {%- for rsvp in space.rsvps_with(value) %}
+            {%- for rsvp in project.rsvps_with(value) %}
               <tr>
                 <td>{{rsvp.user.fullname}}</td>
                 <td>{{rsvp.user.email}}</td>

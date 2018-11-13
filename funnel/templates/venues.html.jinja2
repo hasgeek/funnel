@@ -1,8 +1,8 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Venues{% endtrans %} &mdash; {{ space.title }}{% endblock %}
+{% block title %}{% trans %}Venues{% endtrans %} &mdash; {{ project.title }}{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1">{{ space.title|e }}</h1>
+  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
   <p class="mui--text-headline">Manage venues</p>
 {% endblock %}
 
@@ -37,6 +37,6 @@
     {%- endfor %}
   </ol>
   <p>
-    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-venue') }}" title="{% trans %}Add venue{% endtrans %}">{% trans %}Add venue{% endtrans %}</a>
+    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-venue') }}" title="{% trans %}Add venue{% endtrans %}">{% trans %}Add venue{% endtrans %}</a>
   </p>
 {% endblock %}
