@@ -61,10 +61,10 @@ class ProposalSpace(BaseScopedNameMixin, db.Model):
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
     buy_tickets_url = db.Column(db.Unicode(250), nullable=True)
 
-    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
+    votes_id = db.Column(None, db.ForeignKey('votespace.id'), nullable=False)
     votes = db.relationship(VoteSpace, uselist=False)
 
-    comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
+    comments_id = db.Column(None, db.ForeignKey('commentspace.id'), nullable=False)
     comments = db.relationship(CommentSpace, uselist=False)
 
     admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)

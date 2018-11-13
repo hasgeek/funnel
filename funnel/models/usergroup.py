@@ -12,14 +12,14 @@ __all__ = ['UserGroup']
 
 group_members = db.Table(
     'group_members', db.Model.metadata,
-    db.Column('group_id', db.Integer, db.ForeignKey('user_group.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('group_id', None, db.ForeignKey('user_group.id')),
+    db.Column('user_id', None, db.ForeignKey('user.id')),
     )
 
 
 class UserGroup(BaseScopedNameMixin, db.Model):
     __tablename__ = 'user_group'
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
+    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
     proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
         backref=db.backref('usergroups', cascade="all, delete-orphan"))
     parent = db.synonym('proposal_space')
