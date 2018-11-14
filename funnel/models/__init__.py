@@ -9,7 +9,7 @@ from coaster.db import db
 from .user import *
 from .profile import *
 from .commentvote import *
-from .space import *
+from .project import *
 from .section import *
 from .usergroup import *
 from .proposal import *

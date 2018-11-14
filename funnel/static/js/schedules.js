@@ -494,8 +494,8 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    this.current.obj_data.end = events.from_space_timezone(this.current.end).toISOString();
-                    this.current.obj_data.start = events.from_space_timezone(this.current.start).toISOString();
+                    this.current.obj_data.end = events.from_project_timezone(this.current.end).toISOString();
+                    this.current.obj_data.start = events.from_project_timezone(this.current.start).toISOString();
                 }
             },
             height: function(ht) {
@@ -507,11 +507,11 @@ $(function() {
                     popup.open();
                 }
             },
-            to_space_timezone: function(dt) {
+            to_project_timezone: function(dt) {
                 dt = new Date(dt.valueOf() + dt.getTimezoneOffset() * 60000 + settings.timezone);
                 return dt;
             },
-            from_space_timezone: function(dt) {
+            from_project_timezone: function(dt) {
                 dt = new Date(dt.valueOf() - dt.getTimezoneOffset() * 60000 - settings.timezone);
                 return dt;
             }
@@ -602,8 +602,8 @@ $(function() {
             delete scheduled[i].url_name;
             delete scheduled[i].obj_data.url_name;
             if(scheduled[i].obj_data.delete_url) scheduled[i].delete_url = scheduled[i].obj_data.delete_url;
-            scheduled[i].start = events.to_space_timezone(scheduled[i].start);
-            scheduled[i].end = events.to_space_timezone(scheduled[i].end);
+            scheduled[i].start = events.to_project_timezone(scheduled[i].start);
+            scheduled[i].end = events.to_project_timezone(scheduled[i].end);
             events.update_properties(scheduled[i]);
             delete scheduled[i].obj_data.modal_url;
             delete scheduled[i].obj_data.delete_url;

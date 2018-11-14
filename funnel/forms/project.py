@@ -11,15 +11,15 @@ from .profile import profile_teams
 from ..models import RSVP_STATUS
 
 __all__ = [
-    'ProposalSpaceForm', 'ProposalSubspaceForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
-    'TicketClientForm', 'ProposalSpaceTransitionForm'
+    'ProjectForm', 'ProposalSubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
+    'TicketClientForm', 'ProjectTransitionForm'
 ]
 
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 
-class ProposalSpaceForm(forms.Form):
+class ProjectForm(forms.Form):
     name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)])
@@ -47,11 +47,11 @@ class ProposalSpaceForm(forms.Form):
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
         validators=[forms.validators.Optional()])
-    parent_space = QuerySelectField(__(u"Parent space"), get_label='title', allow_blank=True, blank_text=__(u"None"))
+    parent = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
-        description=__(u"The administrators of this proposal space"))
+        description=__(u"The administrators of this project"))
     review_team = QuerySelectField(u"Review team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         query_factory=profile_teams, get_label='title', allow_blank=False,
         description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
@@ -72,7 +72,7 @@ class ProposalSpaceForm(forms.Form):
             raise forms.ValidationError("Please enter a valid color code")
 
 
-class ProposalSpaceTransitionForm(forms.Form):
+class ProjectTransitionForm(forms.Form):
     transition = forms.SelectField(__("Status"), validators=[
                                    forms.validators.DataRequired()])
 
@@ -85,8 +85,8 @@ class ProposalSpaceTransitionForm(forms.Form):
         self.transition.choices = self.edit_obj.state.transitions().items()
 
 
-class ProposalSubspaceForm(ProposalSpaceForm):
-    inherit_sections = forms.BooleanField(__("Inherit sections from parent space?"), default=True)
+class ProposalSubprojectForm(ProjectForm):
+    inherit_sections = forms.BooleanField(__("Inherit sections from parent project?"), default=True)
 
 
 class RsvpForm(forms.Form):

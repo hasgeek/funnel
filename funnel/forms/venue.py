@@ -3,7 +3,7 @@
 from baseframe import __
 import baseframe.forms as forms
 from baseframe.staticdata import country_codes
-from .space import valid_color_re
+from .project import valid_color_re
 
 __all__ = ['VenueForm', 'VenueRoomForm']
 

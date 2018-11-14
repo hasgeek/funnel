@@ -1,8 +1,8 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}Sections &mdash; {{ space.title }}{% endblock %}
+{% block title %}Sections &mdash; {{ project.title }}{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1">{{ space.title|e }}</h1>
+  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
   <p class="mui--text-headline">Manage sections</p>
 {% endblock %}
 
@@ -19,6 +19,6 @@
     {%- endfor %}
   </ol>
   <p>
-    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-section') }}">{% trans %}Add new section{% endtrans %}</a>
+    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-section') }}">{% trans %}Add new section{% endtrans %}</a>
   </p>
 {% endblock %}

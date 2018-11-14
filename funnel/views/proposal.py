@@ -14,7 +14,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, mail, lastuser
-from ..models import (db, Profile, ProposalSpace, ProposalSpaceRedirect, ProposalSpaceSection, Proposal,
+from ..models import (db, Profile, Project, ProjectRedirect, Section, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
 
@@ -69,8 +69,8 @@ def proposal_data(proposal):
             ('links', proposal.links),
             ('preview_video', proposal.preview_video),
             ('bio', proposal.bio.html),
-            ('votes', proposal.votes.count),
-            ('comments', proposal.comments.count),
+            ('votes', proposal.voteset.count),
+            ('comments', proposal.commentset.count),
             ('submitted', proposal.created_at.isoformat() + 'Z'),
             ('confirmed', bool(proposal.state.CONFIRMED)),
         ] + ([
@@ -96,20 +96,20 @@ def proposal_data_flat(proposal, groups=[]):
 
 # --- Routes ------------------------------------------------------------------
 
-@app.route('/<profile>/<space>/new', methods=['GET', 'POST'])
-@funnelapp.route('/<space>/new', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/new', methods=['GET', 'POST'])
+@funnelapp.route('/<project>/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='new-proposal')
-def proposal_new(profile, space):
-    form = ProposalForm(model=Proposal, parent=space)
+def proposal_new(profile, project):
+    form = ProposalForm(model=Proposal, parent=project)
     del form.session_type  # We don't use this anymore
-    if space.inherit_sections:
-        form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    if project.inherit_sections:
+        form.section.query = Section.query.filter(or_(Section.project == project, Section.project == project.parent), Section.public == True).order_by('title')
     else:
-        form.section.query = ProposalSpaceSection.query.filter(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.public == True).order_by('title')
+        form.section.query = Section.query.filter(Section.project == project, Section.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
@@ -117,9 +117,9 @@ def proposal_new(profile, space):
         form.email.data = g.user.email
         form.phone.data = g.user.phone
     if form.validate_on_submit():
-        proposal = Proposal(user=g.user, proposal_space=space)
+        proposal = Proposal(user=g.user, project=project)
         with db.session.no_autoflush:
-            proposal.votes.vote(g.user)  # Vote up your own proposal by default
+            proposal.voteset.vote(g.user)  # Vote up your own proposal by default
         form.populate_obj(proposal.formdata)
         proposal.name = make_name(proposal.title)
         db.session.add(proposal)
@@ -128,26 +128,26 @@ def proposal_new(profile, space):
         return redirect(proposal.url_for(), code=303)
     return render_form(form=form, title=_("Submit a session proposal"),
         submit=_("Submit proposal"),
-        message=space.instructions or Markup(
+        message=project.instructions or Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<profile>/<space>/<proposal>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<space>/<proposal>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<project>/<proposal>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='edit-proposal')
-def proposal_edit(profile, space, proposal):
-    form = ProposalForm(obj=proposal.formdata, model=Proposal, parent=space)
+def proposal_edit(profile, project, proposal):
+    form = ProposalForm(obj=proposal.formdata, model=Proposal, parent=project)
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
-    if space.inherit_sections:
-        form.section.query = ProposalSpaceSection.query.filter(or_(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.proposal_space == space.parent_space), ProposalSpaceSection.public == True).order_by('title')
+    if project.inherit_sections:
+        form.section.query = Section.query.filter(or_(Section.project == project, Section.project == project.parent), Section.public == True).order_by('title')
     else:
-        form.section.query = ProposalSpaceSection.query.filter(ProposalSpaceSection.proposal_space == space, ProposalSpaceSection.public == True).order_by('title')
+        form.section.query = Section.query.filter(Section.project == project, Section.public == True).order_by('title')
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
@@ -161,19 +161,19 @@ def proposal_edit(profile, space, proposal):
         flash(_("Your changes have been saved"), 'info')
         return redirect(proposal.url_for(), code=303)
     return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
-        message=space.instructions or Markup(
+        message=project.instructions or Markup(
             _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@app.route('/<profile>/<space>/<proposal>/transition', methods=['POST'])
-@funnelapp.route('/<space>/<proposal>/transition', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/transition', methods=['POST'])
+@funnelapp.route('/<project>/<proposal>/transition', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='confirm-proposal')
-def proposal_transition(profile, space, proposal):
+def proposal_transition(profile, project, proposal):
     transition_form = ProposalTransitionForm(obj=proposal)
     if transition_form.validate_on_submit():  # check if the provided transition is valid
         transition = getattr(proposal.current_access(), transition_form.transition.data)
@@ -186,37 +186,37 @@ def proposal_transition(profile, space, proposal):
     return redirect(proposal.url_for())
 
 
-@app.route('/<profile>/<space>/<proposal>/delete', methods=['GET', 'POST'])
-@funnelapp.route('/<space>/<proposal>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/delete', methods=['GET', 'POST'])
+@funnelapp.route('/<project>/<proposal>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='delete-proposal')
-def proposal_delete(profile, space, proposal):
+def proposal_delete(profile, project, proposal):
     return render_delete_sqla(proposal, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete your proposal ‘{title}’? "
                 u"This will remove all votes and comments as well. This operation "
                 u"is permanent and cannot be undone.").format(title=proposal.title),
         success=_("Your proposal has been deleted"),
-        next=space.url_for(),
+        next=project.url_for(),
         cancel_url=proposal.url_for())
 
 
-@app.route('/<profile>/<space>/<proposal>', methods=['GET', 'POST'])
-@funnelapp.route('/<space>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>', methods=['GET', 'POST'])
+@funnelapp.route('/<project>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_view(profile, space, proposal):
-    if proposal.proposal_space != space:
+def proposal_view(profile, project, proposal):
+    if proposal.project != project:
         return redirect(proposal.url_for(), code=301)
 
-    comments = sorted(Comment.query.filter_by(commentspace=proposal.comments, parent=None).order_by('created_at').all(),
-        key=lambda c: c.votes.count, reverse=True)
+    comments = sorted(Comment.query.filter_by(commentset=proposal.commentset, parent=None).order_by('created_at').all(),
+        key=lambda c: c.voteset.count, reverse=True)
     commentform = CommentForm(model=Comment)
     delcommentform = DeleteCommentForm()
     # TODO: Remove comment methods to a separate view
@@ -235,7 +235,7 @@ def proposal_view(profile, space, proposal):
                 else:
                     flash(_("No such comment"), 'error')
             else:
-                comment = Comment(user=g.user, commentspace=proposal.comments,
+                comment = Comment(user=g.user, commentset=proposal.commentset,
                     message=commentform.message.data)
                 if commentform.parent_id.data:
                     parent = Comment.query.get(int(commentform.parent_id.data))
@@ -243,27 +243,27 @@ def proposal_view(profile, space, proposal):
                         if parent.user == proposal.user:  # check if parent comment & proposal owner are same
                             if not g.user == parent.user:  # check if parent comment is by proposal owner
                                 send_mail_info.append({'to': proposal.user.email or proposal.email,
-                                    'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
+                                    'subject': u"{project} Funnel: {proposal}".format(project=project.title, proposal=proposal.title),
                                     'template': 'proposal_comment_reply_email.md'})
                         else:  # send mail to parent comment owner & proposal owner
                             if not parent.user == g.user:
                                 send_mail_info.append({'to': parent.user.email,
-                                    'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
+                                    'subject': u"{project} Funnel: {proposal}".format(project=project.title, proposal=proposal.title),
                                     'template': 'proposal_comment_to_proposer_email.md'})
                             if not proposal.user == g.user:
                                 send_mail_info.append({'to': proposal.user.email or proposal.email,
-                                    'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
+                                    'subject': u"{project} Funnel: {proposal}".format(project=project.title, proposal=proposal.title),
                                     'template': 'proposal_comment_email.md'})
 
-                    if parent and parent.commentspace == proposal.comments:
+                    if parent and parent.commentset == proposal.commentset:
                         comment.parent = parent
                 else:  # for top level comment
                     if not proposal.user == g.user:
                         send_mail_info.append({'to': proposal.user.email or proposal.email,
-                            'subject': u"{space} Funnel: {proposal}".format(space=space.title, proposal=proposal.title),
+                            'subject': u"{project} Funnel: {proposal}".format(project=project.title, proposal=proposal.title),
                             'template': 'proposal_comment_email.md'})
-                proposal.comments.count += 1
-                comment.votes.vote(g.user)  # Vote for your own comment
+                proposal.commentset.count += 1
+                comment.voteset.vote(g.user)  # Vote for your own comment
                 db.session.add(comment)
                 flash(_("Your comment has been posted"), 'info')
             db.session.commit()
@@ -281,7 +281,7 @@ def proposal_view(profile, space, proposal):
             if comment:
                 if 'delete-comment' in comment.permissions(g.user, g.permissions):
                     comment.delete()
-                    proposal.comments.count -= 1
+                    proposal.commentset.count -= 1
                     db.session.commit()
                     flash(_("Your comment was deleted"), 'info')
                 else:
@@ -297,23 +297,23 @@ def proposal_view(profile, space, proposal):
     if 'move_to' in proposal.current_access():
         proposal_move_form = ProposalMoveForm()
 
-    return render_template('proposal.html.jinja2', space=space, proposal=proposal,
+    return render_template('proposal.html.jinja2', project=project, proposal=proposal,
         comments=comments, commentform=commentform, delcommentform=delcommentform,
         votes_groups=proposal.votes_by_group(),
         links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
-        part_a=space.proposal_part_a.get('title', 'Objective'),
-        part_b=space.proposal_part_b.get('title', 'Description'), csrf_form=Form())
+        part_a=project.proposal_part_a.get('title', 'Objective'),
+        part_b=project.proposal_part_b.get('title', 'Description'), csrf_form=Form())
 
 
-@app.route('/<profile>/<space>/<proposal>/feedback', methods=['POST'])
-@funnelapp.route('/<space>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/feedback', methods=['POST'])
+@funnelapp.route('/<project>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
 @requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
-def session_feedback(profile, space, proposal, id_type, userid, content, presentation, min_scale=0, max_scale=2):
+def session_feedback(profile, project, proposal, id_type, userid, content, presentation, min_scale=0, max_scale=2):
     # Process feedback
     if not min_scale <= content <= max_scale:
         abort(400)
@@ -345,64 +345,64 @@ def session_feedback(profile, space, proposal, id_type, userid, content, present
         return "Saved\n", 201
 
 
-@app.route('/<profile>/<space>/<proposal>/json', methods=['GET', 'POST'])
-@funnelapp.route('/<space>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/json', methods=['GET', 'POST'])
+@funnelapp.route('/<project>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_json(profile, space, proposal):
+def proposal_json(profile, project, proposal):
     return jsonp(proposal_data(proposal))
 
 
-@app.route('/<profile>/<space>/<proposal>/next')
-@funnelapp.route('/<space>/<proposal>/next', subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/next')
+@funnelapp.route('/<project>/<proposal>/next', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_next(profile, space, proposal):
+def proposal_next(profile, project, proposal):
     next = proposal.getnext()
     if next:
         return redirect(next.url_for())
     else:
         flash(_("You were at the last proposal"), 'info')
-        return redirect(space.url_for())
+        return redirect(project.url_for())
 
 
-@app.route('/<profile>/<space>/<proposal>/prev')
-@funnelapp.route('/<space>/<proposal>/prev', subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/prev')
+@funnelapp.route('/<project>/<proposal>/prev', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='view', addlperms=lastuser.permissions)
-def proposal_prev(profile, space, proposal):
+def proposal_prev(profile, project, proposal):
     prev = proposal.getprev()
     if prev:
         return redirect(prev.url_for())
     else:
         flash(_("You were at the first proposal"), 'info')
-        return redirect(space.url_for())
+        return redirect(project.url_for())
 
 
-@app.route('/<profile>/<space>/<proposal>/move', methods=['POST'])
-@funnelapp.route('/<space>/<proposal>/move', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/<proposal>/move', methods=['POST'])
+@funnelapp.route('/<project>/<proposal>/move', methods=['POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'proposal_space': 'space'}, 'proposal'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
     permission='move-proposal', addlperms=lastuser.permissions)
-def proposal_moveto(profile, space, proposal):
+def proposal_moveto(profile, project, proposal):
     proposal_move_form = ProposalMoveForm()
     if proposal_move_form.validate_on_submit():
-        target_space = proposal_move_form.target.data
-        if target_space != proposal.proposal_space:
-            proposal.current_access().move_to(target_space)
+        target_project = proposal_move_form.target.data
+        if target_project != proposal.project:
+            proposal.current_access().move_to(target_project)
             db.session.commit()
-        flash(_("The proposal has been successfully moved to {space}.".format(space=target_space.title)))
+        flash(_("The proposal has been successfully moved to {project}.".format(project=target_project.title)))
     else:
-        flash(_("Please choose a proposal space you want to move this proposal to."))
+        flash(_("Please choose a project you want to move this proposal to."))
     return redirect(proposal.url_for(), 303)

@@ -26,12 +26,12 @@ class Profile(ProfileBase, db.Model):
         }
 
     @cached_property
-    def parent_spaces(self):
-        from .space import ProposalSpace
-        spaces_all = ProposalSpace.fetch_sorted().filter(
-            ProposalSpace.profile == self, ProposalSpace.parent_space == None  # NOQA
+    def parent_projects(self):
+        from .project import Project
+        projects_all = Project.fetch_sorted().filter(
+            Project.profile == self, Project.parent == None  # NOQA
         ).all()
-        return spaces_all
+        return projects_all
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
@@ -40,9 +40,9 @@ class Profile(ProfileBase, db.Model):
             if (self.userid in user.user_organizations_owned_ids() or
                     (self.admin_team and user in self.admin_team.users)):
                 perms.add('edit-profile')
-                perms.add('new-space')
-                perms.add('delete-space')
-                perms.add('edit-space')
+                perms.add('new-project')
+                perms.add('delete-project')
+                perms.add('edit-project')
         return perms
 
     def url_for(self, action='view', _external=False):
@@ -50,8 +50,8 @@ class Profile(ProfileBase, db.Model):
             return url_for('profile_view', profile=self.name, _external=_external)
         if action == 'edit':
             return url_for('profile_edit', profile=self.name, _external=_external)
-        elif action == 'new-space':
-            return url_for('space_new', profile=self.name, _external=_external)
+        elif action == 'new-project':
+            return url_for('project_new', profile=self.name, _external=_external)
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)

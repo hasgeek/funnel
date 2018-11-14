@@ -4,7 +4,7 @@ from baseframe import __
 import baseframe.forms as forms
 from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import ProposalSpace, Profile, Proposal
+from ..models import Project, Profile, Proposal
 
 __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
 
@@ -63,15 +63,15 @@ class ProposalForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ProposalForm, self).__init__(*args, **kwargs)
-        space = kwargs.get('parent')
-        if space.proposal_part_a.get('title'):
-            self.objective.label.text = space.proposal_part_a.get('title')
-        if space.proposal_part_a.get('hint'):
-            self.objective.description = space.proposal_part_a.get('hint')
-        if space.proposal_part_b.get('title'):
-            self.description.label.text = space.proposal_part_b.get('title')
-        if space.proposal_part_b.get('hint'):
-            self.description.description = space.proposal_part_b.get('hint')
+        project = kwargs.get('parent')
+        if project.proposal_part_a.get('title'):
+            self.objective.label.text = project.proposal_part_a.get('title')
+        if project.proposal_part_a.get('hint'):
+            self.objective.description = project.proposal_part_a.get('hint')
+        if project.proposal_part_b.get('title'):
+            self.description.label.text = project.proposal_part_b.get('title')
+        if project.proposal_part_b.get('hint'):
+            self.description.description = project.proposal_part_b.get('hint')
 
 
 class ProposalTransitionForm(forms.Form):
@@ -92,7 +92,7 @@ class ProposalMoveForm(forms.Form):
 
     def set_queries(self):
         team_ids = [t.id for t in g.user.teams]
-        self.target.query = ProposalSpace.query.join(ProposalSpace.profile).filter(
-            (ProposalSpace.admin_team_id.in_(team_ids)) |
+        self.target.query = Project.query.join(Project.profile).filter(
+            (Project.admin_team_id.in_(team_ids)) |
             (Profile.admin_team_id.in_(team_ids))
-            ).order_by(ProposalSpace.date.desc())
+            ).order_by(Project.date.desc())
