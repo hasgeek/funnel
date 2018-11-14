@@ -4,7 +4,7 @@
 {% block title %}Admin{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1">{{ space.title|e }}</h1>
+  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
   <p class="mui--text-headline">Manage event</p>
 {% endblock %}
 
@@ -19,16 +19,16 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ url_for('event', profile=space.profile.name, space=space.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a><a href="{{ url_for('event_edit', profile=space.profile.name, space=space.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
+              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a><a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
             </li>
           {%- endfor %}
         </ol>
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href={{ space.url_for('new-event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
-        {%- if space.events %}
-          <a href={{ space.url_for('new-participant') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
+        <a href={{ project.url_for('new-event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
+        {%- if project.events %}
+          <a href={{ project.url_for('new-participant') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
         {%- endif %}
       </div>
     </div>
@@ -41,16 +41,16 @@
       </div>
       <div class="card__body">
         <ol class="mui-list--aligned">
-          {%- for ticket_type in space.ticket_types -%}
+          {%- for ticket_type in project.ticket_types -%}
             <li>
-              <a href="{{ url_for('ticket_type', profile=space.profile.name, space=space.name, name=ticket_type.name) }}" class="mui--text-subhead">{{ ticket_type.title }}</a><a href="{{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
+              <a href="{{ url_for('ticket_type', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" class="mui--text-subhead">{{ ticket_type.title }}</a><a href="{{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
             </li>
           {%- endfor %}
         </ol>
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href={{ space.url_for('new-ticket-type') }} title="{% trans %}New ticket type {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New ticket</a>
+        <a href={{ project.url_for('new-ticket-type') }} title="{% trans %}New ticket type {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New ticket</a>
       </div>
     </div>
   </div>
@@ -62,17 +62,17 @@
       </div>
       <div class="card__body">
         <ol class="mui-list--aligned">
-          {%- for client in space.ticket_clients %}
+          {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>&nbsp;<a href="{{ url_for('ticket_client_edit', profile=space.profile.name, space=space.name, id=client.id) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
+              <span class="mui--text-subhead">{{client.name}}</span>&nbsp;<a href="{{ url_for('ticket_client_edit', profile=project.profile.name, project=project.name, id=client.id) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
             </li>
           {%- endfor %}
         </ol>
       </div>
       <div class="mui-divider"></div>
         <div class="card__footer">
-          <a href="{{ space.url_for('new-ticket-client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New client</a>
-          {%- if space.ticket_clients %}
+          <a href="{{ project.url_for('new-ticket-client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New client</a>
+          {%- if project.ticket_clients %}
             <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form mui-form--inline">
               <div class="form-group">
                 {{ csrf_form.hidden_tag() }}

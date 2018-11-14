@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}User groups &mdash; {{ space.title }}{% endblock %}
+{% block title %}User groups &mdash; {{ project.title }}{% endblock %}
 {% block content %}
   <ol>
     {%- for group in usergroups %}
@@ -9,6 +9,6 @@
     {%- endfor %}
   </ol>
   <p>
-    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ space.url_for('new-usergroup') }}">{% trans %}Add new group{% endtrans %}</a>
+    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-usergroup') }}">{% trans %}Add new group{% endtrans %}</a>
   </p>
 {% endblock %}

@@ -4,12 +4,12 @@ import os.path
 from flask import g, render_template, redirect, jsonify
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp, pages
-from ..models import Profile, ProposalSpace, Proposal
-from .space import space_data
+from ..models import Profile, Project, Proposal
+from .project import project_data
 
 
 def index_jsonify(data):
-    return jsonify(spaces=[d for d in [dict(s.current_access()) for s in data['spaces']] if d])
+    return jsonify(projects=[d for d in [dict(s.current_access()) for s in data['projects']] if d])
 
 
 @app.route('/')
@@ -17,8 +17,8 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
-    return {'spaces': spaces}
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()
+    return {'projects': projects}
 
 
 @funnelapp.route('/', endpoint='index')
@@ -26,8 +26,8 @@ def index():
 def funnelindex():
     g.profile = None
     g.permissions = []
-    spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
-    return {'spaces': spaces}
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()
+    return {'projects': projects}
 
 
 @app.route('/api/whoami')
@@ -41,51 +41,51 @@ def whoami():
 
 @app.route('/json')
 @funnelapp.route('/json')
-def all_spaces_json():
+def all_projects_json():
     g.profile = None
     g.permissions = []
-    spaces = ProposalSpace.fetch_sorted().filter(ProposalSpace.profile != None).all()
-    return jsonp(spaces=map(space_data, spaces))
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()
+    return jsonp(projects=map(project_data, projects))
 
 
 @app.route('/<profile>/json')
 @funnelapp.route('/json', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
-def spaces_json(profile):
-    spaces = ProposalSpace.fetch_sorted().filter_by(profile=profile).all()
-    return jsonp(spaces=map(space_data, spaces))
+def projects_json(profile):
+    projects = Project.fetch_sorted().filter_by(profile=profile).all()
+    return jsonp(projects=map(project_data, projects))
 
 
 @app.route('/<profile>/')
 @funnelapp.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
-    return render_template('funnelindex.html.jinja2', spaces=profile.parent_spaces)
+    return render_template('funnelindex.html.jinja2', projects=profile.parent_projects)
 
 
 # Legacy routes for funnel to talkfunnel migration
 # Figure out how to restrict these routes to just the funnel.hasgeek.com domain
 
-@funnelapp.route('/<space>/')
-@load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
-def space_redirect(space):
-    return redirect(space.url_for())
+@funnelapp.route('/<project>/')
+@load_model(Project, {'legacy_name': 'project'}, 'project')
+def project_redirect(project):
+    return redirect(project.url_for())
 
 
-@funnelapp.route('/<space>/json')
-@load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
-def space_redirect_json(space):
-    return redirect(space.url_for('json'))
+@funnelapp.route('/<project>/json')
+@load_model(Project, {'legacy_name': 'project'}, 'project')
+def project_redirect_json(project):
+    return redirect(project.url_for('json'))
 
 
-@funnelapp.route('/<space>/csv')
-@load_model(ProposalSpace, {'legacy_name': 'space'}, 'space')
-def space_redirect_csv(space):
-    return redirect(space.url_for('csv'))
+@funnelapp.route('/<project>/csv')
+@load_model(Project, {'legacy_name': 'project'}, 'project')
+def project_redirect_csv(project):
+    return redirect(project.url_for('csv'))
 
 
-@funnelapp.route('/<space>/<int:id>-<name>')
-@funnelapp.route('/<space>/<int:id>')
+@funnelapp.route('/<project>/<int:id>-<name>')
+@funnelapp.route('/<project>/<int:id>')
 @load_model(Proposal, {'id': 'id'}, 'proposal')
 def proposal_redirect(proposal):
     return redirect(proposal.url_for())

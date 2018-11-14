@@ -6,47 +6,47 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, User, UserGroup, ProposalSpace, ProposalSpaceRedirect
+from ..models import db, Profile, User, UserGroup, Project, ProjectRedirect
 from ..forms import UserGroupForm
 
 
-@app.route('/<profile>/<space>/users')
-@funnelapp.route('/<space>/users', subdomain='<profile>')
+@app.route('/<profile>/<project>/users')
+@funnelapp.route('/<project>/users', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view-usergroup')
-def usergroup_list(profile, space):
-    return render_template('usergroups.html.jinja2', space=space, usergroups=space.usergroups)
+def usergroup_list(profile, project):
+    return render_template('usergroups.html.jinja2', project=project, usergroups=project.usergroups)
 
 
-@app.route('/<profile>/<space>/users/<group>')
-@funnelapp.route('/<space>/users/<group>', subdomain='<profile>')
+@app.route('/<profile>/<project>/users/<group>')
+@funnelapp.route('/<project>/users/<group>', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    (UserGroup, {'name': 'group', 'project': 'project'}, 'usergroup'),
     permission='view-usergroup')
-def usergroup_view(profile, space, usergroup):
-    return render_template('usergroup.html.jinja2', space=space, usergroup=usergroup)
+def usergroup_view(profile, project, usergroup):
+    return render_template('usergroup.html.jinja2', project=project, usergroup=usergroup)
 
 
-@app.route('/<profile>/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
-@app.route('/<profile>/<space>/users/<group>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<space>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'], subdomain='<profile>')
-@funnelapp.route('/<space>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
+@app.route('/<profile>/<project>/users/<group>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/<project>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'], subdomain='<profile>')
+@funnelapp.route('/<project>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='new-usergroup', kwargs=True)
-def usergroup_edit(profile, space, kwargs):
+def usergroup_edit(profile, project, kwargs):
     group = kwargs.get('group')
-    form = UserGroupForm(model=UserGroup, parent=space)
+    form = UserGroupForm(model=UserGroup, parent=project)
     if group is not None:
-        usergroup = UserGroup.query.filter_by(name=group, proposal_space=space).first_or_404()
+        usergroup = UserGroup.query.filter_by(name=group, project=project).first_or_404()
         form.edit_id = usergroup.id
         if request.method == 'GET':
             form.name.data = usergroup.name
@@ -54,7 +54,7 @@ def usergroup_edit(profile, space, kwargs):
             form.users.data = usergroup.users
     if form.validate_on_submit():
         if group is None:
-            usergroup = UserGroup(proposal_space=space)
+            usergroup = UserGroup(project=project)
         usergroup.name = form.name.data
         usergroup.title = form.title.data
         usergroup.users = form.users.data
@@ -67,17 +67,17 @@ def usergroup_edit(profile, space, kwargs):
         return render_form(form=form, title=_("Edit user group"), submit=_("Save changes"))
 
 
-@app.route('/<profile>/<space>/users/<group>/delete', methods=['GET', 'POST'])
-@funnelapp.route('/<space>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/users/<group>/delete', methods=['GET', 'POST'])
+@funnelapp.route('/<project>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (UserGroup, {'name': 'group', 'proposal_space': 'space'}, 'usergroup'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    (UserGroup, {'name': 'group', 'project': 'project'}, 'usergroup'),
     permission='delete-usergroup')
-def usergroup_delete(profile, space, usergroup):
+def usergroup_delete(profile, project, usergroup):
     return render_delete_sqla(usergroup, db, title=_(u"Confirm delete"),
         message=_(u"Do you really wish to delete user group ‘{title}’?").format(title=usergroup.title),
         success=_("Your user group has been deleted"),
-        next=space.url_for('usergroups'),
-        cancel_url=space.url_for('usergroups'))
+        next=project.url_for('usergroups'),
+        cancel_url=project.url_for('usergroups'))

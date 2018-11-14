@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ space.title }}{% endblock %}
+{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ project.title }}{% endblock %}
 {% block headline %}{% endblock %}
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
@@ -67,10 +67,10 @@
   {%- endassets -%}
   {% assets "js_schedules" -%}
     <script type="text/javascript">
-      var UPDATE_URL = "{{ space.url_for('update-schedule') }}";
+      var UPDATE_URL = "{{ project.url_for('update-schedule') }}";
       var TIMEZONE = {{ timezone }} * 1000;
-      var NEW_SESSION_URL = "{{ space.url_for('new-session') }}";
-      var COLORS_UPDATE_URL = "{{ space.url_for('update-venue-colors') }}";
+      var NEW_SESSION_URL = "{{ project.url_for('new-session') }}";
+      var COLORS_UPDATE_URL = "{{ project.url_for('update-venue-colors') }}";
       var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
       var scheduled = {{ proposals['scheduled']|tojson }};
       var ROOMS = {{ rooms|tojson }};

@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ space.title }}{% endblock %}
+{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ project.title }}{% endblock %}
 {% block headline %}{% endblock %}
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
@@ -12,14 +12,14 @@
     <div class="mui--pull-right">
       <ul class="mui-list--inline">
         <li>
-          <a href="{{ space.url_for('subscribe-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
+          <a href="{{ project.url_for('subscribe-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
         </li>
-        {% if current_auth.is_authenticated and space.current_roles.admin %}
+        {% if current_auth.is_authenticated and project.current_roles.admin %}
         <li>
-          <a href="{{ space.url_for('edit-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Edit Schedule{% endtrans %}</a>
+          <a href="{{ project.url_for('edit-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Edit Schedule{% endtrans %}</a>
         </li>
         <li>
-          <a href="{{ space.url_for('json-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Download JSON{% endtrans %}</a>
+          <a href="{{ project.url_for('json-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Download JSON{% endtrans %}</a>
         </li>
         {% endif %}
       </ul>
@@ -31,7 +31,7 @@
   <div>
     <div class="fc-header-title"><h3 class="mui--text-title"><strong>{% trans %}Venues{% endtrans %}</strong></h3></div>
     <div id="rooms-list">
-      {%- for venue in space.venues %}
+      {%- for venue in project.venues %}
         <h4 class="venue mui--text-subhead">{{ venue.title }}</h4>
         <div class="venue_desc mui--text-body2 mui--text-light">{{ venue.description }}</div>
         {%- for room in venue.rooms %}

@@ -1,6 +1,6 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
-{% macro rsvpform(space, form) %}{% with counts=space.rsvp_counts() %}
-  <form id="rsvp-form" action="{{ space.url_for('rsvp') }}" method="POST">
+{% macro rsvpform(project, form) %}{% with counts=project.rsvp_counts() %}
+  <form id="rsvp-form" action="{{ project.url_for('rsvp') }}" method="POST">
     {{ form.hidden_tag() }}
     <p class="no-jshidden">
       {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'accent', "Maybe"), ('N', 'dark', "Not going")] %}

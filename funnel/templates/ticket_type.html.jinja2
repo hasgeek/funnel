@@ -1,12 +1,12 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ space.title }}{% endblock %}
+{% block title %}{{ project.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
 
 {% block contentwrapper %}
   <div class="grid">
     <div class="grid__col-xs-6">
-      <h3 class="mui--text-title">{{ticket_type.title}} <a href={{ url_for('ticket_type_edit', profile=space.profile.name, space=space.name, name=ticket_type.name) }}><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary">edit</i></a></h3>
+      <h3 class="mui--text-title">{{ticket_type.title}} <a href={{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary">edit</i></a></h3>
     </div>
     <div class="grid__col-xs-6">
       <h3 class="mui--text-title mui--text-right">

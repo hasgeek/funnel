@@ -4,7 +4,7 @@
 {% block title %}Events{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1">{{ space.title|e }}</h1>
+  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
   <p class="mui--text-headline">Manage check-in</p>
 {% endblock %}
 
@@ -19,7 +19,7 @@
           <ol class="mui-list--aligned">
             {%- for event in events %}
               <li class="mui--text-title">
-                <a href="{{ url_for('scan_badge', profile=space.profile.name, space=space.name, name=event.name) }}" title="Check-in"><strong>{{ event.title }}</strong></a>
+                <a href="{{ url_for('scan_badge', profile=project.profile.name, project=project.name, name=event.name) }}" title="Check-in"><strong>{{ event.title }}</strong></a>
               </li>
             {%- endfor %}
           </ol>

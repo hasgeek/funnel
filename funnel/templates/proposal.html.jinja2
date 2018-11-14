@@ -1,12 +1,12 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform %}
 {% from "comments.html.jinja2" import commenttree %}
-{% block title %}{{ proposal.title }} &mdash; {{ space.title }}{% endblock %}
+{% block title %}{{ proposal.title }} &mdash; {{ project.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
-    {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=space.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+    {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
   {%- else -%}
-    {{ proposal.title }}, {{ space.title }}
+    {{ proposal.title }}, {{ project.title }}
   {%- endif -%}
 {% endblock %}
 
@@ -19,8 +19,8 @@
 {% block heading %}{# Inhibit display of page-level title #}{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><strong>{{ space.title|e }}</strong></h1>
-  <p class="mui--text-headline">{{ space.tagline|safe }}</p>
+  <h1 class="mui--text-display1"><strong>{{ project.title|e }}</strong></h1>
+  <p class="mui--text-headline">{{ project.tagline|safe }}</p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -115,7 +115,7 @@
       <div class="proposal__admin-panel sticky-admin-panel">
         <div class="card">
           <div class="card__body">
-            {%- set vote = proposal.votes.getvote(g.user) %}
+            {%- set vote = proposal.voteset.getvote(g.user) %}
             {%- if g.user %}
               <p class="mui--text-subhead mui--text-center mui--text-light zero-bottom-margin">{% trans %}Vote on this proposal{% endtrans %}</p>
               <div class="vote-wrapper mui--text-center">
@@ -125,10 +125,10 @@
                     <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
                   </form>
                   <span class="mui--text-title">
-                    {%- if proposal.votes.count > 0 -%}
+                    {%- if proposal.voteset.count > 0 -%}
                       +
                     {%- endif -%}
-                    <b>{{ proposal.votes.count }}</b>
+                    <b>{{ proposal.voteset.count }}</b>
                   </span>
                   <form method="post" action="{{ proposal.url_for('votedown') }}">
                     {{ csrf_form.hidden_tag() }}
@@ -140,10 +140,10 @@
                     <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
                   </form>
                   <span class="mui--text-title">
-                    {%- if proposal.votes.count > 0 -%}
+                    {%- if proposal.voteset.count > 0 -%}
                       +
                     {%- endif -%}
-                    <b>{{ proposal.votes.count }}</b>
+                    <b>{{ proposal.voteset.count }}</b>
                   </span>
                   <form method="post" action="{{ proposal.url_for('votecancel') }}">
                     {{ csrf_form.hidden_tag() }}
@@ -155,10 +155,10 @@
                     <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
                   </form>
                   <span class="mui--text-title">
-                    {%- if proposal.votes.count > 0 -%}
+                    {%- if proposal.voteset.count > 0 -%}
                       +
                     {%- endif -%}
-                    <b>{{ proposal.votes.count }}</b>
+                    <b>{{ proposal.voteset.count }}</b>
                   </span>
                   <form method="post" action="{{ proposal.url_for('votedown') }}">
                     {{ csrf_form.hidden_tag() }}
@@ -171,10 +171,10 @@
               <a href="{{url_for('login')}}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">Login to vote</a>
               <p class="mui--text-body2">
                 Total votes: &nbsp;
-                {%- if proposal.votes.count > 0 -%}
+                {%- if proposal.voteset.count > 0 -%}
                   +
                 {%- endif -%}
-                <b>{{ proposal.votes.count }}</b>
+                <b>{{ proposal.voteset.count }}</b>
               </p>
             {%- endif %}
           </div>
@@ -220,10 +220,10 @@
                   {% if votes_groups['editorial-panel'] > 0 %}+{% endif %}{{ votes_groups['editorial-panel'] }}</p>
                 {% endif %}
                 {% set votes = dict() %}
-                {% for vote in proposal.votes.votes %}
-                  {% if votes.update({vote.user.username: vote}) %}{% endif %}
-                {% endfor %}
-                {% for group in proposal.proposal_space.usergroups %}
+                {%- for vote in proposal.voteset.votes %}
+                  {%- do votes.update({vote.user.username: vote}) %}
+                {%- endfor %}
+                {% for group in proposal.project.usergroups %}
                   {% if group.name == 'editorial-panel' %}
                     {% for member in group.users %}
                       <p class="mui--text-subhead">EP Vote: {% if g.user != member %}{{ member.fullname }}{% else %}You{% endif %}</p>
@@ -282,7 +282,7 @@
       <h3 class="mui--text-headline"><strong>{% trans %}Comments{% endtrans %}</strong></h3>
       {% if comments %}
         <ul class="mui-list--unstyled">
-          {{ commenttree(comments, proposal, space, g.user, request.base_url, csrf_form) }}
+          {{ commenttree(comments, proposal, project, g.user, request.base_url, csrf_form) }}
         </ul>
       {% endif %}
       {% if not g.user -%}

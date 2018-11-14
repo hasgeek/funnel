@@ -4,14 +4,14 @@ import base64
 from datetime import datetime
 from sqlalchemy.sql import text
 from . import db, BaseMixin, BaseScopedNameMixin
-from .space import ProposalSpace
+from .project import Project
 from .user import User
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket', 'TicketClient']
 
 
 def make_key():
-    return base64.urlsafe_b64encode(os.urandom(128))
+    return unicode(base64.urlsafe_b64encode(os.urandom(128)))
 
 
 def make_public_key():
@@ -54,8 +54,8 @@ class ScopedNameTitleMixin(BaseScopedNameMixin):
 
 class Event(ScopedNameTitleMixin, db.Model):
     """
-    A discrete event under a proposal space.
-    For instance, a space could be associated with a workshop and a two-day conference.
+    A discrete event under a project.
+    For instance, a project could be associated with a workshop and a two-day conference.
     The workshop constitutes as one event and each day of the conference
     constitutes as an independent event.
     This is done to allow distinguishing participants based on
@@ -66,14 +66,14 @@ class Event(ScopedNameTitleMixin, db.Model):
     """
     __tablename__ = 'event'
 
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('events', cascade='all, delete-orphan'))
-    parent = db.synonym('proposal_space')
+    parent = db.synonym('project')
     ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
     participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
     badge_template = db.Column(db.Unicode(250), nullable=True)
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
+    __table_args__ = (db.UniqueConstraint('project_id', 'name'), db.UniqueConstraint('project_id', 'title'))
 
 
 class TicketType(ScopedNameTitleMixin, db.Model):
@@ -83,12 +83,12 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     """
     __tablename__ = 'ticket_type'
 
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('ticket_types', cascade='all, delete-orphan'))
-    parent = db.synonym('proposal_space')
+    parent = db.synonym('project')
     events = db.relationship('Event', secondary=event_ticket_type)
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
+    __table_args__ = (db.UniqueConstraint('project_id', 'name'), db.UniqueConstraint('project_id', 'title'))
 
 
 class Participant(BaseMixin, db.Model):
@@ -116,23 +116,23 @@ class Participant(BaseMixin, db.Model):
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, backref=db.backref('participants', cascade='all, delete-orphan'))
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('participants', cascade='all, delete-orphan'))
 
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
+    __table_args__ = (db.UniqueConstraint('project_id', 'email'),)
 
     @classmethod
-    def get(cls, current_space, current_email):
-        return cls.query.filter_by(proposal_space=current_space, email=current_email).one_or_none()
+    def get(cls, current_project, current_email):
+        return cls.query.filter_by(project=current_project, email=current_email).one_or_none()
 
     @classmethod
-    def upsert(cls, current_space, current_email, **fields):
-        participant = cls.get(current_space, current_email)
+    def upsert(cls, current_project, current_email, **fields):
+        participant = cls.get(current_project, current_email)
         if participant:
             participant._set_fields(fields)
         else:
-            participant = cls(proposal_space=current_space, email=current_email, **fields)
+            participant = cls(project=current_project, email=current_email, **fields)
             db.session.add(participant)
         return participant
 
@@ -190,8 +190,8 @@ class TicketClient(BaseMixin, db.Model):
     clientid = db.Column(db.Unicode(80), nullable=False)
     client_secret = db.Column(db.Unicode(80), nullable=False)
     client_access_token = db.Column(db.Unicode(80), nullable=False)
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('ticket_clients', cascade='all, delete-orphan'))
 
     def import_from_list(self, ticket_list):
@@ -200,9 +200,9 @@ class TicketClient(BaseMixin, db.Model):
         Cancels the tickets in cancel_list.
         """
         for ticket_dict in ticket_list:
-            ticket_type = TicketType.upsert(self.proposal_space, current_title=ticket_dict['ticket_type'])
+            ticket_type = TicketType.upsert(self.project, current_title=ticket_dict['ticket_type'])
 
-            participant = Participant.upsert(self.proposal_space, ticket_dict['email'],
+            participant = Participant.upsert(self.project, ticket_dict['email'],
                 fullname=ticket_dict['fullname'],
                 phone=ticket_dict['phone'],
                 twitter=ticket_dict['twitter'],
