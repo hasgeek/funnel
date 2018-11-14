@@ -34,7 +34,7 @@
               <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
-              <p>Thank you for choosing to participate in {{ spaceTitle }} and for being a part of this growing community.</p>
+              <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>
               <p>HasGeek</p>
             {{else}}
               <h4>Attendee details not found</h4>
@@ -62,8 +62,8 @@
         el: '#scan-badge-wrapper',
         template: '#scan-badge-template',
         data: {
-          spaceTitle: "{{ project.title }}",
-          eventTitle: "{{ event.title }}",
+          projectTitle: {{ project.title|tojson }},
+          eventTitle: {{ event.title|tojson }},
           video: {},
           error: "Unable to access video. Please make sure you have a camera enabled",
           attendeeName: '',

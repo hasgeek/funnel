@@ -28,10 +28,10 @@ class Profile(ProfileBase, db.Model):
     @cached_property
     def parent_projects(self):
         from .project import Project
-        spaces_all = Project.fetch_sorted().filter(
+        projects_all = Project.fetch_sorted().filter(
             Project.profile == self, Project.parent == None  # NOQA
         ).all()
-        return spaces_all
+        return projects_all
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)

@@ -51,7 +51,7 @@ def all_projects_json():
 @app.route('/<profile>/json')
 @funnelapp.route('/json', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
-def spaces_json(profile):
+def projects_json(profile):
     projects = Project.fetch_sorted().filter_by(profile=profile).all()
     return jsonp(projects=map(project_data, projects))
 
