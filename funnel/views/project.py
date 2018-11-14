@@ -10,7 +10,7 @@ from coaster.views import load_models, jsonp
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, ProjectRedirect, Section,
     Proposal, Rsvp, RSVP_STATUS)
-from ..forms import ProposalSpaceForm, ProposalSubprojectForm, RsvpForm, ProposalSpaceTransitionForm
+from ..forms import ProjectForm, ProposalSubprojectForm, RsvpForm, ProjectTransitionForm
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
@@ -44,7 +44,7 @@ def project_data(project):
     (Profile, {'name': 'profile'}, 'g.profile'),
     permission='new-project')
 def project_new(profile):
-    form = ProposalSpaceForm(model=Project, parent=profile)
+    form = ProjectForm(model=Project, parent=profile)
     form.parent.query_factory = lambda: profile.projects
     if request.method == 'GET':
         form.timezone.data = current_app.config.get('TIMEZONE')
@@ -69,7 +69,7 @@ def project_new(profile):
 def project_view(profile, project):
     sections = Section.query.filter_by(project=project, public=True).order_by('title').all()
     rsvp_form = RsvpForm(obj=project.rsvp_for(g.user))
-    transition_form = ProposalSpaceTransitionForm(obj=project)
+    transition_form = ProjectTransitionForm(obj=project)
     return render_template('project.html.jinja2', project=project, description=project.description, sections=sections,
         rsvp_form=rsvp_form, transition_form=transition_form)
 
@@ -126,7 +126,7 @@ def project_edit(profile, project):
     if project.parent:
         form = ProposalSubprojectForm(obj=project, model=Project)
     else:
-        form = ProposalSpaceForm(obj=project, model=Project)
+        form = ProjectForm(obj=project, model=Project)
     form.parent.query = Project.query.filter(Project.profile == profile, Project.id != project.id, Project.parent == None)
     if request.method == 'GET' and not project.timezone:
         form.timezone.data = current_app.config.get('TIMEZONE')
@@ -178,7 +178,7 @@ def rsvp_list(profile, project):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='edit-project')
 def project_transition(profile, project):
-    transition_form = ProposalSpaceTransitionForm(obj=project)
+    transition_form = ProjectTransitionForm(obj=project)
     if transition_form.validate_on_submit():  # check if the provided transition is valid
         transition = getattr(project.current_access(),
             transition_form.transition.data)

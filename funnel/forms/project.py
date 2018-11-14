@@ -11,15 +11,15 @@ from .profile import profile_teams
 from ..models import RSVP_STATUS
 
 __all__ = [
-    'ProposalSpaceForm', 'ProposalSubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
-    'TicketClientForm', 'ProposalSpaceTransitionForm'
+    'ProjectForm', 'ProposalSubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
+    'TicketClientForm', 'ProjectTransitionForm'
 ]
 
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 
-class ProposalSpaceForm(forms.Form):
+class ProjectForm(forms.Form):
     name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)])
@@ -72,7 +72,7 @@ class ProposalSpaceForm(forms.Form):
             raise forms.ValidationError("Please enter a valid color code")
 
 
-class ProposalSpaceTransitionForm(forms.Form):
+class ProjectTransitionForm(forms.Form):
     transition = forms.SelectField(__("Status"), validators=[
                                    forms.validators.DataRequired()])
 
@@ -85,7 +85,7 @@ class ProposalSpaceTransitionForm(forms.Form):
         self.transition.choices = self.edit_obj.state.transitions().items()
 
 
-class ProposalSubprojectForm(ProposalSpaceForm):
+class ProposalSubprojectForm(ProjectForm):
     inherit_sections = forms.BooleanField(__("Inherit sections from parent project?"), default=True)
 
 
