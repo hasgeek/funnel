@@ -11,7 +11,7 @@ __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket', 'Tick
 
 
 def make_key():
-    return base64.urlsafe_b64encode(os.urandom(128))
+    return unicode(base64.urlsafe_b64encode(os.urandom(128)))
 
 
 def make_public_key():
