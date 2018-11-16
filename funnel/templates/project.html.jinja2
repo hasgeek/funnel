@@ -67,44 +67,101 @@
   </div>
 {%- endmacro %}
 
-{% block top_title %}
-  <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
-  <p class="mui--text-headline">{{ project.tagline|safe }}</p>
-  <ul class="mui-list--inline list-item-rgborder">
-    {% if project.state.SUBMISSIONS -%}
-    <li class="no-border">
-      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
-    </li>
-    {% endif %}
-    {%- if project.sessions %}
-      <li {%- if not project.state.SUBMISSIONS %} class="no-border"{% endif %}>
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small {%- if not project.state.SUBMISSIONS %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}View Schedule{% endtrans %}</a>
-      </li>
-    {%- endif %}
-    {%- if project.buy_tickets_url %}
-      <li class="no-border">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--small {%- if not project.state.SUBMISSIONS and not project.sessions %} mui-btn--raised mui-btn--primary{% else %} mui--text-hyperlink mui--bg-accent mui-btn--nomargin{% endif %}">{% trans %}Buy Tickets{% endtrans %}</a>
-      </li>
-    {%- endif %}
-  </ul>
-{% endblock %}
-
-{% block contentwrapper %}
-  <div class="grid">
-    <div class="col-auto">
-      <div class="grid__col--bleed-y">
-        <p class="mui--text-subhead mui--text-light zero-bottom-margin">DATE</p>
-        <p class="mui--text-title">{{ project.datelocation }}</p>
-      </div>
+{% block headline %}
+  {% if project.video or project.bg_image %}
+    <div class="project-banner mui--visible-xs-block mui--visible-sm-block mui--visible-md-block">
+      {% if project.video %}
+        <div class="project-banner__video-box">
+          <iframe src="{{ project.video }}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+        </div>
+      {%- elif project.bg_image %}
+        <img class="project-banner__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+      {% endif %}
     </div>
-    <div class="col-auto">
-      <div class="grid__col--bleed-y">
-        <p class="mui--text-subhead mui--text-light zero-bottom-margin">STATUS</p>
-        <p class="mui--text-title">{{ project.state.label.title }}</p>
+  {% endif %}
+  <div class="mui-container">
+    <div class="grid">
+
+      <div class="grid__col-md-12 mui--hidden-xs mui--hidden-md">
+        <div class="desktop-head">
+          <div class="profile-details">
+            {%- if project.profile.logo %}<img class="profile-details__logo" src="{{ project.profile.logo }}" alt="{{ project.profile.title }}"/>{% endif %}
+            <p class="mui--text-subhead profile-details__title">by {{ project.profile.title|e }}</p>
+          </div>
+          <div class="mui--pull-left project-details">
+            <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
+            <p class="mui--text-title project-tagline">{{ project.tagline|safe }}</p>
+          </div>
+        </div>
+      </div>
+      {% if project.video or project.bg_image %}
+      <div class="grid__col-md-7 grid__col-lg-8 mui--hidden-xs mui--hidden-md">
+        <div class="project-banner">
+          {% if project.video %}
+            <div class="project-banner__video-box">
+              <iframe src="{{ project.video }}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+            </div>
+          {%- elif project.bg_image %}
+            <img class="project-banner__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-md-block">
+        <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
+        <p class="mui--text-headline">{{ project.tagline|safe }}</p>
+        <div class="profile-details">
+          {%- if project.profile.logo %}<img class="profile-details__logo" src="{{ project.profile.logo }}" alt="{{ project.profile.title }}"/>{% endif %}<span class="mui--text-subhead">by {{ project.profile.title|e }}</span>
+        </div>
+        <!-- <div class="mui--text-title">{{ project.profile.description|safe }}</div> -->
+      </div>
+      <div class="grid__col-xs-12{% if project.video or project.bg_image %} grid__col-md-5 grid__col-lg-4{% else %} push-date-wrapper{% endif %}">
+        <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-sm-block">
+          <hr class="mui-divider">
+        </div>
+        <div>
+          <div class="date-icon">
+            <i class="material-icons mui--text-display1 mui--text-light">date_range</i>
+          </div>
+          <div class="date-details">
+            <p class="mui--text-subhead mui--text-light zero-bottom-margin">Date</p>
+            <p class="mui--text-title">{{ project.datelocation }}</p>
+          </div>
+        </div>
+        <div>
+          <div class="date-icon">
+            <i class="material-icons mui--text-display1 mui--text-light">place</i>
+          </div>
+          <div class="date-details">
+            <p class="mui--text-subhead mui--text-light zero-bottom-margin">Venue</p>
+            <p class="mui--text-title">{{ project.venues[0].title }}</p>
+          </div>
+        </div>
+        <div class="project-btn-wrapper">
+          <ul class="mui-list--inline project-btn-wrapper">
+            {%- if project.buy_tickets_url %}
+              <li class="cta">
+                <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary">{% trans %}Participate{% endtrans %}</a>
+              </li>
+            {%- endif %}
+            {% if project.state.SUBMISSIONS -%}
+              <li>
+                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+              </li>
+            {% endif %}
+            {%- if project.sessions %}
+              <li class="schedule-btn mui--hidden-xs mui--hidden-md">
+                <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
+              </li>
+            {%- endif %}
+          </ul>
+        </div>
       </div>
     </div>
   </div>
+{% endblock %}
 
+{% block contentwrapper %}
   <div class="grid details-section">
     <div class="grid__col--bleed-y">
       <hr class="mui-divider">
@@ -174,18 +231,10 @@
             </div>
           </div>
         {% endif %}
-        {% if project.state.SUBMISSIONS -%}
-          <div class="card mui--hidden-xs">
-            <div class="card__body">
-              <p class="mui--text-body2 mui--text-light zero-bottom-margin">SUBMIT A PROPOSAL</p>
-              <a class="mui-btn mui-btn--medium mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
-            </div>
-          </div>
-        {% endif %}
       </div>
     </div>
 
-    <div class="grid__col-xs-12 {%- if project.state.SUBMISSIONS or project.current_roles.admin or 'checkin-event' in g.permissions %} grid__col-md-7 grid__col-lg-8{% endif %}">
+    <div class="grid__col-xs-12 {%- if project.current_roles.admin or 'checkin-event' in g.permissions %} grid__col-md-7 grid__col-lg-8{% endif %}">
       <div class="project-description">{{ description }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
