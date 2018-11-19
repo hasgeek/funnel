@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    op.add_column('session', sa.Column('is_featured', sa.Boolean(), nullable=False))
+    op.add_column('session', sa.Column('is_featured', sa.Boolean(), nullable=True))
 
 
 def downgrade():
