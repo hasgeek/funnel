@@ -68,64 +68,48 @@
 {%- endmacro %}
 
 {% block headline %}
-  {% if project.video or project.bg_image %}
-    <div class="project-banner mui--visible-xs-block mui--visible-sm-block mui--visible-md-block">
-      {% if project.video %}
-        <div class="project-banner__video-box">
-          <iframe src="{{ project.video }}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
-        </div>
-      {%- elif project.bg_image %}
-        <img class="project-banner__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-      {% endif %}
-    </div>
-  {% endif %}
-  <div class="mui-container">
+  <div class="mui-container headline">
     <div class="grid">
-
-      <div class="grid__col-md-12 mui--hidden-xs mui--hidden-md">
+      <div class="grid__col-md-12 mui--hidden-xs mui--hidden-sm mui--hidden-md">
         <div class="desktop-head">
           <div class="profile-details">
-            {%- if project.profile.logo %}<img class="profile-details__logo" src="{{ project.profile.logo }}" alt="{{ project.profile.title }}"/>{% endif %}
+            {%- if project.profile.logo_url %}<img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>{% endif %}
             <p class="mui--text-subhead profile-details__title">by {{ project.profile.title|e }}</p>
           </div>
           <div class="mui--pull-left project-details">
             <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
-            <p class="mui--text-title project-tagline">{{ project.tagline|safe }}</p>
+            <p class="mui--text-title mui--text-light">{{ project.tagline|safe }}</p>
           </div>
         </div>
       </div>
-      {% if project.video or project.bg_image %}
-      <div class="grid__col-md-7 grid__col-lg-8 mui--hidden-xs mui--hidden-md">
-        <div class="project-banner">
-          {% if project.video %}
-            <div class="project-banner__video-box">
-              <iframe src="{{ project.video }}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+      {% if project.banner_video_url or project.bg_image %}
+      <div class="grid__col-md-7 grid__col-lg-8 project-banner">
+        <div class="project-banner__box">
+          {% if project.banner_video_url %}
+            <div class="project-banner__box__video">
+              {{ project.banner_video_url|safe }}
             </div>
           {%- elif project.bg_image %}
-            <img class="project-banner__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+            <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
           {% endif %}
         </div>
       </div>
       {% endif %}
-      <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-md-block">
+      <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-sm-block mui--visible-md-block xs-sm-padding">
         <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
         <p class="mui--text-headline">{{ project.tagline|safe }}</p>
         <div class="profile-details">
-          {%- if project.profile.logo %}<img class="profile-details__logo" src="{{ project.profile.logo }}" alt="{{ project.profile.title }}"/>{% endif %}<span class="mui--text-subhead">by {{ project.profile.title|e }}</span>
+          {%- if project.profile.logo_url %}<img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>{% endif %}<span class="mui--text-subhead">by {{ project.profile.title|e }}</span>
         </div>
-        <!-- <div class="mui--text-title">{{ project.profile.description|safe }}</div> -->
       </div>
-      <div class="grid__col-xs-12{% if project.video or project.bg_image %} grid__col-md-5 grid__col-lg-4{% else %} push-date-wrapper{% endif %}">
-        <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-sm-block">
-          <hr class="mui-divider">
-        </div>
+      <div class="grid__col-xs-12{% if project.banner_video_url or project.bg_image %} grid__col-md-5 grid__col-lg-4{% else %} push-date-wrapper{% endif %} date-wrapper xs-sm-padding">
         <div>
           <div class="date-icon">
             <i class="material-icons mui--text-display1 mui--text-light">date_range</i>
           </div>
           <div class="date-details">
-            <p class="mui--text-subhead mui--text-light zero-bottom-margin">Date</p>
-            <p class="mui--text-title">{{ project.datelocation }}</p>
+            <p class="mui--text-subhead zero-bottom-margin date-details__label">Date</p>
+            <p class="mui--text-title mui--text-light">{{ project.datelocation }}</p>
           </div>
         </div>
         <div>
@@ -133,8 +117,8 @@
             <i class="material-icons mui--text-display1 mui--text-light">place</i>
           </div>
           <div class="date-details">
-            <p class="mui--text-subhead mui--text-light zero-bottom-margin">Venue</p>
-            <p class="mui--text-title">{{ project.venues[0].title }}</p>
+            <p class="mui--text-subhead zero-bottom-margin date-details__label">Venue</p>
+            <p class="mui--text-title mui--text-light">{{ project.venues[0].title }}</p>
           </div>
         </div>
         <div class="project-btn-wrapper">
@@ -150,7 +134,7 @@
               </li>
             {% endif %}
             {%- if project.sessions %}
-              <li class="schedule-btn mui--hidden-xs mui--hidden-md">
+              <li {% if project.state.SUBMISSIONS -%}class="mui--hidden-xs mui--hidden-sm mui--hidden-md schedule-btn"{% endif %}>
                 <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
               </li>
             {%- endif %}
@@ -163,12 +147,9 @@
 
 {% block contentwrapper %}
   <div class="grid details-section">
-    <div class="grid__col--bleed-y">
-      <hr class="mui-divider">
-    </div>
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      <div class="sticky-admin-panel">
-        {%- if project.current_roles.admin or'checkin-event' in g.permissions %}
+      {%- if project.current_roles.admin or'checkin-event' in g.permissions %}
+        <div class="sticky-admin-panel">
           <div class="card">
             <div class="card__header">
               <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
@@ -230,12 +211,13 @@
               {% endif %}
             </div>
           </div>
-        {% endif %}
-      </div>
+        </div>
+      {% endif %}
     </div>
 
-    <div class="grid__col-xs-12 {%- if project.current_roles.admin or 'checkin-event' in g.permissions %} grid__col-md-7 grid__col-lg-8{% endif %}">
-      <div class="project-description">{{ description }}</div>
+    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8 project-section">
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">About</h2>
+      <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
         <ul class="grid">
@@ -263,24 +245,40 @@
     </div>
   </div>
 
+  {% if project.instructions -%}
+  <div class="grid">
+    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8 project-section">
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">Proposals</h2>
+      <div class="project-section__instructions">{{ project.instructions|safe }}</div>
+      {% if project.state.SUBMISSIONS -%}
+        <p class="mui--text-left"><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a></p>
+      {%- endif %}
+    </div>
+  </div>
+  {%- endif %}
+
+  {% if project.boxoffice_data -%}
   <div class="grid">
     <div class="grid__col-xs-12 project-section">
-      <h2 class="mui--text-display1 mui--text-center">Tickets</h2>
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
       <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
     </div>
   </div>
+  {%- endif %}
 
+  {% if project.hasjob_embed_url -%}
   <div class="grid">
-    <div class="grid__col-xs-12 grid__col--bleed-x project-section">
-      <h2 class="mui--text-display1 mui--text-center">Related jobs</h2>
-      <div class="hasjob-embed appear" data-href="{{ project.hasjob.url }}" data-jobpost-limit="{{ project.hasjob.limit }}"></div>
+    <div class="grid__col-xs-12 project-section">
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">Related jobs</h2>
+      <div class="hasjob-embed" data-href="{{ project.hasjob_embed_url }}" data-jobpost-limit="{{ project.hasjob_embed_limit }}"></div>
       <script src="https://hasjob.co/api/1/embed.js" type="text/javascript"></script>
     </div>
   </div>
+  {%- endif %}
 
   <div class="grid">
     <div class="grid__col-xs-12 project-section">
-      <h2 class="mui--text-display1 mui--text-center">Proposals</h2>
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
       {%- if 'view-status' in g.permissions %}
         {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
             <p class="mui--text-subhead collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></p>
@@ -305,15 +303,16 @@
   <script type="text/javascript">
     $(function() {
       window.Talkfunnel.Utils.collapse();
-      // TODO: Check whether ticketing widget is to be shown 
+      {% if project.boxoffice_data -%}
       window.Talkfunnel.TicketWidget.init({
         // TODO: Get url from config
-        boxofficeUrl: "http://boxoffice.vidya.local:6500",
+        boxofficeUrl: "config['BOXOFFICE_SERVER']",
         widgetElem: "#boxoffice-widget",
-        org: "HasGeek",
-        itemCollectionId: "20bae8e4-2820-4cbd-8a72-6fb1acbecbe0",
+        org: "{{ project.boxoffice_data.org }}",
+        itemCollectionId: "{{ project.boxoffice_data.item_collection_id }}",
         itemCollectionTitle: "{{ project.title }}"
       });
+      {%- endif %}
     });
   </script>
 {% endblock %}
