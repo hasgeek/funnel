@@ -264,20 +264,35 @@
   </div>
 
   <div class="grid">
-    <div class="grid__col-xs-12 proposals-section">
-      <hr class="mui-divider">
+    <div class="grid__col-xs-12 project-section">
+      <h2 class="mui--text-display1 mui--text-center">Tickets</h2>
+      <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="grid__col-xs-12 grid__col--bleed-x project-section">
+      <h2 class="mui--text-display1 mui--text-center">Related jobs</h2>
+      <div class="hasjob-embed appear" data-href="{{ project.hasjob.url }}" data-jobpost-limit="{{ project.hasjob.limit }}"></div>
+      <script src="https://hasjob.co/api/1/embed.js" type="text/javascript"></script>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="grid__col-xs-12 project-section">
+      <h2 class="mui--text-display1 mui--text-center">Proposals</h2>
       {%- if 'view-status' in g.permissions %}
         {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
-            <h2 class="mui--text-display1 collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></h2>
+            <p class="mui--text-subhead collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></p>
             <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
         {%- endfor -%}
       {%- else %}
         {%- if project.proposals_by_confirmation['confirmed'] %}
-          <h2 class="mui--text-display1">{% trans %}Confirmed sessions{% endtrans %}</h2>
+          <p class="mui--text-subhead">{% trans %}Confirmed sessions{% endtrans %}</p>
           {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
         {%- endif %}
         {%- if project.proposals_by_confirmation['unconfirmed'] %}
-          {%- if project.proposals_by_confirmation['confirmed'] %}<h2 class="mui--text-display1">{% trans %}Unconfirmed proposals{% endtrans %}</h2>{% endif %}
+          {%- if project.proposals_by_confirmation['confirmed'] %}<p class="mui--text-subhead">{% trans %}Unconfirmed proposals{% endtrans %}</p>{% endif %}
           {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
         {%- endif %}
       {%- endif %}
@@ -290,6 +305,15 @@
   <script type="text/javascript">
     $(function() {
       window.Talkfunnel.Utils.collapse();
+      // TODO: Check whether ticketing widget is to be shown 
+      window.Talkfunnel.TicketWidget.init({
+        // TODO: Get url from config
+        boxofficeUrl: "http://boxoffice.vidya.local:6500",
+        widgetElem: "#boxoffice-widget",
+        org: "HasGeek",
+        itemCollectionId: "20bae8e4-2820-4cbd-8a72-6fb1acbecbe0",
+        itemCollectionTitle: "{{ project.title }}"
+      });
     });
   </script>
 {% endblock %}

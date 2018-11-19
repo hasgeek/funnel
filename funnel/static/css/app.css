@@ -244,6 +244,10 @@
   border-bottom: 2px solid rgba(132, 146, 166, 0.3);
 }
 
+.project-section {
+  padding-top: 30px;
+}
+
 .project-banner .project-banner__video-box {
   padding-bottom: 56%;
   position: relative;
@@ -328,6 +332,11 @@
     display: block;
   }
 }
+.project-section #boxoffice-widget {
+  padding-top: 0;
+  width: 100%;
+}
+
 #qrreader-canvas {
   max-width: 100%;
 }
@@ -680,4 +689,14 @@
 
 .collapsible__body {
   display: none;
+}
+
+.footer {
+  padding-bottom: 50px;
+}
+
+@media (min-width: 768px) {
+  .footer {
+    padding-bottom: 0;
+  }
 }
