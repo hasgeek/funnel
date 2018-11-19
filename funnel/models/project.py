@@ -61,6 +61,12 @@ class Project(BaseScopedNameMixin, db.Model):
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
     buy_tickets_url = db.Column(db.Unicode(250), nullable=True)
 
+    banner_video_url = db.Column(db.Unicode(2000), nullable=True)
+    boxoffice_data = db.Column(JsonDict, nullable=True, server_default='{}')
+
+    hasjob_embed_url = db.Column(db.Unicode(2000), nullable=True)
+    hasjob_enbed_limit = db.Column(db.Integer, default=8)
+
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False)
 
