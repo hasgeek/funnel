@@ -65,7 +65,7 @@ class Project(BaseScopedNameMixin, db.Model):
     boxoffice_data = db.Column(JsonDict, nullable=False, server_default='{}')
 
     hasjob_embed_url = db.Column(db.Unicode(2000), nullable=True)
-    hasjob_enbed_limit = db.Column(db.Integer, default=8)
+    hasjob_embed_limit = db.Column(db.Integer, default=8)
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False)
