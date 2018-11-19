@@ -16,6 +16,7 @@ class Profile(ProfileBase, db.Model):
     admin_team = db.relationship(Team)
 
     description = MarkdownColumn('description', default=u'', nullable=False)
+    logo_url = db.Column(db.Unicode(2000), nullable=True)
 
     __roles__ = {
         'all': {
