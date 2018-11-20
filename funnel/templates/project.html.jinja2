@@ -154,7 +154,7 @@
 {% block contentwrapper %}
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      {%- if project.current_roles.admin or'checkin-event' in g.permissions %}
+      {%- if project.current_roles.admin or 'checkin-event' in g.permissions %}
         <div class="sticky-admin-panel">
           <div class="card">
             <div class="card__header">
