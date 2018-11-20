@@ -20,6 +20,10 @@ def upgrade():
                existing_type=sa.VARCHAR(length=250),
                type_=sa.Unicode(length=2000),
                existing_nullable=True)
+    op.alter_column('project', 'website',
+               existing_type=sa.VARCHAR(length=250),
+               type_=sa.Unicode(length=2000),
+               existing_nullable=True)
     op.alter_column('project', 'buy_tickets_url',
                existing_type=sa.VARCHAR(length=250),
                type_=sa.Unicode(length=2000),
@@ -52,6 +56,10 @@ def downgrade():
                type_=sa.VARCHAR(length=250),
                existing_nullable=True)
     op.alter_column('project', 'buy_tickets_url',
+               existing_type=sa.Unicode(length=2000),
+               type_=sa.VARCHAR(length=250),
+               existing_nullable=True)
+    op.alter_column('project', 'website',
                existing_type=sa.Unicode(length=2000),
                type_=sa.VARCHAR(length=250),
                existing_nullable=True)
