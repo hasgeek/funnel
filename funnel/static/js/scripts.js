@@ -23,6 +23,17 @@ window.Talkfunnel.Utils = {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).next('.collapsible__body').slideToggle();
     });
+  },
+  smoothScroll: function(className) {
+    $(className).on('click', function(event) {
+      if (this.hash !== "") {
+        event.preventDefault();
+        var section = this.hash;
+        $('html, body').animate({
+          scrollTop: $(section).offset().top
+        }, 800);
+      }
+    });
   }
 }
 
@@ -325,6 +336,62 @@ window.Talkfunnel.ParticipantTable = {
         }
       }
     });
+  }
+};
+
+window.Talkfunnel.TicketWidget = {
+  init: function(config) {
+    var url;
+    if (config.boxofficeUrl.slice(-1) === '/') {
+      url = config.boxofficeUrl + "boxoffice.js";
+    } else {
+      url = config.boxofficeUrl + "/boxoffice.js";
+    }
+    $.get({
+      url: url,
+      crossDomain: true,
+      timeout: 8000,
+      retries: 5,
+      retryInterval: 8000,
+      success: function(data) {
+        var boxofficeScript = document.createElement('script');
+        boxofficeScript.innerHTML = data.script;
+        document.getElementsByTagName('body')[0].appendChild(boxofficeScript);
+      },
+      error: function(response) {
+        var ajaxLoad = this;
+        ajaxLoad.retries -= 1;
+        var errorMsg;
+        if (response.readyState === 4) {
+          errorMsg = "Server error, please try again later.";
+          $(config.widgetElem).html(errorMsg);
+        }
+        else if (response.readyState === 0) {
+          if (ajaxLoad.retries < 0) {
+            if(!navigator.onLine) {
+              errorMsg = "Unable to connect. There is no network!";
+            }
+            else {
+              errorMsg = "<p>Unable to connect. If you are behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com .</p>";
+            }
+            $(config.widgetElem).html(errorMsg);
+          } else {
+            setTimeout(function() {
+              $.get(ajaxLoad);
+            }, ajaxLoad.retryInterval);
+          }
+        }
+      }
+    });
+
+    window.addEventListener('onBoxofficeInit', function (e) {
+      window.Boxoffice.init({
+        org: config.org,
+        itemCollection: config.itemCollectionId,
+        paymentDesc: config.itemCollectionTitle,
+
+      });
+    }, false);
   }
 };
 
