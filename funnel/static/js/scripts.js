@@ -23,6 +23,17 @@ window.Talkfunnel.Utils = {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).next('.collapsible__body').slideToggle();
     });
+  },
+  smoothScroll: function(className) {
+    $(className).on('click', function(event) {
+      if (this.hash !== "") {
+        event.preventDefault();
+        var section = this.hash;
+        $('html, body').animate({
+          scrollTop: $(section).offset().top
+        }, 800);
+      }
+    });
   }
 }
 

@@ -71,4 +71,9 @@
   if (typeof jQuery === 'undefined')
     document.write('<script type="text/javascript" src="{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}"><\/script>');
 </script>
+<script type="text/javascript">
+  $(function() {
+    window.Talkfunnel.Utils.smoothScroll('.smooth-scroll');
+  });
+</script>
 {%- endblock %}
