@@ -112,20 +112,26 @@
             <p class="mui--text-title mui--text-light">{{ project.datelocation }}</p>
           </div>
         </div>
-        <div>
-          <div class="date-icon">
-            <i class="material-icons mui--text-display1 mui--text-light">place</i>
+        {%- if project.venues %}
+          <div>
+            <div class="date-icon">
+              <i class="material-icons mui--text-display1 mui--text-light">place</i>
+            </div>
+            <div class="date-details">
+              <p class="mui--text-subhead zero-bottom-margin date-details__label">Venue</p>
+              <p class="mui--text-title mui--text-light">{{ project.venues[0].title }}</p>
+            </div>
           </div>
-          <div class="date-details">
-            <p class="mui--text-subhead zero-bottom-margin date-details__label">Venue</p>
-            <p class="mui--text-title mui--text-light">{{ project.venues[0].title }}</p>
-          </div>
-        </div>
+        {%- endif %}
         <div class="project-btn-wrapper">
           <ul class="mui-list--inline project-btn-wrapper">
             {%- if project.boxoffice_data %}
               <li class="cta">
                 <a href="#tickets" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll">{% trans %}Participate{% endtrans %}</a>
+              </li>
+            {%- elif project.buy_tickets_url %}
+              <li class="cta">
+                <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary">{% trans %}Participate{% endtrans %}</a>
               </li>
             {%- endif %}
             {% if project.state.SUBMISSIONS -%}
