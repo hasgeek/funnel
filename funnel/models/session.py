@@ -28,7 +28,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     venue_room_id = db.Column(None, db.ForeignKey('venue_room.id'), nullable=True)
     venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)
-    is_featured = db.Column(db.Boolean, default=False, nullable=True)
+    featured = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
