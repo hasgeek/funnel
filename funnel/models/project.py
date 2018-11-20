@@ -47,7 +47,7 @@ class Project(BaseScopedNameMixin, db.Model):
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)
-    website = db.Column(db.Unicode(250), nullable=True)
+    website = db.Column(db.Unicode(250), nullable=True)  # this field stays 250 char long?
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
 
     _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROJECT_STATE),
