@@ -270,8 +270,8 @@
   <div class="grid">
     <div class="grid__col-xs-12 project-section">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">Related jobs</h2>
-      <div class="hasjob-embed" data-href="{{ project.hasjob_embed_url }}" data-jobpost-limit="{{ project.hasjob_embed_limit }}"></div>
-      <script src="https://hasjob.co/api/1/embed.js" type="text/javascript"></script>
+      <div class="hasjob-embed" data-href="{{ project.hasjob_embed_url }}" {% if project.hasjob_embed_limit -%}data-jobpost-limit="{{ project.hasjob_embed_limit }}"{%- else %}data-jobpost-limit="8"{%- endif %}></div>
+      <script src={{ config['HASJOB_SERVER'] | join('embed.js') }} type="text/javascript"></script>
     </div>
   </div>
   {%- endif %}
@@ -306,7 +306,7 @@
       {% if project.boxoffice_data -%}
       window.Talkfunnel.TicketWidget.init({
         // TODO: Get url from config
-        boxofficeUrl: "config['BOXOFFICE_SERVER']",
+        boxofficeUrl: "{{ config['BOXOFFICE_SERVER'] }}",
         widgetElem: "#boxoffice-widget",
         org: "{{ project.boxoffice_data.org }}",
         itemCollectionId: "{{ project.boxoffice_data.item_collection_id }}",

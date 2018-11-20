@@ -330,7 +330,12 @@ window.Talkfunnel.ParticipantTable = {
 
 window.Talkfunnel.TicketWidget = {
   init: function(config) {
-    var url = config.boxofficeUrl + "/api/1/boxoffice.js";
+    var url;
+    if (config.boxofficeUrl.slice(-1) === '/') {
+      url = config.boxofficeUrl + "boxoffice.js";
+    } else {
+      url = config.boxofficeUrl + "/boxoffice.js";
+    }
     $.get({
       url: url,
       crossDomain: true,
