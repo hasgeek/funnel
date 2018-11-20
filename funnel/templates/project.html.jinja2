@@ -276,7 +276,7 @@
     <div class="grid__col-xs-12">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">Related jobs</h2>
       <div class="hasjob-embed" data-href="{{ project.hasjob_embed_url }}" {% if project.hasjob_embed_limit -%}data-jobpost-limit="{{ project.hasjob_embed_limit }}"{%- else %}data-jobpost-limit="8"{%- endif %}></div>
-      <script src="{{ config['HASJOB_SERVER'] | url_join('embed.js') }}" type="text/javascript"></script>
+      <script src="{{ config['HASJOB_SERVER']|url_join('embed.js') }}" type="text/javascript"></script>
     </div>
   </div>
   {%- endif %}
