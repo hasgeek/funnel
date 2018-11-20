@@ -55,11 +55,11 @@ class Project(BaseScopedNameMixin, db.Model):
     state = StateManager('_state', PROJECT_STATE, doc="State of this project.")
 
     # Columns for mobile
-    bg_image = db.Column(db.Unicode(250), nullable=True)
+    bg_image = db.Column(db.Unicode(2000), nullable=True)
     bg_color = db.Column(db.Unicode(6), nullable=True)
-    explore_url = db.Column(db.Unicode(250), nullable=True)
+    explore_url = db.Column(db.Unicode(2000), nullable=True)
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
-    buy_tickets_url = db.Column(db.Unicode(250), nullable=True)
+    buy_tickets_url = db.Column(db.Unicode(2000), nullable=True)
 
     banner_video_url = db.Column(db.Unicode(2000), nullable=True)
     boxoffice_data = db.Column(JsonDict, nullable=False, server_default='{}')
