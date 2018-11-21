@@ -317,11 +317,11 @@
       {% if project.boxoffice_data -%}
       window.Talkfunnel.TicketWidget.init({
         // TODO: Get url from config
-        boxofficeUrl: "{{ config['BOXOFFICE_SERVER'] }}",
+        boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
         widgetElem: "#boxoffice-widget",
-        org: "{{ project.boxoffice_data.org }}",
-        itemCollectionId: "{{ project.boxoffice_data.item_collection_id }}",
-        itemCollectionTitle: "{{ project.title }}"
+        org: {{ project.boxoffice_data.org|tojson }},
+        itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
+        itemCollectionTitle: {{ project.title|tojson }}
       });
       {%- endif %}
     });
