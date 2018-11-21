@@ -11,6 +11,8 @@ class SessionForm(forms.Form):
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.Optional()])
     speaker = forms.StringField(__("Speaker"), validators=[forms.validators.Optional(), forms.validators.Length(max=200)])
     speaker_bio = forms.MarkdownField(__("Speaker bio"), validators=[forms.validators.Optional()])
+    banner_image_url = forms.URLField(__("Banner image URL"), description=u"Banner image for session card",
+        validators=[forms.validators.Optional()])
     is_break = forms.BooleanField(__("This session is a break period"), default=False)
     featured = forms.BooleanField(__("This is a featured session"), default=False)
     start = forms.HiddenField(__("Start Time"), validators=[forms.validators.DataRequired()])

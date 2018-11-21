@@ -30,6 +30,7 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.css'][version] = 'css/schedules.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['screens.css'][version] = 'css/screens.css'
+assets['truncate.js'][version] = 'js/libs/jquery-succinct.js'
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -86,6 +87,9 @@ app.assets.register('js_ractive',
 app.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
+app.assets.register('js_truncate',
+    Bundle(assets.require('!jquery.js', 'truncate.js'),
+        output='js/truncate.packed.js', filters='uglipyjs'))
 
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
@@ -111,6 +115,9 @@ funnelapp.assets.register('js_ractive',
 funnelapp.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
+funnelapp.assets.register('js_truncate',
+    Bundle(assets.require('!jquery.js', 'truncate.js'),
+        output='js/truncate.packed.js', filters='uglipyjs'))
 
 # FIXME: Hack for external build system generating relative /static URLs.
 # Fix this by generating absolute URLs to the static subdomain during build.

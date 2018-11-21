@@ -29,6 +29,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)
     featured = db.Column(db.Boolean, default=False, nullable=False)
+    banner_image_url = db.Column(db.Unicode(250), nullable=True)
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
