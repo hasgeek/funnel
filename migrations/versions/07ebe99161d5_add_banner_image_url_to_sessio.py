@@ -16,7 +16,7 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    op.add_column('session', sa.Column('banner_image_url', sa.Unicode(length=250), nullable=True))
+    op.add_column('session', sa.Column('banner_image_url', sa.Unicode(length=2000), nullable=True))
 
 
 def downgrade():
