@@ -13,11 +13,15 @@ from ..forms import SessionForm
 
 def rooms_list(project):
     return [(u"", _("Select Room"))] + [
-        (room.id, "{venue} - {room}".format(venue=room.venue.title, room=room.title)) for room in project.rooms]
+        (room.id, u"{venue} - {room}".format(venue=room.venue.title, room=room.title)) for room in project.rooms]
 
 
 def session_form(project, proposal=None, session=None):
-    if session:
+    # Look for any existing unscheduled session
+    if proposal and not session:
+        session = Session.query.filter_by(project=project, proposal=proposal).first()
+
+    if session is not None:
         form = SessionForm(obj=session, model=Session)
     else:
         form = SessionForm()
@@ -25,7 +29,7 @@ def session_form(project, proposal=None, session=None):
     if request.method == 'GET':
         if not (session or proposal):
             form.is_break.data = True
-        if proposal:
+        if proposal and session is None:
             form.description.data = proposal.description
             form.speaker_bio.data = proposal.bio
             form.speaker.data = proposal.owner.fullname
@@ -111,6 +115,9 @@ def session_edit(profile, project, session):
     permission='edit-session')
 def session_delete(profile, project, session):
     modal_url = session.proposal.url_for('schedule') if session.proposal else None
-    db.session.delete(session)
+    # Session is not deleted, but we remove start and end time,
+    # so it becomes an unscheduled session.
+    session.start = None
+    session.end = None
     db.session.commit()
     return jsonify(status=True, modal_url=modal_url)
