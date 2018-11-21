@@ -404,6 +404,19 @@
     order: 1;
   }
 }
+.session-image {
+  max-height: 280px;
+  position: relative;
+  overflow: hidden;
+}
+
+.session-content {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .project-section #boxoffice-widget {
   padding-top: 0;
   width: 100%;
