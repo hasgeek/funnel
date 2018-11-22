@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for, abort
-from . import db, TimestampMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
+from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
 from .user import User
-from .space import ProposalSpace
-from .section import ProposalSpaceSection
-from .commentvote import CommentSpace, VoteSpace, SPACETYPE
+from .project import Project
+from .section import Section
+from .commentvote import Commentset, Voteset, SET_TYPE
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
@@ -19,8 +19,8 @@ __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
 _marker = object()
 
-# --- Constants ------------------------------------------------------------------
 
+# --- Constants ------------------------------------------------------------------
 
 class PROPOSAL_STATE(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
@@ -49,6 +49,7 @@ class PROPOSAL_STATE(LabeledEnum):
     CANCELLABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
     UNDO_TO_SUBMITTED = {AWAITING_DETAILS, UNDER_EVALUATION}
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
+
 
 # --- Models ------------------------------------------------------------------
 
@@ -89,27 +90,27 @@ class ProposalFormData(object):
             self.data[attr] = value
 
 
-class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
+class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('proposals', cascade="all, delete-orphan"))
 
-    speaker_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     speaker = db.relationship(User, primaryjoin=speaker_id == User.id, lazy='joined',
         backref=db.backref('speaker_at', cascade="all"))
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
     bio = MarkdownColumn('bio', nullable=True)
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project, primaryjoin=project_id == Project.id,
         backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
-    parent = db.synonym('proposal_space')
+    parent = db.synonym('project')
 
-    section_id = db.Column(db.Integer, db.ForeignKey('proposal_space_section.id'), nullable=True)
-    section = db.relationship(ProposalSpaceSection, primaryjoin=section_id == ProposalSpaceSection.id,
+    section_id = db.Column(None, db.ForeignKey('section.id'), nullable=True)
+    section = db.relationship(Section, primaryjoin=section_id == Section.id,
         backref="proposals")
     objective = MarkdownColumn('objective', nullable=True)
     part_a = db.synonym('objective')
@@ -118,20 +119,20 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     description = MarkdownColumn('description', nullable=True)
     part_b = db.synonym('description')
     requirements = MarkdownColumn('requirements', nullable=True)
-    slides = db.Column(db.Unicode(250), nullable=True)
-    preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)
+    slides = db.Column(db.Unicode(2000), nullable=True)
+    preview_video = db.Column(db.Unicode(2000), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
-    _state = db.Column('status', db.Integer, StateManager.check_constraint('status', PROPOSAL_STATE),
+    _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROPOSAL_STATE),
         default=PROPOSAL_STATE.SUBMITTED, nullable=False)
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    votes_id = db.Column(db.Integer, db.ForeignKey('votespace.id'), nullable=False)
-    votes = db.relationship(VoteSpace, uselist=False, lazy='joined',
+    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
+    voteset = db.relationship(Voteset, uselist=False, lazy='joined',
                             cascade='all, delete-orphan', single_parent=True)
 
-    comments_id = db.Column(db.Integer, db.ForeignKey('commentspace.id'), nullable=False)
-    comments = db.relationship(CommentSpace, uselist=False, lazy='joined',
+    commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
+    commentset = db.relationship(Commentset, uselist=False, lazy='joined',
                                cascade='all, delete-orphan', single_parent=True)
 
     edited_at = db.Column(db.DateTime, nullable=True)
@@ -140,7 +141,7 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     # Additional form data
     data = db.Column(JsonDict, nullable=False, server_default='{}')
 
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'url_id'),)
+    __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
     # XXX: The following two may overlap. Reconsider whether both are needed
 
@@ -149,27 +150,27 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
         'latitude', 'longitude', 'coordinates')
     # Never allow these fields to be set on the proposal or proposal.data by custom forms
-    __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'proposal_space_id',
-        'proposal_space', 'parent', 'votes_id', 'votes', 'comments_id', 'comments', 'edited_at', 'data')
+    __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'project_id',
+        'project', 'parent', 'voteset_id', 'voteset', 'commentset_id', 'commentset', 'edited_at', 'data')
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
-        self.votes = VoteSpace(type=SPACETYPE.PROPOSAL)
-        self.comments = CommentSpace(type=SPACETYPE.PROPOSAL)
+        self.voteset = Voteset(type=SET_TYPE.PROPOSAL)
+        self.commentset = Commentset(type=SET_TYPE.PROPOSAL)
 
     def __repr__(self):
-        return u'<Proposal "{proposal}" in space "{space}" by "{user}">'.format(
-            proposal=self.title, space=self.proposal_space.title, user=self.owner.fullname)
+        return u'<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
+            proposal=self.title, project=self.project.title, user=self.owner.fullname)
 
-    @db.validates('proposal_space')
-    def _validate_proposal_space(self, key, value):
+    @db.validates('project')
+    def _validate_project(self, key, value):
         if not value:
             raise ValueError(value)
 
-        if value != self.proposal_space and self.proposal_space is not None:
-            redirect = ProposalRedirect.query.get((self.proposal_space_id, self.url_id))
+        if value != self.project and self.project is not None:
+            redirect = ProposalRedirect.query.get((self.project_id, self.url_id))
             if redirect is None:
-                redirect = ProposalRedirect(proposal_space=self.proposal_space, url_id=self.url_id, proposal=self)
+                redirect = ProposalRedirect(project=self.project, url_id=self.url_id, proposal=self)
                 db.session.add(redirect)
             else:
                 redirect.proposal = self
@@ -252,11 +253,11 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     #     pass
 
     @with_roles(call={'admin'})
-    def move_to(self, space):
+    def move_to(self, project):
         """
-        Move to a new proposal space and reset the url_id
+        Move to a new project and reset the url_id
         """
-        self.proposal_space = space
+        self.project = project
         self.url_id = None
         self.make_id()
 
@@ -305,28 +306,28 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def has_outstation_speaker(self):
         """
         Returns True iff the location can be geocoded and is found to be different
-        compared to the proposal space's location.
+        compared to the project's location.
         """
         geonameid = geonameid_from_location(self.location)
-        return bool(geonameid) and self.proposal_space.location_geonameid.isdisjoint(geonameid)
+        return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
 
     def getnext(self):
-        return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
+        return Proposal.query.filter(Proposal.project == self.project).filter(
             Proposal.id != self.id).filter(
                 Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
 
     def getprev(self):
-        return Proposal.query.filter(Proposal.proposal_space == self.proposal_space).filter(
+        return Proposal.query.filter(Proposal.project == self.project).filter(
             Proposal.id != self.id).filter(
                 Proposal.created_at > self.created_at).order_by('created_at').first()
 
     def votes_count(self):
-        return len(self.votes.votes)
+        return len(self.voteset.votes)
 
     def votes_by_group(self):
-        votes_groups = dict([(group.name, 0) for group in self.proposal_space.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users]) for group in self.proposal_space.usergroups])
-        for vote in self.votes.votes:
+        votes_groups = dict([(group.name, 0) for group in self.project.usergroups])
+        groupuserids = dict([(group.name, [user.userid for user in group.users]) for group in self.project.usergroups])
+        for vote in self.voteset.votes:
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:
                     votes_groups[groupname] += -1 if vote.votedown else +1
@@ -340,10 +341,10 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 abort(400)
         else:
             tz = None
-        votes_bydate = dict([(group.name, {}) for group in self.proposal_space.usergroups])
+        votes_bydate = dict([(group.name, {}) for group in self.project.usergroups])
         groupuserids = dict([(group.name, [user.userid for user in group.users])
-            for group in self.proposal_space.usergroups])
-        for vote in self.votes.votes:
+            for group in self.project.usergroups])
+        for vote in self.voteset.votes:
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:
                     if tz:
@@ -382,45 +383,45 @@ class Proposal(BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             roles.add('speaker')
         if self.user and self.user == actor:
             roles.add('proposer')
-        roles.update(self.proposal_space.roles_for(actor, anchors))
+        roles.update(self.project.roles_for(actor, anchors))
         if self.state.DRAFT and 'reader' in roles:
             roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
 
     def url_for(self, action='view', _external=False, **kwargs):
         if action == 'view':
-            return url_for('proposal_view', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_view', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'json':
-            return url_for('proposal_json', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_json', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'edit':
-            return url_for('proposal_edit', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_edit', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'delete':
-            return url_for('proposal_delete', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_delete', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'voteup':
-            return url_for('proposal_voteup', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_voteup', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'votedown':
-            return url_for('proposal_votedown', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_votedown', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'votecancel':
-            return url_for('proposal_cancelvote', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_cancelvote', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'next':
-            return url_for('proposal_next', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_next', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'prev':
-            return url_for('proposal_prev', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_prev', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'schedule':
-            return url_for('proposal_schedule', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_schedule', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'transition':
-            return url_for('proposal_transition', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_transition', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
         elif action == 'move-to':
-            return url_for('proposal_moveto', profile=self.proposal_space.profile.name, space=self.proposal_space.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for('proposal_moveto', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
 
 
 class ProposalRedirect(TimestampMixin, db.Model):
     __tablename__ = 'proposal_redirect'
 
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
-    proposal_space = db.relationship(ProposalSpace, primaryjoin=proposal_space_id == ProposalSpace.id,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False, primary_key=True)
+    project = db.relationship(Project, primaryjoin=project_id == Project.id,
         backref=db.backref('proposal_redirects', cascade="all, delete-orphan"))
-    parent = db.synonym('proposal_space')
+    parent = db.synonym('project')
     url_id = db.Column(db.Integer, nullable=False, primary_key=True)
 
     proposal_id = db.Column(None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True)
@@ -444,16 +445,16 @@ class ProposalRedirect(TimestampMixin, db.Model):
 
     def __repr__(self):
         return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
-            self.proposal_space.profile.name, self.proposal_space.name, self.url_id,
-            self.proposal.proposal_space.profile.name if self.proposal else "(none)",
-            self.proposal.proposal_space.name if self.proposal else "(none)",
+            self.project.profile.name, self.project.name, self.url_id,
+            self.proposal.project.profile.name if self.proposal else "(none)",
+            self.proposal.project.name if self.proposal else "(none)",
             self.proposal.url_id if self.proposal else "(none)")
 
     def redirect_view_args(self):
         if self.proposal:
             return {
-                'profile': self.proposal.proposal_space.profile.name,
-                'space': self.proposal.proposal_space.name,
+                'profile': self.proposal.project.profile.name,
+                'project': self.proposal.project.name,
                 'proposal': self.proposal.url_name
                 }
         else:

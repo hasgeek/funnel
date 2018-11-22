@@ -1,0 +1,38 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}RSVP List{% endblock %}
+
+{% block content %}{% with counts=project.rsvp_counts() %}
+  <div role="tabpanel">
+    <ul class="mui-tabs__bar mui-tabs__bar--justified" role="tablist">
+      {%- for value, status in statuses.items() %}
+        <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
+          <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{status.name}}">{{ status.title }} {%- if counts[value] %}&nbsp;<span class="badge mui--text-caption">{{ counts[value] }}</span>{% endif %}</a>
+        </li>
+      {%- endfor %}
+    </ul>
+
+    {%- for value, status in statuses.items() %}
+      <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ status.name }}">
+        <table class="mui-table mui-table--bordered">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for rsvp in project.rsvps_with(value) %}
+              <tr>
+                <td>{{rsvp.user.fullname}}</td>
+                <td>{{rsvp.user.email}}</td>
+              </tr>
+            {%- else %}
+              <tr><td colspan="2"><em>No users</em></td></tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+    {%- endfor %}
+    </div>
+  </div>
+{% endwith %}{% endblock %}

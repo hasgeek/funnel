@@ -4,7 +4,7 @@ from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import StateManager
 from baseframe import __
 from . import db, TimestampMixin
-from .space import ProposalSpace
+from .project import Project
 from .user import User
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
@@ -23,39 +23,39 @@ class RSVP_STATUS(LabeledEnum):
 
 class Rsvp(TimestampMixin, db.Model):
     __tablename__ = 'rsvp'
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False, primary_key=True)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False, primary_key=True)
+    project = db.relationship(Project,
         backref=db.backref('rsvps', cascade='all, delete-orphan', lazy='dynamic'))
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, primary_key=True)
     user = db.relationship(User)
 
-    _state = db.Column('status', db.CHAR(1), StateManager.check_constraint('status', RSVP_STATUS),
+    _state = db.Column('state', db.CHAR(1), StateManager.check_constraint('state', RSVP_STATUS),
         default=RSVP_STATUS.A, nullable=False)
     state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
 
     @classmethod
-    def get_for(cls, space, user, create=False):
+    def get_for(cls, project, user, create=False):
         if user:
-            result = cls.query.get((space.id, user.id))
+            result = cls.query.get((project.id, user.id))
             if not result and create:
-                result = cls(proposal_space=space, user=user)
+                result = cls(project=project, user=user)
                 db.session.add(result)
             return result
 
 
-def _space_rsvp_for(self, user, create=False):
+def _project_rsvp_for(self, user, create=False):
     return Rsvp.get_for(self, user, create)
 
 
-def _space_rsvps_with(self, status):
+def _project_rsvps_with(self, status):
     return self.rsvps.filter_by(_state=status)
 
 
-def _space_rsvp_counts(self):
+def _project_rsvp_counts(self):
     return dict(db.session.query(Rsvp._state, db.func.count(Rsvp._state)).filter(
-        Rsvp.proposal_space == self).group_by(Rsvp._state).all())
+        Rsvp.project == self).group_by(Rsvp._state).all())
 
 
-ProposalSpace.rsvp_for = _space_rsvp_for
-ProposalSpace.rsvps_with = _space_rsvps_with
-ProposalSpace.rsvp_counts = _space_rsvp_counts
+Project.rsvp_for = _project_rsvp_for
+Project.rsvps_with = _project_rsvps_with
+Project.rsvp_counts = _project_rsvp_counts

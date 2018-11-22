@@ -1,19 +1,19 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% trans %}Authorization error{% endtrans %}{% endblock %}
 {% block content %}
-<p>
-  {% trans %}An error occured when logging you in.{% endtrans %}
-</p>
-<dl class="infobox">
-  <dt>{% trans %}Error{% endtrans %}</dt>
-  <dd>{{ error }}</dd>
-  {% if error_description %}
-    <dt>{% trans %}Description{% endtrans %}</dt>
-    <dd>{{ error_description }}</dd>
-  {% endif %}
-  {% if error_uri %}
-    <dt>{% trans %}Error URI{% endtrans %}</dt>
-    <dd>{{ error_uri }}</dd>
-  {% endif %}
-</dl>
+  <p class="mui--text-subhead">
+    {% trans %}An error occured when logging you in.{% endtrans %}
+  </p>
+  <dl>
+    <dt class="mui--text-subhead">{% trans %}Error{% endtrans %}</dt>
+    <dd>{{ error }}</dd>
+    {% if error_description %}
+      <dt><strong>{% trans %}Description{% endtrans %}</strong></dt>
+      <dd>{{ error_description }}</dd>
+    {% endif %}
+    {% if error_uri %}
+      <dt><strong>{% trans %}Error URI{% endtrans %}</strong></dt>
+      <dd>{{ error_uri }}</dd>
+    {% endif %}
+  </dl>
 {% endblock %}

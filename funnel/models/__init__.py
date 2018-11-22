@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 
-from coaster.sqlalchemy import (TimestampMixin, BaseMixin, BaseNameMixin,
+from coaster.sqlalchemy import (TimestampMixin, UuidMixin, BaseMixin, BaseNameMixin,
     BaseScopedNameMixin, BaseScopedIdNameMixin, BaseIdNameMixin, MarkdownColumn,
     JsonDict, CoordinatesMixin, make_timestamp_columns)
 from coaster.db import db
@@ -8,7 +9,7 @@ from coaster.db import db
 from .user import *
 from .profile import *
 from .commentvote import *
-from .space import *
+from .project import *
 from .section import *
 from .usergroup import *
 from .proposal import *

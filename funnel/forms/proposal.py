@@ -4,7 +4,7 @@ from baseframe import __
 import baseframe.forms as forms
 from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import ProposalSpace, Profile, Proposal
+from ..models import Project, Profile, Proposal
 
 __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
 
@@ -40,10 +40,12 @@ class ProposalForm(forms.Form):
         description=__("A detailed description of the session"))
     requirements = forms.MarkdownField(__("Requirements"),
         description=__("For workshops, what must participants bring to the session?"))
-    slides = forms.URLField(__("Slides"), validators=[forms.validators.Optional(), forms.validators.URL()],
+    slides = forms.URLField(__("Slides"),
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
         description=__("Link to your slides. These can be just an outline initially. "
             "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"))
-    preview_video = forms.URLField(__("Preview Video"), validators=[forms.validators.Optional(), forms.validators.URL()],
+    preview_video = forms.URLField(__("Preview Video"),
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
         description=__("Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
             "If you provide a YouTube/Vimeo link, we'll embed it in the page"))
     links = forms.TextAreaField(__("Links"),
@@ -63,15 +65,15 @@ class ProposalForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ProposalForm, self).__init__(*args, **kwargs)
-        space = kwargs.get('parent')
-        if space.proposal_part_a.get('title'):
-            self.objective.label.text = space.proposal_part_a.get('title')
-        if space.proposal_part_a.get('hint'):
-            self.objective.description = space.proposal_part_a.get('hint')
-        if space.proposal_part_b.get('title'):
-            self.description.label.text = space.proposal_part_b.get('title')
-        if space.proposal_part_b.get('hint'):
-            self.description.description = space.proposal_part_b.get('hint')
+        project = kwargs.get('parent')
+        if project.proposal_part_a.get('title'):
+            self.objective.label.text = project.proposal_part_a.get('title')
+        if project.proposal_part_a.get('hint'):
+            self.objective.description = project.proposal_part_a.get('hint')
+        if project.proposal_part_b.get('title'):
+            self.description.label.text = project.proposal_part_b.get('title')
+        if project.proposal_part_b.get('hint'):
+            self.description.description = project.proposal_part_b.get('hint')
 
 
 class ProposalTransitionForm(forms.Form):
@@ -83,7 +85,7 @@ class ProposalTransitionForm(forms.Form):
         label: transition object itself
         We need the whole object to get the additional metadata in templates
         """
-        self.transition.choices = sorted(self.edit_obj.state.transitions().items())
+        self.transition.choices = self.edit_obj.state.transitions().items()
 
 
 class ProposalMoveForm(forms.Form):
@@ -92,7 +94,7 @@ class ProposalMoveForm(forms.Form):
 
     def set_queries(self):
         team_ids = [t.id for t in g.user.teams]
-        self.target.query = ProposalSpace.query.join(ProposalSpace.profile).filter(
-            (ProposalSpace.admin_team_id.in_(team_ids)) |
+        self.target.query = Project.query.join(Project.profile).filter(
+            (Project.admin_team_id.in_(team_ids)) |
             (Profile.admin_team_id.in_(team_ids))
-            ).order_by(ProposalSpace.date.desc())
+            ).order_by(Project.date.desc())

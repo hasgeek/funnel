@@ -4,17 +4,19 @@ from flask import g, flash, redirect, render_template
 from coaster.views import get_next_url
 from baseframe import _
 
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Profile
 
 
 @app.route('/login')
+@funnelapp.route('/login')
 @lastuser.login_handler
 def login():
     return {'scope': 'id email phone organizations teams'}
 
 
 @app.route('/logout')
+@funnelapp.route('/logout')
 @lastuser.logout_handler
 def logout():
     flash(_("You are now logged out"), category='info')
@@ -22,6 +24,7 @@ def logout():
 
 
 @app.route('/login/redirect')
+@funnelapp.route('/login/redirect')
 @lastuser.auth_handler
 def lastuserauth():
     Profile.update_from_user(g.user, db.session, make_user_profiles=False, make_org_profiles=False)
@@ -30,6 +33,7 @@ def lastuserauth():
 
 
 @app.route('/login/notify', methods=['POST'])
+@funnelapp.route('/login/notify', methods=['POST'])
 @lastuser.notification_handler
 def lastusernotify(user):
     Profile.update_from_user(user, db.session, make_user_profiles=False, make_org_profiles=False)

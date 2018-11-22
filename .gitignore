@@ -11,6 +11,8 @@ error.log
 .webassets-cache
 baseframe-packed.*
 instance/development.py
+instance/funnelapp.py
+instance/hasgeekapp.py
 .coverage
 *.packed.js
 *.packed.css
@@ -18,3 +20,4 @@ funnel/static/gen
 *.sql
 *.gz
 *.bz2
+.pytest_cache

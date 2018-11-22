@@ -2,7 +2,12 @@
 @import "compass";
 
 // Local stylesheets
-@import "colors";
-@import "fonts";
-@import "layout";
+@import "hg-layout";
 
+// Local stylesheets
+@import "layout";
+@import "header";
+@import "card";
+@import "project";
+@import "proposal";
+@import "footer";

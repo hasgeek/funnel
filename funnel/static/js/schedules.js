@@ -90,8 +90,8 @@ $(function() {
         var obj = {};
         var popup = {
             container: $('#popup'),
-            title: function() {return this.container.find('.modal-title')},
-            body: function() {return this.container.find('.modal-body')},
+            title: function() {return this.container.find('.js-modal-title')},
+            body: function() {return this.container.find('.js-modal-inner')},
             activated: false,
             options: {
                 backdrop: 'static'
@@ -101,16 +101,19 @@ $(function() {
                 if(settings.editable) {
                     if(!this.activated) {
                         this.activated = true;
-                        this.container.on('hidden.bs.modal', function() {
+                        this.container.on($.modal.CLOSE, function() {
                             popup.close();
                         });
-                        this.container.on('shown.bs.modal', function() {
-                            activate_widgets(true);
+                        activate_widgets();
+                        this.container.on($.modal.OPEN, function() {
+                            activate_widgets();
                         });
                     }
                 }
             },
-            hide: function() {this.container.modal('hide');},
+            hide: function() {
+                $.modal.close();
+            },
             close: function() {
                 if(settings.editable) if(events.current.unscheduled) calendar.remove(events.current);
                 events.current = null;
@@ -144,6 +147,7 @@ $(function() {
                         }
                         else {
                             popup.body().html(result.form);
+                            activate_widgets();
                         }
                     },
                     complete: function(xhr, type) {
@@ -281,7 +285,7 @@ $(function() {
                 init_buttons();
                 init_autosave();
                 events.height(this.container.find('.fc-content').height());
-                var rooms_list = $('#rooms-list').find('.room .title');
+                var rooms_list = $('#rooms-list').find('.room .js-title');
                 rooms_list.each(function() {
                     var bgcol = $(this).attr('data-bgcolor')
                     $(this).css({'background': bgcol, 'color': invert(bgcol)});
@@ -490,8 +494,8 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    this.current.obj_data.end = events.from_space_timezone(this.current.end).toISOString();
-                    this.current.obj_data.start = events.from_space_timezone(this.current.start).toISOString();
+                    this.current.obj_data.end = events.from_project_timezone(this.current.end).toISOString();
+                    this.current.obj_data.start = events.from_project_timezone(this.current.start).toISOString();
                 }
             },
             height: function(ht) {
@@ -503,11 +507,11 @@ $(function() {
                     popup.open();
                 }
             },
-            to_space_timezone: function(dt) {
+            to_project_timezone: function(dt) {
                 dt = new Date(dt.valueOf() + dt.getTimezoneOffset() * 60000 + settings.timezone);
                 return dt;
             },
-            from_space_timezone: function(dt) {
+            from_project_timezone: function(dt) {
                 dt = new Date(dt.valueOf() - dt.getTimezoneOffset() * 60000 - settings.timezone);
                 return dt;
             }
@@ -548,7 +552,7 @@ $(function() {
             };
 
             var unscheduled_events = {
-                container: $('#proposals .list'),
+                container: $('#proposals-tab #list'),
                 add: function(element) {
                     element.draggable(this.options.draggable);
                     element.data('info', {
@@ -567,11 +571,11 @@ $(function() {
                     }
                 },
                 create: function(title, modal_url) {
-                    unscheduled_events.container.prepend('<div class="unscheduled" data-modal-url="' + modal_url + '">' + title + '</div>');
-                    unscheduled_events.add(unscheduled_events.container.find('.unscheduled').first());
+                    unscheduled_events.container.prepend('<div class="js-unscheduled proposal-box" data-modal-url="' + modal_url + '">' + title + '</div>');
+                    unscheduled_events.add(unscheduled_events.container.find('.js-unscheduled').first());
                 }
             };
-            unscheduled_events.container.find('.unscheduled').each(function() {
+            unscheduled_events.container.find('.js-unscheduled').each(function() {
                 unscheduled_events.add($(this));
             });
 
@@ -598,8 +602,8 @@ $(function() {
             delete scheduled[i].url_name;
             delete scheduled[i].obj_data.url_name;
             if(scheduled[i].obj_data.delete_url) scheduled[i].delete_url = scheduled[i].obj_data.delete_url;
-            scheduled[i].start = events.to_space_timezone(scheduled[i].start);
-            scheduled[i].end = events.to_space_timezone(scheduled[i].end);
+            scheduled[i].start = events.to_project_timezone(scheduled[i].start);
+            scheduled[i].end = events.to_project_timezone(scheduled[i].end);
             events.update_properties(scheduled[i]);
             delete scheduled[i].obj_data.modal_url;
             delete scheduled[i].obj_data.delete_url;

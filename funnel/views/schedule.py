@@ -8,12 +8,12 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
-from flask import render_template, json, jsonify, request, Response
+from flask import render_template, json, jsonify, request, Response, current_app
 
 from coaster.views import load_models, requestargs, jsonp, cors
 
-from .. import app, lastuser
-from ..models import db, Profile, ProposalSpace, ProposalSpaceRedirect, Session, VenueRoom, Venue
+from .. import app, funnelapp, lastuser
+from ..models import db, Profile, Project, ProjectRedirect, Session, VenueRoom, Venue
 from .helpers import localize_date
 from .venue import venue_data, room_data
 
@@ -42,11 +42,11 @@ def date_js(d):
     return mktime(d.timetuple()) * 1000
 
 
-def schedule_data(space):
+def schedule_data(project):
     data = defaultdict(lambda: defaultdict(list))
-    for session in space.sessions:
-        day = str(localize_date(session.start, to_tz=space.timezone).date())
-        slot = localize_date(session.start, to_tz=space.timezone).strftime('%H:%M')
+    for session in project.sessions:
+        day = str(localize_date(session.start, to_tz=project.timezone).date())
+        slot = localize_date(session.start, to_tz=project.timezone).strftime('%H:%M')
         data[day][slot].append({
             "id": session.url_id,
             "title": session.title,
@@ -83,12 +83,12 @@ def schedule_data(space):
 def session_ical(session):
     event = Event()
     event.add('summary', session.title)
-    event.add('uid', "/".join([session.proposal_space.name, session.url_name]) + '@' + request.host)
-    event.add('dtstart', utc.localize(session.start).astimezone(timezone(session.proposal_space.timezone)))
-    event.add('dtend', utc.localize(session.end).astimezone(timezone(session.proposal_space.timezone)))
-    event.add('dtstamp', utc.localize(datetime.now()).astimezone(timezone(session.proposal_space.timezone)))
-    event.add('created', utc.localize(session.created_at).astimezone(timezone(session.proposal_space.timezone)))
-    event.add('last-modified', utc.localize(session.updated_at).astimezone(timezone(session.proposal_space.timezone)))
+    event.add('uid', "/".join([session.project.name, session.url_name]) + '@' + request.host)
+    event.add('dtstart', utc.localize(session.start).astimezone(timezone(session.project.timezone)))
+    event.add('dtend', utc.localize(session.end).astimezone(timezone(session.project.timezone)))
+    event.add('dtstamp', utc.localize(datetime.now()).astimezone(timezone(session.project.timezone)))
+    event.add('created', utc.localize(session.created_at).astimezone(timezone(session.project.timezone)))
+    event.add('last-modified', utc.localize(session.updated_at).astimezone(timezone(session.project.timezone)))
     if session.venue_room:
         location = [session.venue_room.title + " - " + session.venue_room.venue.title]
         if session.venue_room.venue.city:
@@ -118,164 +118,172 @@ def session_ical(session):
     return event
 
 
-@app.route('/<space>/schedule', subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule')
+@funnelapp.route('/<project>/schedule', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
-def schedule_view(profile, space):
-    return render_template('schedule.html.jinja2', space=space, venues=space.venues,
-        from_date=date_js(space.date), to_date=date_js(space.date_upto),
-        sessions=session_data(space.sessions, timezone=space.timezone, with_modal_url='view-popup'),
-        timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
+def schedule_view(profile, project):
+    return render_template('schedule.html.jinja2', project=project, venues=project.venues,
+        from_date=date_js(project.date), to_date=date_js(project.date_upto),
+        sessions=session_data(project.sessions, timezone=project.timezone, with_modal_url='view-popup'),
+        timezone=timezone(project.timezone).utcoffset(datetime.now()).total_seconds(),
+        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in project.rooms]))
 
 
-@app.route('/<space>/schedule/subscribe', subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule/subscribe')
+@funnelapp.route('/<project>/schedule/subscribe', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
-def schedule_subscribe(profile, space):
+def schedule_subscribe(profile, project):
     return render_template('schedule_subscribe.html.jinja2',
-        space=space, venues=space.venues, rooms=space.rooms)
+        project=project, venues=project.venues, rooms=project.rooms)
 
 
-@app.route('/<space>/schedule/json', subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule/json')
+@funnelapp.route('/<project>/schedule/json', subdomain='<profile>')
 @cors('*')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
-def schedule_json(profile, space):
-    return jsonp(schedule=schedule_data(space),
-        venues=[venue_data(venue) for venue in space.venues],
-        rooms=[room_data(room) for room in space.rooms])
+def schedule_json(profile, project):
+    return jsonp(schedule=schedule_data(project),
+        venues=[venue_data(venue) for venue in project.venues],
+        rooms=[room_data(room) for room in project.rooms])
 
 
-@app.route('/<space>/schedule/ical', subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule/ical')
+@funnelapp.route('/<project>/schedule/ical', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
-def schedule_ical(profile, space):
+def schedule_ical(profile, project):
     cal = Calendar()
-    cal.add('prodid', "-//Schedule for {event}//funnel.hasgeek.com//".format(event=space.title))
+    cal.add('prodid', "-//Schedule for {event}//funnel.hasgeek.com//".format(event=project.title))
     cal.add('version', "2.0")
-    cal.add('summary', "Schedule for {event}".format(event=space.title))
-    # Last updated time for calendar needs to be set. Cannot figure out how.
-    # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(proposal_space=space).first()
+    cal.add('summary', "Schedule for {event}".format(event=project.title))
+    # FIXME: Last updated time for calendar needs to be set. Cannot figure out how.
+    # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
     # cal.add('last-modified', latest_session[0])
-    cal.add('x-wr-calname', "{event}".format(event=space.title))
-    for session in space.sessions:
+    cal.add('x-wr-calname', "{event}".format(event=project.title))
+    for session in project.sessions:
         cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
 
-@app.route('/<space>/schedule/<venue>/<room>/ical', subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule/<venue>/<room>/ical')
+@funnelapp.route('/<project>/schedule/<venue>/<room>/ical', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
     permission='view')
-def schedule_room_ical(profile, space, venue, room):
+def schedule_room_ical(profile, project, venue, room):
     cal = Calendar()
     cal.add('prodid', "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
         room=room.title,
         venue=venue.title,
-        event=space.title,
+        event=project.title,
         ))
     cal.add('version', "2.0")
     cal.add('summary', "Schedule for room {room} at {venue} for {event}".format(
         room=room.title,
         venue=venue.title,
-        event=space.title,
+        event=project.title,
         ))
     # Last updated time for calendar needs to be set. Cannot figure out how.
-    # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(proposal_space=space).first()
+    # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
     # cal.add('last-modified', latest_session[0])
     cal.add('x-wr-calname', "{event} - {room} @ {venue}".format(
         room=room.title,
         venue=venue.title,
-        event=space.title,
+        event=project.title,
         ))
     for session in room.sessions:
         cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
 
-@app.route('/<space>/schedule/<venue>/<room>/updates', subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule/<venue>/<room>/updates')
+@funnelapp.route('/<project>/schedule/<venue>/<room>/updates', subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
-    (Venue, {'proposal_space': 'space', 'name': 'venue'}, 'venue'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
     (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
     permission='view')
-def schedule_room_updates(profile, space, venue, room):
+def schedule_room_updates(profile, project, venue, room):
     now = datetime.utcnow()
     current = Session.query.filter(
         Session.start <= now, Session.end >= now,
-        Session.proposal_space == space,
+        Session.project == project,
         or_(Session.venue_room == room, Session.is_break == True)  # NOQA
         ).first()
     next = Session.query.filter(
         Session.start > now,
         or_(Session.venue_room == room, Session.is_break == True),  # NOQA
-        Session.proposal_space == space
+        Session.project == project
         ).order_by(Session.start).first()
     if current:
-        current.start = localize_date(current.start, to_tz=space.timezone)
-        current.end = localize_date(current.end, to_tz=space.timezone)
+        current.start = localize_date(current.start, to_tz=project.timezone)
+        current.end = localize_date(current.end, to_tz=project.timezone)
     nextdiff = None
     if next:
-        next.start = localize_date(next.start, to_tz=space.timezone)
-        next.end = localize_date(next.end, to_tz=space.timezone)
+        next.start = localize_date(next.start, to_tz=project.timezone)
+        next.end = localize_date(next.end, to_tz=project.timezone)
         nextdiff = next.start.date() - now.date()
         nextdiff = nextdiff.total_seconds() / 86400
     print current, next
     return render_template('room_updates.html.jinja2', room=room, current=current, next=next, nextdiff=nextdiff)
 
 
-@app.route('/<space>/schedule/edit', subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule/edit')
+@funnelapp.route('/<project>/schedule/edit', subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='edit-schedule')
-def schedule_edit(profile, space):
+def schedule_edit(profile, project):
     proposals = {
         'unscheduled': [{
             'title': proposal.title,
             'modal_url': proposal.url_for('schedule')
-            } for proposal in space.proposals_all if proposal.state.CONFIRMED and not proposal.session],
-        'scheduled': session_data(space.sessions, timezone=space.timezone, with_modal_url='edit', with_delete_url=True)
+            } for proposal in project.proposals_all if proposal.state.CONFIRMED and not proposal.session],
+        'scheduled': session_data(project.sessions, timezone=project.timezone, with_modal_url='edit', with_delete_url=True)
         }
     # Set the proper range for the calendar to allow for date changes
-    first_session = Session.query.filter_by(proposal_space=space).order_by("created_at asc").first()
-    last_session = Session.query.filter_by(proposal_space=space).order_by("created_at desc").first()
-    from_date = (first_session and first_session.start.date() < space.date and first_session.start) or space.date
-    to_date = (last_session and last_session.start.date() > space.date_upto and last_session.start) or space.date_upto
-    return render_template('schedule_edit.html.jinja2', space=space, proposals=proposals,
+    first_session = Session.query.filter_by(project=project).order_by("created_at asc").first()
+    last_session = Session.query.filter_by(project=project).order_by("created_at desc").first()
+    from_date = (first_session and first_session.start.date() < project.date and first_session.start) or project.date
+    to_date = (last_session and last_session.start.date() > project.date_upto and last_session.start) or project.date_upto
+    return render_template('schedule_edit.html.jinja2', project=project, proposals=proposals,
         from_date=date_js(from_date), to_date=date_js(to_date),
-        timezone=timezone(space.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in space.rooms]))
+        timezone=timezone(project.timezone).utcoffset(datetime.now()).total_seconds(),
+        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in project.rooms]))
 
 
-@app.route('/<space>/schedule/update', methods=['POST'], subdomain='<profile>')
+@app.route('/<profile>/<project>/schedule/update', methods=['POST'])
+@funnelapp.route('/<project>/schedule/update', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
-    ((ProposalSpace, ProposalSpaceRedirect), {'name': 'space', 'profile': 'profile'}, 'space'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='edit-schedule')
 @requestargs(('sessions', json.loads))
-def schedule_update(profile, space, sessions):
+def schedule_update(profile, project, sessions):
     for session in sessions:
         try:
-            s = Session.query.filter_by(proposal_space=space, url_id=session['id']).one()
+            s = Session.query.filter_by(project=project, url_id=session['id']).one()
             s.start = session['start']
             s.end = session['end']
             db.session.commit()
         except NoResultFound:
-            app.logger.error('{space} schedule update error: session = {session}'.format(space=space.name, session=session))
+            current_app.logger.error('{project} schedule update error: session = {session}'.format(project=project.name, session=session))
     return jsonify(status=True)

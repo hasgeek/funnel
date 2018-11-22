@@ -2,15 +2,16 @@
 import os
 import base64
 from datetime import datetime
+from sqlalchemy.sql import text
 from . import db, BaseMixin, BaseScopedNameMixin
-from .space import ProposalSpace
+from .project import Project
 from .user import User
 
 __all__ = ['Event', 'TicketType', 'Participant', 'Attendee', 'SyncTicket', 'TicketClient']
 
 
 def make_key():
-    return base64.urlsafe_b64encode(os.urandom(128))
+    return unicode(base64.urlsafe_b64encode(os.urandom(128)))
 
 
 def make_public_key():
@@ -22,8 +23,8 @@ def make_private_key():
 
 
 event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
-    db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
-    db.Column('ticket_type_id', db.Integer, db.ForeignKey('ticket_type.id'), primary_key=True),
+    db.Column('event_id', None, db.ForeignKey('event.id'), primary_key=True),
+    db.Column('ticket_type_id', None, db.ForeignKey('ticket_type.id'), primary_key=True),
     db.Column('created_at', db.DateTime, default=datetime.utcnow, nullable=False)
     )
 
@@ -53,8 +54,8 @@ class ScopedNameTitleMixin(BaseScopedNameMixin):
 
 class Event(ScopedNameTitleMixin, db.Model):
     """
-    A discrete event under a proposal space.
-    For instance, a space could be associated with a workshop and a two-day conference.
+    A discrete event under a project.
+    For instance, a project could be associated with a workshop and a two-day conference.
     The workshop constitutes as one event and each day of the conference
     constitutes as an independent event.
     This is done to allow distinguishing participants based on
@@ -65,13 +66,14 @@ class Event(ScopedNameTitleMixin, db.Model):
     """
     __tablename__ = 'event'
 
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('events', cascade='all, delete-orphan'))
-    parent = db.synonym('proposal_space')
+    parent = db.synonym('project')
     ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
     participants = db.relationship('Participant', secondary='attendee', backref='events', lazy='dynamic')
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
+    badge_template = db.Column(db.Unicode(250), nullable=True)
+    __table_args__ = (db.UniqueConstraint('project_id', 'name'), db.UniqueConstraint('project_id', 'title'))
 
 
 class TicketType(ScopedNameTitleMixin, db.Model):
@@ -81,12 +83,12 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     """
     __tablename__ = 'ticket_type'
 
-    proposal_space_id = db.Column(None, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('ticket_types', cascade='all, delete-orphan'))
-    parent = db.synonym('proposal_space')
+    parent = db.synonym('project')
     events = db.relationship('Event', secondary=event_ticket_type)
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'name'), db.UniqueConstraint('proposal_space_id', 'title'))
+    __table_args__ = (db.UniqueConstraint('project_id', 'name'), db.UniqueConstraint('project_id', 'title'))
 
 
 class Participant(BaseMixin, db.Model):
@@ -112,25 +114,25 @@ class Participant(BaseMixin, db.Model):
     puk = db.Column(db.Unicode(44), nullable=False, default=make_public_key, unique=True)
     key = db.Column(db.Unicode(44), nullable=False, default=make_private_key, unique=True)
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, backref=db.backref('participants', cascade='all, delete-orphan'))
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('participants', cascade='all, delete-orphan'))
 
-    __table_args__ = (db.UniqueConstraint('proposal_space_id', 'email'),)
+    __table_args__ = (db.UniqueConstraint('project_id', 'email'),)
 
     @classmethod
-    def get(cls, current_space, current_email):
-        return cls.query.filter_by(proposal_space=current_space, email=current_email).one_or_none()
+    def get(cls, current_project, current_email):
+        return cls.query.filter_by(project=current_project, email=current_email).one_or_none()
 
     @classmethod
-    def upsert(cls, current_space, current_email, **fields):
-        participant = cls.get(current_space, current_email)
+    def upsert(cls, current_project, current_email, **fields):
+        participant = cls.get(current_project, current_email)
         if participant:
             participant._set_fields(fields)
         else:
-            participant = cls(proposal_space=current_space, email=current_email, **fields)
+            participant = cls(project=current_project, email=current_email, **fields)
             db.session.add(participant)
         return participant
 
@@ -146,9 +148,17 @@ class Participant(BaseMixin, db.Model):
 
     @classmethod
     def checkin_list(cls, event):
-        participant_attendee_join = db.join(Participant, Attendee, Participant.id == Attendee.participant_id)
-        stmt = db.select([Participant.id, Participant.fullname, Participant.email, Participant.company, Participant.twitter, Participant.puk, Participant.key, Attendee.checked_in, Participant.badge_printed]).select_from(participant_attendee_join).where(Attendee.event_id == event.id).order_by(Participant.fullname)
-        return db.session.execute(stmt).fetchall()
+        """
+        Returns participant details along with their associated ticket types as a comma-separated string.
+        """
+        participant_list = db.session.query('id', 'fullname', 'email', 'company', 'twitter', 'puk', 'key', 'checked_in', 'badge_printed', 'ticket_type_titles').from_statement(text('''
+            SELECT distinct(participant.id), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
+            (SELECT string_agg(title, ',') FROM sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
+            FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
+            WHERE attendee.event_id = :event_id
+            ORDER BY participant.fullname
+        ''')).params(event_id=event.id).all()
+        return participant_list
 
 
 class Attendee(BaseMixin, db.Model):
@@ -169,8 +179,8 @@ class Attendee(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('event_id', 'participant_id'),)
 
     @classmethod
-    def get(cls, event, participant):
-        return cls.query.filter_by(event=event, participant=participant).one_or_none()
+    def get(cls, event, participant_id):
+        return cls.query.filter_by(event=event, participant_id=participant_id).one_or_none()
 
 
 class TicketClient(BaseMixin, db.Model):
@@ -180,39 +190,38 @@ class TicketClient(BaseMixin, db.Model):
     clientid = db.Column(db.Unicode(80), nullable=False)
     client_secret = db.Column(db.Unicode(80), nullable=False)
     client_access_token = db.Column(db.Unicode(80), nullable=False)
-    proposal_space_id = db.Column(db.Integer, db.ForeignKey('proposal_space.id'), nullable=False)
-    proposal_space = db.relationship(ProposalSpace,
+    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
+    project = db.relationship(Project,
         backref=db.backref('ticket_clients', cascade='all, delete-orphan'))
 
-    def import_from_list(self, ticket_list, cancel_list=[]):
+    def import_from_list(self, ticket_list):
         """
         Batch upserts the tickets and its associated ticket types and participants.
         Cancels the tickets in cancel_list.
         """
-        for ticket in cancel_list:
-            ticket.participant.remove_events(ticket.ticket_type.events)
-
         for ticket_dict in ticket_list:
-            ticket_type = TicketType.upsert(self.proposal_space, current_title=ticket_dict['ticket_type'])
+            ticket_type = TicketType.upsert(self.project, current_title=ticket_dict['ticket_type'])
 
-            participant = Participant.upsert(self.proposal_space, ticket_dict['email'],
-                             fullname=ticket_dict['fullname'],
-                             phone=ticket_dict['phone'],
-                             twitter=ticket_dict['twitter'],
-                             company=ticket_dict['company'],
-                             city=ticket_dict['city']
-                            )
+            participant = Participant.upsert(self.project, ticket_dict['email'],
+                fullname=ticket_dict['fullname'],
+                phone=ticket_dict['phone'],
+                twitter=ticket_dict['twitter'],
+                company=ticket_dict['company'],
+                job_title=ticket_dict['job_title'],
+                city=ticket_dict['city']
+                )
 
             ticket = SyncTicket.get(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'))
-            if ticket and ticket.participant is not participant:
-                # Ensure that the previous participant does not have access to
+            if ticket and (ticket.participant is not participant or ticket_dict.get('status') == u'cancelled'):
+                # Ensure that the participant of a transferred or cancelled ticket does not have access to
                 # this ticket's events
                 ticket.participant.remove_events(ticket_type.events)
 
-            ticket = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
-                participant=participant, ticket_type=ticket_type)
-            # Ensure that the new or updated participant has access to events
-            ticket.participant.add_events(ticket_type.events)
+            if ticket_dict.get('status') == u'confirmed':
+                ticket = SyncTicket.upsert(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'),
+                    participant=participant, ticket_type=ticket_type)
+                # Ensure that the new or updated participant has access to events
+                ticket.participant.add_events(ticket_type.events)
 
 
 class SyncTicket(BaseMixin, db.Model):
@@ -227,7 +236,7 @@ class SyncTicket(BaseMixin, db.Model):
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(Participant, primaryjoin=participant_id == Participant.id,
         backref=db.backref('sync_tickets', cascade="all, delete-orphan"))
-    ticket_client_id = db.Column(db.Integer, db.ForeignKey('ticket_client.id'), nullable=False)
+    ticket_client_id = db.Column(None, db.ForeignKey('ticket_client.id'), nullable=False)
     ticket_client = db.relationship(TicketClient,
         backref=db.backref('sync_tickets', cascade='all, delete-orphan'))
     __table_args__ = (db.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
@@ -250,11 +259,7 @@ class SyncTicket(BaseMixin, db.Model):
             fields.pop('order_no', None)
             fields.pop('ticket_no', None)
             ticket = SyncTicket(ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no, **fields)
+
             db.session.add(ticket)
 
         return ticket
-
-    @classmethod
-    def exclude(cls, ticket_client, ticket_nos):
-        return cls.query.filter_by(ticket_client=ticket_client
-            ).filter(~cls.ticket_no.in_(ticket_nos))

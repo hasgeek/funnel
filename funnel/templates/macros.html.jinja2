@@ -1,12 +1,12 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
-{% macro rsvpform(space, form) %}{% with counts=space.rsvp_counts() %}
-  <form id="rsvp-form" action="{{ space.url_for('rsvp') }}" method="POST">
+{% macro rsvpform(project, form) %}{% with counts=project.rsvp_counts() %}
+  <form id="rsvp-form" action="{{ project.url_for('rsvp') }}" method="POST">
     {{ form.hidden_tag() }}
-    <p class="button-bar no-jshidden">
-      {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'info', "Maybe"), ('N', 'default', "Not going")] %}
-        <button type="submit" name="status" value="{{ value }}" class="btn btn-{{ class_ }}">{{ title }} <span class="badge">{{ counts[value] }}</span> {%- if form.status.data == value %} <i class="fa fa-check"></i>{% endif %}</button>
+    <p class="no-jshidden">
+      {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'accent', "Maybe"), ('N', 'dark', "Not going")] %}
+        <button type="submit" name="status" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--{{ class_ }}">{{ title }} {%- if counts[value] %}&nbsp;<span class="badge">{{ counts[value] }}</span>{% endif %}{%- if form.status.data == value %}&nbsp;<i class="material-icons">check</i>{% endif %}</button>
       {%- endfor %}
-      <span class="loading hidden">&nbsp;</span>
+      &nbsp;<span class="loading mui--hide"><i class="material-icons material-icons mui--align-middle mui--text-dark-secondary">refresh</i></span>
     </p>
   </form>
 {% endwith %}{% endmacro %}
@@ -19,13 +19,13 @@
         replaceTarget: true,
         beforeSubmit: function(formdata, form, options) {
           form.find('button[type="submit"]').prop('disabled', true).addClass('submit-disabled');
-          form.find('.loading').removeClass('hidden');
+          form.find('.loading').removeClass('mui--hide');
           return true;
         },
         error: function(context, xhr, status, errMsg) {
           var form = $("#{{ formid }}");
           form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
-          form.find('.loading').addClass('hidden');
+          form.find('.loading').addClass('mui--hide');
           form.append('<div class="alert alert-danger fade in"><a href="#" class="close" data-dismiss="alert">&times;</a> An error occured when saving your choice. Please try again</div>');
         } // No comma or semicolon here
       });

@@ -2,7 +2,7 @@ language: python
 python:
   - 2.7
 before_script:
-  - sudo -- sh -c "echo '127.0.0.1  funnel.travis.dev' >> /etc/hosts"
+  - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres
 install:
   - pip install -U pip wheel

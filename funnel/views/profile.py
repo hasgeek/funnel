@@ -6,7 +6,7 @@ from baseframe import _
 from baseframe.forms import render_message, render_redirect, render_form
 from ..models import db, Profile, Team
 from ..forms import NewProfileForm, EditProfileForm
-from .. import app, lastuser
+from .. import app, funnelapp, lastuser
 
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -58,7 +58,8 @@ def profile_new():
         ajax=False)
 
 
-@app.route('/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/<profile>/edit', methods=['GET', 'POST'])
+@funnelapp.route('/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     permission='edit-profile')

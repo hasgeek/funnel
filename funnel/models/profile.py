@@ -2,6 +2,7 @@
 
 from flask import url_for
 from flask_lastuser.sqlalchemy import ProfileBase
+from werkzeug.utils import cached_property
 from . import db, MarkdownColumn
 from .user import Team
 
@@ -15,17 +16,34 @@ class Profile(ProfileBase, db.Model):
     admin_team = db.relationship(Team)
 
     description = MarkdownColumn('description', default=u'', nullable=False)
+    logo_url = db.Column(db.Unicode(2000), nullable=True)
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'id', 'name', 'title', 'description'
+                },
+            },
+        }
+
+    @cached_property
+    def parent_projects(self):
+        from .project import Project
+        projects_all = Project.fetch_sorted().filter(
+            Project.profile == self, Project.parent == None  # NOQA
+        ).all()
+        return projects_all
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
         perms.add('view')
         if user:
-            if (self.userid in user.user_organizations_owned_ids()
-                    or (self.admin_team and user in self.admin_team.users)):
+            if (self.userid in user.user_organizations_owned_ids() or
+                    (self.admin_team and user in self.admin_team.users)):
                 perms.add('edit-profile')
-                perms.add('new-space')
-                perms.add('delete-space')
-                perms.add('edit-space')
+                perms.add('new-project')
+                perms.add('delete-project')
+                perms.add('edit-project')
         return perms
 
     def url_for(self, action='view', _external=False):
@@ -33,8 +51,8 @@ class Profile(ProfileBase, db.Model):
             return url_for('profile_view', profile=self.name, _external=_external)
         if action == 'edit':
             return url_for('profile_edit', profile=self.name, _external=_external)
-        elif action == 'new-space':
-            return url_for('space_new', profile=self.name, _external=_external)
+        elif action == 'new-project':
+            return url_for('project_new', profile=self.name, _external=_external)
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)

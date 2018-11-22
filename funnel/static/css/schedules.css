@@ -1,135 +1,80 @@
-#proposals .list, #rooms-list{
-    overflow-y: auto;
-}
-#proposals .unscheduled, body>.unscheduled.ui-draggable { /* try to mimick the look of a real event */
-    margin: 10px 0;
-    padding: 2px 4px;
-    background: #FFF;
-    color: #333;
-    border-radius: 3px;
-    border: 1px solid #333;
-    font-size: .85em;
-    cursor: pointer;
-}
-.fc-header-title {
-  margin: 10px 0 0;
-}
-#rooms-list .room {
-    padding: 3px 5px;
-}
-#rooms-list .venue_desc {
-    font-size: 0.9em;
-}
-#rooms-list .room .title {
-    border: 0px;
-    border-radius: 4px;
-    font-weight: 200;
-    padding: 2px 5px;
-}
-#rooms-list .room .title a {
-    margin-top: 3px;
-    margin-left: 5px;
-    padding: 1px 5px 3px;
-    opacity: 0.9;
-    font-size: 0.6em;
-    border-radius: 3px;
-}
-#rooms-list .room .title a:hover {
-    text-decoration: none;
-    opacity: 1;
-}
-#rooms-list .room .desc {
-    padding: 1px 10px;
-    color: #777;
-}
-.fc-event {
-    cursor: pointer;
-}
-#popup, #popup_subscribe {
-    height: 100%;
-}
-.modal-dialog {
-    width: 98%;
-    height: 100%;
-    position: relative;
-    margin: 10px auto;
-}
-@media(min-width: 768px) {
-  .modal-dialog {
-    width: 70%;
-  }
-}
-.modal-content{
-    height: 100%;
-}
-.modal-content>div {
-    z-index: 3001;
-    width: 100%;
-}
-.modal-header {
-    position: relative;
-}
-.modal-body {
-    z-index: 3000 !important;
-}
-.modal-body h1, .modal-body h2, .modal-body h3, .modal-body h4, .modal-body h5, .modal-body h6 {
-    margin: 4px !important;
-}
-.modal-body hr {
-    margin: 5px 0px;
-}
-.modal-body .clearfix {
-    clear: both;
-}
-.viewer .modal-content {
-    background: transparent;
-    box-shadow: 0 0 0 transparent;
-    -webkit-box-shadow: 0 0 0 transparent;
-    border: 0px;
+.session-modal {
+  max-width: 98%;
+  top: 60px;
 }
 
-.viewer .infosheet { 
-    background: #FFF;
-}
-.viewer .modal-body {
-    overflow-x: hidden;
-}
-.editor .modal-body {
-    position: absolute;
-    height: 100%;
-    overflow-y: auto;
-    border-bottom: 1px solid #e5e5e5;
-    top: 60px;
-    bottom: 80px;
-    height: 70%; 
+.session-modal--nopadding {
+  padding: 0;
 }
 
-.modal-footer {
-    position: absolute;
-    bottom: 0px;
-    border-top: transparent;
+.session-modal--nopadding .modal__header {
+  padding: 15px 15px 5px;
 }
 
+.session-modal--nopadding .modal__body  {
+  padding: 15px;
+}
+
+.session-modal--nopadding .modal__header {
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+}
+
+.session-modal__title {
+  margin-top: 15px;
+  margin-bottom: 0;
+  font-weight: bold;
+}
+
+.room__title,
+.subscibe-title {
+  border: 0;
+  border-radius: 4px;
+  font-weight: 200;
+  padding: 15px 10px;
+}
+
+.room__title__subsc-btn {
+  float: right;
+  position: relative;
+  top: -9px;
+}
+
+/* Calendar session */
 .fc-event .fc-event-custom {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    z-index: 40;
-    display: none;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  z-index: 40;
+  display: none;
 }
+
 .fc-event:hover .fc-event-custom {
-    display: block;
-    padding: 1px 5px;
-    background: #FFF;
-    background: rgba(255,255,255,0.6);
-    border-top-left-radius: 3px;
+  display: block;
+  padding: 1px 5px;
+  background: #FFF;
+  background: rgba(255,255,255,0.6);
+  border-top-left-radius: 3px;
 }
-.fc-event .fc-event-custom a{
-    font-weight: bolder;
-    color: #c33;
-    font-size: 1.2em;
+
+.fc-event .fc-event-custom a {
+  font-weight: bolder;
+  color: #c33;
+  font-size: 1.2em;
 }
-.fc-event .fc-event-custom a:hover{
-    color: #c00;
-    text-decoration: none;
+
+.fc-event .fc-event-custom a:hover {
+  color: #c00;
+  text-decoration: none;
+}
+
+.proposal-box,
+body>.proposal-box.ui-draggable {
+  margin: 10px 0;
+  padding: 2px 4px;
+  background: #FFF;
+  color: #333;
+  border-radius: 3px;
+  border: 1px solid #333;
+  font-size: .85em;
+  cursor: pointer;
 }
