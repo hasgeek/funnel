@@ -36,6 +36,10 @@
     display: inline-block !important;
   }
 }
+html {
+  scroll-behavior: smooth;
+}
+
 .zero-bottom-margin {
   margin-bottom: 0;
 }
@@ -141,6 +145,14 @@
   display: none;
 }
 
+.no-sticky-header .header--fixed {
+  position: relative;
+}
+.no-sticky-header .mui--appbar-height {
+  height: 0;
+  min-height: 0;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
@@ -209,6 +221,47 @@
   color: #f0a40c;
 }
 
+.sub-navbar {
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  border-top: 1px solid rgba(132, 146, 166, 0.3);
+  overflow: scroll;
+  display: flex;
+  align-items: center;
+  padding: 0 1em;
+}
+.sub-navbar .sub-navbar__item {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 1em;
+  margin: 0 0.5em;
+  text-decoration: none;
+  color: #1F2D3D;
+  font-weight: bold;
+  border-bottom: 6px solid transparent;
+  transition: border-color 1.5s ease;
+}
+.sub-navbar .mui-btn {
+  margin: 0 0.5em;
+}
+.sub-navbar .sub-navbar__item:hover,
+.sub-navbar .sub-navbar__item:active {
+  border-bottom: 6px solid #856A91;
+}
+
+.sub-navbar--sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  order: 1;
+  z-index: 1000;
+}
+
+@media (min-width: 992px) {
+  .sub-navbar {
+    margin-top: 2em;
+    justify-content: center;
+  }
+}
 .clickable-card {
   color: #1F2D3D;
 }
@@ -267,11 +320,12 @@
   .profile-details {
     display: block;
     float: left;
-    width: 120px;
+    max-width: 15%;
+    margin-right: 20px;
   }
 
   .project-details {
-    width: calc(100% - 120px);
+    max-width: calc(100% - 15% - 20px);
   }
 }
 .projects {
@@ -310,7 +364,6 @@
   .headline {
     max-width: none;
     padding: 0;
-    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   }
 
   .project-banner {
@@ -345,11 +398,11 @@
   right: 0;
   bottom: 0;
   text-align: center;
-  z-index: 1000;
+  z-index: 1001;
   margin: -10px 0 0;
 }
 .project-btn-wrapper ul {
-  margin-left: 0;
+  margin: 0;
 }
 .project-btn-wrapper li {
   width: calc(100% - 50px);
@@ -457,9 +510,19 @@
 }
 
 .proposal-list-wrapper {
-  margin-top: 15px;
+  width: 100%;
 }
 
+.search-proposal-form {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 992px) {
+  .search-proposal-form {
+    width: 300px;
+  }
+}
 .proposal-wrapper {
   border-radius: 4px;
   border: 1px solid rgba(132, 146, 166, 0.3);
