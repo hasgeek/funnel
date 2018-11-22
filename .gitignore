@@ -21,3 +21,4 @@ funnel/static/gen
 *.gz
 *.bz2
 .pytest_cache
+.vscode
