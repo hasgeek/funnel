@@ -64,7 +64,6 @@
   .headline {
     max-width: none;
     padding: 0;
-    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   }
   .project-banner {
     padding: 0;
@@ -98,11 +97,12 @@
   right: 0;
   bottom: 0;
   text-align: center;
-  z-index: 1000;
+  background-color: #fff;
+  z-index: 1001;
   margin: -10px 0 0;
 
   ul {
-    margin-left: 0;
+    margin: 0;
   }
 
   li {
@@ -207,6 +207,17 @@
   width: 100%;
 }
 
-.proposal-list-wrapper {
-  margin-top: 15px;
+.proposal-lis-wrapper {
+  width: 100%;
+}
+
+.search-proposal-form {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+@media(min-width: 992px) {
+  .search-proposal-form {
+    width: 300px;
+  }
 }

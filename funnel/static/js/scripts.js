@@ -23,17 +23,6 @@ window.Talkfunnel.Utils = {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).next('.collapsible__body').slideToggle();
     });
-  },
-  smoothScroll: function(className) {
-    $(className).on('click', function(event) {
-      if (this.hash !== "") {
-        event.preventDefault();
-        var section = this.hash;
-        $('html, body').animate({
-          scrollTop: $(section).offset().top
-        }, 800);
-      }
-    });
   }
 }
 
@@ -432,6 +421,7 @@ window.TableSearch.prototype.setAllMatchedIds = function(ids) {
 window.TableSearch.prototype.searchRows = function(q){
   // Search the rows of the table for a supplied query.
   // reset data collection on first search or if table has changed
+  console.log('q', q);
   if (this.rowData.length !== this.getRows().length) {
     this.setRowData();
   }
