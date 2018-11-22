@@ -115,9 +115,6 @@ def session_edit(profile, project, session):
     permission='edit-session')
 def session_delete(profile, project, session):
     modal_url = session.proposal.url_for('schedule') if session.proposal else None
-    # Session is not deleted, but we remove start and end time,
-    # so it becomes an unscheduled session.
-    session.start = None
-    session.end = None
+    session.make_unscheduled()
     db.session.commit()
     return jsonify(status=True, modal_url=modal_url)

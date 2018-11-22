@@ -44,6 +44,12 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         # A session is scheduled only when both start and end fields have value
         return (self.start != None) & (self.end != None)
 
+    def make_unscheduled(self):
+        # Session is not deleted, but we remove start and end time,
+        # so it becomes an unscheduled session.
+        self.start = None
+        self.end = None
+
     def url_for(self, action='view', _external=False):
         if action == 'view':
             return self.project.url_for('schedule', _external=_external) + u'#' + self.url_name
