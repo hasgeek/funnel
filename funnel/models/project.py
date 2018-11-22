@@ -47,7 +47,7 @@ class Project(BaseScopedNameMixin, db.Model):
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)
-    website = db.Column(db.Unicode(250), nullable=True)
+    website = db.Column(db.Unicode(2000), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
 
     _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROJECT_STATE),
@@ -55,11 +55,11 @@ class Project(BaseScopedNameMixin, db.Model):
     state = StateManager('_state', PROJECT_STATE, doc="State of this project.")
 
     # Columns for mobile
-    bg_image = db.Column(db.Unicode(250), nullable=True)
+    bg_image = db.Column(db.Unicode(2000), nullable=True)
     bg_color = db.Column(db.Unicode(6), nullable=True)
-    explore_url = db.Column(db.Unicode(250), nullable=True)
+    explore_url = db.Column(db.Unicode(2000), nullable=True)
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
-    buy_tickets_url = db.Column(db.Unicode(250), nullable=True)
+    buy_tickets_url = db.Column(db.Unicode(2000), nullable=True)
 
     banner_video_url = db.Column(db.Unicode(2000), nullable=True)
     boxoffice_data = db.Column(JsonDict, nullable=False, server_default='{}')
@@ -86,6 +86,9 @@ class Project(BaseScopedNameMixin, db.Model):
     parent = db.relationship('Project', remote_side='Project.id', backref='subprojects')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
+
+    featured_sessions = db.relationship("Session",
+        primaryjoin="and_(Session.project_id == Project.id, Session.featured == True)", back_populates="project")
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
