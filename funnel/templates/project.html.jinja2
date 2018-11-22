@@ -161,9 +161,9 @@
   <nav class="sub-navbar sub-navbar--sticky mui--bg-accent">
     <a class="sub-navbar__item mui--text-subhead" href="#about">About</a>
     {% if project.instructions -%}<a class="sub-navbar__item mui--text-subhead" href="#call-for-proposal">Call for proposals</a>{%- endif %}
-    {% if project.boxoffice_data -%}<a class="sub-navbar__item mui--text-subhead" href="#tickets">Participate</a>{%- elif project.buy_tickets_url %}<a class="sub-navbar__item mui--text-subhead " href="{{ project.buy_tickets_url }}">Participate</a>{%- endif %}
     {% if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead" href="#related-jobs">Jobs</a>{%- endif %}
     {% if project.proposals -%}<a class="sub-navbar__item mui--text-subhead" href="#proposals">Proposals</a>{%- endif %}
+    {% if project.boxoffice_data or project.buy_tickets_url -%}<a class="mui-btn mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" {% if project.boxoffice_data -%} href="#tickets" {%- elif project.buy_tickets_url %} href="{{ project.buy_tickets_url }}"{%- endif %}>Participate</a>{%- endif %}
   </nav>
 {% endblock %}
 
@@ -276,10 +276,64 @@
       {% if project.state.SUBMISSIONS -%}
         <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new-proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
       {%- endif %}
-      {%- if project.sessions %}
-        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a>
-      {%- endif %}
       </p>
+    </div>
+  </div>
+  {%- endif %}
+
+  {% if project.featured_sessions  %}
+  <div class="project-section" id="featured-talk">
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        <h2 class="mui--text-display1 mui--text-left project-section__headline">Featured talks</h2>
+      </div>
+    </div>
+    <ul class="grid">
+      {% for session in project.featured_sessions %}
+        <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+          <div class="grid__cell">
+            {% if session.proposal %}<a href="{{ session.proposal.url_for() }}" class="clickable-card" title="{{ session.title }}">{%- endif %}
+              <div class="card">
+                {% if session.banner_image_url %}
+                  <div class="card__image-wrapper session-image">
+                    <img class="card__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
+                  </div>
+                  <div class="card__title">
+                    <h3 class="mui--text-title card__title__heading"><b>{{ session.title }}</b></h3>
+                    {% if session.speaker %}
+                      <h4 class="mui--text-subhead card__title__heading">by {{ session.speaker }}</h4>
+                    {% endif %}
+                  </div>
+                {% else %}
+                  <div class="card__header">
+                    <div class="card__header__title">
+                      <h3 class="mui--text-title card__title__heading"><b>{{ session.title }}</b></h3>
+                      {% if session.speaker %}
+                        <h4 class="mui--text-subhead card__title__heading">by {{ session.speaker }}</h4>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if session.description %}
+                  <div class="card__body mui--text-body2 truncate">
+                    <div>{{ session.description|safe }}</div>
+                  </div>
+                {% endif %}
+              </div>
+            {% if session.proposal %}</a>{%- endif %}
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        <p class="mui--text-left">
+        {%- if project.sessions %}
+          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a>
+        {%- endif %}
+        </p>
+      </div>
     </div>
   </div>
   {%- endif %}
@@ -334,6 +388,9 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% assets "js_succinct" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   {{ rsvpscript() }}
   <script type="text/javascript">
     $(function() {
@@ -348,6 +405,7 @@
         itemCollectionTitle: {{ project.title|tojson }}
       });
       {%- endif %}
+
       var tableSearch = new window.TableSearch('proposals-table');
       $('input#search').keyup(function(e){
         if($('.collapsible__body').css('display') == 'none') {
@@ -356,6 +414,10 @@
         $('#proposals-table tbody tr').addClass('mui--hide');
         var hits = tableSearch.searchRows($(this).val());
         $(hits.join(",")).removeClass('mui--hide');
+      });
+
+      $('.truncate').succinct({
+        size: 200
       });
     });
   </script>
