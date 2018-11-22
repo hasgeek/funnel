@@ -99,7 +99,7 @@
   bottom: 0;
   text-align: center;
   z-index: 1000;
-  margin: 5px 0;
+  margin: -10px 0 0;
 
   li {
     width: calc(100% - 50px);
@@ -121,6 +121,7 @@
 @media(min-width: 992px) {
   .project-btn-wrapper {
     position: relative;
+    margin: 10px 0 0;
     text-align: left;
     li {
       width: auto;
@@ -142,6 +143,11 @@
   }
   .push-date-wrapper {
     margin-left: 148px;
+
+    .project-btn-wrapper {
+      min-width: 350px;
+      width: 35%;
+    }
   }
 }
 
