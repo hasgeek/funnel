@@ -19,8 +19,7 @@ def rooms_list(project):
 def session_form(project, proposal=None, session=None):
     # Look for any existing unscheduled session
     if proposal and not session:
-        session = Session.for_proposal(proposal, create=True)
-        db.session.commit()
+        session = Session.for_proposal(proposal)
 
     if session:
         form = SessionForm(obj=session, model=Session)
@@ -42,8 +41,6 @@ def session_form(project, proposal=None, session=None):
         form.populate_obj(session)
         if new:
             session.parent = project
-            session.make_id()  # FIXME: This should not be required
-            session.make_name()
             session = failsafe_add(db.session, session, project_id=project.id, url_id=session.url_id)
         db.session.commit()
         data = dict(
@@ -112,7 +109,7 @@ def session_edit(profile, project, session):
     permission='edit-session')
 def session_delete(profile, project, session):
     modal_url = session.proposal.url_for('schedule') if session.proposal else None
-    if session.is_break:
+    if not session.proposal:
         db.session.delete(session)
     else:
         session.make_unscheduled()

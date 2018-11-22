@@ -18,22 +18,25 @@ from .helpers import localize_date
 from .venue import venue_data, room_data
 
 
-def session_data(sessions, timezone=None, with_modal_url=False, with_delete_url=False):
-    return [dict({
-            "id": session.url_id,
-            "title": session.title,
-            "start": session.start.isoformat() + 'Z' if session.scheduled else None,
-            "end": session.end.isoformat() + 'Z' if session.scheduled else None,
-            "speaker": session.speaker if session.speaker else None,
-            "room_scoped_name": session.venue_room.scoped_name if session.venue_room else None,
-            "is_break": session.is_break,
-            "url_name": session.url_name,
-            "proposal_id": session.proposal_id,
-        }.items() + dict({
-            "modal_url": session.url_for(with_modal_url)
-        } if with_modal_url else {}).items() + dict({
-            "delete_url": session.url_for('delete')
-        } if with_delete_url else {}).items()) for session in sessions]
+def session_data(sessions, with_modal_url=False, with_delete_url=False):
+    return [
+        dict(
+            {
+                'id': session.url_id,
+                'title': session.title,
+                'start': session.start.isoformat() + 'Z' if session.scheduled else None,
+                'end': session.end.isoformat() + 'Z' if session.scheduled else None,
+                'speaker': session.speaker if session.speaker else None,
+                'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
+                'is_break': session.is_break,
+                'url_name': session.url_name,
+                'proposal_id': session.proposal_id,
+            }.items() + dict({
+                'modal_url': session.url_for(with_modal_url)
+            } if with_modal_url else {}).items() + dict({
+                'delete_url': session.url_for('delete')
+            } if with_delete_url else {}).items()
+        ) for session in sessions]
 
 
 def date_js(d):
@@ -48,25 +51,25 @@ def schedule_data(project):
         day = str(localize_date(session.start, to_tz=project.timezone).date())
         slot = localize_date(session.start, to_tz=project.timezone).strftime('%H:%M')
         data[day][slot].append({
-            "id": session.url_id,
-            "title": session.title,
-            "start": session.start.isoformat() + 'Z',
-            "end": session.end.isoformat() + 'Z',
-            "url": session.url_for(_external=True),
-            "json_url": session.proposal.url_for('json', _external=True) if session.proposal else None,
-            "proposal_url": session.proposal.url_for(_external=True) if session.proposal else None,
-            "proposal": session.proposal.id if session.proposal else None,
-            "feedback_url": session.url_for('feedback', _external=True) if session.proposal else None,
-            "speaker": session.speaker,
-            "room": session.venue_room.scoped_name if session.venue_room else None,
-            "is_break": session.is_break,
-            "description_text": session.description_text,
-            "description": session.description,
-            "speaker_bio": session.speaker_bio,
-            "speaker_bio_text": session.speaker_bio_text,
-            "section_name": session.proposal.section.name if session.proposal and session.proposal.section else None,
-            "section_title": session.proposal.section.title if session.proposal and session.proposal.section else None,
-            "technical_level": session.proposal.technical_level if session.proposal and session.proposal.section else None,
+            'id': session.url_id,
+            'title': session.title,
+            'start': session.start.isoformat() + 'Z',
+            'end': session.end.isoformat() + 'Z',
+            'url': session.url_for(_external=True),
+            'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
+            'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
+            'proposal': session.proposal.id if session.proposal else None,
+            'feedback_url': session.url_for('feedback', _external=True) if session.proposal else None,
+            'speaker': session.speaker,
+            'room': session.venue_room.scoped_name if session.venue_room else None,
+            'is_break': session.is_break,
+            'description_text': session.description_text,
+            'description': session.description,
+            'speaker_bio': session.speaker_bio,
+            'speaker_bio_text': session.speaker_bio_text,
+            'section_name': session.proposal.section.name if session.proposal and session.proposal.section else None,
+            'section_title': session.proposal.section.title if session.proposal and session.proposal.section else None,
+            'technical_level': session.proposal.technical_level if session.proposal and session.proposal.section else None,
             })
     schedule = []
     for day in sorted(data):
@@ -131,9 +134,10 @@ def session_ical(session):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
 def schedule_view(profile, project):
+    print session_data(project.scheduled_sessions, with_modal_url='view-popup')
     return render_template('schedule.html.jinja2', project=project, venues=project.venues,
         from_date=date_js(project.date), to_date=date_js(project.date_upto),
-        sessions=session_data(project.sessions, timezone=project.timezone, with_modal_url='view-popup'),
+        sessions=session_data(project.scheduled_sessions, with_modal_url='view-popup'),
         timezone=timezone(project.timezone).utcoffset(datetime.now()).total_seconds(),
         rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in project.rooms]))
 
@@ -262,11 +266,11 @@ def schedule_edit(profile, project):
             'title': proposal.title,
             'modal_url': proposal.url_for('schedule')
             } for proposal in project.proposals_all if proposal.state.CONFIRMED and not proposal.session],
-        'scheduled': session_data(project.sessions, timezone=project.timezone, with_modal_url='edit', with_delete_url=True)
+        'scheduled': session_data(project.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
         }
     # Set the proper range for the calendar to allow for date changes
-    first_session = Session.query.filter(Session.scheduled).filter_by(project=project).order_by("created_at asc").first()
-    last_session = Session.query.filter(Session.scheduled).filter_by(project=project).order_by("created_at desc").first()
+    first_session = Session.query.filter(Session.scheduled, Session.project == project).order_by(Session.start.asc()).first()
+    last_session = Session.query.filter(Session.scheduled, Session.project == project).order_by(Session.end.desc()).first()
     from_date = (first_session and first_session.start.date() < project.date and first_session.start) or project.date
     to_date = (last_session and last_session.start.date() > project.date_upto and last_session.start) or project.date_upto
     return render_template('schedule_edit.html.jinja2', project=project, proposals=proposals,
