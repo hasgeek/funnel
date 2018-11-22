@@ -17,6 +17,8 @@ class Profile(ProfileBase, db.Model):
 
     description = MarkdownColumn('description', default=u'', nullable=False)
     logo_url = db.Column(db.Unicode(2000), nullable=True)
+    #: Legacy profiles are available via funnelapp, non-legacy in the main app
+    legacy = db.Column(db.Boolean, default=False, nullable=False)
 
     __roles__ = {
         'all': {
