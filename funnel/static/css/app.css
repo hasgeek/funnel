@@ -238,8 +238,9 @@ html {
   color: #1F2D3D;
   font-weight: bold;
   border-bottom: 6px solid transparent;
+  transition: border-color 1.5s ease;
 }
-.sub-navbar .sub-navbar__item.mui-btn {
+.sub-navbar .mui-btn {
   margin: 0 0.5em;
 }
 .sub-navbar .sub-navbar__item:hover,

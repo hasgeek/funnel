@@ -97,9 +97,10 @@
     color: #1F2D3D;
     font-weight: bold;
     border-bottom: 6px solid transparent;
+    transition: border-color 1.5s ease;
   }
 
-  .sub-navbar__item.mui-btn {
+  .mui-btn {
     margin: 0 0.5em;
   }
 
