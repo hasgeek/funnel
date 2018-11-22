@@ -421,7 +421,6 @@ window.TableSearch.prototype.setAllMatchedIds = function(ids) {
 window.TableSearch.prototype.searchRows = function(q){
   // Search the rows of the table for a supplied query.
   // reset data collection on first search or if table has changed
-  console.log('q', q);
   if (this.rowData.length !== this.getRows().length) {
     this.setRowData();
   }
