@@ -39,7 +39,7 @@ class ProjectForm(forms.Form):
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')
     bg_image = forms.URLField(__("Background image URL"), description=u"Background image for the mobile app",
-        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
+        validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     bg_color = forms.StringField(__("Background color"),
         description=__("RGB color for the event, shown on the mobile app. Enter without the '#'. E.g. CCCCCC."),
         validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
@@ -96,7 +96,7 @@ class RsvpForm(forms.Form):
 class EventForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     badge_template = forms.URLField(__("Badge template URL"), description=u"URL of background image for the badge",
-        validators=[forms.validators.Optional()])
+        validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
 
 
 class TicketClientForm(forms.Form):
