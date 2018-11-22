@@ -22,19 +22,29 @@ def session_form(project, proposal=None, session=None):
         session = Session.for_proposal(proposal, create=True)
         db.session.commit()
 
-    form = SessionForm(obj=session, model=Session)
+    if session:
+        form = SessionForm(obj=session, model=Session)
+    else:
+        form = SessionForm()
+
     form.venue_room_id.choices = rooms_list(project)
     if request.method == 'GET':
         if not (session or proposal):
             form.is_break.data = True
-        if proposal and session is None:
-            form.description.data = proposal.description
-            form.speaker_bio.data = proposal.bio
-            form.speaker.data = proposal.owner.fullname
-            form.title.data = proposal.title
         return render_template('session_form.html.jinja2', form=form, formid='session_form')
     if form.validate_on_submit():
+        new = False
+        if not session:
+            new = True
+            session = Session()
+        if proposal:
+            session.proposal = proposal
         form.populate_obj(session)
+        if new:
+            session.parent = project
+            session.make_id()  # FIXME: This should not be required
+            session.make_name()
+            session = failsafe_add(db.session, session, project_id=project.id, url_id=session.url_id)
         db.session.commit()
         data = dict(
             id=session.url_id, title=session.title, room_scoped_name=session.venue_room.scoped_name if session.venue_room else None,
@@ -102,6 +112,9 @@ def session_edit(profile, project, session):
     permission='edit-session')
 def session_delete(profile, project, session):
     modal_url = session.proposal.url_for('schedule') if session.proposal else None
-    session.make_unscheduled()
+    if session.is_break:
+        db.session.delete(session)
+    else:
+        session.make_unscheduled()
     db.session.commit()
     return jsonify(status=True, modal_url=modal_url)
