@@ -134,7 +134,6 @@ def session_ical(session):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
 def schedule_view(profile, project):
-    print session_data(project.scheduled_sessions, with_modal_url='view-popup')
     return render_template('schedule.html.jinja2', project=project, venues=project.venues,
         from_date=date_js(project.date), to_date=date_js(project.date_upto),
         sessions=session_data(project.scheduled_sessions, with_modal_url='view-popup'),
