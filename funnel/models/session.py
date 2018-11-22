@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
+from sqlalchemy.ext.hybrid import hybrid_property
 from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn
 from .project import Project
 from .proposal import Proposal
@@ -38,10 +39,10 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
             u'ck_session_start_end_nullable')
         )
 
-    @property
+    @hybrid_property
     def scheduled(self):
         # A session is scheduled only when both start and end fields have value
-        return self.start and self.end
+        return (self.start != None) & (self.end != None)
 
     def url_for(self, action='view', _external=False):
         if action == 'view':

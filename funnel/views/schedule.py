@@ -85,7 +85,7 @@ def session_ical(session):
     # If for some reason it is used somewhere else and called with an unscheduled session,
     # this function should fail.
     if not session.scheduled:
-        raise Exception(u"{} is not scheduled".format(session))
+        raise Exception(u"{0!r} is not scheduled".format(session))
 
     event = Event()
     event.add('summary', session.title)
@@ -265,10 +265,8 @@ def schedule_edit(profile, project):
         'scheduled': session_data(project.sessions, timezone=project.timezone, with_modal_url='edit', with_delete_url=True)
         }
     # Set the proper range for the calendar to allow for date changes
-    first_session = Session.query.filter(
-        Session.start.isnot(None), Session.end.isnot(None)).filter_by(project=project).order_by("created_at asc").first()
-    last_session = Session.query.filter(
-        Session.start.isnot(None), Session.end.isnot(None)).filter_by(project=project).order_by("created_at desc").first()
+    first_session = Session.query.filter(Session.scheduled).filter_by(project=project).order_by("created_at asc").first()
+    last_session = Session.query.filter(Session.scheduled).filter_by(project=project).order_by("created_at desc").first()
     from_date = (first_session and first_session.start.date() < project.date and first_session.start) or project.date
     to_date = (last_session and last_session.start.date() > project.date_upto and last_session.start) or project.date_upto
     return render_template('schedule_edit.html.jinja2', project=project, proposals=proposals,
