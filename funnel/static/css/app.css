@@ -228,6 +228,7 @@ html {
   display: flex;
   align-items: center;
   padding: 0 1em;
+  margin: 0 0.5em;
 }
 .sub-navbar .sub-navbar__item {
   display: inline-block;
@@ -315,11 +316,12 @@ html {
   .profile-details {
     display: block;
     float: left;
-    width: 120px;
+    max-width: 15%;
+    margin-right: 20px;
   }
 
   .project-details {
-    width: calc(100% - 120px);
+    max-width: calc(100% - 15% - 20px);
   }
 }
 .projects {
@@ -504,7 +506,7 @@ html {
   width: 100%;
 }
 
-.proposal-lis-wrapper {
+.proposal-list-wrapper {
   width: 100%;
 }
 

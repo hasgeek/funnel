@@ -19,10 +19,11 @@
   .profile-details {
     display: block;
     float: left;
-    width: 120px;
+    max-width: 15%;
+    margin-right: 20px;
   }
   .project-details {
-    width: calc(100% - 120px);
+    max-width: calc(100% - 15% - 20px);
   }
 }
 
@@ -220,7 +221,7 @@
   width: 100%;
 }
 
-.proposal-lis-wrapper {
+.proposal-list-wrapper {
   width: 100%;
 }
 
