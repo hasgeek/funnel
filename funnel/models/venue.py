@@ -45,7 +45,7 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
     bgcolor = db.Column(db.Unicode(6), nullable=False, default=u'229922')
 
     scheduled_sessions = db.relationship("Session",
-        primaryjoin="and_(Session.venue_room_id == VenueRoom.id, Session.start != None, Session.end != None)", back_populates="venue_room")
+        primaryjoin="and_(Session.venue_room_id == VenueRoom.id, Session.start != None, Session.end != None)")
 
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
 
