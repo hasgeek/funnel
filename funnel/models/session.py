@@ -31,7 +31,12 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     featured = db.Column(db.Boolean, default=False, nullable=False)
     banner_image_url = db.Column(db.Unicode(2000), nullable=True)
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'url_id'),
+        db.CheckConstraint(
+            u'("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
+            u'ck_session_start_end_nullable')
+        )
 
     @property
     def scheduled(self):
