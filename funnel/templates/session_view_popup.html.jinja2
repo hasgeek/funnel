@@ -8,12 +8,18 @@
     {% if session.proposal %}
       <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary mui--pull-right" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
     {% endif %}
-    <p class="mui--text-subhead zero-bottom-margin">
-      <small class="mui--text-light">at</small>
-      {{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}
-      <small class="mui--text-light">on</small>
-      {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
-    </p>
+    {% if session.scheduled %}
+      <p class="mui--text-subhead zero-bottom-margin">
+        <small class="mui--text-light">at</small>
+        {{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}
+        <small class="mui--text-light">on</small>
+        {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
+      </p>
+    {% else %}
+      <p class="mui--text-subhead zero-bottom-margin">
+      {% trans %}This session has not been scheduled yet.{% endtrans %}
+      </p>
+    {% endif %}
     {% if session.venue_room %}
       <p class="mui--text-subhead zero-bottom-margin"><small class="mui--text-light">in</small> {{ session.venue_room.title }} <small class="mui--text-light">{{ session.venue_room.venue.title }}</small></p>
     {% endif %}

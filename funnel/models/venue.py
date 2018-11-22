@@ -44,6 +44,9 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
     description = MarkdownColumn('description', default=u'', nullable=False)
     bgcolor = db.Column(db.Unicode(6), nullable=False, default=u'229922')
 
+    scheduled_sessions = db.relationship("Session",
+        primaryjoin='and_(Session.venue_room_id == VenueRoom.id, Session.scheduled)')
+
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
 
     @property
