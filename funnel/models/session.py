@@ -44,6 +44,17 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         # A session is scheduled only when both start and end fields have value
         return (self.start != None) & (self.end != None)
 
+    @classmethod
+    def for_proposal(cls, proposal, create=False):
+        session_obj = cls.query.filter_by(proposal=proposal).first()
+        if session_obj is None and create:
+            session_obj = cls(title=proposal.title, description=proposal.description,
+                speaker_bio=proposal.bio, project=proposal.project, proposal=proposal   )
+            session_obj.make_id()
+            session_obj.make_name()
+            db.session.add(session_obj)
+        return session_obj
+
     def make_unscheduled(self):
         # Session is not deleted, but we remove start and end time,
         # so it becomes an unscheduled session.
