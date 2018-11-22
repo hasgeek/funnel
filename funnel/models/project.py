@@ -87,6 +87,9 @@ class Project(BaseScopedNameMixin, db.Model):
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
 
+    featured_sessions = db.relationship("Session",
+        primaryjoin="and_(Session.project_id == Project.id, Session.featured == True)", back_populates="project")
+
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
 
