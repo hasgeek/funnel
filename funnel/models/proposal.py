@@ -119,8 +119,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     description = MarkdownColumn('description', nullable=True)
     part_b = db.synonym('description')
     requirements = MarkdownColumn('requirements', nullable=True)
-    slides = db.Column(db.Unicode(250), nullable=True)
-    preview_video = db.Column(db.Unicode(250), default=u'', nullable=True)
+    slides = db.Column(db.Unicode(2000), nullable=True)
+    preview_video = db.Column(db.Unicode(2000), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
     _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROPOSAL_STATE),

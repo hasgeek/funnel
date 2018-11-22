@@ -30,7 +30,7 @@ class ProjectForm(forms.Form):
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired()],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
-        validators=[forms.validators.Optional()])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("About Event"))
     instructions = forms.MarkdownField(__("Instructions"),
@@ -39,14 +39,14 @@ class ProjectForm(forms.Form):
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')
     bg_image = forms.URLField(__("Background image URL"), description=u"Background image for the mobile app",
-        validators=[forms.validators.Optional()])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
     bg_color = forms.StringField(__("Background color"),
         description=__("RGB color for the event, shown on the mobile app. Enter without the '#'. E.g. CCCCCC."),
         validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
         default=u"CCCCCC")
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
-        validators=[forms.validators.Optional()])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
     parent = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
@@ -61,7 +61,7 @@ class ProjectForm(forms.Form):
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
     buy_tickets_url = forms.URLField(__("URL to buy tickets"),
         description=__(u"Eg: Explara, Instamojo"),
-        validators=[forms.validators.Optional()])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
 
     def validate_date_upto(self, date_upto):
         if self.date_upto.data < self.date.data:
