@@ -33,6 +33,11 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
+    @property
+    def scheduled(self):
+        # A session is scheduled only when both start and end fields have value
+        return self.start and self.end
+
     def url_for(self, action='view', _external=False):
         if action == 'view':
             return self.project.url_for('schedule', _external=_external) + u'#' + self.url_name

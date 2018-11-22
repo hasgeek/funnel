@@ -88,7 +88,9 @@ class Project(BaseScopedNameMixin, db.Model):
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
 
     featured_sessions = db.relationship("Session",
-        primaryjoin="and_(Session.project_id == Project.id, Session.featured == True)", back_populates="project")
+        primaryjoin="and_(Session.project_id == Project.id, Session.start != None, Session.end != None, Session.featured == True)", back_populates="project")
+    scheduled_sessions = db.relationship("Session",
+        primaryjoin="and_(Session.project_id == Project.id, Session.start != None, Session.end != None)", back_populates="project")
 
     #: Redirect URLs from Funnel to Talkfunnel
     legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)

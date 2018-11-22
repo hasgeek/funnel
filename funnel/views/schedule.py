@@ -22,8 +22,8 @@ def session_data(sessions, timezone=None, with_modal_url=False, with_delete_url=
     return [dict({
             "id": session.url_id,
             "title": session.title,
-            "start": session.start.isoformat() + 'Z',
-            "end": session.end.isoformat() + 'Z',
+            "start": session.start.isoformat() + 'Z' if session.scheduled else None,
+            "end": session.end.isoformat() + 'Z' if session.scheduled else None,
             "speaker": session.speaker if session.speaker else None,
             "room_scoped_name": session.venue_room.scoped_name if session.venue_room else None,
             "is_break": session.is_break,
@@ -44,7 +44,7 @@ def date_js(d):
 
 def schedule_data(project):
     data = defaultdict(lambda: defaultdict(list))
-    for session in project.sessions:
+    for session in project.scheduled_sessions:
         day = str(localize_date(session.start, to_tz=project.timezone).date())
         slot = localize_date(session.start, to_tz=project.timezone).strftime('%H:%M')
         data[day][slot].append({
@@ -81,6 +81,12 @@ def schedule_data(project):
 
 
 def session_ical(session):
+    # This function is only called with scheduled sessions.
+    # If for some reason it is used somewhere else and called with an unscheduled session,
+    # this function should fail.
+    if not session.scheduled:
+        raise Exception(u"{} is not scheduled".format(session))
+
     event = Event()
     event.add('summary', session.title)
     event.add('uid', "/".join([session.project.name, session.url_name]) + '@' + request.host)
@@ -171,7 +177,7 @@ def schedule_ical(profile, project):
     # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
     # cal.add('last-modified', latest_session[0])
     cal.add('x-wr-calname', "{event}".format(event=project.title))
-    for session in project.sessions:
+    for session in project.scheduled_sessions:
         cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
@@ -205,7 +211,7 @@ def schedule_room_ical(profile, project, venue, room):
         venue=venue.title,
         event=project.title,
         ))
-    for session in room.sessions:
+    for session in room.scheduled_sessions:
         cal.add_component(session_ical(session))
     return Response(cal.to_ical(), mimetype='text/calendar')
 
@@ -259,8 +265,10 @@ def schedule_edit(profile, project):
         'scheduled': session_data(project.sessions, timezone=project.timezone, with_modal_url='edit', with_delete_url=True)
         }
     # Set the proper range for the calendar to allow for date changes
-    first_session = Session.query.filter_by(project=project).order_by("created_at asc").first()
-    last_session = Session.query.filter_by(project=project).order_by("created_at desc").first()
+    first_session = Session.query.filter(
+        Session.start.isnot(None), Session.end.isnot(None)).filter_by(project=project).order_by("created_at asc").first()
+    last_session = Session.query.filter(
+        Session.start.isnot(None), Session.end.isnot(None)).filter_by(project=project).order_by("created_at desc").first()
     from_date = (first_session and first_session.start.date() < project.date and first_session.start) or project.date
     to_date = (last_session and last_session.start.date() > project.date_upto and last_session.start) or project.date_upto
     return render_template('schedule_edit.html.jinja2', project=project, proposals=proposals,
