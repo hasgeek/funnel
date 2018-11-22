@@ -13,7 +13,7 @@ from ..forms import SessionForm
 
 def rooms_list(project):
     return [(u"", _("Select Room"))] + [
-        (room.id, "{venue} - {room}".format(venue=room.venue.title, room=room.title)) for room in project.rooms]
+        (room.id, u"{venue} - {room}".format(venue=room.venue.title, room=room.title)) for room in project.rooms]
 
 
 def session_form(project, proposal=None, session=None):
