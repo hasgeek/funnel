@@ -403,7 +403,7 @@ def proposal_moveto(profile, project, proposal):
             if proposal.state.MOVABLE:
                 proposal.current_access().move_to(target_project)
             else:
-                proposal = proposal.current_access().copy_to(target_project)
+                proposal = proposal.current_access().copy_to(target_project, current_auth.user)
             db.session.commit()
         flash(_("The proposal has been successfully moved to {project}.".format(project=target_project.title)))
     else:
