@@ -267,11 +267,11 @@
   .profile-details {
     display: block;
     float: left;
-    width: 150px;
+    width: 120px;
   }
 
   .project-details {
-    width: calc(100% - 150px);
+    width: calc(100% - 120px);
   }
 }
 .projects {
@@ -287,7 +287,7 @@
 }
 
 .project-banner {
-  padding: 15px 0;
+  padding: 15px 1em;
 }
 .project-banner .project-banner__box__video {
   padding-bottom: 56%;
@@ -348,6 +348,9 @@
   z-index: 1000;
   margin: -10px 0 0;
 }
+.project-btn-wrapper ul {
+  margin-left: 0;
+}
 .project-btn-wrapper li {
   width: calc(100% - 50px);
 }
@@ -383,12 +386,9 @@
     display: inline-block;
   }
 
-  .push-date-wrapper {
-    margin-left: 148px;
-  }
-  .push-date-wrapper .project-btn-wrapper {
-    min-width: 350px;
-    width: 35%;
+  .date-wrapper--small .project-btn-wrapper {
+    min-width: 340px;
+    width: 31%;
   }
 }
 @media (min-width: 1200px) {
