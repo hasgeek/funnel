@@ -40,10 +40,12 @@ class ProposalForm(forms.Form):
         description=__("A detailed description of the session"))
     requirements = forms.MarkdownField(__("Requirements"),
         description=__("For workshops, what must participants bring to the session?"))
-    slides = forms.URLField(__("Slides"), validators=[forms.validators.Optional(), forms.validators.URL()],
+    slides = forms.URLField(__("Slides"),
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
         description=__("Link to your slides. These can be just an outline initially. "
             "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"))
-    preview_video = forms.URLField(__("Preview Video"), validators=[forms.validators.Optional(), forms.validators.URL()],
+    preview_video = forms.URLField(__("Preview Video"),
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
         description=__("Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
             "If you provide a YouTube/Vimeo link, we'll embed it in the page"))
     links = forms.TextAreaField(__("Links"),
