@@ -85,6 +85,7 @@ def project_view_json(profile, project):
     proposals = Proposal.query.filter_by(project=project).order_by(db.desc('created_at')).all()
     return jsonp(**{
         'project': project_data(project),
+        'space': project_data(project),  # FIXME: Remove when the native app switches over
         'sections': [section_data(s) for s in sections],
         'venues': [venue_data(venue) for venue in project.venues],
         'rooms': [room_data(room) for room in project.rooms],
