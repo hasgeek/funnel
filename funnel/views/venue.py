@@ -69,6 +69,8 @@ def venue_new(profile, project):
         venue.project = project
         venue.make_name(reserved=RESERVED_VENUE)
         db.session.add(venue)
+        if not project.primary_venue:
+            project.primary_venue = venue
         db.session.commit()
         flash(_(u"You have added a new venue to the event"), 'success')
         return render_redirect(project.url_for('venues'), code=303)

@@ -11,7 +11,8 @@
     {%- for venue in venues %}
       <li>
         <p>
-          <span class="mui--text-subhead"><strong>{{ venue.title }}</strong></span>&nbsp;
+          <span class="mui--text-subhead"><strong>{{ venue.title }}</strong></span>
+          {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}
           <a href="{{ venue.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
           <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
         </p>
@@ -21,7 +22,7 @@
             {%- for room in venue.rooms %}
               <li>
                 <p>
-                  <span class="mui--text-subhead"><strong>{{ room.title }}</strong></span>&nbsp;
+                  <span class="mui--text-subhead"><strong>{{ room.title }}</strong></span>
                   <a href="{{ room.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
                   <a href="{{ room.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
                 </p>
