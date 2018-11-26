@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
+from coaster.sqlalchemy import add_primary_relationship
 from . import db, BaseScopedNameMixin, MarkdownColumn, CoordinatesMixin
 from .project import Project
 
@@ -60,3 +61,6 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
             return url_for('schedule_room_ical', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
         elif action == 'edit':
             return url_for('venueroom_edit', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external)
+
+
+add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')

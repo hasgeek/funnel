@@ -121,14 +121,14 @@
             <p class="mui--text-title mui--text-light">{{ project.datelocation }}</p>
           </div>
         </div>
-        {%- if project.venues %}
+        {%- if project.primary_venue %}
           <div>
             <div class="date-icon">
               <i class="material-icons mui--text-display1 mui--text-light">place</i>
             </div>
             <div class="date-details">
               <p class="mui--text-subhead zero-bottom-margin date-details__label">Venue</p>
-              <p class="mui--text-title mui--text-light">{{ project.venues[0].title }}</p>
+              <p class="mui--text-title mui--text-light">{{ project.primary_venue.title }}</p>
             </div>
           </div>
         {%- endif %}
