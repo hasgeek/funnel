@@ -5,7 +5,7 @@ import baseframe.forms as forms
 from baseframe.staticdata import country_codes
 from .project import valid_color_re
 
-__all__ = ['VenueForm', 'VenueRoomForm']
+__all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
 
 
 class VenueForm(forms.Form):
@@ -41,3 +41,8 @@ class VenueRoomForm(forms.Form):
     def validate_bgcolor(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+
+class VenuePrimaryForm(forms.Form):
+    venue = forms.StringField(__("Name"), validators=[forms.validators.DataRequired()],
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'})

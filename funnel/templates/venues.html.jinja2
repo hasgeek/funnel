@@ -3,41 +3,77 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1">{{ project.title|e }}</h1>
-  <p class="mui--text-headline">Manage venues</p>
+  <p class="mui--text-headline">Venues</p>
 {% endblock %}
 
-{% block content %}
-  <ol class="mui-list--aligned">
+{% block contentwrapper %}
+  <div class="grid">
+    <div class="grid__col-xs-12 grid__col-sm-6">
+      <div class="card">
+        <div class="card__header">
+          <h3><b>{% trans %}Manage venues{% endtrans %}</b></h3>
+        </div>
+        <form action="{{ url_for('make_venue_primary', profile=project.profile.name, project=project.name, ) }}" method="POST">
+          {{ primary_venue_form.hidden_tag() }}
+          <div class="card__body card__body--lgtext mui--text-subhead">
+            <ol class="mui-list--aligned mui-list--border">
+              {%- for venue in venues %}
+                <li>
+                  <input id="venue-{{loop.index}}" name="venue" value="{{venue.title}}" type="radio">&nbsp;
+                  <label for="venue-{{loop.index}}">{{ venue.title }}</label>   
+                  {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}
+                  <span class="mui--pull-right">
+                    <a href="{{ venue.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
+                    {%- if venue == project.primary_venue %}
+                      <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
+                    {% endif %}
+                  </span>
+                </li>
+              {% else %}
+                <li class="mui--text-subhead"><em>{% trans %}(No venues){% endtrans %}</em></li>
+              {%- endfor %}
+            </ol>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__footer">
+            <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" type="submit" title="Set as primary venue">{% trans %}Set as primary{% endtrans %}</button>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ project.url_for('new-venue') }}" title="{% trans %}Add venue{% endtrans %}">{% trans %}Add venue{% endtrans %}</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="grid">
     {%- for venue in venues %}
-      <li>
-        <p>
-          <span class="mui--text-subhead"><strong>{{ venue.title }}</strong></span>
-          {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}
-          <a href="{{ venue.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
-          <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
-        </p>
-        <div class="mui--text-body2">{{ venue.description }}</div>
-        {%- if venue.rooms %}
-          <ol>
-            {%- for room in venue.rooms %}
-              <li>
-                <p>
+      <div class="grid__col-xs-12 grid__col-sm-6">
+        <div class="card">
+          <div class="card__header">
+            <h3><b>{{ venue.title }}</b></h3>
+            <div class="mui--text-body2">{{ venue.description }}</div>
+          </div>
+          <div class="card__body card__body--lgtext mui--text-subhead">
+            <ol class="mui-list--aligned mui-list--border">
+              {%- for room in venue.rooms %}
+                <li>
                   <span class="mui--text-subhead"><strong>{{ room.title }}</strong></span>
-                  <a href="{{ room.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
-                  <a href="{{ room.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
-                </p>
-                <div class="mui--text-body2">{{ room.description }}</div>
-              </li>
-            {%- endfor %}
-          </ol>
-        {%- endif %}
-        <p><a class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" href="{{ venue.url_for('new-room') }}" title="{% trans %}Add room{% endtrans %}">{% trans %}Add room{% endtrans %}</a></p>
-      </li>
-    {% else %}
-      <li class="mui--text-subhead"><em>{% trans %}(No venues){% endtrans %}</em></li>
+                  <span class="mui--pull-right">
+                    <a href="{{ room.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
+                    <a href="{{ room.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
+                  </span>
+                  <div class="mui--text-body2">{{ room.description }}</div>
+                </li>
+              {% else %}
+                <li class="mui--text-subhead"><em>{% trans %}(No rooms){% endtrans %}</em></li>
+              {%- endfor %}
+            </ol>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__footer">
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ venue.url_for('new-room') }}" title="{% trans %}Add room{% endtrans %}">{% trans %}Add room{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
     {%- endfor %}
-  </ol>
-  <p>
-    <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ project.url_for('new-venue') }}" title="{% trans %}Add venue{% endtrans %}">{% trans %}Add venue{% endtrans %}</a>
-  </p>
+  </div>
+</div>
 {% endblock %}

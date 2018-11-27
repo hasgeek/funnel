@@ -7,7 +7,7 @@ from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Venue, VenueRoom
-from ..forms.venue import VenueForm, VenueRoomForm
+from ..forms.venue import VenueForm, VenueRoomForm, VenuePrimaryForm
 
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']
@@ -51,7 +51,10 @@ def room_data(room):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
 def venue_list(profile, project):
-    return render_template('venues.html.jinja2', project=project, venues=project.venues)
+    return render_template('venues.html.jinja2',
+        project=project,
+        venues=project.venues,
+        primary_venue_form=VenuePrimaryForm())
 
 
 @app.route('/<profile>/<project>/venues/new', methods=['GET', 'POST'])
@@ -183,3 +186,23 @@ def update_venue_colors(profile, project, id, color):
             room.bgcolor = colors[room.scoped_name]
     db.session.commit()
     return jsonify(status=True)
+
+
+@app.route('/<profile>/<project>/venue/makeprimary', methods=['POST'])
+@funnelapp.route('/<project>/venue/makeprimary', methods=['POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    permission='edit-project')
+def make_venue_primary(profile, project):
+    form = VenuePrimaryForm()
+    if form.validate_on_submit():
+        venue = Venue.query.filter_by(title=form.venue.data, project=project).first()
+        if venue and venue == project.primary_venue:
+            flash(_("This is already the primary venue"), 'info')
+        else:
+            flash(_("Primary venue has been updated"), 'success')
+    else:
+            flash(_("Please select a venue"), 'danger')
+    return render_redirect(project.url_for('venues'), code=303)
