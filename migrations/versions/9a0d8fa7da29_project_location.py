@@ -1,13 +1,13 @@
 """project location
 
 Revision ID: 9a0d8fa7da29
-Revises: 2441cb4f44d4
+Revises: ae68621248af
 Create Date: 2018-11-28 10:48:57.245376
 
 """
 
 revision = '9a0d8fa7da29'
-down_revision = '2441cb4f44d4'
+down_revision = 'ae68621248af'
 
 from alembic import op
 import sqlalchemy as sa
