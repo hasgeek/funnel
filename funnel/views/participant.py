@@ -40,7 +40,8 @@ def participant_data(participant, project_id, full=False):
             'email': participant.email,
             'twitter': participant.twitter,
             'phone': participant.phone,
-            'project_id': project_id
+            'project_id': project_id,
+            'space_id': project_id,  # FIXME: Remove when the native app switches over
         }
     else:
         return {
@@ -49,7 +50,8 @@ def participant_data(participant, project_id, full=False):
             'fullname': participant.fullname,
             'job_title': participant.job_title,
             'company': participant.company,
-            'project_id': project_id
+            'project_id': project_id,
+            'space_id': project_id,  # FIXME: Remove when the native app switches over
         }
 
 

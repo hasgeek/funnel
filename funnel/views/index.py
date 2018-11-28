@@ -44,8 +44,9 @@ def whoami():
 def all_projects_json():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()
-    return jsonp(projects=map(project_data, projects))
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
+    return jsonp(projects=map(project_data, projects),
+        spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
 
 
 @app.route('/<profile>/json')
@@ -53,7 +54,8 @@ def all_projects_json():
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def projects_json(profile):
     projects = Project.fetch_sorted().filter_by(profile=profile).all()
-    return jsonp(projects=map(project_data, projects))
+    return jsonp(projects=map(project_data, projects),
+        spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
 
 
 @app.route('/<profile>/')
