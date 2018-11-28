@@ -50,9 +50,6 @@ def tag_locations(project_id):
                     else:
                         tokens.append({'token': item.get('token', '')})
 
-                    if item.get('special'):
-                        tokens[-1]['remote'] = True
-
                 project.parsed_location = {'tokens': tokens}
 
                 for locdata in geonames.values():
