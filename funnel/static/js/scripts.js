@@ -1,5 +1,9 @@
 
 window.Talkfunnel = {};
+window.Talkfunnel.Config = {
+  defaultLatitude: "12.961443",
+  defaultLongitude: "77.64435000000003"
+};
 
 window.Talkfunnel.Utils = {
   //convert array of objects into hashmap
@@ -381,6 +385,56 @@ window.Talkfunnel.TicketWidget = {
 
       });
     }, false);
+  }
+};
+
+window.Talkfunnel.EmbedMap = {
+  init: function(config) {
+    if(typeof window.L === "undefined") {
+      window.setTimeout(initLeaflets, 5000);
+      return;
+    }
+
+    var $container = $(config.mapElem),
+      defaults = {
+        zoom: 17,
+        marker: [Talkfunnel.Config.defaultLatitude, Talkfunnel.Config.defaultLongitude],
+        label: null,
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+        subdomains: ['a','b','c'],
+        scrollWheelZoom: false,
+        dragging: false,
+      },
+      args,
+      options,
+      map,
+      marker;
+    $container.empty();
+
+    args = $container.data();
+    if (args.markerlat && args.markerlng) { args.marker = [args.markerlat,args.markerlng]; }
+    options = $.extend({}, defaults, args);
+
+    map = new L.Map($container[0], {
+        center: options.center || options.marker
+        , zoom: options.zoom
+        , scrollWheelZoom: options.scrollWheelZoom
+        , dragging: options.dragging
+    });
+
+    var tileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    L.tileLayer(tileLayer, {
+        maxZoom: options.maxZoom
+        , attribution: options.attribution
+        , subdomains: options.subdomains
+    }).addTo(map);
+
+
+    if (!args.tilelayer) {
+      marker = new L.marker(options.marker).addTo(map);
+      if (options.label) marker.bindPopup(options.label).openPopup();
+    }
   }
 };
 

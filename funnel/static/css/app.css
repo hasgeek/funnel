@@ -518,6 +518,15 @@ html {
   width: 100%;
 }
 
+.project-section__map {
+  height: 400px;
+  width: 100%;
+  z-index: 0;
+  margin-top: 15px;
+  position: relative;
+  outline: none;
+}
+
 .proposal-list-wrapper {
   width: 100%;
 }
