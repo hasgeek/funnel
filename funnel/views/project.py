@@ -11,6 +11,7 @@ from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, ProjectRedirect, Section,
     Proposal, Rsvp, RSVP_STATUS)
 from ..forms import ProjectForm, ProposalSubprojectForm, RsvpForm, ProjectTransitionForm
+from ..jobs import tag_locations
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
@@ -56,6 +57,7 @@ def project_new(profile):
         db.session.add(project)
         db.session.commit()
         flash(_("Your new project has been created"), 'info')
+        tag_locations.delay(project.id)
         return redirect(project.url_for(), code=303)
     return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=profile.url_for())
 
@@ -128,6 +130,7 @@ def project_edit(profile, project):
         form = ProposalSubprojectForm(obj=project, model=Project)
     else:
         form = ProjectForm(obj=project, model=Project)
+    del form.name
     form.parent.query = Project.query.filter(Project.profile == profile, Project.id != project.id, Project.parent == None)
     if request.method == 'GET' and not project.timezone:
         form.timezone.data = current_app.config.get('TIMEZONE')
@@ -135,6 +138,7 @@ def project_edit(profile, project):
         form.populate_obj(project)
         db.session.commit()
         flash(_("Your changes have been saved"), 'info')
+        tag_locations.delay(project.id)
         return redirect(project.url_for(), code=303)
     return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
 

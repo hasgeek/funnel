@@ -1,12 +1,14 @@
 import requests
 from urlparse import urljoin
 from collections import defaultdict
+from flask_rq import job
 from funnel import app, funnelapp
 from ..models import (db, TicketClient, Project, ProjectLocation)
 from ..extapi.explara import ExplaraAPI
 from ..extapi.boxoffice import Boxoffice
 
 
+@job('funnel')
 def import_tickets(ticket_client_id):
     with funnelapp.app_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
@@ -20,6 +22,7 @@ def import_tickets(ticket_client_id):
             db.session.commit()
 
 
+@job('funnel')
 def tag_locations(project_id):
     if app.config.get('HASCORE_SERVER'):
         with app.test_request_context():

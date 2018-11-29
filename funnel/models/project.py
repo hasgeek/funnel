@@ -457,10 +457,10 @@ class ProjectRedirect(TimestampMixin, db.Model):
 
 class ProjectLocation(TimestampMixin, db.Model):
     __tablename__ = 'project_location'
-    #: Job post we are tagging
+    #: Project we are tagging
     project_id = db.Column(None, db.ForeignKey('project.id'), primary_key=True, nullable=False)
     project = db.relationship(Project, backref=db.backref('locations', cascade='all, delete-orphan'))
-    #: Geonameid for this job post
+    #: Geonameid for this project
     geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     primary = db.Column(db.Boolean, default=True, nullable=False)
 
