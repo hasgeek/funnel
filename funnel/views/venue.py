@@ -51,9 +51,7 @@ def room_data(room):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
 def venue_list(profile, project):
-    return render_template('venues.html.jinja2',
-        project=project,
-        venues=project.venues,
+    return render_template('venues.html.jinja2', project=project, venues=project.venues,
         primary_venue_form=VenuePrimaryForm(parent=project))
 
 
