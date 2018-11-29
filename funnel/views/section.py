@@ -57,11 +57,10 @@ class SectionView(UrlForView, ModelView):
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
 
     def loader(self, kwargs):
-        obj = self.model.query.join(Project).join(Profile).filter(
+        return self.model.query.join(Project).join(Profile).filter(
                 Project.name == kwargs.get('project'), Profile.name == kwargs.get('profile'),
                 Section.name == kwargs.get('section')
             ).first_or_404()
-        return obj
 
     @route('', methods=['GET'])
     @render_with('section.html.jinja2', json=True)
