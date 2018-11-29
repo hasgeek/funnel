@@ -60,9 +60,7 @@ class SectionView(UrlForView, ModelView):
         obj = self.model.query.join(Project).join(Profile).filter(
                 Project.name == kwargs.get('project'), Profile.name == kwargs.get('profile'),
                 Section.name == kwargs.get('section')
-            ).first()
-        if not obj:
-            abort(404)
+            ).first_or_404()
         return obj
 
     @route('', methods=['GET'])
