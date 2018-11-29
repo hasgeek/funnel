@@ -11,8 +11,8 @@
     {%- for section in sections %}
       <li>
         <span class="mui--text-subhead"><strong>{{ section.title }}</strong> &mdash; {{ section.description }}</span>
-        <a href="{{ section.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
-        <a href="{{ section.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
+        <a href="{{ section.url_for('edit', project=project.name, profile=project.profile.name, section=section.name) }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
+        <a href="{{ section.url_for('delete', project=project.name, profile=project.profile.name, section=section.name) }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
       </li>
     {% else %}
       <li class="mui--text-subhead"><em>{% trans %}(No sections){% endtrans %}</em></li>

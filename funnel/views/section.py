@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, flash
-from coaster.views import load_models
+from flask import render_template, redirect, flash, abort
+from coaster.views import load_models, UrlForView, ModelView, route, render_with
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
@@ -32,18 +32,6 @@ def section_list(profile, project):
     return render_template('sections.html.jinja2', project=project, sections=sections)
 
 
-@app.route('/<profile>/<project>/sections/<section>')
-@funnelapp.route('/<project>/sections/<section>', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Section, {'name': 'section', 'project': 'project'}, 'section'),
-    permission='view-section')
-def section_view(profile, project, section):
-    return render_template('section.html.jinja2', project=project, section=section)
-
-
 @app.route('/<profile>/<project>/sections/new', methods=['GET', 'POST'])
 @funnelapp.route('/<project>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
@@ -59,39 +47,52 @@ def section_new(profile, project):
         db.session.add(section)
         db.session.commit()
         flash(_("Your new section has been added"), 'info')
-        return redirect(project.url_for(), code=303)
+        return redirect(project.url_for('sections'), code=303)
     return render_form(form=form, title=_("New section"), submit=_("Create section"))
 
 
-@app.route('/<profile>/<project>/sections/<section>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/sections/<section>/edit', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Section, {'name': 'section', 'project': 'project'}, 'section'),
-    permission='edit-section')
-def section_edit(profile, project, section):
-    form = SectionForm(obj=section, model=Section, parent=project)
-    if form.validate_on_submit():
-        form.populate_obj(section)
-        db.session.commit()
-        flash(_("Your section has been edited"), 'info')
-        return redirect(project.url_for(), code=303)
-    return render_form(form=form, title=_("Edit section"), submit=_("Save changes"))
+@route('/<profile>/<project>/sections/<section>')
+class SectionView(UrlForView, ModelView):
+    model = Section
+    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
+
+    def loader(self, kwargs):
+        obj = self.model.query.join(Project).join(Profile).filter(
+                Project.name == kwargs.get('project'), Profile.name == kwargs.get('profile'),
+                Section.name == kwargs.get('section')
+            ).first()
+        if not obj:
+            abort(404)
+        return obj
+
+    @route('')
+    @render_with('section.html.jinja2', json=True)
+    def view(self, **kwargs):
+        return {'project': self.obj.project, 'section': self.obj.current_access()}
+
+    @route('edit', methods=['GET', 'POST'])
+    def edit(self, **kwargs):
+        form = SectionForm(obj=self.obj, model=Section, parent=self.obj.parent)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your section has been edited"), 'info')
+            return redirect(self.obj.project.url_for('sections'), code=303)
+        return render_form(form=form, title=_("Edit section"), submit=_("Save changes"))
+
+    @route('delete', methods=['GET', 'POST'])
+    def delete(self, **kwargs):
+        return render_delete_sqla(self.obj, db, title=_(u"Confirm delete"),
+            message=_(u"Do you really wish to delete section '{title}’?").format(title=self.obj.title),
+            success=_("Your section has been deleted"),
+            next=self.obj.project.url_for('sections'),
+            cancel_url=self.obj.project.url_for('sections'))
 
 
-@app.route('/<profile>/<project>/sections/<section>/delete', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/sections/<section>/delete', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Section, {'name': 'section', 'project': 'project'}, 'section'),
-    permission='delete-section')
-def section_delete(profile, project, section):
-    return render_delete_sqla(section, db, title=_(u"Confirm delete"),
-        message=_(u"Do you really wish to delete section ‘{title}’?").format(title=section.title),
-        success=_("Your section has been deleted"),
-        next=project.url_for('sections'),
-        cancel_url=project.url_for('sections'))
+@route('/<project>/sections/<section>', subdomain='<profile>')
+class FunnelSectionView(SectionView):
+    pass
+
+
+SectionView.init_app(app)
+FunnelSectionView.init_app(funnelapp)

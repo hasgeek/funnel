@@ -28,6 +28,14 @@ class Section(BaseScopedNameMixin, db.Model):
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False)
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'id', 'name', 'title', 'description', 'public'
+                },
+            },
+        }
+
     def __init__(self, **kwargs):
         super(Section, self).__init__(**kwargs)
         self.voteset = Voteset(type=SET_TYPE.PROJECT_SECTION)
@@ -41,13 +49,3 @@ class Section(BaseScopedNameMixin, db.Model):
                 'delete-section',
                 ])
         return perms
-
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return url_for('section_view', profile=self.project.profile.name, project=self.project.name, section=self.name, _external=_external)
-        elif action == 'edit':
-            return url_for('section_edit', profile=self.project.profile.name, project=self.project.name, section=self.name, _external=_external)
-        elif action == 'delete':
-            return url_for('section_delete', profile=self.project.profile.name, project=self.project.name, section=self.name, _external=_external)
-        elif action == 'usergroups':
-            return url_for('usergroup_list', profile=self.project.profile.name, project=self.project.name, section=self.name, _external=_external)
