@@ -19,7 +19,7 @@
             <ol class="mui-list--aligned mui-list--border">
               {%- for venue in venues %}
                 <li>
-                  <input id="venue-{{ loop.index }}" name="venue" value="{{ venue.uuid }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %}>&nbsp;
+                  <input id="venue-{{ loop.index }}" name="venue" value="{{ venue.suuid }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %}>&nbsp;
                   <label for="venue-{{ loop.index }}">{{ venue.title }}</label>
                   {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}
                   <span class="mui--pull-right">

@@ -40,7 +40,7 @@ def upgrade():
     op.add_column('venue', sa.Column('uuid', UUIDType(binary=False), nullable=True))
     count = conn.scalar(
         sa.select([sa.func.count('*')]).select_from(venue))
-    progress = get_progressbar("Proposals", count)
+    progress = get_progressbar("Venues", count)
     progress.start()
     items = conn.execute(sa.select([venue.c.id]))
     for counter, item in enumerate(items):

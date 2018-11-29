@@ -201,7 +201,7 @@ def update_venue_colors(profile, project, id, color):
 def venue_make_primary(profile, project):
     form = VenuePrimaryForm()
     if form.validate_on_submit():
-        venue = Venue.query.filter_by(uuid=form.venue.data, project=project).first_or_404()
+        venue = Venue.query.filter_by(suuid=form.venue.data, project=project).first_or_404()
         if venue and venue == project.primary_venue:
             flash(_("This is already the primary venue"), 'info')
         else:
