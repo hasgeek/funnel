@@ -2,14 +2,14 @@
 
 from flask import url_for
 from coaster.sqlalchemy import add_primary_relationship
-from . import db, BaseScopedNameMixin, MarkdownColumn, CoordinatesMixin
+from . import db, BaseScopedNameMixin, MarkdownColumn, CoordinatesMixin, UuidMixin
 from .project import Project
 
 
 __all__ = ['Venue', 'VenueRoom']
 
 
-class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
+class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'venue'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)

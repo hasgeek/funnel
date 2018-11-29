@@ -13,18 +13,18 @@
         <div class="card__header">
           <h3><b>{% trans %}Manage venues{% endtrans %}</b></h3>
         </div>
-        <form action="{{ url_for('make_venue_primary', profile=project.profile.name, project=project.name, ) }}" method="POST">
+        <form action="{{ url_for('venue_make_primary', profile=project.profile.name, project=project.name, ) }}" method="POST">
           {{ primary_venue_form.hidden_tag() }}
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border">
               {%- for venue in venues %}
                 <li>
-                  <input id="venue-{{loop.index}}" name="venue" value="{{venue.title}}" type="radio">&nbsp;
-                  <label for="venue-{{loop.index}}">{{ venue.title }}</label>   
+                  <input id="venue-{{ loop.index }}" name="venue" value="{{ venue.uuid }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %}>&nbsp;
+                  <label for="venue-{{ loop.index }}">{{ venue.title }}</label>
                   {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}
                   <span class="mui--pull-right">
                     <a href="{{ venue.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
-                    {%- if venue == project.primary_venue %}
+                    {%- if venue != project.primary_venue %}
                       <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
                     {% endif %}
                   </span>

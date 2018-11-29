@@ -108,6 +108,9 @@ def venue_edit(profile, project, venue):
     (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
     permission='delete-venue')
 def venue_delete(profile, project, venue):
+    if venue == project.primary_venue:
+        flash(_(u"You can not delete the primary venue"), 'danger')
+        return render_redirect(project.url_for('venues'), code=303)
     return render_delete_sqla(venue, db, title=u"Confirm delete",
         message=_(u"Delete venue “{title}”? This cannot be undone".format(title=venue.title)),
         success=_(u"You have deleted venue “{title}”".format(title=venue.title)),
@@ -195,14 +198,16 @@ def update_venue_colors(profile, project, id, color):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='edit-project')
-def make_venue_primary(profile, project):
+def venue_make_primary(profile, project):
     form = VenuePrimaryForm()
     if form.validate_on_submit():
-        venue = Venue.query.filter_by(title=form.venue.data, project=project).first()
+        venue = Venue.query.filter_by(uuid=form.venue.data, project=project).first_or_404()
         if venue and venue == project.primary_venue:
             flash(_("This is already the primary venue"), 'info')
         else:
+            project.primary_venue = venue
+            db.session.commit()
             flash(_("Primary venue has been updated"), 'success')
     else:
-            flash(_("Please select a venue"), 'danger')
+        flash(_("Please select a venue"), 'danger')
     return render_redirect(project.url_for('venues'), code=303)
