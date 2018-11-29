@@ -371,7 +371,9 @@
     <div class="grid__col-xs-12">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">Venue</h2>
       <p class="mui--text-body1">{{ project.primary_venue.address1 }}<br>{{ project.primary_venue.address2 }}<br>{{ project.primary_venue.city }}, {{ project.primary_venue.state }} {{ project.primary_venue.postcode }}, {{ project.primary_venue.country }}</p>
-      <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>Loading...</h2></div>
+      {%- if project.primary_venue.latitude and project.primary_venue.longitude  -%}
+        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>Loading...</h2></div>
+      {%- endif %}
     </div>
   </div>
   {%- endif %}
@@ -429,7 +431,7 @@
         });
       {%- endif %}
 
-      {%- if project.primary_venue -%}
+      {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
         window.Talkfunnel.EmbedMap.init({
           mapElem: "#venue-map"
         });
