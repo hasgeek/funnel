@@ -28,7 +28,7 @@ class VenueForm(forms.Form):
     country = forms.SelectField(__("Country"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2)],
         choices=country_codes, default="IN")
-    coordinates = forms.CoordinatesField(__("Location"),
+    coordinates = forms.CoordinatesField(__("Location"), description=__("Please search for the location on the map"),
         validators=[forms.validators.Optional(), forms.validators.ValidCoordinates()])
 
 
