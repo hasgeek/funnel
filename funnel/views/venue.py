@@ -54,7 +54,7 @@ def venue_list(profile, project):
     return render_template('venues.html.jinja2',
         project=project,
         venues=project.venues,
-        primary_venue_form=VenuePrimaryForm())
+        primary_venue_form=VenuePrimaryForm(parent=project))
 
 
 @app.route('/<profile>/<project>/venues/new', methods=['GET', 'POST'])
@@ -199,10 +199,10 @@ def update_venue_colors(profile, project, id, color):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='edit-project')
 def venue_make_primary(profile, project):
-    form = VenuePrimaryForm()
+    form = VenuePrimaryForm(parent=project)
     if form.validate_on_submit():
-        venue = Venue.query.filter_by(suuid=form.venue.data, project=project).first_or_404()
-        if venue and venue == project.primary_venue:
+        venue = form.venue.data
+        if venue == project.primary_venue:
             flash(_("This is already the primary venue"), 'info')
         else:
             project.primary_venue = venue

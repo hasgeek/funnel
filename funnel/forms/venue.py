@@ -2,8 +2,10 @@
 
 from baseframe import __
 import baseframe.forms as forms
+from baseframe.forms.sqlalchemy import QuerySelectField
 from baseframe.staticdata import country_codes
 from .project import valid_color_re
+from ..models import Venue
 
 __all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
 
@@ -44,5 +46,9 @@ class VenueRoomForm(forms.Form):
 
 
 class VenuePrimaryForm(forms.Form):
-    venue = forms.StringField(__("Name"), validators=[forms.validators.DataRequired()],
+    venue = QuerySelectField(__("Venue"), validators=[forms.validators.DataRequired()],
+        get_pk=lambda v: v.suuid, get_label='title', allow_blank=False,
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'})
+
+    def set_queries(self):
+        self.venue.query = Venue.query.filter_by(project=self.edit_parent)
