@@ -48,7 +48,7 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3><b>{{ venue.title }}</b></h3>
+            <h3><b>{{ venue.title }}</b>{%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}</h3>
             <div class="mui--text-body2">{{ venue.description }}</div>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
