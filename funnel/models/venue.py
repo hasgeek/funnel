@@ -14,7 +14,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = db.relationship(Project,
-        backref=db.backref('venues', cascade='all, delete-orphan', order_by='Venue.name'))
+        backref=db.backref('venues', lazy='dynamic', cascade='all, delete-orphan', order_by='Venue.name'))
     parent = db.synonym('project')
     description = MarkdownColumn('description', default=u'', nullable=False)
     address1 = db.Column(db.Unicode(160), default=u'', nullable=False)
