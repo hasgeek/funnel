@@ -65,7 +65,7 @@ class SectionView(UrlForView, ModelView):
     @route('', methods=['GET'])
     @render_with('section.html.jinja2', json=True)
     def view(self, **kwargs):
-        return {'project': self.obj.project, 'section': self.obj.current_access()}
+        return {'project': self.obj.project.current_access(), 'section': self.obj.current_access()}
 
     @route('edit', methods=['GET', 'POST'])
     def edit(self, **kwargs):
