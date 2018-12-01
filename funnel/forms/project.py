@@ -20,7 +20,7 @@ valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 
 class ProjectForm(forms.Form):
-    name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
+    name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName()])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)])
     date = forms.DateField(__("Start date (for sorting)"),
@@ -63,8 +63,14 @@ class ProjectForm(forms.Form):
         description=__(u"Eg: Explara, Instamojo"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
 
-    def validate_date_upto(self, date_upto):
-        if self.date_upto.data < self.date.data:
+    def validate_name(self, field):
+        if field.data != field.object_data:
+            # field.object_data returns the field data from the object attached to it.
+            # When a new project is being created, field.object_data is empty.
+            AvailableName()(self, field)
+
+    def validate_date_upto(self, field):
+        if field.data < self.date.data:
             raise forms.ValidationError(_("End date cannot be before start date"))
 
     def validate_bg_color(self, field):

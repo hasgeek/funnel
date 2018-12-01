@@ -130,7 +130,6 @@ def project_edit(profile, project):
         form = ProposalSubprojectForm(obj=project, model=Project)
     else:
         form = ProjectForm(obj=project, model=Project)
-    del form.name
     form.parent.query = Project.query.filter(Project.profile == profile, Project.id != project.id, Project.parent == None)
     if request.method == 'GET' and not project.timezone:
         form.timezone.data = current_app.config.get('TIMEZONE')

@@ -21,11 +21,7 @@ class Boxoffice(object):
 
     def get_orders(self, ic):
         url = urljoin(self.base_url, 'ic/{ic}/orders?access_token={token}'.format(ic=ic, token=self.access_token))
-        resp = requests.get(url)
-        if resp.status_code == 200:
-            return resp.json().get('orders')
-        else:
-            raise Exception(u"Invalid response from boxoffice server: {0!r}".format(resp))
+        return requests.get(url).json().get('orders')
 
     def get_tickets(self, ic):
         tickets = []
