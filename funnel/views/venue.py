@@ -205,7 +205,7 @@ def venue_make_primary(profile, project):
         else:
             project.primary_venue = venue
             db.session.commit()
-            flash(_("Primary venue has been updated"), 'success')
+            flash(_("You have changed the primary venue"), 'success')
     else:
         flash(_("Please select a venue"), 'danger')
     return render_redirect(project.url_for('venues'), code=303)
