@@ -55,6 +55,7 @@ def section_new(profile, project):
 class SectionView(UrlForView, ModelView):
     model = Section
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
+    __decorators__ = [lastuser.requires_login]
 
     def loader(self, kwargs):
         return self.model.query.join(Project).join(Profile).filter(
@@ -64,13 +65,11 @@ class SectionView(UrlForView, ModelView):
 
     @route('', methods=['GET'])
     @render_with('section.html.jinja2', json=True)
-    @lastuser.requires_login
     @requires_permission('view-section')
     def view(self, **kwargs):
         return {'project': self.obj.project.current_access(), 'section': self.obj.current_access()}
 
     @route('edit', methods=['GET', 'POST'])
-    @lastuser.requires_login
     @requires_permission('edit-section')
     def edit(self, **kwargs):
         form = SectionForm(obj=self.obj, model=Section, parent=self.obj.parent)
@@ -82,7 +81,6 @@ class SectionView(UrlForView, ModelView):
         return render_form(form=form, title=_("Edit section"), submit=_("Save changes"))
 
     @route('delete', methods=['GET', 'POST'])
-    @lastuser.requires_login
     @requires_permission('delete-section')
     def delete(self, **kwargs):
         return render_delete_sqla(self.obj, db, title=_(u"Confirm delete"),
