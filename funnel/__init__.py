@@ -30,7 +30,6 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.css'][version] = 'css/schedules.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['screens.css'][version] = 'css/screens.css'
-assets['succinct.js'][version] = 'js/libs/succinct.js'
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -87,9 +86,15 @@ app.assets.register('js_ractive',
 app.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
-app.assets.register('js_succinct',
-    Bundle(assets.require('!jquery.js', 'succinct.js'),
-        output='js/succinct.packed.js', filters='uglipyjs'))
+app.assets.register('js_jquerysuccinct',
+    Bundle(assets.require('!jquery.js', 'jquery.succinct.js'),
+        output='js/jquerysuccinct.packed.js', filters='uglipyjs'))
+app.assets.register('js_leaflet',
+    Bundle(assets.require('leaflet.js'),
+        output='js/leaflet.packed.js', filters='uglipyjs'))
+app.assets.register('css_leaflet',
+    Bundle(assets.require('leaflet.css'),
+        output='css/leaflet.packed.css', filters='cssmin'))
 
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
@@ -115,9 +120,15 @@ funnelapp.assets.register('js_ractive',
 funnelapp.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
-funnelapp.assets.register('js_succinct',
-    Bundle(assets.require('!jquery.js', 'succinct.js'),
-        output='js/succinct.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('js_jquerysuccinct',
+    Bundle(assets.require('!jquery.js', 'jquery.succinct.js'),
+        output='js/jquerysuccinct.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('js_leaflet',
+    Bundle(assets.require('leaflet.js', 'leaflet-search.js'),
+        output='js/leaflet.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('css_leaflet',
+    Bundle(assets.require('leaflet.css', 'leaflet-search.css'),
+        output='css/leaflet.packed.css', filters='cssmin'))
 
 # FIXME: Hack for external build system generating relative /static URLs.
 # Fix this by generating absolute URLs to the static subdomain during build.

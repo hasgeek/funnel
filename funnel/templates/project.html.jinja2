@@ -3,6 +3,12 @@
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
+{%- block layoutheaders %}
+  {% assets "css_leaflet" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
 {% block bodytag %}<body class="mui--bg-primary no-sticky-header">{% endblock %}
 
 {%- macro proposal_list(project, proposals) %}
@@ -164,6 +170,7 @@
     {%- if project.featured_sessions  %}<a class="sub-navbar__item mui--text-subhead" href="#featured-talk">Featured talks</a>{%- endif %}
     {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for('schedule') }}">Schedule</a>{%- endif %}
     {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead" href="#related-jobs">Jobs</a>{%- endif %}
+    {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead" href="#venue">Venue</a>{%- endif %}
     {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead" href="#proposals">Proposals</a>{%- endif %}
     {%- if project.boxoffice_data or project.buy_tickets_url -%}<a class="mui-btn mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" {% if project.boxoffice_data -%} href="#tickets" {%- elif project.buy_tickets_url %} href="{{ project.buy_tickets_url }}"{%- endif %}>Participate</a>{%- endif %}
   </nav>
@@ -359,6 +366,18 @@
   </div>
   {%- endif %}
 
+  {%- if project.primary_venue -%}
+  <div class="grid project-section" id="venue">
+    <div class="grid__col-xs-12">
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">Venue</h2>
+      <p class="mui--text-body1">{{ project.primary_venue.address1 }}<br>{{ project.primary_venue.address2 }}<br>{{ project.primary_venue.city }}, {{ project.primary_venue.state }} {{ project.primary_venue.postcode }}, {{ project.primary_venue.country }}</p>
+      {%- if project.primary_venue.latitude and project.primary_venue.longitude  -%}
+        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>Loading...</h2></div>
+      {%- endif %}
+    </div>
+  </div>
+  {%- endif %}
+
   <div class="grid project-section" id="proposals">
     <div class="grid__col-xs-12">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
@@ -390,22 +409,32 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_succinct" -%}
+  {% assets "js_jquerysuccinct" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  {% assets "js_leaflet" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {{ rsvpscript() }}
   <script type="text/javascript">
     $(function() {
       window.Talkfunnel.Utils.collapse();
+
       {% if project.boxoffice_data -%}
-      window.Talkfunnel.TicketWidget.init({
-        // TODO: Get url from config
-        boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
-        widgetElem: "#boxoffice-widget",
-        org: {{ project.boxoffice_data.org|tojson }},
-        itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
-        itemCollectionTitle: {{ project.title|tojson }}
-      });
+        window.Talkfunnel.TicketWidget.init({
+          // TODO: Get url from config
+          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+          widgetElem: "#boxoffice-widget",
+          org: {{ project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ project.title|tojson }}
+        });
+      {%- endif %}
+
+      {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
+        window.Talkfunnel.EmbedMap.init({
+          mapElem: "#venue-map"
+        });
       {%- endif %}
 
       var tableSearch = new window.TableSearch('proposals-table');
