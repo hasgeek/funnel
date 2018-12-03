@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, redirect, flash, abort
-from coaster.views import load_models, UrlForView, ModelView, route, render_with
+from coaster.views import load_models, UrlForView, ModelView, route, render_with, requires_permission
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
@@ -64,10 +64,14 @@ class SectionView(UrlForView, ModelView):
 
     @route('', methods=['GET'])
     @render_with('section.html.jinja2', json=True)
+    @lastuser.requires_login
+    @requires_permission('view-section')
     def view(self, **kwargs):
         return {'project': self.obj.project.current_access(), 'section': self.obj.current_access()}
 
     @route('edit', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-section')
     def edit(self, **kwargs):
         form = SectionForm(obj=self.obj, model=Section, parent=self.obj.parent)
         if form.validate_on_submit():
@@ -78,6 +82,8 @@ class SectionView(UrlForView, ModelView):
         return render_form(form=form, title=_("Edit section"), submit=_("Save changes"))
 
     @route('delete', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('delete-section')
     def delete(self, **kwargs):
         return render_delete_sqla(self.obj, db, title=_(u"Confirm delete"),
             message=_(u"Do you really wish to delete section '{title}’?").format(title=self.obj.title),
