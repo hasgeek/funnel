@@ -145,6 +145,15 @@ html {
   display: none;
 }
 
+.mui-list--border li {
+  border-bottom: 1px solid rgba(132, 146, 166, 0.2);
+  padding: 5px;
+}
+
+.mui-list--border li:last-child {
+  border-bottom: none;
+}
+
 .no-sticky-header .header--fixed {
   position: relative;
 }
@@ -507,6 +516,15 @@ html {
 .project-section__description img,
 .project-section__instructions img {
   width: 100%;
+}
+
+.project-section__map {
+  height: 400px;
+  width: 100%;
+  z-index: 0;
+  margin-top: 15px;
+  position: relative;
+  outline: none;
 }
 
 .proposal-list-wrapper {

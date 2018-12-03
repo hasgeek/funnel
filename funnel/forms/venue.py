@@ -2,10 +2,12 @@
 
 from baseframe import __
 import baseframe.forms as forms
+from baseframe.forms.sqlalchemy import QuerySelectField
 from baseframe.staticdata import country_codes
 from .project import valid_color_re
+from ..models import Venue
 
-__all__ = ['VenueForm', 'VenueRoomForm']
+__all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
 
 
 class VenueForm(forms.Form):
@@ -26,7 +28,7 @@ class VenueForm(forms.Form):
     country = forms.SelectField(__("Country"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2)],
         choices=country_codes, default="IN")
-    location = forms.CoordinatesField(__("Location"),
+    coordinates = forms.CoordinatesField(__("Location"), description=__("Pick a location on the map"),
         validators=[forms.validators.Optional(), forms.validators.ValidCoordinates()])
 
 
@@ -41,3 +43,12 @@ class VenueRoomForm(forms.Form):
     def validate_bgcolor(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+
+class VenuePrimaryForm(forms.Form):
+    venue = QuerySelectField(__("Venue"), validators=[forms.validators.DataRequired()],
+        get_pk=lambda v: v.suuid, get_label='title', allow_blank=False,
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'})
+
+    def set_queries(self):
+        self.venue.query = self.edit_parent.venues
