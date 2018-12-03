@@ -24,9 +24,12 @@ class ProjectForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     datelocation = forms.StringField(__("Date and Location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)])
     date = forms.DateField(__("Start date (for sorting)"),
-        validators=[forms.validators.DataRequired(__("This is required"))])
+        validators=[forms.validators.DataRequired(__("Start date is required"))])
     date_upto = forms.DateField(__("End date (for sorting)"),
-        validators=[forms.validators.DataRequired(__("This is required"))])
+        validators=[
+            forms.validators.DataRequired(__("End date is required")),
+            forms.validators.GreaterThan('date', __("End date cannot be before start date"))
+            ])
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired()],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
@@ -62,10 +65,6 @@ class ProjectForm(forms.Form):
     buy_tickets_url = forms.URLField(__("URL to buy tickets"),
         description=__(u"Eg: Explara, Instamojo"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
-
-    def validate_date_upto(self, field):
-        if field.data < self.date.data:
-            raise forms.ValidationError(_("End date cannot be before start date"))
 
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
