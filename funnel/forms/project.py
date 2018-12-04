@@ -25,9 +25,9 @@ class ProjectForm(forms.Form):
     location = forms.StringField(__("Location"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
         description=__("Eg. Bangalore, Mumbai, Pune"))
-    date = forms.DateField(__("Start date (for sorting)"),
+    date = forms.DateField(__("Start date"),
         validators=[forms.validators.DataRequired(__("Start date is required"))])
-    date_upto = forms.DateField(__("End date (for sorting)"),
+    date_upto = forms.DateField(__("End date"),
         validators=[
             forms.validators.DataRequired(__("End date is required")),
             forms.validators.GreaterThan('date', __("End date cannot be before start date"))
