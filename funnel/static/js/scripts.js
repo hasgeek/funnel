@@ -27,6 +27,12 @@ window.Talkfunnel.Utils = {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).next('.collapsible__body').slideToggle();
     });
+  },
+  smoothScroll: function() {
+    $('a[href*=\\#]').on('click', function(event) { 
+      event.preventDefault();
+      $('html,body').animate({scrollTop:$(this.hash).offset().top}, 500);
+    });
   }
 }
 
