@@ -418,8 +418,6 @@
   {{ rsvpscript() }}
   <script type="text/javascript">
     $(function() {
-      window.Talkfunnel.Utils.collapse();
-
       {% if project.boxoffice_data -%}
         window.Talkfunnel.TicketWidget.init({
           // TODO: Get url from config
