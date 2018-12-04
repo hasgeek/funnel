@@ -6,11 +6,11 @@ from .user import User, Team
 from .commentvote import Voteset, Commentset, SET_TYPE
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import StateManager, with_roles, JsonDict
 from coaster.utils import LabeledEnum
 from baseframe import __
 
-__all__ = ['Project', 'ProjectRedirect']
+__all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
 
 # --- Constants ---------------------------------------------------------------
@@ -44,9 +44,14 @@ class Project(BaseScopedNameMixin, db.Model):
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
     instructions = MarkdownColumn('instructions', default=u'', nullable=True)
+
     datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
+    location = db.Column(db.Unicode(50), default=u'', nullable=True)
+    parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
+
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)
+
     website = db.Column(db.Unicode(2000), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
 
@@ -448,3 +453,17 @@ class ProjectRedirect(TimestampMixin, db.Model):
         """
         oldprofile.project_redirects = []
         return [cls.__table__.name]
+
+
+class ProjectLocation(TimestampMixin, db.Model):
+    __tablename__ = 'project_location'
+    #: Project we are tagging
+    project_id = db.Column(None, db.ForeignKey('project.id'), primary_key=True, nullable=False)
+    project = db.relationship(Project, backref=db.backref('locations', cascade='all, delete-orphan'))
+    #: Geonameid for this project
+    geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
+    primary = db.Column(db.Boolean, default=True, nullable=False)
+
+    def __repr__(self):
+        return '<ProjectLocation %d %s for project %s>' % (self.geonameid,
+            'primary' if self.primary else 'secondary', self.project)
