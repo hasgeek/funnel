@@ -122,25 +122,29 @@ class Project(BaseScopedNameMixin, db.Model):
         > 11 Feb 2018, Bangalore
 
         If multi-day event in same month
-        > 09 - 12 Feb 2018, Bangalore
+        > 09–12 Feb 2018, Bangalore
 
         If multi-day event across months
-        > 27 Feb - 02 Mar 2018, Bangalore
+        > 27 Feb–02 Mar 2018, Bangalore
 
         If multi-day event across years
-        > 30 Dec 2018 - 02 Jan 2019, Bangalore
+        > 30 Dec 2018–02 Jan 2019, Bangalore
         """
-        strfdate = "%d" if self.date.month == self.date_upto.month else "%d %b"  # format for <start date>
-        dateformat = "{date} - {date_upto} {year}, {location}"  # format for whole string
-
+        datelocation_format = "{date}–{date_upto} {year}, {location}"
         if self.date == self.date_upto:
             # if both dates are same, in case of single day project
-            dateformat = "{date_upto} {year}, {location}"
+            strf_date = ""
+            datelocation_format = "{date_upto} {year}, {location}"
+        elif self.date.month == self.date_upto.month:
+            # If multi-day event in same month
+            strf_date = "%d"
+        elif self.date.month != self.date_upto.month:
+            # If multi-day event across months
+            strf_date = "%d %b"
         elif self.date.year != self.date_upto.year:
             # if the start date and end dates are in different years,
-            strfdate = "%d %b %Y"
-
-        return dateformat.format(date=self.date.strftime(strfdate), date_upto=self.date_upto.strftime("%d %b"),
+            strf_date = "%d %b %Y"
+        return datelocation_format.format(date=self.date.strftime(strf_date), date_upto=self.date_upto.strftime("%d %b"),
             year=self.date.year, location=self.location)
 
     @property
