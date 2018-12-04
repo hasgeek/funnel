@@ -250,7 +250,7 @@ class Project(BaseScopedNameMixin, db.Model):
 
     @cached_property
     def location_geonameid(self):
-        return geonameid_from_location(self.location) if self.location else None
+        return geonameid_from_location(self.location) if self.location else set()
 
     @property
     def proposal_part_a(self):
