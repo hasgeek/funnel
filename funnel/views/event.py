@@ -30,7 +30,7 @@ def admin(profile, project):
     if csrf_form.validate_on_submit():
         for ticket_client in project.ticket_clients:
             if ticket_client and ticket_client.name.lower() in [u'explara', u'boxoffice']:
-                funnelq.enqueue(import_tickets, ticket_client.id)
+                import_tickets.delay(ticket_client.id)
         flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
         return redirect(project.url_for('admin'), code=303)
     return render_template('admin.html.jinja2', profile=profile, project=project, events=project.events, csrf_form=csrf_form)
