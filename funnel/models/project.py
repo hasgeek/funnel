@@ -129,6 +129,11 @@ class Project(BaseScopedNameMixin, db.Model):
 
         If multi-day event across years
         > 30 Dec 2018–02 Jan 2019, Bangalore
+
+        ``datelocation_format`` always keeps ``date_upto`` format as ``–DD Mmm YYYY``.
+        Depending on the scenario mentioned below, format for ``date`` changes. Above examples
+        demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
+        Only ``date`` format changes.
         """
         datelocation_format = u"{date}–{date_upto} {year}, {location}"
         if self.date == self.date_upto:
