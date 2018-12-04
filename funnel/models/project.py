@@ -149,8 +149,8 @@ class Project(BaseScopedNameMixin, db.Model):
         elif self.date.year != self.date_upto.year:
             # if the start date and end dates are in different years,
             strf_date = "%d %b %Y"
-        return datelocation_format.format(date=self.date.strftime(strf_date), date_upto=self.date_upto.strftime("%d %b"),
-            year=self.date.year, location=self.location)
+        return datelocation_format.format(date=self.date.strftime(strf_date),
+            date_upto=self.date_upto.strftime("%d %b"), year=self.date.year, location=self.location)
 
     @property
     def url(self):
