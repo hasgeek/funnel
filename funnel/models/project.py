@@ -130,11 +130,11 @@ class Project(BaseScopedNameMixin, db.Model):
         If multi-day event across years
         > 30 Dec 2018–02 Jan 2019, Bangalore
         """
-        datelocation_format = "{date}–{date_upto} {year}, {location}"
+        datelocation_format = u"{date}–{date_upto} {year}, {location}"
         if self.date == self.date_upto:
             # if both dates are same, in case of single day project
             strf_date = ""
-            datelocation_format = "{date_upto} {year}, {location}"
+            datelocation_format = u"{date_upto} {year}, {location}"
         elif self.date.month == self.date_upto.month:
             # If multi-day event in same month
             strf_date = "%d"
