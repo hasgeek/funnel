@@ -57,21 +57,21 @@ class SectionView(UrlForView, ModelView):
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
     __decorators__ = [lastuser.requires_login]
 
-    def loader(self, kwargs):
+    def loader(self, profile, project, section):
         return self.model.query.join(Project).join(Profile).filter(
-                Project.name == kwargs.get('project'), Profile.name == kwargs.get('profile'),
-                Section.name == kwargs.get('section')
+                Project.name == project, Profile.name == profile,
+                Section.name == section
             ).first_or_404()
 
     @route('', methods=['GET'])
     @render_with('section.html.jinja2', json=True)
     @requires_permission('view-section')
-    def view(self, **kwargs):
+    def view(self):
         return {'project': self.obj.project.current_access(), 'section': self.obj.current_access()}
 
     @route('edit', methods=['GET', 'POST'])
     @requires_permission('edit-section')
-    def edit(self, **kwargs):
+    def edit(self):
         form = SectionForm(obj=self.obj, model=Section, parent=self.obj.parent)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -82,7 +82,7 @@ class SectionView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_permission('delete-section')
-    def delete(self, **kwargs):
+    def delete(self):
         return render_delete_sqla(self.obj, db, title=_(u"Confirm delete"),
             message=_(u"Do you really wish to delete section '{title}’?").format(title=self.obj.title),
             success=_("Your section has been deleted"),
