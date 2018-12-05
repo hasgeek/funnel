@@ -57,10 +57,10 @@ class SectionView(UrlForView, ModelView):
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
     __decorators__ = [lastuser.requires_login]
 
-    def loader(self, **kwargs):
+    def loader(self, profile, project, section):
         return self.model.query.join(Project).join(Profile).filter(
-                Project.name == kwargs.get('project'), Profile.name == kwargs.get('profile'),
-                Section.name == kwargs.get('section')
+                Project.name == project, Profile.name == profile,
+                Section.name == section
             ).first_or_404()
 
     @route('', methods=['GET'])
