@@ -66,7 +66,7 @@ class SectionView(UrlForView, ModelView):
     @route('', methods=['GET'])
     @render_with('section.html.jinja2', json=True)
     @requires_permission('view-section')
-    def view(self,):
+    def view(self):
         return {'project': self.obj.project.current_access(), 'section': self.obj.current_access()}
 
     @route('edit', methods=['GET', 'POST'])
