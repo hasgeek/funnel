@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, flash, abort
-from coaster.views import load_models, UrlForView, ModelView, route, render_with, requires_permission
+from flask import flash, redirect, render_template
+from coaster.views import ModelView, UrlForView, load_models, render_with, requires_permission, route
 from baseframe import _
-from baseframe.forms import render_form, render_delete_sqla
+from baseframe.forms import render_delete_sqla, render_form
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, Project, ProjectRedirect, Section
+from ..models import Profile, Project, ProjectRedirect, Section, db
 from ..forms import SectionForm
 
 
@@ -59,8 +59,8 @@ class SectionView(UrlForView, ModelView):
 
     def loader(self, profile, project, section):
         return self.model.query.join(Project).join(Profile).filter(
-                Project.name == project, Profile.name == profile,
-                Section.name == section
+            Project.name == project, Profile.name == profile,
+            Section.name == section
             ).first_or_404()
 
     @route('', methods=['GET'])
