@@ -25,6 +25,10 @@ def session_form(project, proposal=None, session=None):
         form = SessionForm(obj=session, model=Session)
     else:
         form = SessionForm()
+        form.description.data = proposal.description
+        form.speaker_bio.data = proposal.bio
+        form.speaker.data = proposal.owner.fullname
+        form.title.data = proposal.title
 
     form.venue_room_id.choices = rooms_list(project)
     if request.method == 'GET':
