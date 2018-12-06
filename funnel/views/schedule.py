@@ -140,6 +140,37 @@ class ProjectScheduleView(ProjectViewBaseMixin):
             timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
+    @route('subscribe')
+    @render_with('schedule_subscribe.html.jinja2')
+    @requires_permission('view')
+    def subscribe_schedule(self):
+        return dict(project=self.obj, venues=self.obj.venues, rooms=self.obj.rooms)
+
+    @route('json')
+    @cors('*')
+    @render_with('schedule_subscribe.html.jinja2')
+    @requires_permission('view')
+    def schedule_json(self):
+        return jsonp(schedule=schedule_data(self.obj),
+            venues=[venue_data(venue) for venue in self.obj.venues],
+            rooms=[room_data(room) for room in self.obj.rooms])
+
+    @route('ical')
+    @render_with('schedule_subscribe.html.jinja2')
+    @requires_permission('view')
+    def schedule_ical(self):
+        cal = Calendar()
+        cal.add('prodid', "-//Schedule for {event}//funnel.hasgeek.com//".format(event=self.obj.title))
+        cal.add('version', "2.0")
+        cal.add('summary', "Schedule for {event}".format(event=self.obj.title))
+        # FIXME: Last updated time for calendar needs to be set. Cannot figure out how.
+        # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=self.obj).first()
+        # cal.add('last-modified', latest_session[0])
+        cal.add('x-wr-calname', "{event}".format(event=self.obj.title))
+        for session in self.obj.scheduled_sessions:
+            cal.add_component(session_ical(session))
+        return Response(cal.to_ical(), mimetype='text/calendar')
+
     @route('edit')
     @render_with('schedule_edit.html.jinja2')
     @lastuser.requires_login
@@ -160,7 +191,23 @@ class ProjectScheduleView(ProjectViewBaseMixin):
         return dict(project=self.obj, proposals=proposals,
             from_date=date_js(from_date), to_date=date_js(to_date),
             timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
-            rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in project.rooms]))
+            rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
+
+    @route('update', methods=['POST'])
+    @render_with('schedule_edit.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('edit-schedule')
+    @requestargs(('sessions', json.loads))
+    def update_schedule(self, sessions):
+        for session in sessions:
+            try:
+                s = Session.query.filter_by(project=self.obj, url_id=session['id']).one()
+                s.start = session['start']
+                s.end = session['end']
+                db.session.commit()
+            except NoResultFound:
+                current_app.logger.error('{project} schedule update error: session = {session}'.format(project=self.obj.name, session=session))
+        return jsonify(status=True)
 
 
 @route('/<project>/schedule', subdomain='<profile>')
@@ -170,50 +217,6 @@ class FunnelProjectScheduleView(ProjectScheduleView):
 
 ProjectScheduleView.init_app(app)
 FunnelProjectScheduleView.init_app(funnelapp)
-
-
-@app.route('/<profile>/<project>/schedule/subscribe')
-@funnelapp.route('/<project>/schedule/subscribe', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def schedule_subscribe(profile, project):
-    return render_template('schedule_subscribe.html.jinja2',
-        project=project, venues=project.venues, rooms=project.rooms)
-
-
-@app.route('/<profile>/<project>/schedule/json')
-@funnelapp.route('/<project>/schedule/json', subdomain='<profile>')
-@cors('*')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def schedule_json(profile, project):
-    return jsonp(schedule=schedule_data(project),
-        venues=[venue_data(venue) for venue in project.venues],
-        rooms=[room_data(room) for room in project.rooms])
-
-
-@app.route('/<profile>/<project>/schedule/ical')
-@funnelapp.route('/<project>/schedule/ical', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def schedule_ical(profile, project):
-    cal = Calendar()
-    cal.add('prodid', "-//Schedule for {event}//funnel.hasgeek.com//".format(event=project.title))
-    cal.add('version', "2.0")
-    cal.add('summary', "Schedule for {event}".format(event=project.title))
-    # FIXME: Last updated time for calendar needs to be set. Cannot figure out how.
-    # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
-    # cal.add('last-modified', latest_session[0])
-    cal.add('x-wr-calname', "{event}".format(event=project.title))
-    for session in project.scheduled_sessions:
-        cal.add_component(session_ical(session))
-    return Response(cal.to_ical(), mimetype='text/calendar')
 
 
 @app.route('/<profile>/<project>/schedule/<venue>/<room>/ical')
@@ -281,23 +284,3 @@ def schedule_room_updates(profile, project, venue, room):
         nextdiff = nextdiff.total_seconds() / 86400
     print current, next
     return render_template('room_updates.html.jinja2', room=room, current=current, next=next, nextdiff=nextdiff)
-
-
-@app.route('/<profile>/<project>/schedule/update', methods=['POST'])
-@funnelapp.route('/<project>/schedule/update', methods=['POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-schedule')
-@requestargs(('sessions', json.loads))
-def schedule_update(profile, project, sessions):
-    for session in sessions:
-        try:
-            s = Session.query.filter_by(project=project, url_id=session['id']).one()
-            s.start = session['start']
-            s.end = session['end']
-            db.session.commit()
-        except NoResultFound:
-            current_app.logger.error('{project} schedule update error: session = {session}'.format(project=project.name, session=session))
-    return jsonify(status=True)

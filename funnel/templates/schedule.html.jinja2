@@ -12,14 +12,14 @@
     <div class="mui--pull-right">
       <ul class="mui-list--inline">
         <li>
-          <a href="{{ project.url_for('subscribe-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
+          <a href="{{ project.url_for('subscribe_schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
         </li>
         {% if current_auth.is_authenticated and project.current_roles.admin %}
         <li>
-          <a href="{{ project.url_for('edit-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Edit Schedule{% endtrans %}</a>
+          <a href="{{ project.url_for('edit_schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Edit Schedule{% endtrans %}</a>
         </li>
         <li>
-          <a href="{{ project.url_for('json-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Download JSON{% endtrans %}</a>
+          <a href="{{ project.url_for('schedule_json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Download JSON{% endtrans %}</a>
         </li>
         {% endif %}
       </ul>
@@ -37,7 +37,7 @@
         {%- for room in venue.rooms %}
           <div class="room">
             <h4 class="room__title js-title" data-bgcolor="#{{ room.bgcolor }}">
-              <a href="{{ room.url_for('ical-schedule', _external=True) }}" class=" mui-btn mui-btn--accent mui-btn--small room__title__subsc-btn">{% trans %}Subscribe{% endtrans %}</a>
+              <a href="{{ room.url_for('schedule_ical', _external=True) }}" class=" mui-btn mui-btn--accent mui-btn--small room__title__subsc-btn">{% trans %}Subscribe{% endtrans %}</a>
               {{ room.title }}
             </h4>
             <div class="room__description mui--text-light">{{ room.description }}</div>

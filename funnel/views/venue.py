@@ -54,6 +54,53 @@ class ProjectVenueView(ProjectViewBaseMixin):
     def venues(self):
         return dict(project=self.obj, venues=self.obj.venues, primary_venue_form=VenuePrimaryForm(parent=self.obj))
 
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-venue')
+    def new_venue(self):
+        form = VenueForm()
+        if form.validate_on_submit():
+            venue = Venue()
+            form.populate_obj(venue)
+            venue.project = self.obj
+            venue.make_name(reserved=RESERVED_VENUE)
+            db.session.add(venue)
+            if not self.obj.primary_venue:
+                self.obj.primary_venue = venue
+            db.session.commit()
+            flash(_(u"You have added a new venue to the event"), 'success')
+            return render_redirect(self.obj.url_for('venues'), code=303)
+        return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=self.obj.url_for('venues'), ajax=False)
+
+    @route('update_venue_colors', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-venue')
+    @requestargs('id[]', 'color[]')
+    def update_venue_colors(self, id, color):
+        colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
+        for room in self.obj.rooms:
+            if room.scoped_name in colors:
+                room.bgcolor = colors[room.scoped_name]
+        db.session.commit()
+        return jsonify(status=True)
+
+    @route('makeprimary', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-venue')
+    def make_venue_primary(self):
+        form = VenuePrimaryForm(parent=self.obj)
+        if form.validate_on_submit():
+            venue = form.venue.data
+            if venue == self.obj.primary_venue:
+                flash(_("This is already the primary venue"), 'info')
+            else:
+                self.obj.primary_venue = venue
+                db.session.commit()
+                flash(_("You have changed the primary venue"), 'success')
+        else:
+            flash(_("Please select a venue"), 'danger')
+        return render_redirect(self.obj.url_for('venues'), code=303)
+
 
 @route('/<project>/venues', subdomain='<profile>')
 class FunnelProjectVenueView(ProjectVenueView):
@@ -62,29 +109,6 @@ class FunnelProjectVenueView(ProjectVenueView):
 
 ProjectVenueView.init_app(app)
 FunnelProjectVenueView.init_app(funnelapp)
-
-
-@app.route('/<profile>/<project>/venues/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/venues/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-venue')
-def venue_new(profile, project):
-    form = VenueForm()
-    if form.validate_on_submit():
-        venue = Venue()
-        form.populate_obj(venue)
-        venue.project = project
-        venue.make_name(reserved=RESERVED_VENUE)
-        db.session.add(venue)
-        if not project.primary_venue:
-            project.primary_venue = venue
-        db.session.commit()
-        flash(_(u"You have added a new venue to the event"), 'success')
-        return render_redirect(project.url_for('venues'), code=303)
-    return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=project.url_for('venues'), ajax=False)
 
 
 @app.route('/<profile>/<project>/venues/<venue>/edit', methods=['GET', 'POST'])
@@ -180,41 +204,3 @@ def venueroom_delete(profile, project, venue, room):
         message=_(u"Delete room “{title}”? This cannot be undone".format(title=room.title)),
         success=_(u"You have deleted room “{title}”".format(title=room.title)),
         next=project.url_for('venues'))
-
-
-@app.route('/<profile>/<project>/update_venue_colors', methods=['POST'])
-@funnelapp.route('/<project>/update_venue_colors', methods=['POST'], subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-venue')
-@requestargs('id[]', 'color[]')
-def update_venue_colors(profile, project, id, color):
-    colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
-    for room in project.rooms:
-        if room.scoped_name in colors:
-            room.bgcolor = colors[room.scoped_name]
-    db.session.commit()
-    return jsonify(status=True)
-
-
-@app.route('/<profile>/<project>/venue/makeprimary', methods=['POST'])
-@funnelapp.route('/<project>/venue/makeprimary', methods=['POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-project')
-def venue_make_primary(profile, project):
-    form = VenuePrimaryForm(parent=project)
-    if form.validate_on_submit():
-        venue = form.venue.data
-        if venue == project.primary_venue:
-            flash(_("This is already the primary venue"), 'info')
-        else:
-            project.primary_venue = venue
-            db.session.commit()
-            flash(_("You have changed the primary venue"), 'success')
-    else:
-        flash(_("Please select a venue"), 'danger')
-    return render_redirect(project.url_for('venues'), code=303)

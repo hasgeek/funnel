@@ -2,13 +2,14 @@
 
 from baseframe import _
 from flask import request, render_template, jsonify
-from coaster.views import load_models
+from coaster.views import load_models, route, render_with, requires_permission
 from coaster.sqlalchemy import failsafe_add
 
 from .helpers import localize_date
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Proposal, ProposalRedirect, Project, ProjectRedirect, Session
 from ..forms import SessionForm
+from .mixins import ProjectViewBaseMixin
 
 
 def rooms_list(project):
@@ -58,15 +59,22 @@ def session_form(project, proposal=None, session=None):
         form=render_template('session_form.html.jinja2', form=form, formid='session_new'))
 
 
-@app.route('/<profile>/<project>/sessions/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/sessions/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-session')
-def session_new(profile, project):
-    return session_form(project)
+@route('/<profile>/<project>/sessions')
+class ProjectSessionView(ProjectViewBaseMixin):
+    @route('new')
+    @lastuser.requires_login
+    @requires_permission('new-session')
+    def new_session(self):
+        return session_form(self.obj)
+
+
+@route('/<project>/sessions', subdomain='<profile>')
+class FunnelProjectSessionView(ProjectSessionView):
+    pass
+
+
+ProjectSessionView.init_app(app)
+FunnelProjectSessionView.init_app(funnelapp)
 
 
 @app.route('/<profile>/<project>/<proposal>/schedule', methods=['GET', 'POST'])
