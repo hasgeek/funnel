@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
-from . import db, TimestampMixin, BaseScopedNameMixin, MarkdownColumn, JsonDict
-from .user import User, Team
-from .commentvote import Voteset, Commentset, SET_TYPE
 from werkzeug.utils import cached_property
-from ..util import geonameid_from_location
-from coaster.sqlalchemy import StateManager, with_roles, JsonDict
-from coaster.utils import LabeledEnum
+
+from flask import url_for
+
 from baseframe import __
+
+from coaster.sqlalchemy import StateManager, with_roles
+from coaster.utils import LabeledEnum
+
+from ..util import geonameid_from_location
+from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, db
+from .user import Team, User
+from .commentvote import Commentset, SET_TYPE, Voteset
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
 
 # --- Constants ---------------------------------------------------------------
 
-class PROJECT_STATE(LabeledEnum):
+class PROJECT_STATE(LabeledEnum):  # NOQA
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __(u"Draft"))
     SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
@@ -36,7 +40,8 @@ class Project(BaseScopedNameMixin, db.Model):
     __tablename__ = 'project'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
+    user = db.relationship(
+        User, primaryjoin=user_id == User.id,
         backref=db.backref('projects', cascade='all, delete-orphan'))
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
     profile = db.relationship('Profile', backref=db.backref('projects', cascade='all, delete-orphan'))
@@ -54,7 +59,8 @@ class Project(BaseScopedNameMixin, db.Model):
     website = db.Column(db.Unicode(2000), nullable=True)
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
 
-    _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROJECT_STATE),
+    _state = db.Column(
+        'state', db.Integer, StateManager.check_constraint('state', PROJECT_STATE),
         default=PROJECT_STATE.DRAFT, nullable=False)
     state = StateManager('_state', PROJECT_STATE, doc="State of this project.")
 
@@ -91,11 +97,14 @@ class Project(BaseScopedNameMixin, db.Model):
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
 
-    featured_sessions = db.relationship('Session',
+    featured_sessions = db.relationship(
+        'Session',
         primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)')
-    scheduled_sessions = db.relationship('Session',
+    scheduled_sessions = db.relationship(
+        'Session',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)')
-    unscheduled_sessions = db.relationship('Session',
+    unscheduled_sessions = db.relationship(
+        'Session',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
     #: Redirect URLs from Funnel to Talkfunnel
@@ -109,9 +118,9 @@ class Project(BaseScopedNameMixin, db.Model):
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url',
                 'location'
-                },
             },
-        }
+        },
+    }
 
     @cached_property
     def datelocation(self):
@@ -149,8 +158,10 @@ class Project(BaseScopedNameMixin, db.Model):
         elif self.date.year != self.date_upto.year:
             # if the start date and end dates are in different years,
             strf_date = "%d %b %Y"
-        datelocation = datelocation_format.format(date=self.date.strftime(strf_date),
-            date_upto=self.date_upto.strftime("%d %b"), year=self.date.year)
+        datelocation = datelocation_format.format(
+            date=self.date.strftime(strf_date),
+            date_upto=self.date_upto.strftime("%d %b"),
+            year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
 
     @property
@@ -170,39 +181,54 @@ class Project(BaseScopedNameMixin, db.Model):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     @with_roles(call={'admin'})
-    @state.transition(state.DRAFT, state.SUBMISSIONS, title=__("Open"), message=__("This project has been opened to accept submissions"), type='success')
+    @state.transition(
+        state.DRAFT, state.SUBMISSIONS, title=__("Open"),
+        message=__("This project has been opened to accept submissions"), type='success')
     def accept_submissions(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.SUBMISSIONS, state.VOTING, title=__("Close submissions"), message=__("This project has now closed submissions, but is still accepting votes"), type='success')
+    @state.transition(
+        state.SUBMISSIONS, state.VOTING, title=__("Close submissions"),
+        message=__("This project has now closed submissions, but is still accepting votes"), type='success')
     def accept_votes(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.VOTING, state.FEEDBACK, title=__("Close voting"), message=__("This project has now closed submissions and voting, but is still accepting feedback comments"), type='success')
+    @state.transition(
+        state.VOTING, state.FEEDBACK, title=__("Close voting"),
+        message=__("This project has now closed submissions and voting, but is still accepting feedback comments"),
+        type='success')
     def accept_feedback(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.OPENABLE, state.SUBMISSIONS, title=__("Reopen Submissions"), message=__("This project has been reopened for submissions"), type='success')
+    @state.transition(
+        state.OPENABLE, state.SUBMISSIONS, title=__("Reopen Submissions"),
+        message=__("This project has been reopened for submissions"), type='success')
     def reopen(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CURRENTLY_LISTED, state.CLOSED, title=__("Close & Hide"), message=__("This project has been closed and will no longer be listed"), type='danger')
+    @state.transition(
+        state.CURRENTLY_LISTED, state.CLOSED, title=__("Close & Hide"),
+        message=__("This project has been closed and will no longer be listed"), type='danger')
     def close(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CLOSED, state.FEEDBACK, title=__("Relist"), message=__("This project has been relisted, but is only accepting feedback comments"), type='success')
+    @state.transition(
+        state.CLOSED, state.FEEDBACK, title=__("Relist"),
+        message=__("This project has been relisted, but is only accepting feedback comments"), type='success')
     def relist(self):
         pass
 
     # TODO: Confirm with the media team whether they need to withdraw projects
     #
     # @with_roles(call={'admin'})
-    # @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Withdraw"), message=__("This project has been withdrawn"), type='success')
+    # @state.transition(
+    #     state.CLOSED, state.WITHDRAWN, title=__("Withdraw"),
+    #     message=__("This project has been withdrawn"), type='success')
     # def withdraw(self):
     #     pass
 
@@ -255,8 +281,8 @@ class Project(BaseScopedNameMixin, db.Model):
             basequery = Proposal.query.filter_by(project=self)
         return dict(
             confirmed=basequery.filter(Proposal.state.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(db.desc('created_at')).all()
-            )
+            unconfirmed=basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(
+                db.desc('created_at')).all())
 
     @cached_property
     def location_geonameid(self):
@@ -285,11 +311,13 @@ class Project(BaseScopedNameMixin, db.Model):
                 "proposal": {
                     "part_a": {
                         "title": "Abstract",
-                        "hint": "Give us a brief description of your talk, key takeaways for the audience and the intended audience."
+                        "hint": "Give us a brief description of your talk, key takeaways for the audience and the"
+                        " intended audience."
                     },
                     "part_b": {
                         "title": "Outline",
-                        "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or text description."
+                        "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or"
+                        " text description."
                     }
                 }
             }
@@ -344,7 +372,7 @@ class Project(BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant'
-                    ])
+                ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
                     'view-contactinfo',
@@ -361,11 +389,11 @@ class Project(BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant'
-                    ])
+                ])
             if self.checkin_team and user in self.checkin_team.users:
                 perms.update([
                     'checkin-event'
-                    ])
+                ])
         return perms
 
     def url_for(self, action='view', _external=False):
@@ -408,7 +436,8 @@ class Project(BaseScopedNameMixin, db.Model):
         elif action == 'subscribe-schedule':
             return url_for('schedule_subscribe', profile=self.profile.name, project=self.name, _external=_external)
         elif action == 'ical-schedule':
-            return url_for('schedule_ical', profile=self.profile.name, project=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')
+            return url_for('schedule_ical', profile=self.profile.name, project=self.name, _external=_external).replace(
+                'https:', 'webcals:').replace('http:', 'webcal:')
         elif action == 'rsvp':
             return url_for('rsvp', profile=self.profile.name, project=self.name)
         elif action == 'rsvp-list':
@@ -442,8 +471,7 @@ class Project(BaseScopedNameMixin, db.Model):
         # sorts the projects so that both new and old projects are sorted from closest to farthest
         now = db.func.utcnow()
         currently_listed_projects = cls.query.filter_by(parent=None).filter(
-            cls.state.CURRENTLY_LISTED
-            )
+            cls.state.CURRENTLY_LISTED)
         upcoming = currently_listed_projects.filter(cls.date >= now).order_by(cls.date.asc())
         past = currently_listed_projects.filter(cls.date < now).order_by(cls.date.desc())
 
@@ -474,15 +502,15 @@ class ProjectRedirect(TimestampMixin, db.Model):
     project = db.relationship(Project, backref='redirects')
 
     def __repr__(self):
-        return '<ProjectRedirect %s/%s: %s>' % (self.profile.name, self.name,
+        return '<ProjectRedirect %s/%s: %s>' % (
+            self.profile.name, self.name,
             self.project.name if self.project else "(none)")
 
     def redirect_view_args(self):
         if self.project:
             return {
                 'profile': self.profile.name,
-                'project': self.project.name
-                }
+                'project': self.project.name}
         else:
             return {}
 
@@ -505,5 +533,5 @@ class ProjectLocation(TimestampMixin, db.Model):
     primary = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        return '<ProjectLocation %d %s for project %s>' % (self.geonameid,
-            'primary' if self.primary else 'secondary', self.project)
+        return '<ProjectLocation %d %s for project %s>' % (
+            self.geonameid, 'primary' if self.primary else 'secondary', self.project)
