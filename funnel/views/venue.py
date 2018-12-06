@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from flask import flash, render_template, jsonify
-from coaster.views import load_models, requestargs, UrlForView, ModelView, route, render_with, requires_permission
+from coaster.views import load_models, requestargs, route, render_with, requires_permission
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Venue, VenueRoom
 from ..forms.venue import VenueForm, VenueRoomForm, VenuePrimaryForm
+from .mixins import ProjectViewBaseMixin
+
 
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']
@@ -44,15 +46,7 @@ def room_data(room):
 
 
 @route('/<profile>/<project>/venues')
-class ProjectVenueView(UrlForView, ModelView):
-    model = Project
-    route_model_map = {'profile': 'profile.name', 'project': 'name'}
-
-    def loader(self, profile, project):
-        return self.model.query.join(Profile).filter(
-                Project.name == project, Profile.name == profile
-            ).first_or_404()
-
+class ProjectVenueView(ProjectViewBaseMixin):
     @route('')
     @render_with('venues.html.jinja2')
     @lastuser.requires_login

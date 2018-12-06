@@ -8,6 +8,7 @@ from baseframe.forms import render_delete_sqla, render_form
 from .. import app, funnelapp, lastuser
 from ..models import Profile, Project, ProjectRedirect, Section, db
 from ..forms import SectionForm
+from .mixins import ProjectViewBaseMixin
 
 
 def section_data(section):
@@ -21,15 +22,7 @@ def section_data(section):
 
 
 @route('/<profile>/<project>/sections')
-class ProjectSectionView(UrlForView, ModelView):
-    model = Project
-    route_model_map = {'profile': 'profile.name', 'project': 'name'}
-
-    def loader(self, profile, project):
-        return self.model.query.join(Profile).filter(
-                Project.name == project, Profile.name == profile
-            ).first_or_404()
-
+class ProjectSectionView(ProjectViewBaseMixin):
     @route('')
     @render_with('sections.html.jinja2')
     @lastuser.requires_login

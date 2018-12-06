@@ -5,7 +5,7 @@ from cStringIO import StringIO
 from flask import g, flash, redirect, Response, request, abort, current_app
 from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.views import load_models, jsonp, UrlForView, ModelView, route, render_with, requires_permission
+from coaster.views import load_models, jsonp, route, render_with, requires_permission
 
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, ProjectRedirect, Section,
@@ -16,6 +16,7 @@ from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
+from .mixins import ProjectViewBaseMixin
 
 
 def project_data(project):
@@ -63,15 +64,7 @@ def project_new(profile):
 
 
 @route('/<profile>/<project>/')
-class ProjectView(UrlForView, ModelView):
-    model = Project
-    route_model_map = {'profile': 'profile.name', 'project': 'name'}
-
-    def loader(self, profile, project):
-        return self.model.query.join(Profile).filter(
-                Project.name == project, Profile.name == profile
-            ).first_or_404()
-
+class ProjectView(ProjectViewBaseMixin):
     @route('')
     @render_with('project.html.jinja2')
     @requires_permission('view')
@@ -100,10 +93,9 @@ class ProjectView(UrlForView, ModelView):
             })
 
     @route('csv')
-    @render_with(json=True)
     @requires_permission('view')
     def csv(self):
-        if 'view-contactinfo' in self.obj.current_permissions:
+        if 'view-contactinfo' in current_auth.permissions:
             usergroups = [ug.name for ug in self.obj.usergroups]
         else:
             usergroups = []
@@ -176,7 +168,7 @@ class ProjectView(UrlForView, ModelView):
     def rsvp_list(self):
         return dict(project=self.obj, statuses=RSVP_STATUS)
 
-    @route('admin')
+    @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
     @lastuser.requires_login
     @requires_permission('admin')

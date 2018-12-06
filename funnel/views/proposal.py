@@ -7,7 +7,7 @@ from flask import g, render_template, redirect, request, Markup, abort, flash, e
 from flask_mail import Message
 from sqlalchemy import or_
 from coaster.utils import make_name
-from coaster.views import jsonp, load_models, requestargs, ModelView, UrlForView, requires_permission, route
+from coaster.views import jsonp, load_models, requestargs, requires_permission, route
 from coaster.gfm import markdown
 from coaster.auth import current_auth
 from baseframe import _
@@ -17,6 +17,8 @@ from .. import app, funnelapp, mail, lastuser
 from ..models import (db, Profile, Project, ProjectRedirect, Section, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
+from .mixins import ProjectViewBaseMixin
+
 
 proposal_headers = [
     'id',
@@ -82,7 +84,7 @@ def proposal_data(proposal):
             ('votes_bydate', proposal.votes_by_date()),
             ('status', proposal.state.value),
             ('state', proposal.state.label.name),
-        ] if 'view-contactinfo' in proposal.current_permissions else []))
+        ] if 'view-contactinfo' in current_auth.permissions else []))
 
 
 def proposal_data_flat(proposal, groups=[]):
@@ -96,15 +98,7 @@ def proposal_data_flat(proposal, groups=[]):
 
 # --- Routes ------------------------------------------------------------------
 @route('/<profile>/<project>')
-class ProjectProposalView(UrlForView, ModelView):
-    model = Project
-    route_model_map = {'profile': 'profile.name', 'project': 'name'}
-
-    def loader(self, profile, project):
-        return self.model.query.join(Profile).filter(
-                Project.name == project, Profile.name == profile
-            ).first_or_404()
-
+class ProjectProposalView(ProjectViewBaseMixin):
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-proposal')
