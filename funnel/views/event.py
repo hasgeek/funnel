@@ -122,30 +122,6 @@ def ticket_type(profile, project, ticket_type):
     return render_template('ticket_type.html.jinja2', profile=profile, project=project, ticket_type=ticket_type, participants=participants)
 
 
-@app.route('/<profile>/<project>/ticket_type/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/ticket_type/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-ticket-type')
-def new_ticket_type(profile, project):
-    form = TicketTypeForm()
-    form.events.query = project.events
-    if form.validate_on_submit():
-        ticket_type = TicketType(project=project)
-        form.populate_obj(ticket_type)
-        ticket_type.make_name()
-        try:
-            db.session.add(ticket_type)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            flash(_(u"This ticket type already exists."), 'info')
-        return redirect(project.url_for('admin'), code=303)
-    return render_form(form=form, title=_(u"New Ticket Type"), submit=_(u"Add ticket type"))
-
-
 @app.route('/<profile>/<project>/ticket_type/<name>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<project>/ticket_type/<name>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login

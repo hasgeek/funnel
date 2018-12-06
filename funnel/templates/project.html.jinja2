@@ -151,12 +151,12 @@
             {%- endif %}
             {% if project.state.SUBMISSIONS -%}
               <li class="mui--hidden-xs">
-                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('proposal_new') }}">{% trans %}Propose a session{% endtrans %}</a>
+                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
               </li>
             {% endif %}
             {%- if project.sessions %}
               <li class="mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.state.SUBMISSIONS -%}float-btn{% endif %}">
-                <a href="{{ project.url_for('schedule_view') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
+                <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
               </li>
             {%- endif %}
           </ul>
@@ -168,7 +168,7 @@
     <a class="sub-navbar__item mui--text-subhead" href="#about">About</a>
     {%- if project.instructions -%}<a class="sub-navbar__item mui--text-subhead" href="#call-for-proposal">Call for proposals</a>{%- endif %}
     {%- if project.featured_sessions  %}<a class="sub-navbar__item mui--text-subhead" href="#featured-talk">Featured talks</a>{%- endif %}
-    {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for('schedule_view') }}">Schedule</a>{%- endif %}
+    {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for('schedule') }}">Schedule</a>{%- endif %}
     {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead" href="#related-jobs">Jobs</a>{%- endif %}
     {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead" href="#venue">Venue</a>{%- endif %}
     {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead" href="#proposals">Proposals</a>{%- endif %}
@@ -207,7 +207,7 @@
                       <a href="{{ project.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
                     </li>
                     <li>
-                      <a href="{{ project.url_for('schedule_edit') }}">{% trans %}Edit schedule{% endtrans %}</a>
+                      <a href="{{ project.url_for('edit_schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
                     </li>
                     <li>
                       <a href="{{ project.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
@@ -283,7 +283,7 @@
       <div class="project-section__instructions">{{ project.instructions|safe }}</div>
       <p class="mui--text-left">
       {% if project.state.SUBMISSIONS -%}
-        <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('proposal_new') }}">{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
       {%- endif %}
       </p>
     </div>
@@ -339,7 +339,7 @@
       <div class="grid__col-xs-12">
         <p class="mui--text-left">
         {%- if project.sessions %}
-          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule_view') }}">{% trans %}View Schedule{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a>
         {%- endif %}
         </p>
       </div>

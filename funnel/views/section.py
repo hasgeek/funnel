@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, render_template
-from coaster.views import ModelView, UrlForView, load_models, render_with, requires_permission, route
+from flask import flash, redirect
+from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
 
 from .. import app, funnelapp, lastuser
-from ..models import Profile, Project, ProjectRedirect, Section, db
+from ..models import Profile, Project, Section, db
 from ..forms import SectionForm
 from .mixins import ProjectViewBaseMixin
 
@@ -30,6 +30,20 @@ class ProjectSectionView(ProjectViewBaseMixin):
     def sections(self):
         return dict(project=self.obj, sections=self.obj.sections)
 
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-section')
+    def new_section(self):
+        form = SectionForm(model=Section, parent=self.obj)
+        if form.validate_on_submit():
+            section = Section(project=self.obj)
+            form.populate_obj(section)
+            db.session.add(section)
+            db.session.commit()
+            flash(_("Your new section has been added"), 'info')
+            return redirect(self.obj.url_for('sections'), code=303)
+        return render_form(form=form, title=_("New section"), submit=_("Create section"))
+
 
 @route('/<project>/sections', subdomain='<profile>')
 class FunnelProjectSectionView(ProjectSectionView):
@@ -38,25 +52,6 @@ class FunnelProjectSectionView(ProjectSectionView):
 
 ProjectSectionView.init_app(app)
 FunnelProjectSectionView.init_app(funnelapp)
-
-
-@app.route('/<profile>/<project>/sections/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/sections/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-section')
-def section_new(profile, project):
-    form = SectionForm(model=Section, parent=project)
-    if form.validate_on_submit():
-        section = Section(project=project)
-        form.populate_obj(section)
-        db.session.add(section)
-        db.session.commit()
-        flash(_("Your new section has been added"), 'info')
-        return redirect(project.url_for('sections'), code=303)
-    return render_form(form=form, title=_("New section"), submit=_("Create section"))
 
 
 @route('/<profile>/<project>/sections/<section>')

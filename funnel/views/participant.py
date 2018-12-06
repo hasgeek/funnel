@@ -79,7 +79,7 @@ class ProjectParticipantView(ProjectViewBaseMixin):
     @route('new')
     @lastuser.requires_login
     @requires_permission('new-participant')
-    def participants_new(self):
+    def new_participant(self):
         form = ParticipantForm()
         form.events.query = self.obj.events
         if form.validate_on_submit():

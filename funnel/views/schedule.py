@@ -133,7 +133,7 @@ class ProjectScheduleView(ProjectViewBaseMixin):
     @route('')
     @render_with('schedule.html.jinja2')
     @requires_permission('view')
-    def schedule_view(self):
+    def schedule(self):
         return dict(project=self.obj, venues=self.obj.venues,
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
             sessions=session_data(self.obj.scheduled_sessions, with_modal_url='view-popup'),
@@ -144,7 +144,7 @@ class ProjectScheduleView(ProjectViewBaseMixin):
     @render_with('schedule_edit.html.jinja2')
     @lastuser.requires_login
     @requires_permission('edit-schedule')
-    def schedule_edit(self):
+    def edit_schedule(self):
         proposals = {
             'unscheduled': [{
                 'title': proposal.title,

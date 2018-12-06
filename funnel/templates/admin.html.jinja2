@@ -28,7 +28,7 @@
       <div class="card__footer">
         <a href={{ project.url_for('events_new') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
         {%- if project.events %}
-          <a href={{ project.url_for('participants_new') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
+          <a href={{ project.url_for('new_participant') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
         {%- endif %}
       </div>
     </div>

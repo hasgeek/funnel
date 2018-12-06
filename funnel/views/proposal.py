@@ -102,7 +102,7 @@ class ProjectProposalView(ProjectViewBaseMixin):
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-proposal')
-    def proposal_new(self):
+    def new_proposal(self):
         form = ProposalForm(model=Proposal, parent=self.obj)
         del form.session_type  # We don't use this anymore
         if self.obj.inherit_sections:

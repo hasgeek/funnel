@@ -65,7 +65,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
 
     def url_for(self, action='view', _external=False):
         if action == 'view':
-            return self.project.url_for('schedule_view', _external=_external) + u'#' + self.url_name
+            return self.project.url_for('schedule', _external=_external) + u'#' + self.url_name
         elif action == 'edit':
             return url_for('session_edit', profile=self.project.profile.name, project=self.project.name, session=self.url_name, _external=_external)
         elif action == 'delete':
