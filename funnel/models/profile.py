@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
-from flask_lastuser.sqlalchemy import ProfileBase
 from werkzeug.utils import cached_property
-from . import db, MarkdownColumn
+
+from flask import url_for
+
+from flask_lastuser.sqlalchemy import ProfileBase
+
+from . import MarkdownColumn, db
 from .user import Team
 
 __all__ = ['Profile']
@@ -24,9 +27,9 @@ class Profile(ProfileBase, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'description'
-                },
             },
-        }
+        },
+    }
 
     @cached_property
     def parent_projects(self):
