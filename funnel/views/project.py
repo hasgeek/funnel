@@ -5,6 +5,7 @@ from cStringIO import StringIO
 from flask import g, flash, redirect, Response, request, abort, current_app
 from baseframe import _, forms
 from baseframe.forms import render_form
+from coaster.auth import current_auth
 from coaster.views import load_models, jsonp, route, render_with, requires_permission
 
 from .. import app, funnelapp, lastuser
