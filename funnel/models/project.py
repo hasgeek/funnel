@@ -45,7 +45,6 @@ class Project(BaseScopedNameMixin, db.Model):
     description = MarkdownColumn('description', default=u'', nullable=False)
     instructions = MarkdownColumn('instructions', default=u'', nullable=True)
 
-    datelocation = db.Column(db.Unicode(50), default=u'', nullable=False)
     location = db.Column(db.Unicode(50), default=u'', nullable=True)
     parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
 
@@ -108,10 +107,50 @@ class Project(BaseScopedNameMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
-                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url'
+                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url',
+                'location'
                 },
             },
         }
+
+    @cached_property
+    def datelocation(self):
+        """
+        Returns a date + location string for the event, the format depends on project dates
+
+        If it's a single day event
+        > 11 Feb 2018, Bangalore
+
+        If multi-day event in same month
+        > 09–12 Feb 2018, Bangalore
+
+        If multi-day event across months
+        > 27 Feb–02 Mar 2018, Bangalore
+
+        If multi-day event across years
+        > 30 Dec 2018–02 Jan 2019, Bangalore
+
+        ``datelocation_format`` always keeps ``date_upto`` format as ``–DD Mmm YYYY``.
+        Depending on the scenario mentioned below, format for ``date`` changes. Above examples
+        demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
+        Only ``date`` format changes.
+        """
+        datelocation_format = u"{date}–{date_upto} {year}, {location}"
+        if self.date == self.date_upto:
+            # if both dates are same, in case of single day project
+            strf_date = ""
+            datelocation_format = u"{date_upto} {year}, {location}"
+        elif self.date.month == self.date_upto.month:
+            # If multi-day event in same month
+            strf_date = "%d"
+        elif self.date.month != self.date_upto.month:
+            # If multi-day event across months
+            strf_date = "%d %b"
+        elif self.date.year != self.date_upto.year:
+            # if the start date and end dates are in different years,
+            strf_date = "%d %b %Y"
+        return datelocation_format.format(date=self.date.strftime(strf_date),
+            date_upto=self.date_upto.strftime("%d %b"), year=self.date.year, location=self.location)
 
     @property
     def url(self):
@@ -220,7 +259,7 @@ class Project(BaseScopedNameMixin, db.Model):
 
     @cached_property
     def location_geonameid(self):
-        return geonameid_from_location(self.datelocation)
+        return geonameid_from_location(self.location) if self.location else set()
 
     @property
     def proposal_part_a(self):
