@@ -10,7 +10,7 @@ from time import mktime
 
 from flask import render_template, json, jsonify, request, Response, current_app
 
-from coaster.views import load_models, requestargs, jsonp, cors
+from coaster.views import load_models, requestargs, jsonp, cors, UrlForView, ModelView, route, render_with, requires_permission
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Session, VenueRoom, Venue
@@ -127,18 +127,56 @@ def session_ical(session):
     return event
 
 
-@app.route('/<profile>/<project>/schedule')
-@funnelapp.route('/<project>/schedule', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def schedule_view(profile, project):
-    return render_template('schedule.html.jinja2', project=project, venues=project.venues,
-        from_date=date_js(project.date), to_date=date_js(project.date_upto),
-        sessions=session_data(project.scheduled_sessions, with_modal_url='view-popup'),
-        timezone=timezone(project.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in project.rooms]))
+@route('/<profile>/<project>/schedule')
+class ProjectScheduleView(UrlForView, ModelView):
+    model = Project
+    route_model_map = {'profile': 'profile.name', 'project': 'name'}
+
+    def loader(self, profile, project):
+        return self.model.query.join(Profile).filter(
+                Project.name == project, Profile.name == profile
+            ).first_or_404()
+
+    @route('')
+    @render_with('schedule.html.jinja2')
+    @requires_permission('view')
+    def schedule_view(self):
+        return dict(project=self.obj, venues=self.obj.venues,
+            from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
+            sessions=session_data(self.obj.scheduled_sessions, with_modal_url='view-popup'),
+            timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
+            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
+
+    @route('edit')
+    @render_with('schedule_edit.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('edit-schedule')
+    def schedule_edit(self):
+        proposals = {
+            'unscheduled': [{
+                'title': proposal.title,
+                'modal_url': proposal.url_for('schedule')
+                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.session],
+            'scheduled': session_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
+            }
+        # Set the proper range for the calendar to allow for date changes
+        first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start.asc()).first()
+        last_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.end.desc()).first()
+        from_date = (first_session and first_session.start.date() < self.obj.date and first_session.start) or self.obj.date
+        to_date = (last_session and last_session.start.date() > self.obj.date_upto and last_session.start) or self.obj.date_upto
+        return dict(project=self.obj, proposals=proposals,
+            from_date=date_js(from_date), to_date=date_js(to_date),
+            timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
+            rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in project.rooms]))
+
+
+@route('/<project>/schedule', subdomain='<profile>')
+class FunnelProjectScheduleView(ProjectScheduleView):
+    pass
+
+
+ProjectScheduleView.init_app(app)
+FunnelProjectScheduleView.init_app(funnelapp)
 
 
 @app.route('/<profile>/<project>/schedule/subscribe')
@@ -250,32 +288,6 @@ def schedule_room_updates(profile, project, venue, room):
         nextdiff = nextdiff.total_seconds() / 86400
     print current, next
     return render_template('room_updates.html.jinja2', room=room, current=current, next=next, nextdiff=nextdiff)
-
-
-@app.route('/<profile>/<project>/schedule/edit')
-@funnelapp.route('/<project>/schedule/edit', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-schedule')
-def schedule_edit(profile, project):
-    proposals = {
-        'unscheduled': [{
-            'title': proposal.title,
-            'modal_url': proposal.url_for('schedule')
-            } for proposal in project.proposals_all if proposal.state.CONFIRMED and not proposal.session],
-        'scheduled': session_data(project.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
-        }
-    # Set the proper range for the calendar to allow for date changes
-    first_session = Session.query.filter(Session.scheduled, Session.project == project).order_by(Session.start.asc()).first()
-    last_session = Session.query.filter(Session.scheduled, Session.project == project).order_by(Session.end.desc()).first()
-    from_date = (first_session and first_session.start.date() < project.date and first_session.start) or project.date
-    to_date = (last_session and last_session.start.date() > project.date_upto and last_session.start) or project.date_upto
-    return render_template('schedule_edit.html.jinja2', project=project, proposals=proposals,
-        from_date=date_js(from_date), to_date=date_js(to_date),
-        timezone=timezone(project.timezone).utcoffset(datetime.now()).total_seconds(),
-        rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in project.rooms]))
 
 
 @app.route('/<profile>/<project>/schedule/update', methods=['POST'])

@@ -153,6 +153,16 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'project_id',
         'project', 'parent', 'voteset_id', 'voteset', 'commentset_id', 'commentset', 'edited_at', 'data')
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'title', 'speaker', 'speaking', 'email', 'phone', 'bio', 'section', 'objective', 'session_type',
+                'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
+                'latitude', 'longitude', 'coordinates'
+                },
+            },
+        }
+
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
         self.voteset = Voteset(type=SET_TYPE.PROPOSAL)

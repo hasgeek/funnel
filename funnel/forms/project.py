@@ -7,7 +7,6 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from baseframe import _, __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
-from .profile import profile_teams
 from ..models import RSVP_STATUS
 
 __all__ = [
@@ -53,18 +52,24 @@ class ProjectForm(forms.Form):
     parent = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
-        query_factory=profile_teams, get_label='title', allow_blank=False,
+        get_label='title', allow_blank=False,
         description=__(u"The administrators of this project"))
     review_team = QuerySelectField(u"Review team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
-        query_factory=profile_teams, get_label='title', allow_blank=False,
+        get_label='title', allow_blank=False,
         description=__(u"Reviewers can see contact details of proposers, but can’t change settings"))
     checkin_team = QuerySelectField(u"Checkin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
-        query_factory=profile_teams, get_label='title', allow_blank=False,
+        get_label='title', allow_blank=False,
         description=__(u"Team members can check in users at an event"))
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
     buy_tickets_url = forms.URLField(__("URL to buy tickets"),
         description=__(u"Eg: Explara, Instamojo"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
+
+    def set_queries(self):
+        profile_teams = self.edit_obj.profile.teams
+        self.admin_team.query = profile_teams
+        self.review_team.query = profile_teams
+        self.checkin_team.query = profile_teams
 
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):

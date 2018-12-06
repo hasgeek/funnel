@@ -20,16 +20,31 @@ def section_data(section):
         }
 
 
-@app.route('/<profile>/<project>/sections')
-@funnelapp.route('/<project>/sections', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view-section')
-def section_list(profile, project):
-    sections = Section.query.filter_by(project=project).all()
-    return render_template('sections.html.jinja2', project=project, sections=sections)
+@route('/<profile>/<project>/sections')
+class ProjectSectionView(UrlForView, ModelView):
+    model = Project
+    route_model_map = {'profile': 'profile.name', 'project': 'name'}
+
+    def loader(self, profile, project):
+        return self.model.query.join(Profile).filter(
+                Project.name == project, Profile.name == profile
+            ).first_or_404()
+
+    @route('')
+    @render_with('sections.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('view-section')
+    def sections(self):
+        return dict(project=self.obj, sections=self.obj.sections)
+
+
+@route('/<project>/sections', subdomain='<profile>')
+class FunnelProjectSectionView(ProjectSectionView):
+    pass
+
+
+ProjectSectionView.init_app(app)
+FunnelProjectSectionView.init_app(funnelapp)
 
 
 @app.route('/<profile>/<project>/sections/new', methods=['GET', 'POST'])

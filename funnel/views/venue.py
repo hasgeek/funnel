@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import flash, render_template, jsonify
-from coaster.views import load_models, requestargs
+from coaster.views import load_models, requestargs, UrlForView, ModelView, route, render_with, requires_permission
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
@@ -43,16 +43,31 @@ def room_data(room):
         }
 
 
-@app.route('/<profile>/<project>/venues')
-@funnelapp.route('/<project>/venues', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def venue_list(profile, project):
-    return render_template('venues.html.jinja2', project=project, venues=project.venues,
-        primary_venue_form=VenuePrimaryForm(parent=project))
+@route('/<profile>/<project>/venues')
+class ProjectVenueView(UrlForView, ModelView):
+    model = Project
+    route_model_map = {'profile': 'profile.name', 'project': 'name'}
+
+    def loader(self, profile, project):
+        return self.model.query.join(Profile).filter(
+                Project.name == project, Profile.name == profile
+            ).first_or_404()
+
+    @route('')
+    @render_with('venues.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('view')
+    def venues(self):
+        return dict(project=self.obj, venues=self.obj.venues, primary_venue_form=VenuePrimaryForm(parent=self.obj))
+
+
+@route('/<project>/venues', subdomain='<profile>')
+class FunnelProjectVenueView(ProjectVenueView):
+    pass
+
+
+ProjectVenueView.init_app(app)
+FunnelProjectVenueView.init_app(funnelapp)
 
 
 @app.route('/<profile>/<project>/venues/new', methods=['GET', 'POST'])

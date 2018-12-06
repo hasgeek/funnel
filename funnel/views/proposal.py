@@ -7,7 +7,7 @@ from flask import g, render_template, redirect, request, Markup, abort, flash, e
 from flask_mail import Message
 from sqlalchemy import or_
 from coaster.utils import make_name
-from coaster.views import jsonp, load_models, requestargs
+from coaster.views import jsonp, load_models, requestargs, ModelView, UrlForView, requires_permission, route
 from coaster.gfm import markdown
 from coaster.auth import current_auth
 from baseframe import _
@@ -82,7 +82,7 @@ def proposal_data(proposal):
             ('votes_bydate', proposal.votes_by_date()),
             ('status', proposal.state.value),
             ('state', proposal.state.label.name),
-        ] if 'view-contactinfo' in g.permissions else []))
+        ] if 'view-contactinfo' in proposal.current_permissions else []))
 
 
 def proposal_data_flat(proposal, groups=[]):
@@ -95,41 +95,55 @@ def proposal_data_flat(proposal, groups=[]):
 
 
 # --- Routes ------------------------------------------------------------------
+@route('/<profile>/<project>')
+class ProjectProposalView(UrlForView, ModelView):
+    model = Project
+    route_model_map = {'profile': 'profile.name', 'project': 'name'}
 
-@app.route('/<profile>/<project>/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-proposal')
-def proposal_new(profile, project):
-    form = ProposalForm(model=Proposal, parent=project)
-    del form.session_type  # We don't use this anymore
-    if project.inherit_sections:
-        form.section.query = Section.query.filter(or_(Section.project == project, Section.project == project.parent), Section.public == True).order_by('title')
-    else:
-        form.section.query = Section.query.filter(Section.project == project, Section.public == True).order_by('title')
-    if len(list(form.section.query.all())) == 0:
-        # Don't bother with sections when there aren't any
-        del form.section
-    if request.method == 'GET':
-        form.email.data = g.user.email
-        form.phone.data = g.user.phone
-    if form.validate_on_submit():
-        proposal = Proposal(user=g.user, project=project)
-        with db.session.no_autoflush:
-            proposal.voteset.vote(g.user)  # Vote up your own proposal by default
-        form.populate_obj(proposal.formdata)
-        proposal.name = make_name(proposal.title)
-        db.session.add(proposal)
-        db.session.commit()
-        flash(_("Your new session has been saved"), 'info')
-        return redirect(proposal.url_for(), code=303)
-    return render_form(form=form, title=_("Submit a session proposal"),
-        submit=_("Submit proposal"),
-        message=project.instructions or Markup(
-            _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
+    def loader(self, profile, project):
+        return self.model.query.join(Profile).filter(
+                Project.name == project, Profile.name == profile
+            ).first_or_404()
+
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-proposal')
+    def proposal_new(self):
+        form = ProposalForm(model=Proposal, parent=self.obj)
+        del form.session_type  # We don't use this anymore
+        if self.obj.inherit_sections:
+            form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent), Section.public == True).order_by('title')
+        else:
+            form.section.query = Section.query.filter(Section.project == self.obj, Section.public == True).order_by('title')
+        if len(list(form.section.query.all())) == 0:
+            # Don't bother with sections when there aren't any
+            del form.section
+        if request.method == 'GET':
+            form.email.data = g.user.email
+            form.phone.data = g.user.phone
+        if form.validate_on_submit():
+            proposal = Proposal(user=current_auth.user, project=self.obj)
+            with db.session.no_autoflush:
+                proposal.voteset.vote(g.user)  # Vote up your own proposal by default
+            form.populate_obj(proposal.formdata)
+            proposal.name = make_name(proposal.title)
+            db.session.add(proposal)
+            db.session.commit()
+            flash(_("Your new session has been saved"), 'info')
+            return redirect(proposal.url_for(), code=303)
+        return render_form(form=form, title=_("Submit a session proposal"),
+            submit=_("Submit proposal"),
+            message=self.obj.instructions or Markup(
+                _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
+
+
+@route('/<project>', subdomain='<profile>')
+class FunnelProjectProposalView(ProjectProposalView):
+    pass
+
+
+ProjectProposalView.init_app(app)
+FunnelProjectProposalView.init_app(funnelapp)
 
 
 @app.route('/<profile>/<project>/<proposal>/edit', methods=['GET', 'POST'])

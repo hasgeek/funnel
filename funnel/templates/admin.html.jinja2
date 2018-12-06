@@ -26,9 +26,9 @@
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href={{ project.url_for('new-event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
+        <a href={{ project.url_for('events_new') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
         {%- if project.events %}
-          <a href={{ project.url_for('new-participant') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
+          <a href={{ project.url_for('participants_new') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
         {%- endif %}
       </div>
     </div>
@@ -50,7 +50,7 @@
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href={{ project.url_for('new-ticket-type') }} title="{% trans %}New ticket type {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New ticket</a>
+        <a href={{ project.url_for('new_ticket_type') }} title="{% trans %}New ticket type {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New ticket</a>
       </div>
     </div>
   </div>
@@ -71,7 +71,7 @@
       </div>
       <div class="mui-divider"></div>
         <div class="card__footer">
-          <a href="{{ project.url_for('new-ticket-client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New client</a>
+          <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New client</a>
           {%- if project.ticket_clients %}
             <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form mui-form--inline">
               <div class="form-group">

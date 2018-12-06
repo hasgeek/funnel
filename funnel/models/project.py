@@ -113,19 +113,6 @@ class Project(BaseScopedNameMixin, db.Model):
             },
         }
 
-    @property
-    def url(self):
-        return self.url_for(_external=True)
-
-    @property
-    def url_json(self):
-        return self.url_for('json', _external=True)
-
-    def __init__(self, **kwargs):
-        super(Project, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROJECT)
-        self.commentset = Commentset(type=SET_TYPE.PROJECT)
-
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
@@ -165,6 +152,19 @@ class Project(BaseScopedNameMixin, db.Model):
     # @state.transition(state.CLOSED, state.WITHDRAWN, title=__("Withdraw"), message=__("This project has been withdrawn"), type='success')
     # def withdraw(self):
     #     pass
+
+    @property
+    def url(self):
+        return self.url_for(_external=True)
+
+    @property
+    def url_json(self):
+        return self.url_for('json', _external=True)
+
+    def __init__(self, **kwargs):
+        super(Project, self).__init__(**kwargs)
+        self.voteset = Voteset(type=SET_TYPE.PROJECT)
+        self.commentset = Commentset(type=SET_TYPE.PROJECT)
 
     @db.validates('name')
     def _validate_name(self, key, value):
@@ -327,68 +327,6 @@ class Project(BaseScopedNameMixin, db.Model):
                     'checkin-event'
                     ])
         return perms
-
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return url_for('project_view', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-proposal':
-            return url_for('proposal_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'json':
-            return url_for('project_view_json', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'csv':
-            return url_for('project_view_csv', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'edit':
-            return url_for('project_edit', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'transition':
-            return url_for('project_transition', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'sections':
-            return url_for('section_list', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-section':
-            return url_for('section_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'usergroups':
-            return url_for('usergroup_list', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-usergroup':
-            return url_for('usergroup_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'venues':
-            return url_for('venue_list', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-venue':
-            return url_for('venue_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'schedule':
-            return url_for('schedule_view', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'edit-schedule':
-            return url_for('schedule_edit', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'update-schedule':
-            return url_for('schedule_update', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-session':
-            return url_for('session_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'update-venue-colors':
-            return url_for('update_venue_colors', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'json-schedule':
-            return url_for('schedule_json', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'subscribe-schedule':
-            return url_for('schedule_subscribe', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'ical-schedule':
-            return url_for('schedule_ical', profile=self.profile.name, project=self.name, _external=_external).replace('https:', 'webcals:').replace('http:', 'webcal:')
-        elif action == 'rsvp':
-            return url_for('rsvp', profile=self.profile.name, project=self.name)
-        elif action == 'rsvp-list':
-            return url_for('rsvp_list', profile=self.profile.name, project=self.name)
-        elif action == 'admin':
-            return url_for('admin', profile=self.profile.name, project=self.name)
-        elif action == 'events':
-            return url_for('events', profile=self.profile.name, project=self.name)
-        elif action == 'participants':
-            return url_for('participants', profile=self.profile.name, project=self.name)
-        elif action == 'new-participant':
-            return url_for('new_participant', profile=self.profile.name, project=self.name)
-        elif action == 'new-ticket-type-participant':
-            return url_for('new_ticket_type_participant', profile=self.profile.name, project=self.name)
-        elif action == 'new-event':
-            return url_for('new_event', profile=self.profile.name, project=self.name)
-        elif action == 'new-ticket-type':
-            return url_for('new_ticket_type', profile=self.profile.name, project=self.name)
-        elif action == 'new-ticket-client':
-            return url_for('new_ticket_client', profile=self.profile.name, project=self.name)
 
     @classmethod
     def all(cls):

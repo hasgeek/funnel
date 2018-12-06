@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.views import load_models, requestargs
+from coaster.views import load_models, requestargs, UrlForView, ModelView, route, requires_permission
 from coaster.utils import midnight_to_utc, getbool
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, ContactExchange, SyncTicket)
@@ -67,38 +67,48 @@ def participant_checkin_data(participant, project, event):
     }
 
 
-@app.route('/<profile>/<project>/participants/json')
-@funnelapp.route('/<project>/participants/json', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def participants_json(profile, project):
-    return jsonify(participants=[participant_data(participant, project.id) for participant in project.participants])
+@route('/<profile>/<project>/participants')
+class ProjectParticipantView(UrlForView, ModelView):
+    model = Project
+    route_model_map = {'profile': 'profile.name', 'project': 'name'}
+
+    def loader(self, profile, project):
+        return self.model.query.join(Profile).filter(
+                Project.name == project, Profile.name == profile
+            ).first_or_404()
+
+    @route('json')
+    @lastuser.requires_login
+    @requires_permission('view')
+    def participants_json(self):
+        return jsonify(participants=[participant_data(participant, self.obj.id) for participant in self.obj.participants])
+
+    @route('new')
+    @lastuser.requires_login
+    @requires_permission('new-participant')
+    def participants_new(self):
+        form = ParticipantForm()
+        form.events.query = self.obj.events
+        if form.validate_on_submit():
+            participant = Participant(project=self.obj)
+            form.populate_obj(participant)
+            try:
+                db.session.add(participant)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                flash(_(u"This participant already exists."), 'info')
+            return redirect(self.obj.url_for('admin'), code=303)
+        return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
 
 
-@app.route('/<profile>/<project>/participants/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/participants/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-participant')
-def new_participant(profile, project):
-    form = ParticipantForm()
-    form.events.query = project.events
-    if form.validate_on_submit():
-        participant = Participant(project=project)
-        form.populate_obj(participant)
-        try:
-            db.session.add(participant)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            flash(_(u"This participant already exists."), 'info')
-        return redirect(project.url_for('admin'), code=303)
-    return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
+@route('/<project>/participants', subdomain='<profile>')
+class FunnelProjectParticipantView(ProjectParticipantView):
+    pass
+
+
+ProjectParticipantView.init_app(app)
+FunnelProjectParticipantView.init_app(funnelapp)
 
 
 @app.route('/<profile>/<project>/participant/<participant_id>/edit', methods=['GET', 'POST'])

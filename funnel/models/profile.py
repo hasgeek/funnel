@@ -29,6 +29,11 @@ class Profile(ProfileBase, db.Model):
         }
 
     @cached_property
+    def teams(self):
+        from .user import Team
+        return Team.query.filter_by(orgid=self.userid).order_by(Team.title)
+
+    @cached_property
     def parent_projects(self):
         from .project import Project
         projects_all = Project.fetch_sorted().filter(
