@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from flask_lastuser.sqlalchemy import UserBase2, TeamBase
-from . import db
+from flask_lastuser.sqlalchemy import TeamBase, UserBase2
+
+from . import UuidMixin, db
 
 __all__ = ['User', 'Team']
 
 
 # --- Models ------------------------------------------------------------------
 
-class User(UserBase2, db.Model):
+class User(UuidMixin, UserBase2, db.Model):
     __tablename__ = 'user'
 
 
-class Team(TeamBase, db.Model):
+class Team(UuidMixin, TeamBase, db.Model):
     __tablename__ = 'team'
