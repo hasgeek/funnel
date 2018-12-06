@@ -116,7 +116,7 @@ class Project(BaseScopedNameMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
-                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url',
+                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location'
             },
         },
@@ -163,6 +163,11 @@ class Project(BaseScopedNameMixin, db.Model):
             date_upto=self.date_upto.strftime("%d %b"),
             year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
+
+    def __init__(self, **kwargs):
+        super(Project, self).__init__(**kwargs)
+        self.voteset = Voteset(type=SET_TYPE.PROJECT)
+        self.commentset = Commentset(type=SET_TYPE.PROJECT)
 
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
@@ -220,17 +225,8 @@ class Project(BaseScopedNameMixin, db.Model):
     #     pass
 
     @property
-    def url(self):
-        return self.url_for(_external=True)
-
-    @property
     def url_json(self):
         return self.url_for('json', _external=True)
-
-    def __init__(self, **kwargs):
-        super(Project, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROJECT)
-        self.commentset = Commentset(type=SET_TYPE.PROJECT)
 
     @db.validates('name')
     def _validate_name(self, key, value):

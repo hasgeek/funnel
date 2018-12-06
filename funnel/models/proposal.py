@@ -156,11 +156,19 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'title', 'speaker', 'speaking', 'email', 'phone', 'bio', 'section', 'objective', 'session_type',
+                'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
                 'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
                 'latitude', 'longitude', 'coordinates'
                 },
+            # 'call': {
+            #     'url_for'
+            #     }
             },
+        'reviewer': {
+            'read': {
+                'email', 'phone'
+                }
+            }
         }
 
     def __init__(self, **kwargs):

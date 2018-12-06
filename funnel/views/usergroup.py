@@ -1,24 +1,47 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, redirect, request
-from coaster.views import load_models
+from coaster.views import load_models, route, render_with, requires_permission
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, User, UserGroup, Project, ProjectRedirect
+from ..models import db, Profile, UserGroup, Project, ProjectRedirect
 from ..forms import UserGroupForm
+from .mixins import ProjectViewBaseMixin
 
 
-@app.route('/<profile>/<project>/users')
-@funnelapp.route('/<project>/users', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view-usergroup')
-def usergroup_list(profile, project):
-    return render_template('usergroups.html.jinja2', project=project, usergroups=project.usergroups)
+@route('/<profile>/<project>/users')
+class ProjectUsergroupView(ProjectViewBaseMixin):
+    @route('')
+    @render_with('usergroups.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('view-usergroup')
+    def usergroups(self):
+        return dict(project=self.obj, usergroups=self.obj.usergroups)
+
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-usergroup')
+    def new_usergroup(self):
+        form = UserGroupForm(model=UserGroup, parent=self.obj)
+        if form.validate_on_submit():
+            usergroup = UserGroup(project=self.obj)
+            usergroup.name = form.name.data
+            usergroup.title = form.title.data
+            usergroup.users = form.users.data
+            db.session.commit()
+            return redirect(usergroup.url_for(), code=303)
+        return render_form(form=form, title=_("New user group"), submit=_("Create user group"))
+
+
+@route('/<project>/users', subdomain='<profile>')
+class FunnelProjectUsergroupView(ProjectUsergroupView):
+    pass
+
+
+ProjectUsergroupView.init_app(app)
+FunnelProjectUsergroupView.init_app(funnelapp)
 
 
 @app.route('/<profile>/<project>/users/<group>')
@@ -33,9 +56,7 @@ def usergroup_view(profile, project, usergroup):
     return render_template('usergroup.html.jinja2', project=project, usergroup=usergroup)
 
 
-@app.route('/<profile>/<project>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'])
 @app.route('/<profile>/<project>/users/<group>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/users/new', defaults={'group': None}, endpoint='usergroup_new', methods=['GET', 'POST'], subdomain='<profile>')
 @funnelapp.route('/<project>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
 @load_models(

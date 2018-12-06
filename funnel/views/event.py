@@ -30,7 +30,7 @@ class ProjectEventView(ProjectViewBaseMixin):
     @route('new')
     @lastuser.requires_login
     @requires_permission('new-event')
-    def events_new(self):
+    def new_event(self):
         form = EventForm()
         if form.validate_on_submit():
             event = Event(project=self.obj)
