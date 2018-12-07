@@ -76,7 +76,7 @@ class ProjectParticipantView(ProjectViewBaseMixin):
     def participants_json(self):
         return jsonify(participants=[participant_data(participant, self.obj.id) for participant in self.obj.participants])
 
-    @route('new')
+    @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-participant')
     def new_participant(self):

@@ -12,9 +12,10 @@ class ProjectViewBaseMixin(UrlForView, ModelView):
                 Project.name == project, Profile.name == profile
             ).first()
         if proj is None:
-            proj = ProjectRedirect.query.join(Profile).filter(
+            projredir = ProjectRedirect.query.join(Profile).filter(
                     ProjectRedirect.name == project, Profile.name == profile
                 ).first_or_404()
+            proj = projredir.project
         g.profile = proj.profile
         return proj
 
