@@ -470,7 +470,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def fetch_sorted(cls):
         # sorts the projects so that both new and old projects are sorted from closest to farthest
         now = db.func.utcnow()
-        currently_listed_projects = cls.query.filter_by(parent=None).filter(
+        currently_listed_projects = cls.query.filter_by(parent_project=None).filter(
             cls.state.CURRENTLY_LISTED)
         upcoming = currently_listed_projects.filter(cls.date >= now).order_by(cls.date.asc())
         past = currently_listed_projects.filter(cls.date < now).order_by(cls.date.desc())

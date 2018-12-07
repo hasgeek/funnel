@@ -17,7 +17,7 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
     return {'projects': projects}
 
 
@@ -26,7 +26,7 @@ def index():
 def funnelindex():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
     return {'projects': projects}
 
 
