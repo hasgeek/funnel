@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from werkzeug.utils import cached_property
-
 from flask import url_for
 
 from flask_lastuser.sqlalchemy import ProfileBase

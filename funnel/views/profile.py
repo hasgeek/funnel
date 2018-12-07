@@ -66,7 +66,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @render_with('funnelindex.html.jinja2')
     @requires_permission('view')
     def view(self):
-        return dict(profile=self.obj, projects=self.obj.parent_projects)
+        return dict(profile=self.obj, projects=self.obj.listed_projects)
 
     @route('json')
     @render_with(json=True)
