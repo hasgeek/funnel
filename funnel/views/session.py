@@ -79,6 +79,7 @@ FunnelProjectSessionView.init_app(funnelapp)
 
 @app.route('/<profile>/<project>/<proposal>/schedule', methods=['GET', 'POST'])
 @funnelapp.route('/<project>/<proposal>/schedule', methods=['GET', 'POST'], subdomain='<profile>')
+@Proposal.is_url_for('schedule', profile='project.profile.name', project='project.name', proposal='url_name')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

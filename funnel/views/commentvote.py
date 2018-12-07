@@ -10,6 +10,7 @@ from ..models import db, Profile, Project, ProjectRedirect, Proposal, ProposalRe
 
 @app.route('/<profile>/<project>/<proposal>/voteup', methods=['POST'])
 @funnelapp.route('/<project>/<proposal>/voteup', subdomain='<profile>', methods=['POST'])
+@Proposal.is_url_for('voteup', profile='project.profile.name', project='project.name', proposal='url_name')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -31,6 +32,7 @@ def proposal_voteup(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>/votedown', methods=['POST'])
 @funnelapp.route('/<project>/<proposal>/votedown', subdomain='<profile>', methods=['POST'])
+@Proposal.is_url_for('votedown', profile='project.profile.name', project='project.name', proposal='url_name')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -52,6 +54,7 @@ def proposal_votedown(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>/cancelvote', methods=['POST'])
 @funnelapp.route('/<project>/<proposal>/cancelvote', subdomain='<profile>', methods=['POST'])
+@Proposal.is_url_for('votecancel', profile='project.profile.name', project='project.name', proposal='url_name')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),

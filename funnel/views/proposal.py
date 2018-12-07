@@ -142,6 +142,7 @@ FunnelProjectProposalView.init_app(funnelapp)
 
 @app.route('/<profile>/<project>/<proposal>/edit', methods=['GET', 'POST'])
 @funnelapp.route('/<project>/<proposal>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@Proposal.is_url_for('edit', profile='project.profile.name', project='project.name', proposal='url_name')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -175,6 +176,7 @@ def proposal_edit(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>/transition', methods=['POST'])
 @funnelapp.route('/<project>/<proposal>/transition', methods=['POST'], subdomain='<profile>')
+@Proposal.is_url_for('transition', profile='project.profile.name', project='project.name', proposal='url_name')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -196,6 +198,7 @@ def proposal_transition(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>/delete', methods=['GET', 'POST'])
 @funnelapp.route('/<project>/<proposal>/delete', methods=['GET', 'POST'], subdomain='<profile>')
+@Proposal.is_url_for('delete', profile='project.profile.name', project='project.name', proposal='url_name')
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
@@ -214,6 +217,7 @@ def proposal_delete(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>', methods=['GET', 'POST'])
 @funnelapp.route('/<project>/<proposal>', methods=['GET', 'POST'], subdomain='<profile>')
+@Proposal.is_url_for('view', profile='project.profile.name', project='project.name', proposal='url_name')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
@@ -355,6 +359,7 @@ def session_feedback(profile, project, proposal, id_type, userid, content, prese
 
 @app.route('/<profile>/<project>/<proposal>/json', methods=['GET', 'POST'])
 @funnelapp.route('/<project>/<proposal>/json', methods=['GET', 'POST'], subdomain='<profile>')
+@Proposal.is_url_for('json', profile='project.profile.name', project='project.name', proposal='url_name')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
@@ -366,6 +371,7 @@ def proposal_json(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>/next')
 @funnelapp.route('/<project>/<proposal>/next', subdomain='<profile>')
+@Proposal.is_url_for('next', profile='project.profile.name', project='project.name', proposal='url_name')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
@@ -382,6 +388,7 @@ def proposal_next(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>/prev')
 @funnelapp.route('/<project>/<proposal>/prev', subdomain='<profile>')
+@Proposal.is_url_for('prev', profile='project.profile.name', project='project.name', proposal='url_name')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
@@ -398,6 +405,7 @@ def proposal_prev(profile, project, proposal):
 
 @app.route('/<profile>/<project>/<proposal>/move', methods=['POST'])
 @funnelapp.route('/<project>/<proposal>/move', methods=['POST'], subdomain='<profile>')
+@Proposal.is_url_for('moveto', profile='project.profile.name', project='project.name', proposal='url_name')
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
