@@ -18,6 +18,7 @@ from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
 from .mixins import ProjectViewMixin, ProfileViewMixin
+from .decorators import legacy_redirect
 
 
 def project_data(project):
@@ -74,6 +75,8 @@ FunnelProfileProjectView.init_app(funnelapp)
 
 @route('/<profile>/<project>/')
 class ProjectView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('project.html.jinja2')
     @requires_permission('view')
