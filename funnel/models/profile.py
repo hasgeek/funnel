@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
-
 from flask_lastuser.sqlalchemy import ProfileBase
 
 from . import MarkdownColumn, UuidMixin, db
@@ -24,10 +22,6 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     teams = db.relationship(
         Team, primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
         backref='profile', lazy='dynamic')
-
-    parent_projects = db.relationship(
-        'Project', primaryjoin='and_(Profile.id == Project.profile_id, Project.parent_id == None)',
-        lazy='dynamic')
 
     __roles__ = {
         'all': {
