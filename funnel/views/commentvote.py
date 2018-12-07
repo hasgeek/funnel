@@ -41,10 +41,10 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         flash(message, 'info')
         return redirect(self.obj.url_for(), code=303)
 
-    @route('cancelvote', methods=['POST'])
+    @route('delete_vote', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('vote-proposal')
-    def cancelvote(self):
+    def delete_vote(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
             abort(403)
@@ -103,10 +103,10 @@ class CommentView(CommentViewMixin, UrlForView, ModelView):
         flash(message, 'info')
         return redirect(self.proposal.url_for(), code=303)
 
-    @route('cancelvote', methods=['POST'])
+    @route('delete_vote', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('vote-comment')
-    def cancelvote(self):
+    def delete_vote(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
             abort(403)

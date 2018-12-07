@@ -145,12 +145,12 @@
                     {%- endif -%}
                     <b>{{ proposal.voteset.count }}</b>
                   </span>
-                  <form method="post" action="{{ proposal.url_for('cancelvote') }}">
+                  <form method="post" action="{{ proposal.url_for('delete_vote') }}">
                     {{ csrf_form.hidden_tag() }}
                     <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_down</i></button>
                   </form>
                 {%- else %}
-                  <form method="post" action="{{ proposal.url_for('cancelvote') }}">
+                  <form method="post" action="{{ proposal.url_for('delete_vote') }}">
                     {{ csrf_form.hidden_tag() }}
                     <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
                   </form>

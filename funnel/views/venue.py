@@ -87,7 +87,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @route('makeprimary', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('edit-venue')
-    def make_venue_primary(self):
+    def makeprimary_venue(self):
         form = VenuePrimaryForm(parent=self.obj)
         if form.validate_on_submit():
             venue = form.venue.data
