@@ -25,9 +25,6 @@ class Profile(UuidMixin, ProfileBase, db.Model):
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
-    teams = db.relationship('Team',
-        primaryjoin="Profile.userid == foreign(Team.orgid)", order_by='Team.title')
-
     __roles__ = {
         'all': {
             'read': {
@@ -35,6 +32,10 @@ class Profile(UuidMixin, ProfileBase, db.Model):
             },
         },
     }
+
+    @cached_property
+    def teams(self):
+        return Team.query.filter_by(orgid=self.userid).order_by(Team.title).all()
 
     @cached_property
     def parent_projects(self):
