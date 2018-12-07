@@ -51,7 +51,7 @@
                       {{/if}}
                     </p>
                     {{#rooms:room, roomIndex}} 
-                      <div class="schedule__row__column {{#if talks}}schedule__row__column--talks {{title}}{{/if}} {{#if talks && activeTab == title}}js-active{{/if}}" {{#if getColumnWidth('content')}}style="width: calc(100% - {{getColumnWidth('content')}}px)"{{else}}style="width: 100%"{{/if}}>
+                      <div {{#if width && getColumnWidth('content')}}style="width: calc(100% - {{getColumnWidth('content')}}px);"{{else}}style="width: 100%"{{/if}} class="schedule__row__column {{#if talks}}schedule__row__column--talks {{title}}{{/if}} {{#if talks && activeTab == title}}js-active{{/if}}">
                         {{#if talks}}
                           <div class="schedule__row__column__content {{#if expand}}schedule__row__column__content--expand{{/if}} js-expand-container" style="height: calc({{talks.duration}}*{{rowHeight}}px);">
                             <div class="schedule__row__column__content__title">

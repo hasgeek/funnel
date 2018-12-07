@@ -404,14 +404,14 @@ window.Talkfunnel.Schedule = {
         rowHeight: '30',
         timeSlotWidth: '75',
         activeTab: self.config.rooms[Object.keys(self.config.rooms)[0]].title,
-        width: $(window).width(), 
+        width: $(window).width(),
         height: $(window).height(),
         modalHtml: '',
         getTimeStr: function(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
         getColumnWidth: function(columnType) {
-          if($(document).width() > 991 || columnType === 'header') {
+          if(columnType === 'header' || this.get('width') > 991) {
             return (this.get('timeSlotWidth')/this.get('rowWidth'));
           } else {
             return 0;
@@ -423,19 +423,21 @@ window.Talkfunnel.Schedule = {
         this.set('activeTab', room);
       },
       expandDescription: function(event) {
+        var self = this;
         event.original.preventDefault();
         if(!this.get(event.keypath + '.expand')) {
           this.set(event.keypath + '.expand', true);
           var containerHeight = $(event.node).parent('.js-expand-container').outerHeight();
           this.set(event.keypath + '.height', containerHeight);
           var height = containerHeight + $(event.node).next('.js-expand-content').outerHeight();
-          height = height > 5 * containerHeight ? (5 * containerHeight) : height;
-          $(event.node).parent('.js-expand-container').animate({"height": height, "z-index": 4}, "fast");
-          $(event.node).next('.js-expand-content').animate({"opacity": 1},  "medium");
+          height = height > 2 * containerHeight ? (2 * containerHeight) : height;
+          $(event.node).parent('.js-expand-container').animate({"height": height}, 500);
+          $(event.node).next('.js-expand-content').animate({"opacity": 1},  500);
         } else {
-          this.set(event.keypath + '.expand', false);
-          $(event.node).next('.js-expand-content').animate({"opacity": 0},  "medium");
-          $(event.node).parent('.js-expand-container').animate({"height": this.get(event.keypath + '.height'), "z-index": 2}, "medium");
+          $(event.node).parent('.js-expand-container').animate({"height": this.get(event.keypath + '.height')}, 500);
+          $(event.node).next('.js-expand-content').animate({"opacity": 0},  500, function() {
+            self.set(event.keypath + '.expand', false);
+          });
         }
       },
       showSessionModal: function(event) {

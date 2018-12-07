@@ -2,7 +2,7 @@
   margin: 30px 0;
 
   .schedule__date {
-  	margin-top: 15px;
+  	margin-bottom: 30px;
   }
 
 	.schedule__row {
@@ -26,6 +26,7 @@
 				border-bottom: 1px solid rgba(132,146,166,0.3);
 				border-left: 1px solid rgba(132,146,166,0.3);
 				border-right: 1px solid rgba(132,146,166,0.3);
+				overflow: hidden;
 
 				.schedule__row__column__content__title {
 					float: left;
@@ -56,6 +57,7 @@
 
 			.schedule__row__column__content--expand {
 				overflow: scroll;
+				z-index: 6;
 				box-shadow: 0 1px 3px rgba(158,158,158,0.12), 0 1px 2px rgba(158,158,158,0.24);
 			}
 
