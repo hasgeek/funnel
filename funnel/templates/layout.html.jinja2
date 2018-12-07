@@ -12,9 +12,9 @@
       <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
       <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
       {%- if project %}
-        {%- if project.parent %}
+        {%- if project.parent_project %}
           <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-          <a href="{{ project.parent.url_for() }}" class="header__site-title__item">{{ project.parent.short_title() }}</a>
+          <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item">{{ project.parent_project.short_title() }}</a>
         {%- endif %}
         <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
         <a href="{{ project.url_for() }}" class="header__site-title__item">{{ project.short_title() }}</a>
