@@ -93,7 +93,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     checkin_team = db.relationship(Team, foreign_keys=[checkin_team_id])
 
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)
-    parent = db.relationship('Project', remote_side='Project.id', backref='subprojects')
+    parent_project = db.relationship('Project', remote_side='Project.id', backref='subprojects')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
 

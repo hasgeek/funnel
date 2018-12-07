@@ -107,9 +107,9 @@ def proposal_new(profile, project):
     form = ProposalForm(model=Proposal, parent=project)
     del form.session_type  # We don't use this anymore
     if project.inherit_sections:
-        form.section.query = Section.query.filter(or_(Section.project == project, Section.project == project.parent), Section.public == True).order_by('title')
+        form.section.query = Section.query.filter(or_(Section.project == project, Section.project == project.parent_project), Section.public == True).order_by('title')  # NOQA
     else:
-        form.section.query = Section.query.filter(Section.project == project, Section.public == True).order_by('title')
+        form.section.query = Section.query.filter(Section.project == project, Section.public == True).order_by('title')  # NOQA
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section
@@ -145,9 +145,9 @@ def proposal_edit(profile, project, proposal):
     if not proposal.session_type:
         del form.session_type  # Remove this if we're editing a proposal that had no session type
     if project.inherit_sections:
-        form.section.query = Section.query.filter(or_(Section.project == project, Section.project == project.parent), Section.public == True).order_by('title')
+        form.section.query = Section.query.filter(or_(Section.project == project, Section.project == project.parent_project), Section.public == True).order_by('title')  # NOQA
     else:
-        form.section.query = Section.query.filter(Section.project == project, Section.public == True).order_by('title')
+        form.section.query = Section.query.filter(Section.project == project, Section.public == True).order_by('title')  # NOQA
     if len(list(form.section.query.all())) == 0:
         # Don't bother with sections when there aren't any
         del form.section

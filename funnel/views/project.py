@@ -126,7 +126,7 @@ def project_view_csv(profile, project):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='edit-project')
 def project_edit(profile, project):
-    if project.parent:
+    if project.parent_project:
         form = ProposalSubprojectForm(obj=project, model=Project)
     else:
         form = ProjectForm(obj=project, parent=profile, model=Project)
