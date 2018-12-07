@@ -6,14 +6,16 @@ from flask import url_for
 
 from flask_lastuser.sqlalchemy import ProfileBase
 
-from . import MarkdownColumn, db
+from . import MarkdownColumn, UuidMixin, db
 from .user import Team
 
 __all__ = ['Profile']
 
 
-class Profile(ProfileBase, db.Model):
+class Profile(UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
+
+    userid = UuidMixin.buid
 
     admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
     admin_team = db.relationship(Team)

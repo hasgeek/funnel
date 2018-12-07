@@ -10,7 +10,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..util import geonameid_from_location
-from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, db
+from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, db
 from .user import Team, User
 from .commentvote import Commentset, SET_TYPE, Voteset
 
@@ -36,7 +36,7 @@ class PROJECT_STATE(LabeledEnum):  # NOQA
 
 # --- Models ------------------------------------------------------------------
 
-class Project(BaseScopedNameMixin, db.Model):
+class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'project'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
