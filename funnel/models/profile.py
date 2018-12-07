@@ -35,13 +35,9 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         },
     }
 
-    @cached_property
-    def parent_projects(self):
-        from .project import Project
-        projects_all = Project.fetch_sorted().filter(
-            Project.profile == self, Project.parent == None  # NOQA
-        ).all()
-        return projects_all
+    parent_projects = db.relationship(
+        'Project', primaryjoin='and_(Profile.id == Project.profile_id, Project.parent_id == None)',
+        lazy='dynamic')
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
