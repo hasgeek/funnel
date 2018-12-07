@@ -48,23 +48,6 @@ def all_projects_json():
     return jsonp(projects=map(project_data, projects),
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
 
-
-@app.route('/<profile>/json')
-@funnelapp.route('/json', subdomain='<profile>')
-@load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
-def projects_json(profile):
-    projects = Project.fetch_sorted().filter_by(profile=profile).all()
-    return jsonp(projects=map(project_data, projects),
-        spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
-
-
-@app.route('/<profile>/')
-@funnelapp.route('/', subdomain='<profile>')
-@load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
-def profile_view(profile):
-    return render_template('funnelindex.html.jinja2', projects=profile.parent_projects)
-
-
 # Legacy routes for funnel to talkfunnel migration
 # Figure out how to restrict these routes to just the funnel.hasgeek.com domain
 

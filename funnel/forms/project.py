@@ -68,7 +68,7 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
 
     def set_queries(self):
-        profile_teams = self.edit_obj.profile.teams
+        profile_teams = self.edit_parent.teams
         self.admin_team.query = profile_teams
         self.review_team.query = profile_teams
         self.checkin_team.query = profile_teams

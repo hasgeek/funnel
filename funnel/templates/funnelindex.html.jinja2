@@ -82,7 +82,7 @@
     <div class="grid">
       <div class="grid__col-sm-12">
         <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-          {% if 'new-project' in g.permissions %}<a href="{{g.profile.url_for('new-project')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+          {% if 'new-project' in current_auth.permissions %}<a href="{{g.profile.url_for('new_project')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
         </p>
       </div>
     </div>

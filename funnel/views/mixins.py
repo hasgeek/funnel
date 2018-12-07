@@ -1,4 +1,4 @@
-from flask import abort
+from flask import g
 from coaster.views import UrlForView, ModelView
 from ..models import Project, Profile, ProjectRedirect
 
@@ -15,4 +15,15 @@ class ProjectViewBaseMixin(UrlForView, ModelView):
             proj = ProjectRedirect.query.join(Profile).filter(
                     ProjectRedirect.name == project, Profile.name == profile
                 ).first_or_404()
+        g.profile = proj.profile
         return proj
+
+
+class ProfileViewBaseMixin(UrlForView, ModelView):
+    model = Profile
+    route_model_map = {'profile': 'name'}
+
+    def loader(self, profile):
+        profile = self.model.query.filter(Profile.name == profile).first_or_404()
+        g.profile = profile
+        return profile

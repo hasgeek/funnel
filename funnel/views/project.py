@@ -9,7 +9,7 @@ from coaster.auth import current_auth
 from coaster.views import load_models, jsonp, route, render_with, requires_permission
 
 from .. import app, funnelapp, lastuser
-from ..models import (db, Profile, Project, ProjectRedirect, Section,
+from ..models import (db, Profile, Project, Section,
     Proposal, Rsvp, RSVP_STATUS)
 from ..forms import ProjectForm, ProposalSubprojectForm, RsvpForm, ProjectTransitionForm
 from ..jobs import tag_locations, import_tickets
@@ -17,7 +17,7 @@ from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-from .mixins import ProjectViewBaseMixin
+from .mixins import ProjectViewBaseMixin, ProfileViewBaseMixin
 
 
 def project_data(project):
@@ -40,28 +40,36 @@ def project_data(project):
         }
 
 
-@app.route('/<profile>/new', methods=['GET', 'POST'])
-@funnelapp.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    permission='new-project')
-def project_new(profile):
-    form = ProjectForm(model=Project, parent=profile)
-    form.parent.query_factory = lambda: profile.projects
-    if request.method == 'GET':
-        form.timezone.data = current_app.config.get('TIMEZONE')
-    if form.validate_on_submit():
-        project = Project(user=g.user, profile=profile)
-        form.populate_obj(project)
-        # Set labels with default configuration
-        project.set_labels()
-        db.session.add(project)
-        db.session.commit()
-        flash(_("Your new project has been created"), 'info')
-        tag_locations.delay(project.id)
-        return redirect(project.url_for(), code=303)
-    return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=profile.url_for())
+@route('/<profile>')
+class ProfileProjectView(ProfileViewBaseMixin):
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-project')
+    def new_project(self):
+        form = ProjectForm(model=Project, parent=self.obj)
+        form.parent.query_factory = lambda: self.obj.projects
+        if request.method == 'GET':
+            form.timezone.data = current_app.config.get('TIMEZONE')
+        if form.validate_on_submit():
+            project = Project(user=current_auth.user, profile=self.obj)
+            form.populate_obj(project)
+            # Set labels with default configuration
+            project.set_labels()
+            db.session.add(project)
+            db.session.commit()
+            flash(_("Your new project has been created"), 'info')
+            tag_locations.delay(project.id)
+            return redirect(project.url_for(), code=303)
+        return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=self.obj.url_for())
+
+
+@route('/', subdomain='<profile>')
+class FunnelProfileProjectView(ProfileProjectView):
+    pass
+
+
+ProfileProjectView.init_app(app)
+FunnelProfileProjectView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/')

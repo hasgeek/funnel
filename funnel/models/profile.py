@@ -54,14 +54,6 @@ class Profile(ProfileBase, db.Model):
                 perms.add('edit-project')
         return perms
 
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return url_for('profile_view', profile=self.name, _external=_external)
-        if action == 'edit':
-            return url_for('profile_edit', profile=self.name, _external=_external)
-        elif action == 'new-project':
-            return url_for('project_new', profile=self.name, _external=_external)
-
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)
         if actor is not None and self.admin_team in actor.teams:

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from flask import g, Markup, request, flash, url_for, redirect
-from coaster.views import load_models
+from coaster.views import route, requires_permission, render_with, jsonp
 from baseframe import _
 from baseframe.forms import render_message, render_redirect, render_form
-from ..models import db, Profile, Team
+from ..models import db, Profile, Team, Project
 from ..forms import NewProfileForm, EditProfileForm
 from .. import app, funnelapp, lastuser
+from .mixins import ProfileViewBaseMixin
+from .project import project_data
 
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -58,21 +60,43 @@ def profile_new():
         ajax=False)
 
 
-@app.route('/<profile>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/edit', methods=['GET', 'POST'], subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    permission='edit-profile')
-def profile_edit(profile):
-    form = EditProfileForm(obj=profile, model=Profile)
-    if form.validate_on_submit():
-        form.populate_obj(profile)
-        db.session.commit()
-        flash(_("Your changes have been saved"), 'info')
-        return redirect(profile.url_for(), code=303)
-    return render_form(
-        form=form,
-        title=_("Edit Talkfunnel settings"),
-        submit=_("Save changes"),
-        cancel_url=profile.url_for(),
-        ajax=False)
+@route('/<profile>')
+class ProfileView(ProfileViewBaseMixin):
+    @route('')
+    @render_with('funnelindex.html.jinja2')
+    @requires_permission('view')
+    def view(self):
+        return dict(profile=self.obj, projects=self.obj.parent_projects)
+
+    @route('json')
+    @render_with(json=True)
+    @requires_permission('view')
+    def json(self):
+        projects = Project.fetch_sorted().filter_by(profile=self.obj).all()
+        return jsonp(projects=map(project_data, projects),
+            spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
+
+    @route('edit', methods=['GET', 'POST'])
+    @requires_permission('edit-profile')
+    def edit(self):
+        form = EditProfileForm(obj=self.obj, model=Profile)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            return redirect(self.obj.url_for(), code=303)
+        return render_form(
+            form=form,
+            title=_("Edit project details"),
+            submit=_("Save changes"),
+            cancel_url=self.obj.url_for(),
+            ajax=False)
+
+
+@route('/', subdomain='<profile>')
+class FunnelProfileView(ProfileView):
+    pass
+
+
+ProfileView.init_app(app)
+FunnelProfileView.init_app(funnelapp)
