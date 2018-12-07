@@ -14,7 +14,7 @@ from coaster.views import load_models, requestargs, jsonp, cors, route, render_w
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Session, VenueRoom, Venue
-from .mixins import ProjectViewBaseMixin
+from .mixins import ProjectViewBaseMixin, VenueRoomViewBaseMixin
 from .helpers import localize_date
 from .venue import venue_data, room_data
 
@@ -219,68 +219,67 @@ ProjectScheduleView.init_app(app)
 FunnelProjectScheduleView.init_app(funnelapp)
 
 
-@app.route('/<profile>/<project>/schedule/<venue>/<room>/ical')
-@funnelapp.route('/<project>/schedule/<venue>/<room>/ical', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
-    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission='view')
-def schedule_room_ical(profile, project, venue, room):
-    cal = Calendar()
-    cal.add('prodid', "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
-        room=room.title,
-        venue=venue.title,
-        event=project.title,
-        ))
-    cal.add('version', "2.0")
-    cal.add('summary', "Schedule for room {room} at {venue} for {event}".format(
-        room=room.title,
-        venue=venue.title,
-        event=project.title,
-        ))
-    # Last updated time for calendar needs to be set. Cannot figure out how.
-    # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
-    # cal.add('last-modified', latest_session[0])
-    cal.add('x-wr-calname', "{event} - {room} @ {venue}".format(
-        room=room.title,
-        venue=venue.title,
-        event=project.title,
-        ))
-    for session in room.scheduled_sessions:
-        cal.add_component(session_ical(session))
-    return Response(cal.to_ical(), mimetype='text/calendar')
+@route('/<profile>/<project>/schedule/<venue>/<room>')
+class ScheduleVenueRoomView(VenueRoomViewBaseMixin):
+    @route('ical')
+    @requires_permission('view')
+    def ical(self):
+        cal = Calendar()
+        cal.add('prodid', "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
+            room=self.obj.title,
+            venue=self.obj.venue.title,
+            event=self.obj.venue.project.title,
+            ))
+        cal.add('version', "2.0")
+        cal.add('summary', "Schedule for room {room} at {venue} for {event}".format(
+            room=self.obj.title,
+            venue=self.obj.venue.title,
+            event=self.obj.venue.project.title,
+            ))
+        # Last updated time for calendar needs to be set. Cannot figure out how.
+        # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
+        # cal.add('last-modified', latest_session[0])
+        cal.add('x-wr-calname', "{event} - {room} @ {venue}".format(
+            room=self.obj.title,
+            venue=self.obj.venue.title,
+            event=self.obj.venue.project.title,
+            ))
+        for session in self.obj.scheduled_sessions:
+            cal.add_component(session_ical(session))
+        return Response(cal.to_ical(), mimetype='text/calendar')
+
+    @route('updates')
+    @render_with('room_updates.html.jinja2')
+    @requires_permission('view')
+    def updates(self):
+        now = datetime.utcnow()
+        current = Session.query.filter(
+            Session.start <= now, Session.end >= now,
+            Session.project == self.obj.venue.project,
+            or_(Session.venue_room == room, Session.is_break == True)  # NOQA
+            ).first()
+        next = Session.query.filter(
+            Session.start > now,
+            or_(Session.venue_room == room, Session.is_break == True),  # NOQA
+            Session.project == self.obj.venue.project
+            ).order_by(Session.start).first()
+        if current:
+            current.start = localize_date(current.start, to_tz=self.obj.venue.project.timezone)
+            current.end = localize_date(current.end, to_tz=self.obj.venue.project.timezone)
+        nextdiff = None
+        if next:
+            next.start = localize_date(next.start, to_tz=self.obj.venue.project.timezone)
+            next.end = localize_date(next.end, to_tz=self.obj.venue.project.timezone)
+            nextdiff = next.start.date() - now.date()
+            nextdiff = nextdiff.total_seconds() / 86400
+        print current, next
+        return dict(room=self.obj, current=current, next=next, nextdiff=nextdiff)
 
 
-@app.route('/<profile>/<project>/schedule/<venue>/<room>/updates')
-@funnelapp.route('/<project>/schedule/<venue>/<room>/updates', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
-    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission='view')
-def schedule_room_updates(profile, project, venue, room):
-    now = datetime.utcnow()
-    current = Session.query.filter(
-        Session.start <= now, Session.end >= now,
-        Session.project == project,
-        or_(Session.venue_room == room, Session.is_break == True)  # NOQA
-        ).first()
-    next = Session.query.filter(
-        Session.start > now,
-        or_(Session.venue_room == room, Session.is_break == True),  # NOQA
-        Session.project == project
-        ).order_by(Session.start).first()
-    if current:
-        current.start = localize_date(current.start, to_tz=project.timezone)
-        current.end = localize_date(current.end, to_tz=project.timezone)
-    nextdiff = None
-    if next:
-        next.start = localize_date(next.start, to_tz=project.timezone)
-        next.end = localize_date(next.end, to_tz=project.timezone)
-        nextdiff = next.start.date() - now.date()
-        nextdiff = nextdiff.total_seconds() / 86400
-    print current, next
-    return render_template('room_updates.html.jinja2', room=room, current=current, next=next, nextdiff=nextdiff)
+@route('/<project>/schedule/<venue>/<room>', subdomain='<profile>')
+class FunnelScheduleVenueRoomView(ScheduleVenueRoomView):
+    pass
+
+
+ScheduleVenueRoomView.init_app(app)
+FunnelScheduleVenueRoomView.init_app(funnelapp)
