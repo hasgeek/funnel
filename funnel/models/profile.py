@@ -15,6 +15,8 @@ __all__ = ['Profile']
 class Profile(UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
 
+    userid = UuidMixin.buid
+
     admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
     admin_team = db.relationship(Team)
 

@@ -12,6 +12,10 @@ __all__ = ['User', 'Team']
 class User(UuidMixin, UserBase2, db.Model):
     __tablename__ = 'user'
 
+    userid = UuidMixin.buid
+
 
 class Team(UuidMixin, TeamBase, db.Model):
     __tablename__ = 'team'
+
+    userid = UuidMixin.buid
