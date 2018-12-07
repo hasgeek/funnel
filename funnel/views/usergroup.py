@@ -8,7 +8,7 @@ from baseframe.forms import render_form, render_delete_sqla
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, UserGroup, Project, ProjectRedirect
 from ..forms import UserGroupForm
-from .mixins import ProjectViewBaseMixin
+from .mixins import ProjectViewBaseMixin, UserGroupViewBaseMixin
 
 
 @route('/<profile>/<project>/users')
@@ -44,61 +44,43 @@ ProjectUsergroupView.init_app(app)
 FunnelProjectUsergroupView.init_app(funnelapp)
 
 
-@app.route('/<profile>/<project>/users/<group>')
-@funnelapp.route('/<project>/users/<group>', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (UserGroup, {'name': 'group', 'project': 'project'}, 'usergroup'),
-    permission='view-usergroup')
-def usergroup_view(profile, project, usergroup):
-    return render_template('usergroup.html.jinja2', project=project, usergroup=usergroup)
+@route('/<profile>/<project>/users/<group>')
+class UserGroupView(UserGroupViewBaseMixin):
+    @route('')
+    @render_with('usergroup.html.jinja2')
+    @requires_permission('view-usergroup')
+    def view(self):
+        return dict(project=self.obj.project, usergroup=self.obj)
+
+    @route('edit', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-usergroup')
+    def edit(self):
+        form = UserGroupForm(model=UserGroup, object=self.obj, parent=self.obj.project)
+        if form.validate_on_submit():
+            self.obj.name = form.name.data
+            self.obj.title = form.title.data
+            self.obj.users = form.users.data
+            db.session.commit()
+            return redirect(self.obj.url_for(), code=303)
+        else:
+            return render_form(form=form, title=_("Edit user group"), submit=_("Save changes"))
+
+    @route('delete', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('delete-usergroup')
+    def delete(self):
+        return render_delete_sqla(self.obj, db, title=_(u"Confirm delete"),
+            message=_(u"Do you really wish to delete user group ‘{title}’?").format(title=self.obj.title),
+            success=_("Your user group has been deleted"),
+            next=self.obj.project.url_for('usergroups'),
+            cancel_url=self.obj.project.url_for('usergroups'))
 
 
-@app.route('/<profile>/<project>/users/<group>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/users/<group>/edit', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-usergroup', kwargs=True)
-def usergroup_edit(profile, project, kwargs):
-    group = kwargs.get('group')
-    form = UserGroupForm(model=UserGroup, parent=project)
-    if group is not None:
-        usergroup = UserGroup.query.filter_by(name=group, project=project).first_or_404()
-        form.edit_id = usergroup.id
-        if request.method == 'GET':
-            form.name.data = usergroup.name
-            form.title.data = usergroup.title
-            form.users.data = usergroup.users
-    if form.validate_on_submit():
-        if group is None:
-            usergroup = UserGroup(project=project)
-        usergroup.name = form.name.data
-        usergroup.title = form.title.data
-        usergroup.users = form.users.data
-        db.session.commit()
-        return redirect(usergroup.url_for(), code=303)
-    if group is None:
-        return render_form(form=form, title=_("New user group"), submit=_("Create user group"))
-
-    else:
-        return render_form(form=form, title=_("Edit user group"), submit=_("Save changes"))
+@route('/<project>/users/<group>', subdomain='<profile>')
+class FunnelUserGroupView(UserGroupView):
+    pass
 
 
-@app.route('/<profile>/<project>/users/<group>/delete', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/users/<group>/delete', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (UserGroup, {'name': 'group', 'project': 'project'}, 'usergroup'),
-    permission='delete-usergroup')
-def usergroup_delete(profile, project, usergroup):
-    return render_delete_sqla(usergroup, db, title=_(u"Confirm delete"),
-        message=_(u"Do you really wish to delete user group ‘{title}’?").format(title=usergroup.title),
-        success=_("Your user group has been deleted"),
-        next=project.url_for('usergroups'),
-        cancel_url=project.url_for('usergroups'))
+UserGroupView.init_app(app)
+FunnelUserGroupView.init_app(funnelapp)

@@ -1,6 +1,6 @@
 from flask import g, abort, redirect
 from coaster.views import UrlForView, ModelView
-from ..models import Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session, Comment, Commentset
+from ..models import Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session, Comment, Commentset, UserGroup
 
 
 class ProjectViewBaseMixin(UrlForView, ModelView):
@@ -56,9 +56,7 @@ class SessionViewBaseMixin(UrlForView, ModelView):
 
 class CommentViewBaseMixin(UrlForView, ModelView):
     model = Comment
-    route_model_map = {
-        'comment': 'id'
-        }
+    route_model_map = {'comment': 'id'}
 
     def loader(self, profile, project, proposal, comment):
         comment = self.model.query.filter(Comment.id == comment).first_or_404()
@@ -67,3 +65,16 @@ class CommentViewBaseMixin(UrlForView, ModelView):
             ).first_or_404()
         g.profile = self.proposal.project.profile
         return comment
+
+
+class UserGroupViewBaseMixin(UrlForView, ModelView):
+    model = UserGroup
+    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'group': 'name'}
+
+    def loader(self, profile, project, group):
+        group = self.model.query.join(Project, Profile).filter(
+                Profile.name == profile, Project.name == project, UserGroup.name == group
+            ).first_or_404()
+        g.profile = group.project.profile
+        return group
+
