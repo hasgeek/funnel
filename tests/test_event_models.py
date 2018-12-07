@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import random
 import unittest
-from funnel import *
+from coaster.utils import buid
+from funnel import app
 from funnel.models import (db, Profile, Project, Event, User, SyncTicket, Participant, TicketClient, TicketType)
 from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2, ticket_list3
 
@@ -23,7 +23,7 @@ class TestEventModels(unittest.TestCase):
         self.ctx.push()
         db.create_all()
         # Initial Setup
-        random_user_id = random.randint(1, 1000)
+        random_user_id = buid()
         self.user = User(userid=unicode(random_user_id), username=u'lukes{userid}'.format(userid=random_user_id), fullname=u"Luke Skywalker",
             email=u'luke{userid}@dagobah.org'.format(userid=random_user_id))
 
