@@ -7,15 +7,13 @@ from flask import url_for
 from flask_lastuser.sqlalchemy import ProfileBase
 
 from . import MarkdownColumn, UuidMixin, db
-from .user import Team
+from .user import UseridMixin, Team
 
 __all__ = ['Profile']
 
 
-class Profile(UuidMixin, ProfileBase, db.Model):
+class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
-
-    userid = UuidMixin.buid
 
     admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
     admin_team = db.relationship(Team)
@@ -25,6 +23,14 @@ class Profile(UuidMixin, ProfileBase, db.Model):
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
+    teams = db.relationship(
+        Team, primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
+        backref='profile', lazy='dynamic')
+
+    parent_projects = db.relationship(
+        'Project', primaryjoin='and_(Profile.id == Project.profile_id, Project.parent_id == None)',
+        lazy='dynamic')
+
     __roles__ = {
         'all': {
             'read': {
@@ -32,18 +38,6 @@ class Profile(UuidMixin, ProfileBase, db.Model):
             },
         },
     }
-
-    @cached_property
-    def teams(self):
-        return Team.query.filter_by(orgid=self.userid).order_by(Team.title).all()
-
-    @cached_property
-    def parent_projects(self):
-        from .project import Project
-        projects_all = Project.fetch_sorted().filter(
-            Project.profile == self, Project.parent == None  # NOQA
-        ).all()
-        return projects_all
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)

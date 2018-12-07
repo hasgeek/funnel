@@ -125,7 +125,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit-project')
     def edit(self):
-        if self.obj.parent:
+        if self.obj.parent_project:
             form = SubprojectForm(obj=self.obj, model=Project)
         else:
             form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)

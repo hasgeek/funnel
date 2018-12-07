@@ -106,7 +106,7 @@ class ProjectProposalView(ProjectViewMixin, UrlForView, ModelView):
         form = ProposalForm(model=Proposal, parent=self.obj)
         del form.session_type  # We don't use this anymore
         if self.obj.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent), Section.public == True).order_by('title')
+            form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent_project), Section.public == True).order_by('title')
         else:
             form.section.query = Section.query.filter(Section.project == self.obj, Section.public == True).order_by('title')
         if len(list(form.section.query.all())) == 0:
@@ -248,7 +248,7 @@ class ProposalView(ProposalViewMixin, UrlForView, ModelView):
         if not self.obj.session_type:
             del form.session_type  # Remove this if we're editing a proposal that had no session type
         if self.obj.project.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj.project, Section.project == self.obj.project.parent), Section.public == True).order_by('title')
+            form.section.query = Section.query.filter(or_(Section.project == self.obj.project, Section.project == self.obj.project.parent_project), Section.public == True).order_by('title')
         else:
             form.section.query = Section.query.filter(Section.project == self.obj.project, Section.public == True).order_by('title')
         if len(list(form.section.query.all())) == 0:
