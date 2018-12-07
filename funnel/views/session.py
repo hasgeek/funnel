@@ -2,14 +2,14 @@
 
 from baseframe import _
 from flask import request, render_template, jsonify, redirect
-from coaster.views import load_models, route, render_with, requires_permission
+from coaster.views import load_models, route, render_with, requires_permission, UrlForView, ModelView
 from coaster.sqlalchemy import failsafe_add
 
 from .helpers import localize_date
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Proposal, ProposalRedirect, Project, ProjectRedirect, Session
 from ..forms import SessionForm
-from .mixins import ProjectViewBaseMixin, SessionViewBaseMixin
+from .mixins import ProjectViewMixin, SessionViewMixin
 
 
 def rooms_list(project):
@@ -60,7 +60,7 @@ def session_form(project, proposal=None, session=None):
 
 
 @route('/<profile>/<project>/sessions')
-class ProjectSessionView(ProjectViewBaseMixin):
+class ProjectSessionView(ProjectViewMixin, UrlForView, ModelView):
     @route('new')
     @lastuser.requires_login
     @requires_permission('new-session')
@@ -91,7 +91,7 @@ def proposal_schedule(profile, project, proposal):
 
 
 @route('/<profile>/<project>/<session>')
-class SessionView(SessionViewBaseMixin):
+class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('viewsession')
     def view(self):
         return redirect(self.obj.project.url_for('schedule') + u"#" + self.obj.url_name, code=303)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import redirect, render_template, url_for, flash, jsonify
-from coaster.views import load_models, route, render_with, requires_permission
+from coaster.views import load_models, route, render_with, requires_permission, UrlForView, ModelView
 from coaster.utils import getbool
 from sqlalchemy.exc import IntegrityError
 from .. import app, funnelapp, lastuser
@@ -9,11 +9,11 @@ from baseframe import forms
 from baseframe import _
 from baseframe.forms import render_form
 from ..forms import EventForm, TicketTypeForm, ParticipantBadgeForm, TicketClientForm
-from .project import ProjectViewBaseMixin
+from .project import ProjectViewMixin
 
 
 @route('/<profile>/<project>/events')
-class ProjectEventView(ProjectViewBaseMixin):
+class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('event_list.html.jinja2')
     @lastuser.requires_login

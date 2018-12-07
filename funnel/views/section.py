@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from flask import flash, redirect
-from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
+from coaster.views import ModelView, UrlForView, render_with, requires_permission, route, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
 
 from .. import app, funnelapp, lastuser
 from ..models import Profile, Project, Section, db
 from ..forms import SectionForm
-from .mixins import ProjectViewBaseMixin
+from .mixins import ProjectViewMixin
 
 
 def section_data(section):
@@ -22,7 +22,7 @@ def section_data(section):
 
 
 @route('/<profile>/<project>/sections')
-class ProjectSectionView(ProjectViewBaseMixin):
+class ProjectSectionView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('sections.html.jinja2')
     @lastuser.requires_login

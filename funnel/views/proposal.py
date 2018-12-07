@@ -7,7 +7,7 @@ from flask import g, render_template, redirect, request, Markup, abort, flash, e
 from flask_mail import Message
 from sqlalchemy import or_
 from coaster.utils import make_name
-from coaster.views import jsonp, load_models, requestargs, requires_permission, route, render_with
+from coaster.views import jsonp, load_models, requestargs, requires_permission, route, render_with, UrlForView, ModelView
 from coaster.gfm import markdown
 from coaster.auth import current_auth
 from baseframe import _
@@ -17,7 +17,7 @@ from .. import app, funnelapp, mail, lastuser
 from ..models import (db, Profile, Project, ProjectRedirect, Section, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
-from .mixins import ProjectViewBaseMixin, ProposalViewBaseMixin
+from .mixins import ProjectViewMixin, ProposalViewMixin
 
 
 proposal_headers = [
@@ -98,7 +98,7 @@ def proposal_data_flat(proposal, groups=[]):
 
 # --- Routes ------------------------------------------------------------------
 @route('/<profile>/<project>')
-class ProjectProposalView(ProjectViewBaseMixin):
+class ProjectProposalView(ProjectViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-proposal')
@@ -141,7 +141,7 @@ FunnelProjectProposalView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/<proposal>')
-class ProposalView(ProposalViewBaseMixin):
+class ProposalView(ProposalViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('proposal.html.jinja2')
     @requires_permission('view')

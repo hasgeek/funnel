@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from flask import g, Markup, request, flash, url_for, redirect
-from coaster.views import route, requires_permission, render_with, jsonp
+from coaster.views import route, requires_permission, render_with, jsonp, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_message, render_redirect, render_form
 from ..models import db, Profile, Team, Project
 from ..forms import NewProfileForm, EditProfileForm
 from .. import app, funnelapp, lastuser
-from .mixins import ProfileViewBaseMixin
+from .mixins import ProfileViewMixin
 from .project import project_data
 
 
@@ -61,7 +61,7 @@ def profile_new():
 
 
 @route('/<profile>')
-class ProfileView(ProfileViewBaseMixin):
+class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('funnelindex.html.jinja2')
     @requires_permission('view')

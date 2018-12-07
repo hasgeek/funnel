@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from flask import flash, render_template, jsonify
-from coaster.views import load_models, requestargs, route, render_with, requires_permission
+from coaster.views import load_models, requestargs, route, render_with, requires_permission, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Venue, VenueRoom
 from ..forms.venue import VenueForm, VenueRoomForm, VenuePrimaryForm
-from .mixins import ProjectViewBaseMixin, VenueViewBaseMixin, VenueRoomViewBaseMixin
+from .mixins import ProjectViewMixin, VenueViewMixin, VenueRoomViewMixin
 
 
 RESERVED_VENUE = ['new']
@@ -46,7 +46,7 @@ def room_data(room):
 
 
 @route('/<profile>/<project>/venues')
-class ProjectVenueView(ProjectViewBaseMixin):
+class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('venues.html.jinja2')
     @lastuser.requires_login
@@ -112,7 +112,7 @@ FunnelProjectVenueView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/venues/<venue>')
-class VenueView(VenueViewBaseMixin):
+class VenueView(VenueViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit-venue')
@@ -156,7 +156,7 @@ class VenueView(VenueViewBaseMixin):
 
 
 @route('/<project>/venues/<venue>', subdomain='<profile>')
-class FunnelVenueView(VenueViewBaseMixin):
+class FunnelVenueView(VenueViewMixin, UrlForView, ModelView):
     pass
 
 
@@ -165,7 +165,7 @@ FunnelVenueView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/venues/<venue>/<room>')
-class VenueRoomView(VenueRoomViewBaseMixin):
+class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit-venue')

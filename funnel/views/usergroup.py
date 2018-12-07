@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, redirect, request
-from coaster.views import load_models, route, render_with, requires_permission
+from coaster.views import load_models, route, render_with, requires_permission, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, UserGroup, Project, ProjectRedirect
 from ..forms import UserGroupForm
-from .mixins import ProjectViewBaseMixin, UserGroupViewBaseMixin
+from .mixins import ProjectViewMixin, UserGroupViewMixin
 
 
 @route('/<profile>/<project>/users')
-class ProjectUsergroupView(ProjectViewBaseMixin):
+class ProjectUsergroupView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('usergroups.html.jinja2')
     @lastuser.requires_login
@@ -45,7 +45,7 @@ FunnelProjectUsergroupView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/users/<group>')
-class UserGroupView(UserGroupViewBaseMixin):
+class UserGroupView(UserGroupViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('usergroup.html.jinja2')
     @requires_permission('view-usergroup')

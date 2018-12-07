@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from ..models import RSVP_STATUS
 
 __all__ = [
-    'ProjectForm', 'ProposalSubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
+    'ProjectForm', 'SubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
     'TicketClientForm', 'ProjectTransitionForm'
 ]
 
@@ -91,7 +91,7 @@ class ProjectTransitionForm(forms.Form):
         self.transition.choices = self.edit_obj.state.transitions().items()
 
 
-class ProposalSubprojectForm(ProjectForm):
+class SubprojectForm(ProjectForm):
     inherit_sections = forms.BooleanField(__("Inherit sections from parent project?"), default=True)
 
 

@@ -6,18 +6,18 @@ from flask import g, flash, redirect, Response, request, abort, current_app
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.views import load_models, jsonp, route, render_with, requires_permission
+from coaster.views import load_models, jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, Section,
     Proposal, Rsvp, RSVP_STATUS)
-from ..forms import ProjectForm, ProposalSubprojectForm, RsvpForm, ProjectTransitionForm
+from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-from .mixins import ProjectViewBaseMixin, ProfileViewBaseMixin
+from .mixins import ProjectViewMixin, ProfileViewMixin
 
 
 def project_data(project):
@@ -41,7 +41,7 @@ def project_data(project):
 
 
 @route('/<profile>')
-class ProfileProjectView(ProfileViewBaseMixin):
+class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-project')
@@ -73,7 +73,7 @@ FunnelProfileProjectView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/')
-class ProjectView(ProjectViewBaseMixin):
+class ProjectView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('project.html.jinja2')
     @requires_permission('view')
@@ -116,14 +116,14 @@ class ProjectView(ProjectViewBaseMixin):
             out.writerow(proposal_data_flat(proposal, usergroups))
         outfile.seek(0)
         return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
-            headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.title))])
+            headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
 
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit-project')
     def edit(self):
         if self.obj.parent:
-            form = ProposalSubprojectForm(obj=self.obj, model=Project)
+            form = SubprojectForm(obj=self.obj, model=Project)
         else:
             form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
         form.parent.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent == None)

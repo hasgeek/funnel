@@ -10,11 +10,11 @@ from time import mktime
 
 from flask import render_template, json, jsonify, request, Response, current_app
 
-from coaster.views import load_models, requestargs, jsonp, cors, route, render_with, requires_permission
+from coaster.views import load_models, requestargs, jsonp, cors, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Session, VenueRoom, Venue
-from .mixins import ProjectViewBaseMixin, VenueRoomViewBaseMixin
+from .mixins import ProjectViewMixin, VenueRoomViewMixin
 from .helpers import localize_date
 from .venue import venue_data, room_data
 
@@ -129,7 +129,7 @@ def session_ical(session):
 
 
 @route('/<profile>/<project>/schedule')
-class ProjectScheduleView(ProjectViewBaseMixin):
+class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('schedule.html.jinja2')
     @requires_permission('view')
@@ -220,7 +220,7 @@ FunnelProjectScheduleView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/schedule/<venue>/<room>')
-class ScheduleVenueRoomView(VenueRoomViewBaseMixin):
+class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('ical')
     @requires_permission('view')
     def ical(self):

@@ -1,10 +1,9 @@
 from flask import g, abort, redirect
-from coaster.views import UrlForView, ModelView
 from ..models import (Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
     Comment, Commentset, UserGroup, Venue, VenueRoom)
 
 
-class ProjectViewBaseMixin(UrlForView, ModelView):
+class ProjectViewMixin(object):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
 
@@ -21,7 +20,7 @@ class ProjectViewBaseMixin(UrlForView, ModelView):
         return proj
 
 
-class ProfileViewBaseMixin(UrlForView, ModelView):
+class ProfileViewMixin(object):
     model = Profile
     route_model_map = {'profile': 'name'}
 
@@ -31,7 +30,7 @@ class ProfileViewBaseMixin(UrlForView, ModelView):
         return profile
 
 
-class ProposalViewBaseMixin(UrlForView, ModelView):
+class ProposalViewMixin(object):
     model = Proposal
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'proposal': 'url_name'}
 
@@ -43,7 +42,7 @@ class ProposalViewBaseMixin(UrlForView, ModelView):
         return proposal
 
 
-class SessionViewBaseMixin(UrlForView, ModelView):
+class SessionViewMixin(object):
     model = Session
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'session': 'url_name'}
 
@@ -55,7 +54,7 @@ class SessionViewBaseMixin(UrlForView, ModelView):
         return session
 
 
-class CommentViewBaseMixin(UrlForView, ModelView):
+class CommentViewMixin(object):
     model = Comment
     route_model_map = {'comment': 'id'}
 
@@ -68,7 +67,7 @@ class CommentViewBaseMixin(UrlForView, ModelView):
         return comment
 
 
-class UserGroupViewBaseMixin(UrlForView, ModelView):
+class UserGroupViewMixin(object):
     model = UserGroup
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'group': 'name'}
 
@@ -80,7 +79,7 @@ class UserGroupViewBaseMixin(UrlForView, ModelView):
         return group
 
 
-class VenueViewBaseMixin(UrlForView, ModelView):
+class VenueViewMixin(object):
     model = Venue
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'venue': 'name'}
 
@@ -92,7 +91,7 @@ class VenueViewBaseMixin(UrlForView, ModelView):
         return venue
 
 
-class VenueRoomViewBaseMixin(UrlForView, ModelView):
+class VenueRoomViewMixin(object):
     model = VenueRoom
     route_model_map = {'profile': 'venue.project.profile.name', 'project': 'venue.project.name', 'venue': 'venue.name', 'room': 'name'}
 

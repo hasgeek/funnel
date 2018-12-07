@@ -5,13 +5,13 @@ from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.views import load_models, requestargs, route, requires_permission
+from coaster.views import load_models, requestargs, route, requires_permission, UrlForView, ModelView
 from coaster.utils import midnight_to_utc, getbool
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
-from .project import ProjectViewBaseMixin
+from .project import ProjectViewMixin
 
 
 def participant_badge_data(participants, project):
@@ -69,7 +69,7 @@ def participant_checkin_data(participant, project, event):
 
 
 @route('/<profile>/<project>/participants')
-class ProjectParticipantView(ProjectViewBaseMixin):
+class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     @route('json')
     @lastuser.requires_login
     @requires_permission('view')
