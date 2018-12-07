@@ -203,8 +203,6 @@ window.Talkfunnel.ParticipantTable = {
     this.checkinQ = new Talkfunnel.Queue(config.eventName + "-" + "checkin-queue");;
     this.cancelcheckinQ = new Talkfunnel.Queue(config.eventName + "-" + "cancelcheckin-queue");
 
-    Ractive.DEBUG = false;
-
     this.count = new Ractive({
       el: '#participants-count',
       template: '#participants-count-template',
@@ -381,6 +379,153 @@ window.Talkfunnel.TicketWidget = {
 
       });
     }, false);
+  }
+};
+
+window.Talkfunnel.Schedule = {
+  renderScheduleTable: function() {
+    var self = this;
+    scheduleUI = new Ractive({
+      el: self.config.divElem,
+      template: self.config.scriptTemplate,
+      data: {
+        schedules: self.config.scheduleTable,
+        rowWidth: Object.keys(self.config.rooms).length,
+        rowHeight: '30',
+        timeSlotWidth: '75',
+        activeTab: self.config.rooms[Object.keys(self.config.rooms)[0]].title,
+        width: $(window).width(), 
+        height: $(window).height(),
+        modalHtml: '',
+        getTimeStr: function(time) {
+          return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
+        },
+        getColumnWidth: function(columnType) {
+          if($(document).width() > 991 || columnType === 'header') {
+            return (this.get('timeSlotWidth')/this.get('rowWidth'));
+          } else {
+            return 0;
+          }
+        }
+      },
+      toggleTab: function(event, room) {
+        event.original.preventDefault();
+        this.set('activeTab', room);
+      },
+      expandDescription: function(event) {
+        event.original.preventDefault();
+        if(!this.get(event.keypath + '.expand')) {
+          this.set(event.keypath + '.expand', true);
+          var containerHeight = $(event.node).parent('.js-expand-container').outerHeight();
+          this.set(event.keypath + '.height', containerHeight);
+          var height = containerHeight + $(event.node).next('.js-expand-content').outerHeight();
+          height = height > 5 * containerHeight ? (5 * containerHeight) : height;
+          $(event.node).parent('.js-expand-container').animate({"height": height, "z-index": 4}, "fast");
+          $(event.node).next('.js-expand-content').animate({"opacity": 1},  "medium");
+        } else {
+          this.set(event.keypath + '.expand', false);
+          $(event.node).next('.js-expand-content').animate({"opacity": 0},  "medium");
+          $(event.node).parent('.js-expand-container').animate({"height": this.get(event.keypath + '.height'), "z-index": 2}, "medium");
+        }
+      },
+      showSessionModal: function(event) {
+        var self = this;
+        $.ajax({
+          url: self.get(event.keypath + '.talks.modal_url'),
+          type: 'GET',
+          success: function(data) {
+            self.set('modalHtml', data);
+            $("#session-modal").modal('show');
+          },
+          error: function(response) {
+            toastr.error('There was a problem in contacting the server. Please try again later.');
+          }
+        });
+      },
+      oncomplete: function() {
+        var self = this;
+        $(window).resize(function() {
+          self.set('width', $(window).width());
+          self.set('height', $(window).height());
+        });
+      }
+    });
+  },
+  addSessionToSchedule: function (session) {
+    var self = this;
+    this.config.scheduled.forEach(function(session) {
+      if(!session.room_scoped_name) {
+        session.room_scoped_name = Object.keys(self.config.rooms)[0];
+      }
+      self.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
+      self.config.scheduleTable[session.eventDay]['sessions'][session.startTime].rooms[session.room_scoped_name].talks = session;
+    });
+  },
+  createScheduleTable: function(argument) {
+    var self = this;
+    Object.keys(self.config.scheduleTable).forEach(function(eventDay) {
+      var slots = {};
+      var sessionSlots = self.config.scheduleTable[eventDay].startTime;
+      while(sessionSlots < self.config.scheduleTable[eventDay].endTime) {
+        slots[sessionSlots] = {showLabel: false, rooms: JSON.parse(JSON.stringify(self.config.rooms))};
+        sessionSlots = new Date(sessionSlots);
+        sessionSlots = sessionSlots.setMinutes(sessionSlots.getMinutes() + self.config.slotInterval);
+      };
+      self.config.scheduleTable[eventDay].sessions = JSON.parse(JSON.stringify(slots));
+    });
+  },
+  getEventDuration: function() {
+    var self = this;
+    this.config.scheduled.forEach(function(session) {
+      session.startTime = Talkfunnel.Schedule.Utils.getTime(session.start);
+      session.endTime = Talkfunnel.Schedule.Utils.getTime(session.end);
+      session.eventDay = Talkfunnel.Schedule.Utils.getEventDate(session.start);
+      session.duration = Talkfunnel.Schedule.Utils.getDuration(session.end, session.start);
+      self.config.scheduleTable[session.eventDay].startTime = self.config.scheduleTable[session.eventDay].startTime && self.config.scheduleTable[session.eventDay].startTime < new Date(session.start).getTime() ? self.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
+      self.config.scheduleTable[session.eventDay].endTime = self.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() ? self.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
+    });
+  },
+  getEventDays: function() {
+    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);
+    var eventDays = {};
+    var firstDay = Talkfunnel.Schedule.Utils.getEventDate(this.config.fromDate);
+    var nextDay;
+    eventDays[firstDay] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(this.config.fromDate), talks: {}, 
+      startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
+    while(difference > 0) {
+      nextDay = new Date();
+      nextDay.setDate(firstDay + 1);
+      eventDays[nextDay.getDate()] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(nextDay), talks: {}, 
+        startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
+      difference--;
+    };
+    // To create a copy and not a reference
+    this.config.scheduleTable = JSON.parse(JSON.stringify(eventDays));
+    return;
+  },
+  init: function(config) {
+    this.config = config;
+    Talkfunnel.Schedule.getEventDays();
+    Talkfunnel.Schedule.getEventDuration();
+    Talkfunnel.Schedule.createScheduleTable();
+    Talkfunnel.Schedule.addSessionToSchedule();
+    Talkfunnel.Schedule.renderScheduleTable();
+  },
+  Utils: {
+    getEventDate: function(eventDate) {
+      var date =  new Date(eventDate);
+      return date.getDate();
+    },
+    getTime: function(dateTime) {
+      return new Date(dateTime).getTime()
+    },
+    getDateString: function(eventDate) {
+      return new Date(eventDate).toDateString();
+    },
+    getDuration: function(endDate, startDate) {
+      var duration = new Date(endDate) - new Date(startDate);
+      return duration/1000/60/Talkfunnel.Schedule.config.slotInterval;
+    }
   }
 };
 

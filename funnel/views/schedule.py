@@ -31,6 +31,8 @@ def session_data(sessions, with_modal_url=False, with_delete_url=False):
                 'is_break': session.is_break,
                 'url_name': session.url_name,
                 'proposal_id': session.proposal_id,
+                'speaker_bio': session.speaker_bio,
+                'description': session.description,
             }.items() + dict({
                 'modal_url': session.url_for(with_modal_url)
             } if with_modal_url else {}).items() + dict({

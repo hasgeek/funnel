@@ -535,6 +535,7 @@ html {
 .slider-btn {
   position: absolute;
   top: 5px;
+  z-index: 2;
 }
 
 .slider-btn .mui-btn {
@@ -813,6 +814,124 @@ html {
 
 .comment--body {
   margin: 10px 0 0 20px;
+}
+
+.schedule {
+  margin: 30px 0;
+}
+.schedule .schedule__row {
+  display: flex;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+}
+.schedule .schedule__row .schedule__row__column {
+  padding: 5px 10px;
+  position: relative;
+  display: none;
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content {
+  background-color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding: 5px 15px 0;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  border-left: 1px solid rgba(132, 146, 166, 0.3);
+  border-right: 1px solid rgba(132, 146, 166, 0.3);
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title {
+  float: left;
+  width: calc(100% - 24px);
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading {
+  cursor: pointer;
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading:hover {
+  color: #4A90E2;
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__icon {
+  float: right;
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__decription {
+  clear: both;
+  opacity: 0;
+  padding-top: 15px;
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content p {
+  margin: 0 0 5px;
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content--expand {
+  overflow: scroll;
+  box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
+}
+.schedule .schedule__row .schedule__row__column.js-active {
+  display: block;
+}
+.schedule .schedule__row .schedule__row__column--header {
+  padding: 15px 10px;
+  background-color: #fff;
+  border-top: 2px solid rgba(132, 146, 166, 0.3);
+  border-left: 2px solid rgba(132, 146, 166, 0.3);
+  border-bottom: 2px solid rgba(132, 146, 166, 0.3);
+  display: block;
+  cursor: pointer;
+}
+.schedule .schedule__row .schedule__row__column--header:last-child {
+  border-right: 2px solid rgba(132, 146, 166, 0.3);
+}
+.schedule .schedule__row .schedule__row__column--header.js-tab-active {
+  border-bottom: 2px solid #856A91;
+}
+.schedule .schedule__row .schedule__row__column--time {
+  display: none;
+}
+@media (min-width: 992px) {
+  .schedule .schedule__row .schedule__row__column {
+    display: block;
+  }
+  .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
+    border-right: 0;
+  }
+  .schedule .schedule__row .schedule__row__column .schedule__row__column__content__title__duration {
+    display: none;
+  }
+  .schedule .schedule__row .schedule__row__column--header {
+    border-bottom: 2px solid #856A91;
+    cursor: default;
+  }
+  .schedule .schedule__row .schedule__row__column--header:nth-child(2) {
+    border-left: 2px solid rgba(132, 146, 166, 0.3);
+  }
+  .schedule .schedule__row .schedule__row__column--talks:last-child .schedule__row__column__content {
+    border-right: 1px solid rgba(132, 146, 166, 0.3);
+  }
+  .schedule .schedule__row .schedule__row__column--header:last-child {
+    border-right: 2px solid rgba(132, 146, 166, 0.3);
+  }
+  .schedule .schedule__row .schedule__row__column--time {
+    color: #F0A40C;
+    margin: 0;
+    line-height: 1;
+    background-color: #fff;
+    display: block;
+    padding: 5px 0;
+    text-align: center;
+  }
+}
+.schedule .schedule__row:before,
+.schedule .schedule__row:after {
+  content: " ";
+  display: table;
+}
+.schedule .schedule__row--sticky {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 50px;
+  order: 1;
+  z-index: 5;
+  border: none;
 }
 
 .footer {

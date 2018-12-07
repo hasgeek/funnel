@@ -27,47 +27,90 @@
     <div id="popup_subscribe" class="modal">
     </div>
   </div>
-  <div id="calendar"></div>
-  <div>
-    <div class="fc-header-title"><h3 class="mui--text-title"><strong>{% trans %}Venues{% endtrans %}</strong></h3></div>
-    <div id="rooms-list">
-      {%- for venue in project.venues %}
-        <h4 class="venue mui--text-subhead">{{ venue.title }}</h4>
-        <div class="venue_desc mui--text-body2 mui--text-light">{{ venue.description }}</div>
-        {%- for room in venue.rooms %}
-          <div class="room">
-            <h4 class="room__title js-title" data-bgcolor="#{{ room.bgcolor }}">
-              <a href="{{ room.url_for('ical-schedule', _external=True) }}" class=" mui-btn mui-btn--accent mui-btn--small room__title__subsc-btn">{% trans %}Subscribe{% endtrans %}</a>
-              {{ room.title }}
-            </h4>
-            <div class="room__description mui--text-light">{{ room.description }}</div>
-          </div>
-        {%- endfor %}
-      {%- else %}
-        <p>{% trans %}This event does not have a venue{% endtrans %}</p>
-      {%- endfor %}
-    </div>
+
+  <div class="schedule-table-container" id="project-schedule-table">
+    {% raw %}
+      <script id="scheduletemplate" type='text/ractive'>
+        {{#schedules:schedule}}
+          {{#schedule}}
+            <div class="schedule">
+              <h2 class="mui--text-heading">{{dateStr}}</h2>
+              <div class="mui--bg-accent">
+                <div class="schedule__row schedule__row--sticky">
+                    <p class="schedule__row__column schedule__row__column--time" style="min-width:{{timeSlotWidth}}px">
+                    </p>
+                  {{#rooms:room, roomindex}}
+                    <div class="schedule__row__column schedule__row__column--header {{#if activeTab == title}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, title)">{{title}}</div>
+                  {{/}}
+                </div>
+                {{#sessions:session, index}}
+                  <div class="schedule__row" style="height: {{rowHeight}}px">
+                    <p class="schedule__row__column schedule__row__column--time" style="min-width:{{timeSlotWidth}}px">
+                      {{#if showLabel}}
+                        {{ getTimeStr(session) }}
+                      {{/if}}
+                    </p>
+                    {{#rooms:room, roomIndex}} 
+                      <div class="schedule__row__column {{#if talks}}schedule__row__column--talks {{title}}{{/if}} {{#if talks && activeTab == title}}js-active{{/if}}" {{#if getColumnWidth('content')}}style="width: calc(100% - {{getColumnWidth('content')}}px)"{{else}}style="width: 100%"{{/if}}>
+                        {{#if talks}}
+                          <div class="schedule__row__column__content {{#if expand}}schedule__row__column__content--expand{{/if}} js-expand-container" style="height: calc({{talks.duration}}*{{rowHeight}}px);">
+                            <div class="schedule__row__column__content__title">
+                              <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
+                              {{#if talks.title}}
+                                <p class="mui--text-subhead schedule__row__column__content__title__heading" on-click="showSessionModal(event)"><b>{{ talks.title }}</b></p>
+                              {{/if}}
+                              {{#if talks.speaker}}
+                                <p class="mui--text-body1 mui--text-light">{{ talks.speaker }}</p>
+                              {{/if}}
+                            </div>
+                            {{#if talks.description}}
+                              <i class="material-icons mui--align-middle js-expand-icon collapsible__icon schedule__row__column__content__icon" on-click="expandDescription(event)">
+                                {{#if expand}}
+                                  keyboard_arrow_up
+                                {{else}}
+                                  keyboard_arrow_down
+                                {{/if}}
+                              </i>
+                              <div class="schedule__row__column__content__decription {{#if expand}}schedule__row__column__content__decription--show{{/if}} js-expand-content">{{{ talks.description }}}</div>
+                            {{/if}}
+                          </div>
+                        {{/if}}
+                      </div>
+                    {{/}}
+                  </div>
+                {{/}}
+              </div>
+            </div>
+          {{/}}
+        {{/}}
+        <div id="session-modal" class="modal session-modal session-modal--nopadding">
+          {{{modalHtml}}}
+        </div>
+      </script>
+    {% endraw %}
   </div>
-  <div id="popup" class="modal session-modal session-modal--nopadding">
-    <div class="js-modal-inner">
-    </div>
-  </div>
+
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_fullcalendar" -%}
+  {% assets "js_ractive" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   <script type="text/javascript">
-    var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
-    var scheduled = {{ sessions|tojson }};
-    var TIMEZONE = {{ timezone }} * 1000;
-    var ROOMS = {{ rooms|tojson }};
-    var BREAK_EVENTS_COLOR = "#999999";
-    var EDIT_EVENTS = false;
-    var CALENDAR_SLOT_MINUTES = 15;
+    var scheduleConfig = {
+      fromDate: {{ from_date|tojson }},
+      toDate: {{ to_date|tojson }},
+      scheduled: {{ sessions|tojson }},
+      rooms: {{ rooms|tojson }},
+      breakBgcolor: "#999999",
+      slotInterval: 5,
+      divElem: "#project-schedule-table",
+      scriptTemplate: '#scheduletemplate'
+    }
   </script>
-  {% assets "js_schedules" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+  <script type="text/javascript">
+    $(document).ready( function() {
+      window.Talkfunnel.Schedule.init(scheduleConfig);
+    });
+  </script>
 {% endblock %}
