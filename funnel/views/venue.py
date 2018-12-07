@@ -7,7 +7,7 @@ from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Venue, VenueRoom
-from ..forms.venue import VenueForm, VenueRoomForm
+from ..forms.venue import VenueForm, VenueRoomForm, VenuePrimaryForm
 
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']
@@ -51,7 +51,8 @@ def room_data(room):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     permission='view')
 def venue_list(profile, project):
-    return render_template('venues.html.jinja2', project=project, venues=project.venues)
+    return render_template('venues.html.jinja2', project=project, venues=project.venues,
+        primary_venue_form=VenuePrimaryForm(parent=project))
 
 
 @app.route('/<profile>/<project>/venues/new', methods=['GET', 'POST'])
@@ -105,6 +106,9 @@ def venue_edit(profile, project, venue):
     (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
     permission='delete-venue')
 def venue_delete(profile, project, venue):
+    if venue == project.primary_venue:
+        flash(_(u"You can not delete the primary venue"), 'danger')
+        return render_redirect(project.url_for('venues'), code=303)
     return render_delete_sqla(venue, db, title=u"Confirm delete",
         message=_(u"Delete venue “{title}”? This cannot be undone".format(title=venue.title)),
         success=_(u"You have deleted venue “{title}”".format(title=venue.title)),
@@ -183,3 +187,25 @@ def update_venue_colors(profile, project, id, color):
             room.bgcolor = colors[room.scoped_name]
     db.session.commit()
     return jsonify(status=True)
+
+
+@app.route('/<profile>/<project>/venue/makeprimary', methods=['POST'])
+@funnelapp.route('/<project>/venue/makeprimary', methods=['POST'], subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    permission='edit-project')
+def venue_make_primary(profile, project):
+    form = VenuePrimaryForm(parent=project)
+    if form.validate_on_submit():
+        venue = form.venue.data
+        if venue == project.primary_venue:
+            flash(_("This is already the primary venue"), 'info')
+        else:
+            project.primary_venue = venue
+            db.session.commit()
+            flash(_("You have changed the primary venue"), 'success')
+    else:
+        flash(_("Please select a venue"), 'danger')
+    return render_redirect(project.url_for('venues'), code=303)

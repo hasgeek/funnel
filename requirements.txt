@@ -1,6 +1,8 @@
 Flask==1.0.2
 Flask-Assets==0.12
 Flask-Mail==0.9.1
+Flask-RQ==0.2
+Flask-Redis>=0.3.0
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
 pytz==2018.7
@@ -9,10 +11,10 @@ icalendar==4.0.3
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
-alembic==1.0.3
+alembic==1.0.5
 qrcode==6.0
 rq==0.12.0
 psycopg2==2.7.6.1
-Flask-Migrate==2.3.0
+Flask-Migrate==2.3.1
 git+https://github.com/hasgeek/Flask-FlatPages.git
 progressbar2==3.38.0

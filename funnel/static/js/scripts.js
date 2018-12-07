@@ -1,5 +1,9 @@
 
 window.Talkfunnel = {};
+window.Talkfunnel.Config = {
+  defaultLatitude: "12.961443",
+  defaultLongitude: "77.64435000000003"
+};
 
 window.Talkfunnel.Utils = {
   //convert array of objects into hashmap
@@ -22,6 +26,12 @@ window.Talkfunnel.Utils = {
     $('.collapsible__header').click(function() {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).next('.collapsible__body').slideToggle();
+    });
+  },
+  smoothScroll: function() {
+    $('a[href*=\\#]').on('click', function(event) { 
+      event.preventDefault();
+      $('html,body').animate({scrollTop:$(this.hash).offset().top}, 500);
     });
   }
 }
@@ -524,7 +534,58 @@ window.Talkfunnel.Schedule = {
     },
     getDuration: function(endDate, startDate) {
       var duration = new Date(endDate) - new Date(startDate);
+      // Convert to minutes and multiply by slotInterval
       return duration/1000/60/Talkfunnel.Schedule.config.slotInterval;
+    }
+  }
+};
+
+window.Talkfunnel.EmbedMap = {
+  init: function(config) {
+    if(typeof window.L === "undefined") {
+      window.setTimeout(initLeaflets, 5000);
+      return;
+    }
+
+    var $container = $(config.mapElem),
+      defaults = {
+        zoom: 17,
+        marker: [Talkfunnel.Config.defaultLatitude, Talkfunnel.Config.defaultLongitude],
+        label: null,
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+        subdomains: ['a','b','c'],
+        scrollWheelZoom: false,
+        dragging: false,
+      },
+      args,
+      options,
+      map,
+      marker;
+    $container.empty();
+
+    args = $container.data();
+    if (args.markerlat && args.markerlng) { args.marker = [args.markerlat,args.markerlng]; }
+    options = $.extend({}, defaults, args);
+
+    map = new L.Map($container[0], {
+        center: options.center || options.marker
+        , zoom: options.zoom
+        , scrollWheelZoom: options.scrollWheelZoom
+        , dragging: options.dragging
+    });
+
+    var tileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    L.tileLayer(tileLayer, {
+        maxZoom: options.maxZoom
+        , attribution: options.attribution
+        , subdomains: options.subdomains
+    }).addTo(map);
+
+
+    if (!args.tilelayer) {
+      marker = new L.marker(options.marker).addTo(map);
+      if (options.label) marker.bindPopup(options.label).openPopup();
     }
   }
 };

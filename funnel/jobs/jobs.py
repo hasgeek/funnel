@@ -1,9 +1,14 @@
-from funnel import funnelapp
-from ..models import (db, TicketClient)
+import requests
+from urlparse import urljoin
+from collections import defaultdict
+from flask_rq import job
+from funnel import app, funnelapp
+from ..models import (db, TicketClient, Project, ProjectLocation)
 from ..extapi.explara import ExplaraAPI
 from ..extapi.boxoffice import Boxoffice
 
 
+@job('funnel')
 def import_tickets(ticket_client_id):
     with funnelapp.app_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
@@ -15,3 +20,49 @@ def import_tickets(ticket_client_id):
                 ticket_list = Boxoffice(access_token=ticket_client.client_access_token).get_tickets(ticket_client.client_eventid)
                 ticket_client.import_from_list(ticket_list)
             db.session.commit()
+
+
+@job('funnel')
+def tag_locations(project_id):
+    if app.config.get('HASCORE_SERVER'):
+        with app.test_request_context():
+            project = Project.query.get(project_id)
+            if not project.location:
+                return
+            url = urljoin(app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
+            response = requests.get(url, params={'q': project.location, 'bias': ['IN', 'US']}).json()
+
+            if response.get('status') == 'ok':
+                results = response.get('result', [])
+                geonames = defaultdict(dict)
+                tokens = []
+                for item in results:
+                    geoname = item.get('geoname', {})
+                    if geoname:
+                        geonames[geoname['geonameid']]['geonameid'] = geoname['geonameid']
+                        geonames[geoname['geonameid']]['primary'] = geonames[geoname['geonameid']].get('primary', True)
+                        for type, related in geoname.get('related', {}).items():
+                            if type in ['admin2', 'admin1', 'country', 'continent']:
+                                geonames[related['geonameid']]['geonameid'] = related['geonameid']
+                                geonames[related['geonameid']]['primary'] = False
+
+                        tokens.append({'token': item.get('token', ''), 'geoname': {
+                            'name': geoname['name'],
+                            'geonameid': geoname['geonameid'],
+                            }})
+                    else:
+                        tokens.append({'token': item.get('token', '')})
+
+                project.parsed_location = {'tokens': tokens}
+
+                for locdata in geonames.values():
+                    loc = ProjectLocation.query.get((project_id, locdata['geonameid']))
+                    if loc is None:
+                        loc = ProjectLocation(project=project, geonameid=locdata['geonameid'])
+                        db.session.add(loc)
+                        db.session.flush()
+                    loc.primary = locdata['primary']
+                for location in project.locations:
+                    if location.geonameid not in geonames:
+                        db.session.delete(location)
+                db.session.commit()
