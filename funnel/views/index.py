@@ -4,7 +4,7 @@ import os.path
 from flask import g, render_template, redirect, jsonify
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp, pages
-from ..models import Profile, Project, Proposal
+from ..models import Project, Proposal
 from .project import project_data
 
 
@@ -48,9 +48,9 @@ def all_projects_json():
     return jsonp(projects=map(project_data, projects),
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
 
+
 # Legacy routes for funnel to talkfunnel migration
 # Figure out how to restrict these routes to just the funnel.hasgeek.com domain
-
 @funnelapp.route('/<project>/')
 @load_model(Project, {'legacy_name': 'project'}, 'project')
 def project_redirect(project):

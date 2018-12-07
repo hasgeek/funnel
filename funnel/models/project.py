@@ -2,8 +2,6 @@
 
 from werkzeug.utils import cached_property
 
-from flask import url_for
-
 from baseframe import __
 
 from coaster.sqlalchemy import StateManager, with_roles
