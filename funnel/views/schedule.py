@@ -136,7 +136,7 @@ class ProjectScheduleView(ProjectViewBaseMixin):
     def schedule(self):
         return dict(project=self.obj, venues=self.obj.venues,
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
-            sessions=session_data(self.obj.scheduled_sessions, with_modal_url='view-popup'),
+            sessions=session_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
             timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 

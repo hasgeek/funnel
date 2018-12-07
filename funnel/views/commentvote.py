@@ -1,155 +1,129 @@
 # -*- coding: utf-8 -*-
 
 from flask import redirect, g, flash, abort, jsonify, request
-from coaster.views import jsonp, load_models
+from coaster.views import jsonp, load_models, route, requires_permission
 from baseframe import _, forms
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Proposal, ProposalRedirect, Comment
+from .mixins import ProposalViewBaseMixin, CommentViewBaseMixin
 
 
-@app.route('/<profile>/<project>/<proposal>/voteup', methods=['POST'])
-@funnelapp.route('/<project>/<proposal>/voteup', subdomain='<profile>', methods=['POST'])
-@Proposal.is_url_for('voteup', profile='project.profile.name', project='project.name', proposal='url_name')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    permission='vote-proposal', addlperms=lastuser.permissions)
-def proposal_voteup(profile, project, proposal):
-    csrf_form = forms.Form()
-    if not csrf_form.validate_on_submit():
-        abort(403)
-    proposal.voteset.vote(g.user, votedown=False)
-    db.session.commit()
-    message = _("Your vote has been recorded")
-    if request.is_xhr:
-        return jsonify(message=message, code=200)
-    flash(message, 'info')
-    return redirect(proposal.url_for(), code=303)
+@route('/<profile>/<project>/<proposal>')
+class ProposalVoteView(ProposalViewBaseMixin):
+    @route('voteup', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('vote-proposal')
+    def voteup(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.vote(g.user, votedown=False)
+        db.session.commit()
+        message = _("Your vote has been recorded")
+        if request.is_xhr:
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.obj.url_for(), code=303)
+
+    @route('votedown', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('vote-proposal')
+    def votedown(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.vote(g.user, votedown=True)
+        db.session.commit()
+        message = _("Your vote has been recorded")
+        if request.is_xhr:
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.obj.url_for(), code=303)
+
+    @route('cancelvote', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('vote-proposal')
+    def cancelvote(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.cancelvote(g.user)
+        db.session.commit()
+        message = _("Your vote has been withdrawn")
+        if request.is_xhr:
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.obj.url_for(), code=303)
 
 
-@app.route('/<profile>/<project>/<proposal>/votedown', methods=['POST'])
-@funnelapp.route('/<project>/<proposal>/votedown', subdomain='<profile>', methods=['POST'])
-@Proposal.is_url_for('votedown', profile='project.profile.name', project='project.name', proposal='url_name')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    permission='vote-proposal', addlperms=lastuser.permissions)
-def proposal_votedown(profile, project, proposal):
-    csrf_form = forms.Form()
-    if not csrf_form.validate_on_submit():
-        abort(403)
-    proposal.voteset.vote(g.user, votedown=True)
-    db.session.commit()
-    message = _("Your vote has been recorded")
-    if request.is_xhr:
-        return jsonify(message=message, code=200)
-    flash(message, 'info')
-    return redirect(proposal.url_for(), code=303)
+@route('/<project>/<proposal>', subdomain='<profile>')
+class FunnelProposalVoteView(ProposalVoteView):
+    pass
 
 
-@app.route('/<profile>/<project>/<proposal>/cancelvote', methods=['POST'])
-@funnelapp.route('/<project>/<proposal>/cancelvote', subdomain='<profile>', methods=['POST'])
-@Proposal.is_url_for('votecancel', profile='project.profile.name', project='project.name', proposal='url_name')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    permission='vote-proposal', addlperms=lastuser.permissions)
-def proposal_cancelvote(profile, project, proposal):
-    csrf_form = forms.Form()
-    if not csrf_form.validate_on_submit():
-        abort(403)
-    proposal.voteset.cancelvote(g.user)
-    db.session.commit()
-    message = _("Your vote has been withdrawn")
-    if request.is_xhr:
-        return jsonify(message=message, code=200)
-    flash(message, 'info')
-    return redirect(proposal.url_for(), code=303)
+ProposalVoteView.init_app(app)
+FunnelProposalVoteView.init_app(funnelapp)
 
 
-@app.route('/<profile>/<project>/<proposal>/comments/<int:comment>/json')
-@funnelapp.route('/<project>/<proposal>/comments/<int:comment>/json', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    (Comment, {'id': 'comment'}, 'comment'),
-    permission='view', addlperms=lastuser.permissions)
-def comment_json(profile, project, proposal, comment):
-    if comment:
-        return jsonp(message=comment.message.text)
-    else:
-        return jsonp(message='')
+@route('/<profile>/<project>/<proposal>/comments/<int:comment>')
+class CommentView(CommentViewBaseMixin):
+    @route('json')
+    @requires_permission('view')
+    def json(self):
+        return jsonp(message=self.obj.message.text)
+
+    @route('voteup', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('vote-comment')
+    def voteup(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.vote(g.user, votedown=False)
+        db.session.commit()
+        message = _("Your vote has been recorded")
+        if request.is_xhr:
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.proposal.url_for(), code=303)
+
+    @route('votedown', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('vote-comment')
+    def votedown(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.vote(g.user, votedown=True)
+        db.session.commit()
+        message = _("Your vote has been recorded")
+        if request.is_xhr:
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.proposal.url_for(), code=303)
+
+    @route('cancelvote', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('vote-comment')
+    def cancelvote(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.cancelvote(g.user)
+        db.session.commit()
+        message = _("Your vote has been withdrawn")
+        if request.is_xhr:
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.proposal.url_for(), code=303)
 
 
-@app.route('/<profile>/<project>/<proposal>/comments/<int:comment>/voteup', methods=['POST'])
-@funnelapp.route('/<project>/<proposal>/comments/<int:comment>/voteup', subdomain='<profile>', methods=['POST'])
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    (Comment, {'id': 'comment'}, 'comment'),
-    permission='vote-comment', addlperms=lastuser.permissions)
-def comment_voteup(profile, project, proposal, comment):
-    csrf_form = forms.Form()
-    if not csrf_form.validate_on_submit():
-        abort(403)
-    comment.voteset.vote(g.user, votedown=False)
-    db.session.commit()
-    message = _("Your vote has been recorded")
-    if request.is_xhr:
-        return jsonify(message=message, code=200)
-    flash(message, 'info')
-    return redirect(comment.url_for(proposal=proposal), code=303)
+
+@route('/<project>/<proposal>/comments/<int:comment>', subdomain='<profile>')
+class FunnelCommentView(CommentViewBaseMixin):
+    pass
 
 
-@app.route('/<profile>/<project>/<proposal>/comments/<int:comment>/votedown', methods=['POST'])
-@funnelapp.route('/<project>/<proposal>/comments/<int:comment>/votedown', subdomain='<profile>', methods=['POST'])
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    (Comment, {'id': 'comment'}, 'comment'),
-    permission='vote-comment', addlperms=lastuser.permissions)
-def comment_votedown(profile, project, proposal, comment):
-    csrf_form = forms.Form()
-    if not csrf_form.validate_on_submit():
-        abort(403)
-    comment.voteset.vote(g.user, votedown=True)
-    db.session.commit()
-    message = _("Your vote has been recorded")
-    if request.is_xhr:
-        return jsonify(message=message, code=200)
-    flash(message, 'info')
-    return redirect(comment.url_for(proposal=proposal), code=303)
-
-
-@app.route('/<profile>/<project>/<proposal>/comments/<int:comment>/cancelvote', methods=['POST'])
-@funnelapp.route('/<project>/<proposal>/comments/<int:comment>/cancelvote', subdomain='<profile>', methods=['POST'])
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    (Comment, {'id': 'comment'}, 'comment'),
-    permission='vote-comment', addlperms=lastuser.permissions)
-def comment_cancelvote(profile, project, proposal, comment):
-    csrf_form = forms.Form()
-    if not csrf_form.validate_on_submit():
-        abort(403)
-    comment.voteset.cancelvote(g.user)
-    db.session.commit()
-    message = _("Your vote has been withdrawn")
-    if request.is_xhr:
-        return jsonify(message=message, code=200)
-    flash(message, 'info')
-    return redirect(comment.url_for(proposal=proposal), code=303)
+CommentView.init_app(app)
+FunnelCommentView.init_app(funnelapp)

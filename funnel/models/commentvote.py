@@ -135,25 +135,12 @@ class Comment(BaseMixin, db.Model):
 
     def permissions(self, user, inherited=None):
         perms = super(Comment, self).permissions(user, inherited)
-        if user is not None and user == self.user:
-            perms.update([
-                'edit-comment',
-                'delete-comment'
-                ])
+        perms.add('view')
+        if user is not None:
+            perms.add('vote-comment')
+            if user == self.user:
+                perms.update([
+                    'edit-comment',
+                    'delete-comment'
+                    ])
         return perms
-
-    def url_for(self, action='view', proposal=None, _external=False):
-        if action == 'view':
-            return proposal.url_for(_external=_external) + "#c%d" % self.id
-        elif action == 'json':
-            return url_for('comment_json', profile=proposal.project.profile.name, project=proposal.project.name, proposal=proposal.url_name,
-                comment=self.id, _external=_external)
-        elif action == 'voteup':
-            return url_for('comment_voteup', profile=proposal.project.profile.name, project=proposal.project.name, proposal=proposal.url_name,
-                comment=self.id, _external=_external)
-        elif action == 'votedown':
-            return url_for('comment_votedown', profile=proposal.project.profile.name, project=proposal.project.name, proposal=proposal.url_name,
-                comment=self.id, _external=_external)
-        elif action == 'cancelvote':
-            return url_for('comment_cancelvote', profile=proposal.project.profile.name, project=proposal.project.name, proposal=proposal.url_name,
-                comment=self.id, _external=_external)
