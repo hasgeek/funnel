@@ -62,7 +62,7 @@ def projects_json(profile):
 @funnelapp.route('/', subdomain='<profile>')
 @load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
 def profile_view(profile):
-    return render_template('funnelindex.html.jinja2', projects=profile.parent_projects)
+    return render_template('funnelindex.html.jinja2', projects=profile.listed_projects)
 
 
 # Legacy routes for funnel to talkfunnel migration

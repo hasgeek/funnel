@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from werkzeug.utils import cached_property
-
 from flask import url_for
 
 from flask_lastuser.sqlalchemy import ProfileBase
@@ -34,10 +32,6 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
             },
         },
     }
-
-    parent_projects = db.relationship(
-        'Project', primaryjoin='and_(Profile.id == Project.profile_id, Project.parent_id == None)',
-        lazy='dynamic')
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
