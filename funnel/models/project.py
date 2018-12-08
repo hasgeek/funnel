@@ -2,8 +2,6 @@
 
 from werkzeug.utils import cached_property
 
-from flask import url_for
-
 from baseframe import __
 
 from coaster.sqlalchemy import StateManager, with_roles
@@ -117,7 +115,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
-                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'url',
+                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location'
             },
         },
@@ -164,14 +162,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             date_upto=self.date_upto.strftime("%d %b"),
             year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
-
-    @property
-    def url(self):
-        return self.url_for(_external=True)
-
-    @property
-    def url_json(self):
-        return self.url_for('json', _external=True)
 
     def __init__(self, **kwargs):
         super(Project, self).__init__(**kwargs)
@@ -232,6 +222,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     #     message=__("This project has been withdrawn"), type='success')
     # def withdraw(self):
     #     pass
+
+    @property
+    def url_json(self):
+        return self.url_for('json', _external=True)
 
     @db.validates('name')
     def _validate_name(self, key, value):
@@ -397,69 +391,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 ])
         return perms
 
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return url_for('project_view', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-proposal':
-            return url_for('proposal_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'json':
-            return url_for('project_view_json', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'csv':
-            return url_for('project_view_csv', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'edit':
-            return url_for('project_edit', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'transition':
-            return url_for('project_transition', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'sections':
-            return url_for('section_list', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-section':
-            return url_for('section_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'usergroups':
-            return url_for('usergroup_list', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-usergroup':
-            return url_for('usergroup_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'venues':
-            return url_for('venue_list', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-venue':
-            return url_for('venue_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'schedule':
-            return url_for('schedule_view', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'edit-schedule':
-            return url_for('schedule_edit', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'update-schedule':
-            return url_for('schedule_update', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'new-session':
-            return url_for('session_new', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'update-venue-colors':
-            return url_for('update_venue_colors', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'json-schedule':
-            return url_for('schedule_json', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'subscribe-schedule':
-            return url_for('schedule_subscribe', profile=self.profile.name, project=self.name, _external=_external)
-        elif action == 'ical-schedule':
-            return url_for('schedule_ical', profile=self.profile.name, project=self.name, _external=_external).replace(
-                'https:', 'webcals:').replace('http:', 'webcal:')
-        elif action == 'rsvp':
-            return url_for('rsvp', profile=self.profile.name, project=self.name)
-        elif action == 'rsvp-list':
-            return url_for('rsvp_list', profile=self.profile.name, project=self.name)
-        elif action == 'admin':
-            return url_for('admin', profile=self.profile.name, project=self.name)
-        elif action == 'events':
-            return url_for('events', profile=self.profile.name, project=self.name)
-        elif action == 'participants':
-            return url_for('participants', profile=self.profile.name, project=self.name)
-        elif action == 'new-participant':
-            return url_for('new_participant', profile=self.profile.name, project=self.name)
-        elif action == 'new-ticket-type-participant':
-            return url_for('new_ticket_type_participant', profile=self.profile.name, project=self.name)
-        elif action == 'new-event':
-            return url_for('new_event', profile=self.profile.name, project=self.name)
-        elif action == 'new-ticket-type':
-            return url_for('new_ticket_type', profile=self.profile.name, project=self.name)
-        elif action == 'new-ticket-client':
-            return url_for('new_ticket_client', profile=self.profile.name, project=self.name)
-
     @classmethod
     def all(cls):
         """
@@ -494,7 +425,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 Profile.listed_projects = db.relationship(
         Project, lazy='dynamic',
         primaryjoin=db.and_(
-            Profile.id == Project.profile_id, Project.parent_id == None, Project.state.CURRENTLY_LISTED))  # NOQA
+            Profile.id == Project.profile_id, Project.parent_id == None,
+            Project.state.CURRENTLY_LISTED),
+        order_by=Project.date.desc())  # NOQA
 
 
 class ProjectRedirect(TimestampMixin, db.Model):

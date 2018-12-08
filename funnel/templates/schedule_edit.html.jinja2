@@ -67,10 +67,10 @@
   {%- endassets -%}
   {% assets "js_schedules" -%}
     <script type="text/javascript">
-      var UPDATE_URL = "{{ project.url_for('update-schedule') }}";
+      var UPDATE_URL = "{{ project.url_for('update_schedule') }}";
       var TIMEZONE = {{ timezone }} * 1000;
-      var NEW_SESSION_URL = "{{ project.url_for('new-session') }}";
-      var COLORS_UPDATE_URL = "{{ project.url_for('update-venue-colors') }}";
+      var NEW_SESSION_URL = "{{ project.url_for('new_session') }}";
+      var COLORS_UPDATE_URL = "{{ project.url_for('update_venue_colors') }}";
       var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
       var scheduled = {{ proposals['scheduled']|tojson }};
       var ROOMS = {{ rooms|tojson }};

@@ -153,6 +153,24 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'project_id',
         'project', 'parent', 'voteset_id', 'voteset', 'commentset_id', 'commentset', 'edited_at', 'data')
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
+                'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
+                'latitude', 'longitude', 'coordinates'
+                },
+            'call': {
+                'url_for'
+                }
+            },
+        'reviewer': {
+            'read': {
+                'email', 'phone'
+                }
+            }
+        }
+
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
         self.voteset = Voteset(type=SET_TYPE.PROPOSAL)
@@ -369,32 +387,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if self.state.DRAFT and 'reader' in roles:
             roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
-
-    def url_for(self, action='view', _external=False, **kwargs):
-        if action == 'view':
-            return url_for('proposal_view', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'json':
-            return url_for('proposal_json', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'edit':
-            return url_for('proposal_edit', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'delete':
-            return url_for('proposal_delete', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'voteup':
-            return url_for('proposal_voteup', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'votedown':
-            return url_for('proposal_votedown', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'votecancel':
-            return url_for('proposal_cancelvote', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'next':
-            return url_for('proposal_next', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'prev':
-            return url_for('proposal_prev', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'schedule':
-            return url_for('proposal_schedule', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'transition':
-            return url_for('proposal_transition', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
-        elif action == 'move-to':
-            return url_for('proposal_moveto', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
 
 
 class ProposalRedirect(TimestampMixin, db.Model):

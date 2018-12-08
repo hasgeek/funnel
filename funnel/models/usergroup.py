@@ -40,11 +40,3 @@ class UserGroup(BaseScopedNameMixin, db.Model):
                 'delete-usergroup',
                 ])
         return perms
-
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return url_for('usergroup_view', profile=self.project.profile.name, project=self.project.name, group=self.name, _external=_external)
-        elif action == 'edit':
-            return url_for('usergroup_edit', profile=self.project.profile.name, project=self.project.name, group=self.name, _external=_external)
-        elif action == 'delete':
-            return url_for('usergroup_delete', profile=self.project.profile.name, project=self.project.name, group=self.name, _external=_external)

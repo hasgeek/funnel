@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
-
 from flask_lastuser.sqlalchemy import ProfileBase
 
 from . import MarkdownColumn, UuidMixin, db
@@ -44,14 +42,6 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
                 perms.add('delete-project')
                 perms.add('edit-project')
         return perms
-
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return url_for('profile_view', profile=self.name, _external=_external)
-        if action == 'edit':
-            return url_for('profile_edit', profile=self.name, _external=_external)
-        elif action == 'new-project':
-            return url_for('project_new', profile=self.name, _external=_external)
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)

@@ -2,20 +2,22 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, render_template, Response, request, make_response, abort, current_app
-from baseframe import _
+from flask import g, flash, redirect, Response, request, abort, current_app
+from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.views import load_models, jsonp
+from coaster.auth import current_auth
+from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
-from ..models import (db, Profile, Project, ProjectRedirect, Section,
-    Proposal, Rsvp, RSVP_STATUS)
-from ..forms import ProjectForm, ProposalSubprojectForm, RsvpForm, ProjectTransitionForm
-from ..jobs import tag_locations
+from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
+from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm
+from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
+from .mixins import ProjectViewMixin, ProfileViewMixin
+from .decorators import legacy_redirect
 
 
 def project_data(project):
@@ -38,158 +40,166 @@ def project_data(project):
         }
 
 
-@app.route('/<profile>/new', methods=['GET', 'POST'])
-@funnelapp.route('/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    permission='new-project')
-def project_new(profile):
-    form = ProjectForm(model=Project, parent=profile)
-    form.parent.query_factory = lambda: profile.projects
-    if request.method == 'GET':
-        form.timezone.data = current_app.config.get('TIMEZONE')
-    if form.validate_on_submit():
-        project = Project(user=g.user, profile=profile)
-        form.populate_obj(project)
-        # Set labels with default configuration
-        project.set_labels()
-        db.session.add(project)
-        db.session.commit()
-        flash(_("Your new project has been created"), 'info')
-        tag_locations.delay(project.id)
-        return redirect(project.url_for(), code=303)
-    return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=profile.url_for())
+@route('/<profile>')
+class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
 
-
-@app.route('/<profile>/<project>/')
-@funnelapp.route('/<project>/', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def project_view(profile, project):
-    sections = Section.query.filter_by(project=project, public=True).order_by('title').all()
-    rsvp_form = RsvpForm(obj=project.rsvp_for(g.user))
-    transition_form = ProjectTransitionForm(obj=project)
-    return render_template('project.html.jinja2', project=project, description=project.description, sections=sections,
-        rsvp_form=rsvp_form, transition_form=transition_form)
-
-
-@app.route('/<profile>/<project>/json')
-@funnelapp.route('/<project>/json', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def project_view_json(profile, project):
-    sections = Section.query.filter_by(project=project, public=True).order_by('title').all()
-    proposals = Proposal.query.filter_by(project=project).order_by(db.desc('created_at')).all()
-    return jsonp(**{
-        'project': project_data(project),
-        'space': project_data(project),  # FIXME: Remove when the native app switches over
-        'sections': [section_data(s) for s in sections],
-        'venues': [venue_data(venue) for venue in project.venues],
-        'rooms': [room_data(room) for room in project.rooms],
-        'proposals': [proposal_data(proposal) for proposal in proposals],
-        'schedule': schedule_data(project),
-        })
-
-
-@app.route('/<profile>/<project>/csv')
-@funnelapp.route('/<project>/csv', subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def project_view_csv(profile, project):
-    if 'view-contactinfo' in g.permissions:
-        usergroups = [ug.name for ug in project.usergroups]
-    else:
-        usergroups = []
-    proposals = Proposal.query.filter_by(project=project).order_by(db.desc('created_at')).all()
-    outfile = StringIO()
-    out = unicodecsv.writer(outfile, encoding='utf-8')
-    out.writerow(proposal_headers + ['votes_' + group for group in usergroups] + ['status'])
-    for proposal in proposals:
-        out.writerow(proposal_data_flat(proposal, usergroups))
-    outfile.seek(0)
-    return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
-        headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=project.title))])
-
-
-@app.route('/<profile>/<project>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/edit', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-project')
-def project_edit(profile, project):
-    if project.parent_project:
-        form = ProposalSubprojectForm(obj=project, model=Project)
-    else:
-        form = ProjectForm(obj=project, parent=profile, model=Project)
-    form.parent.query = Project.query.filter(Project.profile == profile, Project.id != project.id, Project.parent == None)
-    if request.method == 'GET' and not project.timezone:
-        form.timezone.data = current_app.config.get('TIMEZONE')
-    if form.validate_on_submit():
-        form.populate_obj(project)
-        db.session.commit()
-        flash(_("Your changes have been saved"), 'info')
-        tag_locations.delay(project.id)
-        return redirect(project.url_for(), code=303)
-    return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
-
-
-@app.route('/<profile>/<project>/rsvp', methods=['POST'])
-@funnelapp.route('/<project>/rsvp', methods=['POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def rsvp(profile, project):
-    form = RsvpForm()
-    if form.validate_on_submit():
-        rsvp = Rsvp.get_for(project, g.user, create=True)
-        form.populate_obj(rsvp)
-        db.session.commit()
-        if request.is_xhr:
-            return make_response(render_template('rsvp.html.jinja2', project=project, rsvp=rsvp, rsvp_form=form))
-        else:
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-project')
+    def new_project(self):
+        form = ProjectForm(model=Project, parent=self.obj)
+        form.parent_project.query = self.obj.projects
+        if request.method == 'GET':
+            form.timezone.data = current_app.config.get('TIMEZONE')
+        if form.validate_on_submit():
+            project = Project(user=current_auth.user, profile=self.obj)
+            form.populate_obj(project)
+            # Set labels with default configuration
+            project.set_labels()
+            db.session.add(project)
+            db.session.commit()
+            flash(_("Your new project has been created"), 'info')
+            tag_locations.delay(project.id)
             return redirect(project.url_for(), code=303)
-    else:
-        abort(400)
+        return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=self.obj.url_for())
 
 
-@app.route('/<profile>/<project>/rsvp_list')
-@funnelapp.route('/<project>/rsvp_list', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-project')
-def rsvp_list(profile, project):
-    return render_template('project_rsvp_list.html.jinja2', project=project, statuses=RSVP_STATUS)
+@route('/', subdomain='<profile>')
+class FunnelProfileProjectView(ProfileProjectView):
+    pass
 
 
-@app.route('/<profile>/<project>/transition', methods=['POST'])
-@funnelapp.route('/<project>/transition', methods=['POST', ], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-project')
-def project_transition(profile, project):
-    transition_form = ProjectTransitionForm(obj=project)
-    if transition_form.validate_on_submit():  # check if the provided transition is valid
-        transition = getattr(project.current_access(),
-            transition_form.transition.data)
-        transition()  # call the transition
-        db.session.commit()
-        flash(transition.data['message'], 'success')
-    else:
-        flash(_("Invalid transition for this project."), 'error')
-        abort(403)
-    return redirect(project.url_for())
+ProfileProjectView.init_app(app)
+FunnelProfileProjectView.init_app(funnelapp)
+
+
+@route('/<profile>/<project>/')
+class ProjectView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
+    @route('')
+    @render_with('project.html.jinja2')
+    @requires_permission('view')
+    def view(self):
+        sections = Section.query.filter_by(project=self.obj, public=True).order_by('title').all()
+        sections_list = [s.current_access() for s in sections]
+        rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
+        transition_form = ProjectTransitionForm(obj=self.obj)
+        return {'project': self.obj, 'sections': sections_list,
+            'rsvp_form': rsvp_form, 'transition_form': transition_form}
+
+    @route('json')
+    @render_with(json=True)
+    @requires_permission('view')
+    def json(self):
+        sections = Section.query.filter_by(project=self.obj, public=True).order_by('title').all()
+        proposals = Proposal.query.filter_by(project=self.obj).order_by(db.desc('created_at')).all()
+        return jsonp(**{
+            'project': project_data(self.obj),
+            'space': project_data(self.obj),  # FIXME: Remove when the native app switches over
+            'sections': [section_data(s) for s in sections],
+            'venues': [venue_data(venue) for venue in self.obj.venues],
+            'rooms': [room_data(room) for room in self.obj.rooms],
+            'proposals': [proposal_data(proposal) for proposal in proposals],
+            'schedule': schedule_data(self.obj),
+            })
+
+    @route('csv')
+    @requires_permission('view')
+    def csv(self):
+        if 'view-contactinfo' in current_auth.permissions:
+            usergroups = [ug.name for ug in self.obj.usergroups]
+        else:
+            usergroups = []
+        proposals = Proposal.query.filter_by(project=self.obj).order_by(db.desc('created_at')).all()
+        outfile = StringIO()
+        out = unicodecsv.writer(outfile, encoding='utf-8')
+        out.writerow(proposal_headers + ['votes_' + group for group in usergroups] + ['status'])
+        for proposal in proposals:
+            out.writerow(proposal_data_flat(proposal, usergroups))
+        outfile.seek(0)
+        return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
+            headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
+
+    @route('edit', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-project')
+    def edit(self):
+        if self.obj.parent_project:
+            form = SubprojectForm(obj=self.obj, model=Project)
+        else:
+            form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+        form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
+        if request.method == 'GET' and not self.obj.timezone:
+            form.timezone.data = current_app.config.get('TIMEZONE')
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            tag_locations.delay(self.obj.id)
+            return redirect(self.obj.url_for(), code=303)
+        return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
+
+    @route('transition', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-project')
+    def transition(self):
+        transition_form = ProjectTransitionForm(obj=self.obj)
+        if transition_form.validate_on_submit():  # check if the provided transition is valid
+            transition = getattr(self.obj.current_access(),
+                transition_form.transition.data)
+            transition()  # call the transition
+            db.session.commit()
+            flash(transition.data['message'], 'success')
+        else:
+            flash(_("Invalid transition for this project."), 'error')
+            abort(403)
+        return redirect(self.obj.url_for())
+
+    @route('rsvp', methods=['POST'])
+    @render_with('rsvp.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('view')
+    def rsvp(self):
+        form = RsvpForm()
+        if form.validate_on_submit():
+            rsvp = Rsvp.get_for(self.obj, g.user, create=True)
+            form.populate_obj(rsvp)
+            db.session.commit()
+            if request.is_xhr:
+                return dict(project=self.obj, rsvp=rsvp, rsvp_form=form)
+            else:
+                return redirect(self.obj.url_for(), code=303)
+        else:
+            abort(400)
+
+    @route('rsvp_list')
+    @render_with('project_rsvp_list.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('edit-project')
+    def rsvp_list(self):
+        return dict(project=self.obj, statuses=RSVP_STATUS)
+
+    @route('admin', methods=['GET', 'POST'])
+    @render_with('admin.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('admin')
+    def admin(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            for ticket_client in self.obj.ticket_clients:
+                if ticket_client and ticket_client.name.lower() in [u'explara', u'boxoffice']:
+                    import_tickets.delay(ticket_client.id)
+            flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
+            return redirect(self.obj.url_for('admin'), code=303)
+        return dict(profile=self.obj.profile, project=self.obj, events=self.obj.events, csrf_form=csrf_form)
+
+
+@route('/<project>/', subdomain='<profile>')
+class FunnelProjectView(ProjectView):
+    pass
+
+
+ProjectView.init_app(app)
+FunnelProjectView.init_app(funnelapp)

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from flask import g
 from baseframe import _, __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import Team
 
 
 class NewProfileForm(forms.Form):
@@ -12,11 +10,7 @@ class NewProfileForm(forms.Form):
     Create a new profile.
     """
     profile = forms.RadioField(__("Organization"), validators=[forms.validators.DataRequired("Select an organization")],
-        description=__("Select the organization you’d like to create a Talkfunnel for"))
-
-
-def profile_teams():
-    return Team.query.filter_by(orgid=g.profile.userid).order_by(Team.title)
+        description=__(u"Select the organization you’d like to create a Talkfunnel for"))
 
 
 class EditProfileForm(forms.Form):
@@ -30,5 +24,8 @@ class EditProfileForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     admin_team = QuerySelectField(u"Admin Team",
         validators=[forms.validators.DataRequired(_(u"Please select a team"))],
-        query_factory=profile_teams, get_label='title', allow_blank=False,
+        get_label='title', allow_blank=False,
         description=__("The team of users with administrative rights to this Talkfunnel (owners always have admin access)"))
+
+    def set_queries(self):
+        self.admin_team.query = self.edit_obj.teams

@@ -145,12 +145,12 @@
                     {%- endif -%}
                     <b>{{ proposal.voteset.count }}</b>
                   </span>
-                  <form method="post" action="{{ proposal.url_for('votecancel') }}">
+                  <form method="post" action="{{ proposal.url_for('delete_vote') }}">
                     {{ csrf_form.hidden_tag() }}
                     <button class="mui--text-caption action-btn action-btn--right" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_down</i></button>
                   </form>
                 {%- else %}
-                  <form method="post" action="{{ proposal.url_for('votecancel') }}">
+                  <form method="post" action="{{ proposal.url_for('delete_vote') }}">
                     {{ csrf_form.hidden_tag() }}
                     <button class="mui--text-caption action-btn action-btn--left" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons action-btn__icons">thumb_up</i></button>
                   </form>
@@ -194,7 +194,7 @@
               {%- endif %}
               {% if proposal.current_roles.admin %}
                 {%- if proposal_move_form %}
-                  {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('move-to'), submit="Move", style='horiz') }}
+                  {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
                 {%- endif %}
                 <hr class="mui-divider">
                 <p class="mui--text-subhead">Change status of proposal</p>
