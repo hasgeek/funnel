@@ -30,7 +30,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     def events_json(self):
         return jsonify(events=[{'name': e.name, 'title': e.title} for e in self.obj.events])
 
-    @route('new')
+    @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-event')
     def new_event(self):
@@ -48,7 +48,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(form=form, title=_(u"New Event"), submit=_(u"Add Event"))
 
-    @route('ticket_type/new')
+    @route('ticket_type/new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-ticket-type')
     def new_ticket_type(self):
@@ -67,7 +67,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(form=form, title=_(u"New Ticket Type"), submit=_(u"Add ticket type"))
 
-    @route('ticket_client/new')
+    @route('ticket_client/new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-ticket-client')
     def new_ticket_client(self):
