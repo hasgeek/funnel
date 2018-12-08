@@ -228,7 +228,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
 
     @route('ical')
     @requires_permission('view')
-    def ical(self):
+    def schedule_room_ical(self):
         cal = Calendar()
         cal.add('prodid', "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
             room=self.obj.title,

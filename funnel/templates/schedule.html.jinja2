@@ -37,7 +37,7 @@
         {%- for room in venue.rooms %}
           <div class="room">
             <h4 class="room__title js-title" data-bgcolor="#{{ room.bgcolor }}">
-              <a href="{{ room.url_for('schedule_ical', _external=True) }}" class=" mui-btn mui-btn--accent mui-btn--small room__title__subsc-btn">{% trans %}Subscribe{% endtrans %}</a>
+              <a href="{{ room.url_for('schedule_room_ical', _external=True) }}" class=" mui-btn mui-btn--accent mui-btn--small room__title__subsc-btn">{% trans %}Subscribe{% endtrans %}</a>
               {{ room.title }}
             </h4>
             <div class="room__description mui--text-light">{{ room.description }}</div>
