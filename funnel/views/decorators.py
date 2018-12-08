@@ -4,6 +4,14 @@ from funnel import app, funnelapp
 
 
 def legacy_redirect(f):
+    """
+    Redirects legacy profiles to talkfunnel and new profiles to hasgeek.
+    This is based on the ``legacy`` flag of the ``Profile`` model. All
+    profiles that were created before talkfunnel moved to hasgeek.com,
+    have their ``legacy`` flag set.
+
+    Ref: https://github.com/hasgeek/funnel/issues/230 (last item in checklist)
+    """
     @wraps(f)
     def decorated_function(classview, **kwargs):
         if g.profile and request.method == 'GET':
