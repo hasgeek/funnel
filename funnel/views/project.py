@@ -42,6 +42,8 @@ def project_data(project):
 
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-project')

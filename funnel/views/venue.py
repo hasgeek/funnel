@@ -9,6 +9,7 @@ from .. import app, funnelapp, lastuser
 from ..models import db, Profile, Project, ProjectRedirect, Venue, VenueRoom
 from ..forms.venue import VenueForm, VenueRoomForm, VenuePrimaryForm
 from .mixins import ProjectViewMixin, VenueViewMixin, VenueRoomViewMixin
+from .decorators import legacy_redirect
 
 
 RESERVED_VENUE = ['new']
@@ -47,6 +48,8 @@ def room_data(room):
 
 @route('/<profile>/<project>/venues')
 class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('venues.html.jinja2')
     @lastuser.requires_login
@@ -113,6 +116,8 @@ FunnelProjectVenueView.init_app(funnelapp)
 
 @route('/<profile>/<project>/venues/<venue>')
 class VenueView(VenueViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit-venue')
@@ -156,7 +161,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
 
 
 @route('/<project>/venues/<venue>', subdomain='<profile>')
-class FunnelVenueView(VenueViewMixin, UrlForView, ModelView):
+class FunnelVenueView(VenueView):
     pass
 
 
@@ -166,6 +171,8 @@ FunnelVenueView.init_app(funnelapp)
 
 @route('/<profile>/<project>/venues/<venue>/<room>')
 class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit-venue')

@@ -10,10 +10,13 @@ from baseframe import _
 from baseframe.forms import render_form
 from ..forms import EventForm, TicketTypeForm, ParticipantBadgeForm, TicketClientForm
 from .project import ProjectViewMixin
+from .decorators import legacy_redirect
 
 
 @route('/<profile>/<project>/events')
 class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('event_list.html.jinja2')
     @lastuser.requires_login

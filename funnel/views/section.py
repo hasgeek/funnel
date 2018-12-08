@@ -9,6 +9,7 @@ from .. import app, funnelapp, lastuser
 from ..models import Profile, Project, Section, db
 from ..forms import SectionForm
 from .mixins import ProjectViewMixin
+from .decorators import legacy_redirect
 
 
 def section_data(section):
@@ -23,6 +24,8 @@ def section_data(section):
 
 @route('/<profile>/<project>/sections')
 class ProjectSectionView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('sections.html.jinja2')
     @lastuser.requires_login
@@ -58,7 +61,7 @@ FunnelProjectSectionView.init_app(funnelapp)
 class SectionView(UrlForView, ModelView):
     model = Section
     route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
-    __decorators__ = [lastuser.requires_login]
+    __decorators__ = [lastuser.requires_login, legacy_redirect]
 
     def loader(self, profile, project, section):
         return self.model.query.join(Project).join(Profile).filter(

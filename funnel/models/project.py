@@ -425,7 +425,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 Profile.listed_projects = db.relationship(
         Project, lazy='dynamic',
         primaryjoin=db.and_(
-            Profile.id == Project.profile_id, Project.parent_id == None, Project.state.CURRENTLY_LISTED))  # NOQA
+            Profile.id == Project.profile_id, Project.parent_id == None,
+            Project.state.CURRENTLY_LISTED),
+        order_by=Project.date.desc())  # NOQA
 
 
 class ProjectRedirect(TimestampMixin, db.Model):

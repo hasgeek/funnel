@@ -9,10 +9,13 @@ from .. import app, funnelapp, lastuser
 from ..models import db, Profile, UserGroup, Project, ProjectRedirect
 from ..forms import UserGroupForm
 from .mixins import ProjectViewMixin, UserGroupViewMixin
+from .decorators import legacy_redirect
 
 
 @route('/<profile>/<project>/users')
 class ProjectUsergroupView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('usergroups.html.jinja2')
     @lastuser.requires_login
@@ -46,6 +49,8 @@ FunnelProjectUsergroupView.init_app(funnelapp)
 
 @route('/<profile>/<project>/users/<group>')
 class UserGroupView(UserGroupViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('usergroup.html.jinja2')
     @requires_permission('view-usergroup')

@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from flask import redirect, g, flash, abort, jsonify, request
-from coaster.views import jsonp, load_models, route, requires_permission, UrlForView, ModelView
+from coaster.views import jsonp, route, requires_permission, UrlForView, ModelView
 from baseframe import _, forms
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, Project, ProjectRedirect, Proposal, ProposalRedirect, Comment
+from ..models import db
 from .mixins import ProposalViewMixin, CommentViewMixin
+from .decorators import legacy_redirect
 
 
 @route('/<profile>/<project>/<proposal>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('voteup', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('vote-proposal')
@@ -68,6 +71,8 @@ FunnelProposalVoteView.init_app(funnelapp)
 
 @route('/<profile>/<project>/<proposal>/comments/<int:comment>')
 class CommentView(CommentViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('json')
     @requires_permission('view')
     def json(self):
@@ -119,9 +124,8 @@ class CommentView(CommentViewMixin, UrlForView, ModelView):
         return redirect(self.proposal.url_for(), code=303)
 
 
-
 @route('/<project>/<proposal>/comments/<int:comment>', subdomain='<profile>')
-class FunnelCommentView(CommentViewMixin, UrlForView, ModelView):
+class FunnelCommentView(CommentView):
     pass
 
 

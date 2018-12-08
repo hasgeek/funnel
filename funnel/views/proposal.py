@@ -7,7 +7,7 @@ from flask import g, render_template, redirect, request, Markup, abort, flash, e
 from flask_mail import Message
 from sqlalchemy import or_
 from coaster.utils import make_name
-from coaster.views import jsonp, load_models, requestargs, requires_permission, route, render_with, UrlForView, ModelView
+from coaster.views import jsonp, requires_permission, route, render_with, UrlForView, ModelView
 from coaster.gfm import markdown
 from coaster.auth import current_auth
 from baseframe import _
@@ -18,6 +18,7 @@ from ..models import (db, Profile, Project, ProjectRedirect, Section, Proposal,
     ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
 from .mixins import ProjectViewMixin, ProposalViewMixin
+from .decorators import legacy_redirect
 
 
 proposal_headers = [
@@ -99,6 +100,8 @@ def proposal_data_flat(proposal, groups=[]):
 # --- Routes ------------------------------------------------------------------
 @route('/<profile>/<project>')
 class ProjectProposalView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-proposal')
@@ -142,6 +145,8 @@ FunnelProjectProposalView.init_app(funnelapp)
 
 @route('/<profile>/<project>/<proposal>')
 class ProposalView(ProposalViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('proposal.html.jinja2')
     @requires_permission('view')
@@ -329,6 +334,13 @@ class ProposalView(ProposalViewMixin, UrlForView, ModelView):
             flash(_("Please choose a project you want to move this proposal to."))
         return redirect(self.obj.url_for(), 303)
 
+    @route('schedule', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-session')
+    def schedule(self):
+        from .session import session_form
+        return session_form(self.obj.project, proposal=self.obj)
+
 
 @route('/<project>/<proposal>', subdomain='<profile>')
 class FunnelProposalView(ProposalView):
@@ -337,43 +349,3 @@ class FunnelProposalView(ProposalView):
 
 ProposalView.init_app(app)
 FunnelProposalView.init_app(funnelapp)
-
-
-@app.route('/<profile>/<project>/<proposal>/feedback', methods=['POST'])
-@funnelapp.route('/<project>/<proposal>/feedback', methods=['POST'], subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    permission='view', addlperms=lastuser.permissions)
-@requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
-def session_feedback(profile, project, proposal, id_type, userid, content, presentation, min_scale=0, max_scale=2):
-    # Process feedback
-    if not min_scale <= content <= max_scale:
-        abort(400)
-    if not min_scale <= presentation <= max_scale:
-        abort(400)
-    if id_type not in ('email', 'deviceid'):
-        abort(400)
-
-    # Was feedback already submitted?
-    feedback = ProposalFeedback.query.filter_by(
-        proposal=proposal,
-        auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
-        id_type=id_type,
-        userid=userid).first()
-    if feedback is not None:
-        return "Dupe\n", 403
-    else:
-        feedback = ProposalFeedback(
-            proposal=proposal,
-            auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
-            id_type=id_type,
-            userid=userid,
-            min_scale=min_scale,
-            max_scale=max_scale,
-            content=content,
-            presentation=presentation)
-        db.session.add(feedback)
-        db.session.commit()
-        return "Saved\n", 201

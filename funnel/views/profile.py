@@ -9,6 +9,7 @@ from ..forms import NewProfileForm, EditProfileForm
 from .. import app, funnelapp, lastuser
 from .mixins import ProfileViewMixin
 from .project import project_data
+from .decorators import legacy_redirect
 
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -62,6 +63,8 @@ def profile_new():
 
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('funnelindex.html.jinja2')
     @requires_permission('view')

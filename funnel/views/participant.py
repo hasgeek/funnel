@@ -12,6 +12,7 @@ from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participa
 from ..forms import ParticipantForm
 from funnel.util import split_name, format_twitter_handle, make_qrcode
 from .project import ProjectViewMixin
+from .decorators import legacy_redirect
 
 
 def participant_badge_data(participants, project):
@@ -70,6 +71,8 @@ def participant_checkin_data(participant, project, event):
 
 @route('/<profile>/<project>/participants')
 class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('json')
     @lastuser.requires_login
     @requires_permission('view')

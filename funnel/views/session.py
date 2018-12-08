@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from baseframe import _
-from flask import request, render_template, jsonify, redirect
-from coaster.views import load_models, route, render_with, requires_permission, UrlForView, ModelView
+from flask import request, render_template, jsonify, redirect, abort
+from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs
 from coaster.sqlalchemy import failsafe_add
 
 from .helpers import localize_date
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, Proposal, ProposalRedirect, Project, ProjectRedirect, Session
+from ..models import db, ProposalFeedback, Session, FEEDBACK_AUTH_TYPE
 from ..forms import SessionForm
 from .mixins import ProjectViewMixin, SessionViewMixin
+from .decorators import legacy_redirect
 
 
 def rooms_list(project):
@@ -61,7 +62,9 @@ def session_form(project, proposal=None, session=None):
 
 @route('/<profile>/<project>/sessions')
 class ProjectSessionView(ProjectViewMixin, UrlForView, ModelView):
-    @route('new')
+    __decorators__ = [legacy_redirect]
+
+    @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-session')
     def new_session(self):
@@ -77,21 +80,10 @@ ProjectSessionView.init_app(app)
 FunnelProjectSessionView.init_app(funnelapp)
 
 
-@app.route('/<profile>/<project>/<proposal>/schedule', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/<proposal>/schedule', methods=['GET', 'POST'], subdomain='<profile>')
-@Proposal.is_url_for('schedule', profile='project.profile.name', project='project.name', proposal='url_name')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    ((Proposal, ProposalRedirect), {'url_name': 'proposal', 'project': 'project'}, 'proposal'),
-    permission='new-session')
-def proposal_schedule(profile, project, proposal):
-    return session_form(project, proposal=proposal)
-
-
 @route('/<profile>/<project>/<session>')
 class SessionView(SessionViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('viewsession')
     def view(self):
         return redirect(self.obj.project.url_for('schedule') + u"#" + self.obj.url_name, code=303)
@@ -120,6 +112,32 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
         db.session.commit()
         return jsonify(status=True, modal_url=modal_url)
 
+    @route('feedback', methods=['POST'])
+    @requires_permission('view')
+    @requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
+    def feedback(self, id_type, userid, content, presentation, min_scale=0, max_scale=2):
+        if not self.obj.proposal:
+            abort(400)
+        # Process feedback
+        if not min_scale <= content <= max_scale:
+            abort(400)
+        if not min_scale <= presentation <= max_scale:
+            abort(400)
+        if id_type not in ('email', 'deviceid'):
+            abort(400)
+
+        # Was feedback already submitted?
+        feedback = ProposalFeedback.query.filter_by(proposal=self.obj.proposal,
+            auth_type=FEEDBACK_AUTH_TYPE.NOAUTH, id_type=id_type, userid=userid).first()
+        if feedback is not None:
+            return "Dupe\n", 403
+        else:
+            feedback = ProposalFeedback(proposal=self.obj.proposal,
+                auth_type=FEEDBACK_AUTH_TYPE.NOAUTH, id_type=id_type, userid=userid,
+                min_scale=min_scale, max_scale=max_scale, content=content, presentation=presentation)
+            db.session.add(feedback)
+            db.session.commit()
+            return "Saved\n", 201
 
 
 @route('/<project>/<session>', subdomain='<profile>')
@@ -129,44 +147,3 @@ class FunnelSessionView(SessionView):
 
 SessionView.init_app(app)
 FunnelSessionView.init_app(funnelapp)
-
-
-# @app.route('/<profile>/<project>/<session>/viewsession-popup', methods=['GET'])
-# @funnelapp.route('/<project>/<session>/viewsession-popup', methods=['GET'], subdomain='<profile>')
-# @load_models(
-#     (Profile, {'name': 'profile'}, 'g.profile'),
-#     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-#     (Session, {'url_name': 'session', 'project': 'project'}, 'session'),
-#     permission='view')
-# def session_view_popup(profile, project, session):
-#     return dict(session=session, timezone=project.timezone, localize_date=localize_date)
-
-
-# @app.route('/<profile>/<project>/<session>/editsession', methods=['GET', 'POST'])
-# @funnelapp.route('/<project>/<session>/editsession', methods=['GET', 'POST'], subdomain='<profile>')
-# @lastuser.requires_login
-# @load_models(
-#     (Profile, {'name': 'profile'}, 'g.profile'),
-#     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-#     (Session, {'url_name': 'session', 'project': 'project'}, 'session'),
-#     permission='edit-session')
-# def session_edit(profile, project, session):
-#     return session_form(project, session=session)
-
-
-# @app.route('/<profile>/<project>/<session>/deletesession', methods=['POST'])
-# @funnelapp.route('/<project>/<session>/deletesession', methods=['POST'], subdomain='<profile>')
-# @lastuser.requires_login
-# @load_models(
-#     (Profile, {'name': 'profile'}, 'g.profile'),
-#     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-#     (Session, {'url_name': 'session', 'project': 'project'}, 'session'),
-#     permission='edit-session')
-# def session_delete(profile, project, session):
-#     modal_url = session.proposal.url_for('schedule') if session.proposal else None
-#     if not session.proposal:
-#         db.session.delete(session)
-#     else:
-#         session.make_unscheduled()
-#     db.session.commit()
-#     return jsonify(status=True, modal_url=modal_url)

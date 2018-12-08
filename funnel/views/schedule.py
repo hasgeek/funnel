@@ -17,6 +17,7 @@ from ..models import db, Profile, Project, ProjectRedirect, Session, VenueRoom, 
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 from .helpers import localize_date
 from .venue import venue_data, room_data
+from .decorators import legacy_redirect
 
 
 def session_data(sessions, with_modal_url=False, with_delete_url=False):
@@ -130,6 +131,8 @@ def session_ical(session):
 
 @route('/<profile>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('')
     @render_with('schedule.html.jinja2')
     @requires_permission('view')
@@ -221,6 +224,8 @@ FunnelProjectScheduleView.init_app(funnelapp)
 
 @route('/<profile>/<project>/schedule/<venue>/<room>')
 class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
     @route('ical')
     @requires_permission('view')
     def ical(self):
