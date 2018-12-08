@@ -13,7 +13,7 @@
         <div class="card__header">
           <h3><b>{% trans %}Manage venues{% endtrans %}</b></h3>
         </div>
-        <form action="{{ url_for('venue_make_primary', profile=project.profile.name, project=project.name, ) }}" method="POST">
+        <form action="{{ project.url_for('makeprimary_venue') }}" method="POST">
           {{ primary_venue_form.hidden_tag() }}
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border">
@@ -37,7 +37,7 @@
           <div class="mui-divider"></div>
           <div class="card__footer">
             <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" type="submit" title="Set as primary venue">{% trans %}Set as primary{% endtrans %}</button>
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ project.url_for('new-venue') }}" title="{% trans %}Add venue{% endtrans %}">{% trans %}Add venue{% endtrans %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ project.url_for('new_venue') }}" title="{% trans %}Add venue{% endtrans %}">{% trans %}Add venue{% endtrans %}</a>
           </div>
         </form>
       </div>
@@ -69,7 +69,7 @@
           </div>
           <div class="mui-divider"></div>
           <div class="card__footer">
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ venue.url_for('new-room') }}" title="{% trans %}Add room{% endtrans %}">{% trans %}Add room{% endtrans %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ venue.url_for('new_venueroom') }}" title="{% trans %}Add room{% endtrans %}">{% trans %}Add room{% endtrans %}</a>
           </div>
         </div>
       </div>
