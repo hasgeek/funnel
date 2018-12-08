@@ -12,7 +12,7 @@ from .project import project_data
 from .decorators import legacy_redirect
 
 
-@app.route('/new', methods=['GET', 'POST'])
+# @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018
 @lastuser.requires_scope('teams')
 def profile_new():
     # Step 1: Get a list of organizations this user owns

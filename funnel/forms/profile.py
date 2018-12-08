@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from flask import g
 from baseframe import _, __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import Team
 
 
 class NewProfileForm(forms.Form):
@@ -12,7 +10,7 @@ class NewProfileForm(forms.Form):
     Create a new profile.
     """
     profile = forms.RadioField(__("Organization"), validators=[forms.validators.DataRequired("Select an organization")],
-        description=__("Select the organization you’d like to create a Talkfunnel for"))
+        description=__(u"Select the organization you’d like to create a Talkfunnel for"))
 
 
 class EditProfileForm(forms.Form):
