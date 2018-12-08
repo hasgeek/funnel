@@ -130,7 +130,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             form = SubprojectForm(obj=self.obj, model=Project)
         else:
             form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
-        form.parent.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent == None)
+        form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)
         if request.method == 'GET' and not self.obj.timezone:
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():

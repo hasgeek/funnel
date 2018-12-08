@@ -51,7 +51,7 @@ class ProjectForm(forms.Form):
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
-    parent = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
+    parent_project = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
         get_label='title', allow_blank=False,

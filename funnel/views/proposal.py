@@ -131,7 +131,7 @@ class ProjectProposalView(ProjectViewMixin, UrlForView, ModelView):
         return render_form(form=form, title=_("Submit a session proposal"),
             submit=_("Submit proposal"),
             message=self.obj.instructions or Markup(
-                _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
+                _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
 @route('/<project>', subdomain='<profile>')
@@ -270,7 +270,7 @@ class ProposalView(ProposalViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for(), code=303)
         return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
             message=self.obj.project.instructions or Markup(
-                _('This form uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
+                _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
     @route('delete', methods=['GET', 'POST'])
     @lastuser.requires_login
