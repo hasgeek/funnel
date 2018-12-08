@@ -108,9 +108,9 @@ class ProjectProposalView(ProjectViewMixin, UrlForView, ModelView):
         form = ProposalForm(model=Proposal, parent=self.obj)
         del form.session_type  # We don't use this anymore
         if self.obj.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent_project), Section.public == True).order_by('title')
+            form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent_project), Section.public == True).order_by('title')  # NOQA
         else:
-            form.section.query = Section.query.filter(Section.project == self.obj, Section.public == True).order_by('title')
+            form.section.query = Section.query.filter(Section.project == self.obj, Section.public == True).order_by('title')  # NOQA
         if len(list(form.section.query.all())) == 0:
             # Don't bother with sections when there aren't any
             del form.section
@@ -252,9 +252,9 @@ class ProposalView(ProposalViewMixin, UrlForView, ModelView):
         if not self.obj.session_type:
             del form.session_type  # Remove this if we're editing a proposal that had no session type
         if self.obj.project.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj.project, Section.project == self.obj.project.parent_project), Section.public == True).order_by('title')
+            form.section.query = Section.query.filter(or_(Section.project == self.obj.project, Section.project == self.obj.project.parent_project), Section.public == True).order_by('title')  # NOQA
         else:
-            form.section.query = Section.query.filter(Section.project == self.obj.project, Section.public == True).order_by('title')
+            form.section.query = Section.query.filter(Section.project == self.obj.project, Section.public == True).order_by('title')  # NOQA
         if len(list(form.section.query.all())) == 0:
             # Don't bother with sections when there aren't any
             del form.section
