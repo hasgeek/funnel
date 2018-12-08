@@ -151,7 +151,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('json')
     @cors('*')
-    @render_with('schedule_subscribe.html.jinja2')
     @requires_permission('view')
     def schedule_json(self):
         return jsonp(schedule=schedule_data(self.obj),
@@ -159,7 +158,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             rooms=[room_data(room) for room in self.obj.rooms])
 
     @route('ical')
-    @render_with('schedule_subscribe.html.jinja2')
     @requires_permission('view')
     def schedule_ical(self):
         cal = Calendar()
