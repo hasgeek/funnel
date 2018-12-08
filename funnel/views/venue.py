@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, render_template, jsonify
-from coaster.views import load_models, requestargs, route, render_with, requires_permission, UrlForView, ModelView
+from flask import flash, jsonify
+from coaster.views import requestargs, route, render_with, requires_permission, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, Project, ProjectRedirect, Venue, VenueRoom
+from ..models import db, Venue, VenueRoom
 from ..forms.venue import VenueForm, VenueRoomForm, VenuePrimaryForm
 from .mixins import ProjectViewMixin, VenueViewMixin, VenueRoomViewMixin
 from .decorators import legacy_redirect

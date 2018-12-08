@@ -8,12 +8,12 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
-from flask import render_template, json, jsonify, request, Response, current_app
+from flask import json, jsonify, request, Response, current_app
 
-from coaster.views import load_models, requestargs, jsonp, cors, route, render_with, requires_permission, UrlForView, ModelView
+from coaster.views import requestargs, jsonp, cors, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, Project, ProjectRedirect, Session, VenueRoom, Venue
+from ..models import db, Session
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 from .helpers import localize_date
 from .venue import venue_data, room_data

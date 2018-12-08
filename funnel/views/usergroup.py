@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, request
-from coaster.views import load_models, route, render_with, requires_permission, UrlForView, ModelView
+from flask import redirect
+from coaster.views import route, render_with, requires_permission, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, UserGroup, Project, ProjectRedirect
+from ..models import db, UserGroup
 from ..forms import UserGroupForm
 from .mixins import ProjectViewMixin, UserGroupViewMixin
 from .decorators import legacy_redirect

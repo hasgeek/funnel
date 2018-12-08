@@ -14,8 +14,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, mail, lastuser
-from ..models import (db, Profile, Project, ProjectRedirect, Section, Proposal,
-    ProposalRedirect, Comment, ProposalFeedback, FEEDBACK_AUTH_TYPE)
+from ..models import db, Section, Proposal, Comment
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
