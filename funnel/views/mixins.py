@@ -1,6 +1,6 @@
-from flask import g, abort, redirect
+from flask import g
 from ..models import (Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
-    Comment, Commentset, UserGroup, Venue, VenueRoom)
+    Comment, Commentset, UserGroup, Venue, VenueRoom, Section)
 
 
 class ProjectViewMixin(object):
@@ -101,3 +101,16 @@ class VenueRoomViewMixin(object):
             ).first_or_404()
         g.profile = room.venue.project.profile
         return room
+
+
+class SectionViewMixin(object):
+    model = Section
+    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
+
+    def loader(self, profile, project, section):
+        section = self.model.query.join(Project).join(Profile).filter(
+            Project.name == project, Profile.name == profile,
+            Section.name == section
+            ).first_or_404()
+        g.profile = section.project.profile
+        return section

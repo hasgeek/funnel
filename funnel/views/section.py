@@ -8,7 +8,7 @@ from baseframe.forms import render_delete_sqla, render_form
 from .. import app, funnelapp, lastuser
 from ..models import Profile, Project, Section, db
 from ..forms import SectionForm
-from .mixins import ProjectViewMixin
+from .mixins import ProjectViewMixin, SectionViewMixin
 from .decorators import legacy_redirect
 
 
@@ -58,16 +58,8 @@ FunnelProjectSectionView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/sections/<section>')
-class SectionView(UrlForView, ModelView):
-    model = Section
-    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
+class SectionView(SectionViewMixin, UrlForView, ModelView):
     __decorators__ = [lastuser.requires_login, legacy_redirect]
-
-    def loader(self, profile, project, section):
-        return self.model.query.join(Project).join(Profile).filter(
-            Project.name == project, Profile.name == profile,
-            Section.name == section
-            ).first_or_404()
 
     @route('', methods=['GET'])
     @render_with('section.html.jinja2', json=True)
