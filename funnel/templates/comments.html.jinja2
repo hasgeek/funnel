@@ -69,11 +69,9 @@
           {%- endif %}
           <div data-id="{{ comment.id }}" class="comment--footer">
             {% if not comment.state.DELETED %}
-              {% if g.user %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.id }}">[reply]</a>{% endif %}
-              {%- with cperms = comment.permissions(g.user, g.permissions) %}
-                {% if 'edit-comment' in cperms %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.id }}">[{% trans %}edit{% endtrans %}]</a>{% endif %}
-                {% if 'delete-comment' in cperms %}<a title="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.id }}">[{% trans %}delete{% endtrans %}]</a>{% endif %}
-              {%- endwith %}
+              {% if current_auth.user %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.id }}">[reply]</a>{% endif %}
+              {% if comment.current_permissions.edit_comment %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.id }}">[{% trans %}edit{% endtrans %}]</a>{% endif %}
+              {% if comment.current_permissions.delete_comment %}<a title="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.id }}">[{% trans %}delete{% endtrans %}]</a>{% endif %}
             {%- endif %}
             <a title="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.id }}">[{% trans %}link{% endtrans %}]</a>
             {% if comment.parent %}<a title="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.id }}">[{% trans %}parent{% endtrans %}]</a>{% endif %}

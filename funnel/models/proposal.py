@@ -360,8 +360,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if user is not None:
             perms.update([
                 'vote-proposal',
-                'new-comment',
-                'vote-comment',
+                'new_comment',
+                'vote_comment',
                 ])
             if user == self.owner:
                 perms.update([

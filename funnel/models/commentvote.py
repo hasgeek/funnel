@@ -137,10 +137,10 @@ class Comment(BaseMixin, db.Model):
         perms = super(Comment, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
-            perms.add('vote-comment')
+            perms.add('vote_comment')
             if user == self.user:
                 perms.update([
-                    'edit-comment',
-                    'delete-comment'
+                    'edit_comment',
+                    'delete_comment'
                     ])
         return perms
