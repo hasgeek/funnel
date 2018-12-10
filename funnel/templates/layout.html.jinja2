@@ -9,7 +9,13 @@
 {% block header -%}
   {% macro site_title() %}
     {%- if g.profile -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+      <a href="{{ url_for('index') }}" class="header__site-title__item">
+        {%- if config['LEGACY'] -%}
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
+        {%- else -%} 
+         <img src="{{ url_for('static', filename='img/hg-logo.png') }}" class="header__site-title__logo"/>
+        {%- endif -%}
+      </a><i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
       <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
       {%- if project %}
         {%- if project.parent_project %}
@@ -20,7 +26,14 @@
         <a href="{{ project.url_for() }}" class="header__site-title__item">{{ project.short_title() }}</a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/> {{ config['SITE_TITLE'] }}</a>
+      <a href="{{ url_for('index') }}" class="header__site-title__item">
+        {%- if config['LEGACY'] -%}
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
+        {%- else -%} 
+         <img src="{{ url_for('static', filename='img/hg-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin"/>
+        {%- endif -%}
+        {{ config['SITE_TITLE'] }}
+      </a>
     {%- endif -%}
   {% endmacro %}
   {{ hgtopnav(site_title=site_title()) }}

@@ -6,8 +6,18 @@
 }
 
 .header__site-title__logo {
-  width: 24px;
-  vertical-align: text-bottom;
+  width: 40px;
+  vertical-align: middle;
+}
+
+.header__site-title__logo--margin {
+  margin-right: 10px;
+}
+
+.header__site-title__logo--funnel {
+  width: 18px;
+  position: relative;
+  top: -2px;
 }
 
 @media (min-width:768px) {
@@ -15,10 +25,6 @@
     font-size: 24px;
     line-height: 32px;
     top: 0;
-  }
-
-  .header__site-title__logo {
-    vertical-align: text-top;
   }
 }
 
