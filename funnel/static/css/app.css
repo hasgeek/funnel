@@ -144,8 +144,9 @@
 }
 
 .header__site-title__logo--funnel {
-  width: 19px;
-  vertical-align: text-bottom;
+  width: 18px;
+  position: relative;
+  top: -2px;
 }
 
 @media (min-width: 768px) {
@@ -153,11 +154,6 @@
     font-size: 24px;
     line-height: 32px;
     top: 0;
-  }
-
-  .header__site-title__logo--funnel {
-    width: 21px;
-    vertical-align: middle;
   }
 }
 .hg-banner {
@@ -283,6 +279,7 @@
 }
 .clickable-card {
   color: #1F2D3D;
+  display: block;
 }
 
 .clickable-card:focus,
