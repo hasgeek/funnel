@@ -431,11 +431,11 @@ window.Talkfunnel.Schedule = {
           this.set(event.keypath + '.height', containerHeight);
           var height = containerHeight + $(event.node).next('.js-expand-content').outerHeight();
           height = height > 2 * containerHeight ? (2 * containerHeight) : height;
-          $(event.node).parent('.js-expand-container').animate({"height": height}, 500);
-          $(event.node).next('.js-expand-content').animate({"opacity": 1},  500);
+          $(event.node).parent('.js-expand-container').animate({"height": height}, 250);
+          $(event.node).next('.js-expand-content').animate({"opacity": 1},  250);
         } else {
-          $(event.node).parent('.js-expand-container').animate({"height": this.get(event.keypath + '.height')}, 500);
-          $(event.node).next('.js-expand-content').animate({"opacity": 0},  500, function() {
+          $(event.node).parent('.js-expand-container').animate({"height": this.get(event.keypath + '.height')}, 250);
+          $(event.node).next('.js-expand-content').animate({"opacity": 0},  250, function() {
             self.set(event.keypath + '.expand', false);
           });
         }

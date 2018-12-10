@@ -4,7 +4,7 @@ import os.path
 from flask import g, render_template, redirect, jsonify
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp, pages
-from ..models import Profile, Project, Proposal
+from ..models import Project, Proposal
 from .project import project_data
 
 
@@ -17,7 +17,7 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
     return {'projects': projects}
 
 
@@ -26,7 +26,7 @@ def index():
 def funnelindex():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()
+    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
     return {'projects': projects}
 
 
@@ -49,25 +49,8 @@ def all_projects_json():
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
 
 
-@app.route('/<profile>/json')
-@funnelapp.route('/json', subdomain='<profile>')
-@load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
-def projects_json(profile):
-    projects = Project.fetch_sorted().filter_by(profile=profile).all()
-    return jsonp(projects=map(project_data, projects),
-        spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
-
-
-@app.route('/<profile>/')
-@funnelapp.route('/', subdomain='<profile>')
-@load_model(Profile, {'name': 'profile'}, 'g.profile', permission='view')
-def profile_view(profile):
-    return render_template('funnelindex.html.jinja2', projects=profile.parent_projects)
-
-
 # Legacy routes for funnel to talkfunnel migration
 # Figure out how to restrict these routes to just the funnel.hasgeek.com domain
-
 @funnelapp.route('/<project>/')
 @load_model(Project, {'legacy_name': 'project'}, 'project')
 def project_redirect(project):

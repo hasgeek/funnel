@@ -12,7 +12,7 @@
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_down</i></button>
       </form>
     {%- elif not comvote.votedown -%}
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/cancelvote" class="mui-form--inline">
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/delete_vote" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
       </form>
@@ -27,7 +27,7 @@
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_up</i></button>
       </form>
       <span class="comment--vote--count">{{ comment.voteset.count }}</span>
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/cancelvote" class="mui-form--inline">
+      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/delete_vote" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
       </form>

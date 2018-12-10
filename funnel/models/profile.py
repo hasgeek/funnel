@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from werkzeug.utils import cached_property
-
-from flask import url_for
-
 from flask_lastuser.sqlalchemy import ProfileBase
 
-from . import MarkdownColumn, db
-from .user import Team
+from . import MarkdownColumn, UuidMixin, db
+from .user import UseridMixin, Team
 
 __all__ = ['Profile']
 
 
-class Profile(ProfileBase, db.Model):
+class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
 
     admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
@@ -23,6 +19,10 @@ class Profile(ProfileBase, db.Model):
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
+    teams = db.relationship(
+        Team, primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
+        backref='profile', lazy='dynamic')
+
     __roles__ = {
         'all': {
             'read': {
@@ -30,14 +30,6 @@ class Profile(ProfileBase, db.Model):
             },
         },
     }
-
-    @cached_property
-    def parent_projects(self):
-        from .project import Project
-        projects_all = Project.fetch_sorted().filter(
-            Project.profile == self, Project.parent == None  # NOQA
-        ).all()
-        return projects_all
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
@@ -50,14 +42,6 @@ class Profile(ProfileBase, db.Model):
                 perms.add('delete-project')
                 perms.add('edit-project')
         return perms
-
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return url_for('profile_view', profile=self.name, _external=_external)
-        if action == 'edit':
-            return url_for('profile_edit', profile=self.name, _external=_external)
-        elif action == 'new-project':
-            return url_for('project_new', profile=self.name, _external=_external)
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)

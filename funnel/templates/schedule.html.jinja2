@@ -12,14 +12,14 @@
     <div class="mui--pull-right">
       <ul class="mui-list--inline">
         <li>
-          <a href="{{ project.url_for('subscribe-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
+          <a href="{{ project.url_for('subscribe_schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
         </li>
         {% if current_auth.is_authenticated and project.current_roles.admin %}
         <li>
-          <a href="{{ project.url_for('edit-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Edit Schedule{% endtrans %}</a>
+          <a href="{{ project.url_for('edit_schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Edit Schedule{% endtrans %}</a>
         </li>
         <li>
-          <a href="{{ project.url_for('json-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Download JSON{% endtrans %}</a>
+          <a href="{{ project.url_for('schedule_json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Download JSON{% endtrans %}</a>
         </li>
         {% endif %}
       </ul>
@@ -27,6 +27,9 @@
     <div id="popup_subscribe" class="modal">
     </div>
   </div>
+
+  <div id="calendar"></div>
+  <div>
 
   <div class="schedule-table-container" id="project-schedule-table">
     {% raw %}
@@ -37,7 +40,7 @@
               <h2 class="mui--text-heading schedule__date">{{dateStr}}</h2>
               <div class="mui--bg-accent">
                 <div class="schedule__row schedule__row--sticky">
-                    <p class="schedule__row__column schedule__row__column--time" style="min-width:{{timeSlotWidth}}px">
+                    <p class="schedule__row__column schedule__row__column--time" style="min-width:{{timeSlotWidth}}px"><i class="material-icons">schedule</i>
                     </p>
                   {{#rooms:room, roomindex}}
                     <div class="schedule__row__column schedule__row__column--header {{#if activeTab == title}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, title)">{{title}}</div>
@@ -50,17 +53,17 @@
                         {{ getTimeStr(session) }}
                       {{/if}}
                     </p>
-                    {{#rooms:room, roomIndex}} 
+                    {{#rooms:room, roomIndex}}
                       <div {{#if width && getColumnWidth('content')}}style="width: calc(100% - {{getColumnWidth('content')}}px);"{{else}}style="width: 100%"{{/if}} class="schedule__row__column {{#if talks}}schedule__row__column--talks {{title}}{{/if}} {{#if talks && activeTab == title}}js-active{{/if}}">
                         {{#if talks}}
                           <div class="schedule__row__column__content {{#if expand}}schedule__row__column__content--expand{{/if}} js-expand-container" style="height: calc({{talks.duration}}*{{rowHeight}}px);">
                             <div class="schedule__row__column__content__title">
-                              <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
+                              <p class="mui--text-caption schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
                               {{#if talks.title}}
                                 <p class="mui--text-subhead schedule__row__column__content__title__heading" on-click="showSessionModal(event)"><b>{{ talks.title }}</b></p>
                               {{/if}}
                               {{#if talks.speaker}}
-                                <p class="mui--text-body1 mui--text-light">{{ talks.speaker }}</p>
+                                <p class="mui--text-caption mui--text-light">{{ talks.speaker }}</p>
                               {{/if}}
                             </div>
                             {{#if talks.description}}
@@ -71,7 +74,7 @@
                                   keyboard_arrow_down
                                 {{/if}}
                               </i>
-                              <div class="schedule__row__column__content__decription {{#if expand}}schedule__row__column__content__decription--show{{/if}} js-expand-content">{{{ talks.description }}}</div>
+                              <div class="schedule__row__column__content__decription {{#if expand}}schedule__row__column__content__decription--show{{/if}} mui--text-caption js-expand-content">{{{ talks.description }}}</div>
                             {{/if}}
                           </div>
                         {{/if}}
@@ -102,10 +105,9 @@
       toDate: {{ to_date|tojson }},
       scheduled: {{ sessions|tojson }},
       rooms: {{ rooms|tojson }},
-      breakBgcolor: "#999999",
       slotInterval: 5,
       divElem: "#project-schedule-table",
-      scriptTemplate: '#scheduletemplate'
+      scriptTemplate: '#scheduletemplate',
     }
   </script>
   <script type="text/javascript">

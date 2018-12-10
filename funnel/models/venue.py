@@ -26,14 +26,6 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
-    def url_for(self, action='new', _external=False):
-        if action == 'new-room':
-            return url_for('venueroom_new', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
-        elif action == 'delete':
-            return url_for('venue_delete', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
-        elif action == 'edit':
-            return url_for('venue_edit', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
-
 
 class VenueRoom(BaseScopedNameMixin, db.Model):
     __tablename__ = 'venue_room'
@@ -53,14 +45,6 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
     @property
     def scoped_name(self):
         return u'{parent}/{name}'.format(parent=self.parent.name, name=self.name)
-
-    def url_for(self, action='new', _external=False):
-        if action == 'delete':
-            return url_for('venueroom_delete', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external)
-        if action == 'ical-schedule':
-            return url_for('schedule_room_ical', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
-        elif action == 'edit':
-            return url_for('venueroom_edit', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external)
 
 
 add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')

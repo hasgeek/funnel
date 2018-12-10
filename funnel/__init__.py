@@ -107,7 +107,7 @@ funnelapp.assets.register('css_fullcalendar',
         output='css/fullcalendar.packed.css', filters='cssmin'))
 funnelapp.assets.register('js_schedules',
     Bundle(assets.require('schedules.js'),
-        output='js/schedules.packed.js', filters='uglipyjs'))
+        output='js/schedules.packed.js'))
 funnelapp.assets.register('js_codemirrormarkdown',
     Bundle(assets.require('codemirror-markdown.js'),
         output='js/codemirror-markdown.packed.js', filters='uglipyjs'))

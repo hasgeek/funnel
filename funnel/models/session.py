@@ -62,15 +62,3 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         # so it becomes an unscheduled session.
         self.start = None
         self.end = None
-
-    def url_for(self, action='view', _external=False):
-        if action == 'view':
-            return self.project.url_for('schedule', _external=_external) + u'#' + self.url_name
-        elif action == 'edit':
-            return url_for('session_edit', profile=self.project.profile.name, project=self.project.name, session=self.url_name, _external=_external)
-        elif action == 'delete':
-            return url_for('session_delete', profile=self.project.profile.name, project=self.project.name, session=self.url_name, _external=_external)
-        elif action == 'feedback':
-            return url_for('session_feedback', profile=self.project.profile.name, project=self.project.name, proposal=self.proposal.url_name, _external=_external)
-        elif action == 'view-popup':
-            return url_for('session_view_popup', profile=self.project.profile.name, project=self.project.name, session=self.url_name, _external=_external)
