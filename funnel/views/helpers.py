@@ -37,5 +37,4 @@ def send_mail(sender, to, body, subject):
     msg = Message(sender=sender, subject=subject, recipients=[to])
     msg.body = body
     msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
-    # mail.send(msg)
-    print msg
+    mail.send(msg)
