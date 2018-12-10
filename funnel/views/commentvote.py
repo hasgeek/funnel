@@ -20,7 +20,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
 
     @route('voteup', methods=['POST'])
     @lastuser.requires_login
-    @requires_permission('vote-proposal')
+    @requires_permission('vote_proposal')
     def voteup(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
@@ -35,7 +35,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
 
     @route('votedown', methods=['POST'])
     @lastuser.requires_login
-    @requires_permission('vote-proposal')
+    @requires_permission('vote_proposal')
     def votedown(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
@@ -50,7 +50,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
 
     @route('delete_vote', methods=['POST'])
     @lastuser.requires_login
-    @requires_permission('vote-proposal')
+    @requires_permission('vote_proposal')
     def delete_vote(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():

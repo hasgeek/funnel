@@ -359,7 +359,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
             perms.update([
-                'vote-proposal',
+                'vote_proposal',
                 'new_comment',
                 'vote_comment',
                 ])
