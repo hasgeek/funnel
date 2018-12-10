@@ -144,7 +144,7 @@ FunnelProjectProposalView.init_app(funnelapp)
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
-    @route('', methods=['GET', 'POST'])
+    @route('')
     @render_with('proposal.html.jinja2')
     @requires_permission('view')
     def view(self):
