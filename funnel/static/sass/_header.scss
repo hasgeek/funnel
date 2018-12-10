@@ -6,7 +6,16 @@
 }
 
 .header__site-title__logo {
-  width: 24px;
+  width: 40px;
+  vertical-align: middle;
+}
+
+.header__site-title__logo--margin {
+  margin-right: 10px;
+}
+
+.header__site-title__logo--funnel {
+  width: 19px;
   vertical-align: text-bottom;
 }
 
@@ -17,8 +26,9 @@
     top: 0;
   }
 
-  .header__site-title__logo {
-    vertical-align: text-top;
+  .header__site-title__logo--funnel {
+    width: 21px;
+    vertical-align: middle;
   }
 }
 
