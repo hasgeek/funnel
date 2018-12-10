@@ -1,6 +1,7 @@
-from flask import g
+from flask import abort, g, redirect, request
+from coaster.utils import require_one_of
 from ..models import (Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
-    Comment, Commentset, UserGroup, Venue, VenueRoom, Section)
+    Comment, UserGroup, Venue, VenueRoom, Section)
 
 
 class ProjectViewMixin(object):
@@ -32,14 +33,38 @@ class ProfileViewMixin(object):
 
 class ProposalViewMixin(object):
     model = Proposal
-    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'proposal': 'url_name'}
+    route_model_map = {
+        'profile': 'project.profile.name', 'project': 'project.name',
+        'url_name_suuid': 'url_name_suuid', 'url_id_name': 'url_id_name'}
 
-    def loader(self, profile, project, proposal):
-        proposal = self.model.query.join(Project, Profile).filter(
-                Profile.name == profile, Project.name == project, Proposal.url_name == proposal
-            ).first_or_404()
+    def loader(self, profile, project, url_name_suuid=None, url_id_name=None):
+        require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
+        if url_name_suuid:
+            proposal = self.model.query.join(Project, Profile).filter(
+                    Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
+                ).first_or_404()
+        else:
+            proposal = self.model.query.join(Project, Profile).filter(
+                    Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
+                ).first()
+            if proposal is None:
+                if request.method == 'GET':
+                    redirect = ProposalRedirect.query.join(Project, Profile).filter(
+                        Profile.name == profile, Project.name == project, ProposalRedirect.url_name == url_id_name
+                        ).first_or_404()
+                    return redirect
+                else:
+                    abort(404)
         g.profile = proposal.project.profile
         return proposal
+
+    def after_loader(self):
+        if isinstance(self.obj, ProposalRedirect):
+            if self.obj.proposal:
+                return redirect(self.obj.proposal.url_for())
+            else:
+                abort(410)
+        super(ProposalViewMixin, self).after_loader()
 
 
 class SessionViewMixin(object):
@@ -58,11 +83,18 @@ class CommentViewMixin(object):
     model = Comment
     route_model_map = {'comment': 'id'}
 
-    def loader(self, profile, project, proposal, comment):
+    def loader(self, profile, project, comment, url_name_suuid=None, url_id_name=None):
+        require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
         comment = self.model.query.filter(Comment.id == comment).first_or_404()
-        self.proposal = Proposal.query.join(Project, Profile).filter(
-                Profile.name == profile, Project.name == project, Proposal.url_name == proposal
-            ).first_or_404()
+
+        if url_name_suuid:
+            self.proposal = Proposal.query.join(Project, Profile).filter(
+                    Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
+                ).first_or_404()
+        else:
+            self.proposal = Proposal.query.join(Project, Profile).filter(
+                    Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
+                ).first_or_404()
         g.profile = self.proposal.project.profile
         return comment
 

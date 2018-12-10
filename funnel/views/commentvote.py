@@ -10,7 +10,7 @@ from .mixins import ProposalViewMixin, CommentViewMixin
 from .decorators import legacy_redirect
 
 
-@route('/<profile>/<project>/<proposal>')
+@route('/<profile>/<project>/proposals/<url_name_suuid>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -60,7 +60,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for(), code=303)
 
 
-@route('/<project>/<proposal>', subdomain='<profile>')
+@route('/<project>/<url_id_name>', subdomain='<profile>')
 class FunnelProposalVoteView(ProposalVoteView):
     pass
 
@@ -69,7 +69,7 @@ ProposalVoteView.init_app(app)
 FunnelProposalVoteView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/<proposal>/comments/<int:comment>')
+@route('/<profile>/<project>/proposals/<url_name_suuid>/comments/<int:comment>')
 class CommentView(CommentViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -124,7 +124,7 @@ class CommentView(CommentViewMixin, UrlForView, ModelView):
         return redirect(self.proposal.url_for(), code=303)
 
 
-@route('/<project>/<proposal>/comments/<int:comment>', subdomain='<profile>')
+@route('/<project>/<url_id_name>/comments/<int:comment>', subdomain='<profile>')
 class FunnelCommentView(CommentView):
     pass
 
