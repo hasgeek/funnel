@@ -7,5 +7,5 @@ LASTUSER_CLIENT_ID = ''
 LASTUSER_CLIENT_SECRET = ''
 
 UPLOAD_FOLDER = '/tmp'
-RQ_DEFAULT_PORT = 6379
-TIMEZONE = 'Asia/Calcutta'
+TIMEZONE = 'Asia/Kolkata'
+RQ_LOW_URL = 'redis://localhost:6379/0'
