@@ -4,7 +4,7 @@ import os.path
 from flask import g, render_template, redirect, jsonify
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp, pages
-from ..models import Project, Proposal
+from ..models import Profile, Project, Proposal
 from .project import project_data
 
 
@@ -17,7 +17,7 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
+    projects = Project.fetch_sorted().join(Profile).filter(Profile.legacy == False).all()  # NOQA
     return {'projects': projects}
 
 
@@ -26,7 +26,7 @@ def index():
 def funnelindex():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
+    projects = Project.fetch_sorted().all()  # NOQA
     return {'projects': projects}
 
 
