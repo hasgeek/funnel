@@ -403,7 +403,7 @@ window.Talkfunnel.Schedule = {
         rowWidth: Object.keys(self.config.rooms).length,
         rowHeight: '30',
         timeSlotWidth: '75',
-        activeTab: self.config.rooms[Object.keys(self.config.rooms)[0]].title,
+        activeTab: Object.keys(self.config.rooms)[0],
         width: $(window).width(),
         height: $(window).height(),
         modalHtml: '',
@@ -416,11 +416,17 @@ window.Talkfunnel.Schedule = {
           } else {
             return 0;
           }
+        },
+        hasActiveRoom: function(session) {
+          return session.rooms[this.get('activeTab')].hasOwnProperty('talks');
         }
       },
       toggleTab: function(event, room) {
-        event.original.preventDefault();
-        this.set('activeTab', room);
+        if(this.get('width') < 992) {
+          event.original.preventDefault();
+          this.set('activeTab', room);
+          $('html,body').animate({scrollTop:$(event.node.parentElement).offset().top - $(event.node.parentElement).height()}, 500);
+        }
       },
       expandDescription: function(event) {
         var self = this;
