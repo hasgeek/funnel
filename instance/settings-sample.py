@@ -46,4 +46,6 @@ LOGFILE = 'error.log'
 WELCOME_MESSAGE = "The funnel is a space for proposals and voting on events. Pick an event to get started."
 HASCORE_SERVER = 'https://api.hasgeek.com/'
 CACHE_TYPE = 'redis'
+RQ_REDIS_URL = 'redis://localhost:6379/0'
+RQ_SCHEDULER_INTERVAL = 1
 DEBUG = True
