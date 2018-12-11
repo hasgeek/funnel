@@ -78,6 +78,7 @@ window.Talkfunnel.Comments = {
     $('.comment .js-comment-delete').click(function() {
       var cfooter = $(this).parent();
       $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
+      $('#delcomment').attr('action', cfooter.attr('data-delete-url'))
       $('#delcomment').removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
       return false;
     });

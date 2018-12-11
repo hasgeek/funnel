@@ -2,32 +2,32 @@
   <div class="comment--vote">
     {%- set comvote = comment.voteset.getvote(currentuser) %}
     {%- if not comvote -%}
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/voteup" class="mui-form--inline">
+      <form method="post" action="{{ comment.url_for('voteup') }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_up</i></button>
       </form>
       <span class="comment--vote--count">{{ comment.voteset.count }}</span>
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown">
+      <form method="post" action="{{ comment.url_for('votedown') }}">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_down</i></button>
       </form>
     {%- elif not comvote.votedown -%}
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/delete_vote" class="mui-form--inline">
+      <form method="post" action="{{ comment.url_for('delete_vote') }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
       </form>
       <span class="comment--vote--count">{{ comment.voteset.count }}</span>
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/votedown" class="mui-form--inline">
+      <form method="post" action="{{ comment.url_for('votedown') }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_down</i></button>
       </form>
     {%- else -%}
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/voteup" class="mui-form--inline">
+      <form method="post" action="{{ comment.url_for('voteup') }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_up</i></button>
       </form>
       <span class="comment--vote--count">{{ comment.voteset.count }}</span>
-      <form method="post" action="{{ votelinkbase }}/{{ comment.id }}/delete_vote" class="mui-form--inline">
+      <form method="post" action="{{ comment.url_for('delete_vote') }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
       </form>
@@ -67,14 +67,14 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.id }}" class="comment--footer">
+          <div data-id="{{ comment.id }}" data-delete-url="{{ comment.url_for('delete') }}" class="comment--footer">
             {% if not comment.state.DELETED %}
-              {% if current_auth.user %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.id }}">[reply]</a>{% endif %}
-              {% if comment.current_permissions.edit_comment %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.id }}">[{% trans %}edit{% endtrans %}]</a>{% endif %}
-              {% if comment.current_permissions.delete_comment %}<a title="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.id }}">[{% trans %}delete{% endtrans %}]</a>{% endif %}
+              {% if current_auth %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.id }}">[Reply]</a>{% endif %}
+              {% if comment.current_permissions.edit_comment %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.id }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
+              {% if comment.current_permissions.delete_comment %}<a title="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.id }}">[{% trans %}Delete{% endtrans %}]</a>{% endif %}
             {%- endif %}
-            <a title="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.id }}">[{% trans %}link{% endtrans %}]</a>
-            {% if comment.parent %}<a title="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.id }}">[{% trans %}parent{% endtrans %}]</a>{% endif %}
+            <a title="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.id }}">[{% trans %}Link{% endtrans %}]</a>
+            {% if comment.parent %}<a title="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.id }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
           </div>
         </div>
         {% if comment.children %}

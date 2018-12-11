@@ -303,7 +303,7 @@
         <p id="toplevel-comment" class="mui--hide">
           <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>
         </p>
-        <form method="POST" id="delcomment" action="{{ proposal.url_for('delete_comment') }}" class="mui--hide">
+        <form method="POST" id="delcomment" class="mui--hide">
           <div class="mui--hide">
             <input type="hidden" name="form.id" value="delcomment"/>
             {{ delcommentform.hidden_tag() }}

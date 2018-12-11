@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseMixin, MarkdownColumn
+from . import db, BaseMixin, MarkdownColumn, UuidMixin
 from .user import User
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import cached, StateManager
@@ -35,6 +35,8 @@ class Voteset(BaseMixin, db.Model):
     __tablename__ = 'voteset'
     type = db.Column(db.Integer, nullable=True)
     count = cached(db.Column(db.Integer, default=0, nullable=False))
+
+    proposal = db.relationship("Proposal", back_populates="voteset", uselist=False)
 
     def __init__(self, **kwargs):
         super(Voteset, self).__init__(**kwargs)
@@ -80,12 +82,14 @@ class Commentset(BaseMixin, db.Model):
     type = db.Column(db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
 
+    proposal = db.relationship("Proposal", back_populates="commentset", uselist=False)
+
     def __init__(self, **kwargs):
         super(Commentset, self).__init__(**kwargs)
         self.count = 0
 
 
-class Comment(BaseMixin, db.Model):
+class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,

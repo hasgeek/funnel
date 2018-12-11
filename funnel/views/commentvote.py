@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from flask import redirect, flash, abort, jsonify, request, render_template
+from flask import g, redirect, flash, abort, jsonify, request, render_template
 from coaster.auth import current_auth
+from coaster.utils import require_one_of
 from coaster.views import jsonp, route, requires_permission, UrlForView, ModelView, requestargs
 from baseframe import _, forms
 
 from .. import app, funnelapp, lastuser
 from ..forms import CommentForm, DeleteCommentForm
-from ..models import db, Comment
+from ..models import db, Comment, Proposal, Project, Profile
 from .decorators import legacy_redirect
 from .helpers import send_mail
-from .mixins import ProposalViewMixin, CommentViewMixin
+from .mixins import ProposalViewMixin
 
 
 @route('/<profile>/<project>/proposals/<url_name_suuid>')
@@ -124,24 +125,6 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         # the browser Back button
         return redirect(to_redirect, code=303)
 
-    @route('comments/delete', methods=['POST'])
-    @lastuser.requires_login
-    @requires_permission('new_comment')
-    @requestargs('comment_id')
-    def delete_comment(self, comment_id):
-        comment = Comment.query.filter_by(id=comment_id).first_or_404()
-        if not comment.current_permissions.delete_comment:
-            abort(401)
-        delcommentform = DeleteCommentForm(comment_id=comment.id)
-        if delcommentform.validate_on_submit():
-            comment.delete()
-            self.obj.commentset.count -= 1
-            db.session.commit()
-            flash(_("Your comment was deleted"), 'info')
-        else:
-            flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(self.obj.url_for(), code=303)
-
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')
 class FunnelProposalVoteView(ProposalVoteView):
@@ -152,7 +135,30 @@ ProposalVoteView.init_app(app)
 FunnelProposalVoteView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/proposals/<url_name_suuid>/comments/<int:comment>')
+class CommentViewMixin(object):
+    model = Comment
+    route_model_map = {'profile': 'commentset.proposal.project.profile.name',
+        'project': 'commentset.proposal.project.name', 'suuid': 'suuid',
+        'url_name_suuid': 'commentset.proposal.url_name_suuid',
+        'url_id_name': 'commentset.proposal.url_id_name'}
+
+    def loader(self, profile, project, suuid, url_name_suuid=None, url_id_name=None):
+        require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
+        comment = self.model.query.filter(Comment.suuid == suuid).first_or_404()
+
+        if url_name_suuid:
+            self.proposal = Proposal.query.join(Project, Profile).filter(
+                    Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
+                ).first_or_404()
+        else:
+            self.proposal = Proposal.query.join(Project, Profile).filter(
+                    Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
+                ).first_or_404()
+        g.profile = self.proposal.project.profile.name
+        return comment
+
+
+@route('/<profile>/<project>/proposals/<url_name_suuid>/comments/<suuid>')
 class CommentView(CommentViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -160,6 +166,20 @@ class CommentView(CommentViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def json(self):
         return jsonp(message=self.obj.message.text)
+
+    @route('delete', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('delete_comment')
+    def delete(self):
+        delcommentform = DeleteCommentForm(comment_id=self.obj.id)
+        if delcommentform.validate_on_submit():
+            self.obj.delete()
+            self.proposal.commentset.count -= 1
+            db.session.commit()
+            flash(_("Your comment was deleted"), 'info')
+        else:
+            flash(_("Your comment could not be deleted"), 'danger')
+        return redirect(self.proposal.url_for(), code=303)
 
     @route('voteup', methods=['POST'])
     @lastuser.requires_login
@@ -207,7 +227,7 @@ class CommentView(CommentViewMixin, UrlForView, ModelView):
         return redirect(self.proposal.url_for(), code=303)
 
 
-@route('/<project>/<url_id_name>/comments/<int:comment>', subdomain='<profile>')
+@route('/<project>/<url_id_name>/comments/<suuid>', subdomain='<profile>')
 class FunnelCommentView(CommentView):
     pass
 
