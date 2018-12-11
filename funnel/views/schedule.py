@@ -183,7 +183,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'unscheduled': [{
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
-                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.session],
+                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.state.SCHEDULED],
             'scheduled': session_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
             }
         # Set the proper range for the calendar to allow for date changes
