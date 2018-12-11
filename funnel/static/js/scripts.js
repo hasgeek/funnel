@@ -209,6 +209,8 @@ window.Talkfunnel.Queue = function(queueName) {
 
 window.Talkfunnel.ParticipantTable = {
   init: function(config) {
+    Ractive.DEBUG = false;
+
     this.config = config;
     this.checkinQ = new Talkfunnel.Queue(config.eventName + "-" + "checkin-queue");;
     this.cancelcheckinQ = new Talkfunnel.Queue(config.eventName + "-" + "cancelcheckin-queue");
@@ -394,7 +396,9 @@ window.Talkfunnel.TicketWidget = {
 
 window.Talkfunnel.Schedule = {
   renderScheduleTable: function() {
+    Ractive.DEBUG = false;
     var self = this;
+
     scheduleUI = new Ractive({
       el: self.config.divElem,
       template: self.config.scriptTemplate,
