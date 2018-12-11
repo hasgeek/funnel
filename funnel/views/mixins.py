@@ -41,7 +41,7 @@ class ProposalViewMixin(object):
         require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
         if url_name_suuid:
             proposal = self.model.query.join(Project, Profile).filter(
-                    Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
+                    Proposal.url_name_suuid == url_name_suuid
                 ).first_or_404()
         else:
             proposal = self.model.query.join(Project, Profile).filter(

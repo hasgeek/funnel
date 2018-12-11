@@ -33,6 +33,8 @@ def session_data(sessions, with_modal_url=False, with_delete_url=False):
                 'is_break': session.is_break,
                 'url_name': session.url_name,
                 'proposal_id': session.proposal_id,
+                'speaker_bio': session.speaker_bio,
+                'description': session.description,
             }.items() + dict({
                 'modal_url': session.url_for(with_modal_url)
             } if with_modal_url else {}).items() + dict({
@@ -181,7 +183,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'unscheduled': [{
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
-                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.session],
+                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.state.SCHEDULED],
             'scheduled': session_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
             }
         # Set the proper range for the calendar to allow for date changes
