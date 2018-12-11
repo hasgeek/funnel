@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from flask_mail import Mail
 from flask_lastuser import Lastuser
 from flask_lastuser.sqlalchemy import UserManager
+from flask_rq2 import RQ
 from baseframe import baseframe, assets, Version, Bundle
 from ._version import __version__
 
@@ -18,6 +19,7 @@ funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=Tr
 mail = Mail()
 lastuser = Lastuser()
 pages = FlatPages()
+rq = RQ()
 
 
 # --- Assets ------------------------------------------------------------------
@@ -64,6 +66,9 @@ lastuser.init_app(funnelapp)
 
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))
 pages.init_app(app)
+
+rq.init_app(app)
+rq.init_app(funnelapp)
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',

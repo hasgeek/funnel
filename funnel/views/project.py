@@ -60,7 +60,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
             db.session.add(project)
             db.session.commit()
             flash(_("Your new project has been created"), 'info')
-            tag_locations.delay(project.id)
+            tag_locations.queue(project.id)
             return redirect(project.url_for(), code=303)
         return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=self.obj.url_for())
 
@@ -137,7 +137,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            tag_locations.delay(self.obj.id)
+            tag_locations.queue(self.obj.id)
             return redirect(self.obj.url_for(), code=303)
         return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
 
@@ -190,7 +190,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
         if csrf_form.validate_on_submit():
             for ticket_client in self.obj.ticket_clients:
                 if ticket_client and ticket_client.name.lower() in [u'explara', u'boxoffice']:
-                    import_tickets.delay(ticket_client.id)
+                    import_tickets.queue(ticket_client.id)
             flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return dict(profile=self.obj.profile, project=self.obj, events=self.obj.events, csrf_form=csrf_form)
