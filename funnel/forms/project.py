@@ -4,7 +4,7 @@ import re
 from coaster.utils import sorted_timezones
 from wtforms.widgets import CheckboxInput, ListWidget
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
-from baseframe import _, __
+from baseframe import __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from ..models import RSVP_STATUS
@@ -29,7 +29,7 @@ class ProjectForm(forms.Form):
     date_upto = forms.DateField(__("End date"),
         validators=[
             forms.validators.DataRequired(__("End date is required")),
-            forms.validators.GreaterThan('date', __("End date cannot be before start date"))
+            forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))
             ])
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired()],
         description=__("This is displayed on the card on the homepage"))

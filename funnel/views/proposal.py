@@ -7,7 +7,7 @@ from flask import g, render_template, redirect, request, Markup, abort, flash, e
 from flask_mail import Message
 from sqlalchemy import or_
 from coaster.utils import make_name
-from coaster.views import jsonp, requires_permission, route, render_with, UrlForView, ModelView
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
 from coaster.gfm import markdown
 from coaster.auth import current_auth
 from baseframe import _
@@ -97,11 +97,9 @@ def proposal_data_flat(proposal, groups=[]):
 
 
 # --- Routes ------------------------------------------------------------------
-@route('/<profile>/<project>')
-class ProjectProposalView(ProjectViewMixin, UrlForView, ModelView):
+class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
-    @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-proposal')
     def new_proposal(self):
@@ -133,17 +131,26 @@ class ProjectProposalView(ProjectViewMixin, UrlForView, ModelView):
                 _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
-@route('/<project>', subdomain='<profile>')
-class FunnelProjectProposalView(ProjectProposalView):
+@route('/<profile>/<project>')
+class ProjectProposalView(BaseProjectProposalView):
     pass
 
 
+ProjectProposalView.add_route_for('new_proposal', 'proposals/new', methods=['GET', 'POST'])
 ProjectProposalView.init_app(app)
+
+
+@route('/<project>', subdomain='<profile>')
+class FunnelProjectProposalView(BaseProjectProposalView):
+    pass
+
+
+FunnelProjectProposalView.add_route_for('new_proposal', 'new', methods=['GET', 'POST'])
 FunnelProjectProposalView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/<proposal>')
-class ProposalView(ProposalViewMixin, UrlForView, ModelView):
+@route('/<profile>/<project>/proposals/<url_name_suuid>')
+class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
@@ -341,7 +348,7 @@ class ProposalView(ProposalViewMixin, UrlForView, ModelView):
         return session_form(self.obj.project, proposal=self.obj)
 
 
-@route('/<project>/<proposal>', subdomain='<profile>')
+@route('/<project>/<url_id_name>', subdomain='<profile>')
 class FunnelProposalView(ProposalView):
     pass
 

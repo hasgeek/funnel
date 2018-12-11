@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for, abort
+from flask import abort
 from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
 from .user import User
 from .project import Project

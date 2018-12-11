@@ -48,6 +48,9 @@ coaster.app.init_app(funnelapp)
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
 coaster.app.load_config_from_file(funnelapp, 'funnelapp.py')
 
+app.config['LEGACY'] = False
+funnelapp.config['LEGACY'] = True
+
 db.init_app(app)
 db.init_app(funnelapp)
 

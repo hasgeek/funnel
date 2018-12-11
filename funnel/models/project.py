@@ -399,11 +399,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return cls.query.filter(cls.state.CURRENTLY_LISTED).order_by(cls.date.desc()).all()
 
     @classmethod
-    def fetch_sorted(cls):
+    def fetch_sorted(cls, legacy=None):
         # sorts the projects so that both new and old projects are sorted from closest to farthest
         now = db.func.utcnow()
         currently_listed_projects = cls.query.filter_by(parent_project=None).filter(
             cls.state.CURRENTLY_LISTED)
+        if legacy is not None:
+            currently_listed_projects = currently_listed_projects.join(Profile).filter(Profile.legacy == legacy)
         upcoming = currently_listed_projects.filter(cls.date >= now).order_by(cls.date.asc())
         past = currently_listed_projects.filter(cls.date < now).order_by(cls.date.desc())
 

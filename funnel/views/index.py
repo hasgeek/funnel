@@ -17,7 +17,7 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
+    projects = Project.fetch_sorted(legacy=False).all()  # NOQA
     return {'projects': projects}
 
 
@@ -26,7 +26,7 @@ def index():
 def funnelindex():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
+    projects = Project.fetch_sorted().all()  # NOQA
     return {'projects': projects}
 
 
@@ -40,17 +40,25 @@ def whoami():
 
 
 @app.route('/json')
-@funnelapp.route('/json')
 def all_projects_json():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted().filter(Project.profile != None).all()  # NOQA
+    projects = Project.fetch_sorted(legacy=False).all()  # NOQA
     return jsonp(projects=map(project_data, projects),
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
 
 
-# Legacy routes for funnel to talkfunnel migration
-# Figure out how to restrict these routes to just the funnel.hasgeek.com domain
+@funnelapp.route('/json')
+def funnelapp_all_projects_json():
+    g.profile = None
+    g.permissions = []
+    projects = Project.fetch_sorted().all()  # NOQA
+    return jsonp(projects=map(project_data, projects),
+        spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
+
+
+# Legacy routes for funnel.hasgeek.com to talkfunnel migration
+# TODO: Figure out how to restrict these routes to just the funnel.hasgeek.com domain
 @funnelapp.route('/<project>/')
 @load_model(Project, {'legacy_name': 'project'}, 'project')
 def project_redirect(project):
