@@ -129,11 +129,11 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False, lazy='joined',
-        cascade='all, delete-orphan', single_parent=True, back_populates="proposal")
+        cascade='all, delete-orphan', single_parent=True)
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False, lazy='joined',
-        cascade='all, delete-orphan', single_parent=True, back_populates="proposal")
+        cascade='all, delete-orphan', single_parent=True)
 
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
