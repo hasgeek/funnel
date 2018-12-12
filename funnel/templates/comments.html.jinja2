@@ -1,44 +1,44 @@
-{% macro commentvote(comment, currentuser, votelinkbase, csrf_form) %}
+{% macro commentvote(comment, document, csrf_form) %}
   <div class="comment--vote">
-    {%- set comvote = comment.voteset.getvote(currentuser) %}
+    {%- set comvote = comment.voteset.getvote(current_auth.user) %}
     {%- if not comvote -%}
-      <form method="post" action="{{ comment.url_for('voteup') }}" class="mui-form--inline">
+      <form method="post" action="{{ document.url_for('voteup_comment', comment=comment) }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_up</i></button>
       </form>
       <span class="comment--vote--count">{{ comment.voteset.count }}</span>
-      <form method="post" action="{{ comment.url_for('votedown') }}">
+      <form method="post" action="{{ document.url_for('votedown_comment', comment=comment) }}">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_down</i></button>
       </form>
     {%- elif not comvote.votedown -%}
-      <form method="post" action="{{ comment.url_for('delete_vote') }}" class="mui-form--inline">
+      <form method="post" action="{{ document.url_for('delete_comment_vote', comment=comment) }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
       </form>
       <span class="comment--vote--count">{{ comment.voteset.count }}</span>
-      <form method="post" action="{{ comment.url_for('votedown') }}" class="mui-form--inline">
+      <form method="post" action="{{ document.url_for('votedown_comment', comment=comment) }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote down{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_down</i></button>
       </form>
     {%- else -%}
-      <form method="post" action="{{ comment.url_for('voteup') }}" class="mui-form--inline">
+      <form method="post" action="{{ document.url_for('voteup_comment', comment=comment) }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Vote up{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-title">arrow_drop_up</i></button>
       </form>
       <span class="comment--vote--count">{{ comment.voteset.count }}</span>
-      <form method="post" action="{{ comment.url_for('delete_vote') }}" class="mui-form--inline">
+      <form method="post" action="{{ document.url_for('delete_comment_vote', comment=comment) }}" class="mui-form--inline">
         {{ csrf_form.hidden_tag() }}
         <button class="mui--text-caption action-btn action-btn--nopadding" title="{% trans %}Withdraw vote{% endtrans %}" type="submit"><i class="material-icons mui--align-top mui--text-body2">clear</i></button>
       </form>
     {%- endif %}
   </div>
 {% endmacro %}
-{% macro commenttree(comments, document, project, currentuser, documenturl, csrf_form) %}
+{% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
     <div id="c{{ comment.id }}">
-      {{ commentvote(comment, currentuser, documenturl+'/comments', csrf_form) }}
+      {{ commentvote(comment, document, csrf_form) }}
       <div class="comment--content">
         <div class="comment--header">
           <button class="js-collapse action-btn action-btn--nopadding"><i class="material-icons mui--align-middle mui--text-menu">remove_circle_outline</i></button>
@@ -67,7 +67,7 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.id }}" data-delete-url="{{ comment.url_for('delete') }}" class="comment--footer">
+          <div data-id="{{ comment.id }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
               {% if current_auth %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.id }}">[Reply]</a>{% endif %}
               {% if comment.current_permissions.edit_comment %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.id }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
@@ -79,7 +79,7 @@
         </div>
         {% if comment.children %}
           <ul class="mui-list--unstyled comment--children">
-            {{ commenttree(comment.sorted_children(), document, project, currentuser, documenturl, csrf_form) }}
+            {{ commenttree(comment.sorted_children(), document, project, csrf_form) }}
           </ul>
         {% endif %}
       </div>

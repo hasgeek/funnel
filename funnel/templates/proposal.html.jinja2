@@ -282,7 +282,7 @@
       <h3 class="mui--text-headline"><strong>{% trans %}Comments{% endtrans %}</strong></h3>
       {% if comments %}
         <ul class="mui-list--unstyled">
-          {{ commenttree(comments, proposal, project, g.user, request.base_url, csrf_form) }}
+          {{ commenttree(comments, proposal, project, csrf_form) }}
         </ul>
       {% endif %}
       {% if not g.user -%}

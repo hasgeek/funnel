@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from collections import namedtuple
 from flask import g, redirect, flash, abort, jsonify, request, render_template
 from coaster.auth import current_auth
 from coaster.utils import require_one_of
-from coaster.views import jsonp, route, requires_permission, UrlForView, ModelView, requestargs
+from coaster.views import jsonp, route, requires_permission, UrlForView, ModelView
 from baseframe import _, forms
 
 from .. import app, funnelapp, lastuser
@@ -135,102 +136,104 @@ ProposalVoteView.init_app(app)
 FunnelProposalVoteView.init_app(funnelapp)
 
 
-class CommentViewMixin(object):
-    model = Comment
-    route_model_map = {'profile': 'commentset.proposal.project.profile.name',
-        'project': 'commentset.proposal.project.name', 'suuid': 'suuid',
-        'url_name_suuid': 'commentset.proposal.url_name_suuid',
-        'url_id_name': 'commentset.proposal.url_id_name'}
+class ProposalCommentViewMixin(object):
+    model = Proposal
+    route_model_map = {'profile': 'project.profile.name',
+        'project': 'project.name', 'suuid': '**comment.suuid',
+        'url_name_suuid': 'url_name_suuid',
+        'url_id_name': 'url_id_name'}
 
     def loader(self, profile, project, suuid, url_name_suuid=None, url_id_name=None):
         require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
-        comment = self.model.query.filter(Comment.suuid == suuid).first_or_404()
+        ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
+
+        comment = Comment.query.filter(Comment.suuid == suuid).first_or_404()
 
         if url_name_suuid:
-            self.proposal = Proposal.query.join(Project, Profile).filter(
+            proposal = Proposal.query.join(Project, Profile).filter(
                     Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
                 ).first_or_404()
         else:
-            self.proposal = Proposal.query.join(Project, Profile).filter(
+            proposal = Proposal.query.join(Project, Profile).filter(
                     Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
                 ).first_or_404()
-        g.profile = self.proposal.project.profile.name
-        return comment
+        g.profile = proposal.project.profile
+        return ProposalComment(proposal, comment)
 
 
 @route('/<profile>/<project>/proposals/<url_name_suuid>/comments/<suuid>')
-class CommentView(CommentViewMixin, UrlForView, ModelView):
+class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('json')
     @requires_permission('view')
-    def json(self):
-        return jsonp(message=self.obj.message.text)
+    def comment_json(self):
+        return jsonp(message=self.obj.comment.message.text)
 
     @route('delete', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('delete_comment')
-    def delete(self):
-        delcommentform = DeleteCommentForm(comment_id=self.obj.id)
+    def delete_comment(self):
+        delcommentform = DeleteCommentForm(comment_id=self.obj.comment.id)
         if delcommentform.validate_on_submit():
-            self.obj.delete()
-            self.proposal.commentset.count -= 1
+            self.obj.comment.delete()
+            self.obj.proposal.commentset.count -= 1
             db.session.commit()
             flash(_("Your comment was deleted"), 'info')
         else:
             flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(self.proposal.url_for(), code=303)
+        return redirect(self.obj.proposal.url_for(), code=303)
 
     @route('voteup', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('vote_comment')
-    def voteup(self):
+    def voteup_comment(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
             abort(403)
-        self.obj.voteset.vote(current_auth.user, votedown=False)
+        self.obj.comment.voteset.vote(current_auth.user, votedown=False)
         db.session.commit()
         message = _("Your vote has been recorded")
         if request.is_xhr:
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.proposal.url_for(), code=303)
+        return redirect(self.obj.proposal.url_for(), code=303)
 
     @route('votedown', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('vote_comment')
-    def votedown(self):
+    def votedown_comment(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
             abort(403)
-        self.obj.voteset.vote(current_auth.user, votedown=True)
+        self.obj.comment.voteset.vote(current_auth.user, votedown=True)
         db.session.commit()
         message = _("Your vote has been recorded")
         if request.is_xhr:
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.proposal.url_for(), code=303)
+        return redirect(self.obj.proposal.url_for(), code=303)
 
     @route('delete_vote', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('vote_comment')
-    def delete_vote(self):
+    def delete_comment_vote(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
             abort(403)
-        self.obj.voteset.cancelvote(current_auth.user)
+        self.obj.comment.voteset.cancelvote(current_auth.user)
         db.session.commit()
         message = _("Your vote has been withdrawn")
         if request.is_xhr:
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.proposal.url_for(), code=303)
+        return redirect(self.obj.proposal.url_for(), code=303)
 
 
 @route('/<project>/<url_id_name>/comments/<suuid>', subdomain='<profile>')
-class FunnelCommentView(CommentView):
+class FunnelProposalCommentView(ProposalCommentView):
     pass
 
 
-CommentView.init_app(app)
-FunnelCommentView.init_app(funnelapp)
+ProposalCommentView.init_app(app)
+FunnelProposalCommentView.init_app(funnelapp)
