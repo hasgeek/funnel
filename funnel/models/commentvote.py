@@ -36,8 +36,6 @@ class Voteset(BaseMixin, db.Model):
     type = db.Column(db.Integer, nullable=True)
     count = cached(db.Column(db.Integer, default=0, nullable=False))
 
-    proposal = db.relationship("Proposal", back_populates="voteset", uselist=False)
-
     def __init__(self, **kwargs):
         super(Voteset, self).__init__(**kwargs)
         self.count = 0
@@ -81,8 +79,6 @@ class Commentset(BaseMixin, db.Model):
     __tablename__ = 'commentset'
     type = db.Column(db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
-
-    proposal = db.relationship("Proposal", back_populates="commentset", uselist=False)
 
     def __init__(self, **kwargs):
         super(Commentset, self).__init__(**kwargs)
