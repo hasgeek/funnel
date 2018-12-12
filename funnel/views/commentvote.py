@@ -69,11 +69,12 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('new_comment')
     def new_comment(self):
+        to_redirect = self.obj.url_for(_external=True)
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
             send_mail_info = []
             if commentform.comment_edit_id.data:
-                comment = Comment.query.get(int(commentform.comment_edit_id.data))
+                comment = Comment.query.filter_by(suuid=commentform.comment_edit_id.data).first_or_404()
                 if comment:
                     if comment.current_permissions.edit_comment:
                         comment.message = commentform.message.data
@@ -87,7 +88,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                 comment = Comment(user=current_auth.user, commentset=self.obj.commentset,
                     message=commentform.message.data)
                 if commentform.parent_id.data:
-                    parent = Comment.query.get(int(commentform.parent_id.data))
+                    parent = Comment.query.filter_by(suuid=commentform.parent_id.data).first_or_404()
                     if parent.user.email:
                         if parent.user == self.obj.user:  # check if parent comment & proposal owner are same
                             if not current_auth.user == parent.user:  # check if parent comment is by proposal owner
@@ -116,7 +117,6 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                 db.session.add(comment)
                 flash(_("Your comment has been posted"), 'info')
             db.session.commit()
-            to_redirect = self.obj.url_for(_external=True)
             for item in send_mail_info:
                 email_body = render_template(item.pop('template'), proposal=self.obj, comment=comment, link=to_redirect)
                 if item.get('to'):

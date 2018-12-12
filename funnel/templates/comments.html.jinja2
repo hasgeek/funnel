@@ -67,7 +67,7 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.id }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
+          <div data-id="{{ comment.suuid }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
               {% if current_auth %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.id }}">[Reply]</a>{% endif %}
               {% if comment.current_permissions.edit_comment %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.id }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
