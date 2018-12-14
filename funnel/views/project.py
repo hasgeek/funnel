@@ -93,7 +93,8 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
     @render_with('proposals.html.jinja2')
     @requires_permission('view')
     def view_proposals(self):
-        return {'project': self.obj}
+        transition_form = ProjectTransitionForm(obj=self.obj)
+        return {'project': self.obj, 'transition_form': transition_form}
 
     @route('json')
     @render_with(json=True)
