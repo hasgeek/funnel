@@ -25,9 +25,10 @@
   <a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for() }}#about">About</a>
   {%- if project.instructions -%}<a class="sub-navbar__item mui--text-subhead" href="#call-for-proposal">Call for proposals</a>{%- endif %}
   {%- if project.featured_sessions  %}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for() }}#featured-talk">Featured talks</a>{%- endif %}
+  {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead" href="#schedule">Schedule</a>{%- endif %}
   {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for() }}#related-jobs">Jobs</a>{%- endif %}
   {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for() }}#venue">Venue</a>{%- endif %}
-  {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for() }}#proposals">Proposals</a>{%- endif %}
+  {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for('view_proposals') }}#proposals">Proposals</a>{%- endif %}
   {%- if project.boxoffice_data or project.buy_tickets_url -%}<a class="mui-btn mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" {% if project.boxoffice_data -%} href="{{ project.url_for() }}#tickets" {%- elif project.buy_tickets_url %} href="{{ project.buy_tickets_url }}"{%- endif %}>Participate</a>{%- endif %}
 {%- endmacro %}
 

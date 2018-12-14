@@ -110,7 +110,7 @@
   {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for('schedule') }}">Schedule</a>{%- endif %}
   {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#related-jobs">Jobs</a>{%- endif %}
   {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#venue">Venue</a>{%- endif %}
-  {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#proposals">Proposals</a>{%- endif %}
+  {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for('view_proposals') }}#proposals">Proposals</a>{%- endif %}
   {%- if project.boxoffice_data or project.buy_tickets_url -%}<a class="mui-btn mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.boxoffice_data -%}smooth-scroll{%- endif %}" {% if project.boxoffice_data -%} href="#tickets" {%- elif project.buy_tickets_url %} href="{{ project.buy_tickets_url }}"{%- endif %}>Participate</a>{%- endif %}
 {%- endmacro %}
 
@@ -319,44 +319,19 @@
     </div>
   </div>
   {%- endif %}
-
-  <div class="grid project-section" id="proposals">
-    <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
-      {%- if 'view-status' in current_auth.permissions %}
-        <div>
-          <form class="mui-form mui--pull-right search-proposal-form">
-            <div class="mui-textfield mui-textfield--float-label">
-              <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-              <label><i class="material-icons mui--align-middle mui--text-title" aria-hidden>search</i> Search</label>
-            </div>
-          </form>
-        </div>
-        {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
-            <p class="mui--text-title collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></p>
-            <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
-        {%- endfor -%}
-      {%- else %}
-        {%- if project.proposals_by_confirmation['confirmed'] %}
-          <p class="mui--text-title">{% trans %}Confirmed sessions{% endtrans %}</p>
-          {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
-        {%- endif %}
-        {%- if project.proposals_by_confirmation['unconfirmed'] %}
-          {%- if project.proposals_by_confirmation['confirmed'] %}<p class="mui--text-title">{% trans %}Unconfirmed proposals{% endtrans %}</p>{% endif %}
-          {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
-        {%- endif %}
-      {%- endif %}
-    </div>
-  </div>
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_jquerysuccinct" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  {% assets "js_leaflet" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+  {% if project.featured_sessions  %}
+    {% assets "js_jquerysuccinct" -%}
+      <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {%- endassets -%}
+  {%- endif %}
+  {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
+    {% assets "js_leaflet" -%}
+      <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {%- endassets -%}
+  {%- endif %}
   {{ rsvpscript() }}
   <script type="text/javascript">
     $(function() {
@@ -387,9 +362,11 @@
         $(hits.join(",")).removeClass('mui--hide');
       });
 
-      $('.truncate').succinct({
-        size: 200
-      });
+      {% if project.featured_sessions  %}
+        $('.truncate').succinct({
+          size: 200
+        });
+      {%- endif %}
 
     });
   </script>
