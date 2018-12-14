@@ -28,10 +28,13 @@ window.Talkfunnel.Utils = {
       $(this).next('.collapsible__body').slideToggle();
     });
   },
+  animateScrollTo: function(offsetY) {
+    $('html,body').animate({scrollTop: offsetY}, 500);
+  },
   smoothScroll: function() {
-    $('a[href*=\\#]').on('click', function(event) { 
+    $('a.smooth-scroll').on('click', function(event) { 
       event.preventDefault();
-      $('html,body').animate({scrollTop:$(this.hash).offset().top}, 500);
+      Talkfunnel.Utils.animateScrollTo($(this.hash).offset().top);
     });
   }
 }
@@ -411,6 +414,7 @@ window.Talkfunnel.Schedule = {
         width: $(window).width(),
         height: $(window).height(),
         modalHtml: '',
+        headerHeight: '',
         getTimeStr: function(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
@@ -423,46 +427,40 @@ window.Talkfunnel.Schedule = {
         },
         hasActiveRoom: function(session) {
           return session.rooms[this.get('activeTab')].hasOwnProperty('talks');
+        },
+        removeImg: function(descriptionHtml) {
+          return descriptionHtml.replace(/<img[^>]*>/g,"");
         }
       },
       toggleTab: function(event, room) {
         if(this.get('width') < 992) {
           event.original.preventDefault();
           this.set('activeTab', room);
-          $('html,body').animate({scrollTop:$(event.node.parentElement).offset().top - $(event.node.parentElement).height()}, 500);
-        }
-      },
-      expandDescription: function(event) {
-        var self = this;
-        event.original.preventDefault();
-        if(!this.get(event.keypath + '.expand')) {
-          this.set(event.keypath + '.expand', true);
-          var containerHeight = $(event.node).parent('.js-expand-container').outerHeight();
-          this.set(event.keypath + '.height', containerHeight);
-          var height = containerHeight + $(event.node).next('.js-expand-content').outerHeight();
-          height = height > 2 * containerHeight ? (2 * containerHeight) : height;
-          $(event.node).parent('.js-expand-container').animate({"height": height}, 250);
-          $(event.node).next('.js-expand-content').animate({"opacity": 1},  250);
-        } else {
-          $(event.node).parent('.js-expand-container').animate({"height": this.get(event.keypath + '.height')}, 250);
-          $(event.node).next('.js-expand-content').animate({"opacity": 0},  250, function() {
-            self.set(event.keypath + '.expand', false);
-          });
+          Talkfunnel.Utils.animateScrollTo($(event.node.parentElement).offset().top - self.get('self.headerHeight'));
         }
       },
       showSessionModal: function(event) {
         var self = this;
-        $.ajax({
-          url: self.get(event.keypath + '.talks.modal_url'),
-          type: 'GET',
-          success: function(data) {
-            self.set('modalHtml', data);
-            $("#session-modal").modal('show');
-          },
-          error: function(response) {
-            toastr.error('There was a problem in contacting the server. Please try again later.');
-          }
-        });
+        var sessionUrl = self.get(event.keypath + '.talks.modal_url');
+        if(sessionUrl) {
+          $.ajax({
+            url: self.get(event.keypath + '.talks.modal_url'),
+            type: 'GET',
+            success: function(data) {
+              self.set('modalHtml', data);
+              $("#session-modal").modal('show');
+              location.hash = self.get(event.keypath + '.talks.url_name');
+            },
+            error: function(response) {
+              toastr.error('There was a problem in contacting the server. Please try again later.');
+            }
+          });
+        }
+      },
+      disableScroll: function(event) {
+        event.original.preventDefault();
+        location.hash = event.node.id;
+        Talkfunnel.Utils.animateScrollTo($(location.hash).offset().top - this.get('self.headerHeight'));
       },
       oncomplete: function() {
         var self = this;
@@ -470,6 +468,11 @@ window.Talkfunnel.Schedule = {
           self.set('width', $(window).width());
           self.set('height', $(window).height());
         });
+        self.set('self.headerHeight', 2 * $('.schedule__row--sticky').height());
+        self.set('self.pathName', location.pathname);
+        if(location.pathname === self.get('self.pathName') && location.hash) {
+          Talkfunnel.Utils.animateScrollTo($(location.hash).offset().top - self.get('self.headerHeight'));
+        }
       }
     });
   },
@@ -508,16 +511,15 @@ window.Talkfunnel.Schedule = {
     });
   },
   getEventDays: function() {
-    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);
-    var eventDays = {};
-    var firstDay = Talkfunnel.Schedule.Utils.getEventDate(this.config.fromDate);
-    var nextDay;
-    eventDays[firstDay] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(this.config.fromDate), talks: {}, 
+    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    var eventDays = {};
+    var day = Talkfunnel.Schedule.Utils.getEventDate(this.config.fromDate);
+    eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(this.config.fromDate), talks: {},
       startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
     while(difference > 0) {
       nextDay = new Date();
-      nextDay.setDate(firstDay + 1);
-      eventDays[nextDay.getDate()] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(nextDay), talks: {}, 
+      nextDay.setDate(day + 1);
+      day = nextDay.getDate();
+      eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(nextDay), talks: {},
         startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
       difference--;
     };

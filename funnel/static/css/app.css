@@ -11,6 +11,11 @@
   padding: 0 5px;
 }
 
+.image-wrapper img {
+  max-width: 100%;
+  display: block;
+}
+
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -845,7 +850,7 @@
 .schedule .schedule__row .schedule__row__column {
   padding: 5px 10px;
   position: relative;
-  background: url('../img/schedule-box-background.png?1544501585');
+  background: url('../img/schedule-box-background.png?1544526769');
   background-size: 20px 10px;
 }
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
@@ -870,22 +875,27 @@
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading:hover {
   color: #4A90E2;
 }
-.schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__icon {
-  float: right;
-}
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__decription {
   clear: both;
-  opacity: 0;
   padding-top: 15px;
   word-break: break-all;
+  overflow: hidden;
+}
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__decription img {
+  width: 100%;
 }
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content p {
   margin: 0 0 5px;
 }
-.schedule .schedule__row .schedule__row__column .schedule__row__column__content--expand {
-  overflow: scroll;
-  z-index: 6;
-  box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
+.schedule .schedule__row .schedule__row__column .schedule__row__column__content--overflow:before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: -5px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #ffffff 80%, #ffffff 100%);
+  z-index: 3;
+  padding: 30px 0 0;
 }
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content__title__duration {
   display: none;
@@ -911,16 +921,23 @@
 .schedule .schedule__row .schedule__row__column--time {
   background-image: none;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-  color: #F0A40C;
   margin: 0;
-  line-height: 1;
   background-color: #fff;
   display: block;
   padding: 8px 0 0;
   text-align: center;
+  color: #F0A40C;
+  text-decoration: none;
+  line-height: 1;
+}
+.schedule .schedule__row .schedule__row__column--time--pointer {
+  cursor: pointer;
 }
 .schedule .schedule__row .schedule__row__column--time--header {
   padding-top: 12px;
+}
+.schedule .schedule__row .schedule__row__column--talks {
+  cursor: pointer;
 }
 .schedule .schedule__row:before,
 .schedule .schedule__row:after {
@@ -957,13 +974,10 @@
     display: block;
     height: 150px !important;
   }
-  .schedule .schedule__row .schedule__row__column__content {
+  .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
     height: 150px !important;
   }
-  .schedule .schedule__row .schedule__row__column__content .js-expand-icon {
-    display: none;
-  }
-  .schedule .schedule__row .schedule__row__column__content .schedule__row__column__content__title__duration {
+  .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title__duration {
     display: block;
   }
   .schedule .schedule__row.js-active {
@@ -981,6 +995,13 @@
     display: none;
   }
 }
+.session-modal {
+  padding: 0;
+}
+.session-modal .modal__header, .session-modal .modal__body {
+  padding: 1em;
+}
+
 .footer {
   padding-bottom: 50px;
 }

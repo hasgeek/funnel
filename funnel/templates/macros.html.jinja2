@@ -32,3 +32,74 @@
     });
   </script>
 {% endmacro %}
+
+{% macro project_header(project, page_btns, subnavbar_items) %}
+  <div class="mui-container headline">
+    <div class="grid">
+      <div class="grid__col-md-12 mui--hidden-xs mui--hidden-sm mui--hidden-md">
+        <div class="desktop-head">
+          {%- if project.profile.logo_url %}
+            <div class="profile-details">
+              <img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+              <p class="mui--text-subhead profile-details__title">by {{ project.profile.title|e }}</p>
+            </div>
+          {% endif %}
+          <div class="mui--pull-left project-details">
+            <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
+            <p class="mui--text-title mui--text-light">{{ project.tagline|safe }}</p>
+            {%- if not project.profile.logo_url %}<p class="mui--text-subhead profile-details__title">by {{ project.profile.title|e }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% if project.banner_video_url or project.bg_image %}
+      <div class="grid__col-md-7 grid__col-lg-8 project-banner">
+        <div class="project-banner__box">
+          {% if project.banner_video_url %}
+            <div class="project-banner__box__video">
+              {{ project.banner_video_url|safe }}
+            </div>
+          {%- elif project.bg_image %}
+            <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-sm-block mui--visible-md-block xs-sm-padding">
+        <h1 class="mui--text-display2"><strong>{{ project.title|e }}</strong></h1>
+        <p class="mui--text-headline">{{ project.tagline|safe }}</p>
+        <div class="profile-details">
+          {%- if project.profile.logo_url %}<img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>{% endif %}<span class="mui--text-subhead">by {{ project.profile.title|e }}</span>
+        </div>
+      </div>
+      <div class="grid__col-xs-12{% if project.banner_video_url or project.bg_image %} grid__col-md-5 grid__col-lg-4{% else %} date-wrapper--small {% endif %} date-wrapper xs-sm-padding">
+        <div>
+          <div class="date-icon">
+            <i class="material-icons mui--text-display1 mui--text-light">date_range</i>
+          </div>
+          <div class="date-details">
+            <p class="mui--text-subhead zero-bottom-margin date-details__label">Date</p>
+            <p class="mui--text-title mui--text-light">{{ project.datelocation }}</p>
+          </div>
+        </div>
+        {%- if project.primary_venue %}
+          <div>
+            <div class="date-icon">
+              <i class="material-icons mui--text-display1 mui--text-light">place</i>
+            </div>
+            <div class="date-details">
+              <p class="mui--text-subhead zero-bottom-margin date-details__label">Venue</p>
+              <p class="mui--text-title mui--text-light">{{ project.primary_venue.title }}</p>
+            </div>
+          </div>
+        {%- endif %}
+        <div class="project-btn-wrapper">
+          {# Todo: Pass list of btns to be rendered #}
+          {{ page_btns|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="sub-navbar sub-navbar--sticky mui--bg-accent">
+    {{ subnavbar_items|safe }}
+  </nav>
+{% endmacro %}
