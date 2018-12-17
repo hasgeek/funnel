@@ -103,19 +103,8 @@
   </ul>
 {%- endmacro %}
 
-{%- macro subnavbar_items(project) %}
-  <a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#about">About</a>
-  {%- if project.instructions -%}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#call-for-proposal">Call for proposals</a>{%- endif %}
-  {%- if project.featured_sessions  %}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#featured-talk">Featured talks</a>{%- endif %}
-  {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead" href="{{ project.url_for('schedule') }}">Schedule</a>{%- endif %}
-  {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#related-jobs">Jobs</a>{%- endif %}
-  {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#venue">Venue</a>{%- endif %}
-  {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead smooth-scroll" href="#proposals">Proposals</a>{%- endif %}
-  {%- if project.boxoffice_data or project.buy_tickets_url -%}<a class="mui-btn mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.boxoffice_data -%}smooth-scroll{%- endif %}" {% if project.boxoffice_data -%} href="#tickets" {%- elif project.buy_tickets_url %} href="{{ project.buy_tickets_url }}"{%- endif %}>Participate</a>{%- endif %}
-{%- endmacro %}
-
 {% block headline %}
-  {{ project_header(project, page_btns=page_btns(project), subnavbar_items=subnavbar_items(project)) }}
+  {{ project_header(project, page_btns=page_btns(project)) }}
 {% endblock %}
 
 {% block contentwrapper %}
