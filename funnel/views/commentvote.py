@@ -16,6 +16,9 @@ from .helpers import send_mail
 from .mixins import ProposalViewMixin
 
 
+ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
+
+
 @route('/<profile>/<project>/proposals/<url_name_suuid>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -145,10 +148,6 @@ class ProposalCommentViewMixin(object):
 
     def loader(self, profile, project, suuid, url_name_suuid=None, url_id_name=None):
         require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
-        ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
-
-        comment = Comment.query.filter(Comment.suuid == suuid).first_or_404()
-
         if url_name_suuid:
             proposal = Proposal.query.join(Project, Profile).filter(
                     Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
@@ -157,8 +156,16 @@ class ProposalCommentViewMixin(object):
             proposal = Proposal.query.join(Project, Profile).filter(
                     Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
                 ).first_or_404()
-        g.profile = proposal.project.profile
+
+        comment = Comment.query.join(
+                Proposal, Comment.commentset_id == Proposal.commentset_id
+            ).filter(Comment.suuid == suuid, Proposal.id == proposal.id).first_or_404()
+
         return ProposalComment(proposal, comment)
+
+    def after_loader(self):
+        g.profile = self.obj.proposal.project.profile
+        super(ProposalCommentViewMixin, self).after_loader()
 
 
 @route('/<profile>/<project>/proposals/<url_name_suuid>/comments/<suuid>')
@@ -167,7 +174,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
 
     @route('json')
     @requires_permission('view')
-    def comment_json(self):
+    def view_comment_json(self):
         return jsonp(message=self.obj.comment.message.text)
 
     @route('delete', methods=['POST'])
