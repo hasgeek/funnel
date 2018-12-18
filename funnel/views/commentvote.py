@@ -92,7 +92,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     message=commentform.message.data)
                 if commentform.parent_id.data:
                     parent = Comment.query.filter_by(suuid=commentform.parent_id.data).first_or_404()
-                    if parent.user.email:
+                    if parent.user.email:  # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
                         if parent.user == self.obj.user:  # check if parent comment & proposal owner are same
                             if not current_auth.user == parent.user:  # check if parent comment is by proposal owner
                                 send_mail_info.append({'to': self.obj.user.email or self.obj.email,
