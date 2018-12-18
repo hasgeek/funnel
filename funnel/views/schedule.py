@@ -30,7 +30,7 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
                 'speaker': session.speaker if session.speaker else None,
                 'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
                 'is_break': session.is_break,
-                'url_name': session.url_name,
+                'url_name_suuid': session.url_name_suuid,
                 'proposal_id': session.proposal_id,
                 'speaker_bio': session.speaker_bio,
                 'description': session.description,
@@ -219,7 +219,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @render_with('schedule.html.jinja2')
     def view_session_on_schedule(self):
         session = Session.query.filter_by(url_name_suuid=self.view_args['session']).first_or_404()
-        return dict(project=self.obj, venues=self.obj.venues, active_session=session_data(session),
+        return dict(project=self.obj, venues=self.obj.venues, active_session=session_data(session, with_modal_url='view_popup'),
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
             sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
             timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
