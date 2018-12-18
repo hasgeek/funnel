@@ -212,6 +212,16 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 current_app.logger.error('{project} schedule update error: session = {session}'.format(project=self.obj.name, session=session))
         return jsonify(status=True)
 
+    @route('<session>')
+    @render_with('schedule.html.jinja2')
+    def view_session_on_schedule(self):
+        session = Session.query.filter_by(url_name_suuid=self.view_args['session']).first_or_404()
+        return dict(project=self.obj, venues=self.obj.venues, active_session=session,
+            from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
+            sessions=session_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
+            timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
+            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
+
 
 @route('/<project>/schedule', subdomain='<profile>')
 class FunnelProjectScheduleView(ProjectScheduleView):

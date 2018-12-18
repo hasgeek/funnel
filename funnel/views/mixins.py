@@ -8,7 +8,7 @@ class ProjectViewMixin(object):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
 
-    def loader(self, profile, project):
+    def loader(self, profile, project, session=None):
         proj = self.model.query.join(Profile).filter(
                 Project.name == project, Profile.name == profile
             ).first()

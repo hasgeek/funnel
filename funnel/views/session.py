@@ -86,7 +86,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
 
     @route('viewsession')
     def view(self):
-        return redirect(self.obj.project.url_for('schedule') + u"#" + self.obj.url_name, code=303)
+        return redirect(self.obj.project.url_for('view_session_on_schedule', session=self.obj.url_name_suuid), code=303)
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
