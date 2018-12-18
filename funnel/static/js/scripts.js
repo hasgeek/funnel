@@ -32,7 +32,7 @@ window.Talkfunnel.Utils = {
     $('html,body').animate({scrollTop: offsetY}, 500);
   },
   smoothScroll: function() {
-    $('a.smooth-scroll').on('click', function(event) { 
+    $('a.smooth-scroll').on('click', function(event) {
       event.preventDefault();
       Talkfunnel.Utils.animateScrollTo($(this.hash).offset().top);
     });
@@ -109,11 +109,11 @@ window.Talkfunnel.Comments = {
 }
 
 window.Talkfunnel.Video = {
-  /* Takes argument 
+  /* Takes argument
      `videoWrapper`: video container element,
      'videoUrl': video url
-    Video id is extracted from the video url (extractYoutubeId) .  
-    The videoID is then used to generate the iframe html. 
+    Video id is extracted from the video url (extractYoutubeId).
+    The videoID is then used to generate the iframe html.
     The generated iframe is added to the video container element.
   */
   embedIframe: function(videoWrapper, videoUrl) {
@@ -291,7 +291,7 @@ window.Talkfunnel.ParticipantTable = {
       },
       onrender: function() {
         this.updateList();
-    
+
         //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds and batch post check-in/cancel check-in status to server
         setInterval(function() { Talkfunnel.ParticipantTable.processQueues(); }, 8000);
 
@@ -415,6 +415,7 @@ window.Talkfunnel.Schedule = {
         height: $(window).height(),
         modalHtml: '',
         headerHeight: '',
+        pageUrl: window.location.href,
         getTimeStr: function(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
@@ -449,7 +450,21 @@ window.Talkfunnel.Schedule = {
             success: function(data) {
               self.set('modalHtml', data);
               $("#session-modal").modal('show');
-              location.hash = self.get(event.keypath + '.talks.url_name');
+              window.history.replaceState({reloadOnPop: true}, '', self.get('pageUrl'));
+              window.history.pushState({reloadOnPop: true}, '', self.get('pageUrl') + '/' + self.get(event.keypath + '.talks.url_name'));
+              $("#session-modal").on($.modal.CLOSE, function() {
+                if(self.get('modalHtml')) {
+                  self.set('modalHtml', '');
+                  window.history.replaceState({reloadOnPop: true}, '', window.location.href);
+                  window.history.pushState({reloadOnPop: true}, '', self.get('pageUrl'));
+                }
+              });
+              $(window).on('popstate', function (event) {
+                if(self.get('modalHtml')) {
+                  self.set('modalHtml', '');
+                  $.modal.close();
+                }
+              });
             },
             error: function(response) {
               toastr.error('There was a problem in contacting the server. Please try again later.');
