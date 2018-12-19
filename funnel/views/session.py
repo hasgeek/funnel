@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+from pytz import timezone
 from baseframe import _
 from flask import request, render_template, jsonify, redirect, abort
 from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs
@@ -11,6 +13,7 @@ from ..models import db, ProposalFeedback, Session, FEEDBACK_AUTH_TYPE
 from ..forms import SessionForm
 from .mixins import ProjectViewMixin, SessionViewMixin
 from .decorators import legacy_redirect
+from .schedule import session_data, session_list_data, date_js
 
 
 def rooms_list(project):
@@ -80,13 +83,18 @@ ProjectSessionView.init_app(app)
 FunnelProjectSessionView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/<session>')
+@route('/<profile>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
-    @route('viewsession')
+    @route('')
+    @render_with('schedule.html.jinja2')
     def view(self):
-        return redirect(self.obj.project.url_for('view_session_on_schedule', session=self.obj.url_name_suuid), code=303)
+        return dict(project=self.obj.project, venues=self.obj.project.venues, active_session=session_data(self.obj, with_modal_url='view_popup'),
+            from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),
+            sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
+            timezone=timezone(self.obj.project.timezone).utcoffset(datetime.now()).total_seconds(),
+            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
@@ -140,7 +148,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             return "Saved\n", 201
 
 
-@route('/<project>/<session>', subdomain='<profile>')
+@route('/<project>/schedule/<session>', subdomain='<profile>')
 class FunnelSessionView(SessionView):
     pass
 

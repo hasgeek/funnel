@@ -55,28 +55,32 @@ class ProposalViewMixin(object):
                     return redirect
                 else:
                     abort(404)
-        g.profile = proposal.project.profile
         return proposal
 
     def after_loader(self):
         if isinstance(self.obj, ProposalRedirect):
             if self.obj.proposal:
+                g.profile = self.obj.proposal.project.profile
                 return redirect(self.obj.proposal.url_for())
             else:
                 abort(410)
+        g.profile = self.obj.project.profile
         super(ProposalViewMixin, self).after_loader()
 
 
 class SessionViewMixin(object):
     model = Session
-    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'session': 'url_name'}
+    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'session': 'url_name_suuid'}
 
     def loader(self, profile, project, session):
         session = self.model.query.join(Project, Profile).filter(
-                Profile.name == profile, Project.name == project, Session.url_name == session
+                Profile.name == profile, Project.name == project, Session.url_name_suuid == session
             ).first_or_404()
-        g.profile = session.project.profile
         return session
+
+    def after_loader(self):
+        g.profile = self.obj.project.profile
+        super(SessionViewMixin, self).after_loader()
 
 
 class CommentViewMixin(object):
