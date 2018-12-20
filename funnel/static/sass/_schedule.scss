@@ -20,10 +20,11 @@
 				top: 0;
 				left: 0;
 				z-index: 2;
-				width: 100%;
+				width: calc(100% - 1px);
 				height: 100%;
 				padding: 5px 15px 0;
-				border: 0.5px solid rgba(132,146,166,0.3);
+				border: 0;
+				outline: 1px solid rgba(132,146,166,0.3);
 				overflow: hidden;
 
 				.schedule__row__column__content__title {
@@ -38,15 +39,16 @@
 						color: #4A90E2;
 					}
 				}
-				.schedule__row__column__content__icon {
-					float: right;
-				}
 
 				.schedule__row__column__content__decription {
 					clear: both;
-  					opacity: 0;
   					padding-top: 15px;
   					word-break: break-all;
+  					overflow: hidden;
+
+  					img {
+  						width: 100%;
+  					}
 				}
 
 				p {
@@ -55,10 +57,15 @@
 
 			}
 
-			.schedule__row__column__content--expand {
-				overflow: scroll;
-				z-index: 6;
-				box-shadow: 0 1px 3px rgba(158,158,158,0.12), 0 1px 2px rgba(158,158,158,0.24);
+			.schedule__row__column__content--overflow:before {
+				content: '';
+			    position: absolute;
+			    left: 1px;
+			    right: 1px;
+			    bottom: 0;
+			    background: linear-gradient(to bottom, transparent 0%, white 80%, white 100%);
+			    z-index: 3;
+			    padding: 30px 0 0;
 			}
 
 			.schedule__row__column__content__title__duration {
@@ -92,17 +99,26 @@
 		.schedule__row__column--time {
 			background-image: none;
 			border-bottom: 1px solid rgba(132,146,166,0.3);
-		    color: #F0A40C;
 			margin: 0;
-			line-height: 1;
 			background-color: #fff;
 			display: block;
 			padding: 8px 0 0;
 			text-align: center;
+			color: #F0A40C;
+			text-decoration: none;
+			line-height: 1;
+		}
+
+		.schedule__row__column--time--pointer {
+			cursor: pointer;
 		}
 
 		.schedule__row__column--time--header {
 		    padding-top: 12px;
+		}
+
+		.schedule__row__column--talks {
+			cursor: pointer;
 		}
 	}
 
@@ -150,15 +166,15 @@
 				height: 150px !important;
 			}
 
-			.schedule__row__column__content {
-				height: 150px !important;
-				.js-expand-icon {
-					display: none;
-				}
+			.schedule__row__column {
 
-				.schedule__row__column__content__title__duration {
-		        	display: block;
-		        }
+				.schedule__row__column__content {
+					height: 150px !important;
+
+					.schedule__row__column__content__title__duration {
+			        	display: block;
+			        }
+				}
 			}
 	    }
 	    
@@ -180,5 +196,13 @@
 			}
 
 		}
+	}
+}
+
+.session-modal--nopadding {
+	padding: 0;
+
+	.modal__header, .modal__body {
+		padding: 1em;
 	}
 }
