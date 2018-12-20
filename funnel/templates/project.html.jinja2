@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header %}
+{%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header, admin_panel %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
@@ -10,74 +10,6 @@
 {% endblock %}
 
 {% block bodytag %}<body class="mui--bg-primary no-sticky-header">{% endblock %}
-
-{%- macro proposal_list(project, proposals) %}
-  <table id="proposals-table" class="proposal-list-wrapper">
-    <tbody>
-      {% for proposal in proposals %}
-        <tr id="{{ proposal.id }}">
-          <td class='js-searchable'>
-            <h3 class="zero-bottom-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title nounderline">
-              <strong>{{ proposal.title }}</strong>
-            </a></h3>
-            <p>
-              {%- if proposal.speaker -%}
-                <span class="mui--text-subhead">{{ proposal.speaker.pickername }}</span>
-                {%- if proposal.user != proposal.speaker %}
-                  <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
-                {%- endif %}
-                {%- if g.user and 'edit-project' in g.permissions %}
-                  {%- if proposal.has_outstation_speaker %}
-                    <i class="material-icons mui--text-subhead mui--align-middle" aria-label="Outstation Speaker">flight</i>
-                  {%- endif %}
-                {%- endif %}
-              {%- else -%}
-                <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
-              {%- endif -%}
-            </p>
-            <ul class="mui-list--inline mui--text-body2 proposal_list--details list-item-rgborder">
-              {%- if proposal.project != project %}
-                <li>{{ proposal.project.short_title() }}</li>
-              {% elif proposal.section.title %}
-                <li>{{ proposal.section.title }}</li>
-              {% endif %}
-              <li>{{ proposal.technical_level }}</li>
-              <li>{{ proposal.voteset.count }} upvotes
-                {% if 'view-voteinfo' in g.permissions %}
-                  {%- set breakups = dict() %}
-                  {%- set groups = proposal.votes_by_group() %}
-                  {%- if 'participants' in groups %}{% do breakups.update({'P': groups['participants']}) %}{% endif %}
-                  {%- if 'editorial-panel' in groups %}{% do breakups.update({'EP': groups['editorial-panel']}) %}{% endif %}
-                  {%- if breakups|length %}
-                    (
-                    {%- for item in breakups -%}
-                      {%- if loop.index != 1 %}, {% endif %}
-                      ({{ item }}: {{ breakups[item] }})
-                    {%- endfor -%}
-                    )
-                  {%- endif %}
-                {%- endif %}
-              </li>
-              <li>{{ proposal.commentset.count }} comments</li>
-              <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
-              {% if proposal.preview_video %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons icon-middle">play_arrow</i></li>
-              {% endif %}
-              {% if proposal.slides %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons icon-middle">slideshow</i></li>
-              {% endif %}
-            </ul>
-            <hr class="mui-divider">
-          </td>
-        </tr>
-      {% else %}
-        <tr>
-          <td><em>{% trans %}(No sessions have been submitted){% endtrans %}</em></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{%- endmacro %}
 
 {%- macro page_btns(project) %}
   <ul class="mui-list--inline">
@@ -111,69 +43,7 @@
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
       {%- if project.current_roles.admin or 'checkin-event' in g.permissions %}
-        <div class="sticky-admin-panel">
-          <div class="card">
-            <div class="card__header">
-              <h3 class="mui--text-title"><strong>{% trans %}Admin panel{% endtrans %}</strong></h3>
-            </div>
-            <div class="card__body">
-              {%- if project.current_roles.admin %}
-                <div>
-                  <p class="mui--text-body2 mui--text-light zero-bottom-margin">STATUS</p>
-                  <p class="mui--text-subhead">{{ project.state.label.title }}</p>
-                  <p class="mui--text-body2 mui--text-light zero-bottom-margin">CHANGE STATUS</p>
-                  <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
-                    {{ transition_form.hidden_tag() }}
-                    <p class="btn-group">
-                      {% for name, transition in transition_form.transition.choices %}
-                        <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
-                      {% endfor %}
-                    </p>
-                  </form>
-                </div>
-                <hr class="mui-divider">
-                <div>
-                  <ol class="mui-list--aligned">
-                    <li>
-                      <a href="{{ project.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ project.url_for('edit_schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ project.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ project.url_for('venues') }}">{% trans %}Manage venues{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ project.url_for('admin') }}">{% trans %}Manage event{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ project.url_for('events') }}">{% trans %}Manage attendee check-in{% endtrans %}</a>
-                    </li>
-                  </ol>
-                </div>
-                <hr class="mui-divider">
-                <div>
-                  <p class="mui--text-body2 mui--text-light zero-bottom-margin">DOWNLOADS</p>
-                  <p class="btn-group">
-                    <a href="{{ project.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                    <a href="{{ project.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}JSON{% endtrans %}</a>
-                  </p>
-                </div>
-              {% elif 'checkin-event' in g.permissions %}
-                <div>
-                  <ol>
-                    <li>
-                      <a href="{{ project.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Manage attendee check-in{% endtrans %}</a>
-                    </li>
-                  </ol>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
+        {{ admin_panel(project, transition_form) }}
       {% endif %}
     </div>
 
@@ -308,35 +178,6 @@
     </div>
   </div>
   {%- endif %}
-
-  <div class="grid project-section" id="proposals">
-    <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
-      {%- if 'view-status' in current_auth.permissions %}
-        <div>
-          <form class="mui-form mui--pull-right search-proposal-form">
-            <div class="mui-textfield mui-textfield--float-label">
-              <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-              <label><i class="material-icons mui--align-middle mui--text-title" aria-hidden>search</i> Search</label>
-            </div>
-          </form>
-        </div>
-        {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
-            <p class="mui--text-title collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></p>
-            <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
-        {%- endfor -%}
-      {%- else %}
-        {%- if project.proposals_by_confirmation['confirmed'] %}
-          <p class="mui--text-title">{% trans %}Confirmed sessions{% endtrans %}</p>
-          {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
-        {%- endif %}
-        {%- if project.proposals_by_confirmation['unconfirmed'] %}
-          {%- if project.proposals_by_confirmation['confirmed'] %}<p class="mui--text-title">{% trans %}Unconfirmed proposals{% endtrans %}</p>{% endif %}
-          {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
-        {%- endif %}
-      {%- endif %}
-    </div>
-  </div>
 {% endblock %}
 
 {% block footerscripts %}
