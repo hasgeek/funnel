@@ -88,7 +88,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('schedule.html.jinja2')
+    @render_with('schedule.html.jinja2', json=True)
     def view(self):
         return dict(project=self.obj.project, venues=self.obj.project.venues, active_session=session_data(self.obj, with_modal_url='view_popup'),
             from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),

@@ -92,7 +92,7 @@
                         {{#rooms:room, roomIndex}}
                           <div class="schedule__row__column {{#if talks}}schedule__row__column--talks {{room}}{{/if}} {{#if talks && activeTab == room}}js-active{{/if}}" style="width: {{#if width && getColumnWidth('content')}}calc(100% - {{getColumnWidth('content')}}px);{{else}} 100%;{{/if}}" on-click="showSessionModal(event, '')">
                             {{#if talks}}
-                              <div class="schedule__row__column__content {{#if talks.description}}schedule__row__column__content--overflow{{/if}}" style="height: calc({{talks.duration}}*{{rowHeight}}px - {{rowBorder}}px);" id="{{talks.url_name_suuid}}">
+                              <div class="schedule__row__column__content schedule__row__column__content--overflow" style="height: calc({{talks.duration}}*{{rowHeight}}px - {{rowBorder}}px);" id="{{talks.url_name_suuid}}">
                                 <div class="schedule__row__column__content__title">
                                   <p class="mui--text-caption schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
                                   {{#if talks.title}}
