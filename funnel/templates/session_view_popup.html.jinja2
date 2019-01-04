@@ -45,7 +45,7 @@
   <div class="section">
     {% if session.description_html %}
       <h3 class="mui--text-title"><strong>{% trans %}Description{% endtrans %}</strong></h3>
-      <div class="mui--text-body2">{{ session.description_html|safe }}</div>
+      <div class="mui--text-body2 image-wrapper">{{ session.description_html|safe }}</div>
     {% endif %}
     {% if session.speaker_bio_html %}
       <h3 class="mui--text-title"><strong>{% trans %}Speaker Bio{% endtrans %}</strong></h3>

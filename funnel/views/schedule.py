@@ -20,9 +20,8 @@ from .venue import venue_data, room_data
 from .decorators import legacy_redirect
 
 
-def session_data(sessions, with_modal_url=False, with_delete_url=False):
-    return [
-        dict(
+def session_data(session, with_modal_url=False, with_delete_url=False):
+    return dict(
             {
                 'id': session.url_id,
                 'title': session.title,
@@ -31,6 +30,7 @@ def session_data(sessions, with_modal_url=False, with_delete_url=False):
                 'speaker': session.speaker if session.speaker else None,
                 'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
                 'is_break': session.is_break,
+                'url_name_suuid': session.url_name_suuid,
                 'url_name': session.url_name,
                 'proposal_id': session.proposal_id,
                 'speaker_bio': session.speaker_bio,
@@ -40,7 +40,11 @@ def session_data(sessions, with_modal_url=False, with_delete_url=False):
             } if with_modal_url else {}).items() + dict({
                 'delete_url': session.url_for('delete')
             } if with_delete_url else {}).items()
-        ) for session in sessions]
+        )
+
+
+def session_list_data(sessions, with_modal_url=False, with_delete_url=False):
+    return [session_data(session, with_modal_url, with_delete_url) for session in sessions]
 
 
 def date_js(d):
@@ -141,7 +145,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     def schedule(self):
         return dict(project=self.obj, venues=self.obj.venues,
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
-            sessions=session_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
+            sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
             timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
@@ -184,7 +188,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
                 } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.state.SCHEDULED],
-            'scheduled': session_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
+            'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
             }
         # Set the proper range for the calendar to allow for date changes
         first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start.asc()).first()

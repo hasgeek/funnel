@@ -11,6 +11,11 @@
   padding: 0 5px;
 }
 
+.image-wrapper img {
+  max-width: 100%;
+  display: block;
+}
+
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;

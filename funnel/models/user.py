@@ -55,7 +55,7 @@ class Team(UseridMixin, UuidMixin, TeamBase, db.Model):
 
     @orgid.setter
     def orgid(self, value):
-        self.orguuid = buid2uuid(value)
+        self.org_uuid = buid2uuid(value)
 
     @orgid.comparator
     def orgid(cls):

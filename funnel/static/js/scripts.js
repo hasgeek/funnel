@@ -28,10 +28,13 @@ window.Talkfunnel.Utils = {
       $(this).next('.collapsible__body').slideToggle();
     });
   },
+  animateScrollTo: function(offsetY) {
+    $('html,body').animate({scrollTop: offsetY}, 500);
+  },
   smoothScroll: function() {
-    $('a[href*=\\#]').on('click', function(event) { 
+    $('a.smooth-scroll').on('click', function(event) {
       event.preventDefault();
-      $('html,body').animate({scrollTop:$(this.hash).offset().top}, 500);
+      Talkfunnel.Utils.animateScrollTo($(this.hash).offset().top);
     });
   }
 }
@@ -107,11 +110,11 @@ window.Talkfunnel.Comments = {
 }
 
 window.Talkfunnel.Video = {
-  /* Takes argument 
+  /* Takes argument
      `videoWrapper`: video container element,
      'videoUrl': video url
-    Video id is extracted from the video url (extractYoutubeId) .  
-    The videoID is then used to generate the iframe html. 
+    Video id is extracted from the video url (extractYoutubeId).
+    The videoID is then used to generate the iframe html.
     The generated iframe is added to the video container element.
   */
   embedIframe: function(videoWrapper, videoUrl) {
@@ -289,7 +292,7 @@ window.Talkfunnel.ParticipantTable = {
       },
       onrender: function() {
         this.updateList();
-    
+
         //Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds and batch post check-in/cancel check-in status to server
         setInterval(function() { Talkfunnel.ParticipantTable.processQueues(); }, 8000);
 
@@ -398,20 +401,23 @@ window.Talkfunnel.TicketWidget = {
 window.Talkfunnel.Schedule = {
   renderScheduleTable: function() {
     Ractive.DEBUG = false;
-    var self = this;
+    var schedule = this;
 
     scheduleUI = new Ractive({
-      el: self.config.divElem,
-      template: self.config.scriptTemplate,
+      el: schedule.config.divElem,
+      template: schedule.config.scriptTemplate,
       data: {
-        schedules: self.config.scheduleTable,
-        rowWidth: Object.keys(self.config.rooms).length,
+        schedules: schedule.config.scheduleTable,
+        rowWidth: Object.keys(schedule.config.rooms).length,
         rowHeight: '30',
         timeSlotWidth: '75',
-        activeTab: Object.keys(self.config.rooms)[0],
+        rowBorder: '1',
+        activeTab: Object.keys(schedule.config.rooms)[0],
         width: $(window).width(),
         height: $(window).height(),
         modalHtml: '',
+        headerHeight: '',
+        pageUrl: location.href,
         getTimeStr: function(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
@@ -424,101 +430,146 @@ window.Talkfunnel.Schedule = {
         },
         hasActiveRoom: function(session) {
           return session.rooms[this.get('activeTab')].hasOwnProperty('talks');
+        },
+        removeImg: function(descriptionHtml) {
+          return descriptionHtml.replace(/<img[^>]*>/g,"");
         }
       },
       toggleTab: function(event, room) {
-        if(this.get('width') < 992) {
+        var ractiveUI = this;
+        if(ractiveUI.get('width') < 992) {
           event.original.preventDefault();
-          this.set('activeTab', room);
-          $('html,body').animate({scrollTop:$(event.node.parentElement).offset().top - $(event.node.parentElement).height()}, 500);
+          ractiveUI.set('activeTab', room);
+          Talkfunnel.Utils.animateScrollTo($(event.node.parentElement).offset().top - ractiveUI.get('headerHeight'));
         }
       },
-      expandDescription: function(event) {
-        var self = this;
-        event.original.preventDefault();
-        if(!this.get(event.keypath + '.expand')) {
-          this.set(event.keypath + '.expand', true);
-          var containerHeight = $(event.node).parent('.js-expand-container').outerHeight();
-          this.set(event.keypath + '.height', containerHeight);
-          var height = containerHeight + $(event.node).next('.js-expand-content').outerHeight();
-          height = height > 2 * containerHeight ? (2 * containerHeight) : height;
-          $(event.node).parent('.js-expand-container').animate({"height": height}, 250);
-          $(event.node).next('.js-expand-content').animate({"opacity": 1},  250);
-        } else {
-          $(event.node).parent('.js-expand-container').animate({"height": this.get(event.keypath + '.height')}, 250);
-          $(event.node).next('.js-expand-content').animate({"opacity": 0},  250, function() {
-            self.set(event.keypath + '.expand', false);
-          });
-        }
-      },
-      showSessionModal: function(event) {
-        var self = this;
-        $.ajax({
-          url: self.get(event.keypath + '.talks.modal_url'),
-          type: 'GET',
-          success: function(data) {
-            self.set('modalHtml', data);
-            $("#session-modal").modal('show');
-          },
-          error: function(response) {
-            toastr.error('There was a problem in contacting the server. Please try again later.');
+      handleBrowserHistory: function() {
+        var ractiveUI = this;
+        // On closing modal, update browser history
+        $("#session-modal").on($.modal.CLOSE, function() {
+          ractiveUI.set('modalHtml', '');
+          window.history.pushState('', '', ractiveUI.get('pageUrl'));
+        });
+        // Event listener for back key press since opening modal update browser history
+        $(window).on('popstate', function (event) {
+          if(ractiveUI.get('modalHtml')) {
+            $.modal.close();
+          } else if(history.state) {
+            // Open the modal with previous session viewed
+            ractiveUI.openModal(history.state.html, history.state.backPage);
           }
         });
       },
-      oncomplete: function() {
-        var self = this;
+      openModal: function(sessionHtml, backPage) {
+        var ractiveUI = this;
+        ractiveUI.set('modalHtml', sessionHtml);
+        $("#session-modal").modal('show');
+        window.history.pushState({html: sessionHtml, backpage: backPage}, '', backPage);
+      },
+      showSessionModal: function(event, activeSession) {
+        var ractiveUI = this;
+        var sessionModalUrl, sessionUrl, backPage;
+        sessionModalUrl = event ? ractiveUI.get(event.keypath + '.talks.modal_url') : activeSession.modal_url;
+        sessionUuid = event ? ractiveUI.get(event.keypath + '.talks.url_name_suuid') : activeSession.url_name_suuid;
+        backPage = ractiveUI.get('pageUrl') + '/' + sessionUuid;
+        if(sessionModalUrl) {
+          $.ajax({
+            url: sessionModalUrl,
+            type: 'GET',
+            success: function(sessionHtml) {
+              ractiveUI.openModal(sessionHtml, backPage);
+            },
+            error: function(response) {
+              toastr.error('There was a problem in contacting the server. Please try again later.');
+            }
+          });
+        }
+      },
+      disableScroll: function(event) {
+        event.original.preventDefault();
+        location.hash = event.node.id;
+        Talkfunnel.Utils.animateScrollTo($(location.hash).offset().top - this.get('headerHeight'));
+      },
+      handleBrowserResize: function() {
+        var ractiveUI = this;
         $(window).resize(function() {
-          self.set('width', $(window).width());
-          self.set('height', $(window).height());
+          ractiveUI.set('width', $(window).width());
+          ractiveUI.set('height', $(window).height());
         });
+      },
+      animateWindowScrollWithHeader: function() {
+        var ractiveUI = this;
+        var hash;
+        ractiveUI.set('headerHeight', 2 * $('.schedule__row--sticky').height());
+        ractiveUI.set('pathName', location.pathname);
+        if(location.pathname === ractiveUI.get('pathName') && location.hash) {
+          hash = location.hash.indexOf('/') != -1 ? location.hash.substring(0, location.hash.indexOf('/')) : location.hash;
+          Talkfunnel.Utils.animateScrollTo($(hash).offset().top - ractiveUI.get('headerHeight'));
+        }
+      },
+      oncomplete: function() {
+        var ractiveUI = this;
+        var activeSession = schedule.config.active_session;
+        if(activeSession) {
+          // Open session modal
+          var paths = location.href.split('/');
+          paths.pop()
+          ractiveUI.set('pageUrl', paths.join('/'));
+          ractiveUI.showSessionModal('', activeSession);
+          // Scroll page to session
+          Talkfunnel.Utils.animateScrollTo($("#" + activeSession.url_name_suuid).offset().top - ractiveUI.get('headerHeight'));
+        }
+
+        ractiveUI.animateWindowScrollWithHeader();
+        ractiveUI.handleBrowserResize();
+        ractiveUI.handleBrowserHistory();
       }
     });
   },
   addSessionToSchedule: function (session) {
-    var self = this;
-    this.config.scheduled.forEach(function(session) {
+    var schedule = this;
+    schedule.config.scheduled.forEach(function(session) {
       if(!session.room_scoped_name) {
-        session.room_scoped_name = Object.keys(self.config.rooms)[0];
+        session.room_scoped_name = Object.keys(schedule.config.rooms)[0];
       }
-      self.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
-      self.config.scheduleTable[session.eventDay]['sessions'][session.startTime].rooms[session.room_scoped_name].talks = session;
+      schedule.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
+      schedule.config.scheduleTable[session.eventDay]['sessions'][session.startTime].rooms[session.room_scoped_name].talks = session;
     });
   },
   createScheduleTable: function(argument) {
-    var self = this;
-    Object.keys(self.config.scheduleTable).forEach(function(eventDay) {
+    var schedule = this;
+    Object.keys(schedule.config.scheduleTable).forEach(function(eventDay) {
       var slots = {};
-      var sessionSlots = self.config.scheduleTable[eventDay].startTime;
-      while(sessionSlots < self.config.scheduleTable[eventDay].endTime) {
-        slots[sessionSlots] = {showLabel: false, rooms: JSON.parse(JSON.stringify(self.config.rooms))};
+      var sessionSlots = schedule.config.scheduleTable[eventDay].startTime;
+      while(sessionSlots < schedule.config.scheduleTable[eventDay].endTime) {
+        slots[sessionSlots] = {showLabel: false, rooms: JSON.parse(JSON.stringify(schedule.config.rooms))};
         sessionSlots = new Date(sessionSlots);
-        sessionSlots = sessionSlots.setMinutes(sessionSlots.getMinutes() + self.config.slotInterval);
+        sessionSlots = sessionSlots.setMinutes(sessionSlots.getMinutes() + schedule.config.slotInterval);
       };
-      self.config.scheduleTable[eventDay].sessions = JSON.parse(JSON.stringify(slots));
+      schedule.config.scheduleTable[eventDay].sessions = JSON.parse(JSON.stringify(slots));
     });
   },
   getEventDuration: function() {
-    var self = this;
-    this.config.scheduled.forEach(function(session) {
+    var schedule = this;
+    schedule.config.scheduled.forEach(function(session) {
       session.startTime = Talkfunnel.Schedule.Utils.getTime(session.start);
       session.endTime = Talkfunnel.Schedule.Utils.getTime(session.end);
       session.eventDay = Talkfunnel.Schedule.Utils.getEventDate(session.start);
       session.duration = Talkfunnel.Schedule.Utils.getDuration(session.end, session.start);
-      self.config.scheduleTable[session.eventDay].startTime = self.config.scheduleTable[session.eventDay].startTime && self.config.scheduleTable[session.eventDay].startTime < new Date(session.start).getTime() ? self.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
-      self.config.scheduleTable[session.eventDay].endTime = self.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() ? self.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
+      schedule.config.scheduleTable[session.eventDay].startTime = schedule.config.scheduleTable[session.eventDay].startTime && schedule.config.scheduleTable[session.eventDay].startTime < new Date(session.start).getTime() ? schedule.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
+      schedule.config.scheduleTable[session.eventDay].endTime = schedule.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() ? schedule.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
     });
   },
   getEventDays: function() {
-    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);
-    var eventDays = {};
-    var firstDay = Talkfunnel.Schedule.Utils.getEventDate(this.config.fromDate);
-    var nextDay;
-    eventDays[firstDay] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(this.config.fromDate), talks: {}, 
+    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    var eventDays = {};
+    var day = Talkfunnel.Schedule.Utils.getEventDate(this.config.fromDate);
+    eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(this.config.fromDate), talks: {},
       startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
     while(difference > 0) {
       nextDay = new Date();
-      nextDay.setDate(firstDay + 1);
-      eventDays[nextDay.getDate()] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(nextDay), talks: {}, 
+      nextDay.setDate(day + 1);
+      day = nextDay.getDate();
+      eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(nextDay), talks: {},
         startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
       difference--;
     };

@@ -341,9 +341,6 @@
   $(function() {
     var videoWrapper = document.getElementById('js-embed');
 
-    // Initialize tabs functionality
-    $('#tab-container').easytabs();
-
     window.Talkfunnel.Comments.init({{ request.base_url|tojson }});
 
     if(videoWrapper) {
