@@ -117,7 +117,7 @@
     <div class="grid">
       <div class="grid__col-sm-12">
         <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-          {% if 'new-project' in g.permissions %}<a href="{{g.profile.url_for('new-project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+          {% if 'new_project' in g.permissions %}<a href="{{g.profile.url_for('new-project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
         </p>
       </div>
     </div>
@@ -149,7 +149,7 @@
       </div>
     </div>
   </div>
-{% endblock %} 
+{% endblock %}
 
 {% block footerscripts %}
   {% raw %}

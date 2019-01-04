@@ -334,7 +334,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 (self.profile.admin_team and user in self.profile.admin_team.users) or
                     user.owner_of(self.profile)):
                 perms.update([
-                    'view-contactinfo',
+                    'view_contactinfo',
                     'edit-project',
                     'delete-project',
                     'view-section',
@@ -370,10 +370,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
-                    'view-contactinfo',
+                    'view_contactinfo',
                     'confirm-proposal',
                     'view-voteinfo',
-                    'view-status',
+                    'view_status',
                     'edit-proposal',
                     'delete-proposal',
                     'edit-schedule',

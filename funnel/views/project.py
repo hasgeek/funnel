@@ -46,7 +46,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('new-project')
+    @requires_permission('new_project')
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
         form.parent_project.query = self.obj.projects
@@ -114,7 +114,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
     @route('csv')
     @requires_permission('view')
     def csv(self):
-        if 'view-contactinfo' in current_auth.permissions:
+        if current_auth.permissions.view_contactinfo:
             usergroups = [ug.name for ug in self.obj.usergroups]
         else:
             usergroups = []

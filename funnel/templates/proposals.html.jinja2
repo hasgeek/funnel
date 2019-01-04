@@ -116,7 +116,7 @@
     <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="proposals">
       <div class="grid__col-xs-12">
         <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
-        {%- if 'view-status' in current_auth.permissions %}
+        {%- if current_auth.permissions.view_status %}
           <div>
             <form class="mui-form mui--pull-right search-proposal-form">
               <div class="mui-textfield mui-textfield--float-label">

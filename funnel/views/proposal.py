@@ -84,7 +84,7 @@ def proposal_data(proposal):
             ('votes_bydate', proposal.votes_by_date()),
             ('status', proposal.state.value),
             ('state', proposal.state.label.name),
-        ] if 'view-contactinfo' in current_auth.permissions else []))
+        ] if current_auth.permissions.view_contactinfo else []))
 
 
 def proposal_data_flat(proposal, groups=[]):
