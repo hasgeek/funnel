@@ -50,9 +50,9 @@ def upgrade():
     progress.finish()
     op.alter_column('comment', 'uuid', nullable=False)
 
-    op.create_unique_constraint(None, 'comment', ['uuid'])
+    op.create_unique_constraint('comment_uuid_key', 'comment', ['uuid'])
 
 
 def downgrade():
-    op.drop_constraint(None, 'comment', type_='unique')
+    op.drop_constraint('comment_uuid_key', 'comment', type_='unique')
     op.drop_column('comment', 'uuid')
