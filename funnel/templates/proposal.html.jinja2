@@ -29,7 +29,7 @@
 
     <div class="slider-btn slider-btn--left">
       {%- if proposal.getprev() -%}
-        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--dark"><i class="material-icons">chevron_left</i></a>
+        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_left</i></a>
       {%- else -%}
         <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_left</i></button>
       {%- endif -%}
@@ -320,7 +320,7 @@
 
     <div class="slider-btn slider-btn--right">
       {%- if proposal.getnext() -%}
-        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--dark"><i class="material-icons">chevron_right</i></a>
+        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_right</i></a>
       {%- else -%}
         <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_right</i></button>
       {%- endif -%}
