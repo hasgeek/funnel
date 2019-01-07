@@ -1,7 +1,7 @@
 Flask==1.0.2
 Flask-Assets==0.12
 Flask-Mail==0.9.1
-Flask-RQ2==18.2.1
+Flask-RQ2==18.3
 Flask-Redis>=0.3.0
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
