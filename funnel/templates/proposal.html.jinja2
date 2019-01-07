@@ -282,7 +282,7 @@
       <h3 class="mui--text-headline"><strong>{% trans %}Comments{% endtrans %}</strong></h3>
       {% if comments %}
         <ul class="mui-list--unstyled">
-          {{ commenttree(comments, proposal, project, g.user, request.base_url, csrf_form) }}
+          {{ commenttree(comments, proposal, project, csrf_form) }}
         </ul>
       {% endif %}
       {% if not g.user -%}
@@ -290,7 +290,7 @@
           <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}">{% trans %}Login with Twitter or Google to leave a comment{% endtrans %}</a>
         </p>
       {% else -%}
-        <form method="POST" id="comment-form" class="mui-form">
+        <form method="POST" id="comment-form" action="{{ proposal.url_for('new_comment') }}" class="mui-form">
           <div class="mui--hide">
             <input type="hidden" name="form.id" value="newcomment"/>
             {{ commentform.hidden_tag() }}

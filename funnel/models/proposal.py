@@ -129,11 +129,11 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False, lazy='joined',
-                            cascade='all, delete-orphan', single_parent=True)
+        cascade='all, delete-orphan', single_parent=True)
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False, lazy='joined',
-                               cascade='all, delete-orphan', single_parent=True)
+        cascade='all, delete-orphan', single_parent=True)
 
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
@@ -359,9 +359,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
             perms.update([
-                'vote-proposal',
-                'new-comment',
-                'vote-comment',
+                'vote_proposal',
+                'new_comment',
+                'vote_comment',
                 ])
             if user == self.owner:
                 perms.update([

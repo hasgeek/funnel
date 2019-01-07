@@ -3,17 +3,15 @@
 from datetime import datetime
 from bleach import linkify
 
-from flask import g, render_template, redirect, request, Markup, abort, flash, escape
-from flask_mail import Message
+from flask import g, redirect, request, Markup, abort, flash, escape
 from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
-from coaster.gfm import markdown
 from coaster.auth import current_auth
 from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
-from .. import app, funnelapp, mail, lastuser
+from .. import app, funnelapp, lastuser
 from ..models import db, Section, Proposal, Comment
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
 from .mixins import ProjectViewMixin, ProposalViewMixin
@@ -39,13 +37,6 @@ proposal_headers = [
     'submitted',
     'confirmed'
     ]
-
-
-def send_mail(sender, to, body, subject):
-    msg = Message(sender=sender, subject=subject, recipients=[to])
-    msg.body = body
-    msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
-    mail.send(msg)
 
 
 def proposal_data(proposal):
@@ -161,76 +152,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             key=lambda c: c.voteset.count, reverse=True)
         commentform = CommentForm(model=Comment)
         delcommentform = DeleteCommentForm()
-        # TODO: Remove comment methods to a separate view
-        if request.method == 'POST':
-            if request.form.get('form.id') == 'newcomment' and commentform.validate() and 'new-comment' in g.permissions:
-                send_mail_info = []
-                if commentform.comment_edit_id.data:
-                    comment = Comment.query.get(int(commentform.comment_edit_id.data))
-                    if comment:
-                        if 'edit-comment' in comment.permissions(g.user, g.permissions):
-                            comment.message = commentform.message.data
-                            comment.edited_at = datetime.utcnow()
-                            flash(_("Your comment has been edited"), 'info')
-                        else:
-                            flash(_("You can only edit your own comments"), 'info')
-                    else:
-                        flash(_("No such comment"), 'error')
-                else:
-                    comment = Comment(user=g.user, commentset=self.obj.commentset,
-                        message=commentform.message.data)
-                    if commentform.parent_id.data:
-                        parent = Comment.query.get(int(commentform.parent_id.data))
-                        if parent.user.email:
-                            if parent.user == self.obj.user:  # check if parent comment & proposal owner are same
-                                if not g.user == parent.user:  # check if parent comment is by proposal owner
-                                    send_mail_info.append({'to': self.obj.user.email or self.obj.email,
-                                        'subject': u"{project} Funnel: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                                        'template': 'proposal_comment_reply_email.md'})
-                            else:  # send mail to parent comment owner & proposal owner
-                                if not parent.user == g.user:
-                                    send_mail_info.append({'to': parent.user.email,
-                                        'subject': u"{project} Funnel: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                                        'template': 'proposal_comment_to_proposer_email.md'})
-                                if not self.obj.user == g.user:
-                                    send_mail_info.append({'to': self.obj.user.email or self.obj.email,
-                                        'subject': u"{project} Funnel: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                                        'template': 'proposal_comment_email.md'})
 
-                        if parent and parent.commentset == self.obj.commentset:
-                            comment.parent = parent
-                    else:  # for top level comment
-                        if not self.obj.user == g.user:
-                            send_mail_info.append({'to': self.obj.user.email or self.obj.email,
-                                'subject': u"{project} Funnel: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                                'template': 'proposal_comment_email.md'})
-                    self.obj.commentset.count += 1
-                    comment.voteset.vote(g.user)  # Vote for your own comment
-                    db.session.add(comment)
-                    flash(_("Your comment has been posted"), 'info')
-                db.session.commit()
-                to_redirect = comment.url_for(proposal=self.obj, _external=True)
-                for item in send_mail_info:
-                    email_body = render_template(item.pop('template'), proposal=self.obj, comment=comment, link=to_redirect)
-                    if item.get('to'):
-                        # Sender is set to None to prevent revealing email.
-                        send_mail(sender=None, body=email_body, **item)
-                # Redirect despite this being the same page because HTTP 303 is required to not break
-                # the browser Back button
-                return redirect(to_redirect, code=303)
-            elif request.form.get('form.id') == 'delcomment' and delcommentform.validate():
-                comment = Comment.query.get(int(delcommentform.comment_id.data))
-                if comment:
-                    if 'delete-comment' in comment.permissions(g.user, g.permissions):
-                        comment.delete()
-                        self.obj.commentset.count -= 1
-                        db.session.commit()
-                        flash(_("Your comment was deleted"), 'info')
-                    else:
-                        flash(_("You did not post that comment"), 'error')
-                else:
-                    flash(_("No such comment"), 'error')
-                return redirect(self.obj.url_for(), code=303)
         links = [Markup(linkify(unicode(escape(l)))) for l in self.obj.links.replace('\r\n', '\n').split('\n') if l]
 
         transition_form = ProposalTransitionForm(obj=self.obj)
