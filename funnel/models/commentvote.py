@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for
-from . import db, BaseMixin, MarkdownColumn
+from . import db, BaseMixin, MarkdownColumn, UuidMixin
 from .user import User
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import cached, StateManager
@@ -85,7 +85,7 @@ class Commentset(BaseMixin, db.Model):
         self.count = 0
 
 
-class Comment(BaseMixin, db.Model):
+class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -137,10 +137,10 @@ class Comment(BaseMixin, db.Model):
         perms = super(Comment, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
-            perms.add('vote-comment')
+            perms.add('vote_comment')
             if user == self.user:
                 perms.update([
-                    'edit-comment',
-                    'delete-comment'
+                    'edit_comment',
+                    'delete_comment'
                     ])
         return perms
