@@ -5,7 +5,7 @@ Flask-RQ2==18.3
 Flask-Redis>=0.3.0
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
-pytz==2018.7
+pytz==2018.9
 unicodecsv==0.14.1
 icalendar==4.0.3
 git+https://github.com/hasgeek/coaster.git
