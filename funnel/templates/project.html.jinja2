@@ -358,9 +358,9 @@
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
           itemCollectionTitle: {{ project.title|tojson }}
         });
-      {%- endif %}
+      {% endif %}
 
-      {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
+      {% if project.primary_venue.latitude and project.primary_venue.longitude -%}
         window.Talkfunnel.EmbedMap.init({
           mapElem: "#venue-map"
         });

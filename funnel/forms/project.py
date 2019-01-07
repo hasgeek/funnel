@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import re
+import json
+from flask import request
 from coaster.utils import sorted_timezones
 from wtforms.widgets import CheckboxInput, ListWidget
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
@@ -11,11 +13,34 @@ from ..models import RSVP_STATUS
 
 __all__ = [
     'ProjectForm', 'SubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
-    'TicketClientForm', 'ProjectTransitionForm'
+    'TicketClientForm', 'ProjectTransitionForm', 'ProjectTicketForm'
 ]
 
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
+
+
+def format_json(data):
+    if request.method == 'GET':
+        return json.dumps(data, indent=4, sort_keys=True)
+    # `json.loads` doesn't raise an exception for "null"
+    # so assign a default value of `{}`
+    if not data or data == 'null':
+        return json.dumps({})
+    return data
+
+
+BOXOFFICE_DETAILS_PLACEHOLDER = {
+    "org": "hasgeek",
+    "item_collection_id": ""
+}
+
+
+def validate_json(form, field):
+    try:
+        json.loads(field.data)
+    except ValueError:
+        raise forms.validators.StopValidation(__("Invalid JSON"))
 
 
 class ProjectForm(forms.Form):
@@ -117,3 +142,8 @@ class TicketTypeForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(), allow_blank=True, get_label='title', query_factory=lambda: [])
+
+
+class ProjectTicketForm(forms.Form):
+    boxoffice_data = forms.TextAreaField(__("Ticket client details"), filters=[format_json],
+        validators=[validate_json], default=BOXOFFICE_DETAILS_PLACEHOLDER)

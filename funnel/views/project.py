@@ -10,7 +10,7 @@ from coaster.views import jsonp, route, render_with, requires_permission, UrlFor
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
-from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm
+from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectTicketForm
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -140,6 +140,18 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             tag_locations.queue(self.obj.id)
             return redirect(self.obj.url_for(), code=303)
         return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
+
+    @route('ticket_client', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-project')
+    def edit(self):
+        form = ProjectTicketForm(obj=self.obj, model=Project)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            return redirect(self.obj.url_for(), code=303)
+        return render_form(form=form, title=_("Edit ticket client details"), submit=_("Save changes"))
 
     @route('transition', methods=['POST'])
     @lastuser.requires_login
