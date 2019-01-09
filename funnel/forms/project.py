@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import re
+import six
 import json
-from flask import request
 from coaster.utils import sorted_timezones
 from wtforms.widgets import CheckboxInput, ListWidget
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
@@ -21,12 +21,9 @@ valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 
 def format_json(data):
-    if request.method == 'GET':
-        return json.dumps(data, indent=4, sort_keys=True)
-    # `json.loads` doesn't raise an exception for "null"
-    # so assign a default value of `{}`
-    if not data or data == 'null':
-        return json.dumps({})
+    if isinstance(data, six.string_types):
+        # This happens when form is being populated with user input
+        return json.loads(data)
     return data
 
 
@@ -149,5 +146,8 @@ class ProjectTicketForm(forms.Form):
         validators=[validate_json], default=BOXOFFICE_DETAILS_PLACEHOLDER)
 
     def set_queries(self):
-        if self.boxoffice_data.data == '{}':
-            self.boxoffice_data.data = json.dumps(BOXOFFICE_DETAILS_PLACEHOLDER, indent=2)
+        if not self.boxoffice_data.data or self.boxoffice_data.data == '{}':
+            data = BOXOFFICE_DETAILS_PLACEHOLDER
+        else:
+            data = self.boxoffice_data.data
+        self.boxoffice_data.data = json.dumps(data, indent=4, sort_keys=True)
