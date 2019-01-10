@@ -108,7 +108,7 @@
     {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue">Venue</a>{%- endif %}
     {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#proposals">Proposals</a>{%- endif %}
     {%- if project.boxoffice_data or project.buy_tickets_url or project.allow_rsvp -%}
-      <a class="sub-navbar__item mui--text-subhead mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.boxoffice_data or project.allow_rsvp and current_page == 'project' %} smooth-scroll{%- endif %}" {% if project.boxoffice_data  or project.allow_rsvp -%} href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate"
+      <a class="sub-navbar__item mui--text-subhead {% if project.boxoffice_data or project.allow_rsvp and current_page == 'project' %} smooth-scroll{%- endif %}" {% if project.boxoffice_data  or project.allow_rsvp -%} href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate"
       {%- elif project.buy_tickets_url %} href="{{ project.buy_tickets_url }}"{%- endif %}>Participate</a>
     {%- endif %}
   </nav>
