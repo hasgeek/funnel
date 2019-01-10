@@ -1,6 +1,25 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import project_header %}
-{% block title %}{% trans %}Schedule{% endtrans %} &ndash; {{ project.title }}{% endblock %}
+{% block title %}
+  {%- if active_session -%}
+    {{ active_session.title }} &ndash; {{ project.title }}
+  {%- else -%}
+    {% trans %}Schedule{% endtrans %} &ndash; {{ project.title }}
+  {%- endif -%}
+{% endblock %}
+
+
+{% block description %}
+  {%- if active_session -%}
+    {%- if active_session.speaker -%}
+      {% trans title=active_session.title, speaker=active_session.speaker, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+    {%- else -%}
+      {{ active_session.title }}, {{ project.title }}
+    {%- endif -%}
+  {%- else -%}
+    {% if g.profile %}{{ g.profile.description|striptags }}{% endif %}
+  {%- endif -%}
+{% endblock %}
 
 {%- macro page_btns(project) %}
   <ul class="mui-list--inline">
