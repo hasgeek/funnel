@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform %}
 {% from "comments.html.jinja2" import commenttree %}
-{% block title %}{{ proposal.title }} &mdash; {{ project.title }}{% endblock %}
+{% block title %}{{ proposal.title }} &ndash; {{ project.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
     {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
