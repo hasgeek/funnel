@@ -8,8 +8,13 @@
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
 {%- block image_src %}
-  <link rel="image_src" href="{{ url_for('static', filename='img/funnel-logo.png') }}" />
-  <meta property="og:image" content="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+  {%- if config['LEGACY'] -%}
+    <link rel="image_src" href="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+  {%- else -%}
+    <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png') }}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png') }}" />
+  {%- endif -%}
 {%- endblock %}
 
 {% block banner %}
