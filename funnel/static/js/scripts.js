@@ -445,7 +445,7 @@ window.Talkfunnel.Schedule = {
         if(ractiveUI.get('width') < 992) {
           event.original.preventDefault();
           ractiveUI.set('activeTab', room);
-          Talkfunnel.Utils.animateScrollTo($(event.node.parentElement).offset().top - ractiveUI.get('headerHeight'));
+          // Talkfunnel.Utils.animateScrollTo($(event.node.parentElement).offset().top - ractiveUI.get('headerHeight'));
         }
       },
       updateMetaTags: function(pageDetails) {
