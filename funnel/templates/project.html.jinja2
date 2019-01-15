@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header %}
 {% block title %}{{ project.title }}{% endblock %}
-{% block description %}{{ project.title }}&ndash; {{ project.tagline }}{% endblock %}
+{% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
 
 {%- block layoutheaders %}
   {% assets "css_leaflet" -%}
@@ -91,12 +91,12 @@
       </li>
     {%- endif %}
     {% if project.state.SUBMISSIONS -%}
-      <li class="mui--hidden-xs {% if not project.sessions %}cta{%- endif %}">
+      <li class="{% if not project.sessions %}cta{%- endif %}">
         <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
     {% if project.sessions %}
-      <li class="mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.state.SUBMISSIONS -%}float-btn{% else %}cta{% endif %}">
+      <li class="{% if project.state.SUBMISSIONS -%}float-btn{% else %}cta{% endif %}">
         <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
@@ -278,11 +278,26 @@
   </div>
   {%- endif %}
 
-  {% if project.boxoffice_data -%}
-  <div class="grid project-section" id="tickets">
+  {% if project.boxoffice_data or project.allow_rsvp -%}
+  <div class="grid project-section" id="participate">
     <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
-      <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
+      {% if project.boxoffice_data -%}
+        <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
+        <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
+      {%- endif %}
+      {% if project.allow_rsvp -%}
+        <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
+        {%- if g.user %}
+          {{ rsvpform(project, rsvp_form) }}
+        {%- else %}
+          <p>
+            <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary'>{% trans %}Login to RSVP{% endtrans %}</a>
+          </p>
+        {%- endif %}
+        {% if project.current_roles.admin or 'view-rsvps' in g.permissions %}
+          <a href="{{ project.url_for('rsvp_list') }}">See RSVP list</a>
+        {% endif %}
+      {%- endif %}
     </div>
   </div>
   {%- endif %}
