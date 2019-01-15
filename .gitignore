@@ -22,3 +22,5 @@ funnel/static/gen
 *.bz2
 .pytest_cache
 .vscode
+node_modules
+funnel/static/build

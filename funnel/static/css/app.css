@@ -132,6 +132,10 @@
     display: inline-block !important;
   }
 }
+table .buttongrp-column {
+  min-width: 250px;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
@@ -1001,6 +1005,87 @@
 }
 .session-modal--nopadding .modal__header, .session-modal--nopadding .modal__body {
   padding: 1em;
+}
+
+.session-modal {
+  max-width: 98%;
+  top: 60px;
+}
+
+.session-modal--nopadding {
+  padding: 0;
+}
+
+.session-modal--nopadding .modal__header {
+  padding: 15px 15px 5px;
+}
+
+.session-modal--nopadding .modal__body {
+  padding: 15px;
+}
+
+.session-modal--nopadding .modal__header {
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+}
+
+.session-modal__title {
+  margin-top: 15px;
+  margin-bottom: 0;
+  font-weight: bold;
+}
+
+.room__title,
+.subscibe-title {
+  border: 0;
+  border-radius: 4px;
+  font-weight: 200;
+  padding: 15px 10px;
+}
+
+.room__title__subsc-btn {
+  float: right;
+  position: relative;
+  top: -9px;
+}
+
+/* Calendar session */
+.fc-event .fc-event-custom {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  z-index: 40;
+  display: none;
+}
+
+.fc-event:hover .fc-event-custom {
+  display: block;
+  padding: 1px 5px;
+  background: #FFF;
+  background: rgba(255, 255, 255, 0.6);
+  border-top-left-radius: 3px;
+}
+
+.fc-event .fc-event-custom a {
+  font-weight: bolder;
+  color: #c33;
+  font-size: 1.2em;
+}
+
+.fc-event .fc-event-custom a:hover {
+  color: #c00;
+  text-decoration: none;
+}
+
+.proposal-box,
+body > .proposal-box.ui-draggable {
+  margin: 10px 0;
+  padding: 2px 4px;
+  background: #FFF;
+  color: #333;
+  border-radius: 3px;
+  border: 1px solid #333;
+  font-size: .85em;
+  cursor: pointer;
 }
 
 .footer {

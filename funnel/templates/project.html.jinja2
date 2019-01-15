@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header %}
 {% block title %}{{ project.title }}{% endblock %}
-{% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
+{% block description %}{{ project.title }}&ndash; {{ project.tagline }}{% endblock %}
 
 {%- block layoutheaders %}
   {% assets "css_leaflet" -%}
@@ -343,38 +343,35 @@
   {% assets "js_jquerysuccinct" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  {% assets "js_leaflet" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   {{ rsvpscript() }}
+  <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
+
+      var projectConfig = {};
       {% if project.boxoffice_data -%}
-        window.Talkfunnel.TicketWidget.init({
+        projectConfig.ticketing = {
           // TODO: Get url from config
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ project.boxoffice_data.org|tojson }},
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
           itemCollectionTitle: {{ project.title|tojson }}
-        });
+        };
       {%- endif %}
 
       {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
-        window.Talkfunnel.EmbedMap.init({
+        projectConfig.venue = {
           mapElem: "#venue-map"
-        });
+        };
       {%- endif %}
 
-      var tableSearch = new window.TableSearch('proposals-table');
-      $('input#search').keyup(function(e){
-        if($('.collapsible__body').css('display') == 'none') {
-          $('.collapsible__header').click();
-        }
-        $('#proposals-table tbody tr').addClass('mui--hide');
-        var hits = tableSearch.searchRows($(this).val());
-        $(hits.join(",")).removeClass('mui--hide');
-      });
+      projectConfig.search = {
+        tableId: 'proposals-table',
+        inputId: 'search'
+      };
+
+      window.HasGeek.ProjectInit(projectConfig);
 
       $('.truncate').succinct({
         size: 200

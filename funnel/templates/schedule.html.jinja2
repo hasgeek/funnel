@@ -126,9 +126,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_ractive" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+  <script src="{{ url_for('static', filename=asset_path('schedule_view')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     var scheduleConfig = {
       fromDate: {{ from_date|tojson }},
@@ -148,7 +146,7 @@
   {%- endif %}
   <script type="text/javascript">
     $(document).ready( function() {
-      window.Talkfunnel.Schedule.init(scheduleConfig);
+      window.HasGeek.ScheduleInit(scheduleConfig);
     });
   </script>
 {% endblock %}
