@@ -114,7 +114,7 @@
   </nav>
 {% endmacro %}
 
-{% macro admin_panel(project, transition_form='') %}
+{% macro admin_panel(project, transition_form=none) %}
   <div class="sticky-admin-panel">
     <div class="card">
       <div class="card__header">
@@ -169,7 +169,7 @@
               <a href="{{ project.url_for('schedule_json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}Schedule JSON{% endtrans %}</a>
             </p>
           </div>
-        {% elif 'checkin-event' in g.permissions %}
+        {% elif current_auth.permissions.checkin_event %}
           <div>
             <ol>
               <li>

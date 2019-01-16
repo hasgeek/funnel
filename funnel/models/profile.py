@@ -40,7 +40,7 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
                 perms.add('edit-profile')
                 perms.add('new_project')
                 perms.add('delete-project')
-                perms.add('edit-project')
+                perms.add('edit_project')
         return perms
 
     def roles_for(self, actor=None, anchors=()):

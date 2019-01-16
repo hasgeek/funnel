@@ -24,7 +24,7 @@
                 {%- if proposal.user != proposal.speaker %}
                   <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
                 {%- endif %}
-                {%- if g.user and 'edit-project' in g.permissions %}
+                {%- if g.user and current_auth.permissions.edit_project %}
                   {%- if proposal.has_outstation_speaker %}
                     <i class="material-icons mui--text-subhead mui--align-middle" aria-label="Outstation Speaker">flight</i>
                   {%- endif %}
@@ -41,7 +41,7 @@
               {% endif %}
               <li>{{ proposal.technical_level }}</li>
               <li>{{ proposal.voteset.count }} upvotes
-                {% if 'view-voteinfo' in g.permissions %}
+                {% if current_auth.permissions.view_voteinfo %}
                   {%- set breakups = dict() %}
                   {%- set groups = proposal.votes_by_group() %}
                   {%- if 'participants' in groups %}{% do breakups.update({'P': groups['participants']}) %}{% endif %}
@@ -108,7 +108,7 @@
 {% block contentwrapper %}
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      {%- if project.current_roles.admin or 'checkin-event' in g.permissions %}
+      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
         {{ admin_panel(project) }}
       {% endif %}
     </div>

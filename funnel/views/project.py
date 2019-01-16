@@ -130,7 +130,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('edit-project')
+    @requires_permission('edit_project')
     def edit(self):
         if self.obj.parent_project:
             form = SubprojectForm(obj=self.obj, model=Project)
@@ -149,7 +149,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('transition', methods=['POST'])
     @lastuser.requires_login
-    @requires_permission('edit-project')
+    @requires_permission('edit_project')
     def transition(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         if transition_form.validate_on_submit():  # check if the provided transition is valid
@@ -183,7 +183,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('edit-project')
+    @requires_permission('edit_project')
     def rsvp_list(self):
         return dict(project=self.obj, statuses=RSVP_STATUS)
 

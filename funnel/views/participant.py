@@ -179,7 +179,7 @@ def participant_badge(profile, project, participant):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='checkin-event')
+    permission='checkin_event')
 def event_checkin(profile, project, event):
     form = forms.Form()
     if form.validate_on_submit():
@@ -202,7 +202,7 @@ def event_checkin(profile, project, event):
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
     (Participant, {'puk': 'puk'}, 'participant'),
-    permission='checkin-event')
+    permission='checkin_event')
 def checkin_puk(profile, project, event, participant):
     checked_in = getbool(request.form.get('checkin'))
     attendee = Attendee.get(event, participant.id)
@@ -220,7 +220,7 @@ def checkin_puk(profile, project, event, participant):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='checkin-event')
+    permission='checkin_event')
 def event_participants_json(profile, project, event):
     checkin_count = 0
     participants = []

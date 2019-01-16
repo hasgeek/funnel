@@ -335,7 +335,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     user.owner_of(self.profile)):
                 perms.update([
                     'view_contactinfo',
-                    'edit-project',
+                    'edit_project',
                     'delete-project',
                     'view-section',
                     'new-section',
@@ -352,7 +352,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'delete-venue',
                     'edit-schedule',
                     'move-proposal',
-                    'view-rsvps',
+                    'view_rsvps',
                     'new-session',
                     'edit-session',
                     'new-event',
@@ -361,7 +361,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-ticket-client',
                     'edit-event',
                     'admin',
-                    'checkin-event',
+                    'checkin_event',
                     'view-event',
                     'view-ticket-type',
                     'edit-participant',
@@ -372,7 +372,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 perms.update([
                     'view_contactinfo',
                     'confirm-proposal',
-                    'view-voteinfo',
+                    'view_voteinfo',
                     'view_status',
                     'edit-proposal',
                     'delete-proposal',
@@ -387,7 +387,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 ])
             if self.checkin_team and user in self.checkin_team.users:
                 perms.update([
-                    'checkin-event'
+                    'checkin_event'
                 ])
         return perms
 

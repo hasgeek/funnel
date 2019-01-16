@@ -42,7 +42,7 @@
 {% block contentwrapper %}
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      {%- if project.current_roles.admin or 'checkin-event' in g.permissions %}
+      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
         {{ admin_panel(project, transition_form) }}
       {% endif %}
     </div>
@@ -164,7 +164,7 @@
             <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary'>{% trans %}Login to RSVP{% endtrans %}</a>
           </p>
         {%- endif %}
-        {% if project.current_roles.admin or 'view-rsvps' in g.permissions %}
+        {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
           <a href="{{ project.url_for('rsvp_list') }}">See RSVP list</a>
         {% endif %}
       {%- endif %}
