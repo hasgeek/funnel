@@ -142,12 +142,4 @@ class TicketTypeForm(forms.Form):
 
 
 class ProjectTicketForm(forms.Form):
-    boxoffice_data = forms.TextAreaField(__("Ticket client details"), filters=[format_json],
-        validators=[validate_json], default=BOXOFFICE_DETAILS_PLACEHOLDER)
-
-    def set_queries(self):
-        if not self.boxoffice_data.data or self.boxoffice_data.data == '{}':
-            data = BOXOFFICE_DETAILS_PLACEHOLDER
-        else:
-            data = self.boxoffice_data.data
-        self.boxoffice_data.data = json.dumps(data, indent=4, sort_keys=True)
+    boxoffice_data = forms.JsonField(__("Ticket client details"), prettyprint=True, default=BOXOFFICE_DETAILS_PLACEHOLDER)
