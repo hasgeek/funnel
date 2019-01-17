@@ -15,21 +15,21 @@
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="#tickets" class="mui-btn mui-btn--raised mui-btn--primary">{% trans %}Participate{% endtrans %}</a>
+        <a href="#tickets" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- endif %}
     {% if project.state.SUBMISSIONS -%}
       <li class="mui--hidden-xs {% if not project.sessions %}cta{%- endif %}">
-        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}" title="Propose a session">{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
     {% if project.sessions %}
       <li class="mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.state.SUBMISSIONS -%}float-btn{% else %}cta{% endif %}">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised" title="View Schedule">{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>
@@ -84,7 +84,7 @@
       <div class="project-section__instructions">{{ project.instructions|safe }}</div>
       <p class="mui--text-left">
       {% if project.state.SUBMISSIONS -%}
-        <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session">{% trans %}Propose a session{% endtrans %}</a>
       {%- endif %}
       </p>
     </div>
@@ -92,10 +92,10 @@
   {%- endif %}
 
   {% if project.featured_sessions  %}
-  <div class="project-section" id="featured-talk">
+  <div class="project-section" id="talks">
     <div class="grid">
       <div class="grid__col-xs-12">
-        <h2 class="mui--text-display1 mui--text-left project-section__headline">Featured talks</h2>
+        <h2 class="mui--text-display1 mui--text-left project-section__headline">Talks</h2>
       </div>
     </div>
     <ul class="grid">
@@ -140,7 +140,7 @@
       <div class="grid__col-xs-12">
         <p class="mui--text-left">
         {%- if project.sessions %}
-          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" title="View Schedule">{% trans %}View Schedule{% endtrans %}</a>
         {%- endif %}
         </p>
       </div>

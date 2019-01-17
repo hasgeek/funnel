@@ -19,7 +19,6 @@ valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 
 class ProjectForm(forms.Form):
-    name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     location = forms.StringField(__("Location"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
