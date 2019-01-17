@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform %}
 {% from "comments.html.jinja2" import commenttree %}
-{% block title %}{{ proposal.title }} &mdash; {{ project.title }}{% endblock %}
+{% block title %}{{ proposal.title }} &ndash; {{ project.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
     {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
@@ -29,7 +29,7 @@
 
     <div class="slider-btn slider-btn--left">
       {%- if proposal.getprev() -%}
-        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--dark"><i class="material-icons">chevron_left</i></a>
+        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_left</i></a>
       {%- else -%}
         <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_left</i></button>
       {%- endif -%}
@@ -282,7 +282,7 @@
       <h3 class="mui--text-headline"><strong>{% trans %}Comments{% endtrans %}</strong></h3>
       {% if comments %}
         <ul class="mui-list--unstyled">
-          {{ commenttree(comments, proposal, project, g.user, request.base_url, csrf_form) }}
+          {{ commenttree(comments, proposal, project, csrf_form) }}
         </ul>
       {% endif %}
       {% if not g.user -%}
@@ -290,7 +290,7 @@
           <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}">{% trans %}Login with Twitter or Google to leave a comment{% endtrans %}</a>
         </p>
       {% else -%}
-        <form method="POST" id="comment-form" class="mui-form">
+        <form method="POST" id="comment-form" action="{{ proposal.url_for('new_comment') }}" class="mui-form">
           <div class="mui--hide">
             <input type="hidden" name="form.id" value="newcomment"/>
             {{ commentform.hidden_tag() }}
@@ -320,7 +320,7 @@
 
     <div class="slider-btn slider-btn--right">
       {%- if proposal.getnext() -%}
-        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--dark"><i class="material-icons">chevron_right</i></a>
+        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_right</i></a>
       {%- else -%}
         <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_right</i></button>
       {%- endif -%}

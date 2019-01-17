@@ -20,7 +20,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('event_list.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('checkin-event')
+    @requires_permission('checkin_event')
     def events(self):
         return dict(project=self.obj, profile=self.obj.profile, events=self.obj.events)
 
@@ -188,6 +188,6 @@ def event(profile, project, event):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='checkin-event')
+    permission='checkin_event')
 def scan_badge(profile, project, event):
     return render_template('scan_badge.html.jinja2', profile=profile, project=project, event=event)

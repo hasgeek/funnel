@@ -93,59 +93,30 @@
 }
 
 .project-btn-wrapper {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  text-align: center;
-  z-index: 1001;
-  margin: -10px 0 0;
-
-  ul {
-    margin: 0;
-  }
-
+  position: relative;
+  margin: 10px 0 0;
+  text-align: left;
   li {
-    width: calc(100% - 50px);
+    width: auto;
+    padding: 0;
   }
-
-  .mui-btn {
+  .cta {
     display: block;
-  }
-}
 
-@media(min-width: 480px) {
-  .project-btn-wrapper {
-    li {
-      width: calc(50% - 30px);
-    }
-  }
-}
-
-@media(min-width: 992px) {
-  .project-btn-wrapper {
-    position: relative;
-    margin: 10px 0 0;
-    text-align: left;
-    li {
-      width: auto;
-      padding: 0;
-    }
-    .cta {
-      display: block;
-
-      .mui-btn {
-        display: block;
-      }
-    }
-    .float-btn {
-      float: right;
-    }
     .mui-btn {
-      display: inline-block;
+      display: block;
     }
   }
-  .date-wrapper--small .project-btn-wrapper {
+  .float-btn {
+    float: right;
+  }
+  .mui-btn {
+    display: inline-block;
+  }
+}
+
+@media(min-width: 468px) {
+  .project-btn-wrapper {
     min-width: 340px;
     width: 31%;
   }
@@ -219,6 +190,7 @@
   margin-top: 15px;
   position: relative;
   outline: none;
+  margin-bottom: 2em;
 }
 
 .proposal-list-wrapper {

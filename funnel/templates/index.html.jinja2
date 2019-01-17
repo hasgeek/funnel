@@ -5,6 +5,8 @@
   <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
 {%- endblock %}
 
+{% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
+
 {%- block layoutheaders %}
 <script type="application/ld+json">
   {  "@context" : "http://schema.org",
@@ -117,7 +119,7 @@
     <div class="grid">
       <div class="grid__col-sm-12">
         <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-          {% if 'new-project' in g.permissions %}<a href="{{g.profile.url_for('new-project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+          {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new-project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
         </p>
       </div>
     </div>
@@ -129,9 +131,9 @@
   <div class="mui-container">
     <div class="grid mui--text-body2 mui--text-left">
       <div class="grid__col-sm-6 grid__col-md-5">
-        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-18 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about">About us and site policies</a></p>
+        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about">About us and site policies</a></p>
         <p>
-          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
+          #2699, 19th Main, 5th Cross, HAL 2nd stage, Indiranagar, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
         </p>
       </div>
       <div class="grid__col-sm-6 grid__col-md-3">
@@ -149,7 +151,7 @@
       </div>
     </div>
   </div>
-{% endblock %} 
+{% endblock %}
 
 {% block footerscripts %}
   {% raw %}

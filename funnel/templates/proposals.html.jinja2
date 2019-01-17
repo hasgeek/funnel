@@ -24,7 +24,7 @@
                 {%- if proposal.user != proposal.speaker %}
                   <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
                 {%- endif %}
-                {%- if g.user and 'edit-project' in g.permissions %}
+                {%- if g.user and current_auth.permissions.edit_project %}
                   {%- if proposal.has_outstation_speaker %}
                     <i class="material-icons mui--text-subhead mui--align-middle" aria-label="Outstation Speaker">flight</i>
                   {%- endif %}
@@ -41,7 +41,7 @@
               {% endif %}
               <li>{{ proposal.technical_level }}</li>
               <li>{{ proposal.voteset.count }} upvotes
-                {% if 'view-voteinfo' in g.permissions %}
+                {% if current_auth.permissions.view_voteinfo %}
                   {%- set breakups = dict() %}
                   {%- set groups = proposal.votes_by_group() %}
                   {%- if 'participants' in groups %}{% do breakups.update({'P': groups['participants']}) %}{% endif %}
@@ -81,21 +81,25 @@
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="#tickets" class="mui-btn mui-btn--raised mui-btn--primary">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+      </li>
+    {%- elif project.allow_rsvp %}
+      <li class="cta">
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- endif %}
     {% if project.state.SUBMISSIONS -%}
       <li class="mui--hidden-xs">
-        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)">{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
-    {% if project.sessions %}
+    {%- if current_view.has_sessions %}
       <li class="mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.state.SUBMISSIONS -%}float-btn{% endif %}">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised" title="View Schedule" data-action="View Schedule(header)">{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>
@@ -108,7 +112,7 @@
 {% block contentwrapper %}
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      {%- if project.current_roles.admin or 'checkin-event' in g.permissions %}
+      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
         {{ admin_panel(project) }}
       {% endif %}
     </div>
@@ -116,7 +120,7 @@
     <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="proposals">
       <div class="grid__col-xs-12">
         <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
-        {%- if 'view-status' in current_auth.permissions %}
+        {%- if current_auth.permissions.view_status %}
           <div>
             <form class="mui-form mui--pull-right search-proposal-form">
               <div class="mui-textfield mui-textfield--float-label">
