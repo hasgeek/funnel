@@ -171,6 +171,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
+    state.add_conditional_state('HAS_PROPOSALS', state.SUBMISSIONS,
+        lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
+    state.add_conditional_state('HAS_SESSIONS', state.SUBMISSIONS,
+        lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
+
     @with_roles(call={'admin'})
     @state.transition(
         state.DRAFT, state.SUBMISSIONS, title=__("Open"),

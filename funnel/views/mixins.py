@@ -1,6 +1,6 @@
 from flask import abort, g, redirect, request
 from coaster.utils import require_one_of
-from ..models import (db, Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
+from ..models import (Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
     UserGroup, Venue, VenueRoom, Section)
 
 
@@ -19,14 +19,6 @@ class ProjectViewMixin(object):
             proj = projredir.project
         g.profile = proj.profile
         return proj
-
-    @property
-    def has_proposals(self):
-        return db.session.query(self.obj.proposals.exists()).scalar()
-
-    @property
-    def has_sessions(self):
-        return len(self.obj.sessions) > 0
 
 
 class ProfileViewMixin(object):

@@ -93,7 +93,7 @@
         <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
-    {% if project.sessions %}
+    {% if project.state.HAS_SESSIONS %}
       <li class="mui--hidden-xs mui--hidden-sm mui--hidden-md {% if project.state.SUBMISSIONS -%}float-btn{% endif %}">
         <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
       </li>
