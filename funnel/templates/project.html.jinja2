@@ -15,21 +15,25 @@
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="#tickets" class="mui-btn mui-btn--raised mui-btn--primary">{% trans %}Participate{% endtrans %}</a>
+        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+      </li>
+    {%- elif project.allow_rsvp %}
+      <li class="cta">
+        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" target="_blank" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- endif %}
     {% if project.state.SUBMISSIONS -%}
       <li class="{% if not project.state.HAS_SESSIONS %}cta{%- endif %}">
-        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)">{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
-    {% if project.state.HAS_SESSIONS %}
+    {%- if project.state.HAS_SESSIONS %}
       <li class="{% if project.state.SUBMISSIONS -%}float-btn{% else %}cta{% endif %}">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised">{% trans %}View Schedule{% endtrans %}</a>
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised" title="View Schedule" data-action="View Schedule(header)">{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>
@@ -84,7 +88,7 @@
       <div class="project-section__instructions">{{ project.instructions|safe }}</div>
       <p class="mui--text-left">
       {% if project.state.SUBMISSIONS -%}
-        <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}">{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
       {%- endif %}
       </p>
     </div>
@@ -140,7 +144,7 @@
       <div class="grid__col-xs-12">
         <p class="mui--text-left">
         {%- if project.state.HAS_SESSIONS %}
-          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(page)">{% trans %}View Schedule{% endtrans %}</a>
         {%- endif %}
         </p>
       </div>
@@ -161,7 +165,7 @@
           {{ rsvpform(project, rsvp_form) }}
         {%- else %}
           <p>
-            <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary'>{% trans %}Login to RSVP{% endtrans %}</a>
+            <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to rsvp">{% trans %}Login to RSVP{% endtrans %}</a>
           </p>
         {%- endif %}
         {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
