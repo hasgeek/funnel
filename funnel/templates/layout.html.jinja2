@@ -115,7 +115,7 @@
         var action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
         var target = $(this).attr('href') || '';
         if (typeof ga !== "undefined") {
-          ga('send', { hitType: 'event', eventCategory: 'click', eventAction: action, eventLabel: label});
+          ga('send', { hitType: 'event', eventCategory: 'click', eventAction: action, eventLabel: target});
         }
       });
     });
