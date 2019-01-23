@@ -31,6 +31,7 @@ class PROJECT_STATE(LabeledEnum):  # NOQA
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
     OPENABLE = {VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
+    POST_DRAFT = {SUBMISSIONS, VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
 
 
 # --- Models ------------------------------------------------------------------
@@ -171,9 +172,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    state.add_conditional_state('HAS_PROPOSALS', state.SUBMISSIONS,
+    state.add_conditional_state('HAS_PROPOSALS', state.POST_DRAFT,
         lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
-    state.add_conditional_state('HAS_SESSIONS', state.SUBMISSIONS,
+    state.add_conditional_state('HAS_SESSIONS', state.POST_DRAFT,
         lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
 
     @with_roles(call={'admin'})
