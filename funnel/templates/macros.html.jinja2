@@ -72,6 +72,7 @@
         </div>
       </div>
       <div class="grid__col-xs-12{% if project.banner_video_url or project.bg_image %} grid__col-md-5 grid__col-lg-4{% else %} date-wrapper--small {% endif %} date-wrapper xs-sm-padding">
+        {%- if project.datelocation %}
         <div>
           <div class="date-icon">
             <i class="material-icons mui--text-display1 mui--text-light">date_range</i>
@@ -81,6 +82,7 @@
             <p class="mui--text-title mui--text-light">{{ project.datelocation }}</p>
           </div>
         </div>
+        {%- endif %}
         {%- if project.primary_venue %}
           <div>
             <div class="date-icon">
@@ -102,8 +104,8 @@
   <nav class="sub-navbar sub-navbar--sticky mui--bg-accent">
     <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" title="About" data-action="About(navbar)">About</a>
     {%- if project.instructions -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#call-for-proposal" title="Call for proposals" data-action="Call for proposals(navbar)">Call for proposals</a>{%- endif %}
-    {%- if project.state.HAS_SESSIONS %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)">Talks</a>{%- endif %}
-    {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'schedule' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule</a>{%- endif %}
+    {%- if project.featured_sessions %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)">Talks</a>{%- endif %}
+    {%- if project.state.HAS_SESSIONS %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'schedule' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule</a>{%- endif %}
     {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" title="Jobs" data-action="Jobs(navbar)">Jobs</a>{%- endif %}
     {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">Venue</a>{%- endif %}
     {%- if project.state.HAS_PROPOSALS -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'proposals' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#proposals" title="Proposals" data-action="Proposals(navbar)">Proposals</a>{%- endif %}
