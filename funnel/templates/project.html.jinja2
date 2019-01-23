@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header %}
+{% from "baseframe/forms.html.jinja2" import ajaxform %}
+{%- from "macros.html.jinja2" import rsvpform, project_header %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
 
@@ -355,10 +356,12 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% if project.allow_rsvp -%}
+    {{ ajaxform('rsvp-form', request, force=true) }}
+  {%- endif %}
   {% assets "js_jquerysuccinct" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  {{ rsvpscript() }}
   <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
@@ -366,7 +369,6 @@
       var projectConfig = {};
       {% if project.boxoffice_data -%}
         projectConfig.ticketing = {
-          // TODO: Get url from config
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ project.boxoffice_data.org|tojson }},
@@ -377,7 +379,7 @@
 
       {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
         projectConfig.venue = {
-          mapElem: "#venue-map"
+          mapId: "venue-map"
         };
       {%- endif %}
 

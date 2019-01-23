@@ -268,7 +268,8 @@ table .buttongrp-column {
   margin: 0 0.5em;
 }
 .sub-navbar .sub-navbar__item:hover,
-.sub-navbar .sub-navbar__item:active {
+.sub-navbar .sub-navbar__item:active,
+.sub-navbar .sub-navbar__item--active {
   border-bottom: 6px solid #856A91;
 }
 

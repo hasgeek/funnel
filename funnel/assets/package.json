@@ -23,6 +23,7 @@
     "webpack-cli": "^3.2.1"
   },
   "dependencies": {
+    "hammerjs": "^2.0.8",
     "jsqr": "^1.1.1",
     "leaflet": "^1.4.0",
     "ractive": "^0.7.3"

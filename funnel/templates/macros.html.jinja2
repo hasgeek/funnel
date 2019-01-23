@@ -5,33 +5,11 @@
     <p class="no-jshidden">
       {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'accent', "Maybe"), ('N', 'dark', "Not going")] %}
         <button type="submit" name="status" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--{{ class_ }}">{{ title }} {%- if counts[value] %}&nbsp;<span class="badge">{{ counts[value] }}</span>{% endif %}{%- if form.status.data == value %}&nbsp;<i class="material-icons mui--text-caption">check</i>{% endif %}</button>
-      {%- endfor %}
+      {%- endfor -%}
       &nbsp;<span class="loading mui--hide"><i class="material-icons mui--align-middle mui--text-dark-secondary">refresh</i></span>
     </p>
   </form>
 {% endwith %}{% endmacro %}
-
-{% macro rsvpscript() %}
-  <script type="text/javascript">
-    $(function() {
-      $("#rsvp-form").ajaxForm({
-        target: '#rsvp-form',
-        replaceTarget: true,
-        beforeSubmit: function(formdata, form, options) {
-          form.find('button[type="submit"]').prop('disabled', true).addClass('submit-disabled');
-          form.find('.loading').removeClass('mui--hide');
-          return true;
-        },
-        error: function(context, xhr, status, errMsg) {
-          var form = $("#{{ formid }}");
-          form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
-          form.find('.loading').addClass('mui--hide');
-          form.append('<div class="alert alert-danger fade in"><a href="#" class="close" data-dismiss="alert">&times;</a> An error occured when saving your choice. Please try again</div>');
-        } // No comma or semicolon here
-      });
-    });
-  </script>
-{% endmacro %}
 
 {% macro project_header(project, page_btns, current_page='project') %}
   <div class="mui-container headline">
@@ -99,17 +77,17 @@
       </div>
     </div>
   </div>
-  <nav class="sub-navbar sub-navbar--sticky mui--bg-accent">
-    <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about">About</a>
-    {%- if project.instructions -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#call-for-proposal">Call for proposals</a>{%- endif %}
-    {%- if project.featured_sessions  %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks">Talks</a>{%- endif %}
-    {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'schedule' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}">Schedule</a>{%- endif %}
-    {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs">Jobs</a>{%- endif %}
-    {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue">Venue</a>{%- endif %}
-    {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#proposals">Proposals</a>{%- endif %}
+  <nav class="sub-navbar sub-navbar--sticky mui--bg-accent" id="page-navbar">
+    <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about">About</a>
+    {%- if project.instructions -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#call-for-proposal">Call for proposals</a>{%- endif %}
+    {%- if project.featured_sessions  %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks">Talks</a>{%- endif %}
     {%- if project.boxoffice_data or project.buy_tickets_url or project.allow_rsvp -%}
-      <a class="sub-navbar__item mui--text-subhead {% if project.boxoffice_data or project.allow_rsvp and current_page == 'project' %} smooth-scroll{%- endif %}" {% if project.boxoffice_data  or project.allow_rsvp -%} href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate"
+      <a class="sub-navbar__item mui--text-subhead {% if project.boxoffice_data or project.allow_rsvp and current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" {% if project.boxoffice_data  or project.allow_rsvp -%} href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate"
       {%- elif project.buy_tickets_url %} href="{{ project.buy_tickets_url }}"{%- endif %}>Participate</a>
     {%- endif %}
+    {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs">Jobs</a>{%- endif %}
+    {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue">Venue</a>{%- endif %}
+    {%- if project.sessions %}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}">Schedule</a>{%- endif %}
+    {%- if project.proposals -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#proposals">Proposals</a>{%- endif %}
   </nav>
 {% endmacro %}

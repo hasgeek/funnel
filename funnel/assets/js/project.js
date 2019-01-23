@@ -57,6 +57,9 @@ const TicketWidget = {
       });
     }, false);
 
+    this.trackBoxofficeEvents();
+  },
+  trackBoxofficeEvents() {
     $(document).on('boxofficeTicketingEvents', (event, userAction, label, value) => {
       Utils.sendToGA('ticketing', userAction, label, value);
     });
@@ -64,7 +67,8 @@ const TicketWidget = {
 };
 
 const EmbedMap = {
-  init(mapElem) {
+  init(mapId) {
+    let mapElem = `#${mapId}`;
     const TileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     let $container = $(mapElem),
       defaults = {
@@ -118,7 +122,7 @@ $(() => {
     }
 
     if (venue) {
-      EmbedMap.init(venue.mapElem);
+      EmbedMap.init(venue.mapId);
     }
 
     if (search) {

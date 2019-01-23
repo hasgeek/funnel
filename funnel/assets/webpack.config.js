@@ -19,7 +19,6 @@ ManifestPlugin.prototype.apply = function(compiler) {
       stats_json.errors.forEach((err) => {
           console.error(err);
       });
-      process.exit(1);
     }
     Object.keys(parsed_stats.assets).forEach(function(key) {
        console.log('parsed_stats.assets[key]', parsed_stats.assets[key]);
@@ -60,15 +59,15 @@ module.exports = {
         enforce: "pre",
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "eslint-loader",
-        options: {
-          fix: true,
-        },
+        loader: "babel-loader",
       },
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel-loader",
+        loader: "eslint-loader",
+        options: {
+          fix: true,
+        },
       },
     ]
   },
