@@ -38,9 +38,9 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
             if (self.userid in user.user_organizations_owned_ids() or
                     (self.admin_team and user in self.admin_team.users)):
                 perms.add('edit-profile')
-                perms.add('new-project')
+                perms.add('new_project')
                 perms.add('delete-project')
-                perms.add('edit-project')
+                perms.add('edit_project')
         return perms
 
     def roles_for(self, actor=None, anchors=()):
