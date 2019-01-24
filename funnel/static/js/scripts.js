@@ -590,13 +590,14 @@ window.Talkfunnel.Schedule = {
     });
   },
   getEventDays: function() {
-    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    var eventDays = {};
+    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    
+    var eventDays = {};
     var day = Talkfunnel.Schedule.Utils.getEventDate(this.config.fromDate);
+    var nextDay = new Date(this.config.fromDate);
     eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(this.config.fromDate), talks: {},
       startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
     while(difference > 0) {
-      nextDay = new Date();
-      nextDay.setDate(day + 1);
+      nextDay.setDate(nextDay.getDate() + 1);
       day = nextDay.getDate();
       eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(nextDay), talks: {},
         startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
