@@ -1,9 +1,9 @@
 import { Utils, TableSearch } from './util';
-import L from "leaflet";
+// import L from "leaflet";
 
-const defaultLatitude = '12.961443';
+// const defaultLatitude = '12.961443';
 
-const defaultLongitude = '77.64435000000003';
+// const defaultLongitude = '77.64435000000003';
 
 const TicketWidget = {
   init({ boxofficeUrl, widgetElem, org, itemCollectionId, itemCollectionTitle }) {
@@ -66,64 +66,65 @@ const TicketWidget = {
   },
 };
 
-const EmbedMap = {
-  init(mapId) {
-    let mapElem = `#${mapId}`;
-    const TileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    let $container = $(mapElem),
-      defaults = {
-        zoom: 17,
-        marker: [defaultLatitude, defaultLongitude],
-        label: null,
-        maxZoom: 18,
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
-        subdomains: ['a', 'b', 'c'],
-        scrollWheelZoom: false,
-        dragging: false,
-      },
-      args,
-      options,
-      map,
-      marker;
+// const EmbedMap = {
+//   init(mapId) {
+//     return true;
+//     // let mapElem = `#${mapId}`;
+//     // const TileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+//     // let $container = $(mapElem),
+//     //   defaults = {
+//     //     zoom: 17,
+//     //     marker: [defaultLatitude, defaultLongitude],
+//     //     label: null,
+//     //     maxZoom: 18,
+//     //     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+//     //     subdomains: ['a', 'b', 'c'],
+//     //     scrollWheelZoom: false,
+//     //     dragging: false,
+//     //   },
+//     //   args,
+//     //   options,
+//     //   map,
+//     //   marker;
 
-    $container.empty();
-    args = $container.data();
-    if (args.markerlat && args.markerlng) {
-      args.marker = [args.markerlat, args.markerlng];
-    }
-    options = $.extend({
-    }, defaults, args);
+//     // $container.empty();
+//     // args = $container.data();
+//     // if (args.markerlat && args.markerlng) {
+//     //   args.marker = [args.markerlat, args.markerlng];
+//     // }
+//     // options = $.extend({
+//     // }, defaults, args);
 
-    map = new L.Map($container[0], {
-      center: options.center || options.marker,
-      zoom: options.zoom,
-      scrollWheelZoom: options.scrollWheelZoom,
-      dragging: options.dragging,
-    });
+//     // map = new L.Map($container[0], {
+//     //   center: options.center || options.marker,
+//     //   zoom: options.zoom,
+//     //   scrollWheelZoom: options.scrollWheelZoom,
+//     //   dragging: options.dragging,
+//     // });
 
-    L.tileLayer(TileLayer, {
-      maxZoom: options.maxZoom,
-      attribution: options.attribution,
-      subdomains: options.subdomains,
-    }).addTo(map);
+//     // L.tileLayer(TileLayer, {
+//     //   maxZoom: options.maxZoom,
+//     //   attribution: options.attribution,
+//     //   subdomains: options.subdomains,
+//     // }).addTo(map);
 
 
-    if (!args.tilelayer) {
-      marker = new L.marker(options.marker).addTo(map);
-      if (options.label) marker.bindPopup(options.label).openPopup();
-    }
-  },
-};
+//     // if (!args.tilelayer) {
+//     //   marker = new L.marker(options.marker).addTo(map);
+//     //   if (options.label) marker.bindPopup(options.label).openPopup();
+//     // }
+//   },
+// };
 
 $(() => {
-  window.HasGeek.ProjectInit = function ({ticketing='', venue='', search=''}) {
+  window.HasGeek.ProjectInit = function ({ticketing='', search=''}) {
     if (ticketing) {
       TicketWidget.init(ticketing);
     }
 
-    if (venue) {
-      EmbedMap.init(venue.mapId);
-    }
+    // if (venue) {
+    //   EmbedMap.init(venue.mapId);
+    // }
 
     if (search) {
       let tableSearch = new TableSearch(search.tableId);

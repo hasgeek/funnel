@@ -91,8 +91,11 @@ app.assets.register('css_screens',
 app.assets.register('js_jquerysuccinct',
     Bundle(assets.require('!jquery.js', 'jquery.succinct.js'),
         output='js/jquerysuccinct.packed.js', filters='uglipyjs'))
+app.assets.register('js_leaflet',
+    Bundle(assets.require('leaflet.js', 'leaflet-search.js'),
+        output='js/leaflet.packed.js', filters='uglipyjs'))
 app.assets.register('css_leaflet',
-    Bundle(assets.require('leaflet.css'),
+    Bundle(assets.require('leaflet.css', 'leaflet-search.css'),
         output='css/leaflet.packed.css', filters='cssmin'))
 
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
@@ -119,6 +122,9 @@ funnelapp.assets.register('css_screens',
 funnelapp.assets.register('js_jquerysuccinct',
     Bundle(assets.require('!jquery.js', 'jquery.succinct.js'),
         output='js/jquerysuccinct.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('js_leaflet',
+    Bundle(assets.require('leaflet.js', 'leaflet-search.js'),
+        output='js/leaflet.packed.js', filters='uglipyjs'))
 funnelapp.assets.register('css_leaflet',
     Bundle(assets.require('leaflet.css', 'leaflet-search.css'),
         output='css/leaflet.packed.css', filters='cssmin'))

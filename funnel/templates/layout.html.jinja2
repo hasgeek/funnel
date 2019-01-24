@@ -78,6 +78,26 @@
   </div>
 {% endblock %}
 
+{% block footer %}
+  {%- if not config['LEGACY'] -%}
+  <div class="mui-container">
+    <div class="grid mui--text-body2">
+      <div class="grid__col-sm-6 mui--text-center">
+        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about"><br>About us and site policies</a>.</p>
+      </div>
+      <div class="grid__col-sm-6 mui--text-center">
+        <p>
+          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
+        </p>
+      </div>
+      </div>
+    </div>
+  </div>
+  {%- else -%}
+    <span class="no-print">{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %}Copyright &copy; 2010-19 HasGeek{% endtrans %}{% endif %}</span>
+  {%- endif -%}
+{% endblock %}
+
 {% block jquery -%}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
@@ -88,13 +108,5 @@
 
 {% block layoutscripts %}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
-  <script type="text/javascript">
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-19123154-1', 'auto');
-    ga('send', 'pageview');
-  </script>
   {% block footerscripts %}{% endblock %}
 {% endblock %}

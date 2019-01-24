@@ -76,22 +76,28 @@ export const Video = {
     The videoID is then used to generate the iframe html.
     The generated iframe is added to the video container element.
   */
-  embedIframe(videoWrapper, videoUrl) {
-    let videoId, videoEmbedUrl;
-    videoId = this.extractYoutubeId(videoUrl);
-    if(videoId) {
-      videoEmbedUrl = `<iframe id='youtube_player' src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
-      videoWrapper.innerHTML = videoEmbedUrl;
+  getVideoTypeAndId(url) {
+    let regexMatch = url.match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/);
+    let type = '';
+    if (regexMatch[3].indexOf('youtu') > -1) {
+      type = 'youtube';
+    } else if (regexMatch[3].indexOf('vimeo') > -1) {
+      type = 'vimeo';
     }
+    return {
+      type: type,
+      videoId: regexMatch[6]
+    };
   },
-  extractYoutubeId(url) {
-    let regex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    let exp = url.match(regex);
-    if (exp && exp[7].length === 11) {
-      return exp[7];
-    } else {
-      return false;
+  embedIframe(videoWrapper, videoUrl) {
+    let videoEmbedUrl;
+    let {type, videoId} = this.getVideoTypeAndId(videoUrl);
+    if(type === 'youtube') {
+      videoEmbedUrl = `<iframe src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
+    } else if(type === 'vimeo') {
+      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}' frameborder='0' allowfullscreen></iframe>`;
     }
+    videoWrapper.innerHTML = videoEmbedUrl;
   },
 };
 

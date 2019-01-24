@@ -50,7 +50,7 @@ export const Utils = {
 };
 
 export const ScrollActiveMenu = {
-  init(navItemsClassName, activeMenuClassName) {
+  init(navId, navItemsClassName, activeMenuClassName) {
     this.navItemsClassName = navItemsClassName;
     this.activeMenuClassName = activeMenuClassName;
     this.navItems = [...document.querySelectorAll(`.${navItemsClassName}`)];
@@ -100,7 +100,7 @@ export const ScrollActiveMenu = {
     console.log('activeNavItem', this.activeNavItem);
     $(`.${this.navItemsClassName}`).removeClass(this.activeMenuClassName);
     activeNavItem.classList.add(this.activeMenuClassName);
-    $('#page-navbar').animate({
+    $(`#${this.navId}`).animate({
       scrollLeft: window.activeNavItem.offsetLeft,
     }, 500);
   },
@@ -122,7 +122,7 @@ export const ScrollActiveMenu = {
       if (Math.abs(xDiff) > Math.abs(yDiff)) {
         if (xDiff > 0 && start.x <= 80) {
           let prevEl = this.activeNavItem.previousElementSibling;
-          if(prevEl && prevEl.classList.contains('sub-navbar__item')) {
+          if(prevEl && prevEl.classList.contains(this.navItemsClassName)) {
             prevEl.click();
             this.setActiveNavItem(prevEl);
           }
@@ -130,7 +130,7 @@ export const ScrollActiveMenu = {
         else {
           console.log('this.activeNavItem.nextElementSibling', this.activeNavItem.nextElementSibling);
           let nextEl = this.activeNavItem.nextElementSibling;
-          if(nextEl&& nextEl.classList.contains('sub-navbar__item')) {
+          if(nextEl&& nextEl.classList.contains(this.navItemsClassName)) {
             nextEl.click();
             this.setActiveNavItem(nextEl);
           }

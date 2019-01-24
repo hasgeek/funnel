@@ -7,14 +7,14 @@ $(() => {
   Utils.smoothScroll();
 
 
-  if(document.querySelector('.sub-navbar__item')) {
-    ScrollActiveMenu.init('sub-navbar__item', 'sub-navbar__item--active');
+  if(document.querySelector('#page-navbar')) {
+    ScrollActiveMenu.init('page-navbar', 'sub-navbar__item', 'sub-navbar__item--active');
   }
 
   // Send click events to Google analytics
-  $('a').click(function clickHandler() {
-    let target = $(this).attr('href');
-    let action = $(this).attr('title') || $(this).html();
+  $('.mui-btn, a').click(() => {
+    var action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
+    var target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });
 });

@@ -190,20 +190,20 @@ const Schedule = {
   },
   getEventDays() {
     let difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    
-    let eventDays = {}, nextDay;
+    let eventDays = {}, nextDay = new Date(this.config.fromDate), seq = 0;
     let day = this.Utils.getEventDate(this.config.fromDate);
     eventDays[day] = {dateStr: this.Utils.getDateString(this.config.fromDate), talks: {},
-      startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
-    while(difference > 0) {
-      nextDay = new Date();
-      nextDay.setDate(day + 1);
+      startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms)), seq: seq};
+    while(seq !== difference) {
+      seq += 1;
+      nextDay.setDate(nextDay.getDate() + 1);
       day = nextDay.getDate();
       eventDays[day] = {dateStr: this.Utils.getDateString(nextDay), talks: {},
-        startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
-      difference -= 1;
+        startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms)), seq: seq};
     };
     // To create a copy and not a reference
     this.config.scheduleTable = JSON.parse(JSON.stringify(eventDays));
+    console.log('scheduleTable', this.config.scheduleTable);
     return;
   },
   init(config) {

@@ -42,11 +42,12 @@ module.exports = {
   devtool: 'source-map',
   entry: {
     "app": path.resolve(__dirname, "js/app.js"),
-    "event": path.resolve(__dirname, "js/event.js"),
     "project": path.resolve(__dirname, "js/project.js"),
+    "proposals": path.resolve(__dirname, "js/proposals.js"),
     "proposal": path.resolve(__dirname, "js/proposal.js"),
-    "scan_badge": path.resolve(__dirname, "js/scan_badge.js"),
     "schedule_view": path.resolve(__dirname, "js/schedule_view.js"),
+    "event": path.resolve(__dirname, "js/event.js"),
+    "scan_badge": path.resolve(__dirname, "js/scan_badge.js"),
   },
   output: {
     path: path.resolve(__dirname,  "../static/build"),

@@ -510,6 +510,7 @@ table .buttongrp-column {
   margin-top: 15px;
   position: relative;
   outline: none;
+  margin-bottom: 2em;
 }
 
 .proposal-list-wrapper {
