@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import six
-import json
 from coaster.utils import sorted_timezones
 from wtforms.widgets import CheckboxInput, ListWidget
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
@@ -16,28 +14,12 @@ __all__ = [
     'TicketClientForm', 'ProjectTransitionForm', 'ProjectTicketForm'
 ]
 
-
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
-
-
-def format_json(data):
-    if isinstance(data, six.string_types):
-        # This happens when form is being populated with user input
-        return json.loads(data)
-    return data
-
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {
     "org": "hasgeek",
     "item_collection_id": ""
 }
-
-
-def validate_json(form, field):
-    try:
-        json.loads(field.data)
-    except ValueError:
-        raise forms.validators.StopValidation(__("Invalid JSON"))
 
 
 class ProjectForm(forms.Form):
