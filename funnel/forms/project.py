@@ -142,4 +142,4 @@ class TicketTypeForm(forms.Form):
 
 
 class ProjectTicketForm(forms.Form):
-    boxoffice_data = forms.JsonField(__("Ticket client details"), prettyprint=True, default=BOXOFFICE_DETAILS_PLACEHOLDER)
+    boxoffice_data = forms.JsonField(__("Ticket client details"), default=BOXOFFICE_DETAILS_PLACEHOLDER)
