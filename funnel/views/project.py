@@ -149,7 +149,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('edit-project')
+    @requires_permission('edit_project')
     def edit_boxoffice_data(self):
         form = ProjectTicketForm(obj=self.obj, model=Project)
         if form.validate_on_submit():

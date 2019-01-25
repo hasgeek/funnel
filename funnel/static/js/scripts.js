@@ -395,6 +395,12 @@ window.Talkfunnel.TicketWidget = {
 
       });
     }, false);
+
+    $(document).on('boxofficeTicketingEvents', function(event, userAction, label, value) {
+      if (typeof ga !== "undefined") {
+        ga('send', { hitType: 'event', eventCategory: 'ticketing', eventAction: userAction, eventLabel: label, eventValue: value});
+      }
+    });
   }
 };
 
