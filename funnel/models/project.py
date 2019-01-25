@@ -31,6 +31,7 @@ class PROJECT_STATE(LabeledEnum):  # NOQA
 
     CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
     OPENABLE = {VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
+    POST_DRAFT = {SUBMISSIONS, VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
 
 
 # --- Models ------------------------------------------------------------------
@@ -170,6 +171,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
+
+    state.add_conditional_state('HAS_PROPOSALS', state.POST_DRAFT,
+        lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
+    state.add_conditional_state('HAS_SESSIONS', state.POST_DRAFT,
+        lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
 
     @with_roles(call={'admin'})
     @state.transition(
@@ -334,8 +340,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 (self.profile.admin_team and user in self.profile.admin_team.users) or
                     user.owner_of(self.profile)):
                 perms.update([
-                    'view-contactinfo',
-                    'edit-project',
+                    'view_contactinfo',
+                    'edit_project',
                     'delete-project',
                     'view-section',
                     'new-section',
@@ -352,7 +358,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'delete-venue',
                     'edit-schedule',
                     'move-proposal',
-                    'view-rsvps',
+                    'view_rsvps',
                     'new-session',
                     'edit-session',
                     'new-event',
@@ -361,7 +367,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-ticket-client',
                     'edit-event',
                     'admin',
-                    'checkin-event',
+                    'checkin_event',
                     'view-event',
                     'view-ticket-type',
                     'edit-participant',
@@ -370,10 +376,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
-                    'view-contactinfo',
+                    'view_contactinfo',
                     'confirm-proposal',
-                    'view-voteinfo',
-                    'view-status',
+                    'view_voteinfo',
+                    'view_status',
                     'edit-proposal',
                     'delete-proposal',
                     'edit-schedule',
@@ -387,7 +393,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 ])
             if self.checkin_team and user in self.checkin_team.users:
                 perms.update([
-                    'checkin-event'
+                    'checkin_event'
                 ])
         return perms
 

@@ -1,20 +1,43 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import project_header %}
-{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ project.title }}{% endblock %}
+{%- from "macros.html.jinja2" import project_header, admin_panel %}
+{% block title %}
+  {%- if active_session -%}
+    {{ active_session.title }} &ndash; {{ project.title }}
+  {%- else -%}
+    {% trans %}Schedule{% endtrans %} &ndash; {{ project.title }}
+  {%- endif -%}
+{% endblock %}
+
+
+{% block description %}
+  {%- if active_session -%}
+    {%- if active_session.speaker -%}
+      {% trans title=active_session.title, speaker=active_session.speaker, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+    {%- else -%}
+      {{ active_session.title }}, {{ project.title }}
+    {%- endif -%}
+  {%- else -%}
+    {% if g.profile %}{{ g.profile.description|striptags }}{% endif %}
+  {%- endif -%}
+{% endblock %}
 
 {%- macro page_btns(project) %}
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="#tickets" class="mui-btn mui-btn--raised mui-btn--primary">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+      </li>
+    {%- elif project.allow_rsvp %}
+      <li class="cta">
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- endif %}
     <li class="cta">
-      <a href="{{ project.url_for('subscribe_schedule') }}" class="mui-btn mui-btn--raised mui-btn--accent" rel="modal:open">{% trans %}Add to calendar{% endtrans %}</a>
+      <a href="{{ project.url_for('subscribe_schedule') }}" class="mui-btn mui-btn--raised mui-btn--accent" rel="modal:open" title="Add to calendar" data-action="Add to calendar(header)">{% trans %}Add to calendar{% endtrans %}</a>
     </li>
     <div id="popup_subscribe" class="modal">
     </div>
@@ -29,37 +52,7 @@
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
       {% if current_auth.is_authenticated and project.current_roles.admin %}
-        <div class="sticky-admin-panel">
-          <div class="card">
-            <div class="card__header">
-              <h3 class="mui--text-title mui--text-uppercase mui--text-bold">{% trans %}Admin panel{% endtrans %}</h3>
-            </div>
-            <div class="card__body">
-              <div>
-                <ol class="mui-list--aligned">
-                  <li>
-                    <a href="{{ project.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
-                  </li>
-                  <li>
-                    <a href="{{ project.url_for('edit_schedule') }}">{% trans %}Edit schedule{% endtrans %}</a>
-                  </li>
-                  <li>
-                    <a href="{{ project.url_for('sections') }}">{% trans %}Manage sections{% endtrans %}</a>
-                  </li>
-                  <li>
-                    <a href="{{ project.url_for('venues') }}">{% trans %}Manage venues{% endtrans %}</a>
-                  </li>
-                </ol>
-              </div>
-              <hr class="mui-divider">
-              <div>
-                <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Downloads</p>
-                <p class="btn-group">
-                  <a href="{{ project.url_for('schedule_json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank"><i class="material-icons mui--text-subhead mui--align-top">save_alt</i> {% trans %}JSON{% endtrans %}</a>
-                </p>
-              </div>
-          </div>
-        </div>
+        {{ admin_panel(project) }}
       {%- endif %}
     </div>
   </div>

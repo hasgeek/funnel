@@ -8,8 +8,13 @@
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
 {%- block image_src %}
-  <link rel="image_src" href="{{ url_for('static', filename='img/funnel-logo.png') }}" />
-  <meta property="og:image" content="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+  {%- if config['LEGACY'] -%}
+    <link rel="image_src" href="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/funnel-logo.png') }}" />
+  {%- else -%}
+    <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png') }}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png') }}" />
+  {%- endif -%}
 {%- endblock %}
 
 {% block banner %}
@@ -82,7 +87,7 @@
     <div class="grid">
       <div class="grid__col-sm-12">
         <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-          {% if 'new-project' in current_auth.permissions %}<a href="{{g.profile.url_for('new_project')}}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+          {% if current_auth.permissions.new_project %}<a href="{{ g.profile.url_for('new_project') }}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
         </p>
       </div>
     </div>

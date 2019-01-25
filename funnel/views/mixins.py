@@ -1,7 +1,7 @@
 from flask import abort, g, redirect, request
 from coaster.utils import require_one_of
 from ..models import (Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
-    Comment, UserGroup, Venue, VenueRoom, Section)
+    UserGroup, Venue, VenueRoom, Section)
 
 
 class ProjectViewMixin(object):
@@ -81,26 +81,6 @@ class SessionViewMixin(object):
     def after_loader(self):
         g.profile = self.obj.project.profile
         super(SessionViewMixin, self).after_loader()
-
-
-class CommentViewMixin(object):
-    model = Comment
-    route_model_map = {'comment': 'id'}
-
-    def loader(self, profile, project, comment, url_name_suuid=None, url_id_name=None):
-        require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
-        comment = self.model.query.filter(Comment.id == comment).first_or_404()
-
-        if url_name_suuid:
-            self.proposal = Proposal.query.join(Project, Profile).filter(
-                    Proposal.url_name_suuid == url_name_suuid
-                ).first_or_404()
-        else:
-            self.proposal = Proposal.query.join(Project, Profile).filter(
-                    Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
-                ).first_or_404()
-        g.profile = self.proposal.project.profile
-        return comment
 
 
 class UserGroupViewMixin(object):

@@ -78,6 +78,26 @@
   </div>
 {% endblock %}
 
+{% block footer %}
+  {%- if not config['LEGACY'] -%}
+  <div class="mui-container">
+    <div class="grid mui--text-body2">
+      <div class="grid__col-sm-6 mui--text-center">
+        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about"><br>About us and site policies</a>.</p>
+      </div>
+      <div class="grid__col-sm-6 mui--text-center">
+        <p>
+          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
+        </p>
+      </div>
+      </div>
+    </div>
+  </div>
+  {%- else -%}
+    <span class="no-print">{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %}Copyright &copy; 2010-19 HasGeek{% endtrans %}{% endif %}</span>
+  {%- endif -%}
+{% endblock %}
+
 {% block jquery -%}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
@@ -91,6 +111,15 @@
     $(function() {
       window.Talkfunnel.Utils.collapse();
       window.Talkfunnel.Utils.smoothScroll();
+
+      // Send click events to Google analytics
+      $('.mui-btn, a').click(function(event) {
+        var action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
+        var target = $(this).attr('href') || '';
+        if (typeof ga !== "undefined") {
+          ga('send', { hitType: 'event', eventCategory: 'click', eventAction: action, eventLabel: target});
+        }
+      });
     });
   </script>
   {% block footerscripts %}{% endblock %}

@@ -81,6 +81,7 @@ window.Talkfunnel.Comments = {
     $('.comment .js-comment-delete').click(function() {
       var cfooter = $(this).parent();
       $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
+      $('#delcomment').attr('action', cfooter.attr('data-delete-url'))
       $('#delcomment').removeClass('mui--hide').hide().insertAfter(cfooter).slideDown("fast");
       return false;
     });
@@ -416,7 +417,12 @@ window.Talkfunnel.Schedule = {
         height: $(window).height(),
         modalHtml: '',
         headerHeight: '',
-        pageUrl: location.href,
+        pageDetails: {
+          url: location.href,
+          title: $('title').html(),
+          projectTitle: $('title').html().split(' — ')[1],
+          description: $('meta[name=description]').attr('content')
+        },
         getTimeStr: function(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
@@ -439,15 +445,25 @@ window.Talkfunnel.Schedule = {
         if(ractiveUI.get('width') < 992) {
           event.original.preventDefault();
           ractiveUI.set('activeTab', room);
-          Talkfunnel.Utils.animateScrollTo($(event.node.parentElement).offset().top - ractiveUI.get('headerHeight'));
+          // Talkfunnel.Utils.animateScrollTo($(event.node.parentElement).offset().top - ractiveUI.get('headerHeight'));
         }
+      },
+      updateMetaTags: function(pageDetails) {
+        $('title').html(pageDetails.title);
+        $('meta[name=DC\\.title]').attr('content', pageDetails.title);
+        $('meta[property=og\\:title]').attr('content', pageDetails.title);
+        $('meta[name=description]').attr('content', pageDetails.description);
+        $('meta[property=og\\:description]').attr('content', pageDetails.description);
+        $('link[rel=canonical]').attr('href', pageDetails.url);
+        $('meta[property=og\\:url]').attr('content', pageDetails.url);
       },
       handleBrowserHistory: function() {
         var ractiveUI = this;
         // On closing modal, update browser history
         $("#session-modal").on($.modal.CLOSE, function() {
           ractiveUI.set('modalHtml', '');
-          window.history.pushState('', '', ractiveUI.get('pageUrl'));
+          window.history.pushState('', '', ractiveUI.get('pageDetails')['url']);
+          ractiveUI.updateMetaTags(ractiveUI.get('pageDetails'));
         });
         // Event listener for back key press since opening modal update browser history
         $(window).on('popstate', function (event) {
@@ -455,28 +471,42 @@ window.Talkfunnel.Schedule = {
             $.modal.close();
           } else if(history.state) {
             // Open the modal with previous session viewed
-            ractiveUI.openModal(history.state.html, history.state.backPage);
+            ractiveUI.openModal(history.state.html, history.state.backPage, history.state.pageDetails);
           }
         });
       },
-      openModal: function(sessionHtml, backPage) {
+      openModal: function(sessionHtml, backPage, pageDetails) {
         var ractiveUI = this;
         ractiveUI.set('modalHtml', sessionHtml);
         $("#session-modal").modal('show');
-        window.history.pushState({html: sessionHtml, backpage: backPage}, '', backPage);
+        window.history.pushState({html: sessionHtml, backpage: backPage, pageDetails: pageDetails}, '', backPage);
+        ractiveUI.updateMetaTags(pageDetails);
       },
       showSessionModal: function(event, activeSession) {
         var ractiveUI = this;
-        var sessionModalUrl, sessionUrl, backPage;
+        var sessionModalUrl, sessionUrl, backPage, pageDetails;
         sessionModalUrl = event ? ractiveUI.get(event.keypath + '.talks.modal_url') : activeSession.modal_url;
         sessionUuid = event ? ractiveUI.get(event.keypath + '.talks.url_name_suuid') : activeSession.url_name_suuid;
-        backPage = ractiveUI.get('pageUrl') + '/' + sessionUuid;
+        backPage = ractiveUI.get('pageDetails')['url'] + '/' + sessionUuid;
+        if (event) {
+          pageDetails = {
+            title: ractiveUI.get(event.keypath + '.talks.title') + ' – ' + ractiveUI.get('pageDetails')['projectTitle'],
+            description: ractiveUI.get(event.keypath + '.talks.speaker') ? ractiveUI.get(event.keypath + '.talks.title') + ' by ' + ractiveUI.get(event.keypath + '.talks.speaker') : ractiveUI.get(event.keypath + '.talks.title') + ", " + ractiveUI.get('pageDetails')['projectTitle'],
+            url: backPage
+          };
+        } else {
+          pageDetails = {
+            title: activeSession.title + ' – ' + ractiveUI.get('pageDetails')['projectTitle'],
+            description: activeSession.speaker ? activeSession.title + ' by ' + activeSession.speaker : activeSession.title + ", " + ractiveUI.get('pageDetails')['projectTitle'],
+            url: backPage
+          };
+        }
         if(sessionModalUrl) {
           $.ajax({
             url: sessionModalUrl,
             type: 'GET',
             success: function(sessionHtml) {
-              ractiveUI.openModal(sessionHtml, backPage);
+              ractiveUI.openModal(sessionHtml, backPage, pageDetails);
             },
             error: function(response) {
               toastr.error('There was a problem in contacting the server. Please try again later.');
@@ -513,7 +543,7 @@ window.Talkfunnel.Schedule = {
           // Open session modal
           var paths = location.href.split('/');
           paths.pop()
-          ractiveUI.set('pageUrl', paths.join('/'));
+          ractiveUI.set('pageDetails.url', paths.join('/'));
           ractiveUI.showSessionModal('', activeSession);
           // Scroll page to session
           Talkfunnel.Utils.animateScrollTo($("#" + activeSession.url_name_suuid).offset().top - ractiveUI.get('headerHeight'));
@@ -560,13 +590,14 @@ window.Talkfunnel.Schedule = {
     });
   },
   getEventDays: function() {
-    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    var eventDays = {};
+    var difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    
+    var eventDays = {};
     var day = Talkfunnel.Schedule.Utils.getEventDate(this.config.fromDate);
+    var nextDay = new Date(this.config.fromDate);
     eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(this.config.fromDate), talks: {},
       startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
     while(difference > 0) {
-      nextDay = new Date();
-      nextDay.setDate(day + 1);
+      nextDay.setDate(nextDay.getDate() + 1);
       day = nextDay.getDate();
       eventDays[day] = {dateStr: Talkfunnel.Schedule.Utils.getDateString(nextDay), talks: {},
         startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
