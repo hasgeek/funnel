@@ -10,8 +10,8 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from ..models import RSVP_STATUS
 
 __all__ = [
-    'ProjectForm', 'SubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
-    'TicketClientForm', 'ProjectTransitionForm', 'ProjectTicketForm'
+    'EventForm', 'ProjectForm', 'ProjectTicketForm', 'ProjectTransitionForm', 'RsvpForm',
+    'SubprojectForm', 'TicketClientForm', 'TicketTypeForm'
 ]
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
