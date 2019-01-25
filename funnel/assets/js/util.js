@@ -55,10 +55,8 @@ export const ScrollActiveMenu = {
     this.activeMenuClassName = activeMenuClassName;
     this.navItems = [...document.querySelectorAll(`.${navItemsClassName}`)];
     this.headings = this.navItems.map(navItem => {
-      let section = navItem.getAttribute('href');
-      console.log('section', section);
       if (navItem.classList.contains('js-samepage')) {
-        return document.querySelector(section);
+        return document.querySelector(navItem.getAttribute('href'));
       } 
       return false; 
     });
@@ -68,7 +66,6 @@ export const ScrollActiveMenu = {
     this.headings.forEach(heading => {
       if (heading) {
         let threshold = heading.offsetHeight/window.innerHeight > 1 ? 0.1 : heading.offsetHeight/window.innerHeight;
-        console.log('threshold', threshold);
         let observer = new IntersectionObserver(
           this.handleObserver,
           {
@@ -76,7 +73,6 @@ export const ScrollActiveMenu = {
             threshold: threshold 
           },
         );
-        console.log('heading', heading)
         observer.observe(heading);
       }
     });
@@ -86,7 +82,6 @@ export const ScrollActiveMenu = {
   },
   handleObserver(entries) {
     entries.forEach(entry => {
-      console.log('entry', entry.target.getAttribute('id'), entry.intersectionRatio)
       if (entry.isIntersecting) {
         let activeNavItem = this.navItems.find(navItem => navItem.getAttribute('href') === `#${entry.target.getAttribute('id')}`);
         this.setActiveNavItem(activeNavItem);
@@ -97,7 +92,6 @@ export const ScrollActiveMenu = {
   setActiveNavItem(activeNavItem) {
     this.activeNavItem = activeNavItem;
     window.activeNavItem = activeNavItem;
-    console.log('activeNavItem', this.activeNavItem);
     $(`.${this.navItemsClassName}`).removeClass(this.activeMenuClassName);
     activeNavItem.classList.add(this.activeMenuClassName);
     $(`#${this.navId}`).animate({
@@ -128,7 +122,6 @@ export const ScrollActiveMenu = {
           }
         }
         else {
-          console.log('this.activeNavItem.nextElementSibling', this.activeNavItem.nextElementSibling);
           let nextEl = this.activeNavItem.nextElementSibling;
           if(nextEl&& nextEl.classList.contains(this.navItemsClassName)) {
             nextEl.click();

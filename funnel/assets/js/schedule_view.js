@@ -177,7 +177,7 @@ const Schedule = {
     this.config.scheduled.forEach((session) => {
       session.startTime = this.Utils.getTime(session.start);
       session.endTime = this.Utils.getTime(session.end);
-      session.eventDay = this.Utils.getEventDate(session.start);
+      session.eventDay = this.Utils.getEventDay(session.start, this.config.eventDayhash);
       session.duration = this.Utils.getDuration(session.end, session.start, this.config.slotInterval);
       this.config.scheduleTable[session.eventDay].startTime = 
         this.config.scheduleTable[session.eventDay].startTime && this.config.scheduleTable[session.eventDay].startTime 
@@ -190,20 +190,18 @@ const Schedule = {
   },
   getEventDays() {
     let difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    
-    let eventDays = {}, nextDay = new Date(this.config.fromDate), seq = 0;
-    let day = this.Utils.getEventDate(this.config.fromDate);
-    eventDays[day] = {dateStr: this.Utils.getDateString(this.config.fromDate), talks: {},
-      startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms)), seq: seq};
-    while(seq !== difference) {
+    this.config.eventDayhash = {};
+    let eventDays = {}, seq = 0, nextDay = new Date(this.config.fromDate), day;
+    while(seq <= difference) {
+      day = nextDay.getDate();
+      this.config.eventDayhash[day] = seq;
+      eventDays[seq] = {dateStr: this.Utils.getDateString(nextDay), talks: {},
+      startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
       seq += 1;
       nextDay.setDate(nextDay.getDate() + 1);
-      day = nextDay.getDate();
-      eventDays[day] = {dateStr: this.Utils.getDateString(nextDay), talks: {},
-        startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms)), seq: seq};
     };
     // To create a copy and not a reference
     this.config.scheduleTable = JSON.parse(JSON.stringify(eventDays));
-    console.log('scheduleTable', this.config.scheduleTable);
     return;
   },
   init(config) {
@@ -215,6 +213,10 @@ const Schedule = {
     this.renderScheduleTable();
   },
   Utils: {
+    getEventDay(eventDate, eventDayshash) {
+      let day = this.getEventDate(eventDate);
+      return eventDayshash[day];
+    },
     getEventDate(eventDate) {
       let date =  new Date(eventDate);
       return date.getDate();
