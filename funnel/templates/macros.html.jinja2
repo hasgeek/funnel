@@ -109,7 +109,7 @@
     {%- if project.hasjob_embed_url -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" title="Jobs" data-action="Jobs(navbar)">Jobs</a>{%- endif %}
     {%- if project.primary_venue -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">Venue</a>{%- endif %}
     {%- if project.state.HAS_PROPOSALS -%}<a class="sub-navbar__item mui--text-subhead {% if current_page == 'proposals' %}smooth-scroll{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#proposals" title="Proposals" data-action="Proposals(navbar)">Proposals</a>{%- endif %}
-    {%- if project.boxoffice_data -%}
+    {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
       <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %} smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate" title="Participate" data-action="Participate(navbar)">Participate</a>
     {%- elif project.buy_tickets_url %}
       <a class="sub-navbar__item mui--text-subhead" href="{{ project.buy_tickets_url }}" title="Participate" data-action="Participate(navbar)">Participate</a>

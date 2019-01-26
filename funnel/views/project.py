@@ -10,7 +10,7 @@ from coaster.views import jsonp, route, render_with, requires_permission, UrlFor
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
-from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectTicketForm
+from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectBoxofficeForm
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -151,7 +151,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit_project')
     def edit_boxoffice_data(self):
-        form = ProjectTicketForm(obj=self.obj, model=Project)
+        form = ProjectBoxofficeForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()

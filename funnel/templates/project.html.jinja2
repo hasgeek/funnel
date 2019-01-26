@@ -152,10 +152,10 @@
   </div>
   {%- endif %}
 
-  {% if project.boxoffice_data or project.allow_rsvp -%}
+  {% if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
   <div class="grid project-section" id="participate">
     <div class="grid__col-xs-12">
-      {% if project.boxoffice_data -%}
+      {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
         <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
         <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
       {%- endif %}
@@ -209,7 +209,7 @@
   {{ rsvpscript() }}
   <script type="text/javascript">
     $(function() {
-      {% if project.boxoffice_data -%}
+      {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
         window.Talkfunnel.TicketWidget.init({
           // TODO: Get url from config
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
