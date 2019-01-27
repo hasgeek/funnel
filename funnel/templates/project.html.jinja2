@@ -7,6 +7,40 @@
   {% assets "css_leaflet" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Event",
+    "name": "{{ project.title }}",
+    "url": "{{ project.url_for(_external=true) }}",
+    "startDate": "{{ project.date }}",
+    {% if project.primary_venue -%}
+    "location": {
+      "@type": "Place",
+      "name": "{{ project.primary_venue.title }}",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{ project.primary_venue.address1 }}",
+        "addressLocality": "{{ project.primary_venue.city }}",
+        "addressRegion": "{{ project.primary_venue.state }}",
+        "postalCode": "{{ project.primary_venue.postcode }}",
+        "addressCountry": "{{ project.primary_venue.country }}"
+      }
+    },
+    {%- endif -%}
+    {%- if project.bg_image %}
+    "image": [
+      "{{ project.bg_image }}"
+     ],
+    {% endif -%}
+    "description": "{{ project.tagline|safe }}",
+    "endDate": "{{ project.date_upto }}",
+    "offers": {
+      "@type": "Offer",
+      "url": "{{ project.url_for(_external=true) }}"
+    }
+  }
+  </script>
 {% endblock %}
 
 {% block bodytag %}<body class="mui--bg-primary no-sticky-header">{% endblock %}
