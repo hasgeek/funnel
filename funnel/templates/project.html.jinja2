@@ -7,6 +7,40 @@
   {% assets "css_leaflet" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Event",
+    "name": "{{ project.title }}",
+    "url": "{{ project.url_for(_external=true) }}",
+    "startDate": "{{ project.date }}",
+    {% if project.primary_venue -%}
+    "location": {
+      "@type": "Place",
+      "name": "{{ project.primary_venue.title }}",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{ project.primary_venue.address1 }}",
+        "addressLocality": "{{ project.primary_venue.city }}",
+        "addressRegion": "{{ project.primary_venue.state }}",
+        "postalCode": "{{ project.primary_venue.postcode }}",
+        "addressCountry": "{{ project.primary_venue.country }}"
+      }
+    },
+    {%- endif -%}
+    {%- if project.bg_image %}
+    "image": [
+      "{{ project.bg_image }}"
+     ],
+    {% endif -%}
+    "description": "{{ project.tagline|safe }}",
+    "endDate": "{{ project.date_upto }}",
+    "offers": {
+      "@type": "Offer",
+      "url": "{{ project.url_for(_external=true) }}"
+    }
+  }
+  </script>
 {% endblock %}
 
 {% block bodytag %}<body class="mui--bg-primary no-sticky-header">{% endblock %}
@@ -152,10 +186,10 @@
   </div>
   {%- endif %}
 
-  {% if project.boxoffice_data or project.allow_rsvp -%}
+  {% if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
   <div class="grid project-section" id="participate">
     <div class="grid__col-xs-12">
-      {% if project.boxoffice_data -%}
+      {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
         <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
         <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
       {%- endif %}
@@ -209,7 +243,7 @@
   {{ rsvpscript() }}
   <script type="text/javascript">
     $(function() {
-      {% if project.boxoffice_data -%}
+      {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
         window.Talkfunnel.TicketWidget.init({
           // TODO: Get url from config
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
@@ -218,9 +252,9 @@
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
           itemCollectionTitle: {{ project.title|tojson }}
         });
-      {%- endif %}
+      {% endif %}
 
-      {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
+      {% if project.primary_venue.latitude and project.primary_venue.longitude -%}
         window.Talkfunnel.EmbedMap.init({
           mapElem: "#venue-map"
         });
