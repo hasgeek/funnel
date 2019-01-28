@@ -10,12 +10,16 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from ..models import RSVP_STATUS
 
 __all__ = [
-    'ProjectForm', 'SubprojectForm', 'RsvpForm', 'EventForm', 'TicketTypeForm',
-    'TicketClientForm', 'ProjectTransitionForm'
+    'EventForm', 'ProjectForm', 'ProjectTransitionForm', 'RsvpForm',
+    'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm'
 ]
 
-
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
+
+BOXOFFICE_DETAILS_PLACEHOLDER = {
+    "org": "hasgeek",
+    "item_collection_id": ""
+}
 
 
 class ProjectForm(forms.Form):
@@ -117,3 +121,7 @@ class TicketTypeForm(forms.Form):
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(), allow_blank=True, get_label='title', query_factory=lambda: [])
+
+
+class ProjectBoxofficeForm(forms.Form):
+    boxoffice_data = forms.JsonField(__("Ticket client details"), default=BOXOFFICE_DETAILS_PLACEHOLDER)
