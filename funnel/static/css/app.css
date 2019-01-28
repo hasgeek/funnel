@@ -29,10 +29,10 @@
   padding-right: 5px;
 }
 
-.list-item-rgborder .icon-middle {
-  vertical-align: middle;
+.list-item-rgborder .icon-middle,
+.material-icons.mui--align-middle {
   position: relative;
-  top: -2px;
+  top: -1px;
 }
 
 .mui-divider--custom {
@@ -40,6 +40,10 @@
 }
 
 .btn-group .mui-btn {
+  margin-right: 5px;
+}
+
+.mui-btn .material-icons.mui--align-middle {
   margin-right: 5px;
 }
 
@@ -423,21 +427,12 @@ table .buttongrp-column {
   margin: 10px 0 0;
   text-align: left;
 }
-.project-btn-wrapper li {
-  width: auto;
-  padding: 0;
-}
 .project-btn-wrapper .cta {
   display: block;
+  padding: 0;
 }
 .project-btn-wrapper .cta .mui-btn {
   display: block;
-}
-.project-btn-wrapper .float-btn {
-  float: right;
-}
-.project-btn-wrapper .mui-btn {
-  display: inline-block;
 }
 
 @media (min-width: 468px) {
