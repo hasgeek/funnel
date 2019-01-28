@@ -11,7 +11,7 @@ icalendar==4.0.3
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
-alembic==1.0.5
+alembic==1.0.7
 qrcode==6.1
 rq==0.13.0
 psycopg2==2.7.7
