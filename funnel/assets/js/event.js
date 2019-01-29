@@ -69,7 +69,6 @@ const Queue = function(queueName) {
           }
           else {
             let index = Utils.findLoopIndex(participants, 'pid', participantID);
-            console.log('findLoopIndex', index);
             ParticipantList.set('participants.' + index + '.submitting', true);
           }
         }
@@ -80,7 +79,6 @@ const Queue = function(queueName) {
           }
           else {
             let index = Utils.findLoopIndex(participants, 'pid', participantID);
-            console.log('findLoopIndex', index);
             ParticipantList.set('participants.' + index + '.submitting', true);
           }
         }
@@ -93,11 +91,7 @@ const ParticipantTable = {
   init: function({badgeUrl, editUrl, checkinUrl, participantlistUrl, eventName}) {
     Ractive.DEBUG = false;
 
-    this.checkinUrl = checkinUrl;
-    this.checkinQ = new Queue(`${eventName}-checkin-queue`);
-    this.cancelcheckinQ = new Queue(`${eventName}-cancelcheckin-queue`);
-
-    this.count = new Ractive({
+    let count = new Ractive({
       el: '#participants-count',
       template: '#participants-count-template',
       data: {
@@ -106,11 +100,14 @@ const ParticipantTable = {
       }
     });
 
-    this.list = new Ractive({
+    let list = new Ractive({
       el: '#participants-table-content',
       template: '#participant-row',
       data: {
         participants: '',
+        checkinUrl: checkinUrl,
+        checkinQ: new Queue(`${eventName}-checkin-queue`),
+        cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
         },
@@ -129,9 +126,9 @@ const ParticipantTable = {
         let participantID = this.get(event.keypath + '.pid');
         if (checkin) {
           // Add participant id to checkin queue
-          ParticipantTable.checkinQ.enqueue(participantID);
+          this.get('checkinQ').enqueue(participantID);
         } else {
-          ParticipantTable.cancelcheckinQ.enqueue(participantID);
+          this.get('cancelcheckinQ').enqueue(participantID);
         }
         // Show the loader icon
         this.set(event.keypath + '.submitting', true);
@@ -140,11 +137,11 @@ const ParticipantTable = {
         event.original.preventDefault();
         var participantID = this.get(event.keypath + '.pid');
         if(checkin) {
-          ParticipantTable.checkinQ.dequeue(participantID)
-          ParticipantTable.cancelcheckinQ.enqueue(participantID);
+          this.get('checkinQ').dequeue(participantID)
+          this.get('cancelcheckinQ').enqueue(participantID);
         } else {
-          ParticipantTable.cancelcheckinQ.dequeue(participantID)
-          ParticipantTable.checkinQ.enqueue(participantID);
+          this.get('cancelcheckinQ').dequeue(participantID)
+          this.get('checkinQ').enqueue(participantID);
         }
         // Hide the loader icon
         this.set(event.keypath + '.submitting', false);
@@ -156,14 +153,14 @@ const ParticipantTable = {
           timeout: 5000,
           dataType: 'json',
           success: function(data) {
-            ParticipantTable.count.set({
+            count.set({
               total_participants: data.total_participants,
               total_checkedin: data.total_checkedin
             });
-            ParticipantTable.list.set('participants', data.participants).then(function() {
+            list.set('participants', data.participants).then(function() {
               let participants = Utils.tohashMap(data.participants, "pid");
-              ParticipantTable.checkinQ.updateQueue(participants, ParticipantTable.list);
-              ParticipantTable.cancelcheckinQ.updateQueue(participants, ParticipantTable.list);
+              list.get('checkinQ').updateQueue(participants, list);
+              list.get('cancelcheckinQ').updateQueue(participants, list);
             });
           }
         });
@@ -174,29 +171,28 @@ const ParticipantTable = {
         /* Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds 
         and batch post check-in/cancel check-in status to server */
         setInterval(function() { 
-          ParticipantTable.processQueues(); 
+          ParticipantTable.processQueues(list); 
         }, 8000);
 
         // Get participants data from server every 15 seconds
         setInterval(function() { 
-          ParticipantTable.list.updateList(); 
+          list.updateList(); 
         }, 15000);
       }
     });
   },
-  processQueues() {
-    let participantIDs = ParticipantTable.checkinQ.readAll();
+  processQueues(list) {
+    let participantIDs = list.get('checkinQ').readAll();
     if (participantIDs) {
-      ParticipantTable.postCheckinStatus(participantIDs, true);
+      this.postCheckinStatus(participantIDs, true, list);
     }
 
-    participantIDs = ParticipantTable.cancelcheckinQ.readAll();
+    participantIDs = list.get('cancelcheckinQ').readAll();
     if (participantIDs) {
-      ParticipantTable.postCheckinStatus(participantIDs, false);
+      this.postCheckinStatus(participantIDs, false, list);
     }
   },
-  postCheckinStatus(participantIDs, action) {
-    console.log('participantIDs', participantIDs)
+  postCheckinStatus(participantIDs, action, list) {
     let participants, checkin = 'f', content, formValues;
     participants = $.param({
       'pid': participantIDs
@@ -208,18 +204,18 @@ const ParticipantTable = {
     formValues = `${participants}&checkin=${checkin}&csrf_token=${content}`;
     $.ajax({
       type: 'POST',
-      url:  ParticipantTable.checkinUrl,
+      url:  list.get('checkinUrl'),
       data : formValues,
       timeout: 5000,
       dataType: 'json',
       success(data) {
         if (data.checked_in) {
           data.participant_ids.forEach((participantId) => {
-            ParticipantTable.checkinQ.dequeue(participantId);
+            list.get('checkinQ').dequeue(participantId);
           });
         } else {
           data.participant_ids.forEach((participantId) => {
-            ParticipantTable.cancelcheckinQ.dequeue(participantId);
+            list.get('cancelcheckinQ').dequeue(participantId);
           });
         }
       }

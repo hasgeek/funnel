@@ -42,7 +42,7 @@
       </ul>
     </div>
   </div>
-  <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
+  <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='participants-table'>
     <thead>
       <tr class="active">
         <th>Name</th>
@@ -100,7 +100,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-<script src="{{ url_for('static', filename=asset_path('npm.ractive')) }}" type="text/javascript"></script>
 <script src="{{ url_for('static', filename=asset_path('event')) }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(document).ready(function() {

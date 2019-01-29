@@ -140,6 +140,11 @@
   }
 }
 
-table .buttongrp-column {
+.attendee-table .buttongrp-column {
   min-width: 250px;
+}
+
+.attendee-table td {
+  word-break: break-all;
+  min-width: 100px;
 }

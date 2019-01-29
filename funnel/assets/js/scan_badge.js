@@ -72,7 +72,7 @@ const badgeScan = {
         }
         window.requestAnimationFrame(badgeScanComponent.renderFrame);
       },
-      setupVideo: function(event) {
+      setupVideo(event) {
         if (event)  {
           event.original.preventDefault();
         }
@@ -84,11 +84,12 @@ const badgeScan = {
           this.get('video').setAttribute("playsinline", true);
           this.get('video').play();
 
-          window.requestAnimationFrame(badgeScanComponent.renderFrame);
+          window.requestAnimationFrame(this.renderFrame);
         });
       },
-      oncomplete: function() {
+      oncomplete() {
         this.setupVideo('');
+        this.renderFrame = this.renderFrame.bind(this);
       }
     });
   },
