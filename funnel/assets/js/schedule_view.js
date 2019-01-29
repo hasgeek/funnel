@@ -156,9 +156,11 @@ const Schedule = {
       if(!session.room_scoped_name) {
         [session.room_scoped_name] = Object.keys(this.config.rooms);
       }
-      this.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
-      this.config.scheduleTable[session.eventDay]['sessions'][session.startTime]
-        .rooms[session.room_scoped_name].talks = session;
+      if(this.config.scheduleTable[session.eventDay]) {
+        this.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
+        this.config.scheduleTable[session.eventDay]['sessions'][session.startTime]
+          .rooms[session.room_scoped_name].talks = session;
+      }
     });
   },
   createScheduleTable() {
@@ -179,13 +181,15 @@ const Schedule = {
       session.endTime = this.Utils.getTime(session.end);
       session.eventDay = this.Utils.getEventDay(session.start, this.config.eventDayhash);
       session.duration = this.Utils.getDuration(session.end, session.start, this.config.slotInterval);
-      this.config.scheduleTable[session.eventDay].startTime = 
-        this.config.scheduleTable[session.eventDay].startTime && this.config.scheduleTable[session.eventDay].startTime 
-        < new Date(session.start).getTime() 
-        ? this.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
-      this.config.scheduleTable[session.eventDay].endTime = 
-        this.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() 
-        ? this.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
+      if(this.config.scheduleTable[session.eventDay]) {
+        this.config.scheduleTable[session.eventDay].startTime = 
+          this.config.scheduleTable[session.eventDay].startTime && this.config.scheduleTable[session.eventDay].startTime 
+          < new Date(session.start).getTime() 
+          ? this.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
+        this.config.scheduleTable[session.eventDay].endTime = 
+          this.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() 
+          ? this.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
+      }
     });
   },
   getEventDays() {
