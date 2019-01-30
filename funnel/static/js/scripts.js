@@ -567,8 +567,10 @@ window.Talkfunnel.Schedule = {
       if(!session.room_scoped_name) {
         session.room_scoped_name = Object.keys(schedule.config.rooms)[0];
       }
-      schedule.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
-      schedule.config.scheduleTable[session.eventDay]['sessions'][session.startTime].rooms[session.room_scoped_name].talks = session;
+      if(schedule.config.scheduleTable[session.eventDay]) {
+        schedule.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
+        schedule.config.scheduleTable[session.eventDay]['sessions'][session.startTime].rooms[session.room_scoped_name].talks = session;
+      }
     });
   },
   createScheduleTable: function(argument) {
@@ -591,8 +593,10 @@ window.Talkfunnel.Schedule = {
       session.endTime = Talkfunnel.Schedule.Utils.getTime(session.end);
       session.eventDay = Talkfunnel.Schedule.Utils.getEventDate(session.start);
       session.duration = Talkfunnel.Schedule.Utils.getDuration(session.end, session.start);
-      schedule.config.scheduleTable[session.eventDay].startTime = schedule.config.scheduleTable[session.eventDay].startTime && schedule.config.scheduleTable[session.eventDay].startTime < new Date(session.start).getTime() ? schedule.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
-      schedule.config.scheduleTable[session.eventDay].endTime = schedule.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() ? schedule.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
+      if(schedule.config.scheduleTable[session.eventDay]) {
+        schedule.config.scheduleTable[session.eventDay].startTime = schedule.config.scheduleTable[session.eventDay].startTime && schedule.config.scheduleTable[session.eventDay].startTime < new Date(session.start).getTime() ? schedule.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
+        schedule.config.scheduleTable[session.eventDay].endTime = schedule.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() ? schedule.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
+      }
     });
   },
   getEventDays: function() {
