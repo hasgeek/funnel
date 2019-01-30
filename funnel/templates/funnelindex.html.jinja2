@@ -72,10 +72,18 @@
                   {% endif %}
                   <div class="mui-divider"></div>
                   <div class="card__footer">
-                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Proposals</a>
-                  {% if project.buy_tickets_url %}
-                    <a href="{{project.buy_tickets_url}}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Tickets</a>
-                  {% endif %}
+                    {% if project.state.SUBMISSIONS -%}
+                      <a href="{{ project.url_for('new_proposal') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="Propose a session" data-action="Propose a session(index page card)">Propose a session</a>
+                    {%- elif project.state.HAS_SESSIONS -%}
+                      <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View schedule" data-action="Schedule(index page card)">Schedule</a>
+                    {%- elif project.state.HAS_PROPOSALS -%}
+                      <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View proposals" data-action="View proposals(index page card)">Proposals</a>
+                    {%- endif %}
+                    {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
+                      <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                    {%- elif project.buy_tickets_url %}
+                      <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                    {% endif %}
                   </div>
                 </div>
               </a>
