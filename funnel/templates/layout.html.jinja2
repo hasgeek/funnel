@@ -101,8 +101,12 @@
 {% block jquery -%}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
-  if (typeof jQuery === 'undefined')
-    document.write('<script type="text/javascript" src="{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}"><\/script>');
+  if (typeof jQuery === 'undefined') {
+    var jqueryScript = document.createElement('script');
+    jqueryScript.setAttribute('type','text/javascript');
+    jqueryScript.setAttribute('src','{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}');
+    document.head.appendChild(jqueryScript);
+  }
 </script>
 {%- endblock %}
 

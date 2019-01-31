@@ -53,7 +53,7 @@
                 <div class="card">
                   <div class="card__image-wrapper">
                     {% if project.bg_image %}
-                      <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                     {% else %}
                       <div class="card__image--default">
                         <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
