@@ -1,6 +1,17 @@
 {% extends "baseframe.html.jinja2" -%}
 {% from "baseframe/components.html.jinja2" import hgtopnav with context %}
 
+{%- block titletags %}
+  <title>{% block title %}{{ title }}{% if config['SITE_TITLE'] %} — {{ config['SITE_TITLE'] }}{% endif %}{% endblock %}</title>
+  <meta name="DC.title" content="{{ self.title()|e }}" />
+  <meta property="og:title" content="{{ self.title()|e }}" />
+  <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
+  <link rel="preconnect" crossorigin href="https://ajax.googleapis.com/">
+  <link rel="preconnect" crossorigin href="https://images.hasgeek.com/">
+  <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
+  <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
+{%- endblock %}
+
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
 {% block sidedrawer -%}

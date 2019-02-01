@@ -65,6 +65,9 @@
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  {% assets "js_jqueryeasytabs" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   {% assets "js_schedules" -%}
     <script type="text/javascript">
       var UPDATE_URL = "{{ project.url_for('update_schedule') }}";

@@ -69,8 +69,7 @@ rq.init_app(app)
 rq.init_app(funnelapp)
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
-    'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
-    'jquery-easytabs'], theme='mui')
+    'pygments', 'toastr', 'baseframe-mui'], theme='mui')
 app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -92,6 +91,9 @@ app.assets.register('css_screens',
 app.assets.register('js_jquerysuccinct',
     Bundle(assets.require('!jquery.js', 'jquery.succinct.js'),
         output='js/jquerysuccinct.packed.js', filters='uglipyjs'))
+app.assets.register('js_jqueryeasytabs',
+    Bundle(assets.require('!jquery.js', 'jquery-easytabs.js'),
+        output='js/jqueryeasytabs.packed.js', filters='uglipyjs'))
 app.assets.register('js_leaflet',
     Bundle(assets.require('leaflet.js', 'leaflet-search.js'),
         output='js/leaflet.packed.js', filters='uglipyjs'))
@@ -100,8 +102,7 @@ app.assets.register('css_leaflet',
         output='css/leaflet.packed.css', filters='cssmin'))
 
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
-    'pygments', 'toastr', 'baseframe-mui', 'fontawesome>=4.0.0',
-    'jquery-easytabs'], theme='mui')
+    'pygments', 'toastr', 'baseframe-mui'], theme='mui')
 funnelapp.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -123,6 +124,9 @@ funnelapp.assets.register('css_screens',
 funnelapp.assets.register('js_jquerysuccinct',
     Bundle(assets.require('!jquery.js', 'jquery.succinct.js'),
         output='js/jquerysuccinct.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('js_jqueryeasytabs',
+    Bundle(assets.require('!jquery.js', 'jquery-easytabs.js'),
+        output='js/jqueryeasytabs.packed.js', filters='uglipyjs'))
 funnelapp.assets.register('js_leaflet',
     Bundle(assets.require('leaflet.js', 'leaflet-search.js'),
         output='js/leaflet.packed.js', filters='uglipyjs'))
