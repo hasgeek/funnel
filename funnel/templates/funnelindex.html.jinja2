@@ -1,9 +1,6 @@
 {% extends "layout.html.jinja2" %}
 
-{% block titletags -%}
-  <title>{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}</title>
-  <meta name="DC.title" content="{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}"/>
-{%- endblock %}
+{% block title %}{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
