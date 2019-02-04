@@ -29,7 +29,7 @@ $(() => {
   }
 
   // Send click events to Google analytics
-  $('.mui-btn, a').click(() => {
+  $('.mui-btn, a').click(function gaHandler() {
     var action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
     var target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);

@@ -260,7 +260,9 @@
 
       {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
         projectConfig.venue = {
-          mapId: "venue-map"
+          mapId: "venue-map",
+          latitude: {{ project.primary_venue.latitude|tojson }},
+          longitude: {{ project.primary_venue.longitude|tojson }}
         };
       {%- endif %}
 
