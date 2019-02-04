@@ -62,7 +62,7 @@ const Schedule = {
         // On closing modal, update browser history
         $("#session-modal").on($.modal.CLOSE, () => {
           this.set('modalHtml', '');
-          window.history.pushState('', '', this.get('pageUrl'));
+          window.history.pushState('', '', this.get('pageDetails')['url']);
           this.updateMetaTags(this.get('pageDetails'));
         });
         // Event listener for back key press since opening modal update browser history
