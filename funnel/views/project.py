@@ -50,6 +50,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
         form.parent_project.query = self.obj.projects
+        print form.data
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
@@ -62,7 +63,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
             flash(_("Your new project has been created"), 'info')
             tag_locations.queue(project.id)
             return redirect(project.url_for(), code=303)
-        return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=self.obj.url_for())
+        return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=self.obj.url_for(), autosave=True)
 
 
 @route('/', subdomain='<profile>')
@@ -145,7 +146,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             flash(_("Your changes have been saved"), 'info')
             tag_locations.queue(self.obj.id)
             return redirect(self.obj.url_for(), code=303)
-        return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
+        return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login

@@ -9,6 +9,15 @@
   {%- endassets -%}
 {% endblock %}
 
+{% block contentwrapper %}
+<div class="grid">
+  <div class="grid__col-xs-12">
+    {%- if autosave %}<p class="mui--text-subhead mui--text-right" id="autosave-msg">test</p>{% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+
 {% block pagescripts %}
   {% assets "js_codemirrormarkdown" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -17,3 +26,56 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
 {% endblock %}
+
+{% block layoutscripts %}
+  {%- if autosave %}
+    <script type="text/javascript">
+      $(function() {
+        var typingTimer;
+        var typingWaitInterval = 10000; // user stops typing for one second
+        var serverResponse = true;
+        var formChanged = false;
+        $('#{{ ref_id }}').on('change', function(e) {
+          console.log('change');
+          formChanged = true;
+          autosaveForm();
+        });
+        $('#{{ ref_id }}').on('keyup', function(e) {
+          if(e.target.value) {
+            console.log('keyup', e.target.value);
+            if(typingTimer) clearTimeout(typingTimer);
+            formChanged = true;
+            typingTimer = setTimeout(autosaveForm, typingWaitInterval);
+          }
+        });
+        function autosaveForm() {
+          console.log('autosaveForm');
+          if(serverResponse) {
+            serverResponse = false;
+            formChanged = false;
+            $.ajax({
+              type: 'POST',
+              data: $("#{{ ref_id }}").serialize(),
+              dataType: 'json',
+            }).done(function (remoteData) {
+              // Todo:
+              // Update window.history.pushState
+              console.log('autosaveForm done', remoteData);
+              serverResponse = true;
+              if(formChanged) autosaveForm();
+            }).fail(function (response) {
+              // If error is due to revision mismatch, the user is shown an error and asked to reload the page.
+              if(response.status_code === 400) {
+                window.toastr.error('This page has already been edited. Please reload the page.');
+              }
+            });
+          }
+        }
+      });
+    </script>
+   {%- endif %}
+  {% block footerscripts %}{% endblock %}
+{% endblock %}
+
+
+
