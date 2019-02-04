@@ -1,10 +1,6 @@
 import { Utils, TableSearch } from './util';
 import L from "leaflet";
 
-const defaultLatitude = '12.961443';
-
-const defaultLongitude = '77.64435000000003';
-
 const TicketWidget = {
   init({ boxofficeUrl, widgetElem, org, itemCollectionId, itemCollectionTitle }) {
     let url;
@@ -67,13 +63,13 @@ const TicketWidget = {
 };
 
 const EmbedMap = {
-  init(mapId) {
+  init({mapId, latitude, longitude}) {
     let mapElem = `#${mapId}`;
     const TileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     let $container = $(mapElem),
       defaults = {
         zoom: 17,
-        marker: [defaultLatitude, defaultLongitude],
+        marker: [latitude, longitude],
         label: null,
         maxZoom: 18,
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
@@ -122,7 +118,7 @@ $(() => {
     }
 
     if (venue) {
-      EmbedMap.init(venue.mapId);
+      EmbedMap.init(venue);
     }
 
     if (search) {

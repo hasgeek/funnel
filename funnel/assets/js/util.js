@@ -51,6 +51,7 @@ export const Utils = {
 
 export const ScrollActiveMenu = {
   init(navId, navItemsClassName, activeMenuClassName) {
+    this.navId = navId;
     this.navItemsClassName = navItemsClassName;
     this.activeMenuClassName = activeMenuClassName;
     this.navItems = [...document.querySelectorAll(`.${navItemsClassName}`)];
@@ -91,11 +92,10 @@ export const ScrollActiveMenu = {
   },
   setActiveNavItem(activeNavItem) {
     this.activeNavItem = activeNavItem;
-    window.activeNavItem = activeNavItem;
     $(`.${this.navItemsClassName}`).removeClass(this.activeMenuClassName);
     activeNavItem.classList.add(this.activeMenuClassName);
     $(`#${this.navId}`).animate({
-      scrollLeft: window.activeNavItem.offsetLeft,
+      scrollLeft: activeNavItem.offsetLeft,
     }, 500);
   },
   activateSwipe() {
