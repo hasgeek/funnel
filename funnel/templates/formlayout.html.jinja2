@@ -12,7 +12,9 @@
 {% block contentwrapper %}
 <div class="grid">
   <div class="grid__col-xs-12">
-    {%- if autosave %}<div><p class="mui--text-subhead mui--text-light mui--pull-right" id="autosave-msg"></p></div>{% endif %}
+    {%- if autosave %}
+      <div><p class="mui--text-subhead mui--text-light mui--pull-right" id="autosave-msg"></p></div>
+    {% endif %}
     {% block content %}{% endblock %}
   </div>
 </div>
@@ -32,15 +34,16 @@
     <script type="text/javascript">
       $(function() {
         var typingTimer;
-        var typingWaitInterval = 1000; // user stops typing for one second
-        var serverResponse = true;
-        var unsaved = false;
-        var formData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
+        var typingWaitInterval = 1000; // wait till user stops typing for one second to send form data
+        var waitingForResponse = false;
+        var lastSavedData = '';
         
         $('#revision').val() ? $('#autosave-msg').text('These changes has not published yet.') : '';
+ 
         $('#{{ ref_id }}').on('change', function(e) {
           autosaveForm();
         });
+
         $('#{{ ref_id }}').on('keyup', function(e) {
           if(e.target.value) {
             if(typingTimer) clearTimeout(typingTimer);
@@ -49,52 +52,59 @@
         });
 
         function autosaveForm() {
-          var latestFormData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
-          
-          if(serverResponse && latestFormData !== formData) {
-            console.log('sending');
-            serverResponse = false;
-            unsaved = false;
-            $('#autosave-msg').text('Autosaving...');
-            formData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
+          if(!waitingForResponse && haveDirtyFields()) {
             $.ajax({
               type: 'POST',
               data:  $("#{{ ref_id }}").serialize() + '&autosave=true',
               dataType: 'json',
               timeout: 15000,
+              beforeSend: function() {
+                console.log('sending');
+                $('#autosave-msg').text('Autosaving...');
+                lastSavedData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
+                waitingForResponse = true;
+              },
               success: function (remoteData) {
-                // Todo:Update window.history.pushState for new form
+                // Todo: Update window.history.pushState for new form
                 console.log('autosaveForm done', remoteData);
                 $('#autosave-msg').text('Changes saved but not published');
                 if(remoteData.revision) {
                   $('#revision').val(remoteData.revision);
                 }
-                serverResponse = true;
-                if(unsaved) autosaveForm();
+                waitingForResponse = false;
+                autosaveForm();
               },
               error: function (response) {
-              // If error is due to revision mismatch, the user is shown an error and asked to reload the page.
-                $('#autosave-msg').text('');
                 console.log('error', response);
+                var errorMsg = '';
+                waitingForResponse = false;
                 if (response.readyState === 4) {
                   if (response.status === 500) {
-                    serverResponse = true;
-                    if(formChanged) autosaveForm();
-                    window.toastr.error("Internal Server Error. Please try again.");
+                    errorMsg ='Internal Server Error. Please try again.';
                   } else if(response.status === 400) {
-                    window.toastr.error('This page has already been edited. Please reload the page.');
+                    // There is a version mismatch, notify user to reload the page.
+                    waitingForResponse = true;
+                    errorMsg = 'This page has already been edited. Please reload the page.';
                   }
                 } else {
-                  serverResponse = true;
-                  window.toastr.error("Unable to connect. Please try again.");
+                  errorMsg = 'Unable to connect. Please try again.';
                 }
-              }
+                $('#autosave-msg').text(errorMsg);
+                window.toastr.error(errorMsg);
+              },
             });
           }
 
+          function haveDirtyFields() {
+            var latestFormData = $('#{{ ref_id }}').find(':input:not(:hidden)').serialize();
+            if (latestFormData !== lastSavedData) {
+              return true;
+            }
+          }
+
           $(window).bind('beforeunload', function() {
-            if(unsaved){
-              return "You have unsaved changes on this page. Do you want to leave this page?";
+            if(haveDirtyFields()){
+              return 'You have unsaved changes on this page. Do you want to leave this page?';
             }
           });
         }
