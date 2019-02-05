@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unicodecsv
-from uuid import uuid4
+from uuid import uuid4, UUID
 from cStringIO import StringIO
 from flask import g, flash, redirect, Response, request, abort, current_app
 from werkzeug.datastructures import MultiDict
@@ -154,15 +154,26 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
         elif request.method == 'POST':
             if 'autosave' in request.form and request.form['autosave'] == 'true':
-                del request.form['autosave']
-                draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.id).first()
-                if draft is not None and draft.revision != request.form['revision']:
+                print "got autosave"
+                if 'revision' not in request.form:
+                    return {'error': _("No valid revision found.")}
+                try:
+                    client_revision = UUID(request.form['revision'])
+                except Exception as e:
+                    return {'error': _("Invalid UUID: {0!r}".format(e))}
+                draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
+                if draft is not None and draft.revision != client_revision:
                     return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}
                 elif draft is None:
-                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.id, body={'form': request.form}, revision=uuid4())
-                    db.session.add(draft)
-                    db.session.commit()
-                    return {'draft': draft.body['form']}
+                    print "saving draft"
+                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form}, revision=uuid4())
+                else:
+                    print "updating draft"
+                    draft.body = {'form': request.form}
+                    draft.revision = uuid4()
+                db.session.add(draft)
+                db.session.commit()
+                return {'draft': draft.body['form'], 'revision': draft.revision}
             else:
                 if self.obj.parent_project:
                     form = SubprojectForm(obj=self.obj, model=Project)
@@ -175,7 +186,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                     flash(_("Your changes have been saved"), 'info')
                     tag_locations.queue(self.obj.id)
                     # TODO: find and delete drafts
-                    Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.id).delete()
+                    Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).delete()
                     return redirect(self.obj.url_for(), code=303)
         return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
 

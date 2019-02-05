@@ -32,7 +32,7 @@
     <script type="text/javascript">
       $(function() {
         var typingTimer;
-        var typingWaitInterval = 10000; // user stops typing for one second
+        var typingWaitInterval = 1000; // user stops typing for one second
         var serverResponse = true;
         var unsaved = false;
         $('#{{ ref_id }}').on('change', function(e) {
@@ -56,10 +56,10 @@
             unsaved = false;
             $('#autosave-msg').text('Autosaving...');
             formData = $("#{{ ref_id }}").serialize();
-            formData = formData + '&autosave=t';
+            formData = formData + '&autosave=true';
             $.ajax({
               type: 'POST',
-              data: $("#{{ ref_id }}").serialize(),
+              data: formData,
               dataType: 'json',
             }).done(function (remoteData) {
               // Todo:
