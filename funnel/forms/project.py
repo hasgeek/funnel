@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import uuid
 from coaster.utils import sorted_timezones
 from wtforms.widgets import CheckboxInput, ListWidget
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
