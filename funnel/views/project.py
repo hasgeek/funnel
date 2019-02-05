@@ -65,7 +65,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
             flash(_("Your new project has been created"), 'info')
             tag_locations.queue(project.id)
             return redirect(project.url_for(), code=303)
-        return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=self.obj.url_for(), autosave=True)
+        return render_form(form=form, title=_("Create a new project"), submit=_("Create project"), cancel_url=self.obj.url_for())
 
 
 @route('/', subdomain='<profile>')

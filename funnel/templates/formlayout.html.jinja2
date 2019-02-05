@@ -12,7 +12,7 @@
 {% block contentwrapper %}
 <div class="grid">
   <div class="grid__col-xs-12">
-    {%- if autosave %}<p class="mui--text-subhead mui--text-right" id="autosave-msg">test</p>{% endif %}
+    {%- if autosave %}<div><p class="mui--text-subhead mui--text-light mui--pull-right" id="autosave-msg"></p></div>{% endif %}
     {% block content %}{% endblock %}
   </div>
 </div>
@@ -34,25 +34,29 @@
         var typingTimer;
         var typingWaitInterval = 10000; // user stops typing for one second
         var serverResponse = true;
-        var formChanged = false;
+        var unsaved = false;
         $('#{{ ref_id }}').on('change', function(e) {
           console.log('change');
-          formChanged = true;
+          unsaved = true;
           autosaveForm();
         });
         $('#{{ ref_id }}').on('keyup', function(e) {
           if(e.target.value) {
-            console.log('keyup', e.target.value);
             if(typingTimer) clearTimeout(typingTimer);
-            formChanged = true;
+            unsaved = true;
             typingTimer = setTimeout(autosaveForm, typingWaitInterval);
           }
         });
+
         function autosaveForm() {
+          var formData;
           console.log('autosaveForm');
           if(serverResponse) {
             serverResponse = false;
-            formChanged = false;
+            unsaved = false;
+            $('#autosave-msg').text('Autosaving...');
+            formData = $("#{{ ref_id }}").serialize();
+            formData = formData + '&autosave=t';
             $.ajax({
               type: 'POST',
               data: $("#{{ ref_id }}").serialize(),
@@ -61,15 +65,23 @@
               // Todo:
               // Update window.history.pushState
               console.log('autosaveForm done', remoteData);
+              $('#autosave-msg').text('Changes saved');
               serverResponse = true;
               if(formChanged) autosaveForm();
             }).fail(function (response) {
               // If error is due to revision mismatch, the user is shown an error and asked to reload the page.
               if(response.status_code === 400) {
+                $('#autosave-msg').text('This page has already been edited. Please reload the page.');
                 window.toastr.error('This page has already been edited. Please reload the page.');
               }
-            });
+            })
           }
+
+          $(window).bind('beforeunload', function() {
+            if(unsaved){
+              return "You have unsaved changes on this page. Do you want to leave this page?";
+            }
+          });
         }
       });
     </script>
