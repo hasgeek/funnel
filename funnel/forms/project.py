@@ -84,14 +84,6 @@ class ProjectForm(forms.Form):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
 
-    def validate_revision(self, field):
-        try:
-            rid = uuid.UUID(field.data)
-            if not rid.version == 4:
-                raise forms.ValidationError("Invalid UUID4 string")
-        except Exception as e:
-            raise forms.ValidationError(e)
-
 
 class ProjectTransitionForm(forms.Form):
     transition = forms.SelectField(__("Status"), validators=[
