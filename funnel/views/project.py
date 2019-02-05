@@ -140,37 +140,47 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             # find draft if it exists
             draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
             initial_formdata = MultiDict(draft.body['form']) if draft is not None else None
-            # initialize forms with draft formdata
+
+            # initialize forms with draft initial formdata.
+            # if no draft exists, initial_formdata is None. wtforms ignore formdata if it's None.
             if self.obj.parent_project:
                 form = SubprojectForm(obj=self.obj, model=Project, formdata=initial_formdata)
             else:
                 form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project, formdata=initial_formdata)
             form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
+
             # if draft exists, add latest revision ID to the form
             if draft is not None:
                 form.revision.data = draft.revision
+
             if not self.obj.timezone:
                 form.timezone.data = current_app.config.get('TIMEZONE')
             return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
         elif request.method == 'POST':
             if 'autosave' in request.form and request.form['autosave'] == 'true':
-                print "got autosave"
                 if 'revision' not in request.form:
-                    return {'error': _("No valid revision found.")}, 400
+                    return {'error': _("Form must contain a valid revision ID.")}, 400
+
+                # ensure that the revision ID is valid
                 try:
                     client_revision = UUID(request.form['revision']) if request.form['revision'] else None
                 except Exception as e:
                     return {'error': _("Invalid UUID: {0!r}".format(e))}, 400
-                draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
+
+                # find the last draft
+                draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).order_by(Draft.updated_at.desc()).first()
+
                 if draft is not None:
                     if client_revision is None or (client_revision is not None and draft.revision != client_revision):
+                        # draft exists, but the form did not send a revision ID,
+                        # OR revision ID sent by client does not match the last revision ID
                         return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
                     elif client_revision is not None and draft.revision == client_revision:
-                        print "updating draft"
+                        # revision ID sent my client matches, save updated draft data and update revision ID
                         draft.body = {'form': request.form}
                         draft.revision = uuid4()
                 else:
-                    print "creating draft"
+                    # no draft exists, create one
                     draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form}, revision=uuid4())
                 db.session.add(draft)
                 db.session.commit()
@@ -186,10 +196,13 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                     db.session.commit()
                     flash(_("Your changes have been saved"), 'info')
                     tag_locations.queue(self.obj.id)
-                    # TODO: find and delete drafts
+
+                    # find and delete drafts
                     Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).delete()
+                    db.session.commit()
                     return redirect(self.obj.url_for(), code=303)
-        return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
+                else:
+                    return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login

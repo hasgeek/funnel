@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy_utils import UUIDType
-from . import db, JsonDict, IdMixin
+from . import db, JsonDict, IdMixin, TimestampMixin
 
 __all__ = ['Draft']
 
 
-class Draft(IdMixin, db.Model):
+class Draft(IdMixin, TimestampMixin, db.Model):
     """Generic model to store unvalidated draft of any other models"""
     __tablename__ = 'draft'
     __uuid_primary_key__ = True

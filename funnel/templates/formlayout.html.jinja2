@@ -37,9 +37,9 @@
         var typingWaitInterval = 1000; // wait till user stops typing for one second to send form data
         var waitingForResponse = false;
         var lastSavedData = '';
-        
-        $('#revision').val() ? $('#autosave-msg').text('These changes has not published yet.') : '';
- 
+
+        $('#revision').val() ? $('#autosave-msg').text('These changes have not been published yet.') : '';
+
         $('#{{ ref_id }}').on('change', function(e) {
           autosaveForm();
         });
@@ -80,14 +80,14 @@
                 waitingForResponse = false;
                 if (response.readyState === 4) {
                   if (response.status === 500) {
-                    errorMsg ='Internal Server Error. Please try again.';
+                    errorMsg ='Internal Server Error. Please reload and try again.';
                   } else if(response.status === 400) {
                     // There is a version mismatch, notify user to reload the page.
                     waitingForResponse = true;
                     errorMsg = 'This page has already been edited. Please reload the page.';
                   }
                 } else {
-                  errorMsg = 'Unable to connect. Please try again.';
+                  errorMsg = 'Unable to connect. Please reload and try again.';
                 }
                 $('#autosave-msg').text(errorMsg);
                 window.toastr.error(errorMsg);
