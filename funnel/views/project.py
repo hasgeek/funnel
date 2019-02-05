@@ -158,19 +158,20 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                 if 'revision' not in request.form:
                     return {'error': _("No valid revision found.")}
                 try:
-                    client_revision = UUID(request.form['revision'])
+                    client_revision = UUID(request.form['revision']) if request.form['revision'] else None
                 except Exception as e:
                     return {'error': _("Invalid UUID: {0!r}".format(e))}
                 draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
-                if draft is not None and draft.revision != client_revision:
-                    return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}
-                elif draft is None:
-                    print "saving draft"
-                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form}, revision=uuid4())
+                if draft is not None:
+                    if client_revision is None or (client_revision is not None and draft.revision != client_revision):
+                        return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}
+                    elif client_revision is not None and draft.revision == client_revision:
+                        print "updating draft"
+                        draft.body = {'form': request.form}
+                        draft.revision = uuid4()
                 else:
-                    print "updating draft"
-                    draft.body = {'form': request.form}
-                    draft.revision = uuid4()
+                    print "creating draft"
+                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form}, revision=uuid4())
                 db.session.add(draft)
                 db.session.commit()
                 return {'draft': draft.body['form'], 'revision': draft.revision}
