@@ -3,19 +3,20 @@
 
 from coaster.sqlalchemy import (TimestampMixin, UuidMixin, BaseMixin, BaseNameMixin,
     BaseScopedNameMixin, BaseScopedIdNameMixin, BaseIdNameMixin, MarkdownColumn,
-    JsonDict, CoordinatesMixin, make_timestamp_columns)
+    JsonDict, IdMixin, CoordinatesMixin, make_timestamp_columns)
 from coaster.db import db
 
-from .user import *
-from .profile import *
 from .commentvote import *
-from .project import *
-from .section import *
-from .usergroup import *
-from .proposal import *
-from .feedback import *
-from .session import *
-from .venue import *
-from .rsvp import *
-from .event import *
 from .contact_exchange import *
+from .draft import *
+from .event import *
+from .feedback import *
+from .profile import *
+from .project import *
+from .proposal import *
+from .rsvp import *
+from .section import *
+from .session import *
+from .user import *
+from .usergroup import *
+from .venue import *
