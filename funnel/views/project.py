@@ -52,7 +52,6 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
         form.parent_project.query = self.obj.projects
-        print form.data
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
