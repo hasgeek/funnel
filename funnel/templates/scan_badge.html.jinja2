@@ -49,100 +49,20 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_ractive" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.min.js"></script>
+  <script src="{{ url_for('static', filename=asset_path('scan_badge')) }}" type="text/javascript"></script>
   <script type="text/javascript">
-    $(document).ready(function() {
+    $(function() {
 
-      var checkinApiUrl = "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}"
+      var eventConfig = {};
+      eventConfig.checkinApiUrl = "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}"
 
-      window.badgeScanComponent = new Ractive({
-        el: '#scan-badge-wrapper',
-        template: '#scan-badge-template',
-        data: {
-          projectTitle: {{ project.title|tojson }},
-          eventTitle: {{ event.title|tojson }},
-          video: {},
-          error: "Unable to access video. Please make sure you have a camera enabled",
-          attendeeName: '',
-          attendeeFound: false,
-          scanning: true,
-          showModal: false,
-        },
-        closeModal: function(event) {
-          event.original.preventDefault();
-          $.modal.close();
-          badgeScanComponent.set('showModal', false);
-        },
-        checkinAttendee: function(qrcode) {
-          badgeScanComponent.set({
-            'scanning': true,
-            'showModal': true
-          });
+      eventConfig.wrapperId = 'scan-badge-wrapper';
+      eventConfig.templateId = 'scan-badge-template';
+      eventConfig.projectTitle = {{ project.title|tojson }};
+      eventConfig.eventTitle = {{ event.title|tojson }};
 
-          $("#status-msg").modal('show');
+      window.HasGeek.BadgeScanInit(eventConfig);
 
-          var url = checkinApiUrl.replace('puk', qrcode.substring(0,8));
-          var formValues = "checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
-
-          $.ajax({
-            type: 'POST',
-            url:  url,
-            data : formValues,
-            timeout: 5000,
-            dataType: 'json',
-            success: function(response) {
-              badgeScanComponent.set({
-                'scanning': false,
-                'attendeeFound': true,
-                'attendeeName': response.attendee.fullname
-              });
-            },
-            error: function() {
-              badgeScanComponent.set({
-                'scanning': false,
-                'attendeeFound': false
-              });
-            }
-          });
-        },
-        renderFrame: function () {
-          var canvasElement = document.getElementById("qrreader-canvas");
-          var canvas = canvasElement.getContext("2d");
-
-          if (badgeScanComponent.get('video').readyState === badgeScanComponent.get('video').HAVE_ENOUGH_DATA) {
-            canvasElement.height = badgeScanComponent.get('video').videoHeight;
-            canvasElement.width = badgeScanComponent.get('video').videoWidth;
-            canvas.drawImage(badgeScanComponent.get('video'), 0, 0, canvasElement.width, canvasElement.height);
-            var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-            var qrcode = jsQR(imageData.data, imageData.width, imageData.height);
-
-            if (qrcode && qrcode.data.length === 16 && !badgeScanComponent.get('showModal')) {
-              badgeScanComponent.checkinAttendee(qrcode.data);
-            }
-          }
-          requestAnimationFrame(badgeScanComponent.renderFrame);
-        },
-        setupVideo: function(event) {
-          if (event) event.original.preventDefault();
-          var video = document.createElement("video");
-
-          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
-            badgeScanComponent.set('video', video);
-            badgeScanComponent.get('video').srcObject = stream;
-            badgeScanComponent.get('video').setAttribute("playsinline", true);
-            badgeScanComponent.get('video').play();
-
-            requestAnimationFrame(badgeScanComponent.renderFrame);
-          });
-        },
-        oncomplete: function() {
-          badgeScanComponent.setupVideo('');
-        }
-      });
-      
     });
   </script>
 {% endblock %}

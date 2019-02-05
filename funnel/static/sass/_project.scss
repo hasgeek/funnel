@@ -96,22 +96,13 @@
   position: relative;
   margin: 10px 0 0;
   text-align: left;
-  li {
-    width: auto;
-    padding: 0;
-  }
   .cta {
     display: block;
+    padding: 0;
 
     .mui-btn {
       display: block;
     }
-  }
-  .float-btn {
-    float: right;
-  }
-  .mui-btn {
-    display: inline-block;
   }
 }
 

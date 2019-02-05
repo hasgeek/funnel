@@ -23,7 +23,7 @@
     <div class="grid__col-xs-12 grid__col-md-3">
       <form class="search-participant mui-form mui-form--margins">
         <div class="mui-textfield mui-textfield--float-label">
-          <input autofocus class="field-title search-query" id="search" type="text" name="key" value=""/>
+          <input class="field-title search-query" id="search" type="text" name="key" value=""/>
           <label><i class="material-icons mui--align-middle mui--text-title" aria-hidden>search</i> Search</label>
         </div>
       </form>
@@ -42,7 +42,7 @@
       </ul>
     </div>
   </div>
-  <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
+  <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='participants-table'>
     <thead>
       <tr class="active">
         <th>Name</th>
@@ -61,13 +61,10 @@
           <td class='js-searchable'>{{ ticket_type_titles }}</td>
           <td class='js-searchable'>{{ email }}</td>
           <td class='js-searchable'>{{ company }}</td>
-          <td>
+          <td class='buttongrp-column'>
             <ul class="mui-list--unstyled">
               <li>
-                <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="btn btn-xs btn-info" {{/badge_printed}} target="_blank">Show badge</a>
-              </li>
-              <li>
-                <a href="{{ getEditUrl(pid) }}" class="mui-btn mui-btn--small mui-btn--raised" target="_blank">Edit</a>
+                <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
               </li>
               <li>
                 <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
@@ -76,18 +73,21 @@
                   </div>
                   <input type="hidden" name="pid" value="{{ pid }}">
                   {{#if checked_in}}
-                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}}>Cancel Check-in  {{#submitting}}<i class="material-icons mui--align-middle mui--text-dark-secondary">refresh</i>{{/submitting}}</button>
+                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}}>Cancel Check-in  {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary">refresh</i>{{/submitting}}</button>
                   {{else}}
-                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}}>Check-in {{#submitting}}<i class="material-icons mui--align-middle mui--text-dark-secondary">refresh</i>{{/submitting}}</button>
+                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}}>Check-in {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary">refresh</i>{{/submitting}}</button>
                   {{/if}}
                   {{#if submitting}}
                     {{#if checked_in}}
-                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--fab" on-click="handleAbortCheckIn(event, 0)">x</button>
+                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="cancel"><i class="material-icons mui--text-title">clear</i></button>
                     {{else}}
-                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--fab" on-click="handleAbortCheckIn(event, 1)">x</button>
+                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="cancel"><i class="material-icons mui--text-title">clear</i></button>
                     {{/if}}
                   {{/if}}
                 </form>
+              </li>
+              <li>
+                <a href="{{ getEditUrl(pid) }}" class="action-btn mui--text-hyperlink" target="_blank">Edit attendee details</a>
               </li>
             </ul>
           </td>
@@ -100,18 +100,8 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_ractive" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+<script src="{{ url_for('static', filename=asset_path('event')) }}" type="text/javascript"></script>
 <script type="text/javascript">
-  window.Talkfunnel.Config = {
-    badgeUrl: "{{ url_for('participant_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
-    editUrl: "{{ url_for('participant_edit', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
-    checkinUrl: "{{ url_for('event_checkin', profile=project.profile.name, project=project.name, name=event.name, participant_id='participant-id') }}",
-    participantlistUrl: "{{ url_for('event_participants_json', profile=project.profile.name, project=project.name, name=event.name) }}",
-    eventName: "{{ project.name }}" + "-" + "{{event.title}}".replace(/ /g,'-')
-  };
-
   $(document).ready(function() {
 
     /* Check-in scenarios:
@@ -126,27 +116,37 @@
     8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
     9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
 
-    window.Talkfunnel.ParticipantTable.init(window.Talkfunnel.Config);
+    var eventConfig = {};
+    eventConfig.checkin = {
+      badgeUrl: "{{ url_for('participant_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
+      editUrl: "{{ url_for('participant_edit', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
+      checkinUrl: "{{ url_for('event_checkin', profile=project.profile.name, project=project.name, name=event.name, participant_id='participant-id') }}",
+      participantlistUrl: "{{ url_for('event_participants_json', profile=project.profile.name, project=project.name, name=event.name) }}",
+      eventName: "{{ project.name }}" + "-" + "{{event.title}}".replace(/ /g,'-')
+    };
+
+    eventConfig.search = {
+      tableId: 'participants-table',
+      inputId: 'search'
+    };
+
+    HasGeek.EventInit(eventConfig);
 
     //If there is no network, display a confirmation dialog when user closes/reloades the page
     window.onbeforeunload = function() {
-      if(!navigator.onLine) {
+      if (!navigator.onLine) {
         return 'There is no network!';
+      } else {
+        return true;
       }
     };
 
-    $('#badge_form').on("submit", function(){
-      if ($('#badge_form select.field-badge_printed').val() === "") {
+    $('#badge_form').on("submit", function() {
+      if ($('#badge_form select.field-badge_printed').val() === '') {
         return false;
+      } else {
+        return window.confirm('Are you sure? Selected action will apply to all listed participants.');
       }
-      return window.confirm("Are you sure? Selected action will apply to all listed participants.");
-    });
-
-    var tableSearch = new window.TableSearch('participants-table');
-    $('input#search').keyup(function(e){
-      $('#participants-table tbody tr').addClass('mui--hide');
-      var hits = tableSearch.searchRows($(this).val());
-      $(hits.join(",")).removeClass('mui--hide');
     });
     
   });

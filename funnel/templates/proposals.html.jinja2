@@ -81,25 +81,28 @@
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <hr class="mui-divider">
       </li>
     {%- elif project.buy_tickets_url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <hr class="mui-divider">
       </li>
     {%- elif project.allow_rsvp %}
       <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <hr class="mui-divider">
       </li>
     {%- endif %}
-    {% if project.state.SUBMISSIONS -%}
-      <li class="{% if not project.state.HAS_SESSIONS %}cta{%- endif %}">
-        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)">{% trans %}Propose a session{% endtrans %}</a>
+    {%- if project.state.HAS_SESSIONS %}
+      <li class="cta">
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
-    {%- if project.state.HAS_SESSIONS %}
-      <li class="{% if project.state.SUBMISSIONS -%}float-btn{% else %}cta{% endif %}">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised" title="View Schedule" data-action="View Schedule(header)">{% trans %}View Schedule{% endtrans %}</a>
+    {% if project.state.SUBMISSIONS -%}
+      <li class="cta">
+        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>
@@ -149,19 +152,16 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var tableSearch = new window.TableSearch('proposals-table');
-      $('input#search').keyup(function(e){
-        if($('.collapsible__body').css('display') == 'none') {
-          $('.collapsible__header').click();
-        }
-        $('#proposals-table tbody tr').addClass('mui--hide');
-        var hits = tableSearch.searchRows($(this).val());
-        $(hits.join(",")).removeClass('mui--hide');
-      });
+      var proposalsConfig = {};
+      proposalsConfig.search = {
+        tableId: 'proposals-table',
+        inputId: 'search'
+      };
 
-
+      window.HasGeek.ProposalsInit(proposalsConfig);
     });
   </script>
 {% endblock %}

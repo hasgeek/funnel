@@ -7,6 +7,7 @@
   <meta property="og:title" content="{{ self.title()|e }}" />
   <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
   <link rel="preconnect" crossorigin href="https://ajax.googleapis.com/">
+  <link rel="preconnect" crossorigin href="https://imgee.s3.amazonaws.com/">
   <link rel="preconnect" crossorigin href="https://images.hasgeek.com/">
   <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
   <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
@@ -112,26 +113,16 @@
 {% block jquery -%}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
-  if (typeof jQuery === 'undefined')
-    document.write('<script type="text/javascript" src="{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}"><\/script>');
+  if (typeof jQuery === 'undefined') {
+    var jqueryScript = document.createElement('script');
+    jqueryScript.setAttribute('type','text/javascript');
+    jqueryScript.setAttribute('src','{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}');
+    document.head.appendChild(jqueryScript);
+  }
 </script>
 {%- endblock %}
 
 {% block layoutscripts %}
-  <script type="text/javascript">
-    $(function() {
-      window.Talkfunnel.Utils.collapse();
-      window.Talkfunnel.Utils.smoothScroll();
-
-      // Send click events to Google analytics
-      $('.mui-btn, a').click(function(event) {
-        var action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
-        var target = $(this).attr('href') || '';
-        if (typeof ga !== "undefined") {
-          ga('send', { hitType: 'event', eventCategory: 'click', eventAction: action, eventLabel: target});
-        }
-      });
-    });
-  </script>
+  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
   {% block footerscripts %}{% endblock %}
 {% endblock %}

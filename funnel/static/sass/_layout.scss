@@ -29,10 +29,10 @@
   padding-right: 5px;
 }
 
-.list-item-rgborder .icon-middle {
-  vertical-align: middle;
+.list-item-rgborder .icon-middle,
+.material-icons.mui--align-middle {
   position: relative;
-  top: -2px;
+  top: -1px;
 }
 
 .mui-divider--custom {
@@ -40,6 +40,10 @@
 }
 
 .btn-group .mui-btn {
+  margin-right: 5px;
+}
+
+.mui-btn .material-icons.mui--align-middle {
   margin-right: 5px;
 }
 
@@ -134,4 +138,13 @@
     width: 100%;
     display: inline-block !important;
   }
+}
+
+.attendee-table .buttongrp-column {
+  min-width: 250px;
+}
+
+.attendee-table td {
+  word-break: break-all;
+  min-width: 100px;
 }

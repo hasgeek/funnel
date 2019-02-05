@@ -37,7 +37,7 @@
 
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
       <div>
-        <div class="pull-right">
+        <div class="mui--pull-right">
           <!-- Social buttons -->
           <a href="//twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{ config['TWITTER_ID'] }}">Tweet</a>
           <g:plusone size="medium"></g:plusone>
@@ -337,16 +337,16 @@
 {% endblock %}
 
 {% block footerscripts %}
+<script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
-    var videoWrapper = document.getElementById('js-embed');
-
-    window.Talkfunnel.Comments.init({{ request.base_url|tojson }});
-
-    if(videoWrapper) {
-      var videoUrl = videoWrapper.getAttribute('data-href');
-      window.Talkfunnel.Video.embedIframe(videoWrapper, videoUrl);
+    var proposalConfig = {};
+    proposalConfig.pageUrl = {{ request.base_url|tojson }};
+    proposalConfig.videoWrapper = document.getElementById('js-embed');
+    if(proposalConfig.videoWrapper) {
+      proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-href');
     }
+    HasGeek.ProposalInit(proposalConfig);
   });
 </script>
 <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>

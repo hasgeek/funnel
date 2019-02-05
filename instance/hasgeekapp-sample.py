@@ -8,3 +8,5 @@ LASTUSER_COOKIE_DOMAIN = ''
 #: Flat pages
 FLATPAGES_AUTO_RELOAD = False
 FLATPAGES_EXTENSION = '.md'
+ASSET_BASE_PATH = 'build'
+ASSET_MANIFEST_PATH = "static/build/manifest.json"

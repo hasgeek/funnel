@@ -1,3 +1,4 @@
-{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
+{% from "baseframe/forms.html.jinja2" import ajaxform %}
+{% from "macros.html.jinja2" import rsvpform %}
 {{ rsvpform(project, rsvp_form) }}
-{{ rsvpscript() }}
+{{ ajaxform('rsvp-form', request) }}

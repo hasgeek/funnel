@@ -1,4 +1,5 @@
 {% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import ajaxform %}
 {%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header, admin_panel %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
@@ -49,25 +50,28 @@
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <hr class="mui-divider">
       </li>
     {%- elif project.buy_tickets_url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <hr class="mui-divider">
       </li>
     {%- elif project.allow_rsvp %}
       <li class="cta">
-        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" target="_blank" title="Participate" data-action="Participate(header)">{% trans %}Participate{% endtrans %}</a>
+        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <hr class="mui-divider">
       </li>
     {%- endif %}
-    {% if project.state.SUBMISSIONS -%}
-      <li class="{% if not project.state.HAS_SESSIONS %}cta{%- endif %}">
-        <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)">{% trans %}Propose a session{% endtrans %}</a>
+    {%- if project.state.HAS_SESSIONS %}
+      <li class="cta">
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
-    {%- if project.state.HAS_SESSIONS %}
-      <li class="{% if project.state.SUBMISSIONS -%}float-btn{% else %}cta{% endif %}">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--raised" title="View Schedule" data-action="View Schedule(header)">{% trans %}View Schedule{% endtrans %}</a>
+    {% if project.state.SUBMISSIONS -%}
+      <li class="cta">
+        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>
@@ -234,46 +238,39 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% if project.allow_rsvp -%}
+    {{ ajaxform('rsvp-form', request, force=true) }}
+  {%- endif %}
   {% assets "js_jquerysuccinct" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  {% assets "js_leaflet" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  {{ rsvpscript() }}
+  <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
+      var projectConfig = {};
       {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        window.Talkfunnel.TicketWidget.init({
-          // TODO: Get url from config
+        projectConfig.ticketing = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ project.boxoffice_data.org|tojson }},
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
           itemCollectionTitle: {{ project.title|tojson }}
-        });
-      {% endif %}
-
-      {% if project.primary_venue.latitude and project.primary_venue.longitude -%}
-        window.Talkfunnel.EmbedMap.init({
-          mapElem: "#venue-map"
-        });
+        };
       {%- endif %}
 
-      var tableSearch = new window.TableSearch('proposals-table');
-      $('input#search').keyup(function(e){
-        if($('.collapsible__body').css('display') == 'none') {
-          $('.collapsible__header').click();
-        }
-        $('#proposals-table tbody tr').addClass('mui--hide');
-        var hits = tableSearch.searchRows($(this).val());
-        $(hits.join(",")).removeClass('mui--hide');
-      });
+      {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
+        projectConfig.venue = {
+          mapId: "venue-map",
+          latitude: {{ project.primary_venue.latitude|tojson }},
+          longitude: {{ project.primary_venue.longitude|tojson }}
+        };
+      {%- endif %}
+
+      window.HasGeek.ProjectInit(projectConfig);
 
       $('.truncate').succinct({
         size: 200
       });
-
     });
   </script>
 {% endblock %}
