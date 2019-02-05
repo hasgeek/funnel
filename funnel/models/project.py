@@ -44,7 +44,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         User, primaryjoin=user_id == User.id,
         backref=db.backref('projects', cascade='all, delete-orphan'))
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
-    profile = db.relationship('Profile', backref=db.backref('projects', cascade='all, delete-orphan'))
+    profile = db.relationship('Profile', backref=db.backref('projects', cascade='all, delete-orphan', lazy='dynamic'))
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
     description = MarkdownColumn('description', default=u'', nullable=False)
