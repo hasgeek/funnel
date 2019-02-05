@@ -35,55 +35,61 @@
         var typingWaitInterval = 1000; // user stops typing for one second
         var serverResponse = true;
         var unsaved = false;
+        var formData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
+        
+        $('#revision').val() ? $('#autosave-msg').text('These changes has not published yet.') : '';
         $('#{{ ref_id }}').on('change', function(e) {
-          console.log('change');
-          unsaved = true;
           autosaveForm();
         });
         $('#{{ ref_id }}').on('keyup', function(e) {
           if(e.target.value) {
             if(typingTimer) clearTimeout(typingTimer);
-            unsaved = true;
             typingTimer = setTimeout(autosaveForm, typingWaitInterval);
           }
         });
 
         function autosaveForm() {
-          var formData;
-          console.log('autosaveForm');
-          if(serverResponse) {
+          var latestFormData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
+          
+          if(serverResponse && latestFormData !== formData) {
+            console.log('sending');
             serverResponse = false;
             unsaved = false;
             $('#autosave-msg').text('Autosaving...');
-            formData = $("#{{ ref_id }}").serialize();
-            formData = formData + '&autosave=true';
+            formData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
             $.ajax({
               type: 'POST',
-              data: formData,
+              data:  $("#{{ ref_id }}").serialize() + '&autosave=true',
               dataType: 'json',
-            }).done(function (remoteData) {
-              // Todo:
-              // Update window.history.pushState
-              console.log('autosaveForm done', remoteData);
-              $('#autosave-msg').text('Changes saved');
-              serverResponse = true;
-              if(formChanged) autosaveForm();
-            }).fail(function (response) {
-              // If error is due to revision mismatch, the user is shown an error and asked to reload the page.
-              $('#autosave-msg').text('');
-              if (response.readyState === 4) {
-                if (response.status === 500) {
-                  serverResponse = true;
-                  if(formChanged) autosaveForm();
-                  window.toastr.error("Internal Server Error. Please try again.");
-                } else if(response.status_code === 400) {
-                  window.toastr.error('This page has already been edited. Please reload the page.');
+              timeout: 15000,
+              success: function (remoteData) {
+                // Todo:Update window.history.pushState for new form
+                console.log('autosaveForm done', remoteData);
+                $('#autosave-msg').text('Changes saved but not published');
+                if(remoteData.revision) {
+                  $('#revision').val(remoteData.revision);
                 }
-              } else {
                 serverResponse = true;
-                window.toastr.error("Unable to connect. Please try again.");
+                if(unsaved) autosaveForm();
+              },
+              error: function (response) {
+              // If error is due to revision mismatch, the user is shown an error and asked to reload the page.
+                $('#autosave-msg').text('');
+                console.log('error', response);
+                if (response.readyState === 4) {
+                  if (response.status === 500) {
+                    serverResponse = true;
+                    if(formChanged) autosaveForm();
+                    window.toastr.error("Internal Server Error. Please try again.");
+                  } else if(response.status === 400) {
+                    window.toastr.error('This page has already been edited. Please reload the page.');
+                  }
+                } else {
+                  serverResponse = true;
+                  window.toastr.error("Unable to connect. Please try again.");
+                }
               }
-            })
+            });
           }
 
           $(window).bind('beforeunload', function() {

@@ -156,15 +156,15 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             if 'autosave' in request.form and request.form['autosave'] == 'true':
                 print "got autosave"
                 if 'revision' not in request.form:
-                    return {'error': _("No valid revision found.")}
+                    return {'error': _("No valid revision found.")}, 400
                 try:
                     client_revision = UUID(request.form['revision']) if request.form['revision'] else None
                 except Exception as e:
-                    return {'error': _("Invalid UUID: {0!r}".format(e))}
+                    return {'error': _("Invalid UUID: {0!r}".format(e))}, 400
                 draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
                 if draft is not None:
                     if client_revision is None or (client_revision is not None and draft.revision != client_revision):
-                        return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}
+                        return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
                     elif client_revision is not None and draft.revision == client_revision:
                         print "updating draft"
                         draft.body = {'form': request.form}
