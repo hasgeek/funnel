@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import unicodecsv
+from uuid import uuid4, UUID
 from cStringIO import StringIO
 from flask import g, flash, redirect, Response, request, abort, current_app
+from werkzeug.datastructures import MultiDict
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
+from ..models import db, Project, Section, Proposal, Rsvp, Draft, RSVP_STATUS
 from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectBoxofficeForm
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
@@ -130,22 +132,62 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
 
     @route('edit', methods=['GET', 'POST'])
+    @render_with(json=True)
     @lastuser.requires_login
     @requires_permission('edit_project')
     def edit(self):
-        if self.obj.parent_project:
-            form = SubprojectForm(obj=self.obj, model=Project)
-        else:
-            form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
-        form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
-        if request.method == 'GET' and not self.obj.timezone:
-            form.timezone.data = current_app.config.get('TIMEZONE')
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            db.session.commit()
-            flash(_("Your changes have been saved"), 'info')
-            tag_locations.queue(self.obj.id)
-            return redirect(self.obj.url_for(), code=303)
+        if request.method == 'GET':
+            # find draft if it exists
+            draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
+            initial_formdata = MultiDict(draft.body['form']) if draft is not None else None
+            # initialize forms with draft formdata
+            if self.obj.parent_project:
+                form = SubprojectForm(obj=self.obj, model=Project, formdata=initial_formdata)
+            else:
+                form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project, formdata=initial_formdata)
+            form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
+            # if draft exists, add latest revision ID to the form
+            if draft is not None:
+                form.revision.data = draft.revision
+            if not self.obj.timezone:
+                form.timezone.data = current_app.config.get('TIMEZONE')
+            return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
+        elif request.method == 'POST':
+            if 'autosave' in request.form and request.form['autosave'] == 'true':
+                print "got autosave"
+                if 'revision' not in request.form:
+                    return {'error': _("No valid revision found.")}
+                try:
+                    client_revision = UUID(request.form['revision'])
+                except Exception as e:
+                    return {'error': _("Invalid UUID: {0!r}".format(e))}
+                draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
+                if draft is not None and draft.revision != client_revision:
+                    return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}
+                elif draft is None:
+                    print "saving draft"
+                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form}, revision=uuid4())
+                else:
+                    print "updating draft"
+                    draft.body = {'form': request.form}
+                    draft.revision = uuid4()
+                db.session.add(draft)
+                db.session.commit()
+                return {'draft': draft.body['form'], 'revision': draft.revision}
+            else:
+                if self.obj.parent_project:
+                    form = SubprojectForm(obj=self.obj, model=Project)
+                else:
+                    form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+                form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
+                if form.validate_on_submit():
+                    form.populate_obj(self.obj)
+                    db.session.commit()
+                    flash(_("Your changes have been saved"), 'info')
+                    tag_locations.queue(self.obj.id)
+                    # TODO: find and delete drafts
+                    Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).delete()
+                    return redirect(self.obj.url_for(), code=303)
         return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
 
     @route('boxoffice_data', methods=['GET', 'POST'])

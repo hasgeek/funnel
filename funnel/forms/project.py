@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import uuid
 from coaster.utils import sorted_timezones
 from wtforms.widgets import CheckboxInput, ListWidget
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
@@ -71,6 +72,8 @@ class ProjectForm(forms.Form):
         description=__(u"Eg: Explara, Instamojo"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
 
+    revision = forms.HiddenField(__("Draft revision ID"), validators=[forms.validators.DataRequired()])
+
     def set_queries(self):
         profile_teams = self.edit_parent.teams
         self.admin_team.query = profile_teams
@@ -80,6 +83,14 @@ class ProjectForm(forms.Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+    def validate_revision(self, field):
+        try:
+            rid = uuid.UUID(field.data)
+            if not rid.version == 4:
+                raise forms.ValidationError("Invalid UUID4 string")
+        except Exception as e:
+            raise forms.ValidationError(e)
 
 
 class ProjectTransitionForm(forms.Form):
