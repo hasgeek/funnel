@@ -32,7 +32,7 @@
     <script type="text/javascript">
       $(function() {
         var typingTimer;
-        var typingWaitInterval = 10000; // user stops typing for one second
+        var typingWaitInterval = 1000; // user stops typing for one second
         var serverResponse = true;
         var unsaved = false;
         $('#{{ ref_id }}').on('change', function(e) {
@@ -56,10 +56,10 @@
             unsaved = false;
             $('#autosave-msg').text('Autosaving...');
             formData = $("#{{ ref_id }}").serialize();
-            formData = formData + '&autosave=t';
+            formData = formData + '&autosave=true';
             $.ajax({
               type: 'POST',
-              data: $("#{{ ref_id }}").serialize(),
+              data: formData,
               dataType: 'json',
             }).done(function (remoteData) {
               // Todo:
@@ -70,9 +70,18 @@
               if(formChanged) autosaveForm();
             }).fail(function (response) {
               // If error is due to revision mismatch, the user is shown an error and asked to reload the page.
-              if(response.status_code === 400) {
-                $('#autosave-msg').text('This page has already been edited. Please reload the page.');
-                window.toastr.error('This page has already been edited. Please reload the page.');
+              $('#autosave-msg').text('');
+              if (response.readyState === 4) {
+                if (response.status === 500) {
+                  serverResponse = true;
+                  if(formChanged) autosaveForm();
+                  window.toastr.error("Internal Server Error. Please try again.");
+                } else if(response.status_code === 400) {
+                  window.toastr.error('This page has already been edited. Please reload the page.');
+                }
+              } else {
+                serverResponse = true;
+                window.toastr.error("Unable to connect. Please try again.");
               }
             })
           }
