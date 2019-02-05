@@ -142,7 +142,8 @@
   }
 
   .sub-navbar__item:hover,
-  .sub-navbar__item:active {
+  .sub-navbar__item:active,
+  .sub-navbar__item--active {
     border-bottom: 6px solid #856A91;
   }
 }

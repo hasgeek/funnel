@@ -25,14 +25,12 @@ rq = RQ()
 # --- Assets ------------------------------------------------------------------
 
 version = Version(__version__)
-assets['funnel.js'][version] = 'js/scripts.js'
 assets['funnel.css'][version] = 'css/app.css'
+assets['funnel.js'][version] = 'js/scripts.js'
 assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
-assets['schedules.css'][version] = 'css/schedules.css'
-assets['schedules.js'][version] = 'js/schedules.js'
 assets['screens.css'][version] = 'css/screens.css'
-
+assets['schedules.js'][version] = 'js/schedules.js'
 
 # --- Import rest of the app --------------------------------------------------
 
@@ -76,7 +74,7 @@ app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
 app.assets.register('css_fullcalendar',
-    Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css', 'schedules.css'),
+    Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css'),
         output='css/fullcalendar.packed.css', filters='cssmin'))
 app.assets.register('js_schedules',
     Bundle(assets.require('schedules.js'),
@@ -87,9 +85,6 @@ app.assets.register('js_codemirrormarkdown',
 app.assets.register('css_codemirrormarkdown',
     Bundle(assets.require('codemirror-markdown.css'),
         output='css/codemirror-markdown.packed.css', filters='cssmin'))
-app.assets.register('js_ractive',
-    Bundle(assets.require('ractive.js'),
-        output='js/ractive.packed.js', filters='uglipyjs'))
 app.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))
@@ -112,7 +107,7 @@ funnelapp.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
 funnelapp.assets.register('css_fullcalendar',
-    Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css', 'schedules.css'),
+    Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css'),
         output='css/fullcalendar.packed.css', filters='cssmin'))
 funnelapp.assets.register('js_schedules',
     Bundle(assets.require('schedules.js'),
@@ -123,9 +118,6 @@ funnelapp.assets.register('js_codemirrormarkdown',
 funnelapp.assets.register('css_codemirrormarkdown',
     Bundle(assets.require('codemirror-markdown.css'),
         output='css/codemirror-markdown.packed.css', filters='cssmin'))
-funnelapp.assets.register('js_ractive',
-    Bundle(assets.require('ractive.js'),
-        output='js/ractive.packed.js', filters='uglipyjs'))
 funnelapp.assets.register('css_screens',
     Bundle(assets.require('screens.css'),
         output='css/screens.packed.css', filters='cssmin'))

@@ -5,9 +5,6 @@
     {% if session.speaker %}
       <p class="mui--text-title zero-bottom-margin"><small class="mui--text-light">by</small> <strong>{{ session.speaker }}</strong></p>
     {% endif %}
-    {% if session.proposal %}
-      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary mui--pull-right" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
-    {% endif %}
     {% if session.scheduled %}
       <p class="mui--text-subhead zero-bottom-margin">
         <small class="mui--text-light">at</small>
@@ -22,6 +19,9 @@
     {% endif %}
     {% if session.venue_room %}
       <p class="mui--text-subhead zero-bottom-margin"><small class="mui--text-light">in</small> {{ session.venue_room.title }} <small class="mui--text-light">{{ session.venue_room.venue.title }}</small></p>
+    {% endif %}
+    {% if session.proposal %}
+      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary mui--pull-right" href="{{ session.proposal.url_for('view') }}" target="_blank">View Proposal</a>
     {% endif %}
   </div>
 </div>
