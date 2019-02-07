@@ -55,7 +55,7 @@
           if(!waitingForResponse && haveDirtyFields()) {
             $.ajax({
               type: 'POST',
-              url: $('#form-H-EZmJYhSV-d-1mPRc4nMA').attr('action') + '&form.autosave=true',
+              url: $('#{{ ref_id }}').attr('action') + '&form.autosave=true',
               data:  $("#{{ ref_id }}").serialize(),
               dataType: 'json',
               timeout: 15000,
