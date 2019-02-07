@@ -8,6 +8,7 @@ from werkzeug.datastructures import MultiDict
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
+from coaster.utils import getbool
 from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
@@ -146,53 +147,44 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                 form = SubprojectForm(obj=self.obj, model=Project, formdata=initial_formdata)
             else:
                 form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project, formdata=initial_formdata)
-            form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
-
-            # if draft exists, add latest revision ID to the form
-            if draft is not None:
-                form.revision.data = draft.revision
-                last_revision_id = draft.revision
-            else:
-                last_revision_id = None
 
             if not self.obj.timezone:
                 form.timezone.data = current_app.config.get('TIMEZONE')
+
+            # if draft exists, add latest revision ID to the form
+            last_revision_id = draft.revision if draft is not None else None
+
             return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True, last_revision_id=last_revision_id)
         elif request.method == 'POST':
-            if 'autosave' in request.form and request.form['autosave'] == 'true':
-                if 'revision' not in request.form:
+            if getbool(request.args.get('form.autosave')):
+                if 'form.revision' not in request.form:
                     return {'error': _("Form must contain a valid revision ID.")}, 400
 
-                # ensure that the revision ID is valid
-                try:
-                    client_revision = UUID(request.form['revision']) if request.form['revision'] else None
-                except Exception as e:
-                    return {'error': _("Invalid UUID: {0!r}".format(e))}, 400
+                client_revision = request.form['form.revision']
 
                 # find the last draft
-                draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).order_by(Draft.updated_at.desc()).first()
+                draft = Draft.query.get((Project.__tablename__, self.obj.uuid))
 
                 if draft is not None:
-                    if client_revision is None or (client_revision is not None and draft.revision != client_revision):
+                    if client_revision is None or (client_revision is not None and str(draft.revision) != client_revision):
                         # draft exists, but the form did not send a revision ID,
                         # OR revision ID sent by client does not match the last revision ID
                         return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
-                    elif client_revision is not None and draft.revision == client_revision:
+                    elif client_revision is not None and str(draft.revision) == client_revision:
                         # revision ID sent my client matches, save updated draft data and update revision ID
-                        draft.body = {'form': request.form}
+                        draft.body = {'form': request.form.items(multi=True)}
                         draft.revision = uuid4()
                 else:
                     # no draft exists, create one
-                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form}, revision=uuid4())
+                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form.items(multi=True)}, revision=uuid4())
                 db.session.add(draft)
                 db.session.commit()
-                return {'draft': draft.body['form'], 'revision': draft.revision}
+                return {'revision': draft.revision}
             else:
                 if self.obj.parent_project:
                     form = SubprojectForm(obj=self.obj, model=Project)
                 else:
                     form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
-                form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
                 if form.validate_on_submit():
                     form.populate_obj(self.obj)
                     db.session.commit()
@@ -200,7 +192,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                     tag_locations.queue(self.obj.id)
 
                     # find and delete drafts
-                    Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).delete()
+                    Draft.query.get((Project.__tablename__, self.obj.uuid)).delete()
                     db.session.commit()
                     return redirect(self.obj.url_for(), code=303)
                 else:
