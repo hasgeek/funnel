@@ -3,7 +3,7 @@
 
 from coaster.sqlalchemy import (TimestampMixin, UuidMixin, BaseMixin, BaseNameMixin,
     BaseScopedNameMixin, BaseScopedIdNameMixin, BaseIdNameMixin, MarkdownColumn,
-    JsonDict, IdMixin, CoordinatesMixin, make_timestamp_columns)
+    JsonDict, NoIdMixin, CoordinatesMixin, make_timestamp_columns)
 from coaster.db import db
 
 from .commentvote import *
