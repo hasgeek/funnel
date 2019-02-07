@@ -52,11 +52,12 @@
         });
 
         function autosaveForm() {
+          var sep = ($('#{{ ref_id }}').attr('action').indexOf("?") === -1) ? "?" : "&";
           if(!waitingForResponse && haveDirtyFields()) {
             $.ajax({
               type: 'POST',
-              url: $('#{{ ref_id }}').attr('action') + '&form.autosave=true',
-              data:  $("#{{ ref_id }}").serialize(),
+              url: $('#{{ ref_id }}').attr('action') + sep + 'form.autosave=true',
+              data: $("#{{ ref_id }}").serialize(),
               dataType: 'json',
               timeout: 15000,
               beforeSend: function() {

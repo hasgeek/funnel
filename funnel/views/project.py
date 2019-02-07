@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unicodecsv
-from uuid import uuid4, UUID
+from uuid import uuid4
 from cStringIO import StringIO
 from flask import g, flash, redirect, Response, request, abort, current_app
 from werkzeug.datastructures import MultiDict
@@ -158,6 +158,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
         elif request.method == 'POST':
             if getbool(request.args.get('form.autosave')):
                 if 'form.revision' not in request.form:
+                    # as form.autosave is true, the form should have `form.revision` field even if it's empty
                     return {'error': _("Form must contain a valid revision ID.")}, 400
 
                 client_revision = request.form['form.revision']
@@ -172,11 +173,19 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                         return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
                     elif client_revision is not None and str(draft.revision) == client_revision:
                         # revision ID sent my client matches, save updated draft data and update revision ID
-                        draft.body = {'form': request.form.items(multi=True)}
+                        existing = MultiDict(draft.body['form'])
+                        incoming = MultiDict(request.form.items(multi=True))
+                        for key in incoming.keys():
+                            if existing[key] != incoming[key]:
+                                existing[key] = incoming[key]
+                        draft.body = {'form': existing}
                         draft.revision = uuid4()
                 else:
                     # no draft exists, create one
-                    draft = Draft(table=Project.__tablename__, table_row_id=self.obj.uuid, body={'form': request.form.items(multi=True)}, revision=uuid4())
+                    draft = Draft(
+                        table=Project.__tablename__, table_row_id=self.obj.uuid,
+                        body={'form': request.form.items(multi=True)}, revision=uuid4()
+                        )
                 db.session.add(draft)
                 db.session.commit()
                 return {'revision': draft.revision}
@@ -192,7 +201,8 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                     tag_locations.queue(self.obj.id)
 
                     # find and delete drafts
-                    Draft.query.get((Project.__tablename__, self.obj.uuid)).delete()
+                    tdraft = Draft.query.get((Project.__tablename__, self.obj.uuid))
+                    db.session.delete(tdraft)
                     db.session.commit()
                     return redirect(self.obj.url_for(), code=303)
                 else:
