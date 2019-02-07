@@ -45,24 +45,23 @@
         });
 
         $('#{{ ref_id }}').on('keyup', function(e) {
-          if(e.target.value) {
-            if(typingTimer) clearTimeout(typingTimer);
-            typingTimer = setTimeout(autosaveForm, typingWaitInterval);
-          }
+          if(typingTimer) clearTimeout(typingTimer);
+          typingTimer = setTimeout(autosaveForm, typingWaitInterval);
         });
 
         function autosaveForm() {
-          var sep = ($('#{{ ref_id }}').attr('action').indexOf("?") === -1) ? "?" : "&";
+          var actionUrl = $('#{{ ref_id }}').attr('action')
+          var sep = (actionUrl.indexOf('?') === -1) ? '?' : '&';
           if(!waitingForResponse && haveDirtyFields()) {
             $.ajax({
               type: 'POST',
-              url: $('#{{ ref_id }}').attr('action') + sep + 'form.autosave=true',
+              url: actionUrl + sep + 'form.autosave=true',
               data: $("#{{ ref_id }}").serialize(),
               dataType: 'json',
               timeout: 15000,
               beforeSend: function() {
                 $('#autosave-msg').text('Autosaving...');
-                lastSavedData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
+                lastSavedData = $("#{{ ref_id }}").find('[type!="hidden"]').serialize();
                 waitingForResponse = true;
               },
               success: function (remoteData) {
@@ -95,7 +94,7 @@
           }
 
           function haveDirtyFields() {
-            var latestFormData = $('#{{ ref_id }}').find(':input:not(:hidden)').serialize();
+            var latestFormData = $('#{{ ref_id }}').find('[type!="hidden"]').serialize();
             if (latestFormData !== lastSavedData) {
               return true;
             }
