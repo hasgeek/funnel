@@ -21,9 +21,9 @@ def upgrade():
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('table', sa.UnicodeText(), nullable=False),
-        sa.Column('table_row_id', UUIDType(length=16), nullable=False),
+        sa.Column('table_row_id', UUIDType(binary=False), nullable=False),
         sa.Column('body', JsonDict(), server_default='{}', nullable=False),
-        sa.Column('revision', UUIDType(length=16), nullable=True),
+        sa.Column('revision', UUIDType(binary=False), nullable=True),
         sa.PrimaryKeyConstraint('table', 'table_row_id')
     )
 
