@@ -55,18 +55,16 @@
           if(!waitingForResponse && haveDirtyFields()) {
             $.ajax({
               type: 'POST',
-              data:  $("#{{ ref_id }}").serialize() + '&autosave=true',
+              data:  $("#{{ ref_id }}").serialize(),
               dataType: 'json',
               timeout: 15000,
               beforeSend: function() {
-                console.log('sending');
                 $('#autosave-msg').text('Autosaving...');
                 lastSavedData = $("#{{ ref_id }}").find(":input:not(:hidden)").serialize();
                 waitingForResponse = true;
               },
               success: function (remoteData) {
                 // Todo: Update window.history.pushState for new form
-                console.log('autosaveForm done', remoteData);
                 $('#autosave-msg').text('Changes saved but not published');
                 if(remoteData.revision) {
                   $('#revision').val(remoteData.revision);
@@ -75,7 +73,6 @@
                 autosaveForm();
               },
               error: function (response) {
-                console.log('error', response);
                 var errorMsg = '';
                 waitingForResponse = false;
                 if (response.readyState === 4) {
@@ -84,7 +81,7 @@
                   } else if(response.status === 400) {
                     // There is a version mismatch, notify user to reload the page.
                     waitingForResponse = true;
-                    errorMsg = 'This page has already been edited. Please reload the page.';
+                    errorMsg = 'This page has been edited elsewhere. Please reload the page to avoid losing those changes.';
                   }
                 } else {
                   errorMsg = 'Unable to connect. Please reload and try again.';

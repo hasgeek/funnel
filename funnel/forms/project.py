@@ -71,8 +71,6 @@ class ProjectForm(forms.Form):
         description=__(u"Eg: Explara, Instamojo"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
 
-    revision = forms.HiddenField(__("Draft revision ID"), validators=[forms.validators.DataRequired()])
-
     def set_queries(self):
         profile_teams = self.edit_parent.teams
         self.admin_team.query = profile_teams

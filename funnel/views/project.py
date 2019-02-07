@@ -151,10 +151,13 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             # if draft exists, add latest revision ID to the form
             if draft is not None:
                 form.revision.data = draft.revision
+                last_revision_id = draft.revision
+            else:
+                last_revision_id = None
 
             if not self.obj.timezone:
                 form.timezone.data = current_app.config.get('TIMEZONE')
-            return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
+            return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True, last_revision_id=last_revision_id)
         elif request.method == 'POST':
             if 'autosave' in request.form and request.form['autosave'] == 'true':
                 if 'revision' not in request.form:
