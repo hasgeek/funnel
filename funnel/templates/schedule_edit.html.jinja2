@@ -25,6 +25,16 @@
           <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
         {%- endfor %}
       </div>
+      <ul>
+      {% for venue in venues %}
+        <li>{{ venue.title }} - {{ venue.seq }}</li>
+        <ul>
+          {% for room in venue.room_list %}
+            <li>{{ room.title }} - {{ room.seq }}</li>
+          {% endfor %}
+        </ul>
+      {% endfor %}
+      </ul>
       <div id="settings">
         <h4 class="mui--text-headline">{% trans %}Room colors{% endtrans %}</h4>
         <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">

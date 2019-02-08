@@ -65,9 +65,8 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         if form.validate_on_submit():
             venue = Venue()
             form.populate_obj(venue)
-            venue.project = self.obj
             venue.make_name(reserved=RESERVED_VENUE)
-            db.session.add(venue)
+            self.obj.venues.append(venue)
             if not self.obj.primary_venue:
                 self.obj.primary_venue = venue
             db.session.commit()
@@ -151,9 +150,8 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         if form.validate_on_submit():
             room = VenueRoom()
             form.populate_obj(room)
-            room.venue = self.obj
             room.make_name(reserved=RESERVED_VENUEROOM)
-            db.session.add(room)
+            self.obj.rooms.append(room)
             db.session.commit()
             flash(_(u"You have added a room at this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
