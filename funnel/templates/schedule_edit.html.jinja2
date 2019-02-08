@@ -28,14 +28,18 @@
       <div id="settings">
         <h4 class="mui--text-headline">{% trans %}Room colors{% endtrans %}</h4>
         <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
+          <div id="rooms_sortable">
           {% for id in rooms %}
-            <p class="room-color" id="room-color-{{ id }}">
+            <p class="room-color ui-dragable-room" id="room-color-{{ id }}" draggable="true">
+              <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
               <label for="room-color-input-{{ id }}" class="h5">
                 <input type="hidden" name="id" value="{{ id }}">
+                <input name="seq" value="{{ loop.index }}" readonly class="room-seq">
                 {{ rooms[id].vtitle }} <input type="text" name="color" id="room-color-input-{{ id }}" value="{{ rooms[id].bgcolor }}" data-room-id="{{ id }}" data-color="{{ rooms[id].bgcolor }}">
               </label>
             </p>
           {% endfor %}
+          </div>
           <p>
             <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
             <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
@@ -85,6 +89,20 @@
     <script type="text/javascript">
       $(document).ready(function(){
         $('#proposals-tab').easytabs();
+
+        $('#rooms_sortable').disableSelection();
+
+        var list = $('#rooms_sortable'),
+        updateRoomOrder = function() {
+          list.children().each(function(i, e){
+            $(this).find('input[name="seq"]').val(++i);
+          });
+        };
+
+        list.sortable({
+          placeholder: 'ui-room-placeholder',
+          update: updateRoomOrder
+        });
       });
     </script>
   {%- endassets -%}

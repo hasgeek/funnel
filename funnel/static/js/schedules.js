@@ -71,7 +71,7 @@ $(function() {
                             type: 'POST',
                             data: data,
                             success: function(result) {
-                                toastr.success("The colors have been updated.")
+                                toastr.success("The room sequence and colors have been updated.")
                             },
                             complete: function(xhr, type) {
                                 if(type == 'error' || type == 'timeout') {
