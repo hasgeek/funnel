@@ -28,9 +28,6 @@ class VenueForm(forms.Form):
     country = forms.SelectField(__("Country"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2)],
         choices=country_codes, default="IN")
-    seq = forms.IntegerField(__("Sequence"),
-        description=__("The sequence of the venue on the listing"),
-        validators=[forms.validators.DataRequired(__("Please specify the sequence order"))])
     coordinates = forms.CoordinatesField(__("Location"), description=__("Pick a location on the map"),
         validators=[forms.validators.Optional(), forms.validators.ValidCoordinates()])
 
@@ -42,9 +39,6 @@ class VenueRoomForm(forms.Form):
     bgcolor = forms.StringField(__("Event Color"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
         description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
-    seq = forms.IntegerField(__("Sequence"),
-        description=__("The sequence of the room on the listing"),
-        validators=[forms.validators.DataRequired(__("Please specify the sequence order"))])
 
     def validate_bgcolor(self, field):
         if not valid_color_re.match(field.data):
