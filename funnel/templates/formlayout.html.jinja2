@@ -50,7 +50,7 @@
         });
 
         function autosaveForm() {
-          var actionUrl = $('#{{ ref_id }}').attr('action')
+          var actionUrl = $('#{{ ref_id }}').attr('action');
           var sep = (actionUrl.indexOf('?') === -1) ? '?' : '&';
           if(!waitingForResponse && haveDirtyFields()) {
             $.ajax({
