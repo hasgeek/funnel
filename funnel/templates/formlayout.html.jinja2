@@ -38,7 +38,7 @@
         var waitingForResponse = false;
         var lastSavedData = '';
 
-        $('#revision').val() ? $('#autosave-msg').text('These changes have not been published yet.') : '';
+        $('input[name="form.revision"]').val() ? $('#autosave-msg').text('These changes have not been published yet.') : '';
 
         $('#{{ ref_id }}').on('change', function(e) {
           autosaveForm();
@@ -68,7 +68,7 @@
                 // Todo: Update window.history.pushState for new form
                 $('#autosave-msg').text('Changes saved but not published');
                 if(remoteData.revision) {
-                  $('#revision').val(remoteData.revision);
+                  $('input[name="form.revision"]').val(remoteData.revision);
                 }
                 waitingForResponse = false;
                 autosaveForm();
