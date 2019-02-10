@@ -161,34 +161,38 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                     # as form.autosave is true, the form should have `form.revision` field even if it's empty
                     return {'error': _("Form must contain a valid revision ID.")}, 400
 
-                client_revision = request.form['form.revision']
+                if forms.Form().validate_on_submit():
+                    incoming_data = MultiDict(request.form.items(multi=True))
+                    client_revision = incoming_data.pop('form.revision')
+                    incoming_data.pop('csrf_token')
 
-                # find the last draft
-                draft = Draft.query.get((Project.__tablename__, self.obj.uuid))
+                    # find the last draft
+                    draft = Draft.query.get((Project.__tablename__, self.obj.uuid))
 
-                if draft is not None:
-                    if client_revision is None or (client_revision is not None and str(draft.revision) != client_revision):
-                        # draft exists, but the form did not send a revision ID,
-                        # OR revision ID sent by client does not match the last revision ID
-                        return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
-                    elif client_revision is not None and str(draft.revision) == client_revision:
-                        # revision ID sent my client matches, save updated draft data and update revision ID
-                        existing = MultiDict(draft.body['form'])
-                        incoming = MultiDict(request.form.items(multi=True))
-                        for key in incoming.keys():
-                            if existing[key] != incoming[key]:
-                                existing[key] = incoming[key]
-                        draft.body = {'form': existing}
-                        draft.revision = uuid4()
+                    if draft is not None:
+                        if client_revision is None or (client_revision is not None and str(draft.revision) != client_revision):
+                            # draft exists, but the form did not send a revision ID,
+                            # OR revision ID sent by client does not match the last revision ID
+                            return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
+                        elif client_revision is not None and str(draft.revision) == client_revision:
+                            # revision ID sent my client matches, save updated draft data and update revision ID
+                            existing = MultiDict(draft.body['form'])
+                            for key in incoming_data.keys():
+                                if existing[key] != incoming_data[key]:
+                                    existing[key] = incoming_data[key]
+                            draft.body = {'form': existing}
+                            draft.revision = uuid4()
+                    else:
+                        # no draft exists, create one
+                        draft = Draft(
+                            table=Project.__tablename__, table_row_id=self.obj.uuid,
+                            body={'form': incoming_data}, revision=uuid4()
+                            )
+                    db.session.add(draft)
+                    db.session.commit()
+                    return {'revision': draft.revision}
                 else:
-                    # no draft exists, create one
-                    draft = Draft(
-                        table=Project.__tablename__, table_row_id=self.obj.uuid,
-                        body={'form': request.form.items(multi=True)}, revision=uuid4()
-                        )
-                db.session.add(draft)
-                db.session.commit()
-                return {'revision': draft.revision}
+                    return {'error': _("Invalid CSRF token")}, 401
             else:
                 if self.obj.parent_project:
                     form = SubprojectForm(obj=self.obj, model=Project)
