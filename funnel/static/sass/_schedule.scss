@@ -185,6 +185,7 @@
 
 		.schedule__row.schedule__row--sticky {
 			display: flex;
+			overflow: scroll;
 
 			.schedule__row__column {
 				display: flex;

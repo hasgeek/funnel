@@ -77,7 +77,7 @@
                         </p>
                       {{#rooms:room, roomindex}}
                         {{rooms.length}}
-                        <div class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)">{{title}}</div>
+                        <div class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)"><p>{{title}}<br><small>{{venue_title}}</small></p></div>
                       {{/}}
                     </div>
                     {{#sessions:session, index}}
@@ -130,7 +130,7 @@
       fromDate: {{ from_date|tojson }},
       toDate: {{ to_date|tojson }},
       scheduled: {{ sessions|tojson }},
-      rooms: {{ rooms|tojson }},
+      venues: {{ venues|tojson }},
       slotInterval: 5,
       divElem: "#project-schedule-table",
       scriptTemplate: '#scheduletemplate',

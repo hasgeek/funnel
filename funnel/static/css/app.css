@@ -969,6 +969,7 @@
   }
   .schedule .schedule__row.schedule__row--sticky {
     display: flex;
+    overflow: scroll;
   }
   .schedule .schedule__row.schedule__row--sticky .schedule__row__column {
     display: flex;

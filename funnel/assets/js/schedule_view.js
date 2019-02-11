@@ -210,6 +210,13 @@ const Schedule = {
   },
   init(config) {
     this.config = config;
+    this.config.rooms = {};
+    this.config.venues.forEach((venue) => {
+      venue.room_list.forEach((room) => {
+        this.config.rooms[room.scoped_name] = room;
+        this.config.rooms[room.scoped_name].venue_title = venue.title;
+      });
+    });
     this.getEventDays();
     this.getEventDuration();
     this.createScheduleTable();
