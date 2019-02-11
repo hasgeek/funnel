@@ -34,7 +34,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'description', 'address1', 'address2', 'city', 'state',
-                'postcode', 'country', 'project_details', 'room_list', 'seq'
+                'postcode', 'country', 'project_details', 'room_list', 'seq', 'uuid'
             },
         },
     }
@@ -67,7 +67,7 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id', 'name', 'title', 'description', 'bgcolor', 'seq', 'venue_details'
+                'id', 'name', 'title', 'description', 'bgcolor', 'seq', 'venue_details', 'scoped_name'
             },
         },
     }
