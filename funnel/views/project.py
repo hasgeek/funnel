@@ -159,7 +159,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             if getbool(request.args.get('form.autosave')):
                 if 'form.revision' not in request.form:
                     # as form.autosave is true, the form should have `form.revision` field even if it's empty
-                    return {'error': _("Form must contain a valid revision ID.")}, 400
+                    return {'error': _("Form must contain a revision ID.")}, 400
 
                 if forms.Form().validate_on_submit():
                     incoming_data = MultiDict(request.form.items(multi=True))
@@ -182,6 +182,10 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                                     existing[key] = incoming_data[key]
                             draft.body = {'form': existing}
                             draft.revision = uuid4()
+                    elif draft is None and not client_revision:
+                        # The form contains a revision ID but no draft exists.
+                        # Somebody is making autosave requests with an invalid draft ID.
+                        return {'error': _("Invalid revision ID or the existing changes have been submitted already. Please reload.")}, 400
                     else:
                         # no draft exists, create one
                         draft = Draft(
@@ -204,10 +208,9 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                     flash(_("Your changes have been saved"), 'info')
                     tag_locations.queue(self.obj.id)
 
-                    # find and delete drafts
-                    tdraft = Draft.query.get((Project.__tablename__, self.obj.uuid))
-                    db.session.delete(tdraft)
-                    db.session.commit()
+                    # find and delete draft if it exists
+                    Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).delete()
+
                     return redirect(self.obj.url_for(), code=303)
                 else:
                     return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
