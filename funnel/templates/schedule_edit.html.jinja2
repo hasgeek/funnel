@@ -29,21 +29,19 @@
         <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
           <div id="venue_sortable" class="sortable" data-drag-placeholder='ui-box-placeholder--bigger'>
           {% for venue in venues %}
-            <div class="ui-dragable-box ui-dragable-box--lighter" id="venue-{{ venue.id }}" draggable="true">
+            <div class="ui-dragable-box ui-dragable-box--lighter" draggable="true">
+              <input type="hidden" name="uuid" value="{{ venue.uuid }}">
               <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-              <input name="seq" value="{{ loop.index }}" readonly class="seq-input">
-              <label for="venue-{{ venue.id }}" class="h5">
-                <input type="hidden" name="id" value="{{ venue.id }}">
-                {{ venue.title }}
-              </label>
+              <input name="venue-seq" value="{{ loop.index }}" readonly class="seq-input" data-venue="{{venue.uuid}}">
+              <span class="h5">{{ venue.title }}</span>
               <div id="rooms_sortable" class="sortable" data-drag-placeholder='ui-box-placeholder'>
                 {% for room in venue.room_list %}
-                  <p class="ui-dragable-box" id="room-color-{{ room.id }}" draggable="true">
+                  <p class="ui-dragable-box" draggable="true">
                     <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-                    <input name="seq" value="{{ loop.index }}" readonly class="seq-input">
-                    <label for="room-color-input-{{ room.id }}" class="h5">
-                      <input type="hidden" name="id" value="{{ room.id }}">
-                      {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.id }}" value="{{ room.bgcolor }}" data-room-id="{{ id }}" data-color="{{ room.bgcolor }}">
+                    <input name="room-seq" value="{{ loop.index }}" readonly class="seq-input" data-room="{{room.name}}">
+                    <label for="room-color-input-{{ room.name }}" class="h5">
+                      <input type="hidden" name="room-name" value="{{ room.name }}" data-venue="{{venue.uuid}}">
+                      {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.name }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{room.name}}">
                     </label>
                   </p>
                 {% endfor %}
@@ -104,7 +102,7 @@
             placeholder: $(this).data('drag-placeholder'),
             update: function() {
               $(this).children().each(function(index) {
-                $(this).children('input[name="seq"]').val(++index);
+                $(this).children('input[name$="seq"]').val(++index);
               });
             }
           });

@@ -44,6 +44,7 @@ $(function() {
             container: $('#settings'),
             color_form: $('#room_colors'),
             onColorChange: function(color) {
+                console.log('this', this, color);
                 ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
                 calendar.render();
             },
@@ -65,11 +66,30 @@ $(function() {
                         calendar.render();
                     });
                     this.color_form.submit(function() {
-                        var data = $(this).serializeArray();
+                        var json = {};
+
+                        $('input[name="uuid"]').each(function(index, element) {
+                            var venue = $(element).val();
+                            json[venue] = {
+                                'seq': $('input[name="venue-seq"][data-venue="'+venue+'"]').val(),
+                                'rooms': []
+                            };
+                            $('input[data-venue="'+venue+'"]').each(function(index, element) {
+                                if($(element).attr('name') === 'room-name') {
+                                    var roomName = $(element).val();
+                                    var room = {
+                                        'name': roomName,
+                                        'seq': $('input[name="room-seq"][data-room="'+roomName+'"]').val(),
+                                        'color': $('input[name="color"][data-room="'+roomName+'"]').val()
+                                    };
+                                    json[venue]['rooms'].push(room); 
+                                }    
+                            });
+                        });
                         $.ajax({
                             url: COLORS_UPDATE_URL,
                             type: 'POST',
-                            data: data,
+                            data: JSON.stringify(json),
                             success: function(result) {
                                 toastr.success("The room sequence and colors have been updated.")
                             },
