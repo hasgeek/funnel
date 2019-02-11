@@ -25,35 +25,34 @@
           <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
         {%- endfor %}
       </div>
-      <ul>
-      {% for venue in venues %}
-        <li>{{ venue.title }} - {{ venue.seq }}</li>
-        <ul>
-          {% for room in venue.room_list %}
-            <li>{{ room.title }} - {{ room.seq }}</li>
-          {% endfor %}
-        </ul>
-      {% endfor %}
-      </ul>
       <div id="settings">
-        <h4 class="mui--text-headline">{% trans %}Room colors{% endtrans %}</h4>
         <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
-          <div id="rooms_sortable">
-          {% for id in rooms %}
-            <p class="room-color ui-dragable-room" id="room-color-{{ id }}" draggable="true">
+          <div id="venue_sortable" class="sortable" data-drag-placeholder='ui-box-placeholder--bigger'>
+          {% for venue in venues %}
+            <div class="ui-dragable-box ui-dragable-box--lighter" id="venue-{{ venue.id }}" draggable="true">
               <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-              <label for="room-color-input-{{ id }}" class="h5">
-                <input type="hidden" name="id" value="{{ id }}">
-                <input name="seq" value="{{ loop.index }}" readonly class="room-seq">
-                {{ rooms[id].vtitle }} <input type="text" name="color" id="room-color-input-{{ id }}" value="{{ rooms[id].bgcolor }}" data-room-id="{{ id }}" data-color="{{ rooms[id].bgcolor }}">
+              <input name="seq" value="{{ loop.index }}" readonly class="seq-input">
+              <label for="venue-{{ venue.id }}" class="h5">
+                <input type="hidden" name="id" value="{{ venue.id }}">
+                {{ venue.title }}
               </label>
-            </p>
+              <div id="rooms_sortable" class="sortable" data-drag-placeholder='ui-box-placeholder'>
+                {% for room in venue.room_list %}
+                  <p class="ui-dragable-box" id="room-color-{{ room.id }}" draggable="true">
+                    <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
+                    <input name="seq" value="{{ loop.index }}" readonly class="seq-input">
+                    <label for="room-color-input-{{ room.id }}" class="h5">
+                      <input type="hidden" name="id" value="{{ room.id }}">
+                      {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.id }}" value="{{ room.bgcolor }}" data-room-id="{{ id }}" data-color="{{ room.bgcolor }}">
+                    </label>
+                  </p>
+                {% endfor %}
+              </div>
+            </div>
           {% endfor %}
           </div>
-          <p>
-            <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
-            <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
-          </p>
+          <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
+          <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
         </form>
       </div>
     </div>
@@ -97,22 +96,21 @@
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     <script type="text/javascript">
-      $(document).ready(function(){
+      $(document).ready(function() {
         $('#proposals-tab').easytabs();
 
-        $('#rooms_sortable').disableSelection();
-
-        var list = $('#rooms_sortable'),
-        updateRoomOrder = function() {
-          list.children().each(function(i, e){
-            $(this).find('input[name="seq"]').val(++i);
+        function applySortable() {
+          $(this).sortable({
+            placeholder: $(this).data('drag-placeholder'),
+            update: function() {
+              $(this).children().each(function(index) {
+                $(this).children('input[name="seq"]').val(++index);
+              });
+            }
           });
-        };
-
-        list.sortable({
-          placeholder: 'ui-room-placeholder',
-          update: updateRoomOrder
-        });
+          $(this).find("div.sortable").each(applySortable); 
+        }
+        $(".sortable").each(applySortable);
       });
     </script>
   {%- endassets -%}
