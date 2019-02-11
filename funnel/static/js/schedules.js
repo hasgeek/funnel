@@ -48,8 +48,34 @@ $(function() {
                 ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
                 calendar.render();
             },
+            applySortable: function () {
+                $(this).sortable({
+                    placeholder: $(this).data('drag-placeholder'),
+                    update: function() {
+                        $(this).children().each(function(index) {
+                            $(this).children('input[name$="seq"]').val(++index);
+                        });
+                    }
+                });
+                $(this).find("div.sortable").each(settings.applySortable);
+            },
             init: function() {
                 if(this.editable) {
+                    $('#proposals-tab').easytabs();
+
+                    // function applySortable() {
+                    //   $(this).sortable({
+                    //     placeholder: $(this).data('drag-placeholder'),
+                    //     update: function() {
+                    //       $(this).children().each(function(index) {
+                    //         $(this).children('input[name$="seq"]').val(++index);
+                    //       });
+                    //     }
+                    //   });
+                    //   $(this).find("div.sortable").each(applySortable);
+                    // }
+                    $(".sortable").each(settings.applySortable);
+
                     this.color_form.find('input[type=text]').each(function() {
                         $(this).spectrum({
                             showInitial: true,

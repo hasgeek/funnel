@@ -289,6 +289,10 @@ body>.proposal-box.ui-draggable {
   cursor: pointer;
 }
 
+.schedule-settings {
+	margin-top: 10px;
+}
+
 .ui-dragable-box {
 	padding: 25px 10px 10px 20px;
 	border-radius: 3px;
@@ -296,12 +300,17 @@ body>.proposal-box.ui-draggable {
   	background: #FFF;
   	cursor: pointer;
   	position: relative;
-  	margin-top: 10px;
-  	margin-bottom: 0;
+  	margin: 10px 15px;
 }
 
-.ui-dragable-box--lighter {
+.ui-dragable-box--header {
 	border: 1px solid #ddd;
+	padding: 0;
+	margin: 10px 0;
+}
+
+.ui-dragable-box--header .collapsible__header {
+	margin: 0;
 }
 
 .ui-dragable-box label {
@@ -320,6 +329,7 @@ body>.proposal-box.ui-draggable {
 }
 
 .ui-box-placeholder {
+	margin: 10px 15px;
 	padding: 10px;
 	border-radius: 3px;
   	border: 1px solid #ddd;
@@ -329,10 +339,11 @@ body>.proposal-box.ui-draggable {
 
 .ui-box-placeholder--bigger {
 	@extend .ui-box-placeholder;
-  	height: 200px;
+	margin: 10px 0;
+	height: 80px;
 }
 
-.seq-input{
+.seq-input {
     position: absolute;
     right: 0px;
     width: 20px;
@@ -341,6 +352,15 @@ body>.proposal-box.ui-draggable {
     font-size: 14px;
     line-height: 1;
     color: #8492A6;
+}
+
+.seq-input--bg {
+	background: #EFF2F7;
+}
+
+.seq-input:focus,
+.seq-input:active {
+	outline: none;
 }
 
 .ui-dragable-box .sp-replacer {

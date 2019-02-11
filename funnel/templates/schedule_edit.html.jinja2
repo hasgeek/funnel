@@ -20,21 +20,21 @@
         <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
         <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab">{% trans %}Settings{% endtrans %}</a></li>
       </ul>
-      <div id="list">
+      <div id="list" class="schedule-settings">
         {%- for proposal in proposals['unscheduled'] %}
           <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
         {%- endfor %}
       </div>
-      <div id="settings">
+      <div id="settings" class="schedule-settings">
         <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
-          <div id="venue_sortable" class="sortable" data-drag-placeholder='ui-box-placeholder--bigger'>
+          <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
           {% for venue in venues %}
-            <div class="ui-dragable-box ui-dragable-box--lighter" draggable="true">
-              <input type="hidden" name="uuid" value="{{ venue.uuid }}">
+            <div class="ui-dragable-box ui-dragable-box--header">
+              <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{venue.uuid}}">
+              <div class="collapsible__header"><input type="hidden" name="uuid" value="{{ venue.uuid }}">
               <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-              <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input" data-venue="{{venue.uuid}}">
-              <span class="h5">{{ venue.title }}</span>
-              <div id="rooms_sortable" class="sortable" data-drag-placeholder='ui-box-placeholder'>
+              <span class="h5">{{ venue.title }}</span> <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></div>
+              <div id="rooms_sortable" class="sortable collapsible__body" data-drag-placeholder='ui-box-placeholder'>
                 {% for room in venue.room_list %}
                   <p class="ui-dragable-box" draggable="true">
                     <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
@@ -93,23 +93,5 @@
       var CALENDAR_SLOT_MINUTES = 5;
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $('#proposals-tab').easytabs();
-
-        function applySortable() {
-          $(this).sortable({
-            placeholder: $(this).data('drag-placeholder'),
-            update: function() {
-              $(this).children().each(function(index) {
-                $(this).children('input[name$="seq"]').val(++index);
-              });
-            }
-          });
-          $(this).find("div.sortable").each(applySortable);
-        }
-        $(".sortable").each(applySortable);
-      });
-    </script>
   {%- endassets -%}
 {% endblock %}
