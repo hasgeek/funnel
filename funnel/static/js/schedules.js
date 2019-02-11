@@ -82,13 +82,15 @@ $(function() {
                                         'seq': $('input[name="room-seq"][data-room="'+roomName+'"]').val(),
                                         'color': $('input[name="color"][data-room="'+roomName+'"]').val()
                                     };
-                                    json[venue]['rooms'].push(room); 
-                                }    
+                                    json[venue]['rooms'].push(room);
+                                }
                             });
                         });
                         $.ajax({
                             url: COLORS_UPDATE_URL,
                             type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/json",
                             data: JSON.stringify(json),
                             success: function(result) {
                                 toastr.success("The room sequence and colors have been updated.")
@@ -260,7 +262,7 @@ $(function() {
                     },
                     eventRender: function(event, element) {
                       if (event.speaker) {
-                        element.find('.fc-event-title').append("<br/> by <b>" + event.speaker + "</b>"); 
+                        element.find('.fc-event-title').append("<br/> by <b>" + event.speaker + "</b>");
                       }
                     }
                 },
@@ -384,7 +386,7 @@ $(function() {
                     }
                 })
             };
-            
+
             obj.remove = function(event) {
                 calendar.container.fullCalendar('removeEvents', event._id);
             };
