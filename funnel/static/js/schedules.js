@@ -87,7 +87,7 @@ $(function() {
                             });
                         });
                         $.ajax({
-                            url: COLORS_UPDATE_URL,
+                            url: SETTINGS_UPDATE_URL,
                             type: 'POST',
                             dataType: 'json',
                             contentType: "application/json",

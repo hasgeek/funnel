@@ -32,13 +32,13 @@
             <div class="ui-dragable-box ui-dragable-box--lighter" draggable="true">
               <input type="hidden" name="uuid" value="{{ venue.uuid }}">
               <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-              <input name="venue-seq" value="{{ loop.index }}" readonly class="seq-input" data-venue="{{venue.uuid}}">
+              <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input" data-venue="{{venue.uuid}}">
               <span class="h5">{{ venue.title }}</span>
               <div id="rooms_sortable" class="sortable" data-drag-placeholder='ui-box-placeholder'>
                 {% for room in venue.room_list %}
                   <p class="ui-dragable-box" draggable="true">
                     <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-                    <input name="room-seq" value="{{ loop.index }}" readonly class="seq-input" data-room="{{room.name}}">
+                    <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.name}}">
                     <label for="room-color-input-{{ room.name }}" class="h5">
                       <input type="hidden" name="room-name" value="{{ room.name }}" data-venue="{{venue.uuid}}">
                       {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.name }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{room.name}}">
@@ -84,7 +84,7 @@
       var UPDATE_URL = "{{ project.url_for('update_schedule') }}";
       var TIMEZONE = {{ timezone }} * 1000;
       var NEW_SESSION_URL = "{{ project.url_for('new_session') }}";
-      var COLORS_UPDATE_URL = "{{ project.url_for('update_venue_colors') }}";
+      var SETTINGS_UPDATE_URL = "{{ project.url_for('update_venue_settings') }}";
       var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
       var scheduled = {{ proposals['scheduled']|tojson }};
       var ROOMS = {{ rooms|tojson }};
@@ -106,7 +106,7 @@
               });
             }
           });
-          $(this).find("div.sortable").each(applySortable); 
+          $(this).find("div.sortable").each(applySortable);
         }
         $(".sortable").each(applySortable);
       });

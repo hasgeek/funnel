@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, jsonify
+from flask import flash, jsonify, request
 from coaster.views import requestargs, route, render_with, requires_permission, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
@@ -74,17 +74,27 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             return render_redirect(self.obj.url_for('venues'), code=303)
         return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=self.obj.url_for('venues'), ajax=False)
 
-    @route('update_venue_colors', methods=['POST'])
+    @route('update_venue_settings', methods=['POST'])
+    @render_with(json=True)
     @lastuser.requires_login
     @requires_permission('edit-venue')
-    @requestargs('id[]', 'color[]')
-    def update_venue_colors(self, id, color):
-        colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
-        for room in self.obj.rooms:
-            if room.scoped_name in colors:
-                room.bgcolor = colors[room.scoped_name]
-        db.session.commit()
-        return jsonify(status=True)
+    def update_venue_settings(self):
+        if request.json is None:
+            return {'error': 'Invalid data'}, 400
+        for venue_uuid in request.json.keys():
+            venue = Venue.query.filter_by(uuid=venue_uuid).first()
+            venue.seq = request.json[venue_uuid]['seq']
+            db.session.add(venue)
+            for room in request.json[venue_uuid]['rooms']:
+                room_obj = VenueRoom.query.filter_by(name=room['name'], venue=venue).first()
+                room_obj.bgcolor = room['color']
+                room_obj.seq = room['seq']
+                db.session.add(room_obj)
+        try:
+            db.session.commit()
+            return {'status': True}
+        except Exception as e:
+            return {'error': str(e)}, 400
 
     @route('makeprimary', methods=['POST'])
     @lastuser.requires_login
