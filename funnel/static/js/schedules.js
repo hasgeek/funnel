@@ -90,12 +90,12 @@ $(function() {
                                 'rooms': []
                             };
                             $('input[data-venue="'+venue+'"]').each(function(index, element) {
-                                if($(element).attr('name') === 'room-name') {
-                                    var roomName = $(element).val();
+                                if($(element).attr('name') === 'room-suuid') {
+                                    var roomSuuid = $(element).val();
                                     var room = {
-                                        'name': roomName,
-                                        'seq': $('input[name="room-seq"][data-room="'+roomName+'"]').val(),
-                                        'color': $('input[name="color"][data-room="'+roomName+'"]').val()
+                                        'suuid': roomSuuid,
+                                        'seq': $('input[name="room-seq"][data-room="'+roomSuuid+'"]').val(),
+                                        'color': $('input[name="color"][data-room="'+roomSuuid+'"]').val()
                                     };
                                     json[venue]['rooms'].push(room);
                                 }

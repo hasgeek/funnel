@@ -128,7 +128,7 @@ const Schedule = {
         this.set('headerHeight', 2 * $('.schedule__row--sticky').height());
         this.set('pathName', window.location.pathname);
         if(window.location.pathname === this.get('pathName') && window.location.hash) {
-          hash = window.location.hash.indexOf('/') !== -1 ? 
+          hash = window.location.hash.indexOf('/') !== -1 ?
             window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
           Utils.animateScrollTo($(hash).offset().top - this.get('headerHeight'));
         }
@@ -182,18 +182,18 @@ const Schedule = {
       session.eventDay = this.Utils.getEventDay(session.start, this.config.eventDayhash);
       session.duration = this.Utils.getDuration(session.end, session.start, this.config.slotInterval);
       if(this.config.scheduleTable[session.eventDay]) {
-        this.config.scheduleTable[session.eventDay].startTime = 
-          this.config.scheduleTable[session.eventDay].startTime && this.config.scheduleTable[session.eventDay].startTime 
-          < new Date(session.start).getTime() 
+        this.config.scheduleTable[session.eventDay].startTime =
+          this.config.scheduleTable[session.eventDay].startTime && this.config.scheduleTable[session.eventDay].startTime
+          < new Date(session.start).getTime()
           ? this.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
-        this.config.scheduleTable[session.eventDay].endTime = 
-          this.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime() 
+        this.config.scheduleTable[session.eventDay].endTime =
+          this.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime()
           ? this.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
       }
     });
   },
   getEventDays() {
-    let difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);    
+    let difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);
     this.config.eventDayhash = {};
     let eventDays = {}, seq = 0, nextDay = new Date(this.config.fromDate), day;
     while(seq <= difference) {

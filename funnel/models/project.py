@@ -98,7 +98,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
 
-    venues = db.relationship("Venue", cascade='all, delete-orphan',
+    venues = db.relationship('Venue', cascade='all, delete-orphan',
             order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
 
     featured_sessions = db.relationship(
