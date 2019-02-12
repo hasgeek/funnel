@@ -51,6 +51,7 @@ $(function() {
             applySortable: function () {
                 $(this).sortable({
                     placeholder: $(this).data('drag-placeholder'),
+                    cursor: 'move',
                     update: function() {
                         $(this).children().each(function(index) {
                             $(this).children('input[name$="seq"]').val(++index);
