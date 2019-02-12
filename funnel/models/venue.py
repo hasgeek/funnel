@@ -34,21 +34,21 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'description', 'address1', 'address2', 'city', 'state',
-                'postcode', 'country', 'project_details', 'room_list', 'seq', 'uuid'
+                'postcode', 'country', 'project_details', 'room_list', 'seq', 'suuid'
             },
         },
     }
 
     @property
     def project_details(self):
-        return {'name': self.project.name, 'title': self.project.title, 'uuid': self.project.uuid}
+        return {'name': self.project.name, 'title': self.project.title, 'suuid': self.project.suuid}
 
     @property
     def room_list(self):
         return [dict(room.current_access()) for room in self.rooms]
 
 
-class VenueRoom(BaseScopedNameMixin, db.Model):
+class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'venue_room'
 
     venue_id = db.Column(None, db.ForeignKey('venue.id'), nullable=False)
@@ -67,14 +67,15 @@ class VenueRoom(BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id', 'name', 'title', 'description', 'bgcolor', 'seq', 'venue_details', 'scoped_name'
+                'id', 'name', 'title', 'description', 'bgcolor', 'seq', 'venue_details',
+                'scoped_name', 'suuid'
             },
         },
     }
 
     @property
     def venue_details(self):
-        return {'name': self.venue.name, 'title': self.venue.title, 'uuid': self.venue.uuid}
+        return {'name': self.venue.name, 'title': self.venue.title, 'suuid': self.venue.suuid}
 
     @property
     def scoped_name(self):

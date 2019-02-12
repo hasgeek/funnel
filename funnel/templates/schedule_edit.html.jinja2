@@ -30,18 +30,18 @@
           <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
           {% for venue in venues %}
             <div class="ui-dragable-box ui-dragable-box--header">
-              <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{venue.uuid}}">
-              <div class="collapsible__header"><input type="hidden" name="uuid" value="{{ venue.uuid }}">
+              <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{venue.suuid}}">
+              <div class="collapsible__header"><input type="hidden" name="uuid" value="{{ venue.suuid }}">
               <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
               <span class="h5">{{ venue.title }}</span> <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></div>
               <div id="rooms_sortable" class="sortable collapsible__body" data-drag-placeholder='ui-box-placeholder'>
                 {% for room in venue.room_list %}
                   <p class="ui-dragable-box" draggable="true">
                     <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-                    <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.name}}">
-                    <label for="room-color-input-{{ room.name }}" class="h5">
-                      <input type="hidden" name="room-name" value="{{ room.name }}" data-venue="{{venue.uuid}}">
-                      {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.name }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{room.name}}">
+                    <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.suuid}}">
+                    <label for="room-color-input-{{ room.suuid }}" class="h5">
+                      <input type="hidden" name="room-suuid" value="{{ room.suuid }}" data-venue="{{venue.suuid}}">
+                      {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.suuid }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{room.suuid}}">
                     </label>
                   </p>
                 {% endfor %}

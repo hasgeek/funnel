@@ -81,13 +81,13 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     def update_venue_settings(self):
         if request.json is None:
             return {'error': 'Invalid data'}, 400
-        for venue_uuid in request.json.keys():
-            venue = Venue.query.filter_by(uuid=venue_uuid).first()
-            venue.seq = request.json[venue_uuid]['seq']
+        for venue_suuid in request.json.keys():
+            venue = Venue.query.filter_by(suuid=venue_suuid).first()
+            venue.seq = request.json[venue_suuid]['seq']
             db.session.add(venue)
-            for room in request.json[venue_uuid]['rooms']:
-                room_obj = VenueRoom.query.filter_by(name=room['name'], venue=venue).first()
-                room_obj.bgcolor = room['color']
+            for room in request.json[venue_suuid]['rooms']:
+                room_obj = VenueRoom.query.filter_by(suuid=room['suuid'], venue=venue).first()
+                room_obj.bgcolor = room['color'].lstrip('#')
                 room_obj.seq = room['seq']
                 db.session.add(room_obj)
         try:
