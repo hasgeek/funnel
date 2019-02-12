@@ -29,7 +29,11 @@
   padding-right: 5px;
 }
 
-.list-item-rgborder .icon-middle,
+.list-item-rgborder .icon-middle {
+  position: relative;
+  top: 7px;
+}
+
 .material-icons.mui--align-middle {
   position: relative;
   top: -1px;
