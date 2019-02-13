@@ -7,7 +7,7 @@ Create Date: 2019-02-06 20:48:34.700795
 """
 
 revision = '94ce3a9b7a3a'
-down_revision = 'e417a13e136d'
+down_revision = 'a9cb0e1c52ed'
 
 from alembic import op
 import sqlalchemy as sa
