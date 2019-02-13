@@ -71,7 +71,7 @@ rq.init_app(funnelapp)
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui'], theme='mui')
 app.assets.register('js_fullcalendar',
-    Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
+    Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js', 'jquery.ui.sortable.touch.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
 app.assets.register('css_fullcalendar',
     Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css'),
@@ -104,7 +104,7 @@ app.assets.register('css_leaflet',
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui'], theme='mui')
 funnelapp.assets.register('js_fullcalendar',
-    Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js'),
+    Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js', 'jquery.ui.sortable.touch.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
 funnelapp.assets.register('css_fullcalendar',
     Bundle(assets.require('jquery.fullcalendar.css', 'spectrum.css'),

@@ -29,7 +29,11 @@
   padding-right: 5px;
 }
 
-.list-item-rgborder .icon-middle,
+.list-item-rgborder .icon-middle {
+  position: relative;
+  top: 7px;
+}
+
 .material-icons.mui--align-middle {
   position: relative;
   top: -1px;
@@ -106,12 +110,27 @@
   }
 }
 
+.collapsible__header {
+  margin: 10px 0;
+  width: 100%;
+  background: #EFF2F7;
+  padding: 20px;
+}
+
 .collapsible__icon {
   cursor: pointer;
 }
 
 .collapsible__body {
   display: none;
+}
+
+html.touch .collapsible__icon--disable {
+  display: none;
+}
+
+html.touch .collapsible__body--disable {
+  display: block;
 }
 
 .mui-list--border li {

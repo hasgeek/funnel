@@ -82,26 +82,25 @@
     {%- if project.boxoffice_data %}
       <li class="cta">
         <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
-        <hr class="mui-divider">
       </li>
     {%- elif project.buy_tickets_url %}
       <li class="cta">
         <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
-        <hr class="mui-divider">
       </li>
     {%- elif project.allow_rsvp %}
       <li class="cta">
         <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
-        <hr class="mui-divider">
       </li>
     {%- endif %}
     {%- if project.state.HAS_SESSIONS %}
       <li class="cta">
+        <hr class="mui-divider">
         <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
     {% if project.state.SUBMISSIONS -%}
       <li class="cta">
+        {%- if not project.state.HAS_SESSIONS %}<hr class="mui-divider">{% endif %}
         <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
@@ -133,7 +132,7 @@
             </form>
           </div>
           {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
-              <p class="mui--text-title mui--text-bold collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon">keyboard_arrow_up</i></p>
+              <p class="mui--text-title mui--text-bold collapsible__header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon">keyboard_arrow_up</i></p>
               <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
           {%- endfor -%}
         {%- else %}
