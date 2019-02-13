@@ -80,16 +80,18 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('edit-venue')
     def update_venue_settings(self):
         if request.json is None:
-            return {'error': 'Invalid data'}, 400
+            return {'error': _("Invalid data")}, 400
         for venue_suuid in request.json.keys():
             venue = Venue.query.filter_by(suuid=venue_suuid).first()
-            venue.seq = request.json[venue_suuid]['seq']
-            db.session.add(venue)
-            for room in request.json[venue_suuid]['rooms']:
-                room_obj = VenueRoom.query.filter_by(suuid=room['suuid'], venue=venue).first()
-                room_obj.bgcolor = room['color'].lstrip('#')
-                room_obj.seq = room['seq']
-                db.session.add(room_obj)
+            if venue is not None:
+                venue.seq = request.json[venue_suuid]['seq']
+                db.session.add(venue)
+                for room in request.json[venue_suuid]['rooms']:
+                    room_obj = VenueRoom.query.filter_by(suuid=room['suuid'], venue=venue).first()
+                    if room_obj is not None:
+                        room_obj.bgcolor = room['color'].lstrip('#')
+                        room_obj.seq = room['seq']
+                        db.session.add(room_obj)
         try:
             db.session.commit()
             return {'status': True}
