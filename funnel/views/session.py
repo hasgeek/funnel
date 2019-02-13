@@ -90,10 +90,11 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
-        return dict(project=self.obj.project, venues=self.obj.project.venues, active_session=session_data(self.obj, with_modal_url='view_popup'),
+        return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
             from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),
             sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
             timezone=timezone(self.obj.project.timezone).utcoffset(datetime.now()).total_seconds(),
+            venues=[dict(venue.current_access()) for venue in self.obj.project.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
 
     @route('viewsession-popup')
