@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, jsonify
+from flask import flash, jsonify, request
 from coaster.views import requestargs, route, render_with, requires_permission, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
@@ -65,9 +65,8 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         if form.validate_on_submit():
             venue = Venue()
             form.populate_obj(venue)
-            venue.project = self.obj
             venue.make_name(reserved=RESERVED_VENUE)
-            db.session.add(venue)
+            self.obj.venues.append(venue)
             if not self.obj.primary_venue:
                 self.obj.primary_venue = venue
             db.session.commit()
@@ -75,17 +74,29 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             return render_redirect(self.obj.url_for('venues'), code=303)
         return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=self.obj.url_for('venues'), ajax=False)
 
-    @route('update_venue_colors', methods=['POST'])
+    @route('update_venue_settings', methods=['POST'])
+    @render_with(json=True)
     @lastuser.requires_login
     @requires_permission('edit-venue')
-    @requestargs('id[]', 'color[]')
-    def update_venue_colors(self, id, color):
-        colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
-        for room in self.obj.rooms:
-            if room.scoped_name in colors:
-                room.bgcolor = colors[room.scoped_name]
-        db.session.commit()
-        return jsonify(status=True)
+    def update_venue_settings(self):
+        if request.json is None:
+            return {'error': _("Invalid data")}, 400
+        for venue_suuid in request.json.keys():
+            venue = Venue.query.filter_by(suuid=venue_suuid).first()
+            if venue is not None:
+                venue.seq = request.json[venue_suuid]['seq']
+                db.session.add(venue)
+                for room in request.json[venue_suuid]['rooms']:
+                    room_obj = VenueRoom.query.filter_by(suuid=room['suuid'], venue=venue).first()
+                    if room_obj is not None:
+                        room_obj.bgcolor = room['color'].lstrip('#')
+                        room_obj.seq = room['seq']
+                        db.session.add(room_obj)
+        try:
+            db.session.commit()
+            return {'status': True}
+        except Exception as e:
+            return {'error': str(e)}, 400
 
     @route('makeprimary', methods=['POST'])
     @lastuser.requires_login
@@ -151,9 +162,8 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         if form.validate_on_submit():
             room = VenueRoom()
             form.populate_obj(room)
-            room.venue = self.obj
             room.make_name(reserved=RESERVED_VENUEROOM)
-            db.session.add(room)
+            self.obj.rooms.append(room)
             db.session.commit()
             flash(_(u"You have added a room at this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)

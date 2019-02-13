@@ -20,26 +20,37 @@
         <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
         <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab">{% trans %}Settings{% endtrans %}</a></li>
       </ul>
-      <div id="list">
+      <div id="list" class="schedule-settings">
         {%- for proposal in proposals['unscheduled'] %}
           <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
         {%- endfor %}
       </div>
-      <div id="settings">
-        <h4 class="mui--text-headline">{% trans %}Room colors{% endtrans %}</h4>
+      <div id="settings" class="schedule-settings">
         <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
-          {% for id in rooms %}
-            <p class="room-color" id="room-color-{{ id }}">
-              <label for="room-color-input-{{ id }}" class="h5">
-                <input type="hidden" name="id" value="{{ id }}">
-                {{ rooms[id].vtitle }} <input type="text" name="color" id="room-color-input-{{ id }}" value="{{ rooms[id].bgcolor }}" data-room-id="{{ id }}" data-color="{{ rooms[id].bgcolor }}">
-              </label>
-            </p>
+          <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+          {% for venue in venues %}
+            <div class="ui-dragable-box ui-dragable-box--header">
+              <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{venue.suuid}}">
+              <div class="collapsible__header"><input type="hidden" name="uuid" value="{{ venue.suuid }}">
+              <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
+              <span class="h5">{{ venue.title }}</span> <i class="material-icons mui--align-middle collapsible__icon collapsible__icon--disable">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon collapsible__icon--disable">keyboard_arrow_up</i></div>
+              <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
+                {% for room in venue.room_list %}
+                  <p class="ui-dragable-box" draggable="true">
+                    <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
+                    <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.suuid}}">
+                    <label for="room-color-input-{{ room.suuid }}" class="h5">
+                      <input type="hidden" name="room-suuid" value="{{ room.suuid }}" data-venue="{{venue.suuid}}">
+                      {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.suuid }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{room.suuid}}">
+                    </label>
+                  </p>
+                {% endfor %}
+              </div>
+            </div>
           {% endfor %}
-          <p>
-            <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
-            <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
-          </p>
+          </div>
+          <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
+          <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
         </form>
       </div>
     </div>
@@ -73,7 +84,7 @@
       var UPDATE_URL = "{{ project.url_for('update_schedule') }}";
       var TIMEZONE = {{ timezone }} * 1000;
       var NEW_SESSION_URL = "{{ project.url_for('new_session') }}";
-      var COLORS_UPDATE_URL = "{{ project.url_for('update_venue_colors') }}";
+      var SETTINGS_UPDATE_URL = "{{ project.url_for('update_venue_settings') }}";
       var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
       var scheduled = {{ proposals['scheduled']|tojson }};
       var ROOMS = {{ rooms|tojson }};
@@ -82,10 +93,5 @@
       var CALENDAR_SLOT_MINUTES = 5;
     </script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#proposals-tab').easytabs();
-      });
-    </script>
   {%- endassets -%}
 {% endblock %}
