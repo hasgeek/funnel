@@ -182,7 +182,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                                     existing[key] = incoming_data[key]
                             draft.body = {'form': existing}
                             draft.revision = uuid4()
-                    elif draft is None and not client_revision:
+                    elif draft is None and client_revision:
                         # The form contains a revision ID but no draft exists.
                         # Somebody is making autosave requests with an invalid draft ID.
                         return {'error': _("Invalid revision ID or the existing changes have been submitted already. Please reload.")}, 400
