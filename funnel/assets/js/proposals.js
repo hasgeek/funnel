@@ -9,7 +9,8 @@ $(() => {
       let tableRow = `#${search.tableId} tbody tr`;
       $(inputId).keyup(function keyup() {
         if ($('.collapsible__body').css('display') === 'none') {
-          $('.collapsible__header').click();
+          $('.collapsible__icon').toggleClass('mui--hide');
+          $('.collapsible__body').slideToggle();
         }
         $(tableRow).addClass('mui--hide');
         let hits = tableSearch.searchRows($(this).val());
