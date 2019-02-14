@@ -392,6 +392,7 @@ html.touch .collapsible__body--disable {
 
 .project-section {
   padding-top: 45px;
+  overflow-wrap: break-word;
 }
 
 .project-banner {
@@ -619,6 +620,7 @@ html.touch .collapsible__body--disable {
 
 .proposal__section {
   padding: 1em;
+  overflow-wrap: break-word;
 }
 
 .proposal__section--border {
