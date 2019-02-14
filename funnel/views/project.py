@@ -19,7 +19,7 @@ from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-from .mixins import ProjectViewMixin, ProfileViewMixin
+from .mixins import ProjectViewMixin, ProfileViewMixin, DraftModelViewMixin
 from .decorators import legacy_redirect
 
 
@@ -78,7 +78,7 @@ FunnelProfileProjectView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/')
-class ProjectView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectView(ProjectViewMixin, DraftModelViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
@@ -138,8 +138,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
     def edit(self):
         if request.method == 'GET':
             # find draft if it exists
-            draft = Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).first()
-            initial_formdata = MultiDict(draft.body['form']) if draft is not None else None
+            draft_revision, initial_formdata = self.autosave_get()
 
             # initialize forms with draft initial formdata.
             # if no draft exists, initial_formdata is None. wtforms ignore formdata if it's None.
@@ -151,52 +150,10 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             if not self.obj.timezone:
                 form.timezone.data = current_app.config.get('TIMEZONE')
 
-            # if draft exists, add latest revision ID to the form
-            draft_revision = draft.revision if draft is not None else None
-
             return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True, draft_revision=draft_revision)
         elif request.method == 'POST':
             if getbool(request.args.get('form.autosave')):
-                if 'form.revision' not in request.form:
-                    # as form.autosave is true, the form should have `form.revision` field even if it's empty
-                    return {'error': _("Form must contain a revision ID.")}, 400
-
-                if forms.Form().validate_on_submit():
-                    incoming_data = MultiDict(request.form.items(multi=True))
-                    client_revision = incoming_data.pop('form.revision')
-                    incoming_data.pop('csrf_token')
-
-                    # find the last draft
-                    draft = Draft.query.get((Project.__tablename__, self.obj.uuid))
-
-                    if draft is not None:
-                        if client_revision is None or (client_revision is not None and str(draft.revision) != client_revision):
-                            # draft exists, but the form did not send a revision ID,
-                            # OR revision ID sent by client does not match the last revision ID
-                            return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
-                        elif client_revision is not None and str(draft.revision) == client_revision:
-                            # revision ID sent my client matches, save updated draft data and update revision ID
-                            existing = MultiDict(draft.body['form'])
-                            for key in incoming_data.keys():
-                                if existing[key] != incoming_data[key]:
-                                    existing[key] = incoming_data[key]
-                            draft.body = {'form': existing}
-                            draft.revision = uuid4()
-                    elif draft is None and client_revision:
-                        # The form contains a revision ID but no draft exists.
-                        # Somebody is making autosave requests with an invalid draft ID.
-                        return {'error': _("Invalid revision ID or the existing changes have been submitted already. Please reload.")}, 400
-                    else:
-                        # no draft exists, create one
-                        draft = Draft(
-                            table=Project.__tablename__, table_row_id=self.obj.uuid,
-                            body={'form': incoming_data}, revision=uuid4()
-                            )
-                    db.session.add(draft)
-                    db.session.commit()
-                    return {'revision': draft.revision}
-                else:
-                    return {'error': _("Invalid CSRF token")}, 401
+                return self.autosave_post()
             else:
                 if self.obj.parent_project:
                     form = SubprojectForm(obj=self.obj, model=Project)
@@ -209,7 +166,7 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
                     tag_locations.queue(self.obj.id)
 
                     # find and delete draft if it exists
-                    Draft.query.filter_by(table=Project.__tablename__, table_row_id=self.obj.uuid).delete()
+                    self.delete_draft()
 
                     return redirect(self.obj.url_for(), code=303)
                 else:
