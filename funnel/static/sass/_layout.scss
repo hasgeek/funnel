@@ -115,10 +115,11 @@
   width: 100%;
   background: #EFF2F7;
   padding: 20px;
+  cursor: pointer;
 }
 
-.collapsible__icon {
-  cursor: pointer;
+.collapsible__header--nobottommargin {
+   margin: 10px 0 0;
 }
 
 .collapsible__body {
