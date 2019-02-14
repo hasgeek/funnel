@@ -64,12 +64,12 @@
         <hr class="mui-divider">
       </li>
     {%- endif %}
-    {%- if project.state.HAS_SESSIONS %}
+    {%- if project.old_state.HAS_SESSIONS %}
       <li class="cta">
         <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
-    {% if project.state.SUBMISSIONS -%}
+    {% if project.old_state.SUBMISSIONS -%}
       <li class="cta">
         <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
@@ -125,7 +125,7 @@
       <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
       <div class="project-section__instructions">{{ project.instructions|safe }}</div>
       <p class="mui--text-left">
-      {% if project.state.SUBMISSIONS -%}
+      {% if project.old_state.SUBMISSIONS -%}
         <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
       {%- endif %}
       </p>
@@ -181,7 +181,7 @@
     <div class="grid">
       <div class="grid__col-xs-12">
         <p class="mui--text-left">
-        {%- if project.state.HAS_SESSIONS %}
+        {%- if project.old_state.HAS_SESSIONS %}
           <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(page)">{% trans %}View Schedule{% endtrans %}</a>
         {%- endif %}
         </p>

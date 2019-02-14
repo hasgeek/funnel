@@ -69,11 +69,11 @@
                   {% endif %}
                   <div class="mui-divider"></div>
                   <div class="card__footer">
-                    {% if project.state.SUBMISSIONS -%}
+                    {% if project.old_state.SUBMISSIONS -%}
                       <a href="{{ project.url_for('new_proposal') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="Propose a session" data-action="Propose a session(index page card)">Propose a session</a>
-                    {%- elif project.state.HAS_SESSIONS -%}
+                    {%- elif project.old_state.HAS_SESSIONS -%}
                       <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View schedule" data-action="Schedule(index page card)">Schedule</a>
-                    {%- elif project.state.HAS_PROPOSALS -%}
+                    {%- elif project.old_state.HAS_PROPOSALS -%}
                       <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View proposals" data-action="View proposals(index page card)">Proposals</a>
                     {%- endif %}
                     {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}

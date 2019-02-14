@@ -100,10 +100,10 @@
     {%- if project.primary_venue -%}
       <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">Venue</a>
     {%- endif %}
-    {%- if project.state.HAS_SESSIONS %}
+    {%- if project.old_state.HAS_SESSIONS %}
       <a class="sub-navbar__item mui--text-subhead {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule</a>
     {%- endif %}
-    {%- if project.state.HAS_PROPOSALS -%}
+    {%- if project.old_state.HAS_PROPOSALS -%}
       <a class="sub-navbar__item mui--text-subhead {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#proposals" title="Proposals" data-action="Proposals(navbar)">Proposals</a>
     {%- endif %}
   </nav>
@@ -120,7 +120,7 @@
           {%- if transition_form %}
             <div>
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
-              <p class="mui--text-subhead">{{ project.state.label.title }}</p>
+              <p class="mui--text-subhead">{{ project.old_state.label.title }}</p>
               <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin">Change status</p>
               <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
                 {{ transition_form.hidden_tag() }}

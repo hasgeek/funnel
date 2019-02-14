@@ -92,7 +92,7 @@ class ProjectTransitionForm(forms.Form):
         label: transition object itself
         We need the whole object to get the additional metadata in templates
         """
-        self.transition.choices = self.edit_obj.state.transitions().items()
+        self.transition.choices = self.edit_obj.old_state.transitions().items()
 
 
 class SubprojectForm(ProjectForm):

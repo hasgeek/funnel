@@ -95,12 +95,12 @@
         <hr class="mui-divider">
       </li>
     {%- endif %}
-    {%- if project.state.HAS_SESSIONS %}
+    {%- if project.old_state.HAS_SESSIONS %}
       <li class="cta">
         <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
-    {% if project.state.SUBMISSIONS -%}
+    {% if project.old_state.SUBMISSIONS -%}
       <li class="cta">
         <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
