@@ -20,7 +20,7 @@ export const Utils = {
     return index;
   },
   collapse() {
-    $('.collapsible__header').click(function collapseContent() {
+    $('.collapsible__header').on('click', function collapseContent() {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).next('.collapsible__body').slideToggle();
     });

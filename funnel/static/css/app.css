@@ -29,7 +29,11 @@
   padding-right: 5px;
 }
 
-.list-item-rgborder .icon-middle,
+.list-item-rgborder .icon-middle {
+  position: relative;
+  top: 7px;
+}
+
 .material-icons.mui--align-middle {
   position: relative;
   top: -1px;
@@ -104,12 +108,28 @@
     transform: rotate(360deg);
   }
 }
-.collapsible__icon {
+.collapsible__header {
+  margin: 10px 0;
+  width: 100%;
+  background: #EFF2F7;
+  padding: 20px;
   cursor: pointer;
+}
+
+.collapsible__header--nobottommargin {
+  margin: 10px 0 0;
 }
 
 .collapsible__body {
   display: none;
+}
+
+html.touch .collapsible__icon--disable {
+  display: none;
+}
+
+html.touch .collapsible__body--disable {
+  display: block;
 }
 
 .mui-list--border li {
@@ -373,6 +393,7 @@
 
 .project-section {
   padding-top: 45px;
+  overflow-wrap: break-word;
 }
 
 .project-banner {
@@ -513,18 +534,38 @@
   margin-bottom: 2em;
 }
 
-.proposal-list-wrapper {
+.proposal-list-header {
+  margin: 10px 0 0;
   width: 100%;
+  background: #EFF2F7;
+  padding: 20px;
+}
+
+.proposal-list-table {
+  width: 100%;
+  border-spacing: 0;
+}
+.proposal-list-table tbody > tr > td {
+  border: 1px solid rgba(132, 146, 166, 0.3);
+  border-top: 0;
 }
 
 .search-proposal-form {
   width: 100%;
-  margin-bottom: 10px;
+  margin: 10px 0;
+  padding: 0 10px;
+  border: 1px solid rgba(132, 146, 166, 0.3);
+}
+.search-proposal-form .mui-textfield > input {
+  border-bottom: 0;
+}
+.search-proposal-form .mui-textfield--float-label > label {
+  font-size: 18px;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
   .search-proposal-form {
-    width: 300px;
+    width: 50%;
   }
 }
 .proposal-wrapper {
@@ -605,6 +646,7 @@
 
 .proposal__section {
   padding: 1em;
+  overflow-wrap: break-word;
 }
 
 .proposal__section--border {
@@ -969,6 +1011,7 @@
   }
   .schedule .schedule__row.schedule__row--sticky {
     display: flex;
+    overflow: scroll;
   }
   .schedule .schedule__row.schedule__row--sticky .schedule__row__column {
     display: flex;
@@ -1064,6 +1107,84 @@ body > .proposal-box.ui-draggable {
   border: 1px solid #333;
   font-size: .85em;
   cursor: pointer;
+}
+
+.schedule-settings {
+  margin-top: 10px;
+}
+
+.ui-dragable-box {
+  padding: 25px 10px 10px 20px;
+  border-radius: 3px;
+  border: 1px solid #333;
+  background: #FFF;
+  cursor: pointer;
+  position: relative;
+  margin: 10px 15px;
+}
+
+.ui-dragable-box--header {
+  border: 1px solid #ddd;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.ui-dragable-box--header .collapsible__header {
+  margin: 0;
+}
+
+.ui-dragable-box label {
+  cursor: pointer;
+}
+
+.ui-dragable-box .drag-icon {
+  position: absolute;
+  left: 5px;
+  top: 0;
+}
+
+.ui-dragable-box:hover {
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
+}
+
+.ui-box-placeholder, .ui-box-placeholder--bigger {
+  margin: 10px 15px;
+  padding: 10px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  background: #FFF;
+  height: 55px;
+}
+
+.ui-box-placeholder--bigger {
+  margin: 10px 0;
+  height: 80px;
+}
+
+.seq-input {
+  position: absolute;
+  right: 0px;
+  width: 20px;
+  border: 0;
+  top: 5px;
+  font-size: 14px;
+  line-height: 1;
+  color: #8492A6;
+}
+
+.seq-input--bg {
+  background: #EFF2F7;
+}
+
+.seq-input:focus,
+.seq-input:active {
+  outline: none;
+}
+
+.ui-dragable-box .sp-replacer {
+  margin-top: 5px;
+  margin-left: 5px;
 }
 
 .footer {

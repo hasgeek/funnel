@@ -37,6 +37,7 @@
 
 .project-section {
   padding-top: 45px;
+  overflow-wrap: break-word;
 }
 
 .project-banner {
@@ -184,17 +185,40 @@
   margin-bottom: 2em;
 }
 
-.proposal-list-wrapper {
+.proposal-list-header {
+  margin: 10px 0 0;
   width: 100%;
+  background: #EFF2F7;
+  padding: 20px;
+}
+
+.proposal-list-table {
+  width: 100%;
+  border-spacing: 0;
+
+  tbody>tr>td {
+    border: 1px solid rgba(132,146,166,0.3);
+    border-top: 0;
+  }
 }
 
 .search-proposal-form {
   width: 100%;
-  margin-bottom: 10px;
+  margin: 10px 0;
+  padding: 0 10px;
+  border: 1px solid rgba(132,146,166,0.3);
+
+  .mui-textfield>input {
+    border-bottom: 0;
+  }
+
+  .mui-textfield--float-label>label {
+    font-size: 18px;
+  }
 }
 
-@media(min-width: 992px) {
+@media (min-width: 1200px) {
   .search-proposal-form {
-    width: 300px;
+    width: 50%;
   }
 }

@@ -44,11 +44,28 @@ $(function() {
             container: $('#settings'),
             color_form: $('#room_colors'),
             onColorChange: function(color) {
+                console.log('this', this, color);
                 ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
                 calendar.render();
             },
+            applySortable: function () {
+                $(this).sortable({
+                    placeholder: $(this).data('drag-placeholder'),
+                    cursor: 'move',
+                    update: function() {
+                        $(this).children().each(function(index) {
+                            $(this).children('input[name$="seq"]').val(++index);
+                        });
+                    }
+                });
+                $(this).find("div.sortable").each(settings.applySortable);
+            },
             init: function() {
                 if(this.editable) {
+                    $('#proposals-tab').easytabs();
+
+                    $(".sortable").each(settings.applySortable);
+
                     this.color_form.find('input[type=text]').each(function() {
                         $(this).spectrum({
                             showInitial: true,
@@ -65,13 +82,34 @@ $(function() {
                         calendar.render();
                     });
                     this.color_form.submit(function() {
-                        var data = $(this).serializeArray();
+                        var json = {};
+
+                        $('input[name="uuid"]').each(function(index, element) {
+                            var venue = $(element).val();
+                            json[venue] = {
+                                'seq': $('input[name="venue-seq"][data-venue="'+venue+'"]').val(),
+                                'rooms': []
+                            };
+                            $('input[data-venue="'+venue+'"]').each(function(index, element) {
+                                if($(element).attr('name') === 'room-suuid') {
+                                    var roomSuuid = $(element).val();
+                                    var room = {
+                                        'suuid': roomSuuid,
+                                        'seq': $('input[name="room-seq"][data-room="'+roomSuuid+'"]').val(),
+                                        'color': $('input[name="color"][data-room="'+roomSuuid+'"]').val()
+                                    };
+                                    json[venue]['rooms'].push(room);
+                                }
+                            });
+                        });
                         $.ajax({
-                            url: COLORS_UPDATE_URL,
+                            url: SETTINGS_UPDATE_URL,
                             type: 'POST',
-                            data: data,
+                            dataType: 'json',
+                            contentType: "application/json",
+                            data: JSON.stringify(json),
                             success: function(result) {
-                                toastr.success("The colors have been updated.")
+                                toastr.success("The room sequence and colors have been updated.")
                             },
                             complete: function(xhr, type) {
                                 if(type == 'error' || type == 'timeout') {
@@ -240,7 +278,7 @@ $(function() {
                     },
                     eventRender: function(event, element) {
                       if (event.speaker) {
-                        element.find('.fc-event-title').append("<br/> by <b>" + event.speaker + "</b>"); 
+                        element.find('.fc-event-title').append("<br/> by <b>" + event.speaker + "</b>");
                       }
                     }
                 },
@@ -364,7 +402,7 @@ $(function() {
                     }
                 })
             };
-            
+
             obj.remove = function(event) {
                 calendar.container.fullCalendar('removeEvents', event._id);
             };
