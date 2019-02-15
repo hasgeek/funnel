@@ -78,6 +78,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
 
     _old_state = db.Column(
+        'old_state',
         db.Integer,
         StateManager.check_constraint('old_state', OLD_PROJECT_STATE),
         default=OLD_PROJECT_STATE.DRAFT,
