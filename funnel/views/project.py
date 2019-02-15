@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unicodecsv
-from uuid import uuid4
 from cStringIO import StringIO
 from flask import g, flash, redirect, Response, request, abort, current_app
-from werkzeug.datastructures import MultiDict
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
@@ -12,14 +10,14 @@ from coaster.utils import getbool
 from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Project, Section, Proposal, Rsvp, Draft, RSVP_STATUS
+from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
 from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectBoxofficeForm
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-from .mixins import ProjectViewMixin, ProfileViewMixin, DraftModelViewMixin
+from .mixins import ProjectViewMixin, ProfileViewMixin, DraftViewMixin
 from .decorators import legacy_redirect
 
 
@@ -78,7 +76,7 @@ FunnelProfileProjectView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/')
-class ProjectView(ProjectViewMixin, DraftModelViewMixin, UrlForView, ModelView):
+class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
@@ -138,7 +136,7 @@ class ProjectView(ProjectViewMixin, DraftModelViewMixin, UrlForView, ModelView):
     def edit(self):
         if request.method == 'GET':
             # find draft if it exists
-            draft_revision, initial_formdata = self.autosave_get()
+            draft_revision, initial_formdata = self.get_draft_data()
 
             # initialize forms with draft initial formdata.
             # if no draft exists, initial_formdata is None. wtforms ignore formdata if it's None.
@@ -166,7 +164,9 @@ class ProjectView(ProjectViewMixin, DraftModelViewMixin, UrlForView, ModelView):
                     tag_locations.queue(self.obj.id)
 
                     # find and delete draft if it exists
-                    self.delete_draft()
+                    if self.get_draft() is not None:
+                        self.delete_draft()
+                        db.session.commit()
 
                     return redirect(self.obj.url_for(), code=303)
                 else:

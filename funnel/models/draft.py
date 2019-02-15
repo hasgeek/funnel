@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy_utils import UUIDType
+from werkzeug.datastructures import MultiDict
 from . import db, JsonDict, NoIdMixin
 
 __all__ = ['Draft']
@@ -14,3 +15,11 @@ class Draft(NoIdMixin, db.Model):
     table_row_id = db.Column(UUIDType(binary=False), primary_key=True)
     body = db.Column(JsonDict, nullable=False, server_default='{}')
     revision = db.Column(UUIDType(binary=False))
+
+    @property
+    def formdata(self):
+        return MultiDict(self.body['form']) if 'form' in self.body else MultiDict({})
+
+    @formdata.setter
+    def formdata(self, value):
+        self.body = {'form': value}
