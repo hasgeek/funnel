@@ -101,7 +101,11 @@ def upgrade():
             project.update().where(project.c.old_state == old_state).values(
                 {'state': new_state[0], 'cfp_state': new_state[1]}))
 
-    # TODO: find projects with session objects and change schedule state to published
+    # For existing projects, assume the presence of a session to indicate a published schedule.
+    # New projects will require explicit publication.
+    op.execute(
+        sa.DDL(
+            'UPDATE project SET schedule_state=1 WHERE id IN (SELECT DISTINCT(project_id) FROM session)'))
 
 
 def downgrade():
