@@ -43,22 +43,25 @@ class SCHEDULE_STATE:
     PUBLISHED = 1
 
 
-upgrade_states = {
-    OLD_STATE.DRAFT: (PROJECT_STATE.DRAFT, CFP_STATE.NONE),
-    OLD_STATE.SUBMISSIONS: (PROJECT_STATE.PUBLISHED, CFP_STATE.PUBLIC),
-    OLD_STATE.VOTING: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED),
-    OLD_STATE.JURY: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED),
-    OLD_STATE.FEEDBACK: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED),
-    OLD_STATE.CLOSED: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED),
-    OLD_STATE.WITHDRAWN: (PROJECT_STATE.WITHDRAWN, CFP_STATE.CLOSED),
-}
-
-
 project = table('project',
+    column('created_at', sa.DateTime()),
     column('old_state', sa.Integer()),
     column('state', sa.Integer()),
     column('cfp_state', sa.Integer()),
-    column('schedule_state', sa.Integer()))
+    column('cfp_start_at', sa.DateTime()),
+    column('schedule_state', sa.Integer()),
+)
+
+
+upgrade_states = {
+    OLD_STATE.DRAFT: (PROJECT_STATE.DRAFT, CFP_STATE.NONE, None),
+    OLD_STATE.SUBMISSIONS: (PROJECT_STATE.PUBLISHED, CFP_STATE.PUBLIC, project.c.created_at),
+    OLD_STATE.VOTING: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED, None),
+    OLD_STATE.JURY: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED, None),
+    OLD_STATE.FEEDBACK: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED, None),
+    OLD_STATE.CLOSED: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED, None),
+    OLD_STATE.WITHDRAWN: (PROJECT_STATE.WITHDRAWN, CFP_STATE.CLOSED, None),
+}
 
 
 def upgrade():
@@ -99,7 +102,7 @@ def upgrade():
     for old_state, new_state in upgrade_states.items():
         op.execute(
             project.update().where(project.c.old_state == old_state).values(
-                {'state': new_state[0], 'cfp_state': new_state[1]}))
+                {'state': new_state[0], 'cfp_state': new_state[1], 'cfp_start_at': new_state[2]}))
 
     # For existing projects, assume the presence of a session to indicate a published schedule.
     # New projects will require explicit publication.
