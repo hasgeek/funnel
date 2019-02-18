@@ -146,7 +146,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project, formdata=initial_formdata)
 
             if not self.obj.timezone:
-                form.timezone.data = current_app.config.get('TIMEZONE')
+                form.timezone.data = current_auth.user.timezone
 
             return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True, draft_revision=draft_revision)
         elif request.method == 'POST':

@@ -18,7 +18,7 @@ class Draft(NoIdMixin, db.Model):
 
     @property
     def formdata(self):
-        return MultiDict(self.body['form']) if 'form' in self.body else MultiDict({})
+        return MultiDict(self.body.get('form', {}))
 
     @formdata.setter
     def formdata(self, value):

@@ -186,14 +186,12 @@ class DraftViewMixin(object):
                 if client_revision is None or (client_revision is not None and str(draft.revision) != client_revision):
                     # draft exists, but the form did not send a revision ID,
                     # OR revision ID sent by client does not match the last revision ID
-                    return {'error': _("There has been changes to this draft since you last edited it. Please reload.")}, 400
+                    return {'error': _("There have been changes to this draft since you last edited it. Please reload.")}, 400
                 elif client_revision is not None and str(draft.revision) == client_revision:
                     # revision ID sent my client matches, save updated draft data and update revision ID
                     existing = draft.formdata
-                    for key in incoming_data.keys():
-                        if existing[key] != incoming_data[key]:
-                            existing[key] = incoming_data[key]
-                    draft.body = {'form': existing}
+                    existing.update(incoming_data)
+                    draft.formdata = existing
                     draft.revision = uuid4()
             elif draft is None and client_revision:
                 # The form contains a revision ID but no draft exists.
