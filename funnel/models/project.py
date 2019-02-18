@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 
@@ -44,7 +46,7 @@ class PROJECT_STATE(LabeledEnum):
 
 class CFP_STATE(LabeledEnum):
     NONE = (0, 'none', __(u"None"))
-    OPEN = (1, 'open', __(u"Open"))
+    PUBLIC = (1, 'public', __(u"Public"))
     CLOSED = (2, 'closed', __(u"Closed"))
 
 
@@ -226,6 +228,25 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
     old_state.add_conditional_state('HAS_SESSIONS', old_state.POST_DRAFT,
         lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
+
+    cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
+        lambda project: project.instructions.html != '',
+        lambda project: project.__table__.c.instructions_html != '',
+        label=('private_draft', __("Private draft")))
+    cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at > db.func.utcnow(),
+        label=('upcoming', __("Upcoming")))
+    cfp_state.add_conditional_state('OPEN', cfp_state.PUBLIC,
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= datetime.utcnow() and (
+            project.cfp_end_at is None or project.cfp_end_at > datetime.utcnow()),
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow() and (
+            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow()),
+        label=('open', __("Open")))
+    cfp_state.add_conditional_state('EXPIRED', cfp_state.PUBLIC,
+        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= datetime.utcnow(),
+        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= db.func.utcnow(),
+        label=('expired', __("Expired")))
 
     @with_roles(call={'admin'})
     @old_state.transition(
