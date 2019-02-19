@@ -79,10 +79,10 @@
                 if (response.readyState === 4) {
                   if (response.status === 500) {
                     errorMsg ='Internal Server Error. Please reload and try again.';
-                  } else if(response.status === 400) {
+                  } else {
                     // There is a version mismatch, notify user to reload the page.
                     waitingForResponse = true;
-                    errorMsg = 'This page has been edited elsewhere. Please reload the page to avoid losing those changes.';
+                    errorMsg = JSON.parse(response.responseText).error_description;
                   }
                 } else {
                   errorMsg = 'Unable to connect. Please reload and try again.';
