@@ -193,7 +193,6 @@ class DraftViewMixin(object):
                     for key in incoming_data.keys():
                         if existing[key] != incoming_data[key]:
                             existing[key] = incoming_data[key]
-                    draft.body = {'form': existing}
                     draft.formdata = existing
                     draft.revision = uuid4()
             elif draft is None and client_revision:
