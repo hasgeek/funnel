@@ -118,10 +118,10 @@
       </div>
       <div class="card__body">
         {%- if project.current_roles.admin %}
-          {%- if project.project_state.DRAFT %}
+          {%- if project.state.DRAFT %}
             <div>
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
-              <p class="mui--text-subhead">{{ project.project_state.label.title }}</p>
+              <p class="mui--text-subhead">{{ project.state.label.title }}</p>
               <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
                 {{ transition_form.hidden_tag() }}
                 <p class="btn-group">
