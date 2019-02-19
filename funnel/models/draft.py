@@ -22,4 +22,7 @@ class Draft(NoIdMixin, db.Model):
 
     @formdata.setter
     def formdata(self, value):
-        self.body = {'form': value}
+        if self.body is not None:
+            self.body['form'] = value
+        else:
+            self.body = {'form': value}
