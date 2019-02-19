@@ -7,7 +7,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from baseframe import __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
-from ..models import RSVP_STATUS
+from ..models import RSVP_STATUS, Project
 
 __all__ = [
     'EventForm', 'ProjectForm', 'ProjectTransitionForm', 'RsvpForm',
@@ -76,6 +76,8 @@ class ProjectForm(forms.Form):
         self.admin_team.query = profile_teams
         self.review_team.query = profile_teams
         self.checkin_team.query = profile_teams
+        self.parent_project.query = Project.query.filter(
+            Project.profile == self.edit_obj.profile, Project.id != self.edit_obj.id, Project.parent_project == None)  # NOQA
 
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
