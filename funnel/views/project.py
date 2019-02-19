@@ -147,6 +147,17 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for(), code=303)
         return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
 
+    @route('add_cfp', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit_project')
+    def add_cfp(self):
+        # TODO: Create a CFP form and update it here
+        if self.obj.parent_project:
+            form = SubprojectForm(obj=self.obj, model=Project)
+        else:
+            form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+        return render_form(form=form, title=_("Add a CFP"), submit=_("Save changes"))
+
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit_project')

@@ -91,15 +91,15 @@
         <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- endif %}
-    {%- if project.old_state.HAS_SESSIONS %}
+    {%- if project.schedule_state.PUBLISHED %}
       <li class="cta">
         <hr class="mui-divider">
         <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
-    {% if project.old_state.SUBMISSIONS -%}
+    {% if project.cfp_state.PUBLIC -%}
       <li class="cta">
-        {%- if not project.state.HAS_SESSIONS %}<hr class="mui-divider">{% endif %}
+        {%- if not project.schedule_state.PUBLISHED %}<hr class="mui-divider">{% endif %}
         <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
@@ -118,9 +118,24 @@
       {% endif %}
     </div>
 
-    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="proposals">
-      <div class="grid__col-xs-12">
-        <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
+   {% if project.cfp_state.PUBLIC -%}
+    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="call-for-proposal">
+      <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8">
+        <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
+        <div class="project-section__instructions">{{ project.instructions|safe }}</div>
+        <p class="mui--text-left">
+          <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
+        </p>
+      </div>
+    </div>
+  {%- endif %}
+  </div>
+
+
+  {% if project.state.HAS_PROPOSALS -%}
+  <div class="grid project-section" id="proposals">
+    <div class="grid__col-xs-12">
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
         {%- if current_auth.permissions.view_status %}
           <div>
             <form class="mui-form mui--pull-left search-proposal-form mui--z1">
@@ -147,6 +162,7 @@
       </div>
     </div>
   </div>
+  {%- endif %}
 {% endblock %}
 
 {% block footerscripts %}
