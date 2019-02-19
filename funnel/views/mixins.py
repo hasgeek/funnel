@@ -190,7 +190,10 @@ class DraftViewMixin(object):
                 elif client_revision is not None and str(draft.revision) == client_revision:
                     # revision ID sent my client matches, save updated draft data and update revision ID
                     existing = draft.formdata
-                    existing.update(incoming_data)
+                    for key in incoming_data.keys():
+                        if existing[key] != incoming_data[key]:
+                            existing[key] = incoming_data[key]
+                    draft.body = {'form': existing}
                     draft.formdata = existing
                     draft.revision = uuid4()
             elif draft is None and client_revision:
