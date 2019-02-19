@@ -81,8 +81,12 @@
   </div>
   <nav class="sub-navbar sub-navbar--sticky mui--bg-accent" id="page-navbar">
     <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" title="About" data-action="About(navbar)">About</a>
-    {%- if project.instructions -%}
-      <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#call-for-proposal" title="Call for proposals" data-action="Call for proposals(navbar)">Call for proposals</a>
+    {%- if not project.cfp_state.NONE -%}
+      {%- if project.cfp_state.PUBLIC -%}
+        <a class="sub-navbar__item mui--text-subhead {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" title="Call for proposals" data-action="Call for proposals(navbar)">Call for proposals</a>
+      {%- elif project.state.HAS_PROPOSALS %}
+        <a class="sub-navbar__item mui--text-subhead {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#proposals" title="Proposals" data-action="Proposals(navbar)">Proposals</a>
+      {%- endif %}
     {%- endif %}
     {%- if project.featured_sessions %}
       <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)">Talks</a>
@@ -100,11 +104,8 @@
     {%- if project.primary_venue -%}
       <a class="sub-navbar__item mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">Venue</a>
     {%- endif %}
-    {%- if project.old_state.HAS_SESSIONS %}
+    {%- if project.schedule_state.PUBLISHED %}
       <a class="sub-navbar__item mui--text-subhead {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule</a>
-    {%- endif %}
-    {%- if project.old_state.HAS_PROPOSALS -%}
-      <a class="sub-navbar__item mui--text-subhead {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#proposals" title="Proposals" data-action="Proposals(navbar)">Proposals</a>
     {%- endif %}
   </nav>
 {% endmacro %}
@@ -117,17 +118,14 @@
       </div>
       <div class="card__body">
         {%- if project.current_roles.admin %}
-          {%- if transition_form %}
+          {%- if project.state.DRAFT %}
             <div>
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
-              <p class="mui--text-subhead">{{ project.old_state.label.title }}</p>
-              <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin">Change status</p>
+              <p class="mui--text-subhead">{{ project.state.label.title }}</p>
               <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
                 {{ transition_form.hidden_tag() }}
                 <p class="btn-group">
-                  {% for name, transition in transition_form.transition.choices %}
-                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
-                  {% endfor %}
+                  <!-- TODO: Add button to publish the draft -->
                 </p>
               </form>
             </div>
@@ -138,6 +136,11 @@
               <li>
                 <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
               </li>
+              {% if project.cfp_state.NONE -%}
+              <li>
+                <a href="{{ project.url_for('add_cfp') }}" title="Add a CFP">{% trans %}Add a call for proposals{% endtrans %}</a>
+              </li>
+              {%- endif %}
               <li>
                 <a href="{{ project.url_for('edit_schedule') }}" title="Edit schedule">{% trans %}Edit schedule{% endtrans %}</a>
               </li>
