@@ -6,6 +6,7 @@ from flask import g, flash, redirect, Response, request, abort, current_app
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
+from coaster.utils import getbool
 from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
@@ -16,7 +17,7 @@ from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
 from .section import section_data
-from .mixins import ProjectViewMixin, ProfileViewMixin
+from .mixins import ProjectViewMixin, ProfileViewMixin, DraftViewMixin
 from .decorators import legacy_redirect
 
 
@@ -75,7 +76,7 @@ FunnelProfileProjectView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/')
-class ProjectView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
@@ -129,23 +130,47 @@ class ProjectView(ProjectViewMixin, UrlForView, ModelView):
             headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
 
     @route('edit', methods=['GET', 'POST'])
+    @render_with(json=True)
     @lastuser.requires_login
     @requires_permission('edit_project')
     def edit(self):
-        if self.obj.parent_project:
-            form = SubprojectForm(obj=self.obj, model=Project)
-        else:
-            form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
-        form.parent_project.query = Project.query.filter(Project.profile == self.obj.profile, Project.id != self.obj.id, Project.parent_project == None)  # NOQA
-        if request.method == 'GET' and not self.obj.timezone:
-            form.timezone.data = current_app.config.get('TIMEZONE')
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            db.session.commit()
-            flash(_("Your changes have been saved"), 'info')
-            tag_locations.queue(self.obj.id)
-            return redirect(self.obj.url_for(), code=303)
-        return render_form(form=form, title=_("Edit project"), submit=_("Save changes"))
+        if request.method == 'GET':
+            # find draft if it exists
+            draft_revision, initial_formdata = self.get_draft_data()
+
+            # initialize forms with draft initial formdata.
+            # if no draft exists, initial_formdata is None. wtforms ignore formdata if it's None.
+            if self.obj.parent_project:
+                form = SubprojectForm(obj=self.obj, model=Project, formdata=initial_formdata)
+            else:
+                form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project, formdata=initial_formdata)
+
+            if not self.obj.timezone:
+                form.timezone.data = current_auth.user.timezone
+
+            return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True, draft_revision=draft_revision)
+        elif request.method == 'POST':
+            if getbool(request.args.get('form.autosave')):
+                return self.autosave_post()
+            else:
+                if self.obj.parent_project:
+                    form = SubprojectForm(obj=self.obj, model=Project)
+                else:
+                    form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+                if form.validate_on_submit():
+                    form.populate_obj(self.obj)
+                    db.session.commit()
+                    flash(_("Your changes have been saved"), 'info')
+                    tag_locations.queue(self.obj.id)
+
+                    # find and delete draft if it exists
+                    if self.get_draft() is not None:
+                        self.delete_draft()
+                        db.session.commit()
+
+                    return redirect(self.obj.url_for(), code=303)
+                else:
+                    return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
 
     @route('add_cfp', methods=['GET', 'POST'])
     @lastuser.requires_login

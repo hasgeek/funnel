@@ -1,7 +1,10 @@
+from uuid import uuid4
 from flask import abort, g, redirect, request
+from baseframe import _, forms
 from coaster.utils import require_one_of
-from ..models import (Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
-    UserGroup, Venue, VenueRoom, Section)
+from werkzeug.datastructures import MultiDict
+from ..models import (Draft, Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
+    UserGroup, Venue, VenueRoom, Section, db)
 
 
 class ProjectViewMixin(object):
@@ -130,3 +133,80 @@ class SectionViewMixin(object):
             ).first_or_404()
         g.profile = section.project.profile
         return section
+
+
+class DraftViewMixin(object):
+    def get_draft(self, obj=None):
+        """
+        Returns the draft object for `obj`. Defaults to `self.obj`.
+        `obj` is needed in case of multi-model views.
+        """
+        obj = obj if obj is not None else self.obj
+        return Draft.query.get((self.model.__tablename__, obj.uuid))
+
+    def delete_draft(self, obj=None):
+        """
+        Deletes draft for `obj`, or `self.obj` if `obj` is `None`.
+        """
+        draft = self.get_draft(obj)
+        if draft is not None:
+            db.session.delete(draft)
+        else:
+            raise ValueError(_("There is no draft for the given object."))
+
+    def get_draft_data(self, obj=None):
+        """
+        Returns a tuple of the current draft revision and the formdata needed to initialize forms
+        """
+        draft = self.get_draft(obj)
+        if draft is not None:
+            return draft.revision, draft.formdata
+        else:
+            return None, None
+
+    def autosave_post(self, obj=None):
+        """
+        Handles autosave POST requests
+        """
+        obj = obj if obj is not None else self.obj
+        if 'form.revision' not in request.form:
+            # as form.autosave is true, the form should have `form.revision` field even if it's empty
+            return {'status': 'error', 'error_identifier': 'form_missing_revision_field', 'error_description': _("Form must contain a revision ID.")}, 400
+
+        # CSRF check
+        if forms.Form().validate_on_submit():
+            incoming_data = MultiDict(request.form.items(multi=True))
+            client_revision = incoming_data.pop('form.revision')
+            incoming_data.pop('csrf_token', None)
+
+            # find the last draft
+            draft = self.get_draft(obj)
+
+            if draft is not None:
+                if client_revision is None or (client_revision is not None and str(draft.revision) != client_revision):
+                    # draft exists, but the form did not send a revision ID,
+                    # OR revision ID sent by client does not match the last revision ID
+                    return {'status': 'error', 'error_identifier': 'missing_or_invalid_revision', 'error_description': _("There have been changes to this draft since you last edited it. Please reload.")}, 400
+                elif client_revision is not None and str(draft.revision) == client_revision:
+                    # revision ID sent my client matches, save updated draft data and update revision ID
+                    existing = draft.formdata
+                    for key in incoming_data.keys():
+                        if existing[key] != incoming_data[key]:
+                            existing[key] = incoming_data[key]
+                    draft.formdata = existing
+                    draft.revision = uuid4()
+            elif draft is None and client_revision:
+                # The form contains a revision ID but no draft exists.
+                # Somebody is making autosave requests with an invalid draft ID.
+                return {'status': 'error', 'error_identifier': 'invalid_or_expired_revision', 'error_description': _("Invalid revision ID or the existing changes have been submitted already. Please reload.")}, 400
+            else:
+                # no draft exists, create one
+                draft = Draft(
+                    table=Project.__tablename__, table_row_id=obj.uuid,
+                    formdata=incoming_data, revision=uuid4()
+                    )
+            db.session.add(draft)
+            db.session.commit()
+            return {'revision': draft.revision}
+        else:
+            return {'status': 'error', 'error_identifier': 'invalid_csrf', 'error_description': _("Invalid CSRF token")}, 400
