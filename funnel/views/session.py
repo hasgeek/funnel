@@ -3,7 +3,7 @@
 from datetime import datetime
 from pytz import timezone
 from baseframe import _
-from flask import request, render_template, jsonify, redirect, abort
+from flask import request, render_template, jsonify, abort
 from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs
 from coaster.sqlalchemy import failsafe_add
 
@@ -93,7 +93,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
         return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
             from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),
             sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
-            timezone=timezone(self.obj.project.timezone).utcoffset(datetime.now()).total_seconds(),
+            timezone=self.obj.project.timezone.utcoffset(datetime.utcnow()).total_seconds(),
             venues=[dict(venue.current_access()) for venue in self.obj.project.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
 
@@ -101,7 +101,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @render_with('session_view_popup.html.jinja2')
     @requires_permission('view')
     def view_popup(self):
-        return dict(session=self.obj, timezone=self.obj.project.timezone, localize_date=localize_date)
+        return dict(session=self.obj, timezone=self.obj.project.timezone.zone, localize_date=localize_date)
 
     @route('editsession', methods=['GET', 'POST'])
     @lastuser.requires_login
