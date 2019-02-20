@@ -1,0 +1,44 @@
+{% extends "formlayout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderfield, rendersubmit, ajaxform %}
+{% block title %}Add a call for proposals{% endblock %}
+
+{% block content %}
+  {%- if message %}
+    <p class="form-message">{{ message }}</p>
+  {%- endif %}
+  <form data-parsley-validate="true" id="cfp" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form" novalidate="">
+    {{ form.hidden_tag() }}
+    {{ renderfield(form.instructions, autofocus=true) }}
+    <div id="cfp-publish-actions" class="btn-wrapper hide">
+      <button name="open-now" class="cfp-action-btn">Open CFP now</button>
+      <button name="later" class="cfp-action-btn">Schedule to later</button>
+    </div>
+    {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-date") }}
+    {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-date-upto") }}
+    <div class="mui-form form-actions clearfix">
+      <div>
+        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
+        <span class="loading mui--hide"><i class="material-icons mui--align-middle mui--text-dark-secondary">refresh</i></span>
+      </div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block footerscripts %}
+  <script type="text/javascript">
+    $(function() {
+      $('button[name="open-now"]').click(function(event) {
+        event.preventDefault();
+        $('#cfp_start_at-date').val(new Date().toISOString().split('T')[0]);
+        $('#cfp_start_at-time').val(new Date().toLocaleTimeString());
+        $('.js-cfp-date-upto').removeClass('mui--hide');
+      });
+      $('button[name="later"]').click(function(event) {
+        event.preventDefault();
+        $('.js-cfp-date').removeClass('mui--hide');
+        $('.js-cfp-date-upto').removeClass('mui--hide');
+      });
+    });
+  </script>
+  {{ ajaxform("cfp", request) }}
+{% endblock %}

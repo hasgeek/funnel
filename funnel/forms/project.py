@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from ..models import RSVP_STATUS, Project
 
 __all__ = [
-    'EventForm', 'ProjectForm', 'ProjectTransitionForm', 'RsvpForm',
+    'EventForm', 'ProjectForm', 'CFPForm', 'ProjectTransitionForm', 'RsvpForm',
     'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm'
 ]
 
@@ -41,8 +41,6 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
     description = forms.MarkdownField(__("Project description"), validators=[forms.validators.DataRequired()],
         description=__("About Event"))
-    instructions = forms.MarkdownField(__("CFP instructions"),
-        description=__("These instructions will be shown to the proposer with their submission form"), default=u'')
     timezone = forms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')
@@ -85,6 +83,18 @@ class ProjectForm(forms.Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+
+class CFPForm(forms.Form):
+    cfp_start_at = forms.DateTimeField(__("Start date and time"),
+        validators=[forms.validators.DataRequired(__("Start date and time is required"))])
+    cfp_end_at = forms.DateTimeField(__("End date and time"),
+        validators=[
+            forms.validators.DataRequired(__("End date and time is required")),
+            forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))
+            ])
+    instructions = forms.MarkdownField(__("CFP instructions"),
+        description=__("These instructions will be shown to the proposer with their submission form"), default=u'')
 
 
 class ProjectTransitionForm(forms.Form):
