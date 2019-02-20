@@ -30,8 +30,8 @@ def project_data(project):
         'timezone': project.timezone,
         'start': project.date.isoformat() if project.date else None,
         'end': project.date_upto.isoformat() if project.date_upto else None,
-        'status': project.state.value,
-        'state': project.state.label.name,
+        'status': project.old_state.value,
+        'state': project.old_state.label.name,
         'url': project.url_for(_external=True),
         'website': project.website,
         'json_url': project.url_for('json', _external=True),
@@ -170,6 +170,17 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     return redirect(self.obj.url_for(), code=303)
                 else:
                     return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
+
+    @route('add_cfp', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit_project')
+    def add_cfp(self):
+        # TODO: Create a CFP form and update it here
+        if self.obj.parent_project:
+            form = SubprojectForm(obj=self.obj, model=Project)
+        else:
+            form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+        return render_form(form=form, title=_("Add a CFP"), submit=_("Save changes"))
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
