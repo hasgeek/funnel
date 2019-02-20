@@ -27,7 +27,7 @@ def project_data(project):
         'name': project.name,
         'title': project.title,
         'datelocation': project.datelocation,
-        'timezone': project.timezone,
+        'timezone': project.timezone.zone,
         'start': project.date.isoformat() if project.date else None,
         'end': project.date_upto.isoformat() if project.date_upto else None,
         'status': project.old_state.value,

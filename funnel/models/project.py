@@ -4,6 +4,8 @@ from datetime import datetime
 
 from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy_utils import TimezoneType
+from pytz import utc
 
 from baseframe import __
 
@@ -78,7 +80,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     date_upto = db.Column(db.Date, nullable=True)
 
     website = db.Column(db.Unicode(2000), nullable=True)
-    timezone = db.Column(db.Unicode(40), nullable=False, default=u'UTC')
+    timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
 
     _old_state = db.Column(
         'old_state',
