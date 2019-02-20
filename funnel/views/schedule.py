@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from pytz import timezone, utc
+from pytz import utc
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event, Alarm
 from sqlalchemy import or_
