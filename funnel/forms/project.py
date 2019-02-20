@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-from pytz import timezone as pytz_timezone
 from wtforms.widgets import CheckboxInput, ListWidget
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 
@@ -46,7 +45,7 @@ class ProjectForm(forms.Form):
         description=__("About Event"))
     instructions = forms.MarkdownField(__("CFP instructions"),
         description=__("These instructions will be shown to the proposer with their submission form"), default=u'')
-    timezone = forms.SelectField(__("Timezone"), coerce=pytz_timezone,
+    timezone = forms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')
     bg_image = forms.URLField(__("Background image URL"), description=u"Background image for the mobile app",
