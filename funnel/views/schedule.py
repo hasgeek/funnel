@@ -16,7 +16,7 @@ from .. import app, funnelapp, lastuser
 from ..models import db, Session
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 from .helpers import localize_date
-from .venue import venue_data, room_data
+from .venue import room_data
 from .decorators import legacy_redirect
 
 
@@ -101,11 +101,11 @@ def session_ical(session):
     event = Event()
     event.add('summary', session.title)
     event.add('uid', "/".join([session.project.name, session.url_name]) + '@' + request.host)
-    event.add('dtstart', utc.localize(session.start).astimezone(timezone(session.project.timezone)))
-    event.add('dtend', utc.localize(session.end).astimezone(timezone(session.project.timezone)))
-    event.add('dtstamp', utc.localize(datetime.now()).astimezone(timezone(session.project.timezone)))
-    event.add('created', utc.localize(session.created_at).astimezone(timezone(session.project.timezone)))
-    event.add('last-modified', utc.localize(session.updated_at).astimezone(timezone(session.project.timezone)))
+    event.add('dtstart', utc.localize(session.start).astimezone(session.project.timezone))
+    event.add('dtend', utc.localize(session.end).astimezone(session.project.timezone))
+    event.add('dtstamp', utc.localize(datetime.now()).astimezone(session.project.timezone))
+    event.add('created', utc.localize(session.created_at).astimezone(session.project.timezone))
+    event.add('last-modified', utc.localize(session.updated_at).astimezone(session.project.timezone))
     if session.venue_room:
         location = [session.venue_room.title + " - " + session.venue_room.venue.title]
         if session.venue_room.venue.city:
@@ -146,7 +146,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         return dict(project=self.obj,
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
             sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
-            timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
+            timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             venues=[dict(venue.current_access()) for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
@@ -198,7 +198,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         to_date = (last_session and last_session.start.date() > self.obj.date_upto and last_session.start) or self.obj.date_upto
         return dict(project=self.obj, proposals=proposals,
             from_date=date_js(from_date), to_date=date_js(to_date),
-            timezone=timezone(self.obj.timezone).utcoffset(datetime.now()).total_seconds(),
+            timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             venues=[dict(venue.current_access()) for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
