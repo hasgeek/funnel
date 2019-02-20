@@ -3,18 +3,33 @@
 {% block title %}Add a call for proposals{% endblock %}
 
 {% block content %}
+  {%- if form.errors %}
+    <div class="alert alert--error alert--dismissable">
+      <a class="alert__close" href="javascript:void(0);" aria-label="close"><i class="material-icons">clear</i></a>
+      <p class="alert__text"><i class="material-icons alert__icon">error</i> {% trans %}Please review the indicated issues{% endtrans %}</p>
+    </div>
+  {%- endif %}
   {%- if message %}
     <p class="form-message">{{ message }}</p>
   {%- endif %}
-  <form data-parsley-validate="true" id="cfp" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form" novalidate="">
+  <form data-parsley-validate="true" id="cfp-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form">
     {{ form.hidden_tag() }}
     {{ renderfield(form.instructions, autofocus=true) }}
+    {%- for error in form.instructions.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
     <div id="cfp-publish-actions" class="btn-wrapper hide">
       <button name="open-now" class="cfp-action-btn">Open CFP now</button>
       <button name="later" class="cfp-action-btn">Schedule to later</button>
     </div>
-    {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-date") }}
-    {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-date-upto") }}
+    {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
+    {%- for error in form.cfp_start_at.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
+    {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-end-at") }}
+    {%- for error in form.cfp_end_at.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
     <div class="mui-form form-actions clearfix">
       <div>
         <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
@@ -27,18 +42,30 @@
 {% block footerscripts %}
   <script type="text/javascript">
     $(function() {
+      // Set current date & time in cfp_start_at input field and show cfp_end_at input field.
       $('button[name="open-now"]').click(function(event) {
         event.preventDefault();
         $('#cfp_start_at-date').val(new Date().toISOString().split('T')[0]);
         $('#cfp_start_at-time').val(new Date().toLocaleTimeString());
-        $('.js-cfp-date-upto').removeClass('mui--hide');
+        $('.js-cfp-end-at').removeClass('mui--hide');
       });
+
+      // Show cfp_start_at and cfp_end_at input field.
       $('button[name="later"]').click(function(event) {
         event.preventDefault();
-        $('.js-cfp-date').removeClass('mui--hide');
-        $('.js-cfp-date-upto').removeClass('mui--hide');
+        $('.js-cfp-start-at').removeClass('mui--hide');
+        $('.js-cfp-end-at').removeClass('mui--hide');
+      });
+
+      // For parsley validation .
+      $('#cfp-form').parsley().subscribe('parsley:field:validated', function(){
+        if ($('#cfp-form').parsley().isValid())
+          $('#cfp-form').addClass('parsley-valid').removeClass('parsley-invalid');
+        else
+          $('#cfp-form').addClass('parsley-invalid').removeClass('parsley-valid');
       });
     });
   </script>
-  {{ ajaxform("cfp", request) }}
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+  {{ ajaxform("cfp-form", request) }}
 {% endblock %}

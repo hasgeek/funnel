@@ -86,15 +86,13 @@ class ProjectForm(forms.Form):
 
 
 class CFPForm(forms.Form):
+    instructions = forms.MarkdownField(__("Call for proposal"),
+        validators=[forms.validators.DataRequired()],
+        description=__("Event theme"), default=u'')
     cfp_start_at = forms.DateTimeField(__("Start date and time"),
-        validators=[forms.validators.DataRequired(__("Start date and time is required"))])
+        validators=[forms.validators.Optional()])
     cfp_end_at = forms.DateTimeField(__("End date and time"),
-        validators=[
-            forms.validators.DataRequired(__("End date and time is required")),
-            forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))
-            ])
-    instructions = forms.MarkdownField(__("CFP instructions"),
-        description=__("These instructions will be shown to the proposer with their submission form"), default=u'')
+        validators=[forms.validators.OptionalIf('cfp_start_at'), forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))])
 
 
 class ProjectTransitionForm(forms.Form):
