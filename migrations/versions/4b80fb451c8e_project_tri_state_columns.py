@@ -1,14 +1,14 @@
 """Project tri-state columns
 
 Revision ID: 4b80fb451c8e
-Revises: 94ce3a9b7a3a
+Revises: e3bf172763bc
 Create Date: 2019-02-07 01:55:47.123273
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '4b80fb451c8e'
-down_revision = '94ce3a9b7a3a'
+down_revision = 'e3bf172763bc'
 
 from alembic import op
 import sqlalchemy as sa
