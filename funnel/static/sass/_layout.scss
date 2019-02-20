@@ -168,3 +168,20 @@ html.touch .collapsible__body--disable {
   word-break: break-all;
   min-width: 100px;
 }
+
+.btn-wrapper {
+  margin-bottom: 10px;
+}
+
+.cfp-action-btn {
+  padding: 10px 0;
+  cursor: pointer;
+  margin-right: 10px; 
+  border: none;
+  color: #4A90E2;
+}
+
+.cfp-action-btn:focus {
+  outline: none;
+}
+

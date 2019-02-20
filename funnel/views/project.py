@@ -2,7 +2,7 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, Response, request, abort, current_app
+from flask import g, flash, redirect, Response, request, abort, current_app, render_template
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
@@ -11,7 +11,7 @@ from coaster.views import jsonp, route, render_with, requires_permission, UrlFor
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
-from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectBoxofficeForm
+from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectBoxofficeForm, CFPForm
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -175,12 +175,8 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit_project')
     def add_cfp(self):
-        # TODO: Create a CFP form and update it here
-        if self.obj.parent_project:
-            form = SubprojectForm(obj=self.obj, model=Project)
-        else:
-            form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
-        return render_form(form=form, title=_("Add a CFP"), submit=_("Save changes"))
+        form = CFPForm(obj=self.obj, parent=self.obj.profile, model=Project)
+        return render_template('add_cfp_form.html.jinja2', form=form)
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login

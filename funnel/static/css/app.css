@@ -165,6 +165,22 @@ html.touch .collapsible__body--disable {
   min-width: 100px;
 }
 
+.btn-wrapper {
+  margin-bottom: 10px;
+}
+
+.cfp-action-btn {
+  padding: 10px 0;
+  cursor: pointer;
+  margin-right: 10px;
+  border: none;
+  color: #4A90E2;
+}
+
+.cfp-action-btn:focus {
+  outline: none;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
