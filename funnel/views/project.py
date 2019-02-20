@@ -50,7 +50,6 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_permission('new_project')
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
-        form.parent_project.query = self.obj.projects
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
