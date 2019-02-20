@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import pycountry
 from baseframe import __
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import QuerySelectField
-from baseframe.staticdata import country_codes
 from .project import valid_color_re
-from ..models import Venue
 
+country_codes = [(country.alpha_2, country.name) for country in pycountry.countries]
 __all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
 
 
