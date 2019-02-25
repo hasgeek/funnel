@@ -6,8 +6,8 @@ import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 from .project import valid_color_re
 
-country_codes = [(country.alpha_2, country.name) for country in pycountry.countries]
 __all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
+country_codes = [(country.alpha_2, country.name) for country in pycountry.countries]
 
 
 class VenueForm(forms.Form):
