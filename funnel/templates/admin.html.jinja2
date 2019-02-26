@@ -1,11 +1,11 @@
 {% extends "layout.html.jinja2" %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
-{% block title %}Admin{% endblock %}
+{% block title %}Manage check-in{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1">{{ project.title|e }}</h1>
-  <p class="mui--text-headline">Manage event</p>
+  <p class="mui--text-headline">Manage check-in</p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -19,11 +19,12 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a><a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
+              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
       </div>
+      {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
       <div class="card__footer">
         <a href={{ project.url_for('new_event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
@@ -31,6 +32,7 @@
           <a href={{ project.url_for('new_participant') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
         {%- endif %}
       </div>
+      {%- endif %}
     </div>
   </div>
 
@@ -43,15 +45,17 @@
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
             <li>
-              <a href="{{ url_for('ticket_type', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" class="mui--text-subhead">{{ ticket_type.title }}</a><a href="{{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
+              <a href="{{ url_for('ticket_type', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
       </div>
+      {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
       <div class="card__footer">
         <a href={{ project.url_for('new_ticket_type') }} title="{% trans %}New ticket type {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New ticket</a>
       </div>
+      {%- endif %}
     </div>
   </div>
 
@@ -64,16 +68,17 @@
         <ol class="mui-list--aligned">
           {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>&nbsp;<a href="{{ url_for('ticket_client_edit', profile=project.profile.name, project=project.name, id=client.id) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
+              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('ticket_client_edit', profile=project.profile.name, project=project.name, id=client.id) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
       </div>
+      {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
         <div class="card__footer">
           <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New client</a>
           {%- if project.ticket_clients %}
-            <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form mui-form--inline">
+            <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form inline-form">
               <div class="form-group">
                 {{ csrf_form.hidden_tag() }}
               </div>
@@ -82,6 +87,7 @@
           {%- endif %}
         </div>
       </div>
+      {%- endif %}
     </div>
   </div>
 </div>

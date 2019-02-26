@@ -151,10 +151,10 @@
                 <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
               </li>
               <li>
-                <a href="{{ project.url_for('admin') }}" title="Manage event">{% trans %}Manage event{% endtrans %}</a>
+                <a href="{{ project.url_for('admin') }}" title="Manage event">{% trans %}Manage check-in{% endtrans %}</a>
               </li>
               <li>
-                <a href="{{ project.url_for('events') }}" title="Manage attendee check-in">{% trans %}Manage attendee check-in{% endtrans %}</a>
+                <a href="{{ project.url_for('events') }}" title="Manage attendee check-in">{% trans %}Attendee check-in - Badge scan{% endtrans %}</a>
               </li>
             </ol>
           </div>
@@ -171,7 +171,10 @@
           <div>
             <ol>
               <li>
-                <a href="{{ project.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" title="Manage attendee check-in">{% trans %}Manage attendee check-in{% endtrans %}</a>
+                <a href="{{ project.url_for('admin') }}" title="Manage event">{% trans %}Attendee check-in - Email{% endtrans %}</a>
+              </li>
+              <li>
+                <a href="{{ project.url_for('events') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" title="Manage attendee check-in">{% trans %}Attendee check-in - Badge scan{% endtrans %}</a>
               </li>
             </ol>
           </div>

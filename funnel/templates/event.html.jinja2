@@ -86,9 +86,12 @@
                   {{/if}}
                 </form>
               </li>
+              {{#if admin}}
               <li>
+                {{ admin }}
                 <a href="{{ getEditUrl(pid) }}" class="action-btn mui--text-hyperlink" target="_blank">Edit attendee details</a>
               </li>
+              {{/if}}
             </ul>
           </td>
         </tr>
@@ -118,6 +121,7 @@
 
     var eventConfig = {};
     eventConfig.checkin = {
+      admin: {%- if project.current_roles.admin %} true {% else %} false {%- endif %},
       badgeUrl: "{{ url_for('participant_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       editUrl: "{{ url_for('participant_edit', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       checkinUrl: "{{ url_for('event_checkin', profile=project.profile.name, project=project.name, name=event.name, participant_id='participant-id') }}",
