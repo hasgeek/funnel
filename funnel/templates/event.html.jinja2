@@ -7,6 +7,16 @@
 
 {% block contentwrapper %}
   <div class="grid">
+    <div class="grid__col-xs-12">
+      <div>
+        <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form mui--pull-right">
+          <div class="form-group">
+            {{ csrf_form.hidden_tag() }}
+          </div>
+          <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--accent" type="submit" title="{% trans %}Sync tickets{% endtrans %}">Sync tickets</button>
+        </form>
+      </div>
+    </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
       <h3 class="mui--text-title">{{event.title}}&nbsp;<a href={{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary">edit</i></a></h3>
     </div>
