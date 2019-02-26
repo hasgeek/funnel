@@ -2,6 +2,10 @@
   margin-bottom: 0;
 }
 
+.zero-top-margin {
+  margin-top: 0;
+}
+
 .mui-btn--nomargin {
   margin-top: 0;
   margin-bottom: 0;
@@ -116,10 +120,6 @@
   background: #EFF2F7;
   padding: 20px;
   cursor: pointer;
-}
-
-.collapsible__header--nobottommargin {
-   margin: 10px 0 0;
 }
 
 .collapsible__body {
