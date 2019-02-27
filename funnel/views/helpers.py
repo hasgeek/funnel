@@ -38,3 +38,18 @@ def send_mail(sender, to, body, subject):
     msg.body = body
     msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
     mail.send(msg)
+
+
+def mask_email(email):
+    """
+    Masks an email address
+
+    >>> mask_email(u'foobar@example.com')
+    u'foo***@example.com'
+    >>> mask_email(u'not-email')
+    u'not-em***'
+    """
+    if '@' not in email:
+        return u'{e}***'.format(e=email[:-3])
+    username, domain = email.split('@')
+    return u'{u}***@{d}'.format(u=username[:-3], d=domain)

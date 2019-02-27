@@ -9,6 +9,7 @@ from baseframe import forms
 from baseframe import _
 from baseframe.forms import render_form
 from ..forms import EventForm, TicketTypeForm, ParticipantBadgeForm, TicketClientForm
+from ..jobs import import_tickets
 from .project import ProjectViewMixin
 from .decorators import legacy_redirect
 
@@ -171,6 +172,12 @@ def ticket_client_edit(profile, project, ticket_client):
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
     permission='view-event')
 def event(profile, project, event):
+    csrf_form = forms.Form()
+    if csrf_form.validate_on_submit():
+        for ticket_client in project.ticket_clients:
+            if ticket_client and ticket_client.name.lower() in [u'explara', u'boxoffice']:
+                import_tickets.queue(ticket_client.id)
+        flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
     form = ParticipantBadgeForm()
     if form.validate_on_submit():
         badge_printed = True if getbool(form.data.get('badge_printed')) else False
@@ -178,7 +185,7 @@ def event(profile, project, event):
             update({'badge_printed': badge_printed}, False)
         db.session.commit()
         return redirect(url_for('event', profile=project.profile.name, project=project.name, name=event.name), code=303)
-    return render_template('event.html.jinja2', profile=profile, project=project, event=event, badge_form=ParticipantBadgeForm(model=Participant), checkin_form=forms.Form())
+    return render_template('event.html.jinja2', profile=profile, project=project, event=event, badge_form=ParticipantBadgeForm(model=Participant), checkin_form=forms.Form(), csrf_form=csrf_form)
 
 
 @app.route('/<profile>/<project>/event/<name>/scan_badge', methods=['GET', 'POST'])
