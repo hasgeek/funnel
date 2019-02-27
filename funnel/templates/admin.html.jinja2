@@ -1,11 +1,11 @@
 {% extends "layout.html.jinja2" %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
-{% block title %}Manage check-in{% endblock %}
+{% block title %}Setup events for check-in{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1">{{ project.title|e }}</h1>
-  <p class="mui--text-headline">Manage check-in</p>
+  <p class="mui--text-headline">Setup events for check-in</p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -14,6 +14,11 @@
     <div class="card">
       <div class="card__header">
         <h3 class="mui--text-title">Events</h3>
+        {%- if events %}
+          <p class="mui--text-caption">Select an event for manual check-in of attendees</p>
+        {%- else %}
+          <p class="mui--text-caption">Add events to manage check-in</p>
+        {%- endif %}
       </div>
       <div class="card__body">
         <ol class="mui-list--aligned">
@@ -29,7 +34,7 @@
       <div class="card__footer">
         <a href={{ project.url_for('new_event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
         {%- if project.events %}
-          <a href={{ project.url_for('new_participant') }} title="{% trans %}New participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">New participant</a>
+          <a href={{ project.url_for('new_participant') }} title="{% trans %}Add participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Add participant</a>
         {%- endif %}
       </div>
       {%- endif %}
@@ -63,6 +68,7 @@
     <div class="card">
       <div class="card__header">
         <h3 class="mui--text-title">Ticket clients</h3>
+        <p class="mui--text-caption">Add ticket client to import tickets</p>
       </div>
       <div class="card__body">
         <ol class="mui-list--aligned">
@@ -76,7 +82,7 @@
       {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
         <div class="card__footer">
-          <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New client</a>
+          <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New ticket client</a>
           {%- if project.ticket_clients %}
             <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form inline-form">
               <div class="form-group">
