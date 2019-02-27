@@ -169,6 +169,18 @@ html.touch .collapsible__body--disable {
   min-width: 100px;
 }
 
+@media(min-width: 992px) {
+  .attendee-table td {
+    min-width: 80px;
+  }
+}
+
+@media(min-width: 1200px) {
+  .attendee-table td {
+    min-width: 200px;
+  }
+}
+
 .inline-form {
   display: inline-block;
   vertical-align: middle;
