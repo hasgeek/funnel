@@ -45,11 +45,11 @@ def mask_email(email):
     Masks an email address
 
     >>> mask_email(u'foobar@example.com')
-    u'foo****@example.com'
+    u'foo***@example.com'
     >>> mask_email(u'not-email')
-    u'not****'
+    u'not***'
     """
     if '@' not in email:
-        return u'{e}****'.format(e=email[0:3])
+        return u'{e}***'.format(e=email[0:3])
     username, domain = email.split('@')
-    return u'{u}****@{d}'.format(u=username[0:3], d=domain)
+    return u'{u}***@{d}'.format(u=username[0:3], d=domain)
