@@ -10,6 +10,7 @@ from coaster.utils import midnight_to_utc, getbool
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
+from ..views.helpers import mask_email
 from funnel.util import split_name, format_twitter_handle, make_qrcode
 from .project import ProjectViewMixin
 from .decorators import legacy_redirect
@@ -62,7 +63,7 @@ def participant_checkin_data(participant, project, event):
         'pid': participant.id,
         'fullname': participant.fullname,
         'company': participant.company,
-        'email': participant.email,
+        'email': mask_email(participant.email),
         'badge_printed': participant.badge_printed,
         'checked_in': participant.checked_in,
         'ticket_type_titles': participant.ticket_type_titles
