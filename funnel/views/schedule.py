@@ -66,7 +66,7 @@ def schedule_data(project):
             'url': session.url_for(_external=True),
             'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
             'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
-            'proposal': session.proposal.id if session.proposal else None,
+            'proposal': session.proposal.suuid if session.proposal else None,
             'feedback_url': session.url_for('feedback', _external=True) if session.proposal else None,
             'speaker': session.speaker,
             'room': session.venue_room.scoped_name if session.venue_room else None,
