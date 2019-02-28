@@ -15,7 +15,7 @@
   <table id="proposals-table" class="proposal-list-table mui-table">
     <tbody>
       {% for proposal in proposals %}
-        <tr id="{{ proposal.id }}">
+        <tr id="{{ proposal.suuid }}">
           <td class='js-searchable'>
             <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline">{{ proposal.title }}</a></h3>
             <p class="speaker-details">
@@ -40,22 +40,7 @@
                 <li>{{ proposal.section.title }}</li>
               {% endif %}
               <li>{{ proposal.technical_level }}</li>
-              <li>{{ proposal.voteset.count }} upvotes
-                {% if current_auth.permissions.view_voteinfo %}
-                  {%- set breakups = dict() %}
-                  {%- set groups = proposal.votes_by_group() %}
-                  {%- if 'participants' in groups %}{% do breakups.update({'P': groups['participants']}) %}{% endif %}
-                  {%- if 'editorial-panel' in groups %}{% do breakups.update({'EP': groups['editorial-panel']}) %}{% endif %}
-                  {%- if breakups|length %}
-                    (
-                    {%- for item in breakups -%}
-                      {%- if loop.index != 1 %}, {% endif %}
-                      ({{ item }}: {{ breakups[item] }})
-                    {%- endfor -%}
-                    )
-                  {%- endif %}
-                {%- endif %}
-              </li>
+              <li>{{ proposal.voteset.count }} upvotes</li>
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
               {% if proposal.preview_video %}
