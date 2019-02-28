@@ -206,37 +206,6 @@
                     {% endfor %}
                   </p>
                 </form>
-                {% if 'participants' in votes_groups %}
-                  <hr class="mui-divider">
-                  <p class="mui--text-subhead">Total Participant Votes</p>
-                  <p class="mui--text-body2">
-                    {% if votes_groups['participants'] > 0 %}+{% endif %}{{ votes_groups['participants'] }}
-                  </p>
-                {% endif %}
-                {% if 'editorial-panel' in votes_groups %}
-                  <hr class="mui-divider">
-                  <p class="mui--text-subhead">Total EP Votes</p>
-                  <p class="mui--text-body2">
-                  {% if votes_groups['editorial-panel'] > 0 %}+{% endif %}{{ votes_groups['editorial-panel'] }}</p>
-                {% endif %}
-                {% set votes = dict() %}
-                {%- for vote in proposal.voteset.votes %}
-                  {%- do votes.update({vote.user.username: vote}) %}
-                {%- endfor %}
-                {% for group in proposal.project.usergroups %}
-                  {% if group.name == 'editorial-panel' %}
-                    {% for member in group.users %}
-                      <p class="mui--text-subhead">EP Vote: {% if g.user != member %}{{ member.fullname }}{% else %}You{% endif %}</p>
-                      <p class="mui--text-body2">
-                        {% if member.username in votes %}
-                          {% if votes[member.username].votedown %}-1{% else %}+1{% endif %}
-                        {% else %}
-                          &mdash;
-                        {% endif %}
-                      </p>
-                    {% endfor %}
-                  {% endif %}
-                {% endfor %}
               {% endif %}
             </div>
           </div>

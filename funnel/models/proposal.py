@@ -324,37 +324,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def votes_count(self):
         return len(self.voteset.votes)
 
-    def votes_by_group(self):
-        votes_groups = dict([(group.name, 0) for group in self.project.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users]) for group in self.project.usergroups])
-        for vote in self.voteset.votes:
-            for groupname, userids in groupuserids.items():
-                if vote.user.userid in userids:
-                    votes_groups[groupname] += -1 if vote.votedown else +1
-        return votes_groups
-
-    def votes_by_date(self):
-        if 'tz' in request.args:
-            try:
-                tz = timezone(request.args['tz'])
-            except UnknownTimeZoneError:
-                abort(400)
-        else:
-            tz = None
-        votes_bydate = dict([(group.name, {}) for group in self.project.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users])
-            for group in self.project.usergroups])
-        for vote in self.voteset.votes:
-            for groupname, userids in groupuserids.items():
-                if vote.user.userid in userids:
-                    if tz:
-                        date = tz.normalize(vote.updated_at.replace(tzinfo=utc).astimezone(tz)).strftime('%Y-%m-%d')
-                    else:
-                        date = vote.updated_at.strftime('%Y-%m-%d')
-                    votes_bydate[groupname].setdefault(date, 0)
-                    votes_bydate[groupname][date] += -1 if vote.votedown else +1
-        return votes_bydate
-
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
