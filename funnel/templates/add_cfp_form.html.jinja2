@@ -2,6 +2,12 @@
 {% from "baseframe/forms.html.jinja2" import renderfield, rendersubmit, ajaxform %}
 {% block title %}Add a call for proposals{% endblock %}
 
+{% block pageheaders %}
+  {% assets "css_jquerytimepicker" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
 {% block content %}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
@@ -18,15 +24,25 @@
     {%- for error in form.instructions.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
     {%- endfor %}
-    <div id="cfp-publish-actions" class="btn-wrapper hide">
-      <button name="open-now" class="cfp-action-btn">Open CFP now</button>
-      <button name="later" class="cfp-action-btn">Schedule to later</button>
-    </div>
-    {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
+    {% if not form.cfp_start_at.data %}
+      <div id="cfp-publish-actions" class="btn-wrapper hide">
+        <button name="open-now" class="cfp-action-btn">Open CFP now</button>
+        <button name="later" class="cfp-action-btn">Schedule to later</button>
+      </div>
+    {% endif %}
+    {% if form.cfp_start_at.data %}
+      {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
+    {% else %}
+      {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
+    {% endif %}
     {%- for error in form.cfp_start_at.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
     {%- endfor %}
-    {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-end-at") }}
+    {% if form.cfp_end_at.data %}
+      {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
+    {% else %}
+       {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-end-at") }}
+    {% endif %}
     {%- for error in form.cfp_end_at.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
     {%- endfor %}
@@ -40,8 +56,12 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% assets "js_timepicker" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script type="text/javascript">
     $(function() {
+      $('input.datetime-time').timepicker({ 'scrollDefaultNow': true, 'timeFormat': 'H:i:s' });
       // Set current date & time in cfp_start_at input field and show cfp_end_at input field.
       $('button[name="open-now"]').click(function(event) {
         event.preventDefault();

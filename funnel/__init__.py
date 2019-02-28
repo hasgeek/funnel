@@ -94,6 +94,12 @@ app.assets.register('js_jquerysuccinct',
 app.assets.register('js_jqueryeasytabs',
     Bundle(assets.require('!jquery.js', 'jquery-easytabs.js'),
         output='js/jqueryeasytabs.packed.js', filters='uglipyjs'))
+app.assets.register('js_timepicker',
+    Bundle(assets.require('!jquery.js', 'jquery.timepicker.js'),
+        output='js/jquerytimepicker.packed.js', filters='uglipyjs'))
+app.assets.register('css_jquerytimepicker',
+    Bundle(assets.require('jquery.timepicker.css'),
+        output='css/jquerytimepicker.packed.css', filters='cssmin'))
 app.assets.register('js_leaflet',
     Bundle(assets.require('leaflet.js', 'leaflet-search.js'),
         output='js/leaflet.packed.js', filters='uglipyjs'))
@@ -127,6 +133,12 @@ funnelapp.assets.register('js_jquerysuccinct',
 funnelapp.assets.register('js_jqueryeasytabs',
     Bundle(assets.require('!jquery.js', 'jquery-easytabs.js'),
         output='js/jqueryeasytabs.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('js_timepicker',
+    Bundle(assets.require('!jquery.js', 'jquery.timepicker.js'),
+        output='js/jquerytimepicker.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('css_jquerytimepicker',
+    Bundle(assets.require('jquery.timepicker.css'),
+        output='css/jquerytimepicker.packed.css', filters='cssmin'))
 funnelapp.assets.register('js_leaflet',
     Bundle(assets.require('leaflet.js', 'leaflet-search.js'),
         output='js/leaflet.packed.js', filters='uglipyjs'))
