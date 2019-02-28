@@ -94,7 +94,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),
             sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
             timezone=self.obj.project.timezone.utcoffset(datetime.utcnow()).total_seconds(),
-            venues=[dict(venue.current_access()) for venue in self.obj.project.venues],
+            venues=[venue.current_access() for venue in self.obj.project.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
 
     @route('viewsession-popup')

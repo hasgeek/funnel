@@ -9,7 +9,7 @@ from .project import project_data
 
 
 def index_jsonify(data):
-    return jsonify(projects=[d for d in [dict(s.current_access()) for s in data['projects']] if d])
+    return jsonify(projects=[d for d in [s.current_access() for s in data['projects']] if d])
 
 
 @app.route('/')

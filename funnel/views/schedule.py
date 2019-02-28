@@ -147,7 +147,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
             sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
-            venues=[dict(venue.current_access()) for venue in self.obj.venues],
+            venues=[venue.current_access() for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
     @route('subscribe')
@@ -161,7 +161,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_json(self):
         return jsonp(schedule=schedule_data(self.obj),
-            venues=[dict(venue.current_access()) for venue in self.obj.venues],
+            venues=[venue.current_access() for venue in self.obj.venues],
             rooms=[room_data(room) for room in self.obj.rooms])
 
     @route('ical')
@@ -199,7 +199,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         return dict(project=self.obj, proposals=proposals,
             from_date=date_js(from_date), to_date=date_js(to_date),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
-            venues=[dict(venue.current_access()) for venue in self.obj.venues],
+            venues=[venue.current_access() for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
     @route('update', methods=['POST'])
