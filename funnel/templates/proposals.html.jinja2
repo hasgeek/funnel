@@ -17,8 +17,8 @@
       {% for proposal in proposals %}
         <tr id="{{ proposal.id }}">
           <td class='js-searchable'>
-            <h3 class="zero-bottom-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline">{{ proposal.title }}</a></h3>
-            <p>
+            <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline">{{ proposal.title }}</a></h3>
+            <p class="speaker-details">
               {%- if proposal.speaker -%}
                 <span class="mui--text-subhead">{{ proposal.speaker.pickername }}</span>
                 {%- if proposal.user != proposal.speaker %}
@@ -33,7 +33,7 @@
                 <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
               {%- endif -%}
             </p>
-            <ul class="mui-list--inline mui--text-body2 proposal_list--details list-item-rgborder">
+            <ul class="mui-list--inline mui--text-body2 list-item-rgborder zero-bottom-margin">
               {%- if proposal.project != project %}
                 <li>{{ proposal.project.short_title() }}</li>
               {% elif proposal.section.title %}
@@ -141,23 +141,22 @@
         {%- if current_auth.permissions.view_status %}
           <div>
             <form class="mui-form mui--pull-left search-proposal-form mui--z1">
-              <div class="mui-textfield mui-textfield--float-label">
-                <input class="field-search" id="search" type="text" name="key" value=""/>
-                <label><i class="material-icons mui--align-middle mui--text-title" aria-hidden>search</i> Search</label>
+              <div class="mui-textfield">
+                <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search" />
               </div>
             </form>
           </div>
           {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
-              <p class="mui--text-title mui--text-bold collapsible__header collapsible__header--nobottommargin">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon">keyboard_arrow_up</i></p>
+              <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon">keyboard_arrow_up</i></p>
               <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
           {%- endfor -%}
         {%- else %}
           {%- if project.proposals_by_confirmation['confirmed'] %}
-            <h3 class="mui--text-title mui--text-bold proposal-list-header">{% trans %}Confirmed sessions{% endtrans %}</h3>
+            <h3 class="mui--text-subhead proposal-list-header">{% trans %}Confirmed sessions{% endtrans %}</h3>
             {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
           {%- endif %}
           {%- if project.proposals_by_confirmation['unconfirmed'] %}
-            {%- if project.proposals_by_confirmation['confirmed'] %}<h3 class="mui--text-title mui--text-bold proposal-list-header">{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
+            {%- if project.proposals_by_confirmation['confirmed'] %}<h3 class="mui--text-subhead proposal-list-header">{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
             {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
           {%- endif %}
         {%- endif %}

@@ -93,24 +93,25 @@
       <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
+        <h2 class="mui--text-display1 mui--text-left project-section__headline">Related events</h2>
         <ul class="grid">
           {% for subproject in project.subprojects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-              <div class="grid__cell">
-                <a href="{{ subproject.url_for() }}" class="clickable-card">
-                  <div class="card">
-                    <div class="card__title">
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
+              <a href="{{ subproject.url_for() }}" class="clickable-card">
+                <div class="card">
+                  <div class="card__header">
+                    <div class="card__header__title">
                       <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
                       <h4 class="mui--text-subhead card__title__heading">{{ subproject.datelocation }}</h4>
                     </div>
-                    {% if project.tagline %}
-                      <div class="card__body">
-                        <p>{{ subproject.tagline }}</p>
-                      </div>
-                    {% endif %}
                   </div>
-                </a>
-              </div>
+                  {% if subproject.tagline %}
+                    <div class="card__body">
+                      <p>{{ subproject.tagline }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+              </a>
             </li>
           {%- endfor -%}
         </ul>
@@ -132,31 +133,26 @@
             {% if session.proposal %}<a href="{{ session.proposal.url_for() }}" class="clickable-card" title="{{ session.title }}">{%- endif %}
               <div class="card">
                 {% if session.banner_image_url %}
-                  <div class="card__image-wrapper session-image">
-                    <img class="card__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
-                  </div>
-                  <div class="card__title">
-                    <h3 class="mui--text-title card__title__heading"><b>{{ session.title }}</b></h3>
+                  <div class="card__header session-card">
+                    <img class="card__image session-card__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
                     {% if session.speaker %}
-                      <h4 class="mui--text-subhead card__title__heading">by {{ session.speaker }}</h4>
+                      <h4 class="mui--text-title mui--text-bold card__title__heading session-card__title">{{ session.speaker }}</h4>
                     {% endif %}
                   </div>
                 {% else %}
                   <div class="card__header">
                     <div class="card__header__title">
-                      <h3 class="mui--text-title card__title__heading"><b>{{ session.title }}</b></h3>
+                      <h3 class="mui--text-title card__title__heading mui--text-bold">{{ session.title }}</h3>
                       {% if session.speaker %}
                         <h4 class="mui--text-subhead card__title__heading">by {{ session.speaker }}</h4>
                       {% endif %}
                     </div>
                   </div>
                 {% endif %}
-
-                {% if session.description %}
-                  <div class="card__body mui--text-body2 truncate">
-                    <div>{{ session.description|safe }}</div>
-                  </div>
-                {% endif %}
+                <div class="card__body mui--text-body2">
+                  <h3 class="mui--text-title card__title__heading  mui--text-bold">{{ session.title }}</h3>
+                  <div class="mui--text-body1 mui--text-light truncate">{{ session.description|safe }}</div>
+                </div>
               </div>
             {% if session.proposal %}</a>{%- endif %}
           </div>
@@ -254,7 +250,7 @@
       window.HasGeek.ProjectInit(projectConfig);
 
       $('.truncate').succinct({
-        size: 200
+        size: 150
       });
     });
   </script>
