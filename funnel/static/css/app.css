@@ -185,10 +185,15 @@ html.touch .collapsible__body--disable {
   margin-right: 10px;
   border: none;
   color: #4A90E2;
+  background: none;
 }
 
-.cfp-action-btn:focus {
+.cfp-action-btn:focus,
+.cfp-action-btn:hover {
+  border: none;
   outline: none;
+  box-shadow: none;
+  color: #4A90E2;
 }
 
 .inline-form {
