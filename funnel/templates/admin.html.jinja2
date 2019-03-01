@@ -24,7 +24,7 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
+              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>

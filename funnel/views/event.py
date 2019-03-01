@@ -170,7 +170,7 @@ def ticket_client_edit(profile, project, ticket_client):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='view-event')
+    permission='checkin_event')
 def event(profile, project, event):
     csrf_form = forms.Form()
     if csrf_form.validate_on_submit():
