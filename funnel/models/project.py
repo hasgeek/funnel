@@ -228,9 +228,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    old_state.add_conditional_state('HAS_PROPOSALS', old_state.POST_DRAFT,
+    state.add_conditional_state('HAS_PROPOSALS', state.POST_DRAFT,
         lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
-    old_state.add_conditional_state('HAS_SESSIONS', old_state.POST_DRAFT,
+    state.add_conditional_state('HAS_SESSIONS', state.POST_DRAFT,
         lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
 
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
