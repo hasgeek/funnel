@@ -120,32 +120,36 @@
       </div>
       <div class="card__body">
         {%- if project.current_roles.admin %}
-          <div>
-            <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
-            <p class="mui--text-subhead">{{ project.state.label.title }}</p>
-            <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
-              {{ transition_form.hidden_tag() }}
-              <p class="btn-group">
-                {% for name, transition in transition_form.transition.choices %}
-                  <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
-                {% endfor %}
-              </p>
-            </form>
-          </div>
-          <hr class="mui-divider">
-          <div>
-            <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Schedule Status</p>
-            <p class="mui--text-subhead">{{ project.schedule_state.label.title }}</p>
-            <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
-              {{ schedule_transition_form.hidden_tag() }}
-              <p class="btn-group">
-                {% for name, transition in schedule_transition_form.schedule_transition.choices %}
-                  <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
-                {% endfor %}
-              </p>
-            </form>
-          </div>
-          <hr class="mui-divider">
+          {%- if transition_form %}
+            <div>
+              <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
+              <p class="mui--text-subhead">{{ project.state.label.title }}</p>
+              <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
+                {{ transition_form.hidden_tag() }}
+                <p class="btn-group">
+                  {% for name, transition in transition_form.transition.choices %}
+                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
+                  {% endfor %}
+                </p>
+              </form>
+            </div>
+            <hr class="mui-divider">
+          {%- endif %}
+          {%- if schedule_transition_form %}
+            <div>
+              <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Schedule Status</p>
+              <p class="mui--text-subhead">{{ project.schedule_state.label.title }}</p>
+              <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
+                {{ schedule_transition_form.hidden_tag() }}
+                <p class="btn-group">
+                  {% for name, transition in schedule_transition_form.schedule_transition.choices %}
+                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
+                  {% endfor %}
+                </p>
+              </form>
+            </div>
+            <hr class="mui-divider">
+          {%- endif %}
           <div>
             <ol class="mui-list--aligned">
               <li>
