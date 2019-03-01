@@ -12,7 +12,7 @@
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
       <a class="alert__close" href="javascript:void(0);" aria-label="close"><i class="material-icons">clear</i></a>
-      <p class="alert__text"><i class="material-icons alert__icon">error</i> {% trans %}Please review the indicated issues{% endtrans %}</p>
+      <p class="alert__text"><i class="material-icons alert__icon">error</i>{% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}
   {%- if message %}
@@ -26,7 +26,7 @@
     {%- endfor %}
     {% if not form.cfp_start_at.data %}
       <div id="cfp-publish-actions" class="btn-wrapper hide">
-        <button name="open-now" class="mui-btn cfp-action-btn">Open CFP now</button>
+        <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open CfP now{% endtrans %}</button>
       </div>
     {% endif %}
     {% if form.cfp_start_at.data %}

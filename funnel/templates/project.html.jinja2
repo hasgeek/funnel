@@ -84,7 +84,7 @@
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
-        {{ admin_panel(project, transition_form, schedule_transition_form) }}
+        {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
       {% endif %}
     </div>
 

@@ -99,7 +99,7 @@
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
-        {{ admin_panel(project) }}
+        {{ admin_panel(project, cfp_transition_form=cfp_transition_form) }}
       {% endif %}
     </div>
 
@@ -107,11 +107,13 @@
     <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="call-for-proposal">
       <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8">
         <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
-        <div class="project-section__instructions">{{ project.instructions }}</div>
         {% if project.cfp_state.PUBLIC -%}
         <p class="mui--text-left">
           <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
         </p>
+        {%- endif %}
+        {%- if project.instructions and project.instructions != "None" %}
+          <div class="project-section__instructions">{{ project.instructions }}</div>
         {%- endif %}
       </div>
     </div>

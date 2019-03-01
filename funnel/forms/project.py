@@ -12,9 +12,9 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from ..models import RSVP_STATUS, Project
 
 __all__ = [
-    'EventForm', 'ProjectForm', 'CFPForm', 'ProjectTransitionForm', 'RsvpForm',
+    'EventForm', 'ProjectForm', 'CfpForm', 'ProjectTransitionForm', 'RsvpForm',
     'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm',
-    'ProjectScheduleTransitionForm'
+    'ProjectScheduleTransitionForm', 'ProjectCfpTransitionForm'
 ]
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
@@ -88,39 +88,35 @@ class ProjectForm(forms.Form):
             raise forms.ValidationError("Please enter a valid color code")
 
 
-class CFPForm(forms.Form):
-    instructions = forms.MarkdownField(__("Call for proposal instructions"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Mention the event theme"), default=u'')
-    cfp_start_at = forms.DateTimeField(__("Start date and time"),
+class CfpForm(forms.Form):
+    instructions = forms.MarkdownField(__("Call for proposals"),
+        validators=[forms.validators.DataRequired()], default=u'')
+    cfp_start_at = forms.DateTimeField(__("Submissions open at"),
         validators=[forms.validators.Optional()])
-    cfp_end_at = forms.DateTimeField(__("End date and time"),
-        validators=[forms.validators.OptionalIf('cfp_start_at'),
-            forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))])
+    cfp_end_at = forms.DateTimeField(__("Submissions close at"),
+        validators=[forms.validators.OptionalIfNot('cfp_start_at'),
+            forms.validators.GreaterThanEqualTo('date', __("Submissions cannot close before they open"))])
 
 
 class ProjectTransitionForm(forms.Form):
     transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
 
     def set_queries(self):
-        """
-        value: transition method name
-        label: transition object itself
-        We need the whole object to get the additional metadata in templates
-        """
         self.transition.choices = self.edit_obj.state.transitions().items()
 
 
 class ProjectScheduleTransitionForm(forms.Form):
-    schedule_transition = forms.SelectField(__("Schedule Status"), validators=[forms.validators.DataRequired()])
+    schedule_transition = forms.SelectField(__("Schedule status"), validators=[forms.validators.DataRequired()])
 
     def set_queries(self):
-        """
-        value: transition method name
-        label: transition object itself
-        We need the whole object to get the additional metadata in templates
-        """
         self.schedule_transition.choices = self.edit_obj.schedule_state.transitions().items()
+
+
+class ProjectCfpTransitionForm(forms.Form):
+    cfp_transition = forms.SelectField(__("CfP status"), validators=[forms.validators.DataRequired()])
+
+    def set_queries(self):
+        self.cfp_transition.choices = self.edit_obj.cfp_state.transitions().items()
 
 
 class SubprojectForm(ProjectForm):

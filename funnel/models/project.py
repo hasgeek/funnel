@@ -228,6 +228,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
+    # TODO: Remove these 2 conditional states
     state.add_conditional_state('HAS_PROPOSALS', state.PUBLISHED,
         lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
     state.add_conditional_state('HAS_SESSIONS', state.PUBLISHED,
@@ -257,43 +258,43 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @with_roles(call={'admin'})
     @cfp_state.transition(
-        cfp_state.OPENABLE, cfp_state.PUBLIC, title=__("Open CFP"),
-        message=__("This project has been opened to accept submissions"), type='success')
+        cfp_state.OPENABLE, cfp_state.PUBLIC, title=__("Open CfP"),
+        message=__("The call for proposals is now open"), type='success')
     def open_cfp(self):
         pass
 
     @with_roles(call={'admin'})
     @cfp_state.transition(
         cfp_state.PUBLIC, cfp_state.CLOSED, title=__("Close CFP"),
-        message=__("This project is no longer accepting submissions"), type='success')
+        message=__("The call for proposals is now closed"), type='success')
     def close_cfp(self):
         pass
 
     @with_roles(call={'admin'})
     @schedule_state.transition(
         schedule_state.DRAFT, schedule_state.PUBLISHED, title=__("Publish schedule"),
-        message=__("The schedule is now open"), type='success')
+        message=__("The schedule has been published"), type='success')
     def publish_schedule(self):
         pass
 
     @with_roles(call={'admin'})
     @state.transition(
         state.DRAFT, state.PUBLISHED, title=__("Publish project"),
-        message=__("The project is now published"), type='success')
+        message=__("The project has been published"), type='success')
     def publish(self):
         pass
 
     @with_roles(call={'admin'})
     @state.transition(
         state.PUBLISHED, state.WITHDRAWN, title=__("Withdraw project"),
-        message=__("The project is now withdrawn"), type='success')
+        message=__("The project has been withdrawn and is no longer listed"), type='success')
     def withdraw(self):
         pass
 
     @with_roles(call={'admin'})
     @state.transition(
         state.DELETABLE, state.DELETED, title=__("Delete project"),
-        message=__("The project is now deleted"), type='success')
+        message=__("The project has been deleted"), type='success')
     def delete(self):
         pass
 
