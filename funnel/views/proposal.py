@@ -44,8 +44,10 @@ def proposal_data(proposal):
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
     return dict([
-            ('id', proposal.url_id),
-            ('name', proposal.url_name),
+            ('id', proposal.suuid),
+            ('name', proposal.url_name_suuid),
+            ('legacy_id', proposal.url_id),
+            ('legacy_name', proposal.url_name),
             ('title', proposal.title),
             ('url', proposal.url_for(_external=True)),
             ('json_url', proposal.url_for('json', _external=True)),
