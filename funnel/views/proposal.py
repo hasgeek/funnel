@@ -255,9 +255,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             if target_project != self.obj.project:
                 self.obj.current_access().move_to(target_project)
                 db.session.commit()
-            flash(_("The proposal has been successfully moved to {project}.".format(project=target_project.title)))
+            flash(_("This proposal has been moved to {project}.".format(project=target_project.title)))
         else:
-            flash(_("Please choose a project you want to move this proposal to."))
+            flash(_("Please choose the project you want to move this proposal to."))
         return redirect(self.obj.url_for(), 303)
 
     @route('schedule', methods=['GET', 'POST'])
