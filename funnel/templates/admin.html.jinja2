@@ -24,23 +24,24 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>{%- endif %}
+              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}"><i class="material-icons mui--text-subhead pull-right">edit</i></a>
             </li>
           {%- endfor %}
         </ol>
       </div>
-      {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
       <div class="card__footer">
+        {%- if project.current_roles.admin %}
         <a href={{ project.url_for('new_event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
+        {%- endif %}
         {%- if project.events %}
           <a href={{ project.url_for('new_participant') }} title="{% trans %}Add participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Add participant</a>
         {%- endif %}
       </div>
-      {%- endif %}
     </div>
   </div>
 
+ {%- if project.current_roles.admin %}
   <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4">
     <div class="card">
       <div class="card__header">
@@ -79,7 +80,6 @@
           {%- endfor %}
         </ol>
       </div>
-      {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
         <div class="card__footer">
           <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New ticket client</a>
@@ -93,8 +93,8 @@
           {%- endif %}
         </div>
       </div>
-      {%- endif %}
     </div>
   </div>
+  {%- endif %}
 </div>
 {% endblock %}
