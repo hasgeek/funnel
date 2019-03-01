@@ -36,14 +36,15 @@ proposal_headers = [
     'comments',
     'submitted',
     'confirmed'
-    ]
+]
 
 
 def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
-    return dict([
+    return dict(
+        [
             ('id', proposal.suuid),
             ('name', proposal.url_name_suuid),
             ('legacy_id', proposal.url_id),
