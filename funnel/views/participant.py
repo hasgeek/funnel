@@ -167,7 +167,7 @@ def participant(profile, project, puk, key):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='view-participant')
+    permission='checkin_event')
 def participant_badge(profile, project, participant):
     return render_template('badge.html.jinja2',
         badges=participant_badge_data([participant], project))
@@ -240,7 +240,7 @@ def event_participants_json(profile, project, event):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='view-event')
+    permission='checkin_event')
 def event_badges(profile, project, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
