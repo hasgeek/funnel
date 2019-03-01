@@ -222,7 +222,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('admin')
+    @requires_permission('checkin_event')
     def admin(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
