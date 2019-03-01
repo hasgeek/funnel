@@ -29,15 +29,15 @@
           {%- endfor %}
         </ol>
       </div>
+      {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
       <div class="card__footer">
-        {%- if project.current_roles.admin %}
         <a href={{ project.url_for('new_event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">New event</a>
-        {%- endif %}
         {%- if project.events %}
           <a href={{ project.url_for('new_participant') }} title="{% trans %}Add participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">Add participant</a>
         {%- endif %}
       </div>
+      {%- endif %}
     </div>
   </div>
 
