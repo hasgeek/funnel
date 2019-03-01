@@ -95,7 +95,7 @@ class CfpForm(forms.Form):
         validators=[forms.validators.Optional()])
     cfp_end_at = forms.DateTimeField(__("Submissions close at"),
         validators=[forms.validators.OptionalIfNot('cfp_start_at'),
-            forms.validators.GreaterThanEqualTo('date', __("Submissions cannot close before they open"))])
+            forms.validators.GreaterThanEqualTo('cfp_start_at', __("Submissions cannot close before they open"))])
 
 
 class ProjectTransitionForm(forms.Form):
