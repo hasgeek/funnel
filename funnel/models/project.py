@@ -395,7 +395,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
-            if self.old_state.SUBMISSIONS:
+            if self.cfp_state.OPEN:
                 perms.add('new-proposal')
             if ((self.admin_team and user in self.admin_team.users) or
                 (self.profile.admin_team and user in self.profile.admin_team.users) or
@@ -459,14 +459,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls.old_state.CURRENTLY_LISTED).order_by(cls.date.desc()).all()
+        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.date.desc()).all()
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
         # sorts the projects so that both new and old projects are sorted from closest to farthest
         now = db.func.utcnow()
         currently_listed_projects = cls.query.filter_by(parent_project=None).filter(
-            cls.old_state.CURRENTLY_LISTED)
+            cls.state.PUBLISHED)
         if legacy is not None:
             currently_listed_projects = currently_listed_projects.join(Profile).filter(Profile.legacy == legacy)
         upcoming = currently_listed_projects.filter(cls.date >= now).order_by(cls.date.asc())
@@ -491,7 +491,7 @@ Profile.listed_projects = db.relationship(
         Project, lazy='dynamic',
         primaryjoin=db.and_(
             Profile.id == Project.profile_id, Project.parent_id == None,
-            Project.old_state.CURRENTLY_LISTED),
+            Project.state.PUBLISHED),
         order_by=Project.date.desc())  # NOQA
 
 
