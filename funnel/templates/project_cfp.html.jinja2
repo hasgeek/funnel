@@ -34,17 +34,11 @@
     {% else %}
       {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
     {% endif %}
-    {%- for error in form.cfp_start_at.errors %}
-      <div><p class="mui-form__error">{{ error }}</p></div>
-    {%- endfor %}
     {% if form.cfp_end_at.data %}
       {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
     {% else %}
        {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
     {% endif %}
-    {%- for error in form.cfp_end_at.errors %}
-      <div><p class="mui-form__error">{{ error }}</p></div>
-    {%- endfor %}
     <div class="mui-form form-actions clearfix">
       <div>
         <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
@@ -60,7 +54,7 @@
   {%- endassets -%}
   <script type="text/javascript">
     $(function() {
-      $('input.datetime-time').timepicker({ 'scrollDefaultNow': true, 'timeFormat': 'H:i:s' });
+      $('input.datetime-time').timepicker({ 'scrollDefaultNow': true, 'timeFormat': 'H:i' });
       // Set current date & time in cfp_start_at input field and show cfp_end_at input field.
       $('button[name="open-now"]').click(function(event) {
         event.preventDefault();
@@ -75,16 +69,7 @@
         $('.js-cfp-start-at').removeClass('mui--hide');
         $('.js-cfp-end-at').removeClass('mui--hide');
       });
-
-      // For parsley validation .
-      $('#cfp-form').parsley().subscribe('parsley:field:validated', function(){
-        if ($('#cfp-form').parsley().isValid())
-          $('#cfp-form').addClass('parsley-valid').removeClass('parsley-invalid');
-        else
-          $('#cfp-form').addClass('parsley-invalid').removeClass('parsley-valid');
-      });
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
-  {{ ajaxform("cfp-form", request) }}
 {% endblock %}
