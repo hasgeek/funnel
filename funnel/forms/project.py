@@ -13,7 +13,8 @@ from ..models import RSVP_STATUS, Project
 
 __all__ = [
     'EventForm', 'ProjectForm', 'CFPForm', 'ProjectTransitionForm', 'RsvpForm',
-    'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm'
+    'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm',
+    'ProjectScheduleTransitionForm'
 ]
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
@@ -88,9 +89,9 @@ class ProjectForm(forms.Form):
 
 
 class CFPForm(forms.Form):
-    instructions = forms.MarkdownField(__("Call for proposal"),
+    instructions = forms.MarkdownField(__("Call for proposal instructions"),
         validators=[forms.validators.DataRequired()],
-        description=__("Event theme"), default=u'')
+        description=__("Mention the event theme"), default=u'')
     cfp_start_at = forms.DateTimeField(__("Start date and time"),
         validators=[forms.validators.Optional()])
     cfp_end_at = forms.DateTimeField(__("End date and time"),
@@ -98,8 +99,7 @@ class CFPForm(forms.Form):
 
 
 class ProjectTransitionForm(forms.Form):
-    transition = forms.SelectField(__("Status"), validators=[
-                                   forms.validators.DataRequired()])
+    transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
 
     def set_queries(self):
         """
@@ -107,7 +107,19 @@ class ProjectTransitionForm(forms.Form):
         label: transition object itself
         We need the whole object to get the additional metadata in templates
         """
-        self.transition.choices = self.edit_obj.old_state.transitions().items()
+        self.transition.choices = self.edit_obj.state.transitions().items()
+
+
+class ProjectScheduleTransitionForm(forms.Form):
+    schedule_transition = forms.SelectField(__("Schedule Status"), validators=[forms.validators.DataRequired()])
+
+    def set_queries(self):
+        """
+        value: transition method name
+        label: transition object itself
+        We need the whole object to get the additional metadata in templates
+        """
+        self.schedule_transition.choices = self.edit_obj.schedule_state.transitions().items()
 
 
 class SubprojectForm(ProjectForm):

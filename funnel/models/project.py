@@ -44,12 +44,14 @@ class PROJECT_STATE(LabeledEnum):
     PUBLISHED = (1, 'published', __(u"Published"))
     WITHDRAWN = (2, 'withdrawn', __(u"Withdrawn"))
     DELETED = (3, 'deleted', __("Deleted"))
+    DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):
     NONE = (0, 'none', __(u"None"))
     PUBLIC = (1, 'public', __(u"Public"))
     CLOSED = (2, 'closed', __(u"Closed"))
+    OPENABLE = {NONE, CLOSED}
 
 
 class SCHEDULE_STATE(LabeledEnum):
@@ -254,56 +256,46 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")))
 
     @with_roles(call={'admin'})
-    @old_state.transition(
-        old_state.DRAFT, old_state.SUBMISSIONS, title=__("Open"),
+    @cfp_state.transition(
+        cfp_state.OPENABLE, cfp_state.PUBLIC, title=__("Open CFP"),
         message=__("This project has been opened to accept submissions"), type='success')
-    def accept_submissions(self):
+    def open_cfp(self):
         pass
 
     @with_roles(call={'admin'})
-    @old_state.transition(
-        old_state.SUBMISSIONS, old_state.VOTING, title=__("Close submissions"),
-        message=__("This project has now closed submissions, but is still accepting votes"), type='success')
-    def accept_votes(self):
+    @cfp_state.transition(
+        cfp_state.PUBLIC, cfp_state.CLOSED, title=__("Close CFP"),
+        message=__("This project is no longer accepting submissions"), type='success')
+    def close_cfp(self):
         pass
 
     @with_roles(call={'admin'})
-    @old_state.transition(
-        old_state.VOTING, old_state.FEEDBACK, title=__("Close voting"),
-        message=__("This project has now closed submissions and voting, but is still accepting feedback comments"),
-        type='success')
-    def accept_feedback(self):
+    @schedule_state.transition(
+        schedule_state.DRAFT, schedule_state.PUBLISHED, title=__("Publish schedule"),
+        message=__("The schedule is now open"), type='success')
+    def publish_schedule(self):
         pass
 
     @with_roles(call={'admin'})
-    @old_state.transition(
-        old_state.OPENABLE, old_state.SUBMISSIONS, title=__("Reopen Submissions"),
-        message=__("This project has been reopened for submissions"), type='success')
-    def reopen(self):
+    @state.transition(
+        state.DRAFT, state.PUBLISHED, title=__("Publish project"),
+        message=__("The project is now published"), type='success')
+    def publish(self):
         pass
 
     @with_roles(call={'admin'})
-    @old_state.transition(
-        old_state.CURRENTLY_LISTED, old_state.CLOSED, title=__("Close & Hide"),
-        message=__("This project has been closed and will no longer be listed"), type='danger')
-    def close(self):
+    @state.transition(
+        state.PUBLISHED, state.WITHDRAWN, title=__("Withdraw project"),
+        message=__("The project is now withdrawn"), type='success')
+    def withdraw(self):
         pass
 
     @with_roles(call={'admin'})
-    @old_state.transition(
-        old_state.CLOSED, old_state.FEEDBACK, title=__("Relist"),
-        message=__("This project has been relisted, but is only accepting feedback comments"), type='success')
-    def relist(self):
+    @state.transition(
+        state.DELETABLE, state.DELETED, title=__("Delete project"),
+        message=__("The project is now deleted"), type='success')
+    def delete(self):
         pass
-
-    # TODO: Confirm with the media team whether they need to withdraw projects
-    #
-    # @with_roles(call={'admin'})
-    # @old_state.transition(
-    #     old_state.CLOSED, old_state.WITHDRAWN, title=__("Withdraw"),
-    #     message=__("This project has been withdrawn"), type='success')
-    # def withdraw(self):
-    #     pass
 
     @property
     def url_json(self):

@@ -26,14 +26,13 @@
     {%- endfor %}
     {% if not form.cfp_start_at.data %}
       <div id="cfp-publish-actions" class="btn-wrapper hide">
-        <button name="open-now" class="cfp-action-btn">Open CFP now</button>
-        <button name="later" class="cfp-action-btn">Schedule to later</button>
+        <button name="open-now" class="mui-btn cfp-action-btn">Open CFP now</button>
       </div>
     {% endif %}
     {% if form.cfp_start_at.data %}
       {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
     {% else %}
-      {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
+      {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
     {% endif %}
     {%- for error in form.cfp_start_at.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
@@ -41,7 +40,7 @@
     {% if form.cfp_end_at.data %}
       {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
     {% else %}
-       {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-end-at") }}
+       {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
     {% endif %}
     {%- for error in form.cfp_end_at.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>

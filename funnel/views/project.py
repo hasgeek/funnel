@@ -11,7 +11,8 @@ from coaster.views import jsonp, route, render_with, requires_permission, UrlFor
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
-from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectBoxofficeForm, CFPForm
+from ..forms import (ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm,
+    ProjectBoxofficeForm, CFPForm, ProjectScheduleTransitionForm)
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -86,8 +87,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         sections_list = [s.current_access() for s in sections]
         rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
         transition_form = ProjectTransitionForm(obj=self.obj)
+        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         return {'project': self.obj, 'sections': sections_list,
-            'rsvp_form': rsvp_form, 'transition_form': transition_form}
+            'rsvp_form': rsvp_form, 'transition_form': transition_form,
+            'schedule_transition_form': schedule_transition_form}
 
     @route('proposals')
     @render_with('proposals.html.jinja2')
@@ -167,12 +170,19 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 else:
                     return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
 
-    @route('add_cfp', methods=['GET', 'POST'])
+    @route('cfp', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit_project')
-    def add_cfp(self):
+    def cfp(self):
         form = CFPForm(obj=self.obj, parent=self.obj.profile, model=Project)
-        return render_template('add_cfp_form.html.jinja2', form=form)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            if self.obj.cfp_state.NONE:
+                self.obj.open_cfp()
+                flash(_("The CFP has been opened"), 'info')
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+        return render_template('project_cfp.html.jinja2', form=form)
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -199,6 +209,22 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             flash(transition.data['message'], 'success')
         else:
             flash(_("Invalid transition for this project."), 'error')
+            abort(403)
+        return redirect(self.obj.url_for())
+
+    @route('schedule_transition', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('edit_project')
+    def schedule_transition(self):
+        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
+        if schedule_transition_form.validate_on_submit():  # check if the provided transition is valid
+            transition = getattr(self.obj.current_access(),
+                schedule_transition_form.transition.data)
+            transition()  # call the transition
+            db.session.commit()
+            flash(transition.data['message'], 'success')
+        else:
+            flash(_("Invalid transition for this project's schedule."), 'error')
             abort(403)
         return redirect(self.obj.url_for())
 
