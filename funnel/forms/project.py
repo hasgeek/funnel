@@ -95,7 +95,8 @@ class CFPForm(forms.Form):
     cfp_start_at = forms.DateTimeField(__("Start date and time"),
         validators=[forms.validators.Optional()])
     cfp_end_at = forms.DateTimeField(__("End date and time"),
-        validators=[forms.validators.OptionalIf('cfp_start_at'), forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))])
+        validators=[forms.validators.OptionalIf('cfp_start_at'),
+            forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))])
 
 
 class ProjectTransitionForm(forms.Form):
