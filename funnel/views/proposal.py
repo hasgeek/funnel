@@ -36,16 +36,19 @@ proposal_headers = [
     'comments',
     'submitted',
     'confirmed'
-    ]
+]
 
 
 def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
-    return dict([
-            ('id', proposal.id),
-            ('name', proposal.url_name),
+    return dict(
+        [
+            ('id', proposal.suuid),
+            ('name', proposal.url_name_suuid),
+            ('legacy_id', proposal.url_id),
+            ('legacy_name', proposal.url_name),
             ('title', proposal.title),
             ('url', proposal.url_for(_external=True)),
             ('json_url', proposal.url_for('json', _external=True)),
@@ -71,18 +74,14 @@ def proposal_data(proposal):
             ('phone', proposal.phone),
             ('location', proposal.location),
             ('votes_count', proposal.votes_count()),
-            ('votes_groups', proposal.votes_by_group()),
-            ('votes_bydate', proposal.votes_by_date()),
             ('status', proposal.state.value),
             ('state', proposal.state.label.name),
         ] if current_auth.permissions.view_contactinfo else []))
 
 
-def proposal_data_flat(proposal, groups=[]):
+def proposal_data_flat(proposal):
     data = proposal_data(proposal)
-    cols = [data.get(header) for header in proposal_headers if header not in ('votes_groups', 'votes_bydate')]
-    for name in groups:
-        cols.append(data['votes_groups'][name])
+    cols = [data.get(header) for header in proposal_headers]
     cols.append(proposal.state.label.name)
     return cols
 
@@ -163,7 +162,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         return dict(project=self.obj.project, proposal=self.obj,
             comments=comments, commentform=commentform, delcommentform=delcommentform,
-            votes_groups=self.obj.votes_by_group(),
             links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
             part_a=self.obj.project.proposal_part_a.get('title', 'Objective'),
             part_b=self.obj.project.proposal_part_b.get('title', 'Description'), csrf_form=Form())

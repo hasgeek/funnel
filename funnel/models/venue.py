@@ -45,7 +45,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
 
     @property
     def room_list(self):
-        return [dict(room.current_access()) for room in self.rooms]
+        return [room.current_access() for room in self.rooms]
 
 
 class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):

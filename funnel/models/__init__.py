@@ -18,5 +18,4 @@ from .rsvp import *
 from .section import *
 from .session import *
 from .user import *
-from .usergroup import *
 from .venue import *
