@@ -52,6 +52,7 @@ class CFP_STATE(LabeledEnum):
     PUBLIC = (1, 'public', __(u"Public"))
     CLOSED = (2, 'closed', __(u"Closed"))
     OPENABLE = {NONE, CLOSED}
+    EXISTS = {PUBLIC, CLOSED}
 
 
 class SCHEDULE_STATE(LabeledEnum):
@@ -228,10 +229,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    # TODO: Remove these 2 conditional states
-    state.add_conditional_state('HAS_PROPOSALS', state.PUBLISHED,
+    cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
         lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
-    state.add_conditional_state('HAS_SESSIONS', state.PUBLISHED,
+    cfp_state.add_conditional_state('HAS_SESSIONS', cfp_state.EXISTS,
         lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
 
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
