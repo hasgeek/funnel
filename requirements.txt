@@ -18,4 +18,4 @@ psycopg2==2.7.7
 Flask-Migrate==2.4.0
 git+https://github.com/hasgeek/Flask-FlatPages.git
 progressbar2==3.39.2
-pycountry==18.5.26
+pycountry==18.12.8
