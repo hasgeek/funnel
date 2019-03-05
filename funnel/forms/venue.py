@@ -33,7 +33,9 @@ class VenueForm(forms.Form):
 
     def set_queries(self):
         pycountry_locale = gettext.translation('iso3166-2', pycountry.LOCALES_DIR, languages=[get_locale()])
-        self.country.choices = [(country.alpha_2, pycountry_locale.gettext(country.name)) for country in pycountry.countries]
+        countries = [(pycountry_locale.gettext(country.name), country.alpha_2) for country in pycountry.countries]
+        countries.sort()
+        self.country.choices = [(code, name) for (name, code) in countries]
 
 
 class VenueRoomForm(forms.Form):
