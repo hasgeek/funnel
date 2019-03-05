@@ -27,17 +27,18 @@
     {% if not form.cfp_start_at.data %}
       <div id="cfp-publish-actions" class="btn-wrapper hide">
         <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open CfP now{% endtrans %}</button>
+        <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open CfP later{% endtrans %}</button>
       </div>
     {% endif %}
     {% if form.cfp_start_at.data %}
       {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
     {% else %}
-      {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
+      {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
     {% endif %}
     {% if form.cfp_end_at.data %}
       {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
     {% else %}
-       {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
+       {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-end-at") }}
     {% endif %}
     <div class="mui-form form-actions clearfix">
       <div>
@@ -58,8 +59,9 @@
       // Set current date & time in cfp_start_at input field and show cfp_end_at input field.
       $('button[name="open-now"]').click(function(event) {
         event.preventDefault();
-        $('#cfp_start_at-date').val(new Date().toISOString().split('T')[0]);
-        $('#cfp_start_at-time').val(new Date().toLocaleTimeString());
+        var now = new Date();
+        $('#cfp_start_at-date').val(now.toISOString().split('T')[0]);
+        $('#cfp_start_at-time').val(now.getHours() + ":" + now.getMinutes());
         $('.js-cfp-end-at').removeClass('mui--hide');
       });
 
