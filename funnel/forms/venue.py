@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import __
+import gettext
+import pycountry
+from baseframe import __, get_locale
 import baseframe.forms as forms
 from baseframe.forms.sqlalchemy import QuerySelectField
-from baseframe.staticdata import country_codes
 from .project import valid_color_re
-from ..models import Venue
 
 __all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
 
@@ -27,9 +27,15 @@ class VenueForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.Length(max=20)])
     country = forms.SelectField(__("Country"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2)],
-        choices=country_codes, default="IN")
+        choices=[], default='IN')
     coordinates = forms.CoordinatesField(__("Location"), description=__("Pick a location on the map"),
         validators=[forms.validators.Optional(), forms.validators.ValidCoordinates()])
+
+    def set_queries(self):
+        pycountry_locale = gettext.translation('iso3166-2', pycountry.LOCALES_DIR, languages=[get_locale()])
+        countries = [(pycountry_locale.gettext(country.name), country.alpha_2) for country in pycountry.countries]
+        countries.sort()
+        self.country.choices = [(code, name) for (name, code) in countries]
 
 
 class VenueRoomForm(forms.Form):

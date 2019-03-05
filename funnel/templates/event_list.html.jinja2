@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html" import renderfield %}
-{% block title %}Events{% endblock %}
+{% block title %}Manage check-in{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1">{{ project.title|e }}</h1>
@@ -14,6 +14,7 @@
       <div class="card">
         <div class="card__header">
           <h3 class="mui--text-title">Events</h3>
+          <p class="mui--text-caption">Select an event to check-in attendees</p>
         </div>
         <div class="card__body">
           <ol class="mui-list--aligned">

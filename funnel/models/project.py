@@ -329,13 +329,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 }
             }
 
-    def user_in_group(self, user, group):
-        for grp in self.usergroups:
-            if grp.name == group:
-                if user in grp.users:
-                    return True
-        return False
-
     def permissions(self, user, inherited=None):
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
@@ -353,10 +346,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'new-section',
                     'edit-section',
                     'delete-section',
-                    'view-usergroup',
-                    'new-usergroup',
-                    'edit-usergroup',
-                    'delete-usergroup',
                     'confirm-proposal',
                     'view-venue',
                     'new-venue',

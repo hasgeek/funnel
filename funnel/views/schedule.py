@@ -66,7 +66,7 @@ def schedule_data(project):
             'url': session.url_for(_external=True),
             'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
             'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
-            'proposal': session.proposal.id if session.proposal else None,
+            'proposal': session.proposal.suuid if session.proposal else None,
             'feedback_url': session.url_for('feedback', _external=True) if session.proposal else None,
             'speaker': session.speaker,
             'room': session.venue_room.scoped_name if session.venue_room else None,
@@ -147,7 +147,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
             sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
-            venues=[dict(venue.current_access()) for venue in self.obj.venues],
+            venues=[venue.current_access() for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
     @route('subscribe')
@@ -161,7 +161,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_json(self):
         return jsonp(schedule=schedule_data(self.obj),
-            venues=[dict(venue.current_access()) for venue in self.obj.venues],
+            venues=[venue.current_access() for venue in self.obj.venues],
             rooms=[room_data(room) for room in self.obj.rooms])
 
     @route('ical')
@@ -199,7 +199,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         return dict(project=self.obj, proposals=proposals,
             from_date=date_js(from_date), to_date=date_js(to_date),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
-            venues=[dict(venue.current_access()) for venue in self.obj.venues],
+            venues=[venue.current_access() for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
 
     @route('update', methods=['POST'])

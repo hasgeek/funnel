@@ -114,16 +114,12 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('csv')
     @requires_permission('view')
     def csv(self):
-        if current_auth.permissions.view_contactinfo:
-            usergroups = [ug.name for ug in self.obj.usergroups]
-        else:
-            usergroups = []
         proposals = Proposal.query.filter_by(project=self.obj).order_by(db.desc('created_at')).all()
         outfile = StringIO()
         out = unicodecsv.writer(outfile, encoding='utf-8')
-        out.writerow(proposal_headers + ['votes_' + group for group in usergroups] + ['status'])
+        out.writerow(proposal_headers + ['status'])
         for proposal in proposals:
-            out.writerow(proposal_data_flat(proposal, usergroups))
+            out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
         return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
             headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
@@ -226,7 +222,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('admin')
+    @requires_permission('checkin_event')
     def admin(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():

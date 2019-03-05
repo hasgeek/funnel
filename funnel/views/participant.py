@@ -10,6 +10,7 @@ from coaster.utils import midnight_to_utc, getbool
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
+from ..views.helpers import mask_email
 from funnel.util import split_name, format_twitter_handle, make_qrcode
 from .project import ProjectViewMixin
 from .decorators import legacy_redirect
@@ -62,7 +63,7 @@ def participant_checkin_data(participant, project, event):
         'pid': participant.id,
         'fullname': participant.fullname,
         'company': participant.company,
-        'email': participant.email,
+        'email': mask_email(participant.email),
         'badge_printed': participant.badge_printed,
         'checked_in': participant.checked_in,
         'ticket_type_titles': participant.ticket_type_titles
@@ -166,7 +167,7 @@ def participant(profile, project, puk, key):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='view-participant')
+    permission='checkin_event')
 def participant_badge(profile, project, participant):
     return render_template('badge.html.jinja2',
         badges=participant_badge_data([participant], project))
@@ -239,7 +240,7 @@ def event_participants_json(profile, project, event):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='view-event')
+    permission='checkin_event')
 def event_badges(profile, project, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
     participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()

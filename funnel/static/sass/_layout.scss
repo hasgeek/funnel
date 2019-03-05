@@ -2,6 +2,10 @@
   margin-bottom: 0;
 }
 
+.zero-top-margin {
+  margin-top: 0;
+}
+
 .mui-btn--nomargin {
   margin-top: 0;
   margin-bottom: 0;
@@ -118,10 +122,6 @@
   cursor: pointer;
 }
 
-.collapsible__header--nobottommargin {
-   margin: 10px 0 0;
-}
-
 .collapsible__body {
   display: none;
 }
@@ -167,4 +167,21 @@ html.touch .collapsible__body--disable {
 .attendee-table td {
   word-break: break-all;
   min-width: 100px;
+}
+
+@media(min-width: 992px) {
+  .attendee-table td {
+    min-width: 80px;
+  }
+}
+
+@media(min-width: 1200px) {
+  .attendee-table td {
+    min-width: 200px;
+  }
+}
+
+.inline-form {
+  display: inline-block;
+  vertical-align: middle;
 }
