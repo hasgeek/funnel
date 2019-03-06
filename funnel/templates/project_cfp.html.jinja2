@@ -24,7 +24,7 @@
     {%- for error in form.instructions.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
     {%- endfor %}
-    {% if not form.cfp_start_at.data %}
+    {% if not form.cfp_end_at.data %}
       <div id="cfp-publish-actions" class="btn-wrapper hide">
         <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open CfP now{% endtrans %}</button>
         <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open CfP later{% endtrans %}</button>
@@ -43,7 +43,7 @@
     <div class="mui-form form-actions clearfix">
       <div>
         <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
-        <span class="loading mui--hide"><i class="material-icons mui--align-middle mui--text-dark-secondary">refresh</i></span>
+        <span class="loading mui--hide"></span>
       </div>
     </div>
   </form>
