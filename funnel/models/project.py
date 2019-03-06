@@ -45,6 +45,7 @@ class PROJECT_STATE(LabeledEnum):
     WITHDRAWN = (2, 'withdrawn', __(u"Withdrawn"))
     DELETED = (3, 'deleted', __("Deleted"))
     DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
+    PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):
@@ -278,8 +279,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         pass
 
     @with_roles(call={'admin'})
+    @schedule_state.transition(
+        schedule_state.PUBLISHED, schedule_state.DRAFT, title=__("Unpublish schedule"),
+        message=__("The schedule has been modev to draft state"), type='success')
+    def unpublish_schedule(self):
+        pass
+
+    @with_roles(call={'admin'})
     @state.transition(
-        state.DRAFT, state.PUBLISHED, title=__("Publish project"),
+        state.PUBLISHABLE, state.PUBLISHED, title=__("Publish project"),
         message=__("The project has been published"), type='success')
     def publish(self):
         pass

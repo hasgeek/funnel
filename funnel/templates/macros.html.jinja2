@@ -124,7 +124,7 @@
                 {{ transition_form.hidden_tag() }}
                 <p class="btn-group">
                   {% for name, transition in transition_form.transition.choices %}
-                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
+                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
                   {% endfor %}
                 </p>
               </form>
@@ -139,7 +139,7 @@
                 {{ schedule_transition_form.hidden_tag() }}
                 <p class="btn-group">
                   {% for name, transition in schedule_transition_form.schedule_transition.choices %}
-                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
+                    <button name="schedule_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
                   {% endfor %}
                 </p>
               </form>
@@ -154,7 +154,7 @@
                 {{ cfp_transition_form.hidden_tag() }}
                 <p class="btn-group">
                   {% for name, transition in cfp_transition_form.cfp_transition.choices %}
-                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
+                    <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
                   {% endfor %}
                 </p>
               </form>

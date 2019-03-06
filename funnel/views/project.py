@@ -217,14 +217,14 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         if cfp_transition_form.validate_on_submit():  # check if the provided transition is valid
             transition = getattr(self.obj.current_access(),
-                cfp_transition_form.transition.data)
+                cfp_transition_form.cfp_transition.data)
             transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
         else:
-            flash(_("Invalid transition for this project;s CfP"), 'error')
+            flash(_("Invalid transition for this project's CfP"), 'error')
             abort(403)
-        return redirect(self.obj.url_for('proposals'))
+        return redirect(self.obj.url_for('view_proposals'))
 
     @route('schedule_transition', methods=['POST'])
     @lastuser.requires_login
@@ -233,7 +233,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         if schedule_transition_form.validate_on_submit():  # check if the provided transition is valid
             transition = getattr(self.obj.current_access(),
-                schedule_transition_form.transition.data)
+                schedule_transition_form.schedule_transition.data)
             transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
