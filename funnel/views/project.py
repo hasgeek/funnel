@@ -180,7 +180,8 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-        return render_template('project_cfp.html.jinja2', form=form)
+            return redirect(self.obj.url_for(), code=303)
+        return render_template('project_cfp.html.jinja2', form=form, project=self.obj)
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
