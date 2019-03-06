@@ -23,22 +23,6 @@ __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
 # --- Constants ---------------------------------------------------------------
 
-class OLD_PROJECT_STATE(LabeledEnum):
-    # If you add any new state, you need to add a migration to modify the check constraint
-    DRAFT = (0, 'draft', __(u"Draft"))
-    SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
-    VOTING = (2, 'voting', __(u"Accepting votes"))
-    FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
-    CLOSED = (5, 'closed', __(u"Closed"))
-    # Jury state are not in the editorial workflow anymore - Feb 24 2018
-    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
-    JURY = (3, 'jury', __(u"Awaiting jury selection"))
-
-    CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
-    OPENABLE = {VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
-    POST_DRAFT = {SUBMISSIONS, VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
-
-
 class PROJECT_STATE(LabeledEnum):
     DRAFT = (0, 'draft', __(u"Draft"))
     PUBLISHED = (1, 'published', __(u"Published"))
@@ -85,14 +69,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     website = db.Column(UrlType, nullable=True)
     timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
-
-    _old_state = db.Column(
-        'old_state',
-        db.Integer,
-        StateManager.check_constraint('old_state', OLD_PROJECT_STATE),
-        default=OLD_PROJECT_STATE.DRAFT,
-        nullable=False)
-    old_state = StateManager('_old_state', OLD_PROJECT_STATE, doc="Old project state")
 
     _state = db.Column(
         'state',
