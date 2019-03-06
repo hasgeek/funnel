@@ -13,7 +13,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..util import geonameid_from_location
-from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, db
+from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType, db
 from .user import Team, User
 from .profile import Profile
 from .commentvote import Commentset, SET_TYPE, Voteset
@@ -83,7 +83,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     date = db.Column(db.Date, nullable=True)
     date_upto = db.Column(db.Date, nullable=True)
 
-    website = db.Column(db.Unicode(2000), nullable=True)
+    website = db.Column(UrlType, nullable=True)
     timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
 
     _old_state = db.Column(
@@ -120,16 +120,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     cfp_end_at = db.Column(db.DateTime, nullable=True)
 
     # Columns for mobile
-    bg_image = db.Column(db.Unicode(2000), nullable=True)
+    bg_image = db.Column(UrlType, nullable=True)
     bg_color = db.Column(db.Unicode(6), nullable=True)
-    explore_url = db.Column(db.Unicode(2000), nullable=True)
+    explore_url = db.Column(UrlType, nullable=True)
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
-    buy_tickets_url = db.Column(db.Unicode(2000), nullable=True)
+    buy_tickets_url = db.Column(UrlType, nullable=True)
 
-    banner_video_url = db.Column(db.Unicode(2000), nullable=True)
+    banner_video_url = db.Column(UrlType, nullable=True)
     boxoffice_data = db.Column(JsonDict, nullable=False, server_default='{}')
 
-    hasjob_embed_url = db.Column(db.Unicode(2000), nullable=True)
+    hasjob_embed_url = db.Column(UrlType, nullable=True)
     hasjob_embed_limit = db.Column(db.Integer, default=8)
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)

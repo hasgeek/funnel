@@ -2,7 +2,7 @@
 
 from flask_lastuser.sqlalchemy import ProfileBase
 
-from . import MarkdownColumn, UuidMixin, db
+from . import MarkdownColumn, UuidMixin, UrlType, db
 from .user import UseridMixin, Team
 
 __all__ = ['Profile']
@@ -15,7 +15,7 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     admin_team = db.relationship(Team)
 
     description = MarkdownColumn('description', default=u'', nullable=False)
-    logo_url = db.Column(db.Unicode(2000), nullable=True)
+    logo_url = db.Column(UrlType, nullable=True)
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 

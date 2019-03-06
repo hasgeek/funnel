@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import abort
-from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
+from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
 from .section import Section
@@ -119,8 +119,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     description = MarkdownColumn('description', nullable=True)
     part_b = db.synonym('description')
     requirements = MarkdownColumn('requirements', nullable=True)
-    slides = db.Column(db.Unicode(2000), nullable=True)
-    preview_video = db.Column(db.Unicode(2000), default=u'', nullable=True)
+    slides = db.Column(UrlType, nullable=True)
+    preview_video = db.Column(UrlType, default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
     _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROPOSAL_STATE),
