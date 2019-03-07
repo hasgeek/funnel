@@ -49,7 +49,7 @@
               <a href="{{ project.url_for() }}" class="clickable-card" title="{{ project.title }}">
                 <div class="card">
                   <div class="card__image-wrapper">
-                    {% if project.bg_image %}
+                    {% if project.bg_image.url %}
                       <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                     {% else %}
                       <div class="card__image--default">

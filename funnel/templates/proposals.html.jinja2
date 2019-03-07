@@ -103,7 +103,7 @@
       {% endif %}
     </div>
 
-   {% if project.cfp_state.OPEN -%}
+   {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
     <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="call-for-proposal">
       <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8">
         <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
