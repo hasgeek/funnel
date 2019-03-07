@@ -52,7 +52,7 @@
       <li class="cta">
         <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
-    {%- elif project.buy_tickets_url %}
+    {%- elif project.buy_tickets_url.url %}
       <li class="cta">
         <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>

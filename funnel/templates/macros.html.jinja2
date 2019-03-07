@@ -29,14 +29,14 @@
           </div>
         </div>
       </div>
-      {% if project.banner_video_url or project.bg_image %}
+      {% if project.banner_video_url or project.bg_image.url %}
       <div class="grid__col-md-7 grid__col-lg-8 project-banner">
         <div class="project-banner__box">
           {% if project.banner_video_url %}
             <div class="project-banner__box__video">
               {{ project.banner_video_url|safe }}
             </div>
-          {%- elif project.bg_image %}
+          {%- elif project.bg_image.url %}
             <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
           {% endif %}
         </div>
@@ -90,7 +90,7 @@
       {%- endif %}
       {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate" title="Participate" data-action="Participate(navbar)">Participate</a>
-      {%- elif project.buy_tickets_url %}
+      {%- elif project.buy_tickets_url.url %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.buy_tickets_url }}" title="Participate" data-action="Participate(navbar)">Participate</a>
       {%- elif project.allow_rsvp %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate" title="Participate" data-action="Participate(navbar)">Participate</a>
