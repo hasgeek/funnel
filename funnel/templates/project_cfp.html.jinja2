@@ -61,14 +61,13 @@
         var now = new Date();
         $('#cfp_start_at-date').val(now.toISOString().split('T')[0]);
         $('#cfp_start_at-time').val(now.getHours() + ":" + now.getMinutes());
-        $('.js-cfp-end-at').removeClass('mui--hide');
+        $('.js-cfp-start-at, .js-cfp-end-at').removeClass('mui--hide');
       });
 
       // Show cfp_start_at and cfp_end_at input field.
       $('button[name="later"]').click(function(event) {
         event.preventDefault();
-        $('.js-cfp-start-at').removeClass('mui--hide');
-        $('.js-cfp-end-at').removeClass('mui--hide');
+        $('.js-cfp-start-at, .js-cfp-end-at').removeClass('mui--hide');
       });
     });
   </script>
