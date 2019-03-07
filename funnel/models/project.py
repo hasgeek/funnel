@@ -257,7 +257,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @with_roles(call={'admin'})
     @schedule_state.transition(
         schedule_state.PUBLISHED, schedule_state.DRAFT, title=__("Unpublish schedule"),
-        message=__("The schedule has been modev to draft state"), type='success')
+        message=__("The schedule has been moved to draft state"), type='success')
     def unpublish_schedule(self):
         pass
 
