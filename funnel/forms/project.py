@@ -94,7 +94,7 @@ class CfpForm(forms.Form):
     cfp_start_at = forms.DateTimeField(__("Submissions open at"),
         validators=[forms.validators.Optional()])
     cfp_end_at = forms.DateTimeField(__("Submissions close at"),
-        validators=[forms.validators.OptionalIfNot('cfp_start_at'),
+        validators=[forms.validators.AllowedIf('cfp_start_at'), forms.validators.RequiredIf('cfp_start_at'),
             forms.validators.GreaterThanEqualTo('cfp_start_at', __("Submissions cannot close before they open"))])
 
 
