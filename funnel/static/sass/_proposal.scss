@@ -264,6 +264,11 @@
   word-break: break-all;
 }
 
+.proposal-content pre,
+.codehilite pre {
+  white-space: pre-wrap;
+}
+
 .comment {
   margin: 1em 0;
 }
