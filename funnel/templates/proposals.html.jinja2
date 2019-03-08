@@ -43,10 +43,10 @@
               <li>{{ proposal.voteset.count }} upvotes</li>
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
-              {% if proposal.preview_video %}
+              {% if proposal.preview_video.url %}
                 <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons icon-middle">play_arrow</i></li>
               {% endif %}
-              {% if proposal.slides %}
+              {% if proposal.slides.url %}
                 <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons icon-middle">slideshow</i></li>
               {% endif %}
             </ul>
@@ -67,7 +67,7 @@
       <li class="cta">
         <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
-    {%- elif project.buy_tickets_url %}
+    {%- elif project.buy_tickets_url.url %}
       <li class="cta">
         <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
