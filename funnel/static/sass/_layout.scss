@@ -20,6 +20,10 @@
   display: block;
 }
 
+.no-js .js-lazyload-img {
+  display: none;
+}
+
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -206,4 +210,16 @@ html.touch .collapsible__body--disable {
 .inline-form {
   display: inline-block;
   vertical-align: middle;
+}
+
+.past-events-table {
+  border-collapse: collapse;
+
+  >thead>tr>th {
+    padding: 1em;
+  }
+}
+
+.footer--homepage {
+  margin-top: 0;
 }

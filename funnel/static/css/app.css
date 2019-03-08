@@ -20,6 +20,10 @@
   display: block;
 }
 
+.no-js .js-lazyload-img {
+  display: none;
+}
+
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -201,6 +205,17 @@ html.touch .collapsible__body--disable {
   vertical-align: middle;
 }
 
+.past-events-table {
+  border-collapse: collapse;
+}
+.past-events-table > thead > tr > th {
+  padding: 1em;
+}
+
+.footer--homepage {
+  margin-top: 0;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
@@ -251,10 +266,6 @@ html.touch .collapsible__body--disable {
 }
 .hg-banner .s3 {
   color: #f0a40c;
-}
-
-.projects {
-  padding-top: 15px;
 }
 
 .banner {
@@ -359,6 +370,14 @@ html.touch .collapsible__body--disable {
     max-width: 1170px;
   }
 }
+.projects-wrapper {
+  padding: 2em 0;
+}
+
+.projects {
+  padding-top: 1em;
+}
+
 .clickable-card {
   color: #1F2D3D;
   display: block;
@@ -398,6 +417,40 @@ html.touch .collapsible__body--disable {
     font-size: 24px;
   }
 }
+.clickable-card .card__footer {
+  padding-bottom: 1em;
+}
+
+.card--upcoming {
+  display: block;
+  cursor: default;
+  width: 100%;
+}
+
+.card__title__heading {
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 32px;
+}
+
+@media (min-width: 1200px) {
+  .card--upcoming {
+    display: flex;
+    box-shadow: none;
+  }
+  .card--upcoming .card__title__heading {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+  }
+  .card--upcoming .card__image-wrapper,
+  .card--upcoming .card__image--default {
+    width: 530px;
+  }
+  .card--upcoming .card__body {
+    padding: 1em 2em;
+  }
+}
 .profile-details {
   display: flex;
   align-items: center;
@@ -427,10 +480,6 @@ html.touch .collapsible__body--disable {
     max-width: calc(100% - 15% - 20px);
   }
 }
-.projects {
-  padding-top: 15px;
-}
-
 .section-bottom-border {
   border-bottom: 2px solid rgba(132, 146, 166, 0.3);
 }

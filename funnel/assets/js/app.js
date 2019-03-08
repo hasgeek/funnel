@@ -34,4 +34,10 @@ $(() => {
     var target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });
+
+  $('.js-show-cfp-projects').click(function showAll(event) {
+    event.preventDefault();
+    $('.js-cfp-projects').removeClass('mui--hide');
+    $(this).addClass('mui--hide');
+  });
 });

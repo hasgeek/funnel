@@ -37,3 +37,42 @@
     font-size: 24px;
   }
 }
+
+.clickable-card .card__footer {
+  padding-bottom: 1em;
+}
+
+.card--upcoming {
+  display: block;
+  cursor: default;
+  width: 100%;
+}
+
+.card__title__heading {
+  font-weight : 400;
+  font-size: 24px;
+  line-height: 32px;
+}
+
+@media(min-width: 1200px) {
+  .card--upcoming {
+    display: flex;
+    box-shadow: none;
+
+    .card__title__heading {
+      font-weight : 400;
+      font-size: 34px;
+      line-height: 40px;
+    }
+
+    .card__image-wrapper,
+    .card__image--default {
+      width: 530px;
+    }
+
+    .card__body {
+      padding: 1em 2em;
+    }
+  }
+}
+
