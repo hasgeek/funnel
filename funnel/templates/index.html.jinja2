@@ -77,22 +77,22 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline">Upcoming events</h2>
+            <h2 class="mui--text-headline">Upcoming projects</h2>
           </div>
         </div>
         <ul class="grid projects">
           {% for project in projects[0:3] %}
             <li class="grid__col-12">
-              <div class="grid__cell clickable-card card card--upcoming" title="{{ project.title }}">
+              <div class="grid__cell card card--upcoming" title="{{ project.title }}">
                 <div class="card__image-wrapper">
                   {% if project.bg_image.url %}
-                    <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    <a href="{{ project.url_for() }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
                     <noscript>
-                      <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <a href="{{ project.url_for() }}"><img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
                     </noscript>
                   {% else %}
                     <div class="card__image--default">
-                      <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                      <a href="{{ project.url_for() }}"><img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/></a>
                       <p class="card__image__tagline">{{ project.title }}</p>
                     </div>
                   {% endif %}
@@ -117,14 +117,14 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline">Open call for proposal events</h2>
+            <h2 class="mui--text-headline">These projects are currently accepting speaking proposals</h2>
           </div>
         </div>
         <ul class="grid projects">
           {% for project in projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
               <div class="grid__cell">
-                <div class="clickable-card card" data-href="{{ project.url_for() }}" title="{{ project.title }}">
+                <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
                   <div class="card__image-wrapper">
                     {% if project.bg_image.url %}
                       <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -148,7 +148,7 @@
                     </div>
                   {% endif %}
                   <div class="card__footer">
-                    <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                    <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
                   </div>
                 </div>
               </div>
@@ -167,7 +167,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline">All events</h2>
+            <h2 class="mui--text-headline">All projects</h2>
           </div>
         </div>
         <ul class="grid projects">
@@ -197,6 +197,9 @@
                       <p class="mui--text-body2">{{ project.tagline }}</p>
                     </div>
                   {% endif %}
+                  <noscript>
+                     <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                  </noscript>
                 </div>
               </div>
             </li>
@@ -212,8 +215,8 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline">All past events</h2>
-            <p class="mui--text-body1">{{ projects|length }} events</p>
+            <h2 class="mui--text-headline">All past projects</h2>
+            <p class="mui--text-body1">{{ projects|length }} projects</p>
           </div>
         </div>
         <div class="grid projects">
@@ -229,7 +232,7 @@
               {% for project in projects %}
                 <tr>
                   <td><p class="mui--text-subhead zero-bottom-margin">{{ project.date|date_format }}</p></td>
-                  <td><p class="mui--text-subhead zero-bottom-margin">{{ project.title }}</p></td>
+                  <td><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
                   <td>{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
                 </tr>
               {%- endfor -%}

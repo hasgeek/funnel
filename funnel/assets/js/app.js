@@ -35,6 +35,11 @@ $(() => {
     Utils.sendToGA('click', action, target);
   });
 
+  $('.clickable-card').click(function openPage(event) {
+    event.preventDefault();
+    window.location = $(this).data('href');
+  });
+
   $('.js-show-cfp-projects').click(function showAll(event) {
     event.preventDefault();
     $('.js-cfp-projects').removeClass('mui--hide');
