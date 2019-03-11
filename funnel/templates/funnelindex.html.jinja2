@@ -27,20 +27,36 @@
   {% endif %}
 {% endblock %}
 
-{% block headline %}
-{% endblock %}
+{% block headline -%}
+  {%- if g.profile and g.profile.description %}
+    <div class="content-head content-head--top-padding mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-xs-12">
+            {%- if g.profile %}
+              <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  {%- if not config['LEGACY'] and g.profile and current_auth.permissions.new_project -%}
+    <div class="mui-container floating-btn-wrapper">
+      <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--fab mui-btn--primary create-floating-btn" title="Create new project">+</a>
+    </div>
+  {% endif %}
+{%- endblock %}
 
 {% block basecontent %}
   <div class="page-content {%- if not g.profile %} page-content--top-padding{% endif %}">
-    <div class="grid">
-      <div class="grid__col-sm-12">
-        {%- if g.profile %}
-          <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
-        {%- elif config['WELCOME_MESSAGE'] %}
+    {%- if not g.profile %}
+      <div class="grid">
+        <div class="grid__col-sm-12">
           <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
-        {% endif %}
+        </div>
       </div>
-    </div>
+    {% endif %}
     {% if projects %}
       <ul class="grid projects">
         {% for project in projects %}

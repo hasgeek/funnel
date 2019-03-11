@@ -15,6 +15,11 @@
 .card__image-wrapper {
   min-height: 126px;
   position: relative;
+  margin-bottom: 8px;
+}
+
+.card__image-wrapper img {
+  display: block;
 }
 
 .card__image--default {
@@ -46,12 +51,12 @@
   display: block;
   cursor: default;
   width: 100%;
-}
 
-.card__title__heading {
-  font-weight : 400;
-  font-size: 24px;
-  line-height: 32px;
+  .card__title__heading {
+    font-weight : 400;
+    font-size: 24px;
+    line-height: 32px;
+  }
 }
 
 @media(min-width: 1200px) {
