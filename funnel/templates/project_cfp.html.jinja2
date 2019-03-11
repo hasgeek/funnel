@@ -55,12 +55,17 @@
   {%- endassets -%}
   <script type="text/javascript">
     $(function() {
+      function addZero(i) {
+        // input="time" widget requires zero-filled numbers
+        return (i < 10) ? ("0" + i) : i;
+      }
+
       // Set current date & time in cfp_start_at input field and show cfp_end_at input field.
       $('button[name="open-now"]').click(function(event) {
         event.preventDefault();
         var now = new Date();
         $('#cfp_start_at-date').val(now.toISOString().split('T')[0]);
-        $('#cfp_start_at-time').val(now.getHours() + ":" + now.getMinutes());
+        $('#cfp_start_at-time').val(addZero(now.getHours()) + ":" + addZero(now.getMinutes()));
         $('.js-cfp-start-at, .js-cfp-end-at').removeClass('mui--hide');
       });
 
