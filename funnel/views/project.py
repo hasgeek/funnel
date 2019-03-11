@@ -33,11 +33,11 @@ def project_data(project):
         'status': project.state.value,
         'state': project.state.label.name,
         'url': project.url_for(_external=True),
-        'website': project.website,
+        'website': project.website.url,
         'json_url': project.url_for('json', _external=True),
-        'bg_image': project.bg_image,
+        'bg_image': project.bg_image.url,
         'bg_color': project.bg_color,
-        'explore_url': project.explore_url,
+        'explore_url': project.explore_url.url,
         }
 
 
