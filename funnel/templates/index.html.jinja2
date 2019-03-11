@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 
-{% block title %}{{ config['SITE_TITLE'] }}{% endblock %}
+{% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
 {% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
 
@@ -47,7 +47,7 @@
 {% block bodytag %}<body class="mui--bg-primary">{% endblock %}
 
 {% block banner %}
-  {%- if not g.profile %}
+  {%- if not profile %}
     <div class="mui-container hg-banner">
       <div class="grid">
         <div class="grid__col-auto logo-wrapper mui--hidden-xs">
@@ -216,7 +216,7 @@
         <div class="grid">
           <div class="grid__col-12">
             <h2 class="mui--text-headline">All past projects</h2>
-            <p class="mui--text-body1">{{ projects|length }} projects</p>
+            <p class="mui--text-body1">{{ past_projects|length }} projects</p>
           </div>
         </div>
         <div class="grid projects">
@@ -247,7 +247,7 @@
         <div class="grid">
           <div class="grid__col-sm-12">
             <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-              {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new-project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+              {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new_project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
             </p>
           </div>
         </div>
