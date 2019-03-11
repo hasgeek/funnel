@@ -30,7 +30,7 @@
         <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open CfP later{% endtrans %}</button>
       </div>
     {% endif %}
-    {% if form.cfp_start_at.data or form.cfp_start_at.errors %}
+    {% if form.cfp_start_at.data or form.cfp_start_at.errors or form.cfp_end_at.data or form.cfp_end_at.errors %}
       {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
     {% else %}
       {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
