@@ -262,6 +262,8 @@ html.touch .collapsible__body--disable {
 }
 .hg-banner {
   padding-top: 2em;
+  padding-bottom: 2em;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 .logo-wrapper {
@@ -393,6 +395,13 @@ html.touch .collapsible__body--disable {
   padding-top: 1em;
 }
 
+.chip--new {
+  background-color: #F6E2C5;
+  padding: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 .clickable-card {
   color: #1F2D3D;
   display: block;
@@ -470,6 +479,20 @@ html.touch .collapsible__body--disable {
     padding: 1em 2em;
   }
 }
+.card__image--new {
+  background-color: #82698D;
+}
+.card__image--new .card__image__tagline {
+  font-size: 65px;
+  color: #fff;
+  border: 2px dotted #A890AF;
+  width: 66px;
+  padding: 16px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .profile-details {
   display: flex;
   align-items: center;

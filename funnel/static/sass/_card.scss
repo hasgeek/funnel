@@ -81,3 +81,18 @@
   }
 }
 
+.card__image--new {
+  background-color: #82698D;
+
+  .card__image__tagline {
+    font-size: 65px;
+    color: #fff;
+    border: 2px dotted #A890AF;
+    width: 66px;
+    padding: 16px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+  }
+}
+

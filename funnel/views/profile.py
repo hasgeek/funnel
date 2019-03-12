@@ -76,6 +76,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         all_projects = [project for project in projects if project.state.PUBLISHED and project.date_upto >= today]
         upcoming_projects = [project for project in projects if project.schedule_state.PUBLISHED and project.date_upto >= today][:3]
         open_cfp_projects = [project for project in projects if project.cfp_state.OPEN and project.date_upto >= today]
+        draft_cfp_projects = [project for project in projects if project.state.DRAFT]
         return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects, 'all_projects': all_projects,
             'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects}
 

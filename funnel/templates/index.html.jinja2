@@ -62,14 +62,26 @@
             <span class="s2">and discover new opportunities.</span>
           </p>
         </div>
-        <div class="grid__col-xs-12"><hr class="mui-divider"></div>
       </div>
     </div>
   {% endif %}
 {% endblock %}
 
-{% block headline %}
-{% endblock %}
+{% block headline -%}
+  {%- if profile %}
+  <div class="content-head content-head--top-padding mui--bg-accent">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          <h3 class="mui--text-headline">
+            {{ profile.description|safe }}
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+{%- endblock %}
 
 {% block basecontentbox %}
   {% if upcoming_projects %}
@@ -121,7 +133,7 @@
           </div>
         </div>
         <ul class="grid projects">
-          {% for project in open_cfp_projects %}
+          {% for project in open_cfp_projects[0:3] %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
               <div class="grid__cell">
                 <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
@@ -155,9 +167,84 @@
             </li>
           {%- endfor -%}
         </ul>
-        <div class="mui--text-center">
-          <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-action="Show all cfp projects(index page card)">Show all</a>
+        {% if open_cfp_project|length > 3 %}
+          <div class="mui--text-center">
+            <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)">Show all</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {%- if profile and current_auth.permissions.new_project %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline">Introducing drafts <span class="chip chip--new mui--text-caption mui--align-middle">New</span></h2>
+          </div>
         </div>
+        <ul class="grid projects">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+            <div class="grid__cell">
+              <div class="clickable-card card" data-href="{{g.profile.url_for('new_project')}}" title="New project">
+                <div class="card__image-wrapper">
+                  <div class="card__image--default card__image--new">
+                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
+                    <p class="card__image__tagline mui--text-display1">+</p>
+                  </div>
+                </div>
+                <div class="card__title">
+                  <h3 class="mui--text-title card__title__heading mui--text-bold">Start a project</h3>
+                  <h4 class="mui--text-caption card__title__heading">Write, collaborate and get feedback.</h4>
+                </div>
+                <div class="card__footer">
+                  <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Start project</a>
+                </div>
+              </div>
+            </div>
+          </li>
+        {% if draft_cfp_projects %}
+        {% for project in draft_cfp_projects[0:3] %}
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
+            <div class="grid__cell">
+              <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
+                <div class="card__image-wrapper">
+                  {% if project.bg_image.url %}
+                    <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    <noscript>
+                      <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    </noscript>
+                  {% else %}
+                    <div class="card__image--default">
+                      <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                      <p class="card__image__tagline">{{ project.title }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="card__title">
+                  <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
+                  <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
+                </div>
+                {% if project.tagline %}
+                  <div class="card__body">
+                    <p class="mui--text-body2">{{ project.tagline }}</p>
+                  </div>
+                {% endif %}
+                <div class="card__footer">
+                  <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                </div>
+              </div>
+            </div>
+          </li>
+        {%- endfor -%}
+        </ul>
+        {% if draft_cfp_projects|length > 3 %}
+          <div class="mui--text-center">
+            <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)">Show all</a>
+          </div>
+        {% endif %}
+        {% endif %}
       </div>
     </div>
   {% endif %}
