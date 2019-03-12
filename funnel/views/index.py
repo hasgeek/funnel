@@ -20,7 +20,7 @@ def index():
     g.permissions = []
     today = datetime.now().date()
     projects = Project.fetch_sorted(legacy=False).all()  # NOQA
-    past_projects = [project for project in projects if project.date_upto < today]
+    past_projects = [project for project in projects if project.state.PUBLISHED and project.date_upto < today]
     all_projects = [project for project in projects if project.state.PUBLISHED and project.date_upto >= today]
     upcoming_projects = [project for project in projects if project.schedule_state.PUBLISHED and project.date_upto >= today][:3]
     open_cfp_projects = [project for project in projects if project.cfp_state.OPEN and project.date_upto >= today]
