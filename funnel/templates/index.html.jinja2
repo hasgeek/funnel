@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 
-{% block title %}{{ config['SITE_TITLE'] }}{% endblock %}
+{% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
 {% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
 
@@ -47,7 +47,7 @@
 {% block bodytag %}<body class="mui--bg-primary">{% endblock %}
 
 {% block banner %}
-  {%- if not g.profile %}
+  {%- if not profile %}
     <div class="mui-container hg-banner">
       <div class="grid">
         <div class="grid__col-auto logo-wrapper mui--hidden-xs">
@@ -72,7 +72,7 @@
 {% endblock %}
 
 {% block basecontentbox %}
-  {% if projects %}
+  {% if upcoming_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
@@ -81,7 +81,7 @@
           </div>
         </div>
         <ul class="grid projects">
-          {% for project in projects[0:3] %}
+          {% for project in upcoming_projects %}
             <li class="grid__col-12">
               <div class="grid__cell card card--upcoming" title="{{ project.title }}">
                 <div class="card__image-wrapper">
@@ -112,7 +112,7 @@
     </div>
   {% endif %}
 
-  {% if projects %}
+  {% if open_cfp_projects %}
     <div class="projects-wrapper mui--bg-accent">
       <div class="mui-container">
         <div class="grid">
@@ -121,7 +121,7 @@
           </div>
         </div>
         <ul class="grid projects">
-          {% for project in projects %}
+          {% for project in open_cfp_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
               <div class="grid__cell">
                 <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
@@ -162,7 +162,7 @@
     </div>
   {% endif %}
 
-  {% if projects %}
+  {% if all_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
@@ -171,7 +171,7 @@
           </div>
         </div>
         <ul class="grid projects">
-          {% for project in projects %}
+          {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
               <div class="grid__cell">
                 <div class="card clickable-card" data-href="{{ project.url_for() }}" title="{{ project.title }}">
@@ -210,13 +210,13 @@
   {% endif %}
 
 
-  {% if projects %}
+  {% if past_projects %}
     <div class="projects-wrapper mui--bg-accent">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
             <h2 class="mui--text-headline">All past projects</h2>
-            <p class="mui--text-body1">{{ projects|length }} projects</p>
+            <p class="mui--text-body1">{{ past_projects|length }} projects</p>
           </div>
         </div>
         <div class="grid projects">
@@ -229,7 +229,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for project in projects %}
+              {% for project in past_projects %}
                 <tr>
                   <td><p class="mui--text-subhead zero-bottom-margin">{{ project.date|date_format }}</p></td>
                   <td><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
@@ -247,7 +247,7 @@
         <div class="grid">
           <div class="grid__col-sm-12">
             <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-              {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new-project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+              {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new_project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
             </p>
           </div>
         </div>
