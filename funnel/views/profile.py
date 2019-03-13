@@ -108,7 +108,11 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
 @route('/', subdomain='<profile>')
 class FunnelProfileView(ProfileView):
-    pass
+    @route('')
+    @render_with('funnelindex.html.jinja2')
+    @requires_permission('view')
+    def view(self):
+        return {'profile': self.obj, 'projects': self.obj.listed_projects}
 
 
 ProfileView.init_app(app)
