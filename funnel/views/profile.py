@@ -71,14 +71,15 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def view(self):
         today = datetime.now().date()
-        projects = self.obj.listed_projects
-        past_projects = [project for project in projects if project.date_upto < today]
-        all_projects = [project for project in projects if project.state.PUBLISHED and project.date_upto >= today]
-        upcoming_projects = [project for project in projects if project.schedule_state.PUBLISHED and project.date_upto >= today][:3]
-        open_cfp_projects = [project for project in projects if project.cfp_state.OPEN and project.date_upto >= today]
-        draft_cfp_projects = [project for project in projects if project.state.DRAFT]
-        return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects, 'all_projects': all_projects,
-            'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects}
+        listed_projects = self.obj.listed_projects
+        past_projects = [project for project in listed_projects if project.date_upto < today]
+        all_projects = [project for project in listed_projects if project.date_upto >= today]
+        upcoming_projects = [project for project in listed_projects if project.schedule_state.PUBLISHED and project.date_upto >= today][:3]
+        open_cfp_projects = [project for project in listed_projects if project.cfp_state.OPEN and project.date_upto >= today]
+        draft_cfp_projects = [project for project in self.obj.projects if project.state.DRAFT and project.current_roles.admin]
+        return {'profile': self.obj, 'projects': listed_projects, 'past_projects': past_projects,
+            'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
+            'open_cfp_projects': open_cfp_projects, 'draft_cfp_projects': draft_cfp_projects}
 
     @route('json')
     @render_with(json=True)
