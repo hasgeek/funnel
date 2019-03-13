@@ -30,8 +30,8 @@ $(() => {
 
   // Send click events to Google analytics
   $('.mui-btn, a').click(function gaHandler() {
-    var action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
-    var target = $(this).attr('href') || '';
+    let action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
+    let target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });
 
@@ -42,7 +42,8 @@ $(() => {
 
   $('.js-show-cfp-projects').click(function showAll(event) {
     event.preventDefault();
-    $('.js-cfp-projects').removeClass('mui--hide');
+    let projectElemClass = `.${$(this).data('projects')}`;
+    $(projectElemClass).removeClass('mui--hide');
     $(this).addClass('mui--hide');
   });
 });

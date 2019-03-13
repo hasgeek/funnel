@@ -133,7 +133,7 @@
           </div>
         </div>
         <ul class="grid projects">
-          {% for project in open_cfp_projects[0:3] %}
+          {% for project in open_cfp_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
               <div class="grid__cell">
                 <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
@@ -205,8 +205,8 @@
             </div>
           </li>
         {% if draft_cfp_projects %}
-        {% for project in draft_cfp_projects[0:3] %}
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
+        {% for project in draft_cfp_projects %}
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 3 %}mui--hide{% endif %}">
             <div class="grid__cell">
               <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
                 <div class="card__image-wrapper">
