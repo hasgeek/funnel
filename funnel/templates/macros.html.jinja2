@@ -79,12 +79,11 @@
       </div>
     </div>
   </div>
-
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" title="About" data-action="About(navbar)">About</a>
-      {%- if project.instructions -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#call-for-proposal" title="Call for proposals" data-action="Call for proposals(navbar)">Call for proposals</a>
+      {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" title="Proposals" data-action="Proposals(navbar)">Proposals</a>
       {%- endif %}
       {%- if project.featured_sessions %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)">Talks</a>
@@ -94,7 +93,7 @@
       {%- elif project.buy_tickets_url.url %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.buy_tickets_url }}" title="Participate" data-action="Participate(navbar)">Participate</a>
       {%- elif project.allow_rsvp %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light{% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate" title="Participate" data-action="Participate(navbar)">Participate</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate" title="Participate" data-action="Participate(navbar)">Participate</a>
       {%- endif %}
       {%- if project.hasjob_embed_url.url -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" title="Jobs" data-action="Jobs(navbar)">Jobs</a>
@@ -102,17 +101,14 @@
       {%- if project.primary_venue -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">Venue</a>
       {%- endif %}
-      {%- if project.state.HAS_SESSIONS %}
+      {%- if project.current_roles.admin or project.schedule_state.PUBLISHED %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule</a>
-      {%- endif %}
-      {%- if project.state.HAS_PROPOSALS -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#proposals" title="Proposals" data-action="Proposals(navbar)">Proposals</a>
       {%- endif %}
     </nav>
   </div>
 {% endmacro %}
 
-{% macro admin_panel(project, transition_form=none) %}
+{% macro admin_panel(project, transition_form=none, schedule_transition_form=none, cfp_transition_form=none) %}
   <div class="sticky-admin-panel">
     <div class="card">
       <div class="card__header">
@@ -124,12 +120,41 @@
             <div>
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
               <p class="mui--text-subhead">{{ project.state.label.title }}</p>
-              <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin">Change status</p>
               <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
                 {{ transition_form.hidden_tag() }}
                 <p class="btn-group">
                   {% for name, transition in transition_form.transition.choices %}
-                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{transition.data['title']}}">{{ transition.data['title'] }}</button>
+                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                  {% endfor %}
+                </p>
+              </form>
+            </div>
+            <hr class="mui-divider">
+          {%- endif %}
+          {%- if schedule_transition_form %}
+            <div>
+              <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">{% trans %}Schedule status{% endtrans %}</p>
+              <p class="mui--text-subhead">{{ project.schedule_state.label.title }}</p>
+              <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
+                {{ schedule_transition_form.hidden_tag() }}
+                <p class="btn-group">
+                  {% for name, transition in schedule_transition_form.schedule_transition.choices %}
+                    <button name="schedule_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                  {% endfor %}
+                </p>
+              </form>
+            </div>
+            <hr class="mui-divider">
+          {%- endif %}
+          {%- if cfp_transition_form %}
+            <div>
+              <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">{% trans %}CfP status{% endtrans %}</p>
+              <p class="mui--text-subhead">{{ project.cfp_state.label.title }}</p>
+              <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
+                {{ cfp_transition_form.hidden_tag() }}
+                <p class="btn-group">
+                  {% for name, transition in cfp_transition_form.cfp_transition.choices %}
+                    <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
                   {% endfor %}
                 </p>
               </form>
@@ -141,6 +166,15 @@
               <li>
                 <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
               </li>
+              {% if project.cfp_state.NONE -%}
+                <li>
+                  <a href="{{ project.url_for('cfp') }}" title="Add a CfP">{% trans %}Add a CfP{% endtrans %}</a>
+                </li>
+              {% else -%}
+                <li>
+                  <a href="{{ project.url_for('cfp') }}" title="Modify the CfP">{% trans %}Modify the CfP{% endtrans %}</a>
+                </li>
+              {%- endif %}
               <li>
                 <a href="{{ project.url_for('edit_schedule') }}" title="Edit schedule">{% trans %}Edit schedule{% endtrans %}</a>
               </li>

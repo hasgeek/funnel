@@ -175,6 +175,27 @@ html.touch .collapsible__body--disable {
     min-width: 200px;
   }
 }
+.btn-wrapper {
+  margin-bottom: 10px;
+}
+
+.cfp-action-btn {
+  padding: 10px 0;
+  cursor: pointer;
+  margin-right: 10px;
+  border: none;
+  color: #4A90E2;
+  background: none;
+}
+
+.cfp-action-btn:focus,
+.cfp-action-btn:hover {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  color: #4A90E2;
+}
+
 .inline-form {
   display: inline-block;
   vertical-align: middle;

@@ -2,7 +2,7 @@
 
 import unicodecsv
 from cStringIO import StringIO
-from flask import g, flash, redirect, Response, request, abort, current_app
+from flask import g, flash, redirect, Response, request, abort, current_app, render_template
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
@@ -11,7 +11,8 @@ from coaster.views import jsonp, route, render_with, requires_permission, UrlFor
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
-from ..forms import ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm, ProjectBoxofficeForm
+from ..forms import (ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm,
+    ProjectBoxofficeForm, CfpForm, ProjectScheduleTransitionForm, ProjectCfpTransitionForm)
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
@@ -86,14 +87,17 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         sections_list = [s.current_access() for s in sections]
         rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
         transition_form = ProjectTransitionForm(obj=self.obj)
+        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         return {'project': self.obj, 'sections': sections_list,
-            'rsvp_form': rsvp_form, 'transition_form': transition_form}
+            'rsvp_form': rsvp_form, 'transition_form': transition_form,
+            'schedule_transition_form': schedule_transition_form}
 
     @route('proposals')
     @render_with('proposals.html.jinja2')
     @requires_permission('view')
     def view_proposals(self):
-        return {'project': self.obj}
+        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
+        return {'project': self.obj, 'cfp_transition_form': cfp_transition_form}
 
     @route('json')
     @render_with(json=True)
@@ -167,6 +171,18 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 else:
                     return render_form(form=form, title=_("Edit project"), submit=_("Save changes"), autosave=True)
 
+    @route('cfp', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit_project')
+    def cfp(self):
+        form = CfpForm(obj=self.obj, model=Project)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            return redirect(self.obj.url_for(), code=303)
+        return render_template('project_cfp.html.jinja2', form=form, project=self.obj)
+
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit_project')
@@ -191,7 +207,39 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             db.session.commit()
             flash(transition.data['message'], 'success')
         else:
-            flash(_("Invalid transition for this project."), 'error')
+            flash(_("Invalid transition for this project"), 'error')
+            abort(403)
+        return redirect(self.obj.url_for())
+
+    @route('cfp_transition', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('edit_project')
+    def cfp_transition(self):
+        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
+        if cfp_transition_form.validate_on_submit():  # check if the provided transition is valid
+            transition = getattr(self.obj.current_access(),
+                cfp_transition_form.cfp_transition.data)
+            transition()  # call the transition
+            db.session.commit()
+            flash(transition.data['message'], 'success')
+        else:
+            flash(_("Invalid transition for this project's CfP"), 'error')
+            abort(403)
+        return redirect(self.obj.url_for('view_proposals'))
+
+    @route('schedule_transition', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('edit_project')
+    def schedule_transition(self):
+        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
+        if schedule_transition_form.validate_on_submit():  # check if the provided transition is valid
+            transition = getattr(self.obj.current_access(),
+                schedule_transition_form.schedule_transition.data)
+            transition()  # call the transition
+            db.session.commit()
+            flash(transition.data['message'], 'success')
+        else:
+            flash(_("Invalid transition for this project's schedule"), 'error')
             abort(403)
         return redirect(self.obj.url_for())
 
