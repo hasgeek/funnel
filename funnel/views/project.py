@@ -34,11 +34,11 @@ def project_data(project):
         'status': project.state.value,
         'state': project.state.label.name,
         'url': project.url_for(_external=True),
-        'website': project.website,
+        'website': project.website.url if project.website is not None else "",
         'json_url': project.url_for('json', _external=True),
-        'bg_image': project.bg_image,
+        'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'bg_color': project.bg_color,
-        'explore_url': project.explore_url,
+        'explore_url': project.explore_url.url if project.explore_url is not None else "",
         }
 
 

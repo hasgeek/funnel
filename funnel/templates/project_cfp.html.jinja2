@@ -30,7 +30,7 @@
         <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open CfP later{% endtrans %}</button>
       </div>
     {% endif %}
-    {% if form.cfp_start_at.data or form.cfp_start_at.errors %}
+    {% if form.cfp_start_at.data or form.cfp_start_at.errors or form.cfp_end_at.data or form.cfp_end_at.errors %}
       {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
     {% else %}
       {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
@@ -55,12 +55,16 @@
   {%- endassets -%}
   <script type="text/javascript">
     $(function() {
+      function addZero(i) {
+        // input="time" widget requires zero-filled numbers
+        return (i < 10) ? ("0" + i) : i;
+      }
       // Set current date & time in cfp_start_at input field and show cfp_end_at input field.
       $('button[name="open-now"]').click(function(event) {
         event.preventDefault();
         var now = new Date();
         $('#cfp_start_at-date').val(now.toISOString().split('T')[0]);
-        $('#cfp_start_at-time').val(now.getHours() + ":" + now.getMinutes());
+        $('#cfp_start_at-time').val(addZero(now.getHours()) + ":" + addZero(now.getMinutes()));
         $('.js-cfp-start-at, .js-cfp-end-at').removeClass('mui--hide');
       });
 

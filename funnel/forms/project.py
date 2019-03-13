@@ -38,7 +38,7 @@ class ProjectForm(forms.Form):
             forms.validators.DataRequired(__("End date is required")),
             forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))
             ])
-    tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired()],
+    tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
@@ -94,7 +94,9 @@ class CfpForm(forms.Form):
     cfp_start_at = forms.DateTimeField(__("Submissions open at"),
         validators=[forms.validators.Optional()])
     cfp_end_at = forms.DateTimeField(__("Submissions close at"),
-        validators=[forms.validators.AllowedIf('cfp_start_at'), forms.validators.RequiredIf('cfp_start_at'),
+        validators=[
+            forms.validators.AllowedIf('cfp_start_at', message=__("This requires open time for submissions to be specified")),
+            forms.validators.RequiredIf('cfp_start_at'), forms.validators.Optional(),
             forms.validators.GreaterThanEqualTo('cfp_start_at', __("Submissions cannot close before they open"))])
 
 
