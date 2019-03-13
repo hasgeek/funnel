@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
@@ -21,20 +23,26 @@ __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
 # --- Constants ---------------------------------------------------------------
 
-class PROJECT_STATE(LabeledEnum):  # NOQA
-    # If you add any new state, you need to add a migration to modify the check constraint
+class PROJECT_STATE(LabeledEnum):
     DRAFT = (0, 'draft', __(u"Draft"))
-    SUBMISSIONS = (1, 'submissions', __(u"Accepting submissions"))
-    VOTING = (2, 'voting', __(u"Accepting votes"))
-    FEEDBACK = (4, 'feedback', __(u"Open for feedback"))
-    CLOSED = (5, 'closed', __(u"Closed"))
-    # Jury state are not in the editorial workflow anymore - Feb 24 2018
-    WITHDRAWN = (6, 'withdrawn', __(u"Withdrawn"))
-    JURY = (3, 'jury', __(u"Awaiting jury selection"))
+    PUBLISHED = (1, 'published', __(u"Published"))
+    WITHDRAWN = (2, 'withdrawn', __(u"Withdrawn"))
+    DELETED = (3, 'deleted', __("Deleted"))
+    DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
+    PUBLISHABLE = {DRAFT, WITHDRAWN}
 
-    CURRENTLY_LISTED = {SUBMISSIONS, VOTING, JURY, FEEDBACK}
-    OPENABLE = {VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
-    POST_DRAFT = {SUBMISSIONS, VOTING, FEEDBACK, CLOSED, WITHDRAWN, JURY}
+
+class CFP_STATE(LabeledEnum):
+    NONE = (0, 'none', __(u"None"))
+    PUBLIC = (1, 'public', __(u"Public"))
+    CLOSED = (2, 'closed', __(u"Closed"))
+    OPENABLE = {NONE, CLOSED}
+    EXISTS = {PUBLIC, CLOSED}
+
+
+class SCHEDULE_STATE(LabeledEnum):
+    DRAFT = (0, 'draft', __(u"Draft"))
+    PUBLISHED = (1, 'published', __(u"Published"))
 
 
 # --- Models ------------------------------------------------------------------
@@ -63,9 +71,29 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
 
     _state = db.Column(
-        'state', db.Integer, StateManager.check_constraint('state', PROJECT_STATE),
-        default=PROJECT_STATE.DRAFT, nullable=False)
-    state = StateManager('_state', PROJECT_STATE, doc="State of this project.")
+        'state',
+        db.Integer,
+        StateManager.check_constraint('state', PROJECT_STATE),
+        default=PROJECT_STATE.DRAFT,
+        nullable=False)
+    state = StateManager('_state', PROJECT_STATE, doc="Project state")
+    _cfp_state = db.Column(
+        'cfp_state',
+        db.Integer,
+        StateManager.check_constraint('cfp_state', CFP_STATE),
+        default=CFP_STATE.NONE,
+        nullable=False)
+    cfp_state = StateManager('_cfp_state', CFP_STATE, doc="CfP state")
+    _schedule_state = db.Column(
+        'schedule_state',
+        db.Integer,
+        StateManager.check_constraint('schedule_state', SCHEDULE_STATE),
+        default=SCHEDULE_STATE.DRAFT,
+        nullable=False)
+    schedule_state = StateManager('_schedule_state', SCHEDULE_STATE, doc="Schedule state")
+
+    cfp_start_at = db.Column(db.DateTime, nullable=True)
+    cfp_end_at = db.Column(db.DateTime, nullable=True)
 
     # Columns for mobile
     bg_image = db.Column(UrlType, nullable=True)
@@ -178,62 +206,81 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    state.add_conditional_state('HAS_PROPOSALS', state.POST_DRAFT,
+    cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
         lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
-    state.add_conditional_state('HAS_SESSIONS', state.POST_DRAFT,
+    cfp_state.add_conditional_state('HAS_SESSIONS', cfp_state.EXISTS,
         lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
 
+    cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
+        lambda project: project.instructions.html != '',
+        lambda project: project.__table__.c.instructions_html != '',
+        label=('private_draft', __("Private draft")))
+    cfp_state.add_conditional_state('DRAFT', cfp_state.PUBLIC,
+        lambda project: project.cfp_start_at is None,
+        label=('draft', __("Draft")))
+    cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at > db.func.utcnow(),
+        label=('upcoming', __("Upcoming")))
+    cfp_state.add_conditional_state('OPEN', cfp_state.PUBLIC,
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= datetime.utcnow() and (
+            project.cfp_end_at is None or project.cfp_end_at > datetime.utcnow()),
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow() and (
+            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow()),
+        label=('open', __("Open")))
+    cfp_state.add_conditional_state('EXPIRED', cfp_state.PUBLIC,
+        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= datetime.utcnow(),
+        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= db.func.utcnow(),
+        label=('expired', __("Expired")))
+
     @with_roles(call={'admin'})
-    @state.transition(
-        state.DRAFT, state.SUBMISSIONS, title=__("Open"),
-        message=__("This project has been opened to accept submissions"), type='success')
-    def accept_submissions(self):
+    @cfp_state.transition(
+        cfp_state.OPENABLE, cfp_state.PUBLIC, title=__("Open CfP"),
+        message=__("The call for proposals is now open"), type='success')
+    def open_cfp(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @cfp_state.transition(
+        cfp_state.PUBLIC, cfp_state.CLOSED, title=__("Close CFP"),
+        message=__("The call for proposals is now closed"), type='success')
+    def close_cfp(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @schedule_state.transition(
+        schedule_state.DRAFT, schedule_state.PUBLISHED, title=__("Publish schedule"),
+        message=__("The schedule has been published"), type='success')
+    def publish_schedule(self):
+        pass
+
+    @with_roles(call={'admin'})
+    @schedule_state.transition(
+        schedule_state.PUBLISHED, schedule_state.DRAFT, title=__("Unpublish schedule"),
+        message=__("The schedule has been moved to draft state"), type='success')
+    def unpublish_schedule(self):
         pass
 
     @with_roles(call={'admin'})
     @state.transition(
-        state.SUBMISSIONS, state.VOTING, title=__("Close submissions"),
-        message=__("This project has now closed submissions, but is still accepting votes"), type='success')
-    def accept_votes(self):
+        state.PUBLISHABLE, state.PUBLISHED, title=__("Publish project"),
+        message=__("The project has been published"), type='success')
+    def publish(self):
         pass
 
     @with_roles(call={'admin'})
     @state.transition(
-        state.VOTING, state.FEEDBACK, title=__("Close voting"),
-        message=__("This project has now closed submissions and voting, but is still accepting feedback comments"),
-        type='success')
-    def accept_feedback(self):
+        state.PUBLISHED, state.WITHDRAWN, title=__("Withdraw project"),
+        message=__("The project has been withdrawn and is no longer listed"), type='success')
+    def withdraw(self):
         pass
 
     @with_roles(call={'admin'})
     @state.transition(
-        state.OPENABLE, state.SUBMISSIONS, title=__("Reopen Submissions"),
-        message=__("This project has been reopened for submissions"), type='success')
-    def reopen(self):
+        state.DELETABLE, state.DELETED, title=__("Delete project"),
+        message=__("The project has been deleted"), type='success')
+    def delete(self):
         pass
-
-    @with_roles(call={'admin'})
-    @state.transition(
-        state.CURRENTLY_LISTED, state.CLOSED, title=__("Close & Hide"),
-        message=__("This project has been closed and will no longer be listed"), type='danger')
-    def close(self):
-        pass
-
-    @with_roles(call={'admin'})
-    @state.transition(
-        state.CLOSED, state.FEEDBACK, title=__("Relist"),
-        message=__("This project has been relisted, but is only accepting feedback comments"), type='success')
-    def relist(self):
-        pass
-
-    # TODO: Confirm with the media team whether they need to withdraw projects
-    #
-    # @with_roles(call={'admin'})
-    # @state.transition(
-    #     state.CLOSED, state.WITHDRAWN, title=__("Withdraw"),
-    #     message=__("This project has been withdrawn"), type='success')
-    # def withdraw(self):
-    #     pass
 
     @property
     def url_json(self):
@@ -333,7 +380,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
-            if self.state.SUBMISSIONS:
+            if self.cfp_state.OPEN:
                 perms.add('new-proposal')
             if ((self.admin_team and user in self.admin_team.users) or
                 (self.profile.admin_team and user in self.profile.admin_team.users) or
@@ -397,14 +444,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls.state.CURRENTLY_LISTED).order_by(cls.date.desc()).all()
+        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.date.desc()).all()
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
         # sorts the projects so that both new and old projects are sorted from closest to farthest
         now = db.func.utcnow()
         currently_listed_projects = cls.query.filter_by(parent_project=None).filter(
-            cls.state.CURRENTLY_LISTED)
+            cls.state.PUBLISHED)
         if legacy is not None:
             currently_listed_projects = currently_listed_projects.join(Profile).filter(Profile.legacy == legacy)
         upcoming = currently_listed_projects.filter(cls.date >= now).order_by(cls.date.asc())
@@ -429,7 +476,7 @@ Profile.listed_projects = db.relationship(
         Project, lazy='dynamic',
         primaryjoin=db.and_(
             Profile.id == Project.profile_id, Project.parent_id == None,
-            Project.state.CURRENTLY_LISTED),
+            Project.state.PUBLISHED),
         order_by=Project.date.desc())  # NOQA
 
 

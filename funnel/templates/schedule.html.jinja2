@@ -55,7 +55,7 @@
   <div class="grid details-section">
     <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
       {% if current_auth.is_authenticated and project.current_roles.admin %}
-        {{ admin_panel(project) }}
+        {{ admin_panel(project, schedule_transition_form=schedule_transition_form) }}
       {%- endif %}
     </div>
   </div>

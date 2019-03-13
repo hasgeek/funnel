@@ -12,8 +12,9 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from ..models import RSVP_STATUS, Project
 
 __all__ = [
-    'EventForm', 'ProjectForm', 'ProjectTransitionForm', 'RsvpForm',
-    'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm'
+    'EventForm', 'ProjectForm', 'CfpForm', 'ProjectTransitionForm', 'RsvpForm',
+    'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm',
+    'ProjectScheduleTransitionForm', 'ProjectCfpTransitionForm'
 ]
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
@@ -43,8 +44,6 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
     description = forms.MarkdownField(__("Project description"), validators=[forms.validators.DataRequired()],
         description=__("About Event"))
-    instructions = forms.MarkdownField(__("CFP instructions"),
-        description=__("These instructions will be shown to the proposer with their submission form"), default=u'')
     timezone = forms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')
@@ -89,17 +88,37 @@ class ProjectForm(forms.Form):
             raise forms.ValidationError("Please enter a valid color code")
 
 
+class CfpForm(forms.Form):
+    instructions = forms.MarkdownField(__("Call for proposals"),
+        validators=[forms.validators.DataRequired()], default=u'')
+    cfp_start_at = forms.DateTimeField(__("Submissions open at"),
+        validators=[forms.validators.Optional()])
+    cfp_end_at = forms.DateTimeField(__("Submissions close at"),
+        validators=[
+            forms.validators.AllowedIf('cfp_start_at', message=__("This requires open time for submissions to be specified")),
+            forms.validators.RequiredIf('cfp_start_at'), forms.validators.Optional(),
+            forms.validators.GreaterThanEqualTo('cfp_start_at', __("Submissions cannot close before they open"))])
+
+
 class ProjectTransitionForm(forms.Form):
-    transition = forms.SelectField(__("Status"), validators=[
-                                   forms.validators.DataRequired()])
+    transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
 
     def set_queries(self):
-        """
-        value: transition method name
-        label: transition object itself
-        We need the whole object to get the additional metadata in templates
-        """
         self.transition.choices = self.edit_obj.state.transitions().items()
+
+
+class ProjectScheduleTransitionForm(forms.Form):
+    schedule_transition = forms.SelectField(__("Schedule status"), validators=[forms.validators.DataRequired()])
+
+    def set_queries(self):
+        self.schedule_transition.choices = self.edit_obj.schedule_state.transitions().items()
+
+
+class ProjectCfpTransitionForm(forms.Form):
+    cfp_transition = forms.SelectField(__("CfP status"), validators=[forms.validators.DataRequired()])
+
+    def set_queries(self):
+        self.cfp_transition.choices = self.edit_obj.cfp_state.transitions().items()
 
 
 class SubprojectForm(ProjectForm):
