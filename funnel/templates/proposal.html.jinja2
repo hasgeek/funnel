@@ -67,7 +67,7 @@
       </p>
       <div class="mui--clearfix">
         <div class="proposal-details proposal-details--left">
-          {% if proposal.preview_video %}
+          {% if proposal.preview_video.url %}
             <div class="proposal-video" data-href="{{ proposal.preview_video }}" id="js-embed">
               <p class="video_txt">
                 <i class="material-icons">videocam</i><br>
@@ -234,11 +234,11 @@
               {% endfor %}
             </ul>
           {% endif %}
-          {% if proposal.slides %}
+          {% if proposal.slides.url %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %}</h3>
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
           {% endif %}
-          {% if proposal.preview_video %}
+          {% if proposal.preview_video.url %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Preview video{% endtrans %}</h3>
             <a href="{{ proposal.preview_video }}">{{ proposal.preview_video }}</a>
           {% endif %}
