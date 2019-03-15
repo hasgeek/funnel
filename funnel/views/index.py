@@ -18,7 +18,7 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    today = datetime.now().date()
+    today = datetime.utcnow().date()
     projects = Project.fetch_sorted(legacy=False).all()  # NOQA
     past_projects = [project for project in projects if project.state.PUBLISHED and project.date_upto < today]
     all_projects = [project for project in projects if project.state.PUBLISHED and project.date_upto >= today]
