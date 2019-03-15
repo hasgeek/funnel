@@ -70,7 +70,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @render_with('index.html.jinja2')
     @requires_permission('view')
     def view(self):
-        today = datetime.now().date()
+        today = datetime.utcnow().date()
         listed_projects = self.obj.listed_projects
         past_projects = [project for project in listed_projects if project.date_upto < today]
         all_projects = [project for project in listed_projects if project.date_upto >= today]
