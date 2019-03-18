@@ -382,9 +382,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if user is not None:
             if self.cfp_state.OPEN:
                 perms.add('new-proposal')
-            if ((self.admin_team and user in self.admin_team.users) or
-                (self.profile.admin_team and user in self.profile.admin_team.users) or
-                    user.owner_of(self.profile)):
+            if ((self.admin_team and user in self.admin_team.users)
+                or (self.profile.admin_team and user in self.profile.admin_team.users)
+                    or user.owner_of(self.profile)):
                 perms.update([
                     'view_contactinfo',
                     'edit_project',
