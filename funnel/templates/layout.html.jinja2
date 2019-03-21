@@ -137,6 +137,7 @@
 
 {% block layoutscripts %}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  {%- if not config['LEGACY'] -%}
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -160,5 +161,6 @@
       });
     }
   </script>
+  {%- endif -%}
   {% block footerscripts %}{% endblock %}
 {% endblock %}
