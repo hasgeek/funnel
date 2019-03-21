@@ -28,40 +28,31 @@ workbox.routing.registerRoute(new RegExp('/^https?\:\/\/ajax.googleapis.com\/*/'
   "cacheName": "cdn-libraries"
 }), 'GET');
 
-/* The service worker handles all fetch requests. If fetching of page fails due to a network error, 
-it will return the cached "offline" page. */
-workbox.routing.registerRoute(new RegExp('/(.*)'), args => {
-  return new workbox.strategies.NetworkFirst({cacheName: 'routes'}).handle(args).then(response => {
-    if (!response) {
-      return caches.match('/offline');
     } 
     return response;
   });
+workbox.routing.registerRoute(new RegExp('/(.*)'), new workbox.strategies.NetworkFirst({
+  "cacheName": "routes"
+}), 'GET');
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open('offline').then((cache) => cache.addAll(['/api/1/template/offline'])));
 });
 
-// https://googlechrome.github.io/samples/service-worker/custom-offline-page/
-function createCacheBustedRequest(url) {
-  let request = new Request(url, {cache: 'reload'});
-  // See https://fetch.spec.whatwg.org/#concept-request-mode
-  /* This is not yet supported in Chrome as of M48, so we need to 
-  explicitly check to see if the cache: 'reload' option had any effect.*/
-  if ('cache' in request) {
-    return request;
+addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    skipWaiting();
   }
-
-  // If {cache: 'reload'} didn't have any effect, append a cache-busting URL parameter instead.
-  let bustedUrl = new URL(url, self.location.href);
-  bustedUrl.search += (bustedUrl.search ? '&' : '') + 'cachebust=' + Date.now();
-  return new Request(bustedUrl);
-}
-
-// Cache the offline page during install phase of the service worker
-self.addEventListener('install', event => {
-  event.waitUntil(
-    fetch(createCacheBustedRequest('/api/1/template/offline')).then(function(response) {
-      return caches.open('hasgeek-offline').then(function(cache) {
-        return cache.put('offline', response);
-      });
-    })
-  );
 });
+
+workbox.routing.setCatchHandler(({event}) => {
+  switch (event.request.destination) {
+    case 'document':
+      return caches.match('offline');
+    break;
+
+    default:
+      return Response.error();
+  }
+});
+
