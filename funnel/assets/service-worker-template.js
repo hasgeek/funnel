@@ -28,9 +28,6 @@ workbox.routing.registerRoute(new RegExp('/^https?\:\/\/ajax.googleapis.com\/*/'
   "cacheName": "cdn-libraries"
 }), 'GET');
 
-    } 
-    return response;
-  });
 workbox.routing.registerRoute(new RegExp('/(.*)'), new workbox.strategies.NetworkFirst({
   "cacheName": "routes"
 }), 'GET');
