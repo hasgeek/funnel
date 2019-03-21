@@ -206,11 +206,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
-        lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
-    cfp_state.add_conditional_state('HAS_SESSIONS', cfp_state.EXISTS,
-        lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
+    state.add_conditional_state('PAST', state.PUBLISHED, lambda project: project.date_upto < datetime.now().date())
+    state.add_conditional_state('UPCOMING', state.PUBLISHED, lambda project: project.date_upto >= datetime.now().date())
 
+    cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
+        lambda project: db.session.query(project.proposals.exists()).scalar(),
+        label=('has_proposals', __("Has Proposals")))
+    cfp_state.add_conditional_state('HAS_SESSIONS', cfp_state.EXISTS,
+        lambda project: db.session.query(project.sessions.exists()).scalar(),
+        label=('has_sessions', __("Has Sessions")))
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
         lambda project: project.instructions.html != '',
         lambda project: project.__table__.c.instructions_html != '',
@@ -220,17 +224,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at > db.func.utcnow(),
+        lambda project: db.and_(project.cfp_start_at is not None, project.cfp_start_at > db.func.utcnow()),
         label=('upcoming', __("Upcoming")))
     cfp_state.add_conditional_state('OPEN', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at <= datetime.utcnow() and (
             project.cfp_end_at is None or project.cfp_end_at > datetime.utcnow()),
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow() and (
-            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow()),
+        lambda project: db.and_(project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow(), (
+            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow())),
         label=('open', __("Open")))
     cfp_state.add_conditional_state('EXPIRED', cfp_state.PUBLIC,
         lambda project: project.cfp_end_at is not None and project.cfp_end_at <= datetime.utcnow(),
-        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= db.func.utcnow(),
+        lambda project: db.and_(project.cfp_end_at is not None, project.cfp_end_at <= db.func.utcnow()),
         label=('expired', __("Expired")))
 
     @with_roles(call={'admin'})

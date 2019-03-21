@@ -16,3 +16,4 @@ def test_profile_urltype_invalid(test_client, test_db, new_profile):
     test_db.session.add(new_profile)
     with pytest.raises(StatementError):
         test_db.session.commit()
+    test_db.session.rollback()

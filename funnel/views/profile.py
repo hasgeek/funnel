@@ -72,10 +72,10 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     def view(self):
         today = datetime.utcnow().date()
         listed_projects = self.obj.listed_projects
-        past_projects = [project for project in listed_projects if project.date_upto < today]
+        past_projects = listed_projects.filter(Project.state.PAST).all()
         all_projects = [project for project in listed_projects if project.date_upto >= today]
-        upcoming_projects = [project for project in listed_projects if project.schedule_state.PUBLISHED and project.date_upto >= today][:3]
-        open_cfp_projects = [project for project in listed_projects if project.cfp_state.OPEN and project.date_upto >= today]
+        upcoming_projects = listed_projects.filter(Project.state.UPCOMING).limit(3).all()
+        open_cfp_projects = listed_projects.filter(Project.cfp_state.OPEN).all()
         draft_cfp_projects = [project for project in self.obj.projects if project.state.DRAFT and project.current_roles.admin]
         return {'profile': self.obj, 'projects': listed_projects, 'past_projects': past_projects,
             'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
