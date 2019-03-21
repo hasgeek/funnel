@@ -4,7 +4,7 @@
 
 {% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
 
-{%- block layoutheaders %}
+{%- block pageheaders %}
 <script type="application/ld+json">
   {  "@context" : "http://schema.org",
      "@type" : "WebSite",
@@ -40,8 +40,8 @@
 {%- endblock %}
 
 {%- block image_src %}
-  <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png') }}" />
-  <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png') }}" />
+  <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png') }}" />
+  <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png') }}" />
 {%- endblock %}
 
 {% block bodytag %}<body class="mui--bg-primary">{% endblock %}

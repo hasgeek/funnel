@@ -15,6 +15,19 @@
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
+{%- block layoutheaders %}
+  {%- if not config['LEGACY'] -%}
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#816894">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#816894">
+  <meta name="apple-mobile-web-app-title" content="js">
+  <link rel="icon" sizes="192x192" href="/static/img/android-chrome-192x192.pmg">
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
+  {%- endif -%}
+  {% block pageheaders %}{% endblock %}
+{%- endblock %}
+
 {% block sidedrawer -%}
 {%- endblock %}
 
@@ -124,5 +137,28 @@
 
 {% block layoutscripts %}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js')
+        .then(function(registration) {
+          console.log('Service Worker registration successful with scope: ',
+          registration.scope);
+        })
+        .catch(function(err) {
+          console.log('Service Worker registration failed: ', err);
+        });
+      });
+
+      // Setup a listener to track Add to Homescreen events.
+      window.addEventListener('beforeinstallprompt', event => {
+        event.userChoice.then(choice => {
+          if (window.ga) {
+            window.ga('send', 'event', 'Add to Home', choice.outcome);
+          }
+        });
+      });
+    }
+  </script>
   {% block footerscripts %}{% endblock %}
 {% endblock %}
