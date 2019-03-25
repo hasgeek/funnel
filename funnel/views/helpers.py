@@ -27,11 +27,6 @@ def localize_date(date, from_tz=utc, to_tz=utc):
     return date
 
 
-@app.template_filter('date_format')
-def date_format(date):
-    return date.strftime('%d %b %Y')
-
-
 @app.template_filter('url_join')
 @funnelapp.template_filter('url_join')
 def url_join(base, url=''):
