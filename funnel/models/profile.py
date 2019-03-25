@@ -4,12 +4,14 @@ from flask_lastuser.sqlalchemy import ProfileBase
 
 from . import MarkdownColumn, UuidMixin, UrlType, db
 from .user import UseridMixin, Team
+from .helper import RESERVED_NAMES
 
 __all__ = ['Profile']
 
 
 class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
+    reserved_names = RESERVED_NAMES
 
     admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
     admin_team = db.relationship(Team)

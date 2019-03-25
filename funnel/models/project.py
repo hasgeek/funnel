@@ -17,6 +17,7 @@ from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, Uui
 from .user import Team, User
 from .profile import Profile
 from .commentvote import Commentset, SET_TYPE, Voteset
+from .helper import RESERVED_NAMES
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
@@ -49,6 +50,7 @@ class SCHEDULE_STATE(LabeledEnum):
 
 class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'project'
+    reserved_names = RESERVED_NAMES
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
