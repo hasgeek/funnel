@@ -25,15 +25,21 @@
 
 {% block contentwrapper %}
 <div class="grid">
-  <div class="grid__col-xs-12 proposal-wrapper">
-
-    <div class="slider-btn slider-btn--left">
+  <div class="slider-btn-wrapper clearfix">
+    <div class="slider-btn {% if proposal.getnext() %} slider-btn--push-down {% endif %} mui--pull-left">
       {%- if proposal.getprev() -%}
-        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_left</i></a>
-      {%- else -%}
-        <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_left</i></button>
+        <p class="mui--text-title mui--text-light {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">Previous proposal</p>
+        <a href="{{ proposal.url_for('prev') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold"><i class="material-icons mui--text-light">arrow_back</i> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">{{ proposal.getprev().title }}</span></p></a>
       {%- endif -%}
     </div>
+    <div class="slider-btn slider-btn--right mui--pull-right">
+      {%- if proposal.getnext() -%}
+        <p class="mui--text-title mui--text-light mui--text-right">Next proposal</p>
+        <a href="{{ proposal.url_for('next') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold mui--text-right"><span class="truncate-title">{{ proposal.getnext().title }}</span> <i class="material-icons mui--text-light">arrow_forward</i></p></a>
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="grid__col-xs-12 proposal-wrapper">
 
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
       <div>
@@ -290,14 +296,6 @@
         </form>
       {% endif %}
     </section>
-
-    <div class="slider-btn slider-btn--right">
-      {%- if proposal.getnext() -%}
-        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_right</i></a>
-      {%- else -%}
-        <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_right</i></button>
-      {%- endif -%}
-    </div>
   </div>
 
 </div>

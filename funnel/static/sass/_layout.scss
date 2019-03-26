@@ -20,6 +20,10 @@
   display: block;
 }
 
+.no-js .js-lazyload-img {
+  display: none;
+}
+
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -206,4 +210,31 @@ html.touch .collapsible__body--disable {
 .inline-form {
   display: inline-block;
   vertical-align: middle;
+}
+
+.past-events-table {
+  border-collapse: collapse;
+
+  >thead>tr>th {
+    padding: 1em;
+  }
+}
+
+.footer--homepage {
+  margin-top: 0;
+}
+
+.floating-btn-wrapper {
+  position: fixed;
+  text-align: right;
+  width: 100%;
+  z-index: 1000;
+  margin: auto;
+  left: 0;
+  right: 0;
+}
+
+.create-floating-btn {
+  font-size: 24px;
+  margin-top: -30px;
 }
