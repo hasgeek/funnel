@@ -97,7 +97,7 @@
         <ul class="grid">
           {% for subproject in project.subprojects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
-              <a href="{{ subproject.url_for() }}" class="clickable-card">
+              <div data-href="{{ subproject.url_for() }}" class="clickable-card">
                 <div class="card">
                   <div class="card__header">
                     <div class="card__header__title">
@@ -108,10 +108,13 @@
                   {% if subproject.tagline %}
                     <div class="card__body">
                       <p>{{ subproject.tagline }}</p>
+                      <noscript>
+                        <a href="{{ subproject.url_for() }}" class="mui-btn mui-btn--small mui-btn--accent" title="View" data-action="View(subproject talk card)">View</a>
+                      </noscript>
                     </div>
                   {% endif %}
                 </div>
-              </a>
+              </div>
             </li>
           {%- endfor -%}
         </ul>
@@ -130,7 +133,7 @@
       {% for session in project.featured_sessions %}
         <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
           <div class="grid__cell">
-            {% if session.proposal %}<a href="{{ session.proposal.url_for() }}" class="clickable-card" title="{{ session.title }}">{%- endif %}
+            {% if session.proposal %}<div data-href="{{ session.proposal.url_for() }}" class="clickable-card" title="{{ session.title }}">{%- endif %}
               <div class="card">
                 {% if session.banner_image_url.url %}
                   <div class="card__header session-card">
@@ -152,9 +155,14 @@
                 <div class="card__body mui--text-body2">
                   <h3 class="mui--text-title card__title__heading  mui--text-bold">{{ session.title }}</h3>
                   <div class="mui--text-body1 mui--text-light truncate">{{ session.description|safe }}</div>
+                  <noscript>
+                    {% if session.proposal %}
+                      <a href="{{ session.proposal.url_for() }}" class="mui-btn mui-btn--small mui-btn--accent" title="View talk" data-action="View talk(project talk card)">View</a>
+                    {%- endif %}
+                  </noscript>
                 </div>
               </div>
-            {% if session.proposal %}</a>{%- endif %}
+            {% if session.proposal %}</div>{%- endif %}
           </div>
         </li>
       {%- endfor -%}
