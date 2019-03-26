@@ -524,7 +524,16 @@ html.touch .collapsible__body--disable {
 
 .project-section {
   padding-top: 45px;
+}
+
+.details-section,
+.project-section {
   overflow-wrap: break-word;
+}
+
+.project-section pre,
+.details-section pre {
+  white-space: pre-wrap;
 }
 
 .project-banner {
@@ -1032,7 +1041,7 @@ html.touch .collapsible__body--disable {
 .schedule .schedule__row .schedule__row__column {
   padding: 5px 10px;
   position: relative;
-  background: url('../img/schedule-box-background.png?1544526769');
+  background: url('../img/schedule-box-background.png?1553065764');
   background-size: 20px 10px;
 }
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content {

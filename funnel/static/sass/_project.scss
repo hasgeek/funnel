@@ -33,7 +33,16 @@
 
 .project-section {
   padding-top: 45px;
+}
+
+.details-section,
+.project-section {
   overflow-wrap: break-word;
+}
+
+.project-section pre,
+.details-section pre {
+  white-space: pre-wrap;
 }
 
 .project-banner {
