@@ -117,7 +117,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             return redirect(proposal.url_for(), code=303)
         return render_form(form=form, title=_("Submit a session proposal"),
             submit=_("Submit proposal"),
-            message=self.obj.instructions or Markup(
+            message=Markup(
                 _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
 
@@ -195,7 +195,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
         return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
-            message=self.obj.project.instructions or Markup(
+            message=Markup(
                 _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 
     @route('delete', methods=['GET', 'POST'])
