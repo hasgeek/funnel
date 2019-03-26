@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from flask import g, Markup, request, flash, url_for, redirect
 from coaster.views import route, requires_permission, render_with, jsonp, UrlForView, ModelView
 from baseframe import _
@@ -66,10 +67,19 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('funnelindex.html.jinja2')
+    @render_with('index.html.jinja2')
     @requires_permission('view')
     def view(self):
-        return dict(profile=self.obj, projects=self.obj.listed_projects)
+        today = datetime.now().date()
+        listed_projects = self.obj.listed_projects
+        past_projects = listed_projects.filter(Project.state.PAST).all()
+        all_projects = [project for project in listed_projects if project.date_upto >= today]
+        upcoming_projects = listed_projects.filter(Project.state.UPCOMING).limit(3).all()
+        open_cfp_projects = listed_projects.filter(Project.cfp_state.OPEN).all()
+        draft_cfp_projects = [project for project in self.obj.projects if project.state.DRAFT] if project.current_roles.admin else []
+        return {'profile': self.obj, 'projects': listed_projects, 'past_projects': past_projects,
+            'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
+            'open_cfp_projects': open_cfp_projects, 'draft_cfp_projects': draft_cfp_projects}
 
     @route('json')
     @render_with(json=True)
@@ -98,7 +108,11 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
 @route('/', subdomain='<profile>')
 class FunnelProfileView(ProfileView):
-    pass
+    @route('')
+    @render_with('funnelindex.html.jinja2')
+    @requires_permission('view')
+    def view(self):
+        return {'profile': self.obj, 'projects': self.obj.listed_projects}
 
 
 ProfileView.init_app(app)

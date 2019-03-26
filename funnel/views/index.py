@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os.path
+from datetime import datetime
 from flask import g, render_template, redirect, jsonify
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp, pages
@@ -17,8 +18,16 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    projects = Project.fetch_sorted(legacy=False).all()  # NOQA
-    return {'projects': projects}
+    today = datetime.now().date()
+    projects = Project.fetch_sorted(legacy=False)  # NOQA
+    past_projects = projects.filter(Project.state.PAST).all()
+    all_projects = [project for project in projects if project.date_upto >= today]
+    upcoming_projects = projects.filter(Project.state.UPCOMING).limit(3).all()
+    open_cfp_projects = projects.filter(Project.cfp_state.OPEN).all()
+    draft_cfp_projects = [project for project in projects if project.state.DRAFT] if project.current_roles.admin else []
+    return {'projects': projects.all(), 'past_projects': past_projects, 'all_projects': all_projects,
+        'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
+        'draft_cfp_projects': draft_cfp_projects}
 
 
 @funnelapp.route('/', endpoint='index')

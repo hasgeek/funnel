@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 
-{% block title %}{{ config['SITE_TITLE'] }}{% endblock %}
+{% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
 {% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
 
@@ -47,7 +47,7 @@
 {% block bodytag %}<body class="mui--bg-primary">{% endblock %}
 
 {% block banner %}
-  {%- if not g.profile %}
+  {%- if not profile %}
     <div class="mui-container hg-banner">
       <div class="grid">
         <div class="grid__col-auto logo-wrapper mui--hidden-xs">
@@ -62,27 +62,212 @@
             <span class="s2">and discover new opportunities.</span>
           </p>
         </div>
-        <div class="grid__col-xs-12"><hr class="mui-divider"></div>
       </div>
     </div>
   {% endif %}
 {% endblock %}
 
-{% block headline %}
-{% endblock %}
+{% block headline -%}
+  {%- if profile %}
+  <div class="content-head content-head--top-padding mui--bg-accent">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          <h3 class="mui--text-headline">
+            {{ profile.description|safe }}
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+{%- endblock %}
 
-{% block basecontent %}
-  <div class="page-content">
-    {% if projects %}
-      <ul class="grid projects">
-        {% for project in projects %}
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-            <div class="grid__cell">
-              <a href="{{ project.url_for() }}" class="clickable-card" title="{{ project.title }}">
-                <div class="card">
+{% block basecontentbox %}
+  {% if upcoming_projects %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline">Upcoming projects</h2>
+          </div>
+        </div>
+        <ul class="grid projects">
+          {% for project in upcoming_projects %}
+            <li class="grid__col-12">
+              <div class="grid__cell card card--upcoming" title="{{ project.title }}">
+                <div class="card__image-wrapper">
+                  {% if project.bg_image.url %}
+                    <a href="{{ project.url_for() }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
+                    <noscript>
+                      <a href="{{ project.url_for() }}"><img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
+                    </noscript>
+                  {% else %}
+                    <div class="card__image--default">
+                      <a href="{{ project.url_for() }}"><img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/></a>
+                      <p class="card__image__tagline">{{ project.title }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="card__body">
+                  <h3><a class="card__title__heading" href="{{ project.url_for() }}">{{ project.title }}</a></h3>
+                  {% if project.datelocation %}<h4 class="mui--text-title"><i class="material-icons mui--text-title mui--text-light mui--align-middle">date_range</i> {{ project.datelocation }}</h4>{% endif %}
+                  {% if project.primary_venue %}<h5 class=" mui--text-title"><i class="material-icons mui--text-title mui--text-light mui--align-middle">place</i> {{ project.primary_venue.title }}, {{ project.primary_venue.city }}</h5>{% endif %}
+                  <p class="mui--text-subhead">{{ project.tagline }}</p>
+                  <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--primary" title="learn more" data-action="Learn more(index page card)">Learn more</a>
+                </div>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if open_cfp_projects %}
+    <div class="projects-wrapper mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline">These projects are currently accepting speaking proposals</h2>
+          </div>
+        </div>
+        <ul class="grid projects">
+          {% for project in open_cfp_projects %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
+              <div class="grid__cell">
+                <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
                   <div class="card__image-wrapper">
                     {% if project.bg_image.url %}
                       <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <noscript>
+                        <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      </noscript>
+                    {% else %}
+                      <div class="card__image--default">
+                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                        <p class="card__image__tagline">{{ project.title }}</p>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="card__title">
+                    <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
+                    <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
+                  </div>
+                  {% if project.tagline %}
+                    <div class="card__body">
+                      <p class="mui--text-body2 zero-bottom-margin">{{ project.tagline }}</p>
+                    </div>
+                  {% endif %}
+                  <div class="card__footer">
+                    <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+        {% if open_cfp_project|length > 3 %}
+          <div class="mui--text-center">
+            <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)">Show all</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {%- if profile and current_auth.permissions.new_project %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline">Introducing drafts <span class="chip chip--new mui--text-caption mui--align-middle">New</span></h2>
+          </div>
+        </div>
+        <ul class="grid projects">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+            <div class="grid__cell">
+              <div class="clickable-card card" data-href="{{g.profile.url_for('new_project')}}" title="New project">
+                <div class="card__image-wrapper">
+                  <div class="card__image--default card__image--new">
+                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
+                    <p class="card__image__tagline mui--text-display1">+</p>
+                  </div>
+                </div>
+                <div class="card__title">
+                  <h3 class="mui--text-title card__title__heading mui--text-bold">Start a project</h3>
+                  <h4 class="mui--text-caption card__title__heading">Write, collaborate and get feedback.</h4>
+                </div>
+                <div class="card__footer">
+                  <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Start project</a>
+                </div>
+              </div>
+            </div>
+          </li>
+        {% if draft_cfp_projects %}
+          {% for project in draft_cfp_projects %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}">
+              <div class="grid__cell">
+                <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
+                  <div class="card__image-wrapper">
+                    {% if project.bg_image.url %}
+                      <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <noscript>
+                        <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      </noscript>
+                    {% else %}
+                      <div class="card__image--default">
+                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                        <p class="card__image__tagline">{{ project.title }}</p>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="card__title">
+                    <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
+                    <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
+                  </div>
+                  {% if project.tagline %}
+                    <div class="card__body">
+                      <p class="mui--text-body2 zero-bottom-margin">{{ project.tagline }}</p>
+                    </div>
+                  {% endif %}
+                  <div class="card__footer">
+                    <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+          {%- endfor -%}
+          </ul>
+          {% if draft_cfp_projects|length > 3 %}
+            <div class="mui--text-center">
+              <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)">Show all</a>
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if all_projects %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline">All projects</h2>
+          </div>
+        </div>
+        <ul class="grid projects">
+          {% for project in all_projects %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+              <div class="grid__cell">
+                <div class="card clickable-card" data-href="{{ project.url_for() }}" title="{{ project.title }}">
+                  <div class="card__image-wrapper">
+                    {% if project.bg_image.url %}
+                      <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <noscript>
+                        <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      </noscript>
                     {% else %}
                       <div class="card__image--default">
                         <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
@@ -99,63 +284,94 @@
                       <p class="mui--text-body2">{{ project.tagline }}</p>
                     </div>
                   {% endif %}
-                  <div class="mui-divider"></div>
-                  <div class="card__footer">
-                    {% if project.cfp_state.PUBLIC -%}
-                      <a href="{{ project.url_for('new_proposal') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="Propose a session" data-action="Propose a session(index page card)">Propose a session</a>
-                    {%- elif project.schedule_state.PUBLISHED -%}
-                      <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View schedule" data-action="Propose a session(index page card)">Schedule</a>
-                    {%- elif project.cfp_state.HAS_PROPOSALS -%}
-                      <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View proposals" data-action="View proposals(index page card)">Proposals</a>
-                    {%- endif %}
-                    {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
-                      <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
-                    {%- elif project.buy_tickets_url.url %}
-                      <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
-                    {% endif %}
-                  </div>
+                  <noscript>
+                     <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                  </noscript>
                 </div>
-              </a>
-            </div>
-          </li>
-        {%- endfor -%}
-      </ul>
-    {% else %}
-    <div class="grid">
-      <div class="grid__col-sm-12">
-        <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-          {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new-project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
-        </p>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
       </div>
     </div>
-    {% endif %}
-  </div>
-{% endblock %}
+  {% endif %}
 
-{% block footer %}
-  <div class="mui-container">
-    <div class="grid mui--text-body2 mui--text-left">
-      <div class="grid__col-sm-6 grid__col-md-5">
-        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about">About us and site policies</a></p>
-        <p>
-          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
-        </p>
-      </div>
-      <div class="grid__col-sm-6 grid__col-md-3">
-        <div>
-          <p id="footer-twitter">
-            <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank" title="follow hasgeek">Follow @hasgeek</a>
-          </p>
-          <a class="fb-like" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
+
+  {% if past_projects %}
+    <div class="projects-wrapper mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline">All past projects</h2>
+            <p class="mui--text-body1">{{ past_projects|length }} projects</p>
+          </div>
+        </div>
+        <div class="grid projects">
+          <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
+            <thead class="mui--bg-primary-light">
+              <tr>
+                <th class="mui--text-subhead mui--text-capitalize">Date</th>
+                <th class="mui--text-subhead mui--text-capitalize">Event name</th>
+                <th class="mui--text-subhead mui--text-capitalize">Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in past_projects %}
+                <tr>
+                  <td><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td>
+                  <td><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
+                  <td>{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
+                </tr>
+              {%- endfor -%}
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="grid__col-sm-3 grid__col-md-3">
-        <p>
-          Hosted by <a href="http://e2enetworks.com/" target="_blank" title="E2E Networks">E2E Networks</a>
-        </p>
+    </div>
+  {% else %}
+    <div class="projects-wrapper mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-sm-12">
+            <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
+              {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new_project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  {% endif %}
+
+{% endblock %}
+
+{% block basefooter -%}
+  <footer class="footer footer--homepage">
+    <div class="footer__container">
+      <div class="mui-container">
+        <div class="grid mui--text-body2 mui--text-left">
+          <div class="grid__col-sm-6 grid__col-md-5">
+            <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about">About us and site policies</a></p>
+            <p>
+              #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
+            </p>
+          </div>
+          <div class="grid__col-sm-6 grid__col-md-3">
+            <div>
+              <p id="footer-twitter">
+                <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank" title="follow hasgeek">Follow @hasgeek</a>
+              </p>
+              <a class="fb-like" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
+            </div>
+          </div>
+          <div class="grid__col-sm-3 grid__col-md-3">
+            <p>
+              Hosted by <a href="http://e2enetworks.com/" target="_blank" title="E2E Networks">E2E Networks</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 {% endblock %}
 
 {% block footerscripts %}
