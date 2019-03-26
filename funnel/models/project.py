@@ -283,12 +283,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    @with_roles(call={'admin'})
-    @state.transition(
-        state.DELETABLE, state.DELETED, title=__("Delete project"),
-        message=__("The project has been deleted"), type='success')
-    def delete(self):
-        pass
+    # Removing Delete feature till we figure out siteadmin feature
+    # @with_roles(call={'admin'})
+    # @state.transition(
+    #     state.DELETABLE, state.DELETED, title=__("Delete project"),
+    #     message=__("The project has been deleted"), type='success')
+    # def delete(self):
+    #     pass
 
     @property
     def url_json(self):
