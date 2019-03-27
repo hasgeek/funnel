@@ -14,6 +14,7 @@ RESERVED_NAMES = set([
     'client',
     'clients',
     'confirm',
+    'delete',
     'edit',
     'email'
     'emails'
@@ -35,6 +36,8 @@ RESERVED_NAMES = set([
     'news',
     'organization',
     'organizations',
+    'org',
+    'orgs',
     'pop',
     'pop3',
     'post',
