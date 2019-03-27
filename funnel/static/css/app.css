@@ -708,6 +708,15 @@ html.touch .collapsible__body--disable {
   width: 100%;
 }
 
+.slider-btn a {
+  display: block;
+  width: 100%;
+}
+
+.slider-btn a:hover {
+  text-decoration: none;
+}
+
 .slider-btn--push-down {
   position: relative;
   top: 40px;
@@ -825,14 +834,9 @@ html.touch .collapsible__body--disable {
 }
 
 .proposal-details--talk__box {
-  min-width: 150px;
+  min-width: 160px;
 }
 
-@media (min-width: 600px) {
-  .proposal-details--talk__box {
-    min-width: auto;
-  }
-}
 @media (min-width: 992px) {
   .proposal-video {
     min-width: 300px;
@@ -848,10 +852,6 @@ html.touch .collapsible__body--disable {
 
   .proposal-video {
     max-width: 50%;
-  }
-
-  .proposal-details--talk__box {
-    max-width: 20%;
   }
 
   .proposal-details--talk__box {

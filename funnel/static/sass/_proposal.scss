@@ -11,6 +11,15 @@
   width: 100%;
 }
 
+.slider-btn a {
+ display: block;
+ width: 100%;
+}
+
+.slider-btn a:hover {
+  text-decoration: none;
+}
+
 .slider-btn--push-down {
   position: relative;
   top: 40px;
@@ -136,13 +145,7 @@
 }
 
 .proposal-details--talk__box {
-  min-width: 150px;
-}
-
-@media (min-width: 600px) {
-  .proposal-details--talk__box {
-    min-width: auto;
-  }
+  min-width: 160px;
 }
 
 @media (min-width: 992px) {
@@ -159,9 +162,6 @@
 
   .proposal-video {
     max-width: 50%;
-  }
-  .proposal-details--talk__box {
-    max-width: 20%;
   }
 
   .proposal-details--talk__box {
