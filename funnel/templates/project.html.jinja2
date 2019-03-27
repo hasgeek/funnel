@@ -48,9 +48,9 @@
 
 {%- macro page_btns(project) %}
   <ul class="mui-list--inline">
-    {%- if project.boxoffice_data %}
+    {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}
       <li class="cta">
-        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary smooth-scroll" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary js-smooth-scroll js-samepage" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url.url %}
       <li class="cta">
