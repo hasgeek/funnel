@@ -114,13 +114,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False)
 
-    admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    admin_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     admin_team = db.relationship(Team, foreign_keys=[admin_team_id])
 
-    review_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    review_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     review_team = db.relationship(Team, foreign_keys=[review_team_id])
 
-    checkin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    checkin_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     checkin_team = db.relationship(Team, foreign_keys=[checkin_team_id])
 
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)

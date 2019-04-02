@@ -11,7 +11,7 @@ __all__ = ['Profile']
 class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
 
-    admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    admin_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     admin_team = db.relationship(Team)
 
     description = MarkdownColumn('description', default=u'', nullable=False)
