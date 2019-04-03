@@ -458,17 +458,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
-        # sorts the projects so that both new and old projects are sorted from closest to farthest
-        now = db.func.utcnow()
-        currently_listed_projects = cls.query.filter_by(parent_project=None).filter(
-            cls.state.PUBLISHED)
+        currently_listed_projects = cls.query.filter_by(parent_project=None).filter(cls.state.PUBLISHED)
         if legacy is not None:
             currently_listed_projects = currently_listed_projects.join(Profile).filter(Profile.legacy == legacy)
-        upcoming = currently_listed_projects.filter(cls.date >= now).order_by(cls.date.asc())
-        past = currently_listed_projects.filter(cls.date < now).order_by(cls.date.desc())
-
-        # union_all() because union() doesn't respect the orders mentioned in subqueries
-        return upcoming.union_all(past)
+        currently_listed_projects = currently_listed_projects.order_by(cls.date.desc())
+        return currently_listed_projects
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Project, self).roles_for(actor, anchors)
