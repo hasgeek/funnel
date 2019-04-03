@@ -74,6 +74,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         past_projects = projects.filter(Project.state.PAST).all()
         all_projects = projects.filter(Project.state.UPCOMING).all()
         upcoming_projects = all_projects[:3]
+        all_projects = all_projects[3:]
         open_cfp_projects = projects.filter(Project.cfp_state.OPEN).all()
         draft_cfp_projects = [proj for proj in projects if proj.cfp_state.DRAFT and proj.current_roles.admin]
         return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects,
