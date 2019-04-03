@@ -450,11 +450,21 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return perms
 
     @classmethod
-    def all(cls):
+    def all_unsorted(cls, legacy=None):
+        """
+        Return currently active events, not sorted.
+        """
+        projects = cls.query.filter(cls.state.PUBLISHED)
+        if legacy is not None:
+            projects = projects.join(Profile).filter(Profile.legacy == legacy)
+        return projects
+
+    @classmethod
+    def all(cls, legacy=None):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.date.desc()).all()
+        return cls.all_unsorted(legacy).order_by(cls.date.desc())
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
