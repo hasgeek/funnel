@@ -18,13 +18,13 @@ def index_jsonify(data):
 def index():
     g.profile = None
     g.permissions = []
-    today = datetime.now().date()
     projects = Project.fetch_sorted(legacy=False)  # NOQA
     past_projects = projects.filter(Project.state.PAST).all()
-    all_projects = [project for project in projects if project.date_upto >= today]
-    upcoming_projects = projects.filter(Project.state.UPCOMING).limit(3).all()
+    all_projects = projects.filter(Project.state.UPCOMING).all()
+    upcoming_projects = all_projects[:3]
+    all_projects = all_projects[3:]
     open_cfp_projects = projects.filter(Project.cfp_state.OPEN).all()
-    draft_cfp_projects = [project for project in projects if project.state.DRAFT and project.current_roles.admin]
+    draft_cfp_projects = [proj for proj in projects if proj.cfp_state.DRAFT and proj.current_roles.admin]
     return {'projects': projects.all(), 'past_projects': past_projects, 'all_projects': all_projects,
         'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
         'draft_cfp_projects': draft_cfp_projects}
