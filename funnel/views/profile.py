@@ -70,13 +70,15 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @render_with('index.html.jinja2')
     @requires_permission('view')
     def view(self):
-        projects = self.obj.listed_projects
-        past_projects = projects.filter(Project.state.PAST).all()
-        all_projects = projects.filter(Project.state.UPCOMING).all()
+        # `order_by(None)` clears any existing order defined in relationship.
+        # We're using it because we want to define our own order here.
+        projects = self.obj.listed_projects.order_by(None)
+        past_projects = projects.filter(Project.state.PAST).order_by(Project.date.desc()).all()
+        all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
-        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).all()
-        draft_cfp_projects = [proj for proj in projects if proj.cfp_state.DRAFT and proj.current_roles.admin]
+        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
+        draft_cfp_projects = [proj for proj in self.obj.listed_projects if proj.cfp_state.DRAFT and proj.current_roles.admin]
         return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects,
             'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
             'open_cfp_projects': open_cfp_projects, 'draft_cfp_projects': draft_cfp_projects}
