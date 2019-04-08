@@ -24,11 +24,21 @@ class Labelset(BaseScopedNameMixin, db.Model):
     #: Sequence number for this labelset, used in UI for ordering
     seq = db.Column(db.Integer, nullable=False)
 
+    # A single-line description of this labelset, shown when applying labels
+    description = db.Column(db.UnicodeText, nullable=False)
+
     #: Radio mode specifies that only one of the labels in this set may be applied on a project
     radio_mode = db.Column(db.Boolean, nullable=False, default=False)
-    #: Restricted model specifies that labels in this set may only be applied by someone with
+
+    #: Restricted mode specifies that labels in this set may only be applied by someone with
     #: an editorial role (TODO: name the role)
     restricted = db.Column(db.Boolean, nullable=False, default=False)
+
+    #: Required mode specifies that a label from this set must be applied on a proposal.
+    #: This is not foolproof and can be violated under a variety of conditions including
+    #: (a) this flag being set after a proposal is created, and (b) a proposal being moved
+    #: across projects
+    required = db.Column(db.Boolean, nullable=False, default=False)
 
     __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
@@ -54,7 +64,6 @@ class Label(BaseScopedNameMixin, db.Model):
     seq = db.Column(db.Integer, nullable=False)
 
     #: Icon for displaying in space-constrained UI. Contains emoji
-    #: an emoji, or up to three ASCII characters picked from the label's title
     icon_emoji = db.Column(db.Unicode(1), nullable=True)
 
     #: Proposals that this label is attached to
@@ -67,9 +76,15 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @property
     def icon(self):
+        """
+        Returns an icon for displaying the label in space-constrained UI.
+        If an emoji icon has been specified, use it. If not, create initials
+        from the title (up to 3). If the label is a single word, returns the
+        first three characters.
+        """
         result = self.icon_emoji
         if not result:
             result = ''.join(w[0] for w in self.title.strip().title().split(None, 2))
             if len(result) <= 1:
-                result = self.title.strip()[:2]
+                result = self.title.strip()[:3]
         return result
