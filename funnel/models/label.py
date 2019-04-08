@@ -1,67 +1,75 @@
 # -*- coding: utf-8 -*-
 
-from . import db, make_timestamp_columns, TimestampMixin, BaseScopedNameMixin
-from .profile import Profile
+from sqlalchemy.ext.orderinglist import ordering_list
+
+from . import db, BaseScopedNameMixin
 from .project import Project
 from .proposal import Proposal
 
 
 class Labelset(BaseScopedNameMixin, db.Model):
     """
-    A collection of labels, in checkbox mode (select multiple) or radio mode (select one). A profile can
-    contain multiple label sets and a Project can enable one or more sets to be used in Proposals.
+    A collection of labels, in checkbox mode (select multiple) or radio mode (select one). A project can
+    contain multiple label sets.
     """
     __tablename__ = 'labelset'
 
-    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
-    profile = db.relationship(Profile, backref=db.backref('labelsets', cascade='all, delete-orphan'))
-    parent = db.synonym('profile')
+    project_id = db.Column(None, db.ForeignKey('profile.id', ondelete='CASCADE'), nullable=False)
+    project = db.relationship(Project)  # Backref is defined in the Project model with an ordering list
+    parent = db.synonym('project')
 
+    labels = db.relationship('Label', cascade='all, delete-orphan',
+        order_by='Label.seq', collection_class=ordering_list('seq', count_from=1))
+
+    #: Sequence number for this labelset, used in UI for ordering
+    seq = db.Column(db.Integer, nullable=False)
+
+    #: Radio mode specifies that only one of the labels in this set may be applied on a project
     radio_mode = db.Column(db.Boolean, nullable=False, default=False)
+    #: Restricted model specifies that labels in this set may only be applied by someone with
+    #: an editorial role (TODO: name the role)
+    restricted = db.Column(db.Boolean, nullable=False, default=False)
 
-    __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
+    __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
     def __repr__(self):
-        return "<Labelset %s in %s>" % (self.name, self.profile.name)
+        return "<Labelset %s in %s>" % (self.name, self.project.name)
 
 
 proposal_label = db.Table(
     'proposal_label', db.Model.metadata,
-    *(make_timestamp_columns() + (
-        db.Column('proposal_id', None, db.ForeignKey('proposal.id'), nullable=False, primary_key=True),
-        db.Column('label_id', None, db.ForeignKey('label.id'), nullable=False, primary_key=True)
-        )))
+    db.Column('proposal_id', None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False, primary_key=True),
+    db.Column('label_id', None, db.ForeignKey('label.id', ondelete='CASCADE'), nullable=False, primary_key=True, index=True),
+    db.Column('created_at', db.DateTime, default=db.func.utcnow())
+)
 
 
 class Label(BaseScopedNameMixin, db.Model):
     __tablename__ = 'label'
 
-    labelset_id = db.Column(None, db.ForeignKey('labelset.id'), nullable=False)
+    labelset_id = db.Column(None, db.ForeignKey('labelset.id', ondelete='CASCADE'), nullable=False)
     labelset = db.relationship(Labelset)
 
-    proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
+    #: Sequence number for this label, used in UI for ordering
+    seq = db.Column(db.Integer, nullable=False)
+
+    #: Icon for displaying in space-constrained UI. Contains emoji
+    #: an emoji, or up to three ASCII characters picked from the label's title
+    icon_emoji = db.Column(db.Unicode(1), nullable=True)
+
+    #: Proposals that this label is attached to
+    proposals = db.relationship(Proposal, secondary=proposal_label, lazy='dynamic', backref='labels')
 
     __table_args__ = (db.UniqueConstraint('labelset_id', 'name'),)
 
     def __repr__(self):
         return "<Label %s/%s>" % (self.labelset.name, self.name)
 
-
-class ProjectLabelset(TimestampMixin, db.Model):
-    __tablename__ = 'project_labelset'
-
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False, primary_key=True)
-    project = db.relationship(Project, backref=db.backref('labelset_links', cascade='all, delete-orphan'))
-    labelset_id = db.Column(None, db.ForeignKey('labelset.id'), nullable=False, primary_key=True)
-    labelset = db.relationship(Labelset, backref=db.backref('project_links', cascade='all, delete-orphan'))
-    seq = db.Column(db.Integer, nullable=False, default=0)
-
-
-# TODO: Should this be just a secondary table?
-# class ProposalLabel(TimestampMixin, db.Model):
-#     __tablename__ = 'proposal_label'
-
-#     proposal_id = db.Column(None, db.ForeignKey('proposal.id'), nullable=False, primary_key=True)
-#     proposal = db.relationship(Proposal, backref=db.backref('label_links', cascade='all, delete-orphan'))
-#     label_id = db.Column(None, db.ForeignKey('label.id'), nullable=False, primary_key=True)
-#     label = db.relationship(Label, backref=db.backref('proposal_links', cascade='all, delete-orphan'))
+    @property
+    def icon(self):
+        result = self.icon_emoji
+        if not result:
+            result = ''.join(w[0] for w in self.title.strip().title().split(None, 2))
+            if len(result) <= 1:
+                result = self.title.strip()[:2]
+        return result

@@ -131,7 +131,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     labels = db.Column(JsonDict, nullable=False, server_default='{}')
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
-            order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
+        order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
+    labelsets = db.relationship('Labelset', cascade='all, delete-orphan',
+        order_by='Labelset.seq', collection_class=ordering_list('seq', count_from=1))
 
     featured_sessions = db.relationship(
         'Session',
