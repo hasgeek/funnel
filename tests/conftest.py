@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 from funnel import app as hasgeekapp, db
-from funnel.models import Profile, Project, User
+from funnel.models import Profile, Project, User, Label, Labelset, Proposal
 
 
 @pytest.fixture(scope='session')
@@ -57,3 +59,71 @@ def new_project(test_db, new_profile, new_user):
     test_db.session.add(project)
     test_db.session.commit()
     return project
+
+
+@pytest.fixture(scope='module')
+def new_labelset(test_db, new_project):
+    labelset_a = Labelset(
+        title=u"Labelset A", project=new_project,
+        description=u"A test labelset", radio_mode=False,
+        restricted=False, required=False
+    )
+    new_project.labelsets.append(labelset_a)
+    test_db.session.add(labelset_a)
+    test_db.session.commit()
+
+    label_a1 = Label(
+        title=u"Label A1", icon_emoji=u"👍", labelset=labelset_a
+    )
+    labelset_a.labels.append(label_a1)
+    test_db.session.add(label_a1)
+    test_db.session.commit()
+
+    label_a2 = Label(
+        title=u"Label A2", labelset=labelset_a
+    )
+    labelset_a.labels.append(label_a2)
+    test_db.session.add(label_a2)
+    test_db.session.commit()
+
+    return labelset_a
+
+
+@pytest.fixture(scope='module')
+def new_labelset_radio(test_db, new_project):
+    labelset_b = Labelset(
+        title=u"Labelset B", project=new_project,
+        description=u"A test labelset", radio_mode=True,
+        restricted=False, required=False
+    )
+    new_project.labelsets.append(labelset_b)
+    test_db.session.add(labelset_b)
+    test_db.session.commit()
+
+    label_b1 = Label(
+        title=u"Label B1", icon_emoji=u"👍", labelset=labelset_b
+    )
+    labelset_b.labels.append(label_b1)
+    test_db.session.add(label_b1)
+    test_db.session.commit()
+
+    label_b2 = Label(
+        title=u"Label B2", labelset=labelset_b
+    )
+    labelset_b.labels.append(label_b2)
+    test_db.session.add(label_b2)
+    test_db.session.commit()
+
+    return labelset_b
+
+
+@pytest.fixture(scope='module')
+def new_proposal(test_db, new_user, new_project, new_labelset):
+    proposal = Proposal(
+        user=new_user, speaker=new_user, project=new_project,
+        title=u"Test Proposal", description=u"Test proposal description",
+        location=u"Bangalore"
+    )
+    test_db.session.add(proposal)
+    test_db.session.commit()
+    return proposal

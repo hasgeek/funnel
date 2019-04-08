@@ -59,6 +59,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     labelset_id = db.Column(None, db.ForeignKey('labelset.id', ondelete='CASCADE'), nullable=False)
     labelset = db.relationship(Labelset)
+    parent = db.synonym('labelset')
 
     #: Sequence number for this label, used in UI for ordering
     seq = db.Column(db.Integer, nullable=False)
