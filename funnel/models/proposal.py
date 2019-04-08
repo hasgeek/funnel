@@ -167,6 +167,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         'reviewer': {
             'read': {
                 'email', 'phone'
+                },
+            'call': {
+                'assign_label'
                 }
             }
         }
@@ -344,8 +347,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                     perms.add('decline-proposal')  # Decline speaking
         return perms
 
-    # Roles
-
     def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
         if self.speaker and self.speaker == actor:
@@ -356,6 +357,21 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if self.state.DRAFT and 'reader' in roles:
             roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
+
+    def assign_label(self, label):
+        """
+        Assign the given label to current proposal
+        """
+        if label.labelset.radio_mode:
+            existing_labels = set(label.labelset.labels).intersection(set(self.labels))
+            if existing_labels:
+                # the labelset is in radio mode and one of it's labels are
+                # already assigned to this proposal. We need to
+                # remove the older label and assign given label.
+                existing_label = existing_labels.pop()
+                self.labels.remove(existing_label)
+        # labelset is not in radio mode, so we can assign label to proposal
+        self.labels.append(label)
 
 
 class ProposalRedirect(TimestampMixin, db.Model):

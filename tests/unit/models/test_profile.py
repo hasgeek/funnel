@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 from furl import furl
 from sqlalchemy.exc import StatementError
