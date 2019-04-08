@@ -10,11 +10,11 @@ from .proposal import Proposal
 class Labelset(BaseScopedNameMixin, db.Model):
     """
     A collection of labels, in checkbox mode (select multiple) or radio mode (select one). A project can
-    contain multiple label sets.
+    contain multiple labelsets.
     """
     __tablename__ = 'labelset'
 
-    project_id = db.Column(None, db.ForeignKey('profile.id', ondelete='CASCADE'), nullable=False)
+    project_id = db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
     project = db.relationship(Project)  # Backref is defined in the Project model with an ordering list
     parent = db.synonym('project')
 
