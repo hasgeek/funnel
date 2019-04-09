@@ -362,6 +362,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         """
         Assign the given label to current proposal
         """
+        if label in self.labels:
+            return
         if label.labelset.radio_mode:
             existing_labels = set(label.labelset.labels).intersection(set(self.labels))
             if existing_labels:

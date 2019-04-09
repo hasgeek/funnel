@@ -29,9 +29,13 @@ class TestLabels(object):
         assert label_a1 in new_proposal.labels
         assert label_a2 in new_proposal.labels
 
-    def test_proposal_assignment_radio(self, test_client, test_db, new_labelset_radio, new_proposal):
-        label_a1 = new_labelset_radio.labels[0]
-        label_a2 = new_labelset_radio.labels[1]
+    def test_proposal_assignment_radio(self, test_client, test_db, new_labelset, new_proposal):
+        new_labelset.radio_mode = True
+        test_db.session.add(new_labelset)
+        test_db.session.commit()
+
+        label_a1 = new_labelset.labels[0]
+        label_a2 = new_labelset.labels[1]
         new_proposal.assign_label(label_a1)
         assert label_a1 in new_proposal.labels
 

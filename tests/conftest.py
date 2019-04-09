@@ -4,6 +4,8 @@ import pytest
 from funnel import app as hasgeekapp, db
 from funnel.models import Profile, Project, User, Label, Labelset, Proposal
 
+# Scope: session
+# These fixtures are run before every test session
 
 @pytest.fixture(scope='session')
 def test_client():
@@ -34,6 +36,8 @@ def test_db():
     db.session.remove()
     db.drop_all()
 
+# Scope: module
+# These fixtures are executed before every test module
 
 @pytest.fixture(scope='module')
 def new_user(test_db):
@@ -60,8 +64,12 @@ def new_project(test_db, new_profile, new_user):
     test_db.session.commit()
     return project
 
+# Scope: function
+# These fixtures are run before every test function,
+# so that changes made to the objects they return in one test function
+# doesn't affect another test function.
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def new_labelset(test_db, new_project):
     labelset_a = Labelset(
         title=u"Labelset A", project=new_project,
@@ -89,35 +97,7 @@ def new_labelset(test_db, new_project):
     return labelset_a
 
 
-@pytest.fixture(scope='module')
-def new_labelset_radio(test_db, new_project):
-    labelset_b = Labelset(
-        title=u"Labelset B", project=new_project,
-        description=u"A test labelset", radio_mode=True,
-        restricted=False, required=False
-    )
-    new_project.labelsets.append(labelset_b)
-    test_db.session.add(labelset_b)
-    test_db.session.commit()
-
-    label_b1 = Label(
-        title=u"Label B1", icon_emoji=u"👍", labelset=labelset_b
-    )
-    labelset_b.labels.append(label_b1)
-    test_db.session.add(label_b1)
-    test_db.session.commit()
-
-    label_b2 = Label(
-        title=u"Label B2", labelset=labelset_b
-    )
-    labelset_b.labels.append(label_b2)
-    test_db.session.add(label_b2)
-    test_db.session.commit()
-
-    return labelset_b
-
-
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def new_proposal(test_db, new_user, new_project, new_labelset):
     proposal = Proposal(
         user=new_user, speaker=new_user, project=new_project,
