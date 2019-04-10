@@ -10,35 +10,10 @@ from flask_lastuser.sqlalchemy import UserManager
 from funnel.models import db, Profile, Project, User, Label, Labelset, Proposal, Team
 
 
-class UserManagerMock(UserManager):
-    def __init__(self, db, usermodel, teammodel=None):
-        """
-        This is a mocked usermanager that does no actual work but to just
-        send back the test user so that the test user appears logged in
-        without any actual authentication taking place.
-        """
-        super(UserManagerMock, self).__init__(db, usermodel, teammodel)
-        self._user = None
-
-    def load_user(self, userid, uuid=None, create=False):
-        if self._user is None:
-            self._user = self.usermodel.query.filter_by(username=u"testuser").first()
-        return self._user
-
-    def login_listener(self, userinfo, token):
-        return self.load_user('testuserid')
-
-    def update_teams(self, user):
-        pass
-
-    def before_request(self):
-        add_auth_attribute('user', self.load_user('testuserid'))
-
-
 flask_app = Flask(__name__, instance_relative_config=True)
 lastuser = Lastuser()
 # this sets the mock usermanager up for use
-lastuser.init_usermanager(UserManagerMock(db, User, Team))
+lastuser.init_usermanager(UserManager(db, User, Team))
 coaster.app.init_app(flask_app)
 db.init_app(flask_app)
 lastuser.init_app(flask_app)
@@ -49,6 +24,23 @@ def user_test():
     from coaster.auth import current_auth
     return current_auth.user.username if current_auth.user is not None else "anon"
 
+
+TEST_DATA = {
+    'users': {
+        'testuser': {
+            'username': u"testuser",
+            'email': u"testuser@example.com",
+        },
+        'testuser2': {
+            'username': u"testuser2",
+            'email': u"testuser2@example.com",
+        },
+        'testuser3': {
+            'username': u"testuser3",
+            'email': u"testuser3@example.com",
+        },
+    }
+}
 # Scope: session
 # These fixtures are run before every test session
 
@@ -83,7 +75,23 @@ def test_db(test_client):
 
 @pytest.fixture(scope='session')
 def new_user(test_db):
-    user = User(username=u"testuser", email=u"test@example.com")
+    user = User(**TEST_DATA['users']['testuser'])
+    test_db.session.add(user)
+    test_db.session.commit()
+    return user
+
+
+@pytest.fixture(scope='session')
+def new_user2(test_db):
+    user = User(**TEST_DATA['users']['testuser2'])
+    test_db.session.add(user)
+    test_db.session.commit()
+    return user
+
+
+@pytest.fixture(scope='session')
+def new_user3(test_db):
+    user = User(**TEST_DATA['users']['testuser3'])
     test_db.session.add(user)
     test_db.session.commit()
     return user
