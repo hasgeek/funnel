@@ -9,3 +9,4 @@ LASTUSER_CLIENT_SECRET = ''
 UPLOAD_FOLDER = '/tmp'
 TIMEZONE = 'Asia/Kolkata'
 RQ_LOW_URL = 'redis://localhost:6379/0'
+ASSET_BASE_PATH = "build"
