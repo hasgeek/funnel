@@ -5,7 +5,7 @@ STATIC_SUBDOMAIN = 'static'
 LASTUSER_SERVER = 'https://auth.hasgeek.com'
 LASTUSER_CLIENT_ID = ''
 LASTUSER_CLIENT_SECRET = ''
-
+LASTUSER_USE_SESSIONS = False
 UPLOAD_FOLDER = '/tmp'
 TIMEZONE = 'Asia/Kolkata'
 RQ_LOW_URL = 'redis://localhost:6379/0'
