@@ -1,3 +1,5 @@
+import hexRgb from 'hex-rgb';
+
 export const Comments = {
   init(pageURL) {
     $('.comment .js-collapse').click(function() {
@@ -101,9 +103,22 @@ export const Video = {
   },
 };
 
+export const Labels = {
+  init() {
+    $.each($('.js-labels'), function(index, label){
+      let bgcolor = $(label).data('bgcolor');
+      let rgbBgcolor = hexRgb(bgcolor, {format: 'array'});
+      let cssBgcolor = `rgba(${rgbBgcolor[0]}, ${rgbBgcolor[1]}, ${rgbBgcolor[2]}, 0.6)`;
+      $(label).css('background-color', cssBgcolor);
+      $(label).css('border-color', bgcolor);
+    });
+  },
+};
+
 $(() => {
   window. HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= ''}) {
     Comments.init(pageUrl);
+    Labels.init();
 
     if (videoWrapper) {
       Video.embedIframe(videoWrapper, videoUrl);
