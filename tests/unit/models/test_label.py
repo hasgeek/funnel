@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from funnel.models import Label
-
 
 class TestLabels(object):
     def test_labelset_from_fixture(self, test_client, test_db, new_labelset):
@@ -45,4 +43,3 @@ class TestLabels(object):
         # label_a1 will not exist in ``.labels`
         assert label_a1 not in new_proposal.labels
         assert label_a2 in new_proposal.labels
-

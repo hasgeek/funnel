@@ -1,16 +1,51 @@
 # -*- coding: utf-8 -*-
 
+from flask import Flask
 import pytest
-from funnel import app as hasgeekapp, db
-from funnel.models import Profile, Project, User, Label, Labelset, Proposal
+import uuid
+import coaster.app
+from coaster.auth import add_auth_attribute
+from flask_lastuser import Lastuser
+from flask_lastuser.sqlalchemy import UserManager
+from funnel.models import db, Profile, Project, User, Label, Labelset, Proposal, Team
 
+
+flask_app = Flask(__name__, instance_relative_config=True)
+lastuser = Lastuser()
+# this sets the mock usermanager up for use
+lastuser.init_usermanager(UserManager(db, User, Team))
+coaster.app.init_app(flask_app)
+db.init_app(flask_app)
+lastuser.init_app(flask_app)
+
+
+@flask_app.route('/usertest')
+def user_test():
+    from coaster.auth import current_auth
+    return current_auth.user.username if current_auth.user is not None else "anon"
+
+
+TEST_DATA = {
+    'users': {
+        'testuser': {
+            'username': u"testuser",
+            'email': u"testuser@example.com",
+        },
+        'testuser2': {
+            'username': u"testuser2",
+            'email': u"testuser2@example.com",
+        },
+        'testuser3': {
+            'username': u"testuser3",
+            'email': u"testuser3@example.com",
+        },
+    }
+}
 # Scope: session
 # These fixtures are run before every test session
 
 @pytest.fixture(scope='session')
 def test_client():
-    flask_app = hasgeekapp
-
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
     testing_client = flask_app.test_client()
@@ -26,40 +61,66 @@ def test_client():
 
 
 @pytest.fixture(scope='session')
-def test_db():
+def test_db(test_client):
     # Create the database and the database table
     db.create_all()
 
     yield db  # this is where the testing happens!
 
+    # anything after yield is teardown code
     db.session.rollback()
     db.session.remove()
     db.drop_all()
 
-# Scope: module
-# These fixtures are executed before every test module
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def new_user(test_db):
-    user = User(username=u"testuser", email=u"test@example.com")
+    user = User(**TEST_DATA['users']['testuser'])
     test_db.session.add(user)
     test_db.session.commit()
     return user
 
 
-@pytest.fixture(scope='module')
-def new_profile(test_db):
-    profile = Profile(title=u"Test Profile", description=u"Test Description")
+@pytest.fixture(scope='session')
+def new_user2(test_db):
+    user = User(**TEST_DATA['users']['testuser2'])
+    test_db.session.add(user)
+    test_db.session.commit()
+    return user
+
+
+@pytest.fixture(scope='session')
+def new_user3(test_db):
+    user = User(**TEST_DATA['users']['testuser3'])
+    test_db.session.add(user)
+    test_db.session.commit()
+    return user
+
+
+@pytest.fixture(scope='session')
+def new_team(test_db, new_user):
+    team = Team(title=u"Owners", owners=True, org_uuid=uuid.uuid4())
+    test_db.session.add(team)
+    team.users.append(new_user)
+    test_db.session.commit()
+    return team
+
+
+@pytest.fixture(scope='session')
+def new_profile(test_db, new_team):
+    profile = Profile(title=u"Test Profile", description=u"Test Description",
+    admin_team=new_team)
     test_db.session.add(profile)
     test_db.session.commit()
     return profile
 
 
-@pytest.fixture(scope='module')
-def new_project(test_db, new_profile, new_user):
+@pytest.fixture(scope='session')
+def new_project(test_db, new_profile, new_user, new_team):
     project = Project(
         profile=new_profile, user=new_user, title=u"Test Project",
-        tagline=u"Test tagline", description=u"Test description")
+        tagline=u"Test tagline", description=u"Test description",
+        admin_team=new_team, review_team=new_team, checkin_team=new_team)
     test_db.session.add(project)
     test_db.session.commit()
     return project
