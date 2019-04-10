@@ -80,10 +80,8 @@ def test_db(test_client):
     db.session.remove()
     db.drop_all()
 
-# Scope: module
-# These fixtures are executed before every test module
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def new_user(test_db):
     user = User(username=u"testuser", email=u"test@example.com")
     test_db.session.add(user)
@@ -91,7 +89,7 @@ def new_user(test_db):
     return user
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def new_team(test_db, new_user):
     team = Team(title=u"Owners", owners=True, org_uuid=uuid.uuid4())
     test_db.session.add(team)
@@ -100,7 +98,7 @@ def new_team(test_db, new_user):
     return team
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def new_profile(test_db, new_team):
     profile = Profile(title=u"Test Profile", description=u"Test Description",
     admin_team=new_team)
@@ -109,7 +107,7 @@ def new_profile(test_db, new_team):
     return profile
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def new_project(test_db, new_profile, new_user, new_team):
     project = Project(
         profile=new_profile, user=new_user, title=u"Test Project",
