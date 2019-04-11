@@ -158,18 +158,17 @@
 
   .proposal-details--left {
     float: left;
+    width: 50%;
+  }
+
+  .proposal-details--right {
+    float: right;
+    width: 50%;
+    margin-top: 40px;
   }
 
   .proposal-video {
     max-width: 50%;
-  }
-
-  .proposal-details--talk__box {
-    border-right: solid 1px #e3e3e3;
-  }
-
-  .proposal-details--talk__box:last-child {
-    border-right: 0;
   }
 }
 
@@ -307,4 +306,12 @@
 
 .comment--body {
   margin: 10px 0 0 20px;
+}
+
+.label {
+  padding: 5px 10px;
+  border: 2px solid #F0F2F5;
+  background-color: #F6F8FA;
+  border-radius: 20px;
+  margin-right: 10px;
 }
