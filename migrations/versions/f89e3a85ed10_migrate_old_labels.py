@@ -88,6 +88,7 @@ def upgrade():
                     'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(labelset.c.id)).first()
 
+            # add old sections as labels to the above labelset
             sections = conn.execute(section.select().where(section.c.project_id == proj['id']))
             for index, sec in enumerate(sections, start=1):
                 lab = conn.execute(label.insert().values({
@@ -96,6 +97,10 @@ def upgrade():
                     'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id, label.c.name)).first()
 
+                # only select proposals that belonged to above section and
+                # still in the same project as the section. This removed proposals
+                # that were moved to other projects but their section relationship
+                # was never migrated.
                 proposals = conn.execute(
                         proposal.select().where(proposal.c.section_id == sec['id']).where(proposal.c.project_id == sec['project_id'])
                     )
