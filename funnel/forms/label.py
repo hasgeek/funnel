@@ -9,17 +9,26 @@ __all__ = ['LabelsetForm', 'LabelForm']
 
 class LabelsetForm(forms.Form):
     title = forms.StringField(__("Name"),
-        description=__("Name of the venue"),
+        description=__("Name of the labelset"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
-    description = forms.MarkdownField(__("Description"), description=__("About Labelset"))
+    description = forms.MarkdownField(__("Description"), description=__("About the labelset"))
+    required = forms.BooleanField(__("Required"), default=False,
+        description=__("When required is set, this labelset must be set for a proposal (e.g. Proposal Type)."))
+    radio_mode = forms.BooleanField(__("Radio mode"), default=False,
+        description=__("When in radio mode, only one label within the labelset can be set at a time (e.g. Proposal Type)."))
+    restricted = forms.BooleanField(__("Restricted"), default=False,
+        description=__("When in restricted mode, only an admin or reviewer can set this labelset for a proposal (e.g. Proposal Status)."))
 
 
 class LabelForm(forms.Form):
-    title = forms.StringField(__("Name"), description=__("Name of the room"),
+    title = forms.StringField(__("Name"), description=__("Name of the label"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
-    bgcolor = forms.StringField(__("Event Color"),
+    bgcolor = forms.StringField(__("Label Color"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
-        description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
+        description=__("RGB Color for the label. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
+    # icon_emoji = forms.StringField(__("Icon/Emoji"),
+    #     validators=[forms.validators.Length(max=2)],
+    #     description=__("Emoji to be used for this label for space constrained UI"))
 
     def validate_bgcolor(self, field):
         if not valid_color_re.match(field.data):
