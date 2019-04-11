@@ -27,7 +27,7 @@ def upgrade():
         sa.Column('name', sa.Unicode(length=250), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['project_id'], ['profile.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('project_id', 'name')
     )
@@ -36,6 +36,7 @@ def upgrade():
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('labelset_id', sa.Integer(), nullable=False),
         sa.Column('seq', sa.Integer(), nullable=False),
+        sa.Column('bgcolor', sa.Unicode(length=6), nullable=False),
         sa.Column('icon_emoji', sa.Unicode(length=1), nullable=True),
         sa.Column('name', sa.Unicode(length=250), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),

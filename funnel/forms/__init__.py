@@ -9,3 +9,4 @@ from .venue import *
 from .session import *
 from .profile import *
 from .participant import *
+from .label import *

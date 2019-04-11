@@ -2,6 +2,8 @@
 
 from sqlalchemy.ext.orderinglist import ordering_list
 
+from coaster.sqlalchemy import with_roles
+
 from . import db, BaseScopedNameMixin
 from .project import Project
 from .proposal import Proposal
@@ -45,6 +47,31 @@ class Labelset(BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return "<Labelset %s in %s>" % (self.name, self.project.name)
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'name', 'title', 'project_id', 'seq', 'description', 'radio_code',
+                'restricted', 'required'
+            }
+        }
+    }
+
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(Labelset, self).roles_for(actor, anchors)
+        roles.update(self.project.roles_for(actor, anchors))
+        return roles
+
+    @with_roles(call={'admin'})
+    def assign_label(self, label):
+        """
+        This function takes a Label object and links the labelset with it.
+        This function requires role control. Hence this function must be called
+        via ``current_access()``.
+
+        :param label: A Label instance
+        """
+        self.labels.append(label)
+
 
 proposal_label = db.Table(
     'proposal_label', db.Model.metadata,
@@ -60,6 +87,9 @@ class Label(BaseScopedNameMixin, db.Model):
     labelset_id = db.Column(None, db.ForeignKey('labelset.id', ondelete='CASCADE'), nullable=False)
     labelset = db.relationship(Labelset)
     parent = db.synonym('labelset')
+
+    #: Color code to be used in UI with this label
+    bgcolor = db.Column(db.Unicode(6), nullable=False, default=u"CCCCCC")
 
     #: Sequence number for this label, used in UI for ordering
     seq = db.Column(db.Integer, nullable=False)
