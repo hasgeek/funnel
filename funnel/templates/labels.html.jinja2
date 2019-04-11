@@ -9,7 +9,7 @@
 {% block contentwrapper %}
   <div class="grid">
     {%- for labelset in labelsets %}
-      <div class="grid__col-xs-12 grid__col-sm-6">
+      <div class="grid__col-xs-12 grid__col-sm-4">
         <div class="card">
           <div class="card__header">
             <h3>{{ labelset.title }}</h3>
@@ -33,12 +33,12 @@
           <div class="mui-divider"></div>
           <div class="card__footer">
             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ labelset.url_for('new_label') }}" title="{% trans %}Add label{% endtrans %}">{% trans %}Add label{% endtrans %}</a>
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--secondary" href="{{ labelset.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit labelset{% endtrans %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ labelset.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit labelset{% endtrans %}</a>
           </div>
         </div>
       </div>
     {%- endfor %}
-    <div class="grid__col-xs-12 grid__col-sm-6">
+    <div class="grid__col-xs-12 grid__col-sm-4">
       <div class="clickable-card card" data-href="{{ project.url_for('new_labelset') }}" title="New labelset">
         <div class="card__image-wrapper">
           <div class="card__image--default card__image--new">
@@ -51,7 +51,7 @@
 <!--           <h4 class="mui--text-caption card__title__heading">Write, collaborate and get feedback.</h4> -->
         </div>
         <div class="card__footer">
-          <a href="{{ project.url_for('new_labelset') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="New labelset" data-action="New labelset">Add</a>
+          <a href="{{ project.url_for('new_labelset') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="New labelset" data-action="New labelset">Add</a>
         </div>
       </div>
     </div>
