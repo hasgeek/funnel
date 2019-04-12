@@ -44,6 +44,10 @@ class Labelset(BaseScopedNameMixin, db.Model):
     #: across projects
     required = db.Column(db.Boolean, nullable=False, default=False)
 
+    #: Archived mode specifies that the labelset is no longer available for use
+    #: although all the previous records will stay in database.
+    archived = db.Column(db.Boolean, nullable=False, default=False)
+
     __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
     def __repr__(self):
@@ -109,6 +113,10 @@ class Label(BaseScopedNameMixin, db.Model):
 
     #: Icon for displaying in space-constrained UI. Contains emoji
     icon_emoji = db.Column(db.Unicode(1), nullable=True)
+
+    #: Archived mode specifies that the label is no longer available for use
+    #: although all the previous records will stay in database.
+    archived = db.Column(db.Boolean, nullable=False, default=False)
 
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, lazy='dynamic', backref='labels')

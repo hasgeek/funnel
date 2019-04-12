@@ -48,6 +48,7 @@ labelset = table('labelset',
     column('description', sa.UnicodeText()),
     column('radio_mode', sa.Boolean()),
     column('restricted', sa.Boolean()),
+    column('archived', sa.Boolean()),
     column('required', sa.Boolean()),
     column('created_at', sa.DateTime()),
     column('updated_at', sa.DateTime())
@@ -60,6 +61,7 @@ label = table('label',
     column('bgcolor', sa.Unicode(6)),
     column('labelset_id', sa.Integer()),
     column('seq', sa.Integer()),
+    column('archived', sa.Boolean()),
     column('created_at', sa.DateTime()),
     column('updated_at', sa.DateTime())
     )
@@ -85,14 +87,15 @@ def upgrade():
             labset = conn.execute(labelset.insert().values({
                     'project_id': proj['id'], 'name': u"section", 'title': u"Section",
                     'seq': 1, 'description': "", 'radio_mode': True, 'restricted': True,
-                    'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
+                    'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now(),
+                    'archived': False
                 }).returning(labelset.c.id)).first()
 
             # add old sections as labels to the above labelset
             sections = conn.execute(section.select().where(section.c.project_id == proj['id']))
             for index, sec in enumerate(sections, start=1):
                 lab = conn.execute(label.insert().values({
-                    'name': sec['name'], 'title': sec['title'],
+                    'name': sec['name'], 'title': sec['title'], 'archived': False,
                     'labelset_id': labset[0], 'seq': index, 'bgcolor': u"CCCCCC",
                     'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id, label.c.name)).first()
@@ -112,14 +115,14 @@ def upgrade():
         # technical level
         labset = conn.execute(labelset.insert().values({
             'project_id': proj['id'], 'name': u"technical-level", 'title': u"Technical Level",
-            'seq': 1, 'description': "", 'radio_mode': True, 'restricted': True,
+            'seq': 1, 'description': "", 'radio_mode': True, 'restricted': True, 'archived': False,
             'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
         }).returning(labelset.c.id)).first()
         tl_list = [('beginner', "Beginner"), ('intermediate', "Intermediate"), ('advanced', "Advanced")]
         for index, tl in enumerate(tl_list):
             tl_name, tl_title = tl
             lab = conn.execute(label.insert().values({
-                    'name': tl_name, 'title': tl_title,
+                    'name': tl_name, 'title': tl_title, 'archived': False,
                     'labelset_id': labset[0], 'seq': index, 'bgcolor': u"CCCCCC",
                     'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id, label.c.name)).first()
@@ -135,14 +138,14 @@ def upgrade():
         # session type
         labset = conn.execute(labelset.insert().values({
                 'project_id': proj['id'], 'name': u"session-type", 'title': u"Session Type",
-                'seq': 1, 'description': "", 'radio_mode': True, 'restricted': True,
+                'seq': 1, 'description': "", 'radio_mode': True, 'restricted': True, 'archived': False,
                 'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
             }).returning(labelset.c.id)).first()
         st_list = [('lecture', "Lecture"), ('demo', "Demo"), ('tutorial', "Tutorial"), ('workshop', "Workshop"), ('discussion', "Discussion"), ('panel', "Panel")]
         for index, st in enumerate(st_list):
             st_name, st_title = st
             lab = conn.execute(label.insert().values({
-                    'name': st_name, 'title': st_title,
+                    'name': st_name, 'title': st_title, 'archived': False,
                     'labelset_id': labset[0], 'seq': index, 'bgcolor': u"CCCCCC",
                     'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id, label.c.name)).first()
