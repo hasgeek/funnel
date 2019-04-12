@@ -69,6 +69,9 @@ class _ProposalFormInner(forms.Form):
                 labelset_field.data = data
 
     def populate_obj_labels(self, proposal):
+        """
+        Assign the appropriate labels to the proposal
+        """
         for key in self.data.keys():
             if key.startswith('labelset_'):
                 labelset = Labelset.query.filter_by(form_name=key, project=proposal.project).first()
@@ -89,6 +92,12 @@ class _ProposalFormInner(forms.Form):
 
 class ProposalForm(object):
     def __new__(self, *args, **kwargs):
+        """
+        Proxy object that intercepts ProposalForm initiation and adds the
+        dynamic fields for the labelsets to the form. The dynamic fields
+        need to be added to the Form class, hence this. This way the regular
+        way of using ProposalForm doesn't change.
+        """
         proposal_form = _ProposalFormInner
 
         if 'parent' in kwargs:
@@ -108,7 +117,6 @@ class ProposalForm(object):
                         choices=choices, description=labelset.description))
 
         return _ProposalFormInner(*args, **kwargs)
-
 
 
 class ProposalTransitionForm(forms.Form):
