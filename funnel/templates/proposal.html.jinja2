@@ -88,9 +88,8 @@
         </div>
         <div class="proposal-details proposal-details--right">
           <!-- Example and to be removed -->
-          <span class="label mui--text-bold js-labels" data-bgcolor="#F7e2c5">Beginner</span>
-          <span class="label mui--text-bold js-labels" data-bgcolor="#9feab1">Full talk</span>
           {%- for label in proposal.labels %}
+            <span class="label mui--text-bold js-labels" data-bgcolor="#{{ label.bgcolor }}">{{ label.labelset.title }}: {{ label.title }}</span>
           {%- endfor %}
           <a class="label mui--text-bold mui--text-light">+ Add label</a>
         </div>

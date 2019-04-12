@@ -12,7 +12,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Section, Proposal, Comment
+from ..models import db, Section, Proposal, Comment, Label, Labelset
 from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
@@ -94,14 +94,6 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     @requires_permission('new-proposal')
     def new_proposal(self):
         form = ProposalForm(model=Proposal, parent=self.obj)
-        del form.session_type  # We don't use this anymore
-        if self.obj.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent_project), Section.public == True).order_by('title')  # NOQA
-        else:
-            form.section.query = Section.query.filter(Section.project == self.obj, Section.public == True).order_by('title')  # NOQA
-        if len(list(form.section.query.all())) == 0:
-            # Don't bother with sections when there aren't any
-            del form.section
         if request.method == 'GET':
             form.email.data = g.user.email
             form.phone.data = g.user.phone
@@ -176,19 +168,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_permission('edit-proposal')
     def edit(self):
         form = ProposalForm(obj=self.obj.formdata, model=Proposal, parent=self.obj.project)
-        if not self.obj.session_type:
-            del form.session_type  # Remove this if we're editing a proposal that had no session type
-        if self.obj.project.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj.project, Section.project == self.obj.project.parent_project), Section.public == True).order_by('title')  # NOQA
-        else:
-            form.section.query = Section.query.filter(Section.project == self.obj.project, Section.public == True).order_by('title')  # NOQA
-        if len(list(form.section.query.all())) == 0:
-            # Don't bother with sections when there aren't any
-            del form.section
         if self.obj.user != g.user:
             del form.speaking
         if form.validate_on_submit():
             form.populate_obj(self.obj.formdata)
+            form.populate_obj_labels(self.obj)
             self.obj.name = make_name(self.obj.title)
             self.obj.edited_at = datetime.utcnow()
             db.session.commit()
