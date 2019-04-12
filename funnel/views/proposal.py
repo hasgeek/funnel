@@ -13,7 +13,8 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Section, Proposal, Comment, Label, Labelset
-from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
+from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
+    ProposalTransitionForm, ProposalMoveForm, get_proposal_form)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
 
@@ -93,7 +94,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     @lastuser.requires_login
     @requires_permission('new-proposal')
     def new_proposal(self):
-        form = ProposalForm(model=Proposal, parent=self.obj)
+        form = get_proposal_form(ProposalForm, model=Proposal, parent=self.obj)
         if request.method == 'GET':
             form.email.data = g.user.email
             form.phone.data = g.user.phone
@@ -167,7 +168,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit-proposal')
     def edit(self):
-        form = ProposalForm(obj=self.obj.formdata, model=Proposal, parent=self.obj.project)
+        form = get_proposal_form(ProposalForm, obj=self.obj.formdata, model=Proposal, parent=self.obj.project)
         if self.obj.user != g.user:
             del form.speaking
         if form.validate_on_submit():
