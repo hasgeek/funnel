@@ -333,7 +333,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             perms.update([
                 'vote_proposal',
                 'new_comment',
-                'vote_comment'
+                'vote_comment',
                 ])
             if user == self.owner:
                 perms.update([
@@ -372,9 +372,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 # remove the older label and assign given label.
                 existing_label = existing_labels.pop()
                 self.labels.remove(existing_label)
-
-        # FIXME: Remove labels that have been removed using the proposal form
-
         # labelset is not in radio mode, so we can assign label to proposal
         self.labels.append(label)
 
