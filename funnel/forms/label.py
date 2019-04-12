@@ -18,6 +18,8 @@ class LabelsetForm(forms.Form):
         description=__("When in radio mode, only one label within the labelset can be set at a time (e.g. Proposal Type)."))
     restricted = forms.BooleanField(__("Restricted"), default=False,
         description=__("When in restricted mode, only an admin or reviewer can set this labelset for a proposal (e.g. Proposal Status)."))
+    archived = forms.BooleanField(__("Archived"), default=False,
+        description=__("Once archived, this labelset will not be available for use in future, but the past records will be preserved."))
 
 
 class LabelForm(forms.Form):
@@ -26,6 +28,9 @@ class LabelForm(forms.Form):
     bgcolor = forms.StringField(__("Label Color"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
         description=__("RGB Color for the label. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
+    archived = forms.BooleanField(__("Archived"), default=False,
+        description=__("Once archived, this label will not be available for use in future, but the past records will be preserved."))
+    # We're not going to use icon_emoji until we move to Py3
     # icon_emoji = forms.StringField(__("Icon/Emoji"),
     #     validators=[forms.validators.Length(max=2)],
     #     description=__("Emoji to be used for this label for space constrained UI"))
