@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy import func
 from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from coaster.sqlalchemy import with_roles
 
@@ -55,6 +57,17 @@ class Labelset(BaseScopedNameMixin, db.Model):
             }
         }
     }
+
+    @hybrid_property
+    def form_name(self):
+        """
+        Generates a name to be used in forms when a field is created for this labelset
+        """
+        return 'labelset_' + self.name.replace('-', '_')
+
+    @form_name.expression
+    def form_name(cls):
+        return func.concat('labelset_', func.replace(cls.name, '-', '_'))
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Labelset, self).roles_for(actor, anchors)
