@@ -21,6 +21,18 @@
 {% block top_title %}
   <h1 class="mui--text-display1"><strong>{{ project.title|e }}</strong></h1>
   <p class="mui--text-headline">{{ project.tagline|safe }}</p>
+  <p>
+  {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+    <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#participate" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>
+  {%- elif project.buy_tickets_url.url %}
+    <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.buy_tickets_url }}" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>
+  {%- elif project.allow_rsvp %}
+    <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#participate" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>
+  {%- endif %}
+  {% if project.cfp_state.PUBLIC -%}
+    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
+  {% endif %}
+  </p>
 {% endblock %}
 
 {% block contentwrapper %}

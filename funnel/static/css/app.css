@@ -231,6 +231,15 @@ html.touch .collapsible__body--disable {
   margin-top: -30px;
 }
 
+.mui-btn--nopadding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mui-btn--nopadding:hover {
+  background: transparent !important;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
