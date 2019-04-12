@@ -4,7 +4,7 @@ from baseframe import __
 import baseframe.forms as forms
 from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import Project, Profile, Proposal
+from ..models import Project, Profile, Proposal, Label, Labelset
 
 __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
 
@@ -13,29 +13,14 @@ class TransferProposal(forms.Form):
     userid = forms.UserSelectField(__("Transfer to"), validators=[forms.validators.DataRequired()])
 
 
-class ProposalForm(forms.Form):
+class _ProposalFormInner(forms.Form):
     speaking = forms.RadioField(__("Are you speaking?"), coerce=int,
         choices=[(1, __(u"I will be speaking")),
                  (0, __(u"I’m proposing a topic for someone to speak on"))])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()],
         description=__("The title of your session"))
-    section = QuerySelectField(__("Section"), get_label='title', validators=[forms.validators.DataRequired()],
-        widget=forms.ListWidget(prefix_label=False), option_widget=forms.RadioInput())
     objective = forms.MarkdownField(__("Objective"), validators=[forms.validators.DataRequired()],
         description=__("What is the expected benefit for someone attending this?"))
-    session_type = forms.RadioField(__("Session type"), validators=[forms.validators.DataRequired()], choices=[
-        ('Lecture', __("Lecture")),
-        ('Demo', __("Demo")),
-        ('Tutorial', __("Tutorial")),
-        ('Workshop', __("Workshop")),
-        ('Discussion', __("Discussion")),
-        ('Panel', __("Panel")),
-        ])
-    technical_level = forms.RadioField(__("Technical level"), validators=[forms.validators.DataRequired()], choices=[
-        ('Beginner', __("Beginner")),
-        ('Intermediate', __("Intermediate")),
-        ('Advanced', __("Advanced")),
-        ])
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("A detailed description of the session"))
     requirements = forms.MarkdownField(__("Requirements"),
@@ -64,7 +49,7 @@ class ProposalForm(forms.Form):
         description=__("Your location, to help plan for your travel if required"))
 
     def __init__(self, *args, **kwargs):
-        super(ProposalForm, self).__init__(*args, **kwargs)
+        super(_ProposalFormInner, self).__init__(*args, **kwargs)
         project = kwargs.get('parent')
         if project.proposal_part_a.get('title'):
             self.objective.label.text = project.proposal_part_a.get('title')
@@ -74,6 +59,56 @@ class ProposalForm(forms.Form):
             self.description.label.text = project.proposal_part_b.get('title')
         if project.proposal_part_b.get('hint'):
             self.description.description = project.proposal_part_b.get('hint')
+
+    def set_queries(self):
+        for labelset in self.edit_parent.labelsets:
+            labels_data = set(self.edit_obj.labels).intersection(set(labelset.labels))
+            data = labels_data.pop().name if len(labels_data) == 1 else [l.name for l in labels_data]
+            labelset_field = getattr(self, labelset.form_name)
+            if labelset_field.data == 'None' and data:
+                labelset_field.data = data
+
+    def populate_obj_labels(self, proposal):
+        for key in self.data.keys():
+            if key.startswith('labelset_'):
+                labelset = Labelset.query.filter_by(form_name=key, project=proposal.project).first()
+                # in case of MultiSelectField, self.data.get(key) is a list
+                label_names = self.data.get(key) if isinstance(self.data.get(key), list) else [self.data.get(key)]
+                if labelset.radio_mode:
+                    for lname in label_names:
+                        label = Label.query.filter_by(labelset=labelset, name=lname).first()
+                        proposal.assign_label(label)
+                else:
+                    existing_labels = set(labelset.labels).intersection(set(proposal.labels))
+                    for elabel in existing_labels:
+                        proposal.labels.remove(elabel)
+                    for lname in label_names:
+                        label = Label.query.filter_by(labelset=labelset, name=lname).first()
+                        proposal.assign_label(label)
+
+
+class ProposalForm(object):
+    def __new__(self, *args, **kwargs):
+        proposal_form = _ProposalFormInner
+
+        if 'parent' in kwargs:
+            # we need parent project to be able to handle labelsets
+            project = kwargs.get('parent')
+            for labelset in project.labelsets:
+                ls_name = labelset.form_name
+                if not hasattr(self, ls_name):
+                    if labelset.restricted and not set(project.current_roles).intersection({'admin', 'reviewer'}):
+                        continue
+                    FieldType = forms.RadioField if labelset.radio_mode else forms.SelectMultipleField
+                    validators = [forms.validators.DataRequired()] if labelset.required else []
+                    if 'obj' in kwargs:
+                        # Edit form
+                        choices = [(l.name, l.title) for l in labelset.labels]
+                    setattr(proposal_form, ls_name, FieldType(labelset.title, validators=validators,
+                        choices=choices, description=labelset.description))
+
+        return _ProposalFormInner(*args, **kwargs)
+
 
 
 class ProposalTransitionForm(forms.Form):

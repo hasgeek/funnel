@@ -333,7 +333,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             perms.update([
                 'vote_proposal',
                 'new_comment',
-                'vote_comment',
+                'vote_comment'
                 ])
             if user == self.owner:
                 perms.update([

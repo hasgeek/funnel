@@ -155,6 +155,7 @@ def upgrade():
                         'proposal_id': prop['id'], 'label_id': lab['id'], 'created_at': datetime.now()
                     }))
 
+
 def downgrade():
     conn = op.get_bind()
     conn.execute(labelset.delete())
