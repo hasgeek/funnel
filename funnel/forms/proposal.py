@@ -6,14 +6,14 @@ from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
 from ..models import Project, Profile, Proposal, Label, Labelset
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm', 'get_proposal_form']
 
 
 class TransferProposal(forms.Form):
     userid = forms.UserSelectField(__("Transfer to"), validators=[forms.validators.DataRequired()])
 
 
-class _ProposalFormInner(forms.Form):
+class ProposalForm(forms.Form):
     speaking = forms.RadioField(__("Are you speaking?"), coerce=int,
         choices=[(1, __(u"I will be speaking")),
                  (0, __(u"I’m proposing a topic for someone to speak on"))])
@@ -49,7 +49,7 @@ class _ProposalFormInner(forms.Form):
         description=__("Your location, to help plan for your travel if required"))
 
     def __init__(self, *args, **kwargs):
-        super(_ProposalFormInner, self).__init__(*args, **kwargs)
+        super(ProposalForm, self).__init__(*args, **kwargs)
         project = kwargs.get('parent')
         if project.proposal_part_a.get('title'):
             self.objective.label.text = project.proposal_part_a.get('title')
@@ -91,33 +91,29 @@ class _ProposalFormInner(forms.Form):
                         proposal.assign_label(nlabel)
 
 
-class ProposalForm(object):
-    def __new__(self, *args, **kwargs):
-        """
-        Proxy object that intercepts ProposalForm initiation and adds the
-        dynamic fields for the labelsets to the form. The dynamic fields
-        need to be added to the Form class, hence this. This way the regular
-        way of using ProposalForm doesn't change.
-        """
-        proposal_form = _ProposalFormInner
-
-        if 'parent' in kwargs:
-            # we need parent project to be able to handle labelsets
-            project = kwargs.get('parent')
-            for labelset in project.labelsets:
-                ls_name = labelset.form_name
-                if not hasattr(self, ls_name):
-                    if labelset.restricted and not set(project.current_roles).intersection({'admin', 'reviewer'}):
-                        continue
-                    FieldType = forms.RadioField if labelset.radio_mode else forms.SelectMultipleField
-                    validators = [forms.validators.DataRequired()] if labelset.required else []
-                    if 'obj' in kwargs:
-                        # Edit form
-                        choices = [(l.name, l.title) for l in labelset.labels]
-                    setattr(proposal_form, ls_name, FieldType(labelset.title, validators=validators,
-                        choices=choices, description=labelset.description))
-
-        return _ProposalFormInner(*args, **kwargs)
+def get_proposal_form(base_form_class, *args, **kwargs):
+    """
+    Takes a proposal form class as base form and adds the labelset fields to it.
+    Dynamic fields can only be added to the form class and not instance. Hence this.
+    Any form that has `obj=<proposal_object>` passed to it, can be used with this function.
+    `parent` kwarg must be provided, otherwise the labelsets wont be added to the form.
+    """
+    if 'parent' in kwargs:
+        # we need parent project to be able to handle labelsets
+        project = kwargs.get('parent')
+        for labelset in project.labelsets:
+            ls_name = labelset.form_name
+            if not hasattr(base_form_class, ls_name):
+                if labelset.restricted and not set(project.current_roles).intersection({'admin', 'reviewer'}):
+                    continue
+                FieldType = forms.RadioField if labelset.radio_mode else forms.SelectMultipleField
+                validators = [forms.validators.DataRequired()] if labelset.required else []
+                if 'obj' in kwargs:
+                    # Edit form
+                    choices = [(l.name, l.title) for l in labelset.labels]
+                setattr(base_form_class, ls_name, FieldType(labelset.title, validators=validators,
+                    choices=choices, description=labelset.description))
+    return base_form_class(*args, **kwargs)
 
 
 class ProposalTransitionForm(forms.Form):
