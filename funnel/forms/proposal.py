@@ -75,19 +75,20 @@ class _ProposalFormInner(forms.Form):
         for key in self.data.keys():
             if key.startswith('labelset_'):
                 labelset = Labelset.query.filter_by(form_name=key, project=proposal.project).first()
+                existing_labels = set(labelset.labels).intersection(set(proposal.labels))
                 # in case of MultiSelectField, self.data.get(key) is a list
                 label_names = self.data.get(key) if isinstance(self.data.get(key), list) else [self.data.get(key)]
+                new_labels = [Label.query.filter_by(labelset=labelset, name=lname).first() for lname in label_names]
                 if labelset.radio_mode:
-                    for lname in label_names:
-                        label = Label.query.filter_by(labelset=labelset, name=lname).first()
-                        proposal.assign_label(label)
+                    for nlabel in new_labels:
+                        proposal.assign_label(nlabel)
                 else:
-                    existing_labels = set(labelset.labels).intersection(set(proposal.labels))
-                    for elabel in existing_labels:
-                        proposal.labels.remove(elabel)
-                    for lname in label_names:
-                        label = Label.query.filter_by(labelset=labelset, name=lname).first()
-                        proposal.assign_label(label)
+                    # FIXME: Move this part inside model?
+                    removed_labels = existing_labels.difference(set(new_labels))
+                    for rlabel in removed_labels:
+                        proposal.labels.remove(rlabel)
+                    for nlabel in new_labels:
+                        proposal.assign_label(nlabel)
 
 
 class ProposalForm(object):
