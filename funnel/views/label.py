@@ -124,10 +124,11 @@ class LabelView(UrlForView, ModelView):
         'labelset': 'labelset.name', 'label': 'name'}
 
     def loader(self, profile, project, labelset, label):
-        label = self.model.query.join(Labelset.project).filter(
-            Project.name == project,
-            Labelset.name == labelset, Label.name == label
+        proj = Project.query.join(Profile).filter(
+            Profile.name == profile, Project.name == project
             ).first_or_404()
+        lset = Labelset.query.filter_by(project=proj, name=labelset).first_or_404()
+        label = self.model.query.filter_by(labelset=lset, name=label).first_or_404()
         g.profile = label.labelset.project.profile
         return label
 
