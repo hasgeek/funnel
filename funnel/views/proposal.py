@@ -13,7 +13,7 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Section, Proposal, Comment, Label, Labelset
-from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
+from ..forms import (ProposalForm, CommentForm, DeleteCommentForm, ProposalLabelsetBaseForm,
     ProposalTransitionForm, ProposalMoveForm, get_proposal_form)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
@@ -251,6 +251,19 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def schedule(self):
         from .session import session_form
         return session_form(self.obj.project, proposal=self.obj)
+
+    @route('labels', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('admin')
+    def edit_labels(self):
+        form = get_proposal_form(ProposalLabelsetBaseForm, obj=self.obj, parent=self.obj.project)
+        if form.validate_on_submit():
+            form.populate_obj_labels(self.obj)
+            db.session.commit()
+            flash(_("Labels have been saved for this proposal."), 'info')
+            return redirect(self.obj.url_for(), 303)
+        return render_form(form=form, submit=_("Save changes"),
+            title=_("Edit labels for '{}'".format(self.obj.title)))
 
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')

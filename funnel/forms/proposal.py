@@ -6,14 +6,53 @@ from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
 from ..models import Project, Profile, Label, Labelset
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm', 'get_proposal_form']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm',
+    'ProposalMoveForm', 'get_proposal_form', 'ProposalLabelsetBaseForm']
 
 
 class TransferProposal(forms.Form):
     userid = forms.UserSelectField(__("Transfer to"), validators=[forms.validators.DataRequired()])
 
 
-class ProposalForm(forms.Form):
+class ProposalLabelsetBaseForm(forms.Form):
+    """
+    This base form provides the `set_queries()` and `populate_obj_labels` methods
+    that lets you fill a proposal form with the labels and then save them.
+
+    Any Proposal form that needs to show labels, need to inherit this class.
+    """
+    def set_queries(self):
+        for labelset in self.edit_parent.labelsets:
+            labels_data = set(self.edit_obj.labels).intersection(set(labelset.labels))
+            data = labels_data.pop().name if len(labels_data) == 1 else [l.name for l in labels_data]
+            labelset_field = getattr(self, labelset.form_name)
+            if labelset_field.data == 'None' and data:
+                labelset_field.data = data
+
+    def populate_obj_labels(self, proposal):
+        """
+        Assign the appropriate labels to the proposal
+        """
+        for key in self.data.keys():
+            if key.startswith('labelset_'):
+                labelset = Labelset.query.filter_by(form_name=key, project=proposal.project).first()
+                existing_labels = set(labelset.labels).intersection(set(proposal.labels))
+                # in case of MultiSelectField, self.data.get(key) is a list
+                label_names = self.data.get(key) if isinstance(self.data.get(key), list) else [self.data.get(key)]
+                new_labels = [Label.query.filter_by(labelset=labelset, name=lname).first() for lname in label_names]
+                if labelset.radio_mode:
+                    for nlabel in new_labels:
+                        proposal.assign_label(nlabel)
+                else:
+                    # FIXME: Move this part inside model?
+                    removed_labels = existing_labels.difference(set(new_labels))
+                    for rlabel in removed_labels:
+                        proposal.labels.remove(rlabel)
+                    for nlabel in new_labels:
+                        proposal.assign_label(nlabel)
+
+
+class ProposalForm(ProposalLabelsetBaseForm):
     speaking = forms.RadioField(__("Are you speaking?"), coerce=int,
         choices=[(1, __(u"I will be speaking")),
                  (0, __(u"I’m proposing a topic for someone to speak on"))])
@@ -59,36 +98,6 @@ class ProposalForm(forms.Form):
             self.description.label.text = project.proposal_part_b.get('title')
         if project.proposal_part_b.get('hint'):
             self.description.description = project.proposal_part_b.get('hint')
-
-    def set_queries(self):
-        for labelset in self.edit_parent.labelsets:
-            labels_data = set(self.edit_obj.labels).intersection(set(labelset.labels))
-            data = labels_data.pop().name if len(labels_data) == 1 else [l.name for l in labels_data]
-            labelset_field = getattr(self, labelset.form_name)
-            if labelset_field.data == 'None' and data:
-                labelset_field.data = data
-
-    def populate_obj_labels(self, proposal):
-        """
-        Assign the appropriate labels to the proposal
-        """
-        for key in self.data.keys():
-            if key.startswith('labelset_'):
-                labelset = Labelset.query.filter_by(form_name=key, project=proposal.project).first()
-                existing_labels = set(labelset.labels).intersection(set(proposal.labels))
-                # in case of MultiSelectField, self.data.get(key) is a list
-                label_names = self.data.get(key) if isinstance(self.data.get(key), list) else [self.data.get(key)]
-                new_labels = [Label.query.filter_by(labelset=labelset, name=lname).first() for lname in label_names]
-                if labelset.radio_mode:
-                    for nlabel in new_labels:
-                        proposal.assign_label(nlabel)
-                else:
-                    # FIXME: Move this part inside model?
-                    removed_labels = existing_labels.difference(set(new_labels))
-                    for rlabel in removed_labels:
-                        proposal.labels.remove(rlabel)
-                    for nlabel in new_labels:
-                        proposal.assign_label(nlabel)
 
 
 def get_proposal_form(base_form_class, *args, **kwargs):
