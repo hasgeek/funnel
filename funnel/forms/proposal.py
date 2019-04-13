@@ -4,7 +4,7 @@ from baseframe import __
 import baseframe.forms as forms
 from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import Project, Profile, Proposal, Label, Labelset
+from ..models import Project, Profile, Label, Labelset
 
 __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm', 'get_proposal_form']
 
