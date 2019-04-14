@@ -14,7 +14,7 @@ git+https://github.com/hasgeek/baseframe.git
 alembic==1.0.8
 qrcode==6.1
 rq==1.0
-psycopg2==2.8.1
+psycopg2==2.8.2
 Flask-Migrate==2.4.0
 git+https://github.com/hasgeek/Flask-FlatPages.git
 progressbar2==3.39.3
