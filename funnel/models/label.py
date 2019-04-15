@@ -106,7 +106,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @required.setter
     def required(self, value):
-        if value and not self.children:
+        if value and not self.is_parent:
             raise ValueError("Label without children cannot be required")
         self._required = value
 
