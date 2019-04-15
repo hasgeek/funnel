@@ -22,12 +22,14 @@ class ProposalLabelsetBaseForm(forms.Form):
     Any Proposal form that needs to show labels, need to inherit this class.
     """
     def set_queries(self):
-        for labelset in self.edit_parent.labelsets:
-            labels_data = set(self.edit_obj.labels).intersection(set(labelset.labels))
-            data = labels_data.pop().name if len(labels_data) == 1 else [l.name for l in labels_data]
-            labelset_field = getattr(self, labelset.form_name)
-            if labelset_field.data == 'None' and data:
-                labelset_field.data = data
+        if self.edit_obj is not None:
+            # If it's an edit form, select the proper label for each labelset
+            for labelset in self.edit_parent.labelsets:
+                labels_data = set(self.edit_obj.labels).intersection(set(labelset.labels))
+                data = labels_data.pop().name if len(labels_data) == 1 else [l.name for l in labels_data]
+                labelset_field = getattr(self, labelset.form_name)
+                if labelset_field.data == 'None' and data:
+                    labelset_field.data = data
 
     def populate_obj_labels(self, proposal):
         """
@@ -117,9 +119,7 @@ def get_proposal_form(base_form_class, *args, **kwargs):
                     continue
                 FieldType = forms.RadioField if labelset.radio_mode else forms.SelectMultipleField
                 validators = [forms.validators.DataRequired()] if labelset.required else []
-                if 'obj' in kwargs:
-                    # Edit form
-                    choices = [(l.name, l.title) for l in labelset.labels]
+                choices = [(l.name, l.title) for l in labelset.labels]
                 setattr(base_form_class, ls_name, FieldType(labelset.title, validators=validators,
                     choices=choices, description=labelset.description))
     return base_form_class(*args, **kwargs)
