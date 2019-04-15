@@ -106,7 +106,8 @@ def get_proposal_form(base_form_class, *args, **kwargs):
     """
     Takes a proposal form class as base form and adds the labelset fields to it.
     Dynamic fields can only be added to the form class and not instance. Hence this.
-    Any form that has `obj=<proposal_object>` passed to it, can be used with this function.
+    Any form that has `obj=<proposal_object>` or `parent=<proposal_parent_obj>`
+    passed to it, can be used with this function.
     `parent` kwarg must be provided, otherwise the labelsets wont be added to the form.
     """
     if 'parent' in kwargs:
