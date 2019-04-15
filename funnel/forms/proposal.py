@@ -22,36 +22,40 @@ class ProposalLabelsetBaseForm(forms.Form):
     Any Proposal form that needs to show labels, need to inherit this class.
     """
     def set_queries(self):
-        if self.edit_obj is not None:
-            # If it's an edit form, select the proper label for each labelset
+        if self.edit_parent is not None:
+            # Fill up the choices for the labelsets
             for labelset in self.edit_parent.labelsets:
-                labels_data = set(self.edit_obj.labels).intersection(set(labelset.labels))
-                data = labels_data.pop().name if len(labels_data) == 1 else [l.name for l in labels_data]
                 labelset_field = getattr(self, labelset.form_name)
-                if labelset_field.data == 'None' and data:
-                    labelset_field.data = data
+                labelset_field.choices = [(l.name, l.title) for l in labelset.labels]
+                if self.edit_obj is not None:
+                    # If it's an edit form, select the proper label for each labelset
+                    labels_data = set(self.edit_obj.labels).intersection(set(labelset.labels))
+                    data = labels_data.pop().name if len(labels_data) == 1 else [l.name for l in labels_data]
+                    if labelset_field.data == 'None' and data:
+                        labelset_field.data = data
 
     def populate_obj_labels(self, proposal):
         """
         Assign the appropriate labels to the proposal
         """
-        for key in self.data.keys():
-            if key.startswith('labelset_'):
-                labelset = Labelset.query.filter_by(form_name=key, project=proposal.project).first()
+        labelset_keys = [key for key in self.data.keys() if key.startswith('labelset_')]
+        for key in labelset_keys:
+            labelset = Labelset.query.filter_by(form_name=key, project=proposal.project).first()
+            if labelset.radio_mode:
+                # in case of RadioField, self.data.get(key) should be a single value
+                new_label = Label.query.filter_by(labelset=labelset, name=self.data.get(key)).first()
+                proposal.assign_label(new_label)
+            else:
+                # FIXME: Move this part inside model?
                 existing_labels = set(labelset.labels).intersection(set(proposal.labels))
-                # in case of MultiSelectField, self.data.get(key) is a list
-                label_names = self.data.get(key) if isinstance(self.data.get(key), list) else [self.data.get(key)]
-                new_labels = [Label.query.filter_by(labelset=labelset, name=lname).first() for lname in label_names]
-                if labelset.radio_mode:
-                    for nlabel in new_labels:
-                        proposal.assign_label(nlabel)
-                else:
-                    # FIXME: Move this part inside model?
-                    removed_labels = existing_labels.difference(set(new_labels))
-                    for rlabel in removed_labels:
-                        proposal.labels.remove(rlabel)
-                    for nlabel in new_labels:
-                        proposal.assign_label(nlabel)
+                # in case of MultiSelectField, self.data.get(key) should be a list
+                label_names = self.data.get(key)
+                new_labels = Label.query.filter(Label.labelset == labelset, Label.name.in_(label_names)).all()
+                removed_labels = existing_labels.difference(set(new_labels))
+                for rlabel in removed_labels:
+                    proposal.labels.remove(rlabel)
+                for nlabel in new_labels:
+                    proposal.assign_label(nlabel)
 
 
 class ProposalForm(ProposalLabelsetBaseForm):
@@ -120,9 +124,8 @@ def get_proposal_form(base_form_class, *args, **kwargs):
                     continue
                 FieldType = forms.RadioField if labelset.radio_mode else forms.SelectMultipleField
                 validators = [forms.validators.DataRequired()] if labelset.required else []
-                choices = [(l.name, l.title) for l in labelset.labels]
                 setattr(base_form_class, ls_name, FieldType(labelset.title, validators=validators,
-                    choices=choices, description=labelset.description))
+                    choices=[], description=labelset.description))
     return base_form_class(*args, **kwargs)
 
 
