@@ -20,6 +20,8 @@ class ProjectViewMixin(object):
                     ProjectRedirect.name == project, Profile.name == profile
                 ).first_or_404()
             proj = projredir.project
+        if proj.state.DELETED:
+            abort(410)
         g.profile = proj.profile
         return proj
 
@@ -58,6 +60,8 @@ class ProposalViewMixin(object):
                     return redirect
                 else:
                     abort(404)
+        if proposal.project.state.DELETED or proposal.state.DELETED:
+            abort(410)
         return proposal
 
     def after_loader(self):
