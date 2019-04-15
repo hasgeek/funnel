@@ -102,7 +102,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @hybrid_property
     def required(self):
-        return self._required
+        return self._required if self.is_parent else False
 
     @required.setter
     def required(self, value):
