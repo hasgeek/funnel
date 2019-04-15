@@ -1011,6 +1011,11 @@ html.touch .collapsible__body--disable {
   border-radius: 20px;
   display: inline-block;
   margin: 0 10px 10px 0;
+  text-decoration: none;
+}
+
+.label:hover {
+  text-decoration: none;
 }
 
 .proposal-list-header {
