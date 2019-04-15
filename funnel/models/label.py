@@ -1,93 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import func
+from sqlalchemy.sql import exists
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.ext.hybrid import hybrid_property
-
-from coaster.sqlalchemy import with_roles
 
 from . import db, BaseScopedNameMixin
 from .project import Project
 from .proposal import Proposal
-
-
-class Labelset(BaseScopedNameMixin, db.Model):
-    """
-    A collection of labels, in checkbox mode (select multiple) or radio mode (select one). A project can
-    contain multiple labelsets.
-    """
-    __tablename__ = 'labelset'
-
-    project_id = db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
-    project = db.relationship(Project)  # Backref is defined in the Project model with an ordering list
-    parent = db.synonym('project')
-
-    labels = db.relationship('Label', cascade='all, delete-orphan',
-        order_by='Label.seq', collection_class=ordering_list('seq', count_from=1))
-
-    #: Sequence number for this labelset, used in UI for ordering
-    seq = db.Column(db.Integer, nullable=False)
-
-    # A single-line description of this labelset, shown when applying labels
-    description = db.Column(db.UnicodeText, nullable=False)
-
-    #: Radio mode specifies that only one of the labels in this set may be applied on a project
-    radio_mode = db.Column(db.Boolean, nullable=False, default=False)
-
-    #: Restricted mode specifies that labels in this set may only be applied by someone with
-    #: an editorial role (TODO: name the role)
-    restricted = db.Column(db.Boolean, nullable=False, default=False)
-
-    #: Required mode specifies that a label from this set must be applied on a proposal.
-    #: This is not foolproof and can be violated under a variety of conditions including
-    #: (a) this flag being set after a proposal is created, and (b) a proposal being moved
-    #: across projects
-    required = db.Column(db.Boolean, nullable=False, default=False)
-
-    #: Archived mode specifies that the labelset is no longer available for use
-    #: although all the previous records will stay in database.
-    archived = db.Column(db.Boolean, nullable=False, default=False)
-
-    __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
-
-    def __repr__(self):
-        return "<Labelset %s in %s>" % (self.name, self.project.name)
-
-    __roles__ = {
-        'all': {
-            'read': {
-                'name', 'title', 'project_id', 'seq', 'description', 'radio_code',
-                'restricted', 'required'
-            }
-        }
-    }
-
-    @hybrid_property
-    def form_name(self):
-        """
-        Generates a name to be used in forms when a field is created for this labelset
-        """
-        return 'labelset_' + self.name.replace('-', '_')
-
-    @form_name.expression
-    def form_name(cls):
-        return func.concat('labelset_', func.replace(cls.name, '-', '_'))
-
-    def roles_for(self, actor=None, anchors=()):
-        roles = super(Labelset, self).roles_for(actor, anchors)
-        roles.update(self.project.roles_for(actor, anchors))
-        return roles
-
-    @with_roles(call={'admin'})
-    def assign_label(self, label):
-        """
-        This function takes a Label object and links the labelset with it.
-        This function requires role control. Hence this function must be called
-        via ``current_access()``.
-
-        :param label: A Label instance
-        """
-        self.labels.append(label)
 
 
 proposal_label = db.Table(
@@ -101,30 +20,95 @@ proposal_label = db.Table(
 class Label(BaseScopedNameMixin, db.Model):
     __tablename__ = 'label'
 
-    labelset_id = db.Column(None, db.ForeignKey('labelset.id', ondelete='CASCADE'), nullable=False)
-    labelset = db.relationship(Labelset)
-    parent = db.synonym('labelset')
+    project_id = db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
+    project = db.relationship(Project)  # Backref is defined in the Project model with an ordering list
+    # `parent` is required for :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
+    parent = db.synonym('project')
 
-    #: Color code to be used in UI with this label
-    bgcolor = db.Column(db.Unicode(6), nullable=False, default=u"CCCCCC")
+    _parent_label_id = db.Column(
+        'parent_label_id',
+        None,
+        db.ForeignKey('label.id', ondelete='CASCADE', use_alter=True, name='label_parent_label_id_fkey'),
+        index=True,
+        nullable=True
+    )
+    # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
+    children = db.relationship(
+        'Label',
+        backref=db.backref('parent_label', remote_side='Label.id'),
+        order_by='Label.seq',
+        collection_class=ordering_list('seq', count_from=1)
+    )
+
+    # TODO: Add sqlalchemy validator for `parent_label` to ensure the parent's project matches.
+    # Ideally add a SQL post-update trigger as well (code is in coaster's add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
     seq = db.Column(db.Integer, nullable=False)
 
-    #: Icon for displaying in space-constrained UI. Contains emoji
-    icon_emoji = db.Column(db.Unicode(1), nullable=True)
+    # A single-line description of this label, shown when picking labels (optional)
+    description = db.Column(db.UnicodeText, nullable=False)
+
+    #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
+    #: Since emoji can be composed from multiple symbols, there is no length
+    #: limit imposed here
+    icon_emoji = db.Column(db.UnicodeText, nullable=True)
+
+    #: Restricted mode specifies that labels in this set may only be applied by someone with
+    #: an editorial role (TODO: name the role)
+    _restricted = db.Column('restricted', db.Boolean, nullable=False, default=False)
+
+    #: Required mode signals to UI that if this label is a parent, one of its
+    #: children must be mandatorily applied to the proposal. The value of this
+    #: field must be ignored if the label is not a parent
+    _required = db.Column('required', db.Boolean, nullable=False, default=False)
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    archived = db.Column(db.Boolean, nullable=False, default=False)
+    _archived = db.Column('archived', db.Boolean, nullable=False, default=False)
 
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, lazy='dynamic', backref='labels')
 
-    __table_args__ = (db.UniqueConstraint('labelset_id', 'name'),)
+    __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
-    def __repr__(self):
-        return "<Label %s/%s>" % (self.labelset.name, self.name)
+    __roles__ = {
+        'all': {
+            'read': {
+                'name', 'title', 'project_id', 'project', 'seq',
+                'restricted', 'required', 'archived'
+            }
+        }
+    }
+
+    @hybrid_property
+    def restricted(self):
+        return self.parent_label._restricted if self.parent_label else self._restricted
+
+    @hybrid_property
+    def archived(self):
+        return self._archived or self.parent_label._archived if self.parent_label else False
+
+    # TODO: setter and expression for :meth:`restricted`, :meth:`archived`
+
+    @hybrid_property
+    def is_parent(self):
+        return len(self.children) != 0
+
+    # TODO: Check whether this expression works
+    @is_parent.expression
+    def is_parent(cls):
+        return exists().where(Label._parent_label_id == cls.id)
+
+    @hybrid_property
+    def required(self):
+        return self._required
+
+    @required.setter
+    def required(self, value):
+        if value and not self.children:
+            raise ValueError("Label without children cannot be required")
+        self._required = value
 
     @property
     def icon(self):
@@ -140,3 +124,11 @@ class Label(BaseScopedNameMixin, db.Model):
             if len(result) <= 1:
                 result = self.title.strip()[:3]
         return result
+
+    def __repr__(self):
+        return "<Label %s/%s>" % (self.labelset.name, self.name)
+
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(Label, self).roles_for(actor, anchors)
+        roles.update(self.project.roles_for(actor, anchors))
+        return roles
