@@ -27,7 +27,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     #: Parent label's id. Do not write to this column directly, as we don't have the ability to
     #: validate the value within the app. Always use the :attr:`parent_label` relationship.
-    _parent_label_id = db.Column(
+    parent_label_id = db.Column(
         'parent_label_id',
         None,
         db.ForeignKey('label.id', ondelete='CASCADE'),
@@ -49,7 +49,7 @@ class Label(BaseScopedNameMixin, db.Model):
     seq = db.Column(db.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = db.Column(db.UnicodeText, nullable=False)
+    description = db.Column(db.UnicodeText, nullable=False, default=u"")
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
@@ -108,13 +108,10 @@ class Label(BaseScopedNameMixin, db.Model):
     def archived(cls):
         return cls._archived == True  # NOQA
 
-    # TODO: setter and expression for :meth:`restricted`, :meth:`archived`
-
     @hybrid_property
     def is_parent(self):
         return len(self.children) != 0
 
-    # TODO: Check whether this expression works
     @is_parent.expression
     def is_parent(cls):
         return exists().where(Label._parent_label_id == cls.id)
@@ -145,7 +142,10 @@ class Label(BaseScopedNameMixin, db.Model):
         return result
 
     def __repr__(self):
-        return "<Label %s/%s>" % (self.labelset.name, self.name)
+        if self.parent_label:
+            return "<Label %s/%s>" % (self.parent_label.name, self.name)
+        else:
+            return "<Label %s>" % self.name
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Label, self).roles_for(actor, anchors)

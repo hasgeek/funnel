@@ -4,10 +4,9 @@ from flask import Flask
 import pytest
 import uuid
 import coaster.app
-from coaster.auth import add_auth_attribute
 from flask_lastuser import Lastuser
 from flask_lastuser.sqlalchemy import UserManager
-from funnel.models import db, Profile, Project, User, Label, Labelset, Proposal, Team
+from funnel.models import db, Profile, Project, User, Label, Proposal, Team
 
 
 flask_app = Flask(__name__, instance_relative_config=True)
@@ -130,36 +129,42 @@ def new_project(test_db, new_profile, new_user, new_team):
 # so that changes made to the objects they return in one test function
 # doesn't affect another test function.
 
-@pytest.fixture(scope='function')
-def new_labelset(test_db, new_project):
-    labelset_a = Labelset(
-        title=u"Labelset A", project=new_project,
-        description=u"A test labelset", radio_mode=False,
-        restricted=False, required=False
-    )
-    new_project.labelsets.append(labelset_a)
-    test_db.session.add(labelset_a)
-    test_db.session.commit()
 
-    label_a1 = Label(
-        title=u"Label A1", icon_emoji=u"👍", labelset=labelset_a
+@pytest.fixture(scope='function')
+def new_parent_label(test_db, new_project):
+    parent_label_a = Label(
+        title=u"Parent Label A", project=new_project,
+        description=u"A test parent label"
     )
-    labelset_a.labels.append(label_a1)
+    new_project.labels.append(parent_label_a)
+    test_db.session.add(parent_label_a)
+
+    label_a1 = Label(title=u"Label A1", icon_emoji=u"👍", project=new_project)
     test_db.session.add(label_a1)
-    test_db.session.commit()
 
-    label_a2 = Label(
-        title=u"Label A2", labelset=labelset_a
-    )
-    labelset_a.labels.append(label_a2)
+    label_a2 = Label(title=u"Label A2", project=new_project)
     test_db.session.add(label_a2)
+
+    parent_label_a.children.append(label_a1)
+    parent_label_a.children.append(label_a2)
+    parent_label_a.required = True
+    parent_label_a.restricted = True
     test_db.session.commit()
 
-    return labelset_a
+    return parent_label_a
 
 
 @pytest.fixture(scope='function')
-def new_proposal(test_db, new_user, new_project, new_labelset):
+def new_label(test_db, new_project):
+    label_b = Label(title=u"Label B", icon_emoji=u"🔟", project=new_project)
+    new_project.labels.append(label_b)
+    test_db.session.add(label_b)
+    test_db.session.commit()
+    return label_b
+
+
+@pytest.fixture(scope='function')
+def new_proposal(test_db, new_user, new_project):
     proposal = Proposal(
         user=new_user, speaker=new_user, project=new_project,
         title=u"Test Proposal", description=u"Test proposal description",
