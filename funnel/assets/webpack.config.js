@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const nodeEnv = process.env.NODE_ENV || "production";
 const path = require('path');
 const cleanWebpackPlugin = require('clean-webpack-plugin');
+const {InjectManifest} = require('workbox-webpack-plugin');
 
 function ManifestPlugin(options){
   this.manifestPath = options.manifestPath ? options.manifestPath : 'build/manifest.json';
@@ -51,7 +52,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname,  "../static/build"),
-    publicPath: path.resolve(__dirname, "../static/build"),
+    publicPath: "/static/build/",
     filename:  "js/[name].[hash].js"
   },
   module: {
@@ -80,6 +81,11 @@ module.exports = {
       'process.env': { NODE_ENV: JSON.stringify(nodeEnv) }
     }),
     new cleanWebpackPlugin(['build'], {root: path.join(__dirname, '../static')}),
-    new ManifestPlugin({manifestPath: '../static/build/manifest.json'})
+    new ManifestPlugin({manifestPath: '../static/build/manifest.json'}),
+    new InjectManifest({
+      importWorkboxFrom: 'cdn',
+      swSrc: path.resolve(__dirname, "service-worker-template.js"),
+      swDest: path.resolve(__dirname, "../static/service-worker.js"),
+    })
   ]
 };
