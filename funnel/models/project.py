@@ -17,6 +17,7 @@ from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, Uui
 from .user import Team, User
 from .profile import Profile
 from .commentvote import Commentset, SET_TYPE, Voteset
+from .helper import RESERVED_NAMES
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
@@ -49,6 +50,7 @@ class SCHEDULE_STATE(LabeledEnum):
 
 class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'project'
+    reserved_names = RESERVED_NAMES
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
@@ -114,13 +116,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False)
 
-    admin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    admin_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     admin_team = db.relationship(Team, foreign_keys=[admin_team_id])
 
-    review_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    review_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     review_team = db.relationship(Team, foreign_keys=[review_team_id])
 
-    checkin_team_id = db.Column(None, db.ForeignKey('team.id'), nullable=True)
+    checkin_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     checkin_team = db.relationship(Team, foreign_keys=[checkin_team_id])
 
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)
@@ -206,11 +208,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
-        lambda project: db.session.query(project.proposals.exists()).scalar(), label=('has_proposals', __("Has Proposals")))
-    cfp_state.add_conditional_state('HAS_SESSIONS', cfp_state.EXISTS,
-        lambda project: db.session.query(project.sessions.exists()).scalar(), label=('has_sessions', __("Has Sessions")))
+    state.add_conditional_state('PAST', state.PUBLISHED,
+        lambda project: project.date_upto < datetime.now().date(),
+        label=('past', __("Past")))
+    state.add_conditional_state('UPCOMING', state.PUBLISHED,
+        lambda project: project.date_upto >= datetime.now().date(),
+        label=('upcoming', __("Upcoming")))
 
+    cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
+        lambda project: db.session.query(project.proposals.exists()).scalar(),
+        label=('has_proposals', __("Has Proposals")))
+    cfp_state.add_conditional_state('HAS_SESSIONS', cfp_state.EXISTS,
+        lambda project: db.session.query(project.sessions.exists()).scalar(),
+        label=('has_sessions', __("Has Sessions")))
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
         lambda project: project.instructions.html != '',
         lambda project: project.__table__.c.instructions_html != '',
@@ -220,17 +230,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at > db.func.utcnow(),
+        lambda project: db.and_(project.cfp_start_at is not None, project.cfp_start_at > db.func.utcnow()),
         label=('upcoming', __("Upcoming")))
     cfp_state.add_conditional_state('OPEN', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at <= datetime.utcnow() and (
             project.cfp_end_at is None or project.cfp_end_at > datetime.utcnow()),
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow() and (
-            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow()),
+        lambda project: db.and_(project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow(), (
+            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow())),
         label=('open', __("Open")))
     cfp_state.add_conditional_state('EXPIRED', cfp_state.PUBLIC,
         lambda project: project.cfp_end_at is not None and project.cfp_end_at <= datetime.utcnow(),
-        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= db.func.utcnow(),
+        lambda project: db.and_(project.cfp_end_at is not None, project.cfp_end_at <= db.func.utcnow()),
         label=('expired', __("Expired")))
 
     @with_roles(call={'admin'})
@@ -275,12 +285,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    @with_roles(call={'admin'})
-    @state.transition(
-        state.DELETABLE, state.DELETED, title=__("Delete project"),
-        message=__("The project has been deleted"), type='success')
-    def delete(self):
-        pass
+    # Removing Delete feature till we figure out siteadmin feature
+    # @with_roles(call={'admin'})
+    # @state.transition(
+    #     state.DELETABLE, state.DELETED, title=__("Delete project"),
+    #     message=__("The project has been deleted"), type='success')
+    # def delete(self):
+    #     pass
 
     @property
     def url_json(self):
@@ -440,25 +451,29 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return perms
 
     @classmethod
-    def all(cls):
+    def all_unsorted(cls, legacy=None):
+        """
+        Return currently active events, not sorted.
+        """
+        projects = cls.query.filter(cls.state.PUBLISHED)
+        if legacy is not None:
+            projects = projects.join(Profile).filter(Profile.legacy == legacy)
+        return projects
+
+    @classmethod
+    def all(cls, legacy=None):
         """
         Return currently active events, sorted by date.
         """
-        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.date.desc()).all()
+        return cls.all_unsorted(legacy).order_by(cls.date.desc())
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
-        # sorts the projects so that both new and old projects are sorted from closest to farthest
-        now = db.func.utcnow()
-        currently_listed_projects = cls.query.filter_by(parent_project=None).filter(
-            cls.state.PUBLISHED)
+        currently_listed_projects = cls.query.filter_by(parent_project=None).filter(cls.state.PUBLISHED)
         if legacy is not None:
             currently_listed_projects = currently_listed_projects.join(Profile).filter(Profile.legacy == legacy)
-        upcoming = currently_listed_projects.filter(cls.date >= now).order_by(cls.date.asc())
-        past = currently_listed_projects.filter(cls.date < now).order_by(cls.date.desc())
-
-        # union_all() because union() doesn't respect the orders mentioned in subqueries
-        return upcoming.union_all(past)
+        currently_listed_projects = currently_listed_projects.order_by(cls.date.desc())
+        return currently_listed_projects
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Project, self).roles_for(actor, anchors)

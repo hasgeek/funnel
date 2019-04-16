@@ -25,15 +25,21 @@
 
 {% block contentwrapper %}
 <div class="grid">
-  <div class="grid__col-xs-12 proposal-wrapper">
-
-    <div class="slider-btn slider-btn--left">
+  <div class="slider-btn-wrapper clearfix">
+    <div class="slider-btn {% if proposal.getnext() %} slider-btn--push-down {% endif %} mui--pull-left">
       {%- if proposal.getprev() -%}
-        <a href="{{ proposal.url_for('prev') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_left</i></a>
-      {%- else -%}
-        <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_left</i></button>
+        <p class="mui--text-title mui--text-light {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">Previous proposal</p>
+        <a href="{{ proposal.url_for('prev') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold"><i class="material-icons mui--text-light">arrow_back</i> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">{{ proposal.getprev().title }}</span></p></a>
       {%- endif -%}
     </div>
+    <div class="slider-btn slider-btn--right mui--pull-right">
+      {%- if proposal.getnext() -%}
+        <p class="mui--text-title mui--text-light mui--text-right">Next proposal</p>
+        <a href="{{ proposal.url_for('next') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold mui--text-right"><span class="truncate-title">{{ proposal.getnext().title }}</span> <i class="material-icons mui--text-light">arrow_forward</i></p></a>
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="grid__col-xs-12 proposal-wrapper">
 
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
       <div>
@@ -80,31 +86,35 @@
             </div>
           {% endif %}
         </div>
-        <div class="proposal-details proposal-details--right">
-          <div class="grid proposal-status-wrapper">
-            <div class="col-auto columns">
-              <p class="mui--text-body2 mui--text-light zero-bottom-margin">Technical level</p>
-              <p class="mui--text-title">{{ proposal.technical_level }}</p>
-            </div>
-            {%- if proposal.section %}
-            <div class="col-auto columns">
-              <p class="mui--text-body2 mui--text-light zero-bottom-margin">{% trans %}Section{% endtrans %}</p>
-              <p class="mui--text-title">{{ proposal.section.title }}</p>
-            </div>
-            {%- endif %}
-            {%- if proposal.session_type %}
-            <div class="col-auto columns">
-              <p class="mui--text-body2 mui--text-light zero-bottom-margin">{% trans %}Session type{% endtrans %}</p>
-              <p class="mui--text-title">{{ proposal.session_type }}</p>
-            </div>
-            {%- endif %}
-            <div class="col-auto columns">
-              <p class="mui--text-body2 mui--text-light zero-bottom-margin">Status</p>
+      </div>
+      <div class="proposal-details--talk">
+        <div class="grid">
+          <div class="grid__col-auto proposal-details--talk__box">
+            <p class="mui--text-body2 mui--text-light zero-bottom-margin">Technical level</p>
+            <p class="mui--text-title">{{ proposal.technical_level }}</p>
+          </div>
+          {%- if proposal.section %}
+          <div class="grid__col-auto proposal-details--talk__box mui--text-center">
+            <p class="mui--text-body2 mui--text-light zero-bottom-margin">{% trans %}Section{% endtrans %}</p>
+            <p class="mui--text-title">{{ proposal.section.title }}</p>
+          </div>
+          {%- endif %}
+          {%- if proposal.session_type %}
+          <div class="grid__col-auto proposal-details--talk__box mui--text-center">
+            <p class="mui--text-body2 mui--text-light zero-bottom-margin">{% trans %}Session type{% endtrans %}</p>
+            <p class="mui--text-title">{{ proposal.session_type }}</p>
+          </div>
+          {%- endif %}
+          <div class="grid__col-auto proposal-details--talk__box mui--text-center">
+            <p class="mui--text-body2 mui--text-light zero-bottom-margin">Status</p>
+            {%- if project.current_roles.admin %}
+              <p class="mui--text-title zero-bottom-margin">{{ proposal.state.label.title }}</p>
+            {%- else %}
               <p class="mui--text-title zero-bottom-margin">{% if proposal.state.CONFIRMED %}{{ proposal.state.label.title }}{% else %}{% trans %}Submitted{% endtrans %}{% endif %}</p>
-              {% if proposal.state.SCHEDULED %}
-                <p><a class="" href="{{ proposal.session.url_for() }}">View proposal in schedule</a></p>
-              {% endif %}
-            </div>
+            {% endif %}
+            {% if proposal.state.SCHEDULED %}
+              <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">View proposal in schedule</a></p>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -286,14 +296,6 @@
         </form>
       {% endif %}
     </section>
-
-    <div class="slider-btn slider-btn--right">
-      {%- if proposal.getnext() -%}
-        <a href="{{ proposal.url_for('next') }}" class="mui-btn mui-btn--dark" rel="nofollow"><i class="material-icons">chevron_right</i></a>
-      {%- else -%}
-        <button class="mui-btn mui-btn--dark" disabled><i class="material-icons">chevron_right</i></button>
-      {%- endif -%}
-    </div>
   </div>
 
 </div>

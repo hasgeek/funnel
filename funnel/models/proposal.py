@@ -313,12 +313,12 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     def getnext(self):
         return Proposal.query.filter(Proposal.project == self.project).filter(
-            Proposal.id != self.id).filter(
+            Proposal.id != self.id).filter(Proposal._state == self.state.value).filter(
                 Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
 
     def getprev(self):
         return Proposal.query.filter(Proposal.project == self.project).filter(
-            Proposal.id != self.id).filter(
+            Proposal.id != self.id).filter(Proposal._state == self.state.value).filter(
                 Proposal.created_at > self.created_at).order_by('created_at').first()
 
     def votes_count(self):

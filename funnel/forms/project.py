@@ -41,21 +41,21 @@ class ProjectForm(forms.Form):
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     description = forms.MarkdownField(__("Project description"), validators=[forms.validators.DataRequired()],
-        description=__("About Event"))
+        description=__("About the project"))
     timezone = forms.SelectField(__("Timezone"),
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()], choices=sorted_timezones(), default=u'UTC')
-    bg_image = forms.URLField(__("Background image URL"), description=u"Background image for the mobile app",
+    bg_image = forms.URLField(__("Banner image URL"), description=u"Banner image for project cards on the homepage",
         validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     bg_color = forms.StringField(__("Background color"),
-        description=__("RGB color for the event, shown on the mobile app. Enter without the '#'. E.g. CCCCCC."),
+        description=__("RGB color for the project. Enter without the '#'. E.g. CCCCCC."),
         validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
         default=u"CCCCCC")
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     parent_project = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
@@ -70,7 +70,7 @@ class ProjectForm(forms.Form):
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
     buy_tickets_url = forms.URLField(__("URL to buy tickets"),
         description=__(u"Eg: Explara, Instamojo"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)])
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
 
     def set_queries(self):
         profile_teams = self.edit_parent.teams

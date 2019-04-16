@@ -30,8 +30,20 @@ $(() => {
 
   // Send click events to Google analytics
   $('.mui-btn, a').click(function gaHandler() {
-    var action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
-    var target = $(this).attr('href') || '';
+    let action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();
+    let target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
+  });
+
+  $('.clickable-card').click(function openPage(event) {
+    event.preventDefault();
+    window.location = $(this).data('href');
+  });
+
+  $('.js-show-cfp-projects').click(function showAll(event) {
+    event.preventDefault();
+    let projectElemClass = `.${$(this).data('projects')}`;
+    $(projectElemClass).removeClass('mui--hide');
+    $(this).addClass('mui--hide');
   });
 });

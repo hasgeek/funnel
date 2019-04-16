@@ -20,6 +20,10 @@
   display: block;
 }
 
+.no-js .js-lazyload-img {
+  display: none;
+}
+
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -149,7 +153,7 @@ html.touch .collapsible__body--disable {
     order: 1;
   }
 }
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 1024px) {
   .fb_iframe_widget {
     overflow-y: scroll;
     width: 100%;
@@ -201,6 +205,32 @@ html.touch .collapsible__body--disable {
   vertical-align: middle;
 }
 
+.past-events-table {
+  border-collapse: collapse;
+}
+.past-events-table > thead > tr > th {
+  padding: 1em;
+}
+
+.footer--homepage {
+  margin-top: 0;
+}
+
+.floating-btn-wrapper {
+  position: fixed;
+  text-align: right;
+  width: 100%;
+  z-index: 1000;
+  margin: auto;
+  left: 0;
+  right: 0;
+}
+
+.create-floating-btn {
+  font-size: 24px;
+  margin-top: -30px;
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
@@ -232,6 +262,8 @@ html.touch .collapsible__body--disable {
 }
 .hg-banner {
   padding-top: 2em;
+  padding-bottom: 2em;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 .logo-wrapper {
@@ -251,10 +283,6 @@ html.touch .collapsible__body--disable {
 }
 .hg-banner .s3 {
   color: #f0a40c;
-}
-
-.projects {
-  padding-top: 15px;
 }
 
 .banner {
@@ -359,6 +387,21 @@ html.touch .collapsible__body--disable {
     max-width: 1170px;
   }
 }
+.projects-wrapper {
+  padding: 2em 0;
+}
+
+.projects {
+  padding-top: 1em;
+}
+
+.chip--new {
+  background-color: #F6E2C5;
+  padding: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 .clickable-card {
   color: #1F2D3D;
   display: block;
@@ -376,6 +419,11 @@ html.touch .collapsible__body--disable {
 .card__image-wrapper {
   min-height: 126px;
   position: relative;
+  margin-bottom: 8px;
+}
+
+.card__image-wrapper img {
+  display: block;
 }
 
 .card__image--default {
@@ -398,6 +446,53 @@ html.touch .collapsible__body--disable {
     font-size: 24px;
   }
 }
+.card--upcoming {
+  display: block;
+  cursor: default;
+  width: 100%;
+}
+.card--upcoming .card__title__heading {
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 32px;
+}
+
+@media (min-width: 1200px) {
+  .card--upcoming {
+    display: flex;
+    box-shadow: none;
+  }
+  .card--upcoming .card__title__heading {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+  }
+  .card--upcoming .card__image-wrapper,
+  .card--upcoming .card__image--default {
+    width: 530px;
+  }
+  .card--upcoming .card__image-wrapper a {
+    display: block;
+    width: 530px;
+  }
+  .card--upcoming .card__body {
+    padding: 1em 2em;
+  }
+}
+.card__image--new {
+  background-color: #82698D;
+}
+.card__image--new .card__image__tagline {
+  font-size: 65px;
+  color: #fff;
+  border: 2px dotted #A890AF;
+  width: 66px;
+  padding: 16px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .profile-details {
   display: flex;
   align-items: center;
@@ -427,10 +522,6 @@ html.touch .collapsible__body--disable {
     max-width: calc(100% - 15% - 20px);
   }
 }
-.projects {
-  padding-top: 15px;
-}
-
 .section-bottom-border {
   border-bottom: 2px solid rgba(132, 146, 166, 0.3);
 }
@@ -613,46 +704,45 @@ html.touch .collapsible__body--disable {
   position: relative;
 }
 
-.slider-btn {
-  position: absolute;
-  top: 5px;
-  z-index: 2;
+.slider-btn-wrapper {
+  width: 100%;
 }
 
-.slider-btn .mui-btn {
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 50%;
-  padding: 0;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+.slider-btn a {
+  display: block;
+  width: 100%;
 }
 
-.slider-btn .material-icons {
-  font-weight: 400;
-  font-size: 40px;
-  line-height: 40px;
+.slider-btn a:hover {
+  text-decoration: none;
 }
 
-.slider-btn--left {
-  left: 0;
+.slider-btn--push-down {
+  position: relative;
+  top: 40px;
 }
 
 .slider-btn--right {
-  right: 0;
+  width: 90%;
 }
 
-.proposal__section__headline {
-  margin-top: 40px;
+.truncate-title {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 70%;
+  display: inline-block;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
-  .slider-btn--left {
-    left: -15px;
+  .slider-btn--push-down {
+    position: relative;
+    top: 0;
+    width: 50%;
   }
 
   .slider-btn--right {
-    right: -15px;
+    width: 50%;
   }
 }
 @media (min-width: 1300px) {
@@ -660,26 +750,10 @@ html.touch .collapsible__body--disable {
     margin-bottom: 15px;
   }
 
-  .slider-btn {
-    top: 50px;
-  }
-
-  .slider-btn--left {
-    left: -80px;
-  }
-
-  .slider-btn--right {
-    right: -80px;
-  }
-
   .proposal__section__headline {
     margin-top: 0px;
   }
 }
-.proposal-status-wrapper {
-  margin: 0 0 0.5em;
-}
-
 .proposal__section {
   padding: 1em;
   overflow-wrap: break-word;
@@ -697,15 +771,15 @@ html.touch .collapsible__body--disable {
 @media (min-width: 992px) {
   .proposal__section--left {
     float: left;
-    width: 70%;
+    width: calc(70% - 15px);
     padding-bottom: 2em;
   }
 
   .proposal__admin-panel {
     float: right;
-    width: calc(30% - 2em);
-    margin-right: 1em;
-    margin-top: 2em;
+    width: calc(30% - 15px);
+    margin-right: 15px;
+    margin-top: 30px;
   }
 }
 .proposal__section--bleed-y {
@@ -751,6 +825,18 @@ html.touch .collapsible__body--disable {
   color: #8492A6;
 }
 
+.proposal-details--talk {
+  margin-top: 30px;
+  border-top: 1px solid rgba(132, 146, 166, 0.3);
+  padding-top: 15px;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.proposal-details--talk__box {
+  min-width: 160px;
+}
+
 @media (min-width: 992px) {
   .proposal-video {
     min-width: 300px;
@@ -764,9 +850,16 @@ html.touch .collapsible__body--disable {
     float: left;
   }
 
-  .proposal-details--right {
-    float: right;
+  .proposal-video {
     max-width: 50%;
+  }
+
+  .proposal-details--talk__box {
+    border-right: solid 1px #e3e3e3;
+  }
+
+  .proposal-details--talk__box:last-child {
+    border-right: 0;
   }
 }
 @media (min-width: 1200px) {
@@ -881,7 +974,7 @@ html.touch .collapsible__body--disable {
   vertical-align: top;
   width: 20px;
   text-align: center;
-  margin-top: 2px;
+  margin-top: -4px;
   margin-right: 5px;
 }
 
@@ -892,7 +985,7 @@ html.touch .collapsible__body--disable {
 }
 
 .comment--content {
-  width: 90%;
+  width: calc(90% - 30px);
 }
 
 .comment--content img {

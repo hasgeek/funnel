@@ -1,9 +1,9 @@
 import pytest
 from funnel import app as hasgeekapp, db
-from funnel.models import Profile
+from funnel.models import Profile, Project, User
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def test_client():
     flask_app = hasgeekapp
 
@@ -21,14 +21,24 @@ def test_client():
     ctx.pop()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def test_db():
     # Create the database and the database table
     db.create_all()
 
     yield db  # this is where the testing happens!
 
+    db.session.rollback()
+    db.session.remove()
     db.drop_all()
+
+
+@pytest.fixture(scope='module')
+def new_user(test_db):
+    user = User(username=u"testuser", email=u"test@example.com")
+    test_db.session.add(user)
+    test_db.session.commit()
+    return user
 
 
 @pytest.fixture(scope='module')
@@ -37,3 +47,13 @@ def new_profile(test_db):
     test_db.session.add(profile)
     test_db.session.commit()
     return profile
+
+
+@pytest.fixture(scope='module')
+def new_project(test_db, new_profile, new_user):
+    project = Project(
+        profile=new_profile, user=new_user, title=u"Test Project",
+        tagline=u"Test tagline", description=u"Test description")
+    test_db.session.add(project)
+    test_db.session.commit()
+    return project
