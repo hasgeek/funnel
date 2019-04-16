@@ -85,9 +85,25 @@ class Label(BaseScopedNameMixin, db.Model):
     def restricted(self):
         return self.parent_label._restricted if self.parent_label else self._restricted
 
+    @restricted.setter
+    def restricted(self, value):
+        self._restricted = value
+
+    @restricted.expression
+    def restricted(cls):
+        return cls._restricted == True  # NOQA
+
     @hybrid_property
     def archived(self):
         return self._archived or self.parent_label._archived if self.parent_label else False
+
+    @archived.setter
+    def archived(self, value):
+        self._archived = value
+
+    @archived.expression
+    def archived(cls):
+        return cls._archived == True  # NOQA
 
     # TODO: setter and expression for :meth:`restricted`, :meth:`archived`
 
