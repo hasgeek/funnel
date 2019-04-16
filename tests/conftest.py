@@ -124,13 +124,8 @@ def new_project(test_db, new_profile, new_user, new_team):
     test_db.session.commit()
     return project
 
-# Scope: function
-# These fixtures are run before every test function,
-# so that changes made to the objects they return in one test function
-# doesn't affect another test function.
 
-
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='session')
 def new_parent_label(test_db, new_project):
     parent_label_a = Label(
         title=u"Parent Label A", project=new_project,
@@ -152,6 +147,11 @@ def new_parent_label(test_db, new_project):
     test_db.session.commit()
 
     return parent_label_a
+
+# Scope: function
+# These fixtures are run before every test function,
+# so that changes made to the objects they return in one test function
+# doesn't affect another test function.
 
 
 @pytest.fixture(scope='function')

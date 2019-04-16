@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.sql import exists
+from sqlalchemy.sql import case, exists
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -90,11 +90,15 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @restricted.setter
     def restricted(self, value):
+        if self.parent_label:
+            raise ValueError("Cannot restrict a child label")
         self._restricted = value
 
     @restricted.expression
     def restricted(cls):
-        return cls._restricted == True  # NOQA
+        return case([
+            (cls.parent_label_id != None, db.select([Label._restricted]).where(Label.id == cls.parent_label_id).as_scalar())  # NOQA
+        ], else_=cls._restricted)
 
     @hybrid_property
     def archived(self):
@@ -102,11 +106,15 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @archived.setter
     def archived(self, value):
+        if self.parent_label:
+            raise ValueError("Cannot archive a child label")
         self._archived = value
 
     @archived.expression
     def archived(cls):
-        return cls._archived == True  # NOQA
+        return case([
+            (cls.parent_label_id != None, db.select([Label._archived]).where(Label.id == cls.parent_label_id).as_scalar())  # NOQA
+        ], else_=cls._archived)
 
     @hybrid_property
     def is_parent(self):
@@ -125,6 +133,12 @@ class Label(BaseScopedNameMixin, db.Model):
         if value and not self.is_parent:
             raise ValueError("Label without children cannot be required")
         self._required = value
+
+    @archived.expression
+    def archived(cls):
+        return case([
+            (cls.parent_label_id != None, db.select([Label._required]).where(Label.id == cls.parent_label_id).as_scalar())  # NOQA
+        ], else_=cls._required)
 
     @property
     def icon(self):

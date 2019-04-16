@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+from funnel.models import Label
 
 
 class TestLabels(object):
@@ -43,3 +44,8 @@ class TestLabels(object):
         # label_a2 will replace label_a1
         assert label_a1 not in new_proposal.labels
         assert label_a2 in new_proposal.labels
+
+    def test_label_flags(self, new_parent_label, new_label):
+        restricted_labels = Label.query.filter(Label.restricted == True).all()
+        assert new_parent_label in restricted_labels
+        assert new_label not in restricted_labels
