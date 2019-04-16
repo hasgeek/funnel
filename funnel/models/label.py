@@ -30,7 +30,7 @@ class Label(BaseScopedNameMixin, db.Model):
     _parent_label_id = db.Column(
         'parent_label_id',
         None,
-        db.ForeignKey('label.id', ondelete='CASCADE', use_alter=True, name='label_parent_label_id_fkey'),
+        db.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True
     )
