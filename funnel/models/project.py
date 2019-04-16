@@ -128,7 +128,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)
     parent_project = db.relationship('Project', remote_side='Project.id', backref='subprojects')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
-    labels = db.Column(JsonDict, nullable=False, server_default='{}')
+    part_labels = db.Column('labels', JsonDict, nullable=False, server_default='{}')
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
@@ -358,11 +358,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def proposal_part_a(self):
-        return self.labels.get('proposal', {}).get('part_a', {})
+        return self.part_labels.get('proposal', {}).get('part_a', {})
 
     @property
     def proposal_part_b(self):
-        return self.labels.get('proposal', {}).get('part_b', {})
+        return self.part_labels.get('proposal', {}).get('part_b', {})
 
     def set_labels(self, value=None):
         """
@@ -373,9 +373,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         are allowed to be customized per project.
         """
         if value and isinstance(value, dict):
-            self.labels = value
+            self.part_labels = value
         else:
-            self.labels = {
+            self.part_labels = {
                 "proposal": {
                     "part_a": {
                         "title": "Abstract",
