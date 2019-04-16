@@ -334,6 +334,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'vote_proposal',
                 'new_comment',
                 'vote_comment',
+                'edit-proposal'
                 ])
             if user == self.owner:
                 perms.update([
@@ -364,14 +365,17 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         """
         if label in self.labels:
             return
-        if label.labelset.radio_mode:
-            existing_labels = set(label.labelset.labels).intersection(set(self.labels))
+        if label.is_parent:
+            raise ValueError("Parent labels cannot be assigned to a proposal")
+
+        if label.parent_label is not None:
+            existing_labels = set(label.parent_label.children).intersection(set(self.labels))
             if existing_labels:
                 # the labelset is in radio mode and one of it's labels are
                 # already assigned to this proposal. We need to
                 # remove the older label and assign given label.
-                existing_label = existing_labels.pop()
-                self.labels.remove(existing_label)
+                for elabel in existing_labels:
+                    self.labels.remove(elabel)
         # labelset is not in radio mode, so we can assign label to proposal
         self.labels.append(label)
 
