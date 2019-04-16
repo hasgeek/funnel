@@ -7,7 +7,7 @@ from baseframe.forms import render_delete_sqla, render_form
 
 from .. import app, funnelapp, lastuser
 from ..models import Label, db, Project, Profile
-from ..forms import LabelsetForm, LabelForm
+from ..forms import LabelForm
 from .mixins import ProjectViewMixin
 from .decorators import legacy_redirect
 
@@ -20,12 +20,12 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @render_with('labels.html.jinja2')
     @lastuser.requires_login
     @requires_permission('edit_project')
-    def labelsets(self):
-        return dict(project=self.obj, labelsets=self.obj.labelsets)
+    def labels(self):
+        return dict(project=self.obj, labels=self.obj.labels)
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('new_labelset')
+    @requires_permission('admin')
     def new_label(self):
         pass
 
@@ -64,7 +64,7 @@ class LabelView(UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your label has been edited"), 'info')
-            return redirect(self.obj.project.url_for('labelsets'), code=303)
+            return redirect(self.obj.project.url_for('labels'), code=303)
         return render_form(form=form, title=_("Edit label"), submit=_("Save changes"))
 
 
