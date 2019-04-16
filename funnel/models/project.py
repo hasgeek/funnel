@@ -429,7 +429,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant',
-                    'new_labelset'
                 ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
@@ -489,17 +488,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             roles.add('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
-
-    @with_roles(call={'admin'})
-    def assign_labelset(self, labelset):
-        """
-        This function takes a Labelset object and links the project with it.
-        This function requires role control. Hence this function must be called
-        via ``current_access()``.
-
-        :param labelset: A Labelset instance
-        """
-        self.labelsets.append(labelset)
 
 
 Profile.listed_projects = db.relationship(

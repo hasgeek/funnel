@@ -371,12 +371,12 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if label.parent_label is not None:
             existing_labels = set(label.parent_label.children).intersection(set(self.labels))
             if existing_labels:
-                # the labelset is in radio mode and one of it's labels are
+                # the parent label is in radio mode and one of it's labels are
                 # already assigned to this proposal. We need to
                 # remove the older label and assign given label.
                 for elabel in existing_labels:
                     self.labels.remove(elabel)
-        # labelset is not in radio mode, so we can assign label to proposal
+        # label is not in radio mode, so we can assign label to proposal
         self.labels.append(label)
 
 
