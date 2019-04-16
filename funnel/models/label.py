@@ -25,10 +25,12 @@ class Label(BaseScopedNameMixin, db.Model):
     # `parent` is required for :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
     parent = db.synonym('project')
 
+    #: Parent label's id. Do not write to this column directly, as we don't have the ability to
+    #: validate the value within the app. Always use the :attr:`parent_label` relationship.
     _parent_label_id = db.Column(
         'parent_label_id',
         None,
-        db.ForeignKey('label.id', ondelete='CASCADE', use_alter=True, name='label_parent_label_id_fkey'),
+        db.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True
     )
@@ -54,8 +56,9 @@ class Label(BaseScopedNameMixin, db.Model):
     #: limit imposed here
     icon_emoji = db.Column(db.UnicodeText, nullable=True)
 
-    #: Restricted mode specifies that labels in this set may only be applied by someone with
-    #: an editorial role (TODO: name the role)
+    #: Restricted mode specifies that this label may only be applied by someone with
+    #: an editorial role (TODO: name the role). If this label is a parent, it applies
+    #: to all its children
     _restricted = db.Column('restricted', db.Boolean, nullable=False, default=False)
 
     #: Required mode signals to UI that if this label is a parent, one of its
