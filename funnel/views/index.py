@@ -2,7 +2,7 @@
 
 import os.path
 from datetime import datetime
-from flask import g, render_template, redirect, jsonify
+from flask import g, render_template, redirect, jsonify, Response
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp, pages
 from ..models import Project, Proposal
@@ -98,3 +98,18 @@ def proposal_redirect(proposal):
 @app.route('/about/<path:path>')
 def about(path):
     return render_template('about.html.jinja2', page=pages.get_or_404(os.path.join('about', path)))
+
+
+@app.route('/api/1/template/offline')
+def offline():
+    return render_template('offline.html.jinja2')
+
+
+@app.route('/service-worker.js', methods=['GET'])
+def sw():
+    return app.send_static_file('service-worker.js')
+
+
+@app.route('/manifest.json', methods=['GET'])
+def manifest():
+    return Response(render_template('manifest.json.jinja2'), mimetype='application/json')
