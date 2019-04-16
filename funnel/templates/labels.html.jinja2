@@ -39,7 +39,7 @@
       </div>
     {%- endfor %}
     <div class="grid__col-xs-12 grid__col-sm-4">
-      <div class="clickable-card card" data-href="{{ project.url_for('new_labelset') }}" title="New labelset">
+      <div class="clickable-card card" data-href="{{ project.url_for('new_label') }}" title="New labelset">
         <div class="card__image-wrapper">
           <div class="card__image--default card__image--new">
             <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
@@ -51,7 +51,7 @@
 <!--           <h4 class="mui--text-caption card__title__heading">Write, collaborate and get feedback.</h4> -->
         </div>
         <div class="card__footer">
-          <a href="{{ project.url_for('new_labelset') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="New labelset" data-action="New labelset">Add</a>
+          <a href="{{ project.url_for('new_label') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="New labelset" data-action="New labelset">Add</a>
         </div>
       </div>
     </div>

@@ -18,6 +18,7 @@ def upgrade():
     op.create_table('label',
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.Column('project_id', sa.Integer(), nullable=False),
         sa.Column('parent_label_id', sa.Integer(), nullable=False),
         sa.Column('seq', sa.Integer(), nullable=False),
         sa.Column('description', sa.UnicodeText(), nullable=False),
@@ -30,6 +31,7 @@ def upgrade():
         sa.Column('title', sa.Unicode(length=250), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['parent_label_id'], ['label.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('parent_label_id', 'name')
     )

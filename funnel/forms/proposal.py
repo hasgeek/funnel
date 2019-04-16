@@ -15,10 +15,10 @@ class TransferProposal(forms.Form):
 
 
 class ProposalLabelsForm(forms.Form):
-    labels = QuerySelectMultipleField(__("Labels"), get_label='title', get_pk=lambda l: l.name)
+    labels = forms.SelectMultipleField(__("Labels"))
 
     def set_queries(self):
-        self.labels.query = self.edit_parent.labels
+        self.labels.choices = [(l.name, l.title) for l in self.edit_parent.labels]
 
 
 class ProposalForm(forms.Form):
@@ -56,7 +56,7 @@ class ProposalForm(forms.Form):
     location = forms.StringField(__("Your location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         description=__("Your location, to help plan for your travel if required"))
 
-    labels = QuerySelectMultipleField(__("Labels"), get_label='title', get_pk=lambda l: l.name)
+    labels = forms.SelectMultipleField(__("Labels"))
 
     def __init__(self, *args, **kwargs):
         super(ProposalForm, self).__init__(*args, **kwargs)
@@ -71,7 +71,7 @@ class ProposalForm(forms.Form):
             self.description.description = project.proposal_part_b.get('hint')
 
     def set_queries(self):
-        self.labels.query = self.edit_parent.labels
+        self.labels.choices = [(l.name, l.title) for l in self.edit_parent.labels]
 
 
 class ProposalTransitionForm(forms.Form):
