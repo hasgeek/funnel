@@ -4,7 +4,6 @@ from datetime import datetime
 from bleach import linkify
 
 from flask import g, redirect, request, Markup, abort, flash, escape
-from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
 from coaster.auth import current_auth
@@ -12,9 +11,9 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Section, Proposal, Comment, Label, Labelset
-from ..forms import (ProposalForm, CommentForm, DeleteCommentForm, ProposalLabelsetBaseForm,
-    ProposalTransitionForm, ProposalMoveForm, get_proposal_form)
+from ..models import db, Proposal, Comment
+from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
+    ProposalTransitionForm, ProposalMoveForm, ProposalLabelsForm)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
 
@@ -94,7 +93,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     @lastuser.requires_login
     @requires_permission('new-proposal')
     def new_proposal(self):
-        form = get_proposal_form(ProposalForm, model=Proposal, parent=self.obj)
+        form = ProposalForm(model=Proposal, parent=self.obj)
         if request.method == 'GET':
             form.email.data = g.user.email
             form.phone.data = g.user.phone
@@ -168,7 +167,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit-proposal')
     def edit(self):
-        form = get_proposal_form(ProposalForm, obj=self.obj.formdata, model=Proposal, parent=self.obj.project)
+        form = ProposalForm(obj=self.obj.formdata, model=Proposal, parent=self.obj.project)
         if self.obj.user != g.user:
             del form.speaking
         if form.validate_on_submit():
@@ -256,7 +255,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def edit_labels(self):
-        form = get_proposal_form(ProposalLabelsetBaseForm, obj=self.obj, parent=self.obj.project)
+        form = ProposalLabelsForm(model=Proposal, obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
             form.populate_obj_labels(self.obj)
             db.session.commit()
