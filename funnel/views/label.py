@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, g, render_template
+from flask import flash, redirect, g, render_template, request
 from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
 
 from .. import app, funnelapp, lastuser
 from ..models import Label, db, Project, Profile
-from ..forms import LabelForm
+from ..forms import LabelForm, SublabelForm
 from .mixins import ProjectViewMixin
 from .decorators import legacy_redirect
 
@@ -27,10 +27,38 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def new_label(self):
-        form = LabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
-        # return jsonify(
-            # title="Add label",
-            # form=render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj))
+        form = LabelForm(model=Label, parent=self.obj.parent)
+        if form.validate_on_submit():
+            # This form can send one or multiple values for title and icon_emoji.
+            # If the label doesn't have any sublabel, one value is sent for each list,
+            # and those values are also available at `form.data`.
+            # But in case there are sublabels, the sublabel values are in the list
+            # in the order they appeared on the create form.
+            titlelist = request.values.getlist('title')
+            emojilist = request.values.getlist('icon_emoji')
+            # first values of both lists belong to the parent label
+            titlelist.pop(0)
+            emojilist.pop(0)
+
+            label = Label(project=self.obj)
+            form.populate_obj(label)
+            self.obj.labels.append(label)
+            db.session.add(label)
+
+            for idx, title in enumerate(titlelist):
+                subform = SublabelForm(title=titlelist[idx], icon_emoji=emojilist[idx])
+                if not subform.validate():
+                    flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
+                    return render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj)
+                else:
+                    subl = Label(project=self.obj)
+                    subform.populate_obj(subl)
+                    db.session.add(subl)
+                    label.children.append(subl)
+
+            import ipdb; ipdb.set_trace()
+            db.session.commit()
+            return redirect(self.obj.url_for('labels'), code=303)
         return render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj)
 
 

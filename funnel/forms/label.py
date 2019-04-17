@@ -4,7 +4,7 @@ from baseframe import __
 import baseframe.forms as forms
 from .project import valid_color_re
 
-__all__ = ['LabelForm']
+__all__ = ['LabelForm', 'SublabelForm']
 
 
 class LabelForm(forms.Form):
@@ -20,3 +20,11 @@ class LabelForm(forms.Form):
     def validate_bgcolor(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
+
+
+class SublabelForm(forms.Form):
+    title = forms.StringField(__("Name"), description=__("Name of the label"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
+    icon_emoji = forms.StringField(__("Icon/Emoji"),
+        validators=[forms.validators.Length(max=2)],
+        description=__("Emoji to be used for this label for space constrained UI"))
