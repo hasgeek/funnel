@@ -1,0 +1,95 @@
+{% extends "formlayout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderfield, rendersubmit, ajaxform %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block pageheaders %}
+{% endblock %}
+
+{% macro labelformfields(forms) %}
+  {{ renderfield(form.title, autofocus=true) }}
+  {%- for error in form.title.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+  {{ renderfield(form.description) }}
+  {%- for error in form.description.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+  {{ renderfield(form.bgcolor) }}
+  {%- for error in form.bgcolor.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+  {{ renderfield(form.icon_emoji) }}
+  {%- for error in form.icon_emoji.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+  {{ renderfield(form.required) }}
+  {%- for error in form.required.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+  {{ renderfield(form.restricted) }}
+  {%- for error in form.restricted.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+{% endmacro %}
+
+{% block content %}
+  {%- if form.errors %}
+    <div class="alert alert--error alert--dismissable">
+      <a class="alert__close" href="javascript:void(0);" aria-label="close"><i class="material-icons">clear</i></a>
+      <p class="alert__text"><i class="material-icons alert__icon">error</i>{% trans %}Please review the indicated issues{% endtrans %}</p>
+    </div>
+  {%- endif %}
+  {%- if message %}
+    <p class="form-message">{{ message }}</p>
+  {%- endif %}
+  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form">
+    {{ form.hidden_tag() }}
+    {{ labelformfields(form) }}
+    <div id="inner-forms"></div>
+    <p><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-label-btn">+ Add label</button></p>
+    <div class="mui-form form-actions clearfix">
+      <div>
+        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
+        <span class="loading mui--hide"></span>
+      </div>
+    </div>
+  </form>
+  <div id="child-label-form" class="modal">
+    <div class="modal__header">
+      <a class="modal__close" href="javascript:void(0);" aria-label="close" rel="modal:close"><i class="material-icons">clear</i></a>
+      <h3 class="js-modal-title session-modal__title">Add label</h3>
+    </div>
+    <hr class="mui-divider mui-divider--custom">
+    <div class="js-modal-inner">
+      <div class="mui-form mui-form--margins hg-form">
+        <div id="child-form"></div>
+        <div class="mui-form form-actions clearfix">
+          <div>
+            <button class="mui-btn mui-btn--raised mui-btn--primary" id="add-child-label">Add label</button>
+            <span class="loading mui--hide"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script type="text/javascript">
+    $(function() {
+      $('#add-label-btn').click(function(event) {
+        event.preventDefault();
+        var formHtml = {{ labelformfields(form)|tojson|safe }};
+        $('#child-form').html(formHtml);
+        $('#child-label-form').modal();
+        activate_widgets();
+      });
+      $('#add-child-label').click(function(event) {
+        event.preventDefault();
+        $.modal.close();
+        $('#inner-forms').append($('#child-form').html());
+      });
+    });
+  </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+{% endblock %}
