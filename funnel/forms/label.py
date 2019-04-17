@@ -8,11 +8,10 @@ __all__ = ['LabelForm']
 
 
 class LabelForm(forms.Form):
-    title = forms.StringField(__("Name"), description=__("Name of the label"),
+    title = forms.StringField(__("Title"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
-    icon_emoji = forms.StringField(__("Icon/Emoji"),
-        validators=[forms.validators.Length(max=2)],
-        description=__("Emoji to be used for this label for space constrained UI"))
+    icon_emoji = forms.StringField(__(""),
+        validators=[forms.validators.Length(max=2)])
     required = forms.BooleanField(__("Required"), default=False,
         description=__("When required is set, this label must be set for a proposal (e.g. Proposal Type)."))
     restricted = forms.BooleanField(__("Restricted"), default=False,

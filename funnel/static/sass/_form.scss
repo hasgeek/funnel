@@ -21,16 +21,42 @@
   vertical-align: middle;
 }
 
-.js-modal-inner {
-	.card-wrapper {
-		width: 100%;
-    padding: 0;
-    .card {
-      box-shadow: none;
-      margin-bottom: 0;
-      .card__body {
-        padding: 0;
-      }
-    }
-	}
+.label-title {
+  width: calc(100% - 90px);
+  display: inline-block;
+}
+
+.mui-form__fields.emojipicker {
+  float: left;
+  width: 70px;
+  height: 48px;
+  margin-right: 20px;
+
+  .emojionearea-editor {
+    height: 48px;
+    min-height: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 24px;
+    padding: 6px 0;
+  }
+
+  .emojionearea-button {
+    top: 10px;
+  }
+
+  .emojionearea-editor {
+    left: 6px !important;
+  }
+
+  .emojionearea-button .emojionearea-button-open {
+    right: 0;
+  }
+}
+
+.label-form-modal {
+  overflow: visible;
 }
