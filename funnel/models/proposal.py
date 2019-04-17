@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from flask import abort
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property
+from werkzeug.utils import cached_property
 from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
@@ -9,10 +11,6 @@ from .commentvote import Commentset, Voteset, SET_TYPE
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
-from sqlalchemy.ext.hybrid import hybrid_property
-from flask import request
-from pytz import timezone, utc, UnknownTimeZoneError
-from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
@@ -140,6 +138,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     # Additional form data
     data = db.Column(JsonDict, nullable=False, server_default='{}')
+
+    # for managing relationship with labels easily
+    labels = association_proxy('labels', 'name')
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
@@ -333,8 +334,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             perms.update([
                 'vote_proposal',
                 'new_comment',
-                'vote_comment',
-                'edit-proposal'
+                'vote_comment'
                 ])
             if user == self.owner:
                 perms.update([
