@@ -11,21 +11,13 @@
   {%- for error in form.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-  {{ renderfield(form.description) }}
-  {%- for error in form.description.errors %}
-    <div><p class="mui-form__error">{{ error }}</p></div>
-  {%- endfor %}
-  {{ renderfield(form.bgcolor) }}
-  {%- for error in form.bgcolor.errors %}
-    <div><p class="mui-form__error">{{ error }}</p></div>
-  {%- endfor %}
   {{ renderfield(form.icon_emoji) }}
   {%- for error in form.icon_emoji.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-{%- if subform %}</div></div></div>{%- endif %}
+  {%- if subform %}</div></div></div>{%- endif %}
   {%- if not subform %}
-    {{ renderfield(form.required) }}
+    {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
     {%- for error in form.required.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
     {%- endfor %}
@@ -96,7 +88,8 @@
         event.preventDefault();
         $.modal.close();
         $('#inner-forms').append($('#child-form').html());
-        $('.subtitle').removeClass('mui--hide');
+        $('.subtitle, .js-required-field').removeClass('mui--hide');
+        $('.js-required-field input').click();
       });
     });
   </script>
