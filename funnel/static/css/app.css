@@ -183,28 +183,6 @@ html.touch .collapsible__body--disable {
   margin-bottom: 10px;
 }
 
-.cfp-action-btn {
-  padding: 10px 0;
-  cursor: pointer;
-  margin-right: 10px;
-  border: none;
-  color: #4A90E2;
-  background: none;
-}
-
-.cfp-action-btn:focus,
-.cfp-action-btn:hover {
-  border: none;
-  outline: none;
-  box-shadow: none;
-  color: #4A90E2;
-}
-
-.inline-form {
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .past-events-table {
   border-collapse: collapse;
 }
@@ -409,6 +387,40 @@ html.touch .collapsible__body--disable {
   padding: 5px;
   font-weight: bold;
   text-transform: uppercase;
+}
+
+.cfp-action-btn {
+  padding: 10px 0;
+  cursor: pointer;
+  margin-right: 10px;
+  border: none;
+  color: #4A90E2;
+  background: none;
+}
+
+.cfp-action-btn:focus,
+.cfp-action-btn:hover {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  color: #4A90E2;
+}
+
+.inline-form {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.js-modal-inner .card-wrapper {
+  width: 100%;
+  padding: 0;
+}
+.js-modal-inner .card-wrapper .card {
+  box-shadow: none;
+  margin-bottom: 0;
+}
+.js-modal-inner .card-wrapper .card .card__body {
+  padding: 0;
 }
 
 .clickable-card {

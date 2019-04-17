@@ -5,7 +5,8 @@
 {% block pageheaders %}
 {% endblock %}
 
-{% macro labelformfields(forms) %}
+{% macro labelformfields(forms, subform=false) %}
+  {%- if subform %}<div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 card-wrapper"><div class="card"><div class="card__body">{%- endif %}
   {{ renderfield(form.title, autofocus=true) }}
   {%- for error in form.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
@@ -22,14 +23,17 @@
   {%- for error in form.icon_emoji.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-  {{ renderfield(form.required) }}
-  {%- for error in form.required.errors %}
-    <div><p class="mui-form__error">{{ error }}</p></div>
-  {%- endfor %}
-  {{ renderfield(form.restricted) }}
-  {%- for error in form.restricted.errors %}
-    <div><p class="mui-form__error">{{ error }}</p></div>
-  {%- endfor %}
+{%- if subform %}</div></div></div>{%- endif %}
+  {%- if not subform %}
+    {{ renderfield(form.required) }}
+    {%- for error in form.required.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
+    {{ renderfield(form.restricted) }}
+    {%- for error in form.restricted.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
+  {%- endif %}
 {% endmacro %}
 
 {% block content %}
@@ -45,7 +49,11 @@
   <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form">
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
-    <div id="inner-forms"></div>
+    <div id="inner-forms" class="grid">
+      <div class="grid__col-xs-12">
+        <p class="mui--text-title mui--text-bold mui--hide subtitle">Sublabels</p>
+      </div>
+    </div>
     <p><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-label-btn">+ Add label</button></p>
     <div class="mui-form form-actions clearfix">
       <div>
@@ -79,7 +87,7 @@
     $(function() {
       $('#add-label-btn').click(function(event) {
         event.preventDefault();
-        var formHtml = {{ labelformfields(form)|tojson|safe }};
+        var formHtml = {{ labelformfields(form, subform=true)|tojson|safe }};
         $('#child-form').html(formHtml);
         $('#child-label-form').modal();
         activate_widgets();
@@ -88,6 +96,7 @@
         event.preventDefault();
         $.modal.close();
         $('#inner-forms').append($('#child-form').html());
+        $('.subtitle').removeClass('mui--hide');
       });
     });
   </script>
