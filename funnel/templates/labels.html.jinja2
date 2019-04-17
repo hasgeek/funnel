@@ -15,25 +15,27 @@
             <h3>{{ label.title }}</h3>
             <div class="mui--text-body2">{{ label.description }}</div>
           </div>
-          <div class="card__body card__body--lgtext mui--text-subhead">
-            <ol class="mui-list--aligned mui-list--border">
-              {%- for label in labels.children %}
-                <li>
-                  <span class="mui--text-subhead"><strong>{{ label.title }}</strong></span>
-                  <span class="mui--pull-right">
-                    <a data-href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}" id="edit-label-btn"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
-                    <a href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
-                  </span>
-                </li>
-              {% else %}
-                <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
-              {%- endfor %}
-            </ol>
-          </div>
-          <div class="mui-divider"></div>
+          {% if label.is_parent %}
+            <div class="card__body card__body--lgtext mui--text-subhead">
+              <ol class="mui-list--aligned mui-list--border">
+                {%- for sublabel in label.children %}
+                  <li>
+                    <span class="mui--text-subhead"><strong>{{ sublabel.title }}</strong></span>
+                    <span class="mui--pull-right">
+                      <a data-href="{{ sublabel.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}" id="edit-label-btn"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
+                      <a href="{{ sublabel.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
+                    </span>
+                  </li>
+                {% else %}
+                  <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
+                {%- endfor %}
+              </ol>
+            </div>
+            <div class="mui-divider"></div>
+          {% endif %}
           <div class="card__footer">
             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-href="{{ project.url_for('new_label') }}" title="{% trans %}Add label{% endtrans %}" id="add-label-btn">{% trans %}Add label{% endtrans %}</a>
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ project.url_for('edit_label') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
           </div>
         </div>
       </div>
