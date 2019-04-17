@@ -3,29 +3,25 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block pageheaders %}
+  {% assets "css_emojionearea" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
 {% endblock %}
 
 {% macro labelformfields(forms, subform=false) %}
-  {%- if subform %}<div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 card-wrapper"><div class="card"><div class="card__body">{%- endif %}
-  {{ renderfield(form.title, autofocus=true) }}
-  {%- for error in form.title.errors %}
-    <div><p class="mui-form__error">{{ error }}</p></div>
-  {%- endfor %}
-  {{ renderfield(form.icon_emoji) }}
+  {%- if subform %}
+      <div class="card">
+          <div class="card__body">
+  {%- endif %}
+  {{ renderfield(form.icon_emoji, css_class="emojipicker") }}
   {%- for error in form.icon_emoji.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-  {%- if subform %}</div></div></div>{%- endif %}
-  {%- if not subform %}
-    {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
-    {%- for error in form.required.errors %}
-      <div><p class="mui-form__error">{{ error }}</p></div>
-    {%- endfor %}
-    {{ renderfield(form.restricted) }}
-    {%- for error in form.restricted.errors %}
-      <div><p class="mui-form__error">{{ error }}</p></div>
-    {%- endfor %}
-  {%- endif %}
+  {{ renderfield(form.title, autofocus=true, css_class="label-title") }}
+  {%- for error in form.title.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+  {%- if subform %}</div></div>{%- endif %}
 {% endmacro %}
 
 {% block content %}
@@ -41,12 +37,16 @@
   <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form">
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
-    <div id="inner-forms" class="grid">
-      <div class="grid__col-xs-12">
-        <p class="mui--text-title mui--text-bold mui--hide subtitle">Sublabels</p>
-      </div>
-    </div>
+    <div id="child-form"></div>
     <p><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-label-btn">+ Add label</button></p>
+    {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
+    {%- for error in form.required.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
+    {{ renderfield(form.restricted) }}
+    {%- for error in form.restricted.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
     <div class="mui-form form-actions clearfix">
       <div>
         <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
@@ -54,43 +54,31 @@
       </div>
     </div>
   </form>
-  <div id="child-label-form" class="modal">
-    <div class="modal__header">
-      <a class="modal__close" href="javascript:void(0);" aria-label="close" rel="modal:close"><i class="material-icons">clear</i></a>
-      <h3 class="js-modal-title session-modal__title">Add label</h3>
-    </div>
-    <hr class="mui-divider mui-divider--custom">
-    <div class="js-modal-inner">
-      <div class="mui-form mui-form--margins hg-form">
-        <div id="child-form"></div>
-        <div class="mui-form form-actions clearfix">
-          <div>
-            <button class="mui-btn mui-btn--raised mui-btn--primary" id="add-child-label">Add label</button>
-            <span class="loading mui--hide"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 {% endblock %}
 
 {% block footerscripts %}
+  {% assets "js_emojionearea" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script type="text/javascript">
     $(function() {
+      function initEmojiPicker() {
+        $('input.field-icon_emoji:not([style*="display: none"])').emojioneArea({
+          pickerPosition: "right",
+          autocomplete: false,
+          standalone: true
+        });
+      }
       $('#add-label-btn').click(function(event) {
         event.preventDefault();
         var formHtml = {{ labelformfields(form, subform=true)|tojson|safe }};
-        $('#child-form').html(formHtml);
-        $('#child-label-form').modal();
+        $('#child-form').append(formHtml);
         activate_widgets();
+        initEmojiPicker();
+        $('.js-required-field').removeClass('mui--hide');
+        $('.js-required-field input').prop('checked', true);
       });
-      $('#add-child-label').click(function(event) {
-        event.preventDefault();
-        $.modal.close();
-        $('#inner-forms').append($('#child-form').html());
-        $('.subtitle, .js-required-field').removeClass('mui--hide');
-        $('.js-required-field input').click();
-      });
+      initEmojiPicker();
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>

@@ -411,16 +411,40 @@ html.touch .collapsible__body--disable {
   vertical-align: middle;
 }
 
-.js-modal-inner .card-wrapper {
-  width: 100%;
-  padding: 0;
+.label-title {
+  width: calc(100% - 90px);
+  display: inline-block;
 }
-.js-modal-inner .card-wrapper .card {
-  box-shadow: none;
-  margin-bottom: 0;
+
+.mui-form__fields.emojipicker {
+  float: left;
+  width: 70px;
+  height: 48px;
+  margin-right: 20px;
 }
-.js-modal-inner .card-wrapper .card .card__body {
-  padding: 0;
+.mui-form__fields.emojipicker .emojionearea-editor {
+  height: 48px;
+  min-height: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 24px;
+  padding: 6px 0;
+}
+.mui-form__fields.emojipicker .emojionearea-button {
+  top: 10px;
+}
+.mui-form__fields.emojipicker .emojionearea-editor {
+  left: 6px !important;
+}
+.mui-form__fields.emojipicker .emojionearea-button .emojionearea-button-open {
+  right: 0;
+}
+
+.label-form-modal {
+  overflow: visible;
 }
 
 .clickable-card {
