@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, g
+from flask import flash, redirect, g, render_template
 from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
@@ -27,7 +27,11 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def new_label(self):
-        pass
+        form = LabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
+        # return jsonify(
+            # title="Add label",
+            # form=render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj))
+        return render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj)
 
 
 @route('/<project>/labels', subdomain='<profile>')
