@@ -10,10 +10,6 @@ __all__ = ['LabelForm']
 class LabelForm(forms.Form):
     title = forms.StringField(__("Name"), description=__("Name of the label"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
-    description = forms.MarkdownField(__("Description"), description=__("About the label"))
-    bgcolor = forms.StringField(__("Label Color"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
-        description=__("RGB Color for the label. Enter without the '#'. E.g. CCCCCC."), default=u"CCCCCC")
     icon_emoji = forms.StringField(__("Icon/Emoji"),
         validators=[forms.validators.Length(max=2)],
         description=__("Emoji to be used for this label for space constrained UI"))
