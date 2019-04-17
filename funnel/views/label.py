@@ -27,7 +27,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def new_label(self):
-        form = LabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
+        form = LabelForm(model=Label, parent=self.obj.parent)
         # return jsonify(
             # title="Add label",
             # form=render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj))
