@@ -97,13 +97,24 @@ class LabelView(UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit_project')
     def edit(self):
-        form = LabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
+        if self.obj.parent_label:
+            # It's a sublabel
+            form = SublabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
+        else:
+            form = LabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
+
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your label has been edited"), 'info')
             return redirect(self.obj.project.url_for('labels'), code=303)
         return render_form(form=form, title=_("Edit label"), submit=_("Save changes"))
+
+    @route('archive', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('admin')
+    def archive(self):
+        return redirect(self.obj.project.url_for('labels'), code=303)
 
 
 @route('/<project>/labels/<label>', subdomain='<profile>')
