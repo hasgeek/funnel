@@ -18,7 +18,14 @@ class ProposalLabelsForm(forms.Form):
     labels = forms.SelectMultipleField(__("Labels"))
 
     def set_queries(self):
-        self.labels.choices = [(l.name, l.title) for l in self.edit_parent.labels]
+        choices = []
+        for l in self.edit_parent.labels:
+            if l.is_parent:
+                children = [(sl.name, sl.title) for sl in l.children]
+                choices.append((l.title, children))
+            else:
+                choices.append((l.name, l.title))
+        self.labels.choices = choices
 
 
 class ProposalForm(forms.Form):
@@ -71,7 +78,14 @@ class ProposalForm(forms.Form):
             self.description.description = project.proposal_part_b.get('hint')
 
     def set_queries(self):
-        self.labels.choices = [(l.name, l.title) for l in self.edit_parent.labels]
+        choices = []
+        for l in self.edit_parent.labels:
+            if l.is_parent:
+                children = [(sl.name, sl.title) for sl in l.children]
+                choices.append((l.title, children))
+            else:
+                choices.append((l.name, l.title))
+        self.labels.choices = choices
 
 
 class ProposalTransitionForm(forms.Form):
