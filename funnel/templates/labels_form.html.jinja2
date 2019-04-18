@@ -38,7 +38,7 @@
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
     <div id="child-form"></div>
-    <p><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-label-btn">+ Add label</button></p>
+    <p><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-label-btn">+ Add Sublabel</button></p>
     {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
     {%- for error in form.required.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>

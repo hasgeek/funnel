@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import flash, redirect, g, render_template, request
+from werkzeug.datastructures import MultiDict
 from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
@@ -40,23 +41,28 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             titlelist.pop(0)
             emojilist.pop(0)
 
-            label = Label(project=self.obj)
-            form.populate_obj(label)
+            label = Label(title=form.data.get('title'), icon_emoji=form.data.get('icon_emoji'), project=self.obj)
+            label.restricted = form.data.get('restricted')
+            label.make_name()
             self.obj.labels.append(label)
             db.session.add(label)
 
             for idx, title in enumerate(titlelist):
-                subform = SublabelForm(title=titlelist[idx], icon_emoji=emojilist[idx])
+                subform = SublabelForm(MultiDict({
+                    'csrf_token': form.csrf_token.data, 'title': titlelist[idx],
+                    'icon_emoji': emojilist[idx]
+                    }))
+
                 if not subform.validate():
                     flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
                     return render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj)
                 else:
                     subl = Label(project=self.obj)
                     subform.populate_obj(subl)
+                    subl.make_name()
                     db.session.add(subl)
                     label.children.append(subl)
 
-            import ipdb; ipdb.set_trace()
             db.session.commit()
             return redirect(self.obj.url_for('labels'), code=303)
         return render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj)
