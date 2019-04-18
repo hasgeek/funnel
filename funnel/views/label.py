@@ -29,6 +29,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('admin')
     def new_label(self):
         form = LabelForm(model=Label, parent=self.obj.parent)
+        emptysubform = SublabelForm(MultiDict({}))
         if form.validate_on_submit():
             # This form can send one or multiple values for title and icon_emoji.
             # If the label doesn't have any sublabel, one value is sent for each list,
@@ -65,7 +66,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
             db.session.commit()
             return redirect(self.obj.url_for('labels'), code=303)
-        return render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj)
+        return render_template('labels_form.html.jinja2', title="Add label", form=form, subform=emptysubform, project=self.obj)
 
 
 @route('/<project>/labels', subdomain='<profile>')
