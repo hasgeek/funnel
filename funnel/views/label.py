@@ -26,6 +26,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
+    @render_with('labels_form.html.jinja2')
     @requires_permission('admin')
     def new_label(self):
         form = LabelForm(model=Label, parent=self.obj.parent)
@@ -56,7 +57,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
                 if not subform.validate():
                     flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
-                    return render_template('labels_form.html.jinja2', title="Add label", form=form, project=self.obj)
+                    return dict(title="Add label", form=form, project=self.obj)
                 else:
                     subl = Label(project=self.obj)
                     subform.populate_obj(subl)
@@ -66,7 +67,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
             db.session.commit()
             return redirect(self.obj.url_for('labels'), code=303)
-        return render_template('labels_form.html.jinja2', title="Add label", form=form, subform=emptysubform, project=self.obj)
+        return dict(title="Add label", form=form, subform=emptysubform, project=self.obj)
 
 
 @route('/<project>/labels', subdomain='<profile>')
@@ -96,6 +97,7 @@ class LabelView(UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
+    @render_with('labels_form.html.jinja2')
     @requires_permission('edit_project')
     def edit(self):
         if self.obj.parent_label:
@@ -103,13 +105,14 @@ class LabelView(UrlForView, ModelView):
             form = SublabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
         else:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
+        emptysubform = SublabelForm(MultiDict({}))
 
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your label has been edited"), 'info')
             return redirect(self.obj.project.url_for('labels'), code=303)
-        return render_form(form=form, title=_("Edit label"), submit=_("Save changes"))
+        return dict(title="Add label", form=form, subform=emptysubform, project=self.obj.project)
 
     @route('archive', methods=['POST'])
     @lastuser.requires_login
