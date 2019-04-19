@@ -538,6 +538,20 @@ html.touch .collapsible__body--disable {
   transform: translate(-50%, -50%);
 }
 
+.card__body--minheight {
+  min-height: 150px;
+}
+
+.card__body--new {
+  min-height: 194px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.card__body--new .new-btn:hover {
+  text-decoration: none;
+}
+
 .profile-details {
   display: flex;
   align-items: center;

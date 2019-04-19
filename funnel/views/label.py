@@ -147,7 +147,7 @@ class LabelView(UrlForView, ModelView):
 
             db.session.commit()
             return redirect(self.obj.project.url_for('labels'), code=303)
-        return dict(title="Add label", form=form, subforms=subforms, emptysubform=emptysubform, project=self.obj.project)
+        return dict(title="Edit label", form=form, subforms=subforms, emptysubform=emptysubform, project=self.obj.project)
 
     @route('archive', methods=['POST'])
     @lastuser.requires_login
