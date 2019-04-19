@@ -13,6 +13,7 @@ from .event import *
 from .feedback import *
 from .profile import *
 from .project import *
+from .membership import *
 from .proposal import *
 from .rsvp import *
 from .section import *
