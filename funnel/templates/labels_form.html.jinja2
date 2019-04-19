@@ -8,17 +8,17 @@
   {%- endassets -%}
 {% endblock %}
 
-{% macro labelformfields(forms, subform=false) %}
+{% macro labelformfields(lform, subform=false) %}
   {%- if subform %}
       <div class="card">
           <div class="card__body">
   {%- endif %}
-  {{ renderfield(form.icon_emoji, css_class="emojipicker") }}
-  {%- for error in form.icon_emoji.errors %}
+  {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
+  {%- for error in lform.icon_emoji.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-  {{ renderfield(form.title, autofocus=true, css_class="label-title") }}
-  {%- for error in form.title.errors %}
+  {{ renderfield(lform.title, autofocus=true, css_class="label-title") }}
+  {%- for error in lform.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
   {%- if subform %}</div></div>{%- endif %}
@@ -37,7 +37,13 @@
   <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form">
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
-    <div id="child-form"></div>
+    <div id="child-form">
+      {% if form.edit_obj and form.edit_obj.is_parent and subforms %}
+        {% for subform in subforms %}
+          {{ labelformfields(subform, subform=true) }}
+        {% endfor %}
+      {% endif %}
+    </div>
     <p><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-label-btn">+ Add Sublabel</button></p>
     {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
     {%- for error in form.required.errors %}

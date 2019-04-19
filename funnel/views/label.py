@@ -100,19 +100,23 @@ class LabelView(UrlForView, ModelView):
     @render_with('labels_form.html.jinja2')
     @requires_permission('edit_project')
     def edit(self):
+        emptysubform = SublabelForm(MultiDict({}))
+        subforms = []
         if self.obj.parent_label:
             # It's a sublabel
-            form = SublabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
+            form = SublabelForm(obj=self.obj, model=Label, parent=self.obj.project)
         else:
-            form = LabelForm(obj=self.obj, model=Label, parent=self.obj.parent)
-        emptysubform = SublabelForm(MultiDict({}))
+            form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
+            if self.obj.is_parent:
+                for subl in self.obj.children:
+                    subforms.append(SublabelForm(obj=subl, parent=self.obj.project))
 
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your label has been edited"), 'info')
             return redirect(self.obj.project.url_for('labels'), code=303)
-        return dict(title="Add label", form=form, subform=emptysubform, project=self.obj.project)
+        return dict(title="Add label", form=form, subforms=subforms, subform=emptysubform, project=self.obj.project)
 
     @route('archive', methods=['POST'])
     @lastuser.requires_login
