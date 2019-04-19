@@ -122,7 +122,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @is_parent.expression
     def is_parent(cls):
-        return exists().where(Label._parent_label_id == cls.id)
+        return exists().where(Label.parent_label_id == cls.id)
 
     @hybrid_property
     def required(self):

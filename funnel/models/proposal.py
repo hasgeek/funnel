@@ -88,6 +88,38 @@ class ProposalFormData(object):
             self.data[attr] = value
 
 
+class ProposalLabelProxyWrapper(object):
+    obj = None
+
+    def __init__(self, obj):
+        self.obj = obj
+
+    def __getattr__(self, name):
+        from .label import Label
+        if self.obj is not None:
+            parent_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
+            existing_label = set(self.obj.labels).intersection(set(parent_label.children))
+            return existing_label.pop() if len(existing_label) > 0 else None
+
+    def __setattr__(self, name, value):
+        from .label import Label
+        if self.obj is not None:
+            parent_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
+            label = Label.query.filter(Label.parent_label_id == parent_label.id, Label.name == value).first()
+            if label is not None:
+                self.obj.assign_label(label)
+
+
+class ProposalLabelProxy(object):
+    def __get__(self, obj, cls=None):
+        self.obj = obj
+        if obj is not None:
+            return ProposalLabelProxyWrapper(obj)
+
+    def keys(self):
+        return [pl.name for pl in self.obj.project.labels] if self.obj is not None else []
+
+
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
@@ -140,7 +172,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     data = db.Column(JsonDict, nullable=False, server_default='{}')
 
     # for managing relationship with labels easily
-    labels = association_proxy('labels', 'name')
+    labelsets = ProposalLabelProxy()
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
@@ -334,7 +366,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             perms.update([
                 'vote_proposal',
                 'new_comment',
-                'vote_comment'
+                'vote_comment',
                 ])
             if user == self.owner:
                 perms.update([
