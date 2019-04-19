@@ -12,7 +12,7 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Proposal, Comment
-from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
+from ..forms import (ProposalForm, CommentForm, DeleteCommentForm, get_proposal_labels_form,
     ProposalTransitionForm, ProposalMoveForm, ProposalLabelsForm)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
@@ -172,7 +172,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             del form.speaking
         if form.validate_on_submit():
             form.populate_obj(self.obj.formdata)
-            form.populate_obj_labels(self.obj)  # this is needed to assign the labels
             self.obj.name = make_name(self.obj.title)
             self.obj.edited_at = datetime.utcnow()
             db.session.commit()
@@ -257,7 +256,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def edit_labels(self):
         form = ProposalLabelsForm(model=Proposal, obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
-            form.populate_obj_labels(self.obj)
+            form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Labels have been saved for this proposal."), 'info')
             return redirect(self.obj.url_for(), 303)

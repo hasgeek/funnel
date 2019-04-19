@@ -12,6 +12,7 @@
   {%- if subform %}
       <div class="card">
           <div class="card__body">
+          {{ lform.hidden_tag() }}
   {%- endif %}
   {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
   {%- for error in lform.icon_emoji.errors %}
@@ -77,7 +78,7 @@
       }
       $('#add-label-btn').click(function(event) {
         event.preventDefault();
-        var formHtml = {{ labelformfields(form, subform=true)|tojson|safe }};
+        var formHtml = {{ labelformfields(emptysubform, subform=true)|tojson|safe }};
         $('#child-form').append(formHtml);
         activate_widgets();
         initEmojiPicker();
