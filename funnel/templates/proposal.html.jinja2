@@ -186,6 +186,50 @@
                   <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></li>
                   <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
                 </ul>
+                <select autofocus="" class="notselect field-labels " id="labels" multiple="multiple" name="labels" data-parsley-multiple="labels" data-parsley-id="7288">
+                  {%- for label in proposal.project.labels %}
+                    {%- if label.is_main %}
+                      <optgroup label="{{ label.title }}">
+                        {%- for sublabel in label.options %}
+                          <option value="{{sublabel}}">{{ sublabel.title }}</option>
+                        {%- endfor %}
+                      </optgroup>
+                    {% else -%}
+                      <option value="{{label}}">{{label.title}}</option>
+                    {%- endif %}
+                  {%- endfor %}
+                </select>
+<!--                 <div class="mui-form__controls">
+                  <div class="mui-textfield">
+                    <div class="select-btn js-select-multi"></div>
+                    <div class="dropdown">
+                      <ul>
+                        <li>
+                          <div>
+                            <input type="checkbox" tabindex="-1" readonly=""/>
+                            <span>Sections</span>
+                          </div>
+                          <ul>
+                            <li>
+                              <input type="radio" tabindex="-1" readonly=""/>
+                              <span>Full talk</span>
+                            </li>
+                            <li>
+                              <input type="radio" tabindex="-1" readonly=""/>
+                              <span>Workshop</span>
+                            </li>
+                          </ul>
+                        </li>
+                        <li>
+                          <div>
+                            <input type="checkbox" tabindex="-1" readonly=""/>
+                            <span>Technical level</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div> -->
                 <hr class="mui-divider">
               {%- endif %}
               {% if proposal.current_roles.admin %}
