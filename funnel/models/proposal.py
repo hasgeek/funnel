@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.utils import cached_property
 from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
@@ -50,42 +49,6 @@ class PROPOSAL_STATE(LabeledEnum):
 
 
 # --- Models ------------------------------------------------------------------
-
-class ProposalFormData(object):
-    """
-    Form data access helper for custom fields
-    """
-    def __init__(self, proposal):
-        self.__dict__['proposal'] = proposal
-        self.__dict__['data'] = proposal.data
-
-    def __getattr__(self, attr, default=_marker):
-        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
-            raise AttributeError("Invalid attribute: %s" % attr)
-
-        if default is _marker:
-            try:
-                if hasattr(self.proposal, attr):
-                    return getattr(self.proposal, attr)
-                return self.data[attr]
-            except KeyError:
-                raise AttributeError(attr)
-        else:
-            if hasattr(self.proposal, attr):
-                return getattr(self.proposal, attr, default)
-            return self.data.get(attr, default)
-
-    def __setattr__(self, attr, value):
-        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
-            raise AttributeError("Invalid attribute: %s" % attr)
-
-        if hasattr(self.proposal, attr):
-            if attr in self.proposal.__valid_fields__:
-                setattr(self.proposal, attr, value)
-            else:
-                raise AttributeError("Cannot set attribute: %s" % attr)
-        else:
-            self.data[attr] = value
 
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
@@ -140,16 +103,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     data = db.Column(JsonDict, nullable=False, server_default='{}')
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
-
-    # XXX: The following two may overlap. Reconsider whether both are needed
-
-    # Allow these fields to be set on the proposal by custom forms
-    __valid_fields__ = ('title', 'speaker', 'speaking', 'email', 'phone', 'bio', 'section', 'objective', 'session_type',
-        'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
-        'latitude', 'longitude', 'coordinates')
-    # Never allow these fields to be set on the proposal or proposal.data by custom forms
-    __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'project_id',
-        'project', 'parent', 'voteset_id', 'voteset', 'commentset_id', 'commentset', 'edited_at', 'data')
 
     __roles__ = {
         'all': {
@@ -278,10 +231,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.project = project
         self.url_id = None
         self.make_id()
-
-    @property
-    def formdata(self):
-        return ProposalFormData(self)
 
     @property
     def owner(self):
