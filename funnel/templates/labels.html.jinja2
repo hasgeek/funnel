@@ -11,7 +11,7 @@
     {%- for label in labels %}
       <div class="grid__col-xs-12 grid__col-sm-4">
         <div class="card">
-          {% if label.is_main %}
+          {% if label.has_options %}
             <div class="card__body card__body--minheight mui--text-subhead">
               <h3>{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
               <ul class="mui-list--aligned mui-list--unstyled">

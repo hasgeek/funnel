@@ -18,7 +18,7 @@ def proposal_labels_form(project, proposal):
         pass
 
     for label in project.labels:
-        if label.is_main and not label.archived and not label.restricted:
+        if label.has_options and not label.archived and not label.restricted:
             setattr(ProposalLabelForm, label.name, forms.RadioField(
                 label.title,
                 description=label.description,

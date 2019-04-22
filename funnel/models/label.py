@@ -116,20 +116,20 @@ class Label(BaseScopedNameMixin, db.Model):
         ], else_=cls._archived)
 
     @hybrid_property
-    def is_main(self):
+    def has_options(self):
         return len(self.options) != 0
 
-    @is_main.expression
-    def is_main(cls):
+    @has_options.expression
+    def has_options(cls):
         return exists().where(Label.main_label_id == cls.id)
 
     @hybrid_property
     def required(self):
-        return self._required if self.is_main else False
+        return self._required if self.has_options else False
 
     @required.setter
     def required(self, value):
-        if value and not self.is_main:
+        if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
         self._required = value
 
@@ -184,7 +184,7 @@ class ProposalLabelProxyWrapper(object):
         if not label:
             raise AttributeError
 
-        if not label.is_main:
+        if not label.has_options:
             return label in self._obj.labels
 
         # Only one option from a main label should be set at a time, but we enforce
@@ -199,7 +199,7 @@ class ProposalLabelProxyWrapper(object):
         if not label:
             raise AttributeError
 
-        if not label.is_main:
+        if not label.has_options:
             if value is True:
                 if label not in self._obj.labels:
                     self._obj.labels.append(label)
