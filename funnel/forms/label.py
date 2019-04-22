@@ -2,26 +2,21 @@
 
 from baseframe import __
 import baseframe.forms as forms
-from .project import valid_color_re
 
-__all__ = ['LabelForm', 'SublabelForm']
+__all__ = ['LabelForm', 'LabelOptionForm']
 
 
 class LabelForm(forms.Form):
-    title = forms.StringField(__("Title"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
-    icon_emoji = forms.StringField(__(""))
-    required = forms.BooleanField(__("Required"), default=False,
-        description=__("When required is set, this label must be set for a proposal (e.g. Proposal Type)."))
-    restricted = forms.BooleanField(__("Restricted"), default=False,
-        description=__("When in restricted mode, only an admin or reviewer can set this label for a proposal (e.g. Proposal Status)."))
-
-    def validate_bgcolor(self, field):
-        if not valid_color_re.match(field.data):
-            raise forms.ValidationError("Please enter a valid color code")
+    title = forms.StringField(__("Label"),
+        validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
+    icon_emoji = forms.StringField(__("Icon"))
+    required = forms.BooleanField(__("Make this label mandatory in proposal forms"), default=False,
+        description=__("If checked, proposers must select one of the options"))
+    restricted = forms.BooleanField(__("Restrict use of this label to editors"), default=False,
+        description=__("If checked, only editors and reviewers can apply this label on proposals"))
 
 
-class SublabelForm(forms.Form):
-    title = forms.StringField(__("Name"), description=__("Name of the label"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
-    icon_emoji = forms.StringField(__(""))
+class LabelOptionForm(forms.Form):
+    title = forms.StringField(__("Option"),
+        validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
+    icon_emoji = forms.StringField(__("Icon"))
