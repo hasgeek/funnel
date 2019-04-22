@@ -89,8 +89,6 @@ class ProposalFormData(object):
 
 
 class ProposalLabelProxyWrapper(object):
-    obj = None
-
     def __init__(self, obj):
         self.obj = obj
 
@@ -109,15 +107,14 @@ class ProposalLabelProxyWrapper(object):
             if label is not None:
                 self.obj.assign_label(label)
 
+    def keys(self):
+        return [pl.name for pl in self.obj.project.labels] if self.obj is not None else []
+
 
 class ProposalLabelProxy(object):
     def __get__(self, obj, cls=None):
-        self.obj = obj
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
-
-    def keys(self):
-        return [pl.name for pl in self.obj.project.labels] if self.obj is not None else []
 
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
