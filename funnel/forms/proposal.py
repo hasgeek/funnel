@@ -22,7 +22,7 @@ def proposal_labels_form(project, proposal):
             setattr(ProposalLabelForm, label.name, forms.RadioField(
                 label.title,
                 description=label.description,
-                validators=[forms.validators.DataRequired()] if label.required else [],
+                validators=[forms.validators.DataRequired(_("Please select one"))] if label.required else [],
                 choices=[(option.name, option.title) for option in label.options]
             ))
 
