@@ -10,7 +10,7 @@ __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'Propos
     'ProposalMoveForm']
 
 
-def proposal_labels_form(project, proposal):
+def proposal_label_form(project, proposal):
     """
     Returns a label form for the given project and proposal.
     """
@@ -37,7 +37,7 @@ class ProposalLabelsForm(forms.Form):
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self):
-        self.formlabels.form = proposal_labels_form(project=self.edit_parent, proposal=self.edit_obj)
+        self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj)
 
 
 class ProposalForm(forms.Form):
@@ -90,7 +90,7 @@ class ProposalForm(forms.Form):
             self.description.description = project.proposal_part_b.get('hint')
 
     def set_queries(self):
-        self.formlabels.form = proposal_labels_form(project=self.edit_parent, proposal=self.edit_obj)
+        self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj)
 
 
 class ProposalTransitionForm(forms.Form):
