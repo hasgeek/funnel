@@ -9,7 +9,7 @@ __all__ = ['LabelForm', 'LabelOptionForm']
 class LabelForm(forms.Form):
     title = forms.StringField(__("Label"),
         validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
-    icon_emoji = forms.StringField(__("Icon"))
+    icon_emoji = forms.StringField("")
     required = forms.BooleanField(__("Make this label mandatory in proposal forms"), default=False,
         description=__("If checked, proposers must select one of the options"))
     restricted = forms.BooleanField(__("Restrict use of this label to editors"), default=False,
@@ -19,4 +19,4 @@ class LabelForm(forms.Form):
 class LabelOptionForm(forms.Form):
     title = forms.StringField(__("Option"),
         validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
-    icon_emoji = forms.StringField(__("Icon"))
+    icon_emoji = forms.StringField("")
