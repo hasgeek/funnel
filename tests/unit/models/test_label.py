@@ -8,7 +8,7 @@ class TestLabels(object):
     def test_main_label_from_fixture(self, test_client, new_main_label):
         assert new_main_label.title == u"Parent Label A"
         assert new_main_label.seq == 1
-        assert new_main_label.is_main
+        assert new_main_label.has_options
         assert new_main_label.required
         assert new_main_label.restricted
         assert not new_main_label.archived
@@ -20,13 +20,13 @@ class TestLabels(object):
         assert label_a1.title == u"Label A1"
         assert label_a1.icon_emoji == u"👍"
         assert label_a1.icon == u"👍"
-        assert not label_a1.is_main
+        assert not label_a1.has_options
 
     def test_label_from_fixture(self, test_client, test_db, new_label):
         assert new_label.title == u"Label B"
         assert new_label.icon_emoji == u"🔟"
         assert new_label.icon == u"🔟"
-        assert not new_label.is_main
+        assert not new_label.has_options
 
         with pytest.raises(ValueError):
             # because Label B is not a parent label, it cannot be required

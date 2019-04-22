@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, g, render_template, request
+from flask import flash, redirect, g, request
 from werkzeug.datastructures import MultiDict
 from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
 from baseframe import _
-from baseframe.forms import render_delete_sqla, render_form
 
 from .. import app, funnelapp, lastuser
 from ..models import Label, db, Project, Profile
-from ..forms import LabelForm, SublabelForm
+from ..forms import LabelForm, LabelOptionForm
 from .mixins import ProjectViewMixin
 from .decorators import legacy_redirect
 
@@ -30,7 +29,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('admin')
     def new_label(self):
         form = LabelForm(model=Label, parent=self.obj.parent)
-        emptysubform = SublabelForm(MultiDict({}))
+        emptysubform = LabelOptionForm(MultiDict({}))
         if form.validate_on_submit():
             # This form can send one or multiple values for title and icon_emoji.
             # If the label doesn't have any sublabel, one value is sent for each list,
@@ -50,7 +49,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             db.session.add(label)
 
             for idx, title in enumerate(titlelist):
-                subform = SublabelForm(MultiDict({
+                subform = LabelOptionForm(MultiDict({
                     'csrf_token': form.csrf_token.data, 'title': titlelist[idx],
                     'icon_emoji': emojilist[idx]
                     }))
@@ -100,16 +99,16 @@ class LabelView(UrlForView, ModelView):
     @render_with('labels_form.html.jinja2')
     @requires_permission('edit_project')
     def edit(self):
-        emptysubform = SublabelForm(MultiDict({}))
+        emptysubform = LabelOptionForm(MultiDict({}))
         subforms = []
         if self.obj.main_label:
             # It's a sublabel
-            form = SublabelForm(obj=self.obj, model=Label, parent=self.obj.project)
+            form = LabelOptionForm(obj=self.obj, model=Label, parent=self.obj.project)
         else:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
-            if self.obj.is_main:
+            if self.obj.has_options:
                 for subl in self.obj.options:
-                    subforms.append(SublabelForm(obj=subl, parent=self.obj.project))
+                    subforms.append(LabelOptionForm(obj=subl, parent=self.obj.project))
 
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -129,7 +128,7 @@ class LabelView(UrlForView, ModelView):
                     subl.title = titlelist[idx]
                     subl.icon_emoji = emojilist[idx]
                 else:
-                    subform = SublabelForm(MultiDict({
+                    subform = LabelOptionForm(MultiDict({
                         'csrf_token': form.csrf_token.data, 'title': titlelist[idx],
                         'icon_emoji': emojilist[idx]
                         }))

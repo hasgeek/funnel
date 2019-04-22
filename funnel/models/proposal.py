@@ -311,7 +311,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         """
         if label in self.labels:
             return
-        if label.is_main:
+        if label.has_options:
             raise ValueError("This label requires one of its options to be used")
 
         if label.main_label is not None:

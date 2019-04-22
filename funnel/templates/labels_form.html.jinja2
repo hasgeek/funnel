@@ -39,7 +39,7 @@
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
     <div id="child-form">
-      {% if form.edit_obj and form.edit_obj.is_main and subforms %}
+      {% if form.edit_obj and form.edit_obj.has_options and subforms %}
         {% for subform in subforms %}
           {{ labelformfields(subform, subform=true) }}
         {% endfor %}
