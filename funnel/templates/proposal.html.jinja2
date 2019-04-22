@@ -100,7 +100,7 @@
         </div>
         <div class="proposal-details proposal-details--right">
           {%- for label in proposal.labels %}
-            <span class="label mui--text-bold">{{ label.icon_emoji }} {% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+            <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
           {%- endfor %}
         </div>
       </div>

@@ -17,7 +17,7 @@
               <ul class="mui-list--aligned mui-list--unstyled">
                 {%- for sublabel in label.options %}
                   <li>
-                    <span class="mui--text-subhead"><strong>{{ sublabel.icon_emoji }} {{ sublabel.title }}</strong></span>
+                    <span class="mui--text-subhead"><strong>{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</strong></span>
                   </li>
                 {% else %}
                   <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
