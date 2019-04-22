@@ -1,44 +1,32 @@
 # -*- coding: utf-8 -*-
 
-from wtforms.fields import FieldList, FormField
-from wtforms.widgets import ListWidget, CheckboxInput
 from baseframe import __
 import baseframe.forms as forms
 from flask import g
-from baseframe.forms.sqlalchemy import QuerySelectField, QuerySelectMultipleField
-from ..models import Project, Profile, Label
-from .label import SublabelForm
+from baseframe.forms.sqlalchemy import QuerySelectField
+from ..models import Project, Profile
 
 __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalLabelsForm',
-    'ProposalMoveForm', 'get_proposal_labels_form']
+    'ProposalMoveForm']
 
 
-def get_proposal_labels_form(base_form_class, *args, **kwargs):
+def proposal_labels_form(project, proposal):
     """
-    Takes a proposal form class as base form and adds the labelset fields to it.
-    Dynamic fields can only be added to the form class and not instance. Hence this.
-    Any form that has `obj=<proposal_object>` or `parent=<proposal_parent_obj>`
-    passed to it, can be used with this function.
-    `parent` kwarg must be provided, otherwise the labels wont be added to the form.
+    Returns a label form for the given project and proposal.
     """
-    if 'parent' in kwargs or 'obj' in kwargs:
-        # we need parent project to be able to handle labelsets
-        project = kwargs.get('parent', None) or kwargs.get('obj').project
-        for label in project.labels:
-            ls_name = label.name
-            if not hasattr(base_form_class, ls_name):
-                if label.restricted and not set(project.current_roles).intersection({'admin', 'reviewer'}):
-                    continue
-                if label.is_parent:
-                    FieldType = forms.RadioField
-                    validators = [forms.validators.DataRequired()] if label.required else []
-                    setattr(base_form_class, ls_name, FieldType(label.title, validators=validators,
-                        choices=[(subl.name, subl.title) for subl in label.options], description=label.description))
-                else:
-                    FieldType = forms.BooleanField
-                    validators = [forms.validators.DataRequired()] if label.required else []
-                    setattr(base_form_class, ls_name, FieldType(label.title, validators=validators))
-    return base_form_class(*args, **kwargs)
+    class ProposalLabelForm(forms.Form):
+        pass
+
+    for label in project.labels:
+        if label.is_main and not label.archived and not label.restricted:
+            setattr(ProposalLabelForm, label.name, forms.RadioField(
+                label.title,
+                description=label.description,
+                validators=[forms.validators.DataRequired()] if label.required else [],
+                choices=[(option.name, option.title) for option in label.options]
+            ))
+
+    return ProposalLabelForm(obj=proposal.formlabels if proposal else None)
 
 
 class TransferProposal(forms.Form):
@@ -46,10 +34,10 @@ class TransferProposal(forms.Form):
 
 
 class ProposalLabelsForm(forms.Form):
-    labelsets = FormField(forms.Form)
+    formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self):
-        self.labelsets.form = get_proposal_labels_form(forms.Form, obj=self.edit_obj, parent=self.edit_parent)
+        self.formlabels.form = proposal_labels_form(project=self.edit_parent, proposal=self.edit_obj)
 
 
 class ProposalForm(forms.Form):
@@ -87,7 +75,7 @@ class ProposalForm(forms.Form):
     location = forms.StringField(__("Your location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         description=__("Your location, to help plan for your travel if required"))
 
-    labelsets = FormField(forms.Form)
+    formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def __init__(self, *args, **kwargs):
         super(ProposalForm, self).__init__(*args, **kwargs)
@@ -102,7 +90,7 @@ class ProposalForm(forms.Form):
             self.description.description = project.proposal_part_b.get('hint')
 
     def set_queries(self):
-        self.labelsets.form = get_proposal_labels_form(forms.Form, obj=self.edit_obj, parent=self.edit_parent)
+        self.formlabels.form = proposal_labels_form(project=self.edit_parent, proposal=self.edit_obj)
 
 
 class ProposalTransitionForm(forms.Form):

@@ -88,35 +88,6 @@ class ProposalFormData(object):
             self.data[attr] = value
 
 
-class ProposalLabelProxyWrapper(object):
-    def __init__(self, obj):
-        self.obj = obj
-
-    def __getattr__(self, name):
-        from .label import Label
-        if self.obj is not None:
-            main_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
-            existing_label = set(self.obj.labels).intersection(set(main_label.options))
-            return existing_label.pop() if len(existing_label) > 0 else None
-
-    def __setattr__(self, name, value):
-        from .label import Label
-        if self.obj is not None:
-            main_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
-            label = Label.query.filter(Label.main_label_id == main_label.id, Label.name == value).first()
-            if label is not None:
-                self.obj.assign_label(label)
-
-    def keys(self):
-        return [pl.name for pl in self.obj.project.labels] if self.obj is not None else []
-
-
-class ProposalLabelProxy(object):
-    def __get__(self, obj, cls=None):
-        if obj is not None:
-            return ProposalLabelProxyWrapper(obj)
-
-
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
@@ -167,9 +138,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     # Additional form data
     data = db.Column(JsonDict, nullable=False, server_default='{}')
-
-    # for managing relationship with labels easily
-    labelsets = ProposalLabelProxy()
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
@@ -394,8 +362,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         """
         if label in self.labels:
             return
-        if label.is_parent:
-            raise ValueError("Parent labels cannot be assigned to a proposal")
+        if label.is_main:
+            raise ValueError("This label requires one of its options to be used")
 
         if label.main_label is not None:
             existing_labels = set(label.main_label.options).intersection(set(self.labels))

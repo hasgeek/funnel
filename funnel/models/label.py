@@ -71,7 +71,7 @@ class Label(BaseScopedNameMixin, db.Model):
     _archived = db.Column('archived', db.Boolean, nullable=False, default=False)
 
     #: Proposals that this label is attached to
-    proposals = db.relationship(Proposal, secondary=proposal_label, lazy='dynamic', backref='labels')
+    proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
 
     __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
@@ -116,20 +116,20 @@ class Label(BaseScopedNameMixin, db.Model):
         ], else_=cls._archived)
 
     @hybrid_property
-    def is_parent(self):
+    def is_main(self):
         return len(self.options) != 0
 
-    @is_parent.expression
-    def is_parent(cls):
+    @is_main.expression
+    def is_main(cls):
         return exists().where(Label.main_label_id == cls.id)
 
     @hybrid_property
     def required(self):
-        return self._required if self.is_parent else False
+        return self._required if self.is_main else False
 
     @required.setter
     def required(self, value):
-        if value and not self.is_parent:
+        if value and not self.is_main:
             raise ValueError("Labels without options cannot be mandatory")
         self._required = value
 
@@ -164,3 +164,75 @@ class Label(BaseScopedNameMixin, db.Model):
         roles = super(Label, self).roles_for(actor, anchors)
         roles.update(self.project.roles_for(actor, anchors))
         return roles
+
+
+class ProposalLabelProxyWrapper(object):
+    def __init__(self, obj):
+        object.__setattr__(self, '_obj', obj)
+
+    def __getattr__(self, name):
+        # What this does:
+        # 1. Check if the project has this label (including archived labels). If not, raise error
+        # 2. If this is not a parent label:
+        # 2a. Check if proposal has this label set. If so, return True, else False
+        # 3. If this is a parent label:
+        # 3a. If the proposal has one of the options set, return its name. If not, return None
+
+        label = Label.query.filter(
+            Label.name == name, Label.project == self._obj.project
+        ).one_or_none()
+        if not label:
+            raise AttributeError
+
+        if not label.is_main:
+            return label in self._obj.labels
+
+        # Only one option from a main label should be set at a time, but we enforce
+        # this in the UI, not in the db, so more than one may exist in the db.
+        label_options = list(set(self._obj.labels).intersection(set(label.options)))
+        return label_options[0].name if len(label_options) > 0 else None
+
+    def __setattr__(self, name, value):
+        label = Label.query.filter(
+            Label.name == name, Label.project == self._obj.project, Label._archived == False
+        ).one_or_none()  # NOQA
+        if not label:
+            raise AttributeError
+
+        if not label.is_main:
+            if value is True:
+                if label not in self._obj.labels:
+                    self._obj.labels.append(label)
+            elif value is False:
+                if label in self._obj.labels:
+                    self._obj.labels.remove(label)
+            else:
+                raise ValueError("This label can only be set to True or False")
+        else:
+            option_label = Label.query.filter_by(
+                main_label=label,
+                _archived=False,
+                name=value).one_or_none()
+            if not option_label:
+                raise ValueError("Invalid option for this label")
+
+            # Scan for conflicting labels and remove them. Iterate over a copy
+            # to allow mutation of the source list during iteration
+            for existing_label in list(self._obj.labels):
+                if existing_label != option_label and existing_label.main_label == option_label.main_label:
+                    self._obj.labels.remove(existing_label)
+
+            if option_label not in self._obj.labels:
+                self._obj.labels.append(option_label)
+
+
+class ProposalLabelProxy(object):
+    def __get__(self, obj, cls=None):
+        if obj is not None:
+            return ProposalLabelProxyWrapper(obj)
+        else:
+            return self
+
+
+#: For reading and setting labels from the edit form
+Proposal.formlabels = ProposalLabelProxy()

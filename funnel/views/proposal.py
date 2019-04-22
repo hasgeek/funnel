@@ -12,7 +12,7 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
 from ..models import db, Proposal, Comment
-from ..forms import (ProposalForm, CommentForm, DeleteCommentForm, get_proposal_labels_form,
+from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
     ProposalTransitionForm, ProposalMoveForm, ProposalLabelsForm)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
@@ -99,11 +99,10 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             form.phone.data = g.user.phone
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
-            with db.session.no_autoflush:
-                proposal.voteset.vote(g.user)  # Vote up your own proposal by default
-            form.populate_obj(proposal.formdata)
+            form.populate_obj(proposal)
             proposal.name = make_name(proposal.title)
             db.session.add(proposal)
+            proposal.voteset.vote(g.user)  # Vote up your own proposal by default
             db.session.commit()
             flash(_("Your new session has been saved"), 'info')
             return redirect(proposal.url_for(), code=303)
@@ -167,11 +166,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit-proposal')
     def edit(self):
-        form = ProposalForm(obj=self.obj.formdata, model=Proposal, parent=self.obj.project)
+        form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
         if self.obj.user != g.user:
             del form.speaking
         if form.validate_on_submit():
-            form.populate_obj(self.obj.formdata)
+            form.populate_obj(self.obj)
             self.obj.name = make_name(self.obj.title)
             self.obj.edited_at = datetime.utcnow()
             db.session.commit()
