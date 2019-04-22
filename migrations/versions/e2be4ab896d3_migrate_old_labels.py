@@ -75,15 +75,16 @@ def upgrade():
             # create section labelset for the project
             labset = conn.execute(label.insert().values({
                     'project_id': proj['id'], 'name': u"section", 'title': u"Section",
-                    'seq': 1, 'description': u"", 'restricted': True, 'archived': False,
+                    'seq': 1, 'description': u"", 'restricted': False, 'archived': False,
                     'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id)).first()
 
             sections = conn.execute(section.select().where(section.c.project_id == proj['id']))
             for index, sec in enumerate(sections, start=1):
                 lab = conn.execute(label.insert().values({
+                    'main_label_id': labset[0],
                     'project_id': proj['id'], 'name': sec['name'], 'title': sec['title'],
-                    'seq': index, 'description': u"", 'restricted': True, 'archived': False,
+                    'seq': index, 'description': u"", 'restricted': False, 'archived': False,
                     'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id, label.c.name)).first()
 
@@ -98,7 +99,7 @@ def upgrade():
         # technical level
         labset = conn.execute(label.insert().values({
             'project_id': proj['id'], 'name': u"technical-level", 'title': u"Technical Level",
-            'seq': 1, 'description': u"", 'restricted': True, 'archived': False,
+            'seq': 1, 'description': u"", 'restricted': False, 'archived': False,
             'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
         }).returning(label.c.id)).first()
         tl_list = [('beginner', "Beginner"), ('intermediate', "Intermediate"), ('advanced', "Advanced")]
@@ -106,7 +107,7 @@ def upgrade():
             tl_name, tl_title = tl
             lab = conn.execute(label.insert().values({
                     'project_id': proj['id'], 'name': tl_name, 'title': tl_title, 'main_label_id': labset[0],
-                    'seq': index, 'description': u"", 'restricted': True, 'archived': False,
+                    'seq': index, 'description': u"", 'restricted': False, 'archived': False,
                     'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id, label.c.name)).first()
 
@@ -121,7 +122,7 @@ def upgrade():
         # session type
         labset = conn.execute(label.insert().values({
                 'project_id': proj['id'], 'name': u"session-type", 'title': u"Session Type",
-                'seq': 1, 'description': u"", 'restricted': True, 'archived': False,
+                'seq': 1, 'description': u"", 'restricted': False, 'archived': False,
                 'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
             }).returning(label.c.id)).first()
         st_list = [('lecture', "Lecture"), ('demo', "Demo"), ('tutorial', "Tutorial"), ('workshop', "Workshop"), ('discussion', "Discussion"), ('panel', "Panel")]
@@ -129,7 +130,7 @@ def upgrade():
             st_name, st_title = st
             lab = conn.execute(label.insert().values({
                     'project_id': proj['id'], 'name': st_name, 'title': st_title, 'main_label_id': labset[0],
-                    'seq': index, 'description': u"", 'restricted': True, 'archived': False,
+                    'seq': index, 'description': u"", 'restricted': False, 'archived': False,
                     'required': True, 'created_at': datetime.now(), 'updated_at': datetime.now()
                 }).returning(label.c.id, label.c.name)).first()
 
