@@ -26,23 +26,23 @@ class Label(BaseScopedNameMixin, db.Model):
     parent = db.synonym('project')
 
     #: Parent label's id. Do not write to this column directly, as we don't have the ability to
-    #: validate the value within the app. Always use the :attr:`parent_label` relationship.
-    parent_label_id = db.Column(
-        'parent_label_id',
+    #: validate the value within the app. Always use the :attr:`main_label` relationship.
+    main_label_id = db.Column(
+        'main_label_id',
         None,
         db.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    children = db.relationship(
+    options = db.relationship(
         'Label',
-        backref=db.backref('parent_label', remote_side='Label.id'),
+        backref=db.backref('main_label', remote_side='Label.id'),
         order_by='Label.seq',
         collection_class=ordering_list('seq', count_from=1)
     )
 
-    # TODO: Add sqlalchemy validator for `parent_label` to ensure the parent's project matches.
+    # TODO: Add sqlalchemy validator for `main_label` to ensure the parent's project matches.
     # Ideally add a SQL post-update trigger as well (code is in coaster's add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
@@ -86,43 +86,42 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @hybrid_property
     def restricted(self):
-        return self.parent_label._restricted if self.parent_label else self._restricted
+        return self.main_label._restricted if self.main_label else self._restricted
 
     @restricted.setter
     def restricted(self, value):
-        if self.parent_label:
-            raise ValueError("Cannot restrict a child label")
+        if self.main_label:
+            raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
     @restricted.expression
     def restricted(cls):
         return case([
-            (cls.parent_label_id != None, db.select([Label._restricted]).where(Label.id == cls.parent_label_id).as_scalar())  # NOQA
+            (cls.main_label_id != None, db.select([Label._restricted]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
         ], else_=cls._restricted)
 
     @hybrid_property
     def archived(self):
-        return self._archived or self.parent_label._archived if self.parent_label else False
+        return self._archived or self.main_label._archived if self.main_label else False
 
     @archived.setter
     def archived(self, value):
-        if self.parent_label:
-            raise ValueError("Cannot archive a child label")
         self._archived = value
 
     @archived.expression
     def archived(cls):
         return case([
-            (cls.parent_label_id != None, db.select([Label._archived]).where(Label.id == cls.parent_label_id).as_scalar())  # NOQA
+            (cls._archived == True, cls._archived),  # NOQA
+            (cls.main_label_id != None, db.select([Label._archived]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
         ], else_=cls._archived)
 
     @hybrid_property
     def is_parent(self):
-        return len(self.children) != 0
+        return len(self.options) != 0
 
     @is_parent.expression
     def is_parent(cls):
-        return exists().where(Label.parent_label_id == cls.id)
+        return exists().where(Label.main_label_id == cls.id)
 
     @hybrid_property
     def required(self):
@@ -131,13 +130,13 @@ class Label(BaseScopedNameMixin, db.Model):
     @required.setter
     def required(self, value):
         if value and not self.is_parent:
-            raise ValueError("Label without children cannot be required")
+            raise ValueError("Labels without options cannot be mandatory")
         self._required = value
 
     @archived.expression
     def archived(cls):
         return case([
-            (cls.parent_label_id != None, db.select([Label._required]).where(Label.id == cls.parent_label_id).as_scalar())  # NOQA
+            (cls.main_label_id != None, db.select([Label._required]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
         ], else_=cls._required)
 
     @property
@@ -156,8 +155,8 @@ class Label(BaseScopedNameMixin, db.Model):
         return result
 
     def __repr__(self):
-        if self.parent_label:
-            return "<Label %s/%s>" % (self.parent_label.name, self.name)
+        if self.main_label:
+            return "<Label %s/%s>" % (self.main_label.name, self.name)
         else:
             return "<Label %s>" % self.name
 

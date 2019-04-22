@@ -33,7 +33,7 @@ def get_proposal_labels_form(base_form_class, *args, **kwargs):
                     FieldType = forms.RadioField
                     validators = [forms.validators.DataRequired()] if label.required else []
                     setattr(base_form_class, ls_name, FieldType(label.title, validators=validators,
-                        choices=[(subl.name, subl.title) for subl in label.children], description=label.description))
+                        choices=[(subl.name, subl.title) for subl in label.options], description=label.description))
                 else:
                     FieldType = forms.BooleanField
                     validators = [forms.validators.DataRequired()] if label.required else []

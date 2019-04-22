@@ -133,7 +133,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
     labels = db.relationship('Label', cascade='all, delete-orphan',
-        primaryjoin='and_(Label.project_id == Project.id, Label.parent_label_id == None)',
+        primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None)',
         order_by='Label.seq', collection_class=ordering_list('seq', count_from=1))
     all_labels = db.relationship('Label', lazy='dynamic')
 
