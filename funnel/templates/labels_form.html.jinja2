@@ -8,21 +8,30 @@
   {%- endassets -%}
 {% endblock %}
 
-{% macro labelformfields(lform, subform=false) %}
+{% macro labelformfields(lform, subform=false, empty=false) %}
   {%- if subform %}
-      <div class="card">
-          <div class="card__body">
-          {{ lform.hidden_tag() }}
+    <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+      {{ lform.hidden_tag() }}
   {%- endif %}
   {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
   {%- for error in lform.icon_emoji.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-  {{ renderfield(lform.title, autofocus=true, css_class="label-title") }}
+  {%- if not empty %}
+    {{ renderfield(lform.title, autofocus=true, css_class="label-title") }}
+  {%- else -%}
+    {{ renderfield(lform.title, autofocus=true, css_class="label-title--close") }}
+  {%- endif %}
   {%- for error in lform.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-  {%- if subform %}</div></div>{%- endif %}
+    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form remove-btn"><i class="material-icons mui--text-body1">close</i></button>{%- endif %}
+    <!-- Add archive button for existing sublabels -->
+  {%- if subform %}
+    <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
+    <input name="lform-seq" value="{{ lform.seq }}" readonly class="seq-input">
+    </div>
+  {%- endif %}
 {% endmacro %}
 
 {% block content %}
@@ -35,7 +44,7 @@
   {%- if message %}
     <p class="form-message">{{ message }}</p>
   {%- endif %}
-  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins hg-form">
+  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins mui-form--smaller ">
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
     <div id="child-form">
@@ -45,8 +54,12 @@
         {% endfor %}
       {% endif %}
     </div>
-    <p><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-label-btn">+ Add Sublabel</button></p>
-    {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
+    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form"><i class="material-icons mui--align-middle mui--text-subhead">add</i> Add Sublabel</button></div>
+    {%- if subforms|length > 0 %}
+      {{ renderfield(form.required) }}
+    {%- else -%}
+      {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
+    {% endif %}
     {%- for error in form.required.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
     {%- endfor %}
@@ -67,6 +80,9 @@
   {% assets "js_emojionearea" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  {% assets "js_sortable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script type="text/javascript">
     $(function() {
       function initEmojiPicker() {
@@ -76,16 +92,34 @@
           standalone: true
         });
       }
-      $('#add-label-btn').click(function(event) {
+      function applySortable() {
+        $(this).sortable({
+          placeholder: $(this).data('drag-placeholder'),
+          cursor: 'move',
+          update: function() {
+              $(this).children().each(function(index) {
+                $(this).children('input[name$="seq"]').val(++index);
+              });
+          }
+        });
+      }
+      $('#add-sublabel-form').click(function(event) {
         event.preventDefault();
-        var formHtml = {{ labelformfields(emptysubform, subform=true)|tojson|safe }};
+        var formHtml = {{ labelformfields(emptysubform, subform=true, empty=true)|tojson|safe }};
         $('#child-form').append(formHtml);
         activate_widgets();
         initEmojiPicker();
         $('.js-required-field').removeClass('mui--hide');
         $('.js-required-field input').prop('checked', true);
+        $("#child-form").each(applySortable);
+      });
+      $('#child-form').on('click', '.js-remove-sublabel-form', function() {
+        event.preventDefault();
+        console.log('this', $(this));
+        $(this).parent().remove();
       });
       initEmojiPicker();
+      $("#child-form").each(applySortable);
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
