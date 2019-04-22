@@ -108,7 +108,7 @@ class LabelView(UrlForView, ModelView):
         else:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
             if self.obj.is_parent:
-                for subl in self.obj.children:
+                for subl in self.obj.options:
                     subforms.append(SublabelForm(obj=subl, parent=self.obj.project))
 
         if form.validate_on_submit():
@@ -142,7 +142,7 @@ class LabelView(UrlForView, ModelView):
                         subform.populate_obj(subl)
                         subl.make_name()
                         self.obj.project.labels.append(subl)
-                        self.obj.children.append(subl)
+                        self.obj.options.append(subl)
                         db.session.add(subl)
 
             db.session.commit()
