@@ -26,7 +26,7 @@ def proposal_labels_form(project, proposal):
                 choices=[(option.name, option.title) for option in label.options if not option.archived]
             ))
 
-    return ProposalLabelForm(obj=proposal.formlabels if proposal else None)
+    return ProposalLabelForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
 
 
 class TransferProposal(forms.Form):
