@@ -106,7 +106,7 @@ class LabelView(UrlForView, ModelView):
             form = LabelOptionForm(obj=self.obj, model=Label, parent=self.obj.project)
         else:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
-            if self.obj.is_main:
+            if self.obj.has_options:
                 for subl in self.obj.options:
                     subforms.append(LabelOptionForm(obj=subl, parent=self.obj.project))
 
