@@ -95,15 +95,15 @@ class ProposalLabelProxyWrapper(object):
     def __getattr__(self, name):
         from .label import Label
         if self.obj is not None:
-            parent_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
-            existing_label = set(self.obj.labels).intersection(set(parent_label.children))
+            main_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
+            existing_label = set(self.obj.labels).intersection(set(main_label.options))
             return existing_label.pop() if len(existing_label) > 0 else None
 
     def __setattr__(self, name, value):
         from .label import Label
         if self.obj is not None:
-            parent_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
-            label = Label.query.filter(Label.parent_label_id == parent_label.id, Label.name == value).first()
+            main_label = Label.query.filter(Label.is_parent == True).filter_by(name=name, project=self.obj.project).first()  # NOQA
+            label = Label.query.filter(Label.main_label_id == main_label.id, Label.name == value).first()
             if label is not None:
                 self.obj.assign_label(label)
 
@@ -397,8 +397,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if label.is_parent:
             raise ValueError("Parent labels cannot be assigned to a proposal")
 
-        if label.parent_label is not None:
-            existing_labels = set(label.parent_label.children).intersection(set(self.labels))
+        if label.main_label is not None:
+            existing_labels = set(label.main_label.options).intersection(set(self.labels))
             if existing_labels:
                 # the parent label is in radio mode and one of it's labels are
                 # already assigned to this proposal. We need to

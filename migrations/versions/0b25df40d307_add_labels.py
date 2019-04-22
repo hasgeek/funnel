@@ -19,7 +19,7 @@ def upgrade():
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('project_id', sa.Integer(), nullable=False),
-        sa.Column('parent_label_id', sa.Integer(), nullable=True),
+        sa.Column('main_label_id', sa.Integer(), nullable=True),
         sa.Column('seq', sa.Integer(), nullable=False),
         sa.Column('description', sa.UnicodeText(), nullable=False),
         sa.Column('icon_emoji', sa.UnicodeText(), nullable=True),
@@ -29,10 +29,10 @@ def upgrade():
         sa.Column('name', sa.Unicode(length=250), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['parent_label_id'], ['label.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['main_label_id'], ['label.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('parent_label_id', 'name')
+        sa.UniqueConstraint('main_label_id', 'name')
     )
     op.create_table('proposal_label',
         sa.Column('proposal_id', sa.Integer(), nullable=False),

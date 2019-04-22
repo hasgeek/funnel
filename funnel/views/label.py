@@ -63,7 +63,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
                     subform.populate_obj(subl)
                     subl.make_name()
                     db.session.add(subl)
-                    label.children.append(subl)
+                    label.options.append(subl)
 
             db.session.commit()
             return redirect(self.obj.url_for('labels'), code=303)
@@ -102,7 +102,7 @@ class LabelView(UrlForView, ModelView):
     def edit(self):
         emptysubform = SublabelForm(MultiDict({}))
         subforms = []
-        if self.obj.parent_label:
+        if self.obj.main_label:
             # It's a sublabel
             form = SublabelForm(obj=self.obj, model=Label, parent=self.obj.project)
         else:

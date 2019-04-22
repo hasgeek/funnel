@@ -15,7 +15,7 @@
             <div class="card__body card__body--minheight mui--text-subhead">
               <h3>{{ label.icon_emoji }} {{ label.title }}</h3>
               <ul class="mui-list--aligned mui-list--unstyled">
-                {%- for sublabel in label.children %}
+                {%- for sublabel in label.options %}
                   <li>
                     <span class="mui--text-subhead"><strong>{{ sublabel.icon_emoji }} {{ sublabel.title }}</strong></span>
                   </li>

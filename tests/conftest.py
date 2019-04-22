@@ -126,13 +126,13 @@ def new_project(test_db, new_profile, new_user, new_team):
 
 
 @pytest.fixture(scope='session')
-def new_parent_label(test_db, new_project):
-    parent_label_a = Label(
+def new_main_label(test_db, new_project):
+    main_label_a = Label(
         title=u"Parent Label A", project=new_project,
         description=u"A test parent label"
     )
-    new_project.labels.append(parent_label_a)
-    test_db.session.add(parent_label_a)
+    new_project.labels.append(main_label_a)
+    test_db.session.add(main_label_a)
 
     label_a1 = Label(title=u"Label A1", icon_emoji=u"👍", project=new_project)
     test_db.session.add(label_a1)
@@ -140,13 +140,13 @@ def new_parent_label(test_db, new_project):
     label_a2 = Label(title=u"Label A2", project=new_project)
     test_db.session.add(label_a2)
 
-    parent_label_a.children.append(label_a1)
-    parent_label_a.children.append(label_a2)
-    parent_label_a.required = True
-    parent_label_a.restricted = True
+    main_label_a.options.append(label_a1)
+    main_label_a.options.append(label_a2)
+    main_label_a.required = True
+    main_label_a.restricted = True
     test_db.session.commit()
 
-    return parent_label_a
+    return main_label_a
 
 # Scope: function
 # These fixtures are run before every test function,
