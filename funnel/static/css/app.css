@@ -672,6 +672,7 @@ html.touch .collapsible__body--disable {
 
 .card--small {
   max-width: 400px;
+  margin-top: 10px;
 }
 
 .profile-details {

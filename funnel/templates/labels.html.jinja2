@@ -8,46 +8,52 @@
 {% endblock %}
 
 {% block contentwrapper %}
-  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins">
-    {{ form.hidden_tag() }}
-    {%- for label in labels %}
-      <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
-        {% if label.has_options %}
-          <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-          <input name="label-seq" value="{{ label.seq }}" type="hidden" class="seq-input">
-          <h3 class="mui--text-subhead ui-dragable-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
-          <ul class="mui-list--aligned mui-list--unstyled ui-dragable-box__list">
-            {%- for sublabel in label.options %}
-              <li>
-                <span class="mui--text-subhead"><strong>{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</strong></span>
-              </li>
-            {% else %}
-              <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
-            {%- endfor %}
-          </ul>
-        {% else %}
-          <h3 class="mui--text-subhead ui-dragable-box__heading">{{ label.title }}</h3>
-        {% endif %}
+<div class="grid">
+  <div class="grid__col-xs-12 grid__col-md-6">
+    <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
+      {{ form.hidden_tag() }}
+      {%- for label in labels %}
+        <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
+          {% if label.has_options %}
+            <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
+            <input name="label-seq" value="{{ label.seq }}" type="hidden" class="seq-input">
+            <h3 class="mui--text-subhead ui-dragable-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
+            <ul class="mui-list--aligned mui-list--unstyled ui-dragable-box__list">
+              {%- for sublabel in label.options %}
+                <li>
+                  <span class="mui--text-subhead"><strong>{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</strong></span>
+                </li>
+              {% else %}
+                <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
+              {%- endfor %}
+            </ul>
+          {% else %}
+            <h3 class="mui--text-subhead ui-dragable-box__heading">{{ label.title }}</h3>
+          {% endif %}
+          <div>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
+            <!-- <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-href="" title="{% trans %}Add label{% endtrans %}" id="add-label-btn">{% trans %}Archive{% endtrans %}</a> -->
+          </div>
+        </div>
+      {%- endfor %}
+      <div class="mui-form form-actions clearfix">
         <div>
-          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
-          <!-- <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-href="" title="{% trans %}Add label{% endtrans %}" id="add-label-btn">{% trans %}Archive{% endtrans %}</a> -->
+          <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Save</button>
+          <span class="loading mui--hide"></span>
         </div>
       </div>
-    {%- endfor %}
-    <div class="mui-form form-actions clearfix">
-      <div>
-        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Save</button>
-        <span class="loading mui--hide"></span>
+    </form>
+  </div>
+  <div class="grid__col-xs-12 grid__col-md-6">
+    <div class="clickable-card card card--small" data-href="{{ project.url_for('new_label') }}" title="New label">
+      <div class="card__body card__body--new mui--bg-accent">
+        <p class="mui--text-headline mui--text-center">
+          <a class="new-btn mui--text-dark " href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><span>+</span><br><span>Add new label</span></a>
+        </p>
       </div>
     </div>
-  </form>
-  <div class="clickable-card card card--small" data-href="{{ project.url_for('new_label') }}" title="New label">
-    <div class="card__body card__body--new mui--bg-accent">
-      <p class="mui--text-headline mui--text-center">
-        <a class="new-btn mui--text-dark " href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><span>+</span><br><span>Add new label</span></a>
-      </p>
-    </div>
   </div>
+</div>
 {% endblock %}
 
 {% block footerscripts %}
