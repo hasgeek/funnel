@@ -1,4 +1,5 @@
 {% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{% trans %}Labels{% endtrans %} &ndash; {{ project.title }}{% endblock %}
 
 {% block top_title %}
@@ -7,46 +8,66 @@
 {% endblock %}
 
 {% block contentwrapper %}
-  <div class="grid">
+  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins">
+    {{ form.hidden_tag() }}
     {%- for label in labels %}
-      <div class="grid__col-xs-12 grid__col-sm-4">
-        <div class="card">
-          {% if label.has_options %}
-            <div class="card__body card__body--minheight mui--text-subhead">
-              <h3>{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
-              <ul class="mui-list--aligned mui-list--unstyled">
-                {%- for sublabel in label.options %}
-                  <li>
-                    <span class="mui--text-subhead"><strong>{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</strong></span>
-                  </li>
-                {% else %}
-                  <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
-                {%- endfor %}
-              </ol>
-            </div>
-            <div class="mui-divider"></div>
-          {% else %}
-            <div class="card__body card__body--minheight mui--text-subhead">
-              <h3>{{ label.title }}</h3>
-            </div>
-            <div class="mui-divider"></div>
-          {% endif %}
-          <div class="card__footer">
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
-            <!-- <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-href="" title="{% trans %}Add label{% endtrans %}" id="add-label-btn">{% trans %}Archive{% endtrans %}</a> -->
-          </div>
+      <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
+        {% if label.has_options %}
+          <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
+          <input name="label-seq" value="{{ label.seq }}" type="hidden" class="seq-input">
+          <h3 class="mui--text-subhead ui-dragable-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
+          <ul class="mui-list--aligned mui-list--unstyled ui-dragable-box__list">
+            {%- for sublabel in label.options %}
+              <li>
+                <span class="mui--text-subhead"><strong>{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</strong></span>
+              </li>
+            {% else %}
+              <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
+            {%- endfor %}
+          </ul>
+        {% else %}
+          <h3 class="mui--text-subhead ui-dragable-box__heading">{{ label.title }}</h3>
+        {% endif %}
+        <div>
+          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
+          <!-- <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-href="" title="{% trans %}Add label{% endtrans %}" id="add-label-btn">{% trans %}Archive{% endtrans %}</a> -->
         </div>
       </div>
     {%- endfor %}
-    <div class="grid__col-xs-12 grid__col-sm-4">
-      <div class="clickable-card card" data-href="{{ project.url_for('new_label') }}" title="New label">
-        <div class="card__body card__body--new mui--bg-accent">
-          <p class="mui--text-headline mui--text-center">
-            <a class="new-btn mui--text-dark " href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><span>+</span><br><span>Add new label</span></a>
-          </p>
-        </div>
+    <div class="mui-form form-actions clearfix">
+      <div>
+        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Save</button>
+        <span class="loading mui--hide"></span>
       </div>
     </div>
+  </form>
+  <div class="clickable-card card card--small" data-href="{{ project.url_for('new_label') }}" title="New label">
+    <div class="card__body card__body--new mui--bg-accent">
+      <p class="mui--text-headline mui--text-center">
+        <a class="new-btn mui--text-dark " href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><span>+</span><br><span>Add new label</span></a>
+      </p>
+    </div>
   </div>
-</div>
+{% endblock %}
+
+{% block footerscripts %}
+  {% assets "js_sortable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  <script type="text/javascript">
+    $(function() {
+      function applySortable() {
+        $(this).sortable({
+          placeholder: $(this).data('drag-placeholder'),
+          cursor: 'move',
+          update: function() {
+              $(this).children().each(function(index) {
+                $(this).children('input[name$="seq"]').val(++index);
+              });
+          }
+        });
+      }
+      $("#label-form").each(applySortable);
+    });
+  </script>
 {% endblock %}

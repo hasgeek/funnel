@@ -1,5 +1,5 @@
 {% extends "formlayout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderfield, rendersubmit, ajaxform %}
+{% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{{ title }}{% endblock %}
 
 {% block pageheaders %}
@@ -29,7 +29,7 @@
     <!-- Add archive button for existing sublabels -->
   {%- if subform %}
     <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-    <input name="lform-seq" value="{{ lform.seq }}" readonly class="seq-input">
+    {{ renderfield(lform.seq, css_class="seq-input") }}
     </div>
   {%- endif %}
 {% endmacro %}

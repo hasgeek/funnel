@@ -472,9 +472,15 @@ html.touch .collapsible__body--disable {
   margin: 10px 15px;
 }
 
-.ui-dragable-box--header {
+.ui-dragable-box__header {
   padding: 0;
   margin: 10px 0;
+}
+
+.ui-dragable-box--small {
+  margin: 10px 0;
+  max-width: 400px;
+  padding: 0 15px;
 }
 
 .ui-dragable-box--header .collapsible__header {
@@ -489,6 +495,19 @@ html.touch .collapsible__body--disable {
   position: absolute;
   left: 5px;
   top: 0;
+}
+
+.ui-dragable-box--small .drag-icon {
+  position: absolute;
+  left: 10px;
+  top: 15px;
+}
+.ui-dragable-box--small .ui-dragable-box__heading {
+  margin-left: 15px;
+  margin-top: 15px;
+}
+.ui-dragable-box--small .ui-dragable-box__list {
+  padding-left: 2em;
 }
 
 .ui-dragable-box:hover {
@@ -649,6 +668,10 @@ html.touch .collapsible__body--disable {
 }
 .card__body--new .new-btn:hover {
   text-decoration: none;
+}
+
+.card--small {
+  max-width: 400px;
 }
 
 .profile-details {
