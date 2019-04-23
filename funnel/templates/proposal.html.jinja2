@@ -204,7 +204,7 @@
                 </form>
               {% endif %}
               {%- if proposal_label_admin_form %}
-                {{ renderform(proposal_label_admin_form, 'add-label', action=proposal.url_for('edit_labels'), submit="Move", style='horiz') }}
+                {{ renderform(proposal_label_admin_form, 'add-label', action=proposal.url_for('edit_labels'), submit="Save", style='horiz') }}
               {%- endif %}
             </div>
           </div>
