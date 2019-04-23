@@ -13,7 +13,8 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 from .. import app, funnelapp, lastuser
 from ..models import db, Proposal, Comment
 from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
-    ProposalTransitionForm, ProposalMoveForm, ProposalLabelsForm)
+    ProposalTransitionForm, ProposalMoveForm, ProposalLabelsForm,
+    ProposalLabelsAdminForm)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
 
@@ -151,11 +152,14 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if 'move_to' in self.obj.current_access():
             proposal_move_form = ProposalMoveForm()
 
+        proposal_label_admin_form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
+
         return dict(project=self.obj.project, proposal=self.obj,
             comments=comments, commentform=commentform, delcommentform=delcommentform,
             links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
             part_a=self.obj.project.proposal_part_a.get('title', 'Objective'),
-            part_b=self.obj.project.proposal_part_b.get('title', 'Description'), csrf_form=Form())
+            part_b=self.obj.project.proposal_part_b.get('title', 'Description'), csrf_form=Form(),
+            proposal_label_admin_form=proposal_label_admin_form)
 
     @route('json')
     @requires_permission('view')
