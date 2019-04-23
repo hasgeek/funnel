@@ -253,18 +253,19 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         from .session import session_form
         return session_form(self.obj.project, proposal=self.obj)
 
-    @route('labels', methods=['GET', 'POST'])
+    @route('labels', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('admin')
     def edit_labels(self):
-        form = ProposalLabelsForm(model=Proposal, obj=self.obj, parent=self.obj.project)
+        form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Labels have been saved for this proposal."), 'info')
-            return redirect(self.obj.url_for(), 303)
-        return render_form(form=form, submit=_("Save changes"),
-            title=_("Edit labels for '{}'".format(self.obj.title)))
+        else:
+            flash(_("Labels could not be saved for this proposal."), 'error')
+        return redirect(self.obj.url_for(), 303)
+
 
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')
