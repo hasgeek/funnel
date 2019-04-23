@@ -7,7 +7,7 @@ from baseframe import _
 
 from .. import app, funnelapp, lastuser
 from ..models import Label, db, Project, Profile
-from ..forms import LabelForm, LabelOptionForm
+from ..forms import LabelForm, LabelSeqForm, LabelOptionForm
 from .mixins import ProjectViewMixin
 from .decorators import legacy_redirect
 
@@ -21,7 +21,9 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit_project')
     def labels(self):
-        return dict(project=self.obj, labels=self.obj.labels)
+        # TODO: Update form to save sequence of main labels
+        form = LabelSeqForm(model=Label, parent=self.obj.parent)
+        return dict(project=self.obj, labels=self.obj.labels, form=form)
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login

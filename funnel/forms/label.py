@@ -3,7 +3,7 @@
 from baseframe import __
 import baseframe.forms as forms
 
-__all__ = ['LabelForm', 'LabelOptionForm']
+__all__ = ['LabelForm', 'LabelSeqForm', 'LabelOptionForm']
 
 
 class LabelForm(forms.Form):
@@ -16,7 +16,12 @@ class LabelForm(forms.Form):
         description=__("If checked, only editors and reviewers can apply this label on proposals"))
 
 
+class LabelSeqForm(forms.Form):
+    seq = forms.IntegerField("", widget=forms.HiddenInput())
+
+
 class LabelOptionForm(forms.Form):
     title = forms.StringField(__("Option"),
         validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
     icon_emoji = forms.StringField("")
+    seq = forms.IntegerField("", widget=forms.HiddenInput())
