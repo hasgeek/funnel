@@ -7,10 +7,10 @@ from baseframe.forms.sqlalchemy import QuerySelectField
 from ..models import Project, Profile
 
 __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalLabelsForm',
-    'ProposalMoveForm']
+    'ProposalMoveForm', 'ProposalLabelsAdminForm']
 
 
-def proposal_label_form(project, proposal):
+def proposal_label_form(project, proposal, for_admin=False):
     """
     Returns a label form for the given project and proposal.
     """
@@ -18,13 +18,22 @@ def proposal_label_form(project, proposal):
         pass
 
     for label in project.labels:
-        if label.has_options and not label.archived and not label.restricted:
-            setattr(ProposalLabelForm, label.name, forms.RadioField(
-                label.title,
-                description=label.description,
-                validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
-                choices=[(option.name, option.title) for option in label.options if not option.archived]
-            ))
+        if for_admin:
+            if not label.archived and (label.restricted or not label.has_options):
+                setattr(ProposalLabelForm, label.name, forms.RadioField(
+                    label.title,
+                    description=label.description,
+                    validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+                    choices=[(option.name, option.title) for option in label.options if not option.archived]
+                ))
+        else:
+            if label.has_options and not label.archived and not label.restricted:
+                setattr(ProposalLabelForm, label.name, forms.RadioField(
+                    label.title,
+                    description=label.description,
+                    validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+                    choices=[(option.name, option.title) for option in label.options if not option.archived]
+                ))
 
     return ProposalLabelForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
 
@@ -38,6 +47,13 @@ class ProposalLabelsForm(forms.Form):
 
     def set_queries(self):
         self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj)
+
+
+class ProposalLabelsAdminForm(forms.Form):
+    formlabels = forms.FormField(forms.Form, __("Labels"))
+
+    def set_queries(self):
+        self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj, for_admin=True)
 
 
 class ProposalForm(forms.Form):

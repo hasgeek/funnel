@@ -7,6 +7,7 @@ __all__ = ['LabelForm', 'LabelSeqForm', 'LabelOptionForm']
 
 
 class LabelForm(forms.Form):
+    id = forms.IntegerField("", widget=forms.HiddenInput())
     title = forms.StringField(__("Label"),
         validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
     icon_emoji = forms.StringField("")
@@ -21,6 +22,7 @@ class LabelSeqForm(forms.Form):
 
 
 class LabelOptionForm(forms.Form):
+    id = forms.IntegerField("", widget=forms.HiddenInput())
     title = forms.StringField(__("Option"),
         validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
     icon_emoji = forms.StringField("")
