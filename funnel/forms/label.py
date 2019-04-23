@@ -7,7 +7,7 @@ __all__ = ['LabelForm', 'LabelSeqForm', 'LabelOptionForm']
 
 
 class LabelForm(forms.Form):
-    id = forms.IntegerField("", widget=forms.HiddenInput())
+    id = forms.IntegerField("", widget=forms.HiddenInput(), validators=[forms.validators.Optional()])
     title = forms.StringField(__("Label"),
         validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
     icon_emoji = forms.StringField("")
