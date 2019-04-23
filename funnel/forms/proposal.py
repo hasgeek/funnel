@@ -18,10 +18,11 @@ def proposal_label_form(project, proposal, for_admin=False):
         pass
 
     for label in project.labels:
-        field_kwargs = dict(
-            description=label.description,
-            validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
-        )
+        field_kwargs = {
+            'label': label.icon_emoji + " " + label.title if label.icon_emoji is not None else label.title,
+            'description': label.description,
+            'validators': [forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+        }
         if label.has_options:
             FieldType = forms.RadioField
             field_kwargs['choices'] = [(option.name, option.title) for option in label.options if not option.archived]
@@ -30,10 +31,10 @@ def proposal_label_form(project, proposal, for_admin=False):
 
         if for_admin:
             if not label.archived and (label.restricted or not label.has_options):
-                setattr(ProposalLabelForm, label.name, FieldType(label.title, **field_kwargs))
+                setattr(ProposalLabelForm, label.name, FieldType(**field_kwargs))
         else:
             if label.has_options and not label.archived and not label.restricted:
-                setattr(ProposalLabelForm, label.name, FieldType(label.title, **field_kwargs))
+                setattr(ProposalLabelForm, label.name, FieldType(**field_kwargs))
 
     return ProposalLabelForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
 
