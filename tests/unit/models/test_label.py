@@ -22,6 +22,11 @@ class TestLabels(object):
         assert label_a1.icon == u"👍"
         assert not label_a1.has_options
 
+        with pytest.raises(ValueError):
+            # because Label A1 is not a main and optioned label,
+            # it's restricted flag cannot be set
+            label_a1.restricted = True
+
     def test_label_from_fixture(self, test_client, test_db, new_label):
         assert new_label.title == u"Label B"
         assert new_label.icon_emoji == u"🔟"
@@ -51,10 +56,9 @@ class TestLabels(object):
         assert new_label not in restricted_labels
 
     def test_label_icon(self, test_client, test_db, new_label):
+        # if the label has icon_emoji, that's get set as icon
         assert new_label.icon == new_label.icon_emoji
         new_label.icon_emoji = ""
         test_db.session.commit()
         assert new_label.title == "Label B"
         assert new_label.icon == "LB"
-
-    # TODO: test that label options complain if you set restricted flag
