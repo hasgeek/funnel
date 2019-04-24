@@ -18,6 +18,7 @@ class LabelForm(forms.Form):
 
 
 class LabelSeqForm(forms.Form):
+    id = forms.IntegerField("", widget=forms.HiddenInput())
     seq = forms.IntegerField("", widget=forms.HiddenInput())
 
 

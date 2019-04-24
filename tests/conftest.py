@@ -1,24 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask
 import pytest
 import uuid
-import coaster.app
-from flask_lastuser import Lastuser
-from flask_lastuser.sqlalchemy import UserManager
+from funnel import app
 from funnel.models import db, Profile, Project, User, Label, Proposal, Team
 
 
-flask_app = Flask(__name__, instance_relative_config=True)
-lastuser = Lastuser()
-# this sets the mock usermanager up for use
-lastuser.init_usermanager(UserManager(db, User, Team))
-coaster.app.init_app(flask_app)
-db.init_app(flask_app)
-lastuser.init_app(flask_app)
-
-
-@flask_app.route('/usertest')
+@app.route('/usertest')
 def user_test():
     from coaster.auth import current_auth
     return current_auth.user.username if current_auth.user is not None else "anon"
@@ -43,14 +31,15 @@ TEST_DATA = {
 # Scope: session
 # These fixtures are run before every test session
 
+
 @pytest.fixture(scope='session')
 def test_client():
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
-    testing_client = flask_app.test_client()
+    testing_client = app.test_client()
 
     # Establish an application context before running the tests.
-    ctx = flask_app.app_context()
+    ctx = app.app_context()
     ctx.push()
 
     yield testing_client  # this is where the testing happens!
