@@ -50,5 +50,11 @@ class TestLabels(object):
         assert new_main_label in restricted_labels
         assert new_label not in restricted_labels
 
-    # TODO: test label icon property
+    def test_label_icon(self, test_client, test_db, new_label):
+        assert new_label.icon == new_label.icon_emoji
+        new_label.icon_emoji = ""
+        test_db.session.commit()
+        assert new_label.title == "Label B"
+        assert new_label.icon == "LB"
+
     # TODO: test that label options complain if you set restricted flag
