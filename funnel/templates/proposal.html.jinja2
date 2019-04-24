@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderfield, renderform %}
+{% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit %}
 {% from "comments.html.jinja2" import commenttree %}
 {% block title %}{{ proposal.title }} &ndash; {{ project.title }}{% endblock %}
 {% block description %}
@@ -204,7 +204,19 @@
                 </form>
               {% endif %}
               {%- if proposal_label_admin_form %}
-                {{ renderform(proposal_label_admin_form, 'add-label', action=proposal.url_for('edit_labels'), submit="Save", style='horiz') }}
+                <form action="{{ proposal.url_for('view') }}" method="post" class="add-label-form">
+                  {{ proposal_label_admin_form.hidden_tag() }}
+                  <p class="mui--text-title">Labels</p>
+                  <div class="selected-label js-label-select">
+                    {%- for label in proposal.labels %}
+                      <span class="label mui--text-caption mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+                    {%- endfor %}
+                  </div>
+                  <div id="label-dropdown" class="label-dropdown-wrapper">
+                    {{ renderfield(proposal_label_admin_form.formlabels, css_class="label-select-fields") }}
+                  </div>
+                  {{ rendersubmit([(None, "Save", '')]) }}
+                </form>
               {%- endif %}
             </div>
           </div>
@@ -307,6 +319,30 @@
       proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-href');
     }
     HasGeek.ProposalInit(proposalConfig);
+
+
+    // TODO: to be moved to proposal.js
+
+    // Show dropdown
+    $('.js-label-select').click(function() {
+      if($('#label-dropdown fieldset').hasClass('active')) {
+        $('#label-dropdown fieldset').removeClass('active');
+      } else {
+        $('#label-dropdown fieldset').addClass('active');
+      }
+    });
+
+    // Add check mark to listwidget label
+    $('.listwidget input[type="radio"]').change(function() {
+      $(this).parents().find('.mui-form__label').addClass('checked');
+    });
+
+    // On load, if the radio has been selected, then check mark the listwidget label
+    $('.listwidget input[type="radio"]').each(function() {
+      if(this.checked) {
+        $(this).parents().find('.mui-form__label').addClass('checked');
+      }
+    });
   });
 </script>
 <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>

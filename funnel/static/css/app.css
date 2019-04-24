@@ -1191,6 +1191,96 @@ html.touch .collapsible__body--disable {
   text-decoration: none;
 }
 
+.selected-label {
+  border-bottom: 1px solid #ccc;
+  width: 100%;
+}
+
+.add-label-form .label-dropdown-wrapper {
+  position: relative;
+}
+.add-label-form fieldset {
+  border: none;
+  position: absolute;
+  top: -500px;
+  z-index: -1;
+  left: 0px;
+  width: 100%;
+  margin: 0px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  background-color: white;
+  margin: 0;
+  -webkit-transition: top 0.25s linear, z-index 0.1s step-start;
+  -moz-transition: top 0.25s linear, z-index 0.1s step-start;
+  -ms-transition: top 0.25s linear, z-index 0.1s step-start;
+  -o-transition: top 0.25s linear, z-index 0.1s step-start;
+}
+.add-label-form fieldset legend {
+  display: none;
+}
+.add-label-form fieldset.active {
+  top: 0;
+  z-index: 1;
+  -webkit-transition: top 0.25s linear, z-index 0.25s step-end;
+  -moz-transition: top 0.25s linear, z-index 0.25s step-end;
+  -ms-transition: top 0.25s linear, z-index 0.25s step-end;
+  -o-transition: top 0.25s linear, z-index 0.25s step-end;
+  transition: top 0.25s linear, z-index 0.25s step-end;
+}
+.add-label-form .listwidget .mui-textfield {
+  margin-bottom: 0;
+  padding-top: 0;
+}
+.add-label-form .listwidget .mui-form__label {
+  font-size: 14px;
+  line-height: 24px;
+  overflow: auto;
+  margin: 0;
+  position: relative;
+  color: #1F2D3D;
+  padding-left: 20px;
+}
+.add-label-form .listwidget ul {
+  padding-left: 20px;
+}
+.add-label-form .listwidget .mui-form__label:before,
+.add-label-form .listwidget .mui-form__label:after {
+  position: absolute;
+  content: "";
+  display: inline-block;
+}
+.add-label-form .listwidget .mui-form__label:before {
+  height: 13px;
+  width: 13px;
+  border: 1px solid #ccc;
+  left: 0px;
+  top: 4px;
+  border-radius: 3px;
+}
+.add-label-form .listwidget .mui-form__label:after {
+  height: 4px;
+  width: 8px;
+  border-left: 1.4px solid #fff;
+  border-bottom: 1.2px solid #fff;
+  transform: rotate(-61deg);
+  left: 2px;
+  top: 8px;
+}
+.add-label-form .listwidget .mui-form__label:after {
+  content: none;
+}
+.add-label-form .listwidget .mui-form__label.checked:before {
+  background: #3A99FC;
+  border: none;
+}
+.add-label-form .listwidget .mui-form__label.checked:after {
+  content: "";
+}
+.add-label-form .mui-checkbox {
+  margin-bottom: 0;
+}
+
 .proposal-list-header {
   margin: 1px 0 0;
   width: 100%;
