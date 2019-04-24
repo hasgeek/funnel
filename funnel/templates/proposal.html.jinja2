@@ -211,6 +211,7 @@
                     {%- for label in proposal.labels %}
                       <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
                     {%- endfor %}
+                    <i class="material-icons">arrow_drop_down</i>
                   </div>
                   <div id="label-dropdown" class="label-dropdown-wrapper">
                     {{ renderfield(proposal_label_admin_form.formlabels, css_class="label-select-fields") }}
@@ -361,7 +362,7 @@
 
     $('.add-label-form input[type="checkbox"]').change(function() {
       var labelTxt = $(this).parent('label').text().trim();
-      updateLabels(labelTxt, attr, this.checked);
+      updateLabels(labelTxt, labelTxt, this.checked);
     });
 
     // Open and close dropdown
