@@ -207,9 +207,9 @@
                 <form action="{{ proposal.url_for('view') }}" method="post" class="add-label-form">
                   {{ proposal_label_admin_form.hidden_tag() }}
                   <p class="mui--text-title">Labels</p>
-                  <div class="selected-label js-label-select">
+                  <div class="selected-label" id="label-select">
                     {%- for label in proposal.labels %}
-                      <span class="label mui--text-caption mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+                      <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
                     {%- endfor %}
                   </div>
                   <div id="label-dropdown" class="label-dropdown-wrapper">
@@ -322,20 +322,25 @@
 
 
     // TODO: to be moved to proposal.js
-
-    // Show dropdown
-    $('.js-label-select').click(function() {
+    function handleDropdown() {
       if($('#label-dropdown fieldset').hasClass('active')) {
         $('#label-dropdown fieldset').removeClass('active');
       } else {
         $('#label-dropdown fieldset').addClass('active');
       }
-    });
+    }
 
-    // Add check mark to listwidget label
-    $('.listwidget input[type="radio"]').change(function() {
-      $(this).parents().find('.mui-form__label').addClass('checked');
-    });
+    function updateLabels(label, attr, action) {
+      if(action) {
+        if(label !== attr) {
+          $('.label[data-labeltxt="' + attr +  '"]').remove();
+        }
+        var span = '<span class="label mui--text-caption mui--text-bold" data-labeltxt="' + attr + '"">' + label +'</span>';
+        $('#label-select').append(span);
+      } else {
+        $('.label[data-labeltxt="' + attr +  '"]').remove();
+      }
+    }
 
     // On load, if the radio has been selected, then check mark the listwidget label
     $('.listwidget input[type="radio"]').each(function() {
@@ -343,6 +348,29 @@
         $(this).parents().find('.mui-form__label').addClass('checked');
       }
     });
+
+        // Add check mark to listwidget label
+    $('.listwidget input[type="radio"]').change(function() {
+      $(this).parents().find('.mui-form__label').addClass('checked');
+      console.log('radio', this, this.checked);
+      var labelTxt = $(this).parents().find('.mui-form__label').text() + ': ' + $(this).parent().find('label').text();
+      labelTxt = labelTxt.trim();
+      var attr = $(this).parents().find('.mui-form__label').text().trim();
+      updateLabels(labelTxt, attr, this.checked);
+    });
+
+    $('.add-label-form input[type="checkbox"]').change(function() {
+      var labelTxt = $(this).parent('label').text().trim();
+      updateLabels(labelTxt, attr, this.checked);
+    });
+
+    // Open and close dropdown
+    $(document).on('click', function(event) {
+      if ($('#label-select')[0] == event.target || !$(event.target).parents('#label-dropdown').length) {
+        handleDropdown();
+      }
+    });
+    
   });
 </script>
 <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>
