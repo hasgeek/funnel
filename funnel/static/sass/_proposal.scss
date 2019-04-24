@@ -325,11 +325,20 @@
 .selected-label {
   border-bottom: 1px solid #ccc;
   width: 100%;
+  position: relative;
+
+  .material-icons {
+    position: absolute;
+    bottom: 10px;
+    right: 0;
+    color: #888;
+  }
 }
 
 .add-label-form {
   .label-dropdown-wrapper {
     position: relative;
+    margin-bottom: 10px;
   }
   fieldset {
     border: none;
