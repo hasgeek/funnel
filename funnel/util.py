@@ -73,6 +73,7 @@ def split_name(fullname):
     return unicode(name_splits[0]), unicode(" ".join([s for s in name_splits[1:]]))
 
 
+# TODO: Added tests for this
 def make_qrcode(data):
     """
     Makes a QR code in-memory and returns the raw svg

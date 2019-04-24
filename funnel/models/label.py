@@ -84,6 +84,10 @@ class Label(BaseScopedNameMixin, db.Model):
         }
     }
 
+    @property
+    def form_label_text(self):
+        return self.icon_emoji + " " + self.title if self.icon_emoji is not None else self.title
+
     @hybrid_property
     def restricted(self):
         return self.main_label._restricted if self.main_label else self._restricted

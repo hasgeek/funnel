@@ -148,13 +148,37 @@ def new_main_label(test_db, new_project):
 
     return main_label_a
 
+
+@pytest.fixture(scope='session')
+def new_main_label_unrestricted(test_db, new_project):
+    main_label_b = Label(
+        title=u"Parent Label B", project=new_project,
+        description=u"A test parent label"
+    )
+    new_project.labels.append(main_label_b)
+    test_db.session.add(main_label_b)
+
+    label_b1 = Label(title=u"Label B1", icon_emoji=u"👍", project=new_project)
+    test_db.session.add(label_b1)
+
+    label_b2 = Label(title=u"Label B2", project=new_project)
+    test_db.session.add(label_b2)
+
+    main_label_b.options.append(label_b1)
+    main_label_b.options.append(label_b2)
+    main_label_b.required = False
+    main_label_b.restricted = False
+    test_db.session.commit()
+
+    return main_label_b
+
 # Scope: function
 # These fixtures are run before every test function,
 # so that changes made to the objects they return in one test function
 # doesn't affect another test function.
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='class')
 def new_label(test_db, new_project):
     label_b = Label(title=u"Label B", icon_emoji=u"🔟", project=new_project)
     new_project.labels.append(label_b)
@@ -163,7 +187,7 @@ def new_label(test_db, new_project):
     return label_b
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='class')
 def new_proposal(test_db, new_user, new_project):
     proposal = Proposal(
         user=new_user, speaker=new_user, project=new_project,

@@ -19,7 +19,7 @@ def proposal_label_form(project, proposal, for_admin=False):
 
     for label in project.labels:
         field_kwargs = {
-            'label': label.icon_emoji + " " + label.title if label.icon_emoji is not None else label.title,
+            'label': label.form_label_text,
             'description': label.description,
             'validators': [forms.validators.DataRequired(__("Please select one"))] if label.required else [],
         }
