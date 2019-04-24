@@ -113,8 +113,6 @@ class LabelView(UrlForView, ModelView):
                     subforms.append(LabelOptionForm(obj=subl, parent=self.obj.project))
 
         if form.validate_on_submit():
-            form.populate_obj(self.obj)
-
             idlist = request.values.getlist('id')
             titlelist = request.values.getlist('title')
             emojilist = request.values.getlist('icon_emoji')
@@ -145,7 +143,7 @@ class LabelView(UrlForView, ModelView):
                         self.obj.project.labels.append(subl)
                         self.obj.options.append(subl)
                         db.session.add(subl)
-
+                form.populate_obj(self.obj)
             db.session.commit()
             return redirect(self.obj.project.url_for('labels'), code=303)
         return dict(title="Edit label", form=form, subforms=subforms, emptysubform=emptysubform, project=self.obj.project)
