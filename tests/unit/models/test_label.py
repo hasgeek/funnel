@@ -49,3 +49,6 @@ class TestLabels(object):
         restricted_labels = Label.query.filter(Label.restricted == True).all()
         assert new_main_label in restricted_labels
         assert new_label not in restricted_labels
+
+    # TODO: test label icon property
+    # TODO: test that label options complain if you set restricted flag
