@@ -7,7 +7,6 @@ from funnel.models import Label
 class TestLabels(object):
     def test_main_label_from_fixture(self, test_client, new_main_label):
         assert new_main_label.title == u"Parent Label A"
-        assert new_main_label.seq == 1
         assert new_main_label.has_options
         assert new_main_label.required
         assert new_main_label.restricted
