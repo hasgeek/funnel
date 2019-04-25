@@ -14,7 +14,6 @@ from alembic import op
 import sqlalchemy as sa  # NOQA
 
 
-
 def upgrade():
     op.add_column('session', sa.Column('banner_image_url', sa.Unicode(length=2000), nullable=True))
 
