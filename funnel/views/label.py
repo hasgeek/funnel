@@ -16,13 +16,14 @@ from .decorators import legacy_redirect
 class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
-    @route('')
+    @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
     @lastuser.requires_login
     @requires_permission('edit_project')
     def labels(self):
         # TODO: Update form to save sequence of main labels
         form = LabelSeqForm(model=Label, parent=self.obj.parent)
+        print request.values
         return dict(project=self.obj, labels=self.obj.labels, form=form)
 
     @route('new', methods=['GET', 'POST'])
@@ -52,9 +53,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
             for idx, title in enumerate(titlelist):
                 subform = LabelOptionForm(MultiDict({
-                    'csrf_token': form.csrf_token.data, 'title': titlelist[idx],
-                    'icon_emoji': emojilist[idx]
-                    }))
+                    'title': titlelist[idx], 'icon_emoji': emojilist[idx]
+                    }), meta={'csrf': False})  # parent form has valid CSRF token
 
                 if not subform.validate():
                     flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
@@ -129,9 +129,8 @@ class LabelView(UrlForView, ModelView):
                     subl.icon_emoji = emojilist[idx]
                 else:
                     subform = LabelOptionForm(MultiDict({
-                        'csrf_token': form.csrf_token.data, 'title': titlelist[idx],
-                        'icon_emoji': emojilist[idx]
-                        }))
+                        'title': titlelist[idx], 'icon_emoji': emojilist[idx]
+                        }), meta={'csrf': False})  # parent form has valid CSRF token
 
                     if not subform.validate():
                         flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
