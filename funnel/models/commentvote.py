@@ -141,5 +141,5 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 perms.update([
                     'edit_comment',
                     'delete_comment'
-                    ])
+                ])
         return perms

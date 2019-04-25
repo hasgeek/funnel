@@ -21,7 +21,7 @@ import progressbar.widgets
 comment = table('comment',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-    )
+)
 
 
 def get_progressbar(label, maxval):

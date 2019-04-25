@@ -30,7 +30,7 @@ proposal_label = db.Table(
     *(make_timestamp_columns() + (
         db.Column('proposal_id', None, db.ForeignKey('proposal.id'), nullable=False, primary_key=True),
         db.Column('label_id', None, db.ForeignKey('label.id'), nullable=False, primary_key=True)
-        )))
+    )))
 
 
 class Label(BaseScopedNameMixin, db.Model):

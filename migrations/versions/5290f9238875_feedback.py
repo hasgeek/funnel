@@ -29,7 +29,7 @@ def upgrade():
         sa.Column('presentation', sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('proposal_id','auth_type','id_type','userid')
+        sa.UniqueConstraint('proposal_id', 'auth_type', 'id_type', 'userid')
     )
 
 

@@ -156,17 +156,17 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
                 'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
                 'latitude', 'longitude', 'coordinates'
-                },
+            },
             'call': {
                 'url_for'
-                }
-            },
+            }
+        },
         'reviewer': {
             'read': {
                 'email', 'phone'
-                }
             }
         }
+    }
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
@@ -328,7 +328,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'vote_proposal',
                 'new_comment',
                 'vote_comment',
-                ])
+            ])
             if user == self.owner:
                 perms.update([
                     'view-proposal',
@@ -336,7 +336,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                     'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
                     'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                     'transfer-proposal',
-                    ])
+                ])
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
         return perms
@@ -396,6 +396,6 @@ class ProposalRedirect(TimestampMixin, db.Model):
                 'profile': self.proposal.project.profile.name,
                 'project': self.proposal.project.name,
                 'proposal': self.proposal.url_name
-                }
+            }
         else:
             return {}
