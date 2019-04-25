@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType
 from .project import Project
