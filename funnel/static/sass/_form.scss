@@ -22,7 +22,7 @@
 }
 
 .label-title {
-  width: calc(100% - 90px);
+  width: calc(100% - 130px);
   display: inline-block;
 }
 
@@ -86,6 +86,12 @@
   cursor: pointer;
   position: relative;
   margin: 10px 15px;
+
+  .drag-icon {
+    position: absolute;
+    left: 5px;
+    top: 0;
+  }
 }
 
 .ui-dragable-box__header {
@@ -94,9 +100,39 @@
 }
 
 .ui-dragable-box--small {
-  margin: 10px 0;
+  margin: 10px;
   max-width: 400px;
-  padding: 0 15px;
+  padding: 10px 5px;
+
+  .drag-icon {
+    position: relative;
+    float: left;
+    margin-right: 10px;
+    vertical-align: middle;
+    margin-top: 15px;
+    color: #888;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 0;
+    z-index: 100;
+    right: 5px;
+    background: #fff;
+  }
+
+  .ui-dragable-box__heading {
+    margin-left: 15px;
+    margin-top: 15px;
+  }
+
+  .ui-dragable-box__list {
+    padding-left: 3em;
+  }
+
+  .action-btn-wrapper {
+    margin-left: 15px;
+  }
 }
 
 .ui-dragable-box--header .collapsible__header {
@@ -105,30 +141,6 @@
 
 .ui-dragable-box label {
   cursor: pointer;
-}
-
-.ui-dragable-box .drag-icon {
-  position: absolute;
-  left: 5px;
-  top: 0;
-}
-
-.ui-dragable-box--small {
-
-  .drag-icon {
-    position: absolute;
-    left: 10px;
-    top: 15px;
-  }
-  
-  .ui-dragable-box__heading {
-    margin-left: 15px;
-    margin-top: 15px;
-  }
-
-  .ui-dragable-box__list {
-    padding-left: 2em;
-  }
 }
 
 .ui-dragable-box:hover {
@@ -180,9 +192,6 @@
   max-width: 500px;
 }
 
-.remove-btn {
-  position: absolute;
-  top: 0;
-  z-index: 100;
-  right: 5px;
+.sub-form {
+  margin-left: 20px;
 }
