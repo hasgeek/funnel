@@ -99,7 +99,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent_project), Section.public == True).order_by('title')  # NOQA
         else:
             form.section.query = Section.query.filter(Section.project == self.obj, Section.public == True).order_by('title')  # NOQA
-        if len(list(form.section.query.all())) == 0:
+        if not list(form.section.query.all()):
             # Don't bother with sections when there aren't any
             del form.section
         if request.method == 'GET':
@@ -182,7 +182,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             form.section.query = Section.query.filter(or_(Section.project == self.obj.project, Section.project == self.obj.project.parent_project), Section.public == True).order_by('title')  # NOQA
         else:
             form.section.query = Section.query.filter(Section.project == self.obj.project, Section.public == True).order_by('title')  # NOQA
-        if len(list(form.section.query.all())) == 0:
+        if not list(form.section.query.all()):
             # Don't bother with sections when there aren't any
             del form.section
         if self.obj.user != g.user:
