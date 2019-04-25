@@ -15,7 +15,8 @@
       {%- for label in labels %}
         <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
           {% if label.has_options %}
-            <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
+            <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
+            <input name="label-id" value="{{ label.id }}" type="hidden">
             <input name="label-seq" value="{{ label.seq }}" type="hidden" class="seq-input">
             <h3 class="mui--text-subhead ui-dragable-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
             <ul class="mui-list--aligned mui-list--unstyled ui-dragable-box__list">
@@ -30,7 +31,7 @@
           {% else %}
             <h3 class="mui--text-subhead ui-dragable-box__heading">{{ label.title }}</h3>
           {% endif %}
-          <div>
+          <div class="action-btn-wrapper">
             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
             <!-- <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-href="" title="{% trans %}Add label{% endtrans %}" id="add-label-btn">{% trans %}Archive{% endtrans %}</a> -->
           </div>

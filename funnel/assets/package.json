@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "hammerjs": "^2.0.8",
-    "hex-rgb": "^4.0.0",
     "jsqr": "^1.1.1",
     "leaflet": "^1.4.0",
     "ractive": "^0.7.3",
