@@ -1,5 +1,3 @@
-import hexRgb from 'hex-rgb';
-
 export const Comments = {
   init(pageURL) {
     $('.comment .js-collapse').click(function() {
@@ -103,22 +101,71 @@ export const Video = {
   },
 };
 
-export const Labels = {
+export const LabelsWidget = {
   init() {
-    $.each($('.js-labels'), function(index, label){
-      let bgcolor = $(label).data('bgcolor');
-      let rgbBgcolor = hexRgb(bgcolor, {format: 'array'});
-      let cssBgcolor = `rgba(${rgbBgcolor[0]}, ${rgbBgcolor[1]}, ${rgbBgcolor[2]}, 0.6)`;
-      $(label).css('background-color', cssBgcolor);
-      $(label).css('border-color', bgcolor);
+    const Widget = this;
+    // On load, if the radio has been selected, then check mark the listwidget label
+    $('.listwidget input[type="radio"]').each(function() {
+      if(this.checked) {
+        $(this).parents().find('.mui-form__label').addClass('checked');
+      }
+    });
+
+    $('.listwidget .mui-form__label').click(function() {
+      if($(this).hasClass('checked')) {
+        $(this).removeClass('checked');
+        $(this).parents().find('input[type="radio"]').prop('checked', false);
+        Widget.updateLabels('', $(this).text().trim(), false);
+      } else {
+        $(this).addClass('checked');
+        $(this).parents().find('input[type="radio"]').first().click();
+      }
+    });
+
+        // Add check mark to listwidget label
+    $('.listwidget input[type="radio"]').change(function() {
+      $(this).parents().find('.mui-form__label').addClass('checked');
+      let labelTxt = `${$(this).parents().find('.mui-form__label').text()}: ${$(this).parent().find('label').text()}`.trim();
+      let attr = $(this).parents().find('.mui-form__label').text().trim();
+      Widget.updateLabels(labelTxt, attr, this.checked);
+    });
+
+    $('.add-label-form input[type="checkbox"]').change(function() {
+      let labelTxt = $(this).parent('label').text().trim();
+      Widget.updateLabels(labelTxt, labelTxt, this.checked);
+    });
+
+    // Open and close dropdown
+    $(document).on('click', function(event) {
+      if ($('#label-select')[0] === event.target || !$(event.target).parents('#label-dropdown').length) {
+        Widget.handleDropdown();
+      }
     });
   },
+  handleDropdown() {
+    if($('#label-dropdown fieldset').hasClass('active')) {
+      $('#label-dropdown fieldset').removeClass('active');
+    } else {
+      $('#label-dropdown fieldset').addClass('active');
+    }
+  },
+  updateLabels(label='', attr='', action=true) {
+    if(action) {
+      if(label !== attr) {
+        $(`.label[data-labeltxt="${attr}"]`).remove();
+      }
+      let span = `<span class="label mui--text-caption mui--text-bold" data-labeltxt="${attr}">${label}</span>`;
+      $('#label-select').append(span);
+    } else {
+      $(`.label[data-labeltxt="${attr}"]`).remove();
+    }
+  }
 };
 
 $(() => {
   window. HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= ''}) {
     Comments.init(pageUrl);
-    Labels.init();
+    LabelsWidget.init();
 
     if (videoWrapper) {
       Video.embedIframe(videoWrapper, videoUrl);
