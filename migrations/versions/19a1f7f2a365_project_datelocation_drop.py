@@ -10,7 +10,7 @@ revision = '19a1f7f2a365'
 down_revision = '9a0d8fa7da29'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

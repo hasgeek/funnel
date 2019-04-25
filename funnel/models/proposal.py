@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.hybrid import hybrid_property
-from werkzeug.utils import cached_property
 from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
@@ -10,6 +8,8 @@ from .commentvote import Commentset, Voteset, SET_TYPE
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
+from sqlalchemy.ext.hybrid import hybrid_property
+from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
@@ -110,20 +110,20 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
                 'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
                 'latitude', 'longitude', 'coordinates'
-                },
+            },
             'call': {
                 'url_for'
-                }
-            },
+            }
+        },
         'reviewer': {
             'read': {
                 'email', 'phone'
-                },
+            },
             'call': {
                 'assign_label'
-                }
             }
         }
+    }
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
@@ -281,7 +281,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'vote_proposal',
                 'new_comment',
                 'vote_comment',
-                ])
+            ])
             if user == self.owner:
                 perms.update([
                     'view-proposal',
@@ -289,7 +289,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                     'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
                     'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                     'transfer-proposal',
-                    ])
+                ])
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
         return perms
@@ -367,6 +367,6 @@ class ProposalRedirect(TimestampMixin, db.Model):
                 'profile': self.proposal.project.profile.name,
                 'project': self.proposal.project.name,
                 'proposal': self.proposal.url_name
-                }
+            }
         else:
             return {}

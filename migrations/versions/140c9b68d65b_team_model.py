@@ -11,7 +11,7 @@ revision = '140c9b68d65b'
 down_revision = '1bb2df0df8e2'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
@@ -25,7 +25,7 @@ def upgrade():
         sa.Column('orgid', sa.String(length=22), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('userid')
-        )
+    )
     op.create_table('users_teams',
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -34,7 +34,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['team_id'], ['team.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('user_id', 'team_id')
-        )
+    )
     op.drop_column('user', 'description')
 
 

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-import wtforms
 import baseframe.forms as forms
 from baseframe import __
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField

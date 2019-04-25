@@ -12,7 +12,7 @@ down_revision = '19a1f7f2a365'
 
 from uuid import uuid4
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
 from progressbar import ProgressBar
@@ -22,25 +22,25 @@ from coaster.utils import buid2uuid, uuid2buid
 project = table('project',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-    )
+)
 
 profile = table('profile',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
     column('userid', sa.String(22)),
-    )
+)
 
 user = table('user',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
     column('userid', sa.String(22)),
-    )
+)
 
 team = table('team',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
     column('userid', sa.String(22)),
-    )
+)
 
 
 def get_progressbar(label, maxval):

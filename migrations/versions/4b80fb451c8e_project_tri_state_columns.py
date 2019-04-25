@@ -11,7 +11,7 @@ revision = '4b80fb451c8e'
 down_revision = '9aa60ff2a0ea'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import table, column
 
 
