@@ -21,61 +21,70 @@
   vertical-align: middle;
 }
 
-.label-title {
-  width: calc(100% - 130px);
-  display: inline-block;
-}
+.label-form {
+  max-width: 500px;
 
-.label-title--close {
-  width: calc(100% - 114px);
-  display: inline-block;
-}
-
-.mui-form__fields.emojipicker {
-  float: left;
-  width: 70px;
-  height: 48px;
-  margin-right: 20px;
-
-  label {
-    display: none;
+  .label-form__title-field {
+    width: calc(100% - 130px);
+    display: inline-block;
   }
 
-  .emojionearea-editor {
-    height: 48px;
-    min-height: 20px;
-    overflow: hidden;
-    white-space: nowrap;
+  .label-form__title-field--close {
+    width: calc(100% - 114px);
+  }
+
+  .label-form__subform__close-btn {
     position: absolute;
     top: 0;
-    left: 12px;
-    right: 24px;
-    padding: 6px 0;
+    z-index: 100;
+    right: 5px;
+    background: #fff;
   }
 
-  .emojionearea-button {
-    top: 10px;
+  .label-form__subform {
+    margin-left: 20px;
   }
 
-  .emojionearea-editor {
-    left: 6px !important;
-    padding-right: 45px !important;
-  }
+  .emojipicker {
+    float: left;
+    width: 70px;
+    height: 48px;
+    margin-right: 20px;
 
-  .emojionearea-button .emojionearea-button-open,
-  .emojionearea-button .emojionearea-button-close {
-    right: 3px;
-  }
+    label {
+      display: none;
+    }
 
-  .emojionearea .emojionearea-editor [class*=emojione-], .emojionearea .emojionearea-editor .emojioneemoji {
-    margin: -.2ex 1ex .2ex -0.5ex;
-  }
-}
+    .emojionearea-editor {
+      height: 48px;
+      min-height: 20px;
+      overflow: hidden;
+      white-space: nowrap;
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 24px;
+      padding: 6px 0;
+    }
 
-.sub-form-field {
-  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.2);
-  margin: 10px 0 10px 20px;
-  padding: 10px;
+    .emojionearea-button {
+      top: 10px;
+    }
+
+    .emojionearea-editor {
+      left: 6px !important;
+      padding-right: 45px !important;
+    }
+
+    .emojionearea-button .emojionearea-button-open,
+    .emojionearea-button .emojionearea-button-close {
+      right: 3px;
+    }
+
+    .emojionearea .emojionearea-editor [class*=emojione-], .emojionearea .emojionearea-editor .emojioneemoji {
+      margin: -.2ex 1ex .2ex -0.5ex;
+    }
+  }
 }
 
 .ui-dragable-box {
@@ -97,42 +106,6 @@
 .ui-dragable-box__header {
   padding: 0;
   margin: 10px 0;
-}
-
-.ui-dragable-box--small {
-  margin: 10px;
-  max-width: 400px;
-  padding: 10px 5px;
-
-  .drag-icon {
-    position: relative;
-    float: left;
-    margin-right: 10px;
-    vertical-align: middle;
-    margin-top: 15px;
-    color: #888;
-  }
-
-  .remove-btn {
-    position: absolute;
-    top: 0;
-    z-index: 100;
-    right: 5px;
-    background: #fff;
-  }
-
-  .ui-dragable-box__heading {
-    margin-left: 15px;
-    margin-top: 15px;
-  }
-
-  .ui-dragable-box__list {
-    padding-left: 3em;
-  }
-
-  .action-btn-wrapper {
-    margin-left: 15px;
-  }
 }
 
 .ui-dragable-box--header .collapsible__header {
@@ -186,12 +159,4 @@
 .ui-dragable-box .sp-replacer {
   margin-top: 5px;
   margin-left: 5px;
-}
-
-.mui-form--smaller {
-  max-width: 500px;
-}
-
-.sub-form {
-  margin-left: 20px;
 }
