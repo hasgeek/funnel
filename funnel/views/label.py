@@ -49,6 +49,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             label.restricted = form.data.get('restricted')
             label.make_name()
             self.obj.labels.append(label)
+            self.obj.labels.reorder()
             db.session.add(label)
 
             for idx, title in enumerate(titlelist):
@@ -141,6 +142,7 @@ class LabelView(UrlForView, ModelView):
                         subl.make_name()
                         self.obj.project.labels.append(subl)
                         self.obj.options.append(subl)
+                        self.obj.options.reorder()
                         db.session.add(subl)
                 form.populate_obj(self.obj)
             db.session.commit()
