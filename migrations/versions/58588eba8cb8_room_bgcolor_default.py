@@ -11,7 +11,7 @@ revision = '58588eba8cb8'
 down_revision = '31253f116e1e'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import bindparam
 
 from funnel.models import VenueRoom

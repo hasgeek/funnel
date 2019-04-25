@@ -12,7 +12,7 @@ down_revision = 'cd8d073d7557'
 
 from uuid import uuid4
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import table, column
 from sqlalchemy_utils import UUIDType
 from progressbar import ProgressBar

@@ -11,7 +11,7 @@ revision = '316aaa757c8c'
 down_revision = '9d513be1a96'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.dialects import postgresql
 
 def upgrade():
