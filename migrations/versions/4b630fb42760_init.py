@@ -70,7 +70,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.ForeignKeyConstraint(['votespace_id'], ['votespace.id'], ),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('user_id','votespace_id')
+        sa.UniqueConstraint('user_id', 'votespace_id')
     )
     op.create_table('comment',
         sa.Column('id', sa.Integer(), nullable=False),

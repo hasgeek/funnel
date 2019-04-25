@@ -36,7 +36,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         db.CheckConstraint(
             '("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
             'session_start_end_check')
-        )
+    )
 
     @hybrid_property
     def scheduled(self):
