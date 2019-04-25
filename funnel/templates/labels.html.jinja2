@@ -11,13 +11,12 @@
 <div class="grid">
   <div class="grid__col-xs-12 grid__col-md-6">
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
-      {{ form.hidden_tag() }}
       {%- for label in labels %}
         <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
+          <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
+          <input name="id" value="{{ label.id }}" type="hidden" class="id-input">
+          <input name="seq" value="{{ label.seq }}" type="hidden" class="seq-input">
           {% if label.has_options %}
-            <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
-            <input name="id" value="{{ label.id }}" type="hidden" class="id-input">
-            <input name="seq" value="{{ label.seq }}" type="hidden" class="seq-input">
             <h3 class="mui--text-subhead ui-dragable-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
             <ul class="mui-list--aligned mui-list--unstyled ui-dragable-box__list">
               {%- for sublabel in label.options %}
