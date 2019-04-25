@@ -12,7 +12,7 @@ down_revision = 'e417a13e136d'
 
 from uuid import uuid4
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import table, column
 from sqlalchemy_utils import UUIDType
 

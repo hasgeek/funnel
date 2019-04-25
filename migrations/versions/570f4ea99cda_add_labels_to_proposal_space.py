@@ -1,5 +1,5 @@
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import table, column
 from coaster.sqlalchemy import JsonDict
 

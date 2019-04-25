@@ -11,7 +11,7 @@ revision = 'e3bf172763bc'
 down_revision = '94ce3a9b7a3a'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy_utils import TimezoneType
 
 

@@ -10,7 +10,7 @@ revision = '94ce3a9b7a3a'
 down_revision = 'a9cb0e1c52ed'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 from sqlalchemy_utils.types.uuid import UUIDType
 from coaster.sqlalchemy.columns import JsonDict

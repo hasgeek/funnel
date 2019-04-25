@@ -11,7 +11,7 @@ revision = '69c2ced88981'
 down_revision = 'b34aa62af7fc'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
 from progressbar import ProgressBar
