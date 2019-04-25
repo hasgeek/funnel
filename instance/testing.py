@@ -11,3 +11,8 @@ TIMEZONE = 'Asia/Kolkata'
 RQ_LOW_URL = 'redis://localhost:6379/0'
 ASSET_BASE_PATH = "build"
 HASCORE_SERVER = 'https://api.hasgeek.com'
+WTF_CSRF_ENABLED = False
+WTF_CSRF_METHODS = {}
+
+ASSET_MANIFEST_PATH = "static/build/manifest.json"
+ASSET_BASE_PATH = "build"
