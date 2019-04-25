@@ -31,7 +31,7 @@ def upgrade():
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name'),
         sa.UniqueConstraint('userid')
-        )
+    )
 
     op.add_column('proposal_space', sa.Column('profile_id', sa.Integer(), nullable=True))
     op.drop_constraint('proposal_space_name_key', 'proposal_space')

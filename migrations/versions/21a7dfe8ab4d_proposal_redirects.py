@@ -24,7 +24,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.PrimaryKeyConstraint('proposal_space_id', 'url_id')
-        )
+    )
 
 
 def downgrade():

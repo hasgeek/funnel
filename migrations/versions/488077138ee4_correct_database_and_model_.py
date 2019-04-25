@@ -19,7 +19,7 @@ from coaster.sqlalchemy import JsonDict
 tables_with_name_column = [
     'event', 'profile', 'proposal', 'proposal_space', 'proposal_space_section',
     'session', 'ticket_type', 'user_group', 'venue', 'venue_room'
-    ]
+]
 
 
 def upgrade():

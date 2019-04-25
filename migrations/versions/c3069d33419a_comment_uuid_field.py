@@ -31,7 +31,7 @@ def get_progressbar(label, maxval):
             progressbar.widgets.Percentage(), ' ',
             progressbar.widgets.Bar(), ' ',
             progressbar.widgets.ETA(), ' '
-            ])
+        ])
 
 
 def upgrade():

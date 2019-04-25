@@ -23,7 +23,7 @@ team = table('team',
     column('id', sa.Integer()),
     column('orgid', sa.String(22)),
     column('org_uuid', UUIDType(binary=False)),
-    )
+)
 
 
 def get_progressbar(label, maxval):
