@@ -23,25 +23,25 @@ from .decorators import legacy_redirect
 
 def session_data(session, with_modal_url=False, with_delete_url=False):
     return dict(
-            {
-                'id': session.url_id,
-                'title': session.title,
-                'start': session.start.isoformat() + 'Z' if session.scheduled else None,
-                'end': session.end.isoformat() + 'Z' if session.scheduled else None,
-                'speaker': session.speaker if session.speaker else None,
-                'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
-                'is_break': session.is_break,
-                'url_name_suuid': session.url_name_suuid,
-                'url_name': session.url_name,
-                'proposal_id': session.proposal_id,
-                'speaker_bio': session.speaker_bio,
-                'description': session.description,
-            }.items() + dict({
-                'modal_url': session.url_for(with_modal_url)
-            } if with_modal_url else {}).items() + dict({
-                'delete_url': session.url_for('delete')
-            } if with_delete_url else {}).items()
-        )
+        {
+            'id': session.url_id,
+            'title': session.title,
+            'start': session.start.isoformat() + 'Z' if session.scheduled else None,
+            'end': session.end.isoformat() + 'Z' if session.scheduled else None,
+            'speaker': session.speaker if session.speaker else None,
+            'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
+            'is_break': session.is_break,
+            'url_name_suuid': session.url_name_suuid,
+            'url_name': session.url_name,
+            'proposal_id': session.proposal_id,
+            'speaker_bio': session.speaker_bio,
+            'description': session.description,
+        }.items() + dict({
+            'modal_url': session.url_for(with_modal_url)
+        } if with_modal_url else {}).items() + dict({
+            'delete_url': session.url_for('delete')
+        } if with_delete_url else {}).items()
+    )
 
 
 def session_list_data(sessions, with_modal_url=False, with_delete_url=False):
@@ -79,7 +79,7 @@ def schedule_data(project):
             'section_name': session.proposal.section.name if session.proposal and session.proposal.section else None,
             'section_title': session.proposal.section.title if session.proposal and session.proposal.section else None,
             'technical_level': session.proposal.technical_level if session.proposal and session.proposal.section else None,
-            })
+        })
     schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
@@ -87,7 +87,7 @@ def schedule_data(project):
             daydata['slots'].append({
                 'slot': slot,
                 'sessions': data[day][slot]
-                })
+            })
         schedule.append(daydata)
     return schedule
 
@@ -191,9 +191,9 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'unscheduled': [{
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
-                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.state.SCHEDULED],
+            } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.state.SCHEDULED],
             'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
-            }
+        }
         # Set the proper range for the calendar to allow for date changes
         first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start.asc()).first()
         last_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.end.desc()).first()
@@ -243,13 +243,13 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             room=self.obj.title,
             venue=self.obj.venue.title,
             event=self.obj.venue.project.title,
-            ))
+        ))
         cal.add('version', "2.0")
         cal.add('summary', "Schedule for room {room} at {venue} for {event}".format(
             room=self.obj.title,
             venue=self.obj.venue.title,
             event=self.obj.venue.project.title,
-            ))
+        ))
         # Last updated time for calendar needs to be set. Cannot figure out how.
         # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
         # cal.add('last-modified', latest_session[0])
@@ -257,7 +257,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             room=self.obj.title,
             venue=self.obj.venue.title,
             event=self.obj.venue.project.title,
-            ))
+        ))
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
         return Response(cal.to_ical(), mimetype='text/calendar')
