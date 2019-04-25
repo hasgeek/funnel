@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import abort
 from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
@@ -10,8 +9,6 @@ from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
-from flask import request
-from pytz import timezone, utc, UnknownTimeZoneError
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
 

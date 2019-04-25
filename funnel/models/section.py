@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
 from . import db, BaseScopedNameMixin
 from .project import Project
 from .commentvote import Voteset, Commentset, SET_TYPE
