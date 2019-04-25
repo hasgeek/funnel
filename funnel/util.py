@@ -10,13 +10,14 @@ import qrcode.image.svg
 
 @cache.memoize(timeout=86400)
 def geonameid_from_location(text):
-    """ Accepts a string, checks hascore if there's a location embedded
-        in the string, and returns a set of matched geonameids.
-        Eg: "Bangalore" -> {1277333}
+    """
+    Accepts a string, checks hascore if there's a location embedded
+    in the string, and returns a set of matched geonameids.
+    Eg: "Bangalore" -> {1277333}
 
-        Returns an empty set if the request timed out, or if the Hascore config
-        wasn't set.
-        To detect multiple locations, split them up and pass each location individually
+    Returns an empty set if the request timed out, or if the Hascore config
+    wasn't set.
+    To detect multiple locations, split them up and pass each location individually
     """
     if 'HASCORE_SERVER' in current_app.config:
         url = urljoin(current_app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
@@ -34,8 +35,9 @@ def extract_twitter_handle(handle):
     Extracts a twitter handle from a user input.
 
     Usage::
-      >>> extract_twitter_handle('https://twitter.com/marscuriosity')
-      u'marscuriosity'
+
+        >>> extract_twitter_handle('https://twitter.com/marscuriosity')
+        u'marscuriosity'
 
     **Notes**
 
@@ -48,9 +50,9 @@ def extract_twitter_handle(handle):
 
     parsed_handle = urlparse(handle)
     if (
-            (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com') or
-            (not parsed_handle.netloc and len(handle) > 16) or
-            (not parsed_handle.path)
+            (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
+            or (not parsed_handle.netloc and len(handle) > 16)
+            or (not parsed_handle.path)
     ):
         return None
 

@@ -10,7 +10,7 @@ revision = '9a0d8fa7da29'
 down_revision = 'eec2fad0f3e9'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from coaster.sqlalchemy import JsonDict
 
 

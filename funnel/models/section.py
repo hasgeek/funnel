@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
 from . import db, BaseScopedNameMixin
 from .project import Project
 from .commentvote import Voteset, Commentset, SET_TYPE
@@ -32,9 +31,9 @@ class Section(BaseScopedNameMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'description', 'public'
-                },
             },
-        }
+        },
+    }
 
     def __init__(self, **kwargs):
         super(Section, self).__init__(**kwargs)
@@ -47,5 +46,5 @@ class Section(BaseScopedNameMixin, db.Model):
             perms.update([
                 'edit-section',
                 'delete-section',
-                ])
+            ])
         return perms

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, jsonify, request
-from coaster.views import requestargs, route, render_with, requires_permission, UrlForView, ModelView
+from flask import flash, request
+from coaster.views import route, render_with, requires_permission, UrlForView, ModelView
 from baseframe import _
 from baseframe.forms import render_redirect, render_form, render_delete_sqla
 
@@ -31,7 +31,7 @@ def venue_data(venue):
         'longitude': venue.longitude,
         'url': None,
         'json_url': None,
-        }
+    }
 
 
 def room_data(room):
@@ -43,7 +43,7 @@ def room_data(room):
         'bgcolor': room.bgcolor,
         'url': None,
         'json_url': None,
-        }
+    }
 
 
 @route('/<profile>/<project>/venues')
