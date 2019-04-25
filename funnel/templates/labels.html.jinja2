@@ -22,7 +22,6 @@
         <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
           <i class="material-icons mui--text-body1 mui--text-light label-box__icon">drag_indicator</i>
           <input name="id" value="{{ label.id }}" type="hidden" class="id-input">
-          <input name="seq" value="{{ label.seq }}" type="hidden" class="seq-input">
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
             {%- for sublabel in label.options %}
