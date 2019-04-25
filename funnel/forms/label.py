@@ -3,7 +3,7 @@
 from baseframe import __
 import baseframe.forms as forms
 
-__all__ = ['LabelForm', 'LabelSeqForm', 'LabelOptionForm']
+__all__ = ['LabelForm', 'LabelOptionForm']
 
 
 class LabelForm(forms.Form):
@@ -15,11 +15,6 @@ class LabelForm(forms.Form):
         description=__("If checked, proposers must select one of the options"))
     restricted = forms.BooleanField(__("Restrict use of this label to editors"), default=False,
         description=__("If checked, only editors and reviewers can apply this label on proposals"))
-
-
-class LabelSeqForm(forms.Form):
-    id = forms.IntegerField("", widget=forms.HiddenInput())
-    seq = forms.IntegerField("", widget=forms.HiddenInput())
 
 
 class LabelOptionForm(forms.Form):
