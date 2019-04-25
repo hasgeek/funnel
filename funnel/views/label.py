@@ -16,13 +16,14 @@ from .decorators import legacy_redirect
 class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
-    @route('')
+    @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
     @lastuser.requires_login
     @requires_permission('edit_project')
     def labels(self):
         # TODO: Update form to save sequence of main labels
         form = LabelSeqForm(model=Label, parent=self.obj.parent)
+        print request.values
         return dict(project=self.obj, labels=self.obj.labels, form=form)
 
     @route('new', methods=['GET', 'POST'])
