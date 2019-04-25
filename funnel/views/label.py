@@ -52,9 +52,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
             for idx, title in enumerate(titlelist):
                 subform = LabelOptionForm(MultiDict({
-                    'csrf_token': form.csrf_token.data, 'title': titlelist[idx],
-                    'icon_emoji': emojilist[idx]
-                    }))
+                    'title': titlelist[idx], 'icon_emoji': emojilist[idx]
+                    }), meta={'csrf': False})  # parent form has valid CSRF token
 
                 if not subform.validate():
                     flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
@@ -129,9 +128,8 @@ class LabelView(UrlForView, ModelView):
                     subl.icon_emoji = emojilist[idx]
                 else:
                     subform = LabelOptionForm(MultiDict({
-                        'csrf_token': form.csrf_token.data, 'title': titlelist[idx],
-                        'icon_emoji': emojilist[idx]
-                        }))
+                        'title': titlelist[idx], 'icon_emoji': emojilist[idx]
+                        }), meta={'csrf': False})  # parent form has valid CSRF token
 
                     if not subform.validate():
                         flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
