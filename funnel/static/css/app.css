@@ -412,7 +412,7 @@ html.touch .collapsible__body--disable {
 }
 
 .label-title {
-  width: calc(100% - 90px);
+  width: calc(100% - 130px);
   display: inline-block;
 }
 
@@ -471,6 +471,11 @@ html.touch .collapsible__body--disable {
   position: relative;
   margin: 10px 15px;
 }
+.ui-dragable-box .drag-icon {
+  position: absolute;
+  left: 5px;
+  top: 0;
+}
 
 .ui-dragable-box__header {
   padding: 0;
@@ -478,9 +483,34 @@ html.touch .collapsible__body--disable {
 }
 
 .ui-dragable-box--small {
-  margin: 10px 0;
+  margin: 10px;
   max-width: 400px;
-  padding: 0 15px;
+  padding: 10px 5px;
+}
+.ui-dragable-box--small .drag-icon {
+  position: relative;
+  float: left;
+  margin-right: 10px;
+  vertical-align: middle;
+  margin-top: 15px;
+  color: #888;
+}
+.ui-dragable-box--small .remove-btn {
+  position: absolute;
+  top: 0;
+  z-index: 100;
+  right: 5px;
+  background: #fff;
+}
+.ui-dragable-box--small .ui-dragable-box__heading {
+  margin-left: 15px;
+  margin-top: 15px;
+}
+.ui-dragable-box--small .ui-dragable-box__list {
+  padding-left: 3em;
+}
+.ui-dragable-box--small .action-btn-wrapper {
+  margin-left: 15px;
 }
 
 .ui-dragable-box--header .collapsible__header {
@@ -489,25 +519,6 @@ html.touch .collapsible__body--disable {
 
 .ui-dragable-box label {
   cursor: pointer;
-}
-
-.ui-dragable-box .drag-icon {
-  position: absolute;
-  left: 5px;
-  top: 0;
-}
-
-.ui-dragable-box--small .drag-icon {
-  position: absolute;
-  left: 10px;
-  top: 15px;
-}
-.ui-dragable-box--small .ui-dragable-box__heading {
-  margin-left: 15px;
-  margin-top: 15px;
-}
-.ui-dragable-box--small .ui-dragable-box__list {
-  padding-left: 2em;
 }
 
 .ui-dragable-box:hover {
@@ -558,11 +569,8 @@ html.touch .collapsible__body--disable {
   max-width: 500px;
 }
 
-.remove-btn {
-  position: absolute;
-  top: 0;
-  z-index: 100;
-  right: 5px;
+.sub-form {
+  margin-left: 20px;
 }
 
 .clickable-card {
@@ -1195,6 +1203,7 @@ html.touch .collapsible__body--disable {
   border-bottom: 1px solid #ccc;
   width: 100%;
   position: relative;
+  cursor: pointer;
 }
 .selected-label .material-icons {
   position: absolute;

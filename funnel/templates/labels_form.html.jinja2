@@ -10,8 +10,10 @@
 
 {% macro labelformfields(lform, subform=false, empty=false) %}
   {%- if subform %}
-    <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+    <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
       {{ lform.hidden_tag() }}
+      <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
+      {{ renderfield(lform.seq, css_class="seq-input") }}
   {%- endif %}
   {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
   {%- for error in lform.icon_emoji.errors %}
@@ -28,8 +30,6 @@
     {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form remove-btn"><i class="material-icons mui--text-body1">close</i></button>{%- endif %}
     <!-- Add archive button for existing sublabels -->
   {%- if subform %}
-    <i class="material-icons mui--text-body1 drag-icon">drag_handle</i>
-    {{ renderfield(lform.seq, css_class="seq-input") }}
     </div>
   {%- endif %}
 {% endmacro %}
@@ -47,7 +47,7 @@
   <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins mui-form--smaller ">
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
-    <div id="child-form">
+    <div id="child-form" class="sub-form">
       {% if form.edit_obj and form.edit_obj.has_options and subforms %}
         {% for subform in subforms %}
           {{ labelformfields(subform, subform=true) }}
