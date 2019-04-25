@@ -10,7 +10,7 @@
 
 {% macro labelformfields(lform, subform=false, empty=false) %}
   {%- if subform %}
-    <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+    <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
       {{ lform.hidden_tag() }}
       <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
       {{ renderfield(lform.seq, css_class="seq-input") }}
@@ -20,14 +20,14 @@
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
   {%- if not empty %}
-    {{ renderfield(lform.title, autofocus=true, css_class="label-title") }}
+    {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field") }}
   {%- else -%}
-    {{ renderfield(lform.title, autofocus=true, css_class="label-title--close") }}
+    {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field label-form__title-field--close") }}
   {%- endif %}
   {%- for error in lform.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form remove-btn"><i class="material-icons mui--text-body1">close</i></button>{%- endif %}
+    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>{%- endif %}
     <!-- Add archive button for existing sublabels -->
   {%- if subform %}
     </div>
@@ -44,10 +44,10 @@
   {%- if message %}
     <p class="form-message">{{ message }}</p>
   {%- endif %}
-  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins mui-form--smaller ">
+  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins label-form">
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
-    <div id="child-form" class="sub-form">
+    <div id="child-form" class="label-form__subform">
       {% if form.edit_obj and form.edit_obj.has_options and subforms %}
         {% for subform in subforms %}
           {{ labelformfields(subform, subform=true) }}

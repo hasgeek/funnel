@@ -9,32 +9,32 @@
 
 {% block contentwrapper %}
 <div class="grid">
-  <div class="grid__col-xs-12 grid__col-md-6">
+  <div class="grid__col-xs-12">
+    <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}" title="New label">
+      <div class="card__body mui--text-center">
+        <a class="mui--text-headline mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><i class="material-icons mui--align-middle mui--text-display1">add</i> Create new label</a>
+      </div>
+    </div>
+  </div>
+  <div class="grid__col-xs-12">
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
-      {{ form.hidden_tag() }}
       {%- for label in labels %}
-        <div class="ui-dragable-box ui-dragable-box--small" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
+        <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
+          <i class="material-icons mui--text-body1 mui--text-light label-box__icon">drag_indicator</i>
+          <input name="id" value="{{ label.id }}" type="hidden" class="id-input">
+          <input name="seq" value="{{ label.seq }}" type="hidden" class="seq-input">
           {% if label.has_options %}
-            <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
-            <input name="id" value="{{ label.id }}" type="hidden" class="id-input">
-            <input name="seq" value="{{ label.seq }}" type="hidden" class="seq-input">
-            <h3 class="mui--text-subhead ui-dragable-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
-            <ul class="mui-list--aligned mui-list--unstyled ui-dragable-box__list">
-              {%- for sublabel in label.options %}
-                <li>
-                  <span class="mui--text-subhead"><strong>{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</strong></span>
-                </li>
-              {% else %}
-                <li class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></li>
-              {%- endfor %}
-            </ul>
+            <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
+            {%- for sublabel in label.options %}
+              <span class="mui--text-subhead mui--text-light label-box__subheading">{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</span>
+            {% else %}
+              <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
+            {%- endfor %}
           {% else %}
-            <h3 class="mui--text-subhead ui-dragable-box__heading">{{ label.title }}</h3>
+            <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
-          <div class="action-btn-wrapper">
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}">{% trans %}Edit label{% endtrans %}</a>
-            <!-- <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-href="" title="{% trans %}Add label{% endtrans %}" id="add-label-btn">{% trans %}Archive{% endtrans %}</a> -->
-          </div>
+          <!-- <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">delete</i></a> -->
+          <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">edit</i></a>
         </div>
       {%- endfor %}
       <div class="mui-form form-actions clearfix">
@@ -44,15 +44,6 @@
         </div>
       </div>
     </form>
-  </div>
-  <div class="grid__col-xs-12 grid__col-md-6">
-    <div class="clickable-card card card--small" data-href="{{ project.url_for('new_label') }}" title="New label">
-      <div class="card__body card__body--new mui--bg-accent">
-        <p class="mui--text-headline mui--text-center">
-          <a class="new-btn mui--text-dark " href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><span>+</span><br><span>Add new label</span></a>
-        </p>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}

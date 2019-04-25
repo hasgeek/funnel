@@ -1,0 +1,35 @@
+.label-box {
+  margin: 10px 0;
+  padding: 10px;
+
+  .label-box__icon {
+    float: left;
+    margin-top: 15px;
+  }
+  .label-box__icon + .label-box__icon {
+    margin-right: 10px;
+  }
+
+  .label-box__icon--right {
+    float: right;
+  }
+
+  .label-box__heading {
+    margin: 15px 10px;
+    display: inline-block;
+  }
+
+  .label-box__subheading {
+    margin-right: 10px;
+  }
+}
+
+.label-box--new {
+  margin: 15px auto 35px;
+  width: 100%;
+  max-width: 500px;
+
+  a:hover {
+    text-decoration: none;
+  }
+}
