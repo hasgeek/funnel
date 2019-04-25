@@ -1572,6 +1572,15 @@ body > .proposal-box.ui-draggable {
   margin-right: 10px;
 }
 
+.label-box--new {
+  margin: 15px auto 35px;
+  width: 100%;
+  max-width: 500px;
+}
+.label-box--new a:hover {
+  text-decoration: none;
+}
+
 .footer {
   padding-bottom: 50px;
 }

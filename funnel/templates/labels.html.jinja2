@@ -10,9 +10,9 @@
 {% block contentwrapper %}
 <div class="grid">
   <div class="grid__col-xs-12">
-    <div class="clickable-card card label-box mui--bg-accent" data-href="{{ project.url_for('new_label') }}" title="New label">
+    <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}" title="New label">
       <div class="card__body mui--text-center">
-        <a class="mui--text-headline mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset">+ Create new label</a>
+        <a class="mui--text-headline mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><i class="material-icons mui--align-middle mui--text-display1">add</i> Create new label</a>
       </div>
     </div>
   </div>
@@ -24,14 +24,14 @@
           <input name="id" value="{{ label.id }}" type="hidden" class="id-input">
           <input name="seq" value="{{ label.seq }}" type="hidden" class="seq-input">
           {% if label.has_options %}
-            <h3 class="mui--text-subhead mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
+            <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
             {%- for sublabel in label.options %}
-              <span class="mui--text-subhead label-box__subheading">{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</span>
+              <span class="mui--text-subhead mui--text-light label-box__subheading">{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</span>
             {% else %}
-              <span class="mui--text-subhead"><em>{% trans %}(No labels){% endtrans %}</em></span>
+              <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
             {%- endfor %}
           {% else %}
-            <h3 class="mui--text-subhead mui--text-bold label-box__heading">{{ label.title }}</h3>
+            <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
           <!-- <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">delete</i></a> -->
           <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">edit</i></a>
