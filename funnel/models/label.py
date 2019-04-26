@@ -85,6 +85,13 @@ class Label(BaseScopedNameMixin, db.Model):
     }
 
     @property
+    def title_for_name(self):
+        if self.main_label:
+            return u"%s/%s" % (self.main_label.title, self.title)
+        else:
+            return self.title
+
+    @property
     def form_label_text(self):
         return self.icon_emoji + " " + self.title if self.icon_emoji is not None else self.title
 
