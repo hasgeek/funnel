@@ -64,6 +64,8 @@ class TestLabels(object):
 
     def test_label_archived(self, test_client, test_db, new_label):
         assert new_label.archived is False
+        assert new_label._archived is False
         new_label.archived = True
         test_db.session.commit()
+        assert new_label._archived is True
         assert new_label.archived is True

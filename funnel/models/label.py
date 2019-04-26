@@ -113,7 +113,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @hybrid_property
     def archived(self):
-        return self._archived or self.main_label._archived if self.main_label else False
+        return self._archived or (self.main_label._archived if self.main_label else False)
 
     @archived.setter
     def archived(self, value):
@@ -147,12 +147,6 @@ class Label(BaseScopedNameMixin, db.Model):
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
         self._required = value
-
-    @archived.expression
-    def archived(cls):
-        return case([
-            (cls.main_label_id != None, db.select([Label._required]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
-        ], else_=cls._required)
 
     @property
     def icon(self):
