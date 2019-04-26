@@ -32,7 +32,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['main_label_id'], ['label.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('main_label_id', 'name')
+        sa.UniqueConstraint('project_id', 'name')
     )
     op.create_table('proposal_label',
         sa.Column('proposal_id', sa.Integer(), nullable=False),
