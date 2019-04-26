@@ -107,26 +107,27 @@ export const LabelsWidget = {
     // On load, if the radio has been selected, then check mark the listwidget label
     $('.listwidget input[type="radio"]').each(function() {
       if(this.checked) {
-        $(this).parents().find('.mui-form__label').addClass('checked');
+        $(this).siblings().find('.mui-form__label').addClass('checked');
       }
     });
 
     $('.listwidget .mui-form__label').click(function() {
       if($(this).hasClass('checked')) {
         $(this).removeClass('checked');
-        $(this).parents().find('input[type="radio"]').prop('checked', false);
+        $(this).siblings().find('input[type="radio"]').prop('checked', false);
         Widget.updateLabels('', $(this).text().trim(), false);
       } else {
         $(this).addClass('checked');
-        $(this).parents().find('input[type="radio"]').first().click();
+        $(this).siblings().find('input[type="radio"]').first().click();
       }
     });
 
         // Add check mark to listwidget label
     $('.listwidget input[type="radio"]').change(function() {
-      $(this).parents().find('.mui-form__label').addClass('checked');
-      let labelTxt = `${$(this).parents().find('.mui-form__label').text()}: ${$(this).parent().find('label').text()}`.trim();
-      let attr = $(this).parents().find('.mui-form__label').text().trim();
+      let label = $(this).parent().parent().prev('.mui-form__label');
+      label.addClass('checked');
+      let labelTxt = `${label.text()}: ${$(this).parent().find('label').text()}`.trim();
+      let attr = label.text().trim();
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
