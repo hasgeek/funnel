@@ -67,16 +67,16 @@ def upgrade():
     projects = conn.execute(project.select())
     for proj in projects:
         sec_count = conn.scalar(
-                sa.select([sa.func.count('*')]).select_from(section).where(section.c.project_id == proj['id'])
-            )
+            sa.select([sa.func.count('*')]).select_from(section).where(section.c.project_id == proj['id'])
+        )
         if sec_count > 0:
             # the project has some sections
             # create section labelset for the project
             sections_label = conn.execute(label.insert().values({
-                    'project_id': proj['id'], 'name': u"section", 'title': u"Section",
-                    'seq': 1, 'description': u"", 'restricted': False, 'archived': False,
-                    'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
-                }).returning(label.c.id)).first()
+                'project_id': proj['id'], 'name': u"section", 'title': u"Section",
+                'seq': 1, 'description': u"", 'restricted': False, 'archived': False,
+                'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
+            }).returning(label.c.id)).first()
 
             sections = conn.execute(section.select().where(section.c.project_id == proj['id']))
             for index, sec in enumerate(sections, start=1):
@@ -90,8 +90,8 @@ def upgrade():
                 # FIXME: This will miss proposals in a project linked to sections in another project
                 # -- an error condition resulting from proposals that have been moved around
                 proposals = conn.execute(
-                        proposal.select().where(proposal.c.section_id == sec['id']).where(proposal.c.project_id == sec['project_id'])
-                    )
+                    proposal.select().where(proposal.c.section_id == sec['id']).where(proposal.c.project_id == sec['project_id'])
+                )
                 for prop in proposals:
                     conn.execute(proposal_label.insert().values({
                         'proposal_id': prop['id'], 'label_id': lab['id'], 'created_at': sa.func.now()
@@ -107,14 +107,14 @@ def upgrade():
         for index, tl in enumerate(tl_list, start=1):
             tl_name, tl_title = tl
             lab = conn.execute(label.insert().values({
-                    'project_id': proj['id'], 'name': tl_name, 'title': tl_title, 'main_label_id': techlevel_label[0],
-                    'seq': index, 'description': u"", 'restricted': False, 'archived': False,
-                    'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
-                }).returning(label.c.id, label.c.name)).first()
+                'project_id': proj['id'], 'name': tl_name, 'title': tl_title, 'main_label_id': techlevel_label[0],
+                'seq': index, 'description': u"", 'restricted': False, 'archived': False,
+                'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
+            }).returning(label.c.id, label.c.name)).first()
 
             proposals = conn.execute(
-                    proposal.select().where(proposal.c.project_id == proj['id']).where(proposal.c.technical_level == tl_title)
-                )
+                proposal.select().where(proposal.c.project_id == proj['id']).where(proposal.c.technical_level == tl_title)
+            )
             for prop in proposals:
                 conn.execute(proposal_label.insert().values({
                     'proposal_id': prop['id'], 'label_id': lab['id'], 'created_at': sa.func.now()
@@ -122,10 +122,10 @@ def upgrade():
 
         # session type
         sessiontype_label = conn.execute(label.insert().values({
-                'project_id': proj['id'], 'name': u"session-type", 'title': u"Session type",
-                'seq': 3, 'description': u"", 'restricted': False, 'archived': False,
-                'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
-            }).returning(label.c.id)).first()
+            'project_id': proj['id'], 'name': u"session-type", 'title': u"Session type",
+            'seq': 3, 'description': u"", 'restricted': False, 'archived': False,
+            'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
+        }).returning(label.c.id)).first()
 
         st_list = [(u'lecture', u"Lecture"), (u'demo', u"Demo"), (u'tutorial', u"Tutorial"),
             (u'workshop', u"Workshop"), (u'discussion', u"Discussion"), (u'panel', u"Panel")]
@@ -138,18 +138,18 @@ def upgrade():
             if duplicate_count > 0:
                 st_name = st_name + "2"
             lab = conn.execute(label.insert().values({
-                    'project_id': proj['id'], 'name': st_name, 'title': st_title, 'main_label_id': sessiontype_label[0],
-                    'seq': index, 'description': u"", 'restricted': False, 'archived': False,
-                    'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
-                }).returning(label.c.id, label.c.name)).first()
+                'project_id': proj['id'], 'name': st_name, 'title': st_title, 'main_label_id': sessiontype_label[0],
+                'seq': index, 'description': u"", 'restricted': False, 'archived': False,
+                'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
+            }).returning(label.c.id, label.c.name)).first()
 
             proposals = conn.execute(
-                    proposal.select().where(proposal.c.project_id == proj['id']).where(proposal.c.session_type == st_title)
-                )
+                proposal.select().where(proposal.c.project_id == proj['id']).where(proposal.c.session_type == st_title)
+            )
             for prop in proposals:
                 conn.execute(proposal_label.insert().values({
-                        'proposal_id': prop['id'], 'label_id': lab['id'], 'created_at': sa.func.now()
-                    }))
+                    'proposal_id': prop['id'], 'label_id': lab['id'], 'created_at': sa.func.now()
+                }))
 
 
 def downgrade():

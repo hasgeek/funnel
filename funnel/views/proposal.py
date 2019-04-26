@@ -13,7 +13,7 @@ from baseframe.forms import render_form, render_delete_sqla, Form
 from .. import app, funnelapp, lastuser
 from ..models import db, Proposal, Comment
 from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
-    ProposalTransitionForm, ProposalMoveForm, ProposalLabelsForm,
+    ProposalTransitionForm, ProposalMoveForm,
     ProposalLabelsAdminForm)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
