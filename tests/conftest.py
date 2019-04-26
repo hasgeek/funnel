@@ -9,7 +9,7 @@ from funnel.models import db, Profile, Project, User, Label, Proposal, Team
 @app.route('/usertest')
 def user_test():
     from coaster.auth import current_auth
-    return current_auth.user.username if current_auth.user is not None else "anon"
+    return current_auth.user.username if current_auth.user is not None else "<anon>"
 
 
 TEST_DATA = {

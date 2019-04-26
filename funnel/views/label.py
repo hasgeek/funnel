@@ -111,7 +111,7 @@ class LabelView(UrlForView, ModelView):
     def edit(self):
         emptysubform = LabelOptionForm(MultiDict({}))
         subforms = []
-        if not self.obj.main_label:
+        if self.obj.is_main_label:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
             if self.obj.has_options:
                 for subl in self.obj.options:

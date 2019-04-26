@@ -134,6 +134,10 @@ class Label(BaseScopedNameMixin, db.Model):
     def has_options(cls):
         return exists().where(Label.main_label_id == cls.id)
 
+    @property
+    def is_main_label(self):
+        return not self.main_label
+
     @hybrid_property
     def required(self):
         return self._required if self.has_options else False
