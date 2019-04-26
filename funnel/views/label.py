@@ -41,9 +41,9 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
         emptysubform = LabelOptionForm(MultiDict({}))
         if form.validate_on_submit():
             # This form can send one or multiple values for title and icon_emoji.
-            # If the label doesn't have any sublabel, one value is sent for each list,
+            # If the label doesn't have any options, one value is sent for each list,
             # and those values are also available at `form.data`.
-            # But in case there are sublabels, the sublabel values are in the list
+            # But in case there are options, the option values are in the list
             # in the order they appeared on the create form.
             titlelist = request.values.getlist('title')
             emojilist = request.values.getlist('icon_emoji')
@@ -64,7 +64,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
                 }), meta={'csrf': False})  # parent form has valid CSRF token
 
                 if not subform.validate():
-                    flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
+                    flash(_("Error with a label option: {}").format(subform.errors.pop()), category='error')
                     return dict(title="Add label", form=form, project=self.obj)
                 else:
                     subl = Label(project=self.obj)
@@ -130,7 +130,7 @@ class LabelView(UrlForView, ModelView):
 
             for idx, title in enumerate(titlelist):
                 if namelist[idx]:
-                    # existing sublabel
+                    # existing option
                     subl = Label.query.filter_by(project=self.obj.project, name=namelist[idx]).first()
                     subl.title = titlelist[idx]
                     subl.icon_emoji = emojilist[idx]
@@ -141,7 +141,7 @@ class LabelView(UrlForView, ModelView):
                     }), meta={'csrf': False})  # parent form has valid CSRF token
 
                     if not subform.validate():
-                        flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
+                        flash(_("Error with a label option: {}").format(subform.errors.pop()), category='error')
                         return dict(title="Edit label", form=form, project=self.obj.project)
                     else:
                         subl = Label(project=self.obj.project)
