@@ -110,14 +110,14 @@ class LabelView(UrlForView, ModelView):
     def edit(self):
         emptysubform = LabelOptionForm(MultiDict({}))
         subforms = []
-        if self.obj.main_label:
-            # It's a sublabel
-            form = LabelOptionForm(obj=self.obj, model=Label, parent=self.obj.project)
-        else:
+        if self.obj.has_options:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
             if self.obj.has_options:
                 for subl in self.obj.options:
                     subforms.append(LabelOptionForm(obj=subl, parent=self.obj.project))
+        else:
+            flash(_("Only main labels can be edited"), category='error')
+            return redirect(self.obj.project.url_for('labels'), code=303)
 
         if form.validate_on_submit():
             idlist = request.values.getlist('id')
@@ -134,6 +134,7 @@ class LabelView(UrlForView, ModelView):
                     subl = Label.query.filter_by(project=self.obj.project, id=idlist[idx]).first()
                     subl.title = titlelist[idx]
                     subl.icon_emoji = emojilist[idx]
+                    subl.seq = idx + 1
                 else:
                     subform = LabelOptionForm(MultiDict({
                         'title': titlelist[idx], 'icon_emoji': emojilist[idx]
