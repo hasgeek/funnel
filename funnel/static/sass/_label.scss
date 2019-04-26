@@ -1,0 +1,45 @@
+.label-box {
+  margin: 10px 0;
+  padding: 10px;
+
+  .label-box__icon {
+    float: left;
+    margin-top: 15px;
+  }
+
+  .label-box__icon--right {
+    float: right;
+    padding: 0 15px;
+    box-shadow: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .label-box__heading {
+    margin: 15px 10px;
+    display: inline-block;
+  }
+
+  .sublabel-wrapper {
+    display: inline-block;
+    max-width: 80%
+  }
+
+  .label-box__subheading {
+    margin-right: 10px;
+  }
+
+  .label-box__action {
+    float: right;
+  }
+}
+
+.label-box--new {
+  margin: 15px auto 35px;
+  width: 100%;
+  max-width: 500px;
+
+  a:hover {
+    text-decoration: none;
+  }
+}
