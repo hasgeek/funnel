@@ -118,9 +118,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         'reviewer': {
             'read': {
                 'email', 'phone'
-            },
-            'call': {
-                'assign_label'
             }
         }
     }
@@ -304,26 +301,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if self.state.DRAFT and 'reader' in roles:
             roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
-
-    def assign_label(self, label):
-        """
-        Assign the given label to current proposal
-        """
-        if label in self.labels:
-            return
-        if label.has_options:
-            raise ValueError("This label requires one of its options to be used")
-
-        if label.main_label is not None:
-            existing_labels = set(label.main_label.options).intersection(set(self.labels))
-            if existing_labels:
-                # the parent label is in radio mode and one of it's labels are
-                # already assigned to this proposal. We need to
-                # remove the older label and assign given label.
-                for elabel in existing_labels:
-                    self.labels.remove(elabel)
-        # label is not in radio mode, so we can assign label to proposal
-        self.labels.append(label)
 
 
 class ProposalRedirect(TimestampMixin, db.Model):

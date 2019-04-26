@@ -128,7 +128,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @hybrid_property
     def has_options(self):
-        return len(self.options) != 0
+        return bool(self.options)
 
     @has_options.expression
     def has_options(cls):
@@ -175,6 +175,29 @@ class Label(BaseScopedNameMixin, db.Model):
         roles = super(Label, self).roles_for(actor, anchors)
         roles.update(self.project.roles_for(actor, anchors))
         return roles
+
+    def apply_to(self, proposal):
+        if self.has_options:
+            raise ValueError("This label requires one of its options to be used")
+        if self in proposal.labels:
+            return
+
+        if self.main_label is not None:
+            existing_labels = set(self.main_label.options).intersection(set(proposal.labels))
+            if existing_labels:
+                # the parent label is in radio mode and one of it's labels are
+                # already assigned to this proposal. We need to
+                # remove the older label and assign given label.
+                for elabel in existing_labels:
+                    proposal.labels.remove(elabel)
+        # we can assign label to proposal
+        proposal.labels.append(self)
+
+    def remove_from(self, proposal):
+        if self.has_options:
+            raise ValueError("This label requires one of its options to be removed")
+        if self in proposal.labels:
+            proposal.labels.remove(self)
 
 
 class ProposalLabelProxyWrapper(object):
