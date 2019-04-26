@@ -50,7 +50,7 @@ class TestLabels(object):
         assert label_a2 in new_proposal.labels
 
     def test_label_flags(self, new_main_label, new_label):
-        restricted_labels = Label.query.filter(Label.restricted == True).all()
+        restricted_labels = Label.query.filter(Label.restricted == True).all()  # NOQA
         assert new_main_label in restricted_labels
         assert new_label not in restricted_labels
 
