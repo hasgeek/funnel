@@ -25,20 +25,28 @@
           <input name="id" value="{{ label.id }}" type="hidden" class="id-input">
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
-            {%- for sublabel in label.options %}
-              <span class="mui--text-subhead mui--text-light label-box__subheading">{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</span>
-            {% else %}
-              <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
-            {%- endfor %}
+            <div class="sublabel-wrapper">
+              {%- for sublabel in label.options %}
+                <span class="mui--text-subhead mui--text-light label-box__subheading">{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</span>
+              {% else %}
+                <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
+              {%- endfor %}
+            </div>
           {% else %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
           {% if label.has_proposals %}
-            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">archive</i></a>
+            <form method="POST" action="{{ label.url_for('archive') }}" class="label-box__action">
+              {{ form.hidden_tag() }}
+              <button type="submit" class="label-box__icon label-box__icon--right" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" onclick="return confirm('Are you sure you want to archive')">archive</i></button>
+            </form>
           {% else %}
-            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">delete</i></a>
+            <form method="POST" action="{{ label.url_for('delete') }}" class="label-box__action">
+              {{ form.hidden_tag() }}
+              <button class="label-box__icon label-box__icon--right" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" onclick="return confirm('Are you sure you want to delete')">delete</i></button>
+            </form>
           {% endif %}
-          <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">edit</i></a>
+            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">edit</i></a>
         </div>
       {%- endfor %}
       <div class="mui-form form-actions clearfix">
