@@ -26,8 +26,8 @@
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
             <div class="sublabel-wrapper">
-              {%- for sublabel in label.options %}
-                <span class="mui--text-subhead mui--text-light label-box__subheading">{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }} {% endif %}{{ sublabel.title }}</span>
+              {%- for option in label.options %}
+                <span class="mui--text-subhead mui--text-light label-box__subheading">{% if option.icon_emoji %}{{ option.icon_emoji }} {% endif %}{{ option.title }}</span>
               {% else %}
                 <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
               {%- endfor %}
