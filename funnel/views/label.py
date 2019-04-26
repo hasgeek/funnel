@@ -3,7 +3,7 @@
 from flask import flash, redirect, g, request
 from werkzeug.datastructures import MultiDict
 from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
-from baseframe import _
+from baseframe import _, forms
 
 from .. import app, funnelapp, lastuser
 from ..models import Label, db, Project, Profile
@@ -21,7 +21,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit_project')
     def labels(self):
-        if request.method == 'POST':
+        form = forms.Form()
+        if form.validate_on_submit():
             idlist = request.values.getlist('id')
             for idx, lid in enumerate(idlist, start=1):
                 lbl = Label.query.get(lid)
@@ -29,7 +30,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
                     lbl.seq = idx
                     db.session.commit()
             flash(_("Your changes have been saved"), category='success')
-        return dict(project=self.obj, labels=self.obj.labels)
+        return dict(project=self.obj, labels=self.obj.labels, form=form)
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login

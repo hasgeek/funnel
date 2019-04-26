@@ -18,6 +18,7 @@
   </div>
   <div class="grid__col-xs-12">
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
+      {{ form.hidden_tag() }}
       {%- for label in labels %}
         <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
           <i class="material-icons mui--text-body1 mui--text-light label-box__icon">drag_indicator</i>
