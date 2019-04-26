@@ -176,22 +176,12 @@ class LabelView(UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def delete(self):
-        has_proposals = False
-        if self.obj.has_options:
-            for subl in self.obj.options:
-                if not subl.archived and len(subl.proposals) > 0:
-                    has_proposals = True
-                    break
-        else:
-            if len(self.obj.proposals) > 0:
-                has_proposals = True
-        if has_proposals:
+        if self.obj.has_proposals:
             flash(_("Labels that have been assigned to proposals cannot be deleted"), category='error')
         else:
-            return render_delete_sqla(self.obj, db, title=u"Confirm delete",
-                message=_(u"Delete label “{title}”? This cannot be undone".format(title=self.obj.title)),
-                success=_(u"You have deleted the label “{title}”".format(title=self.obj.title)),
-                next=self.obj.project.url_for('labels'))
+            db.session.delete(self.obj)
+            db.session.commit()
+            flash(_("The label has been deleted"), category='success')
         return redirect(self.obj.project.url_for('labels'), code=303)
 
 
