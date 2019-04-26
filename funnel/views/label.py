@@ -101,7 +101,7 @@ class LabelView(UrlForView, ModelView):
                 Profile.name == profile, Project.name == project
             ).first_or_404()
         label = self.model.query.filter_by(project=proj, name=label).first_or_404()
-        g.profile = label.project.profile
+        g.profile = proj.profile
         return label
 
     @route('edit', methods=['GET', 'POST'])

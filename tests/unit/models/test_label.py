@@ -61,3 +61,10 @@ class TestLabels(object):
         test_db.session.commit()
         assert new_label.title == "Label B"
         assert new_label.icon == "LB"
+
+    def test_label_archived(self, test_client, test_db, new_label):
+        # if the label has icon_emoji, that's get set as icon
+        assert new_label.archived is False
+        new_label.archived = True
+        test_db.session.commit()
+        assert new_label.archived is True
