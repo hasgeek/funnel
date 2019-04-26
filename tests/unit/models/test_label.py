@@ -40,10 +40,10 @@ class TestLabels(object):
         # Parent labels are always in radio mode
         label_a1 = new_main_label.options[0]
         label_a2 = new_main_label.options[1]
-        new_proposal.assign_label(label_a1)
+        label_a1.apply_to(new_proposal)
         assert label_a1 in new_proposal.labels
 
-        new_proposal.assign_label(label_a2)
+        label_a2.apply_to(new_proposal
         # because new_main_label is in radio mode,
         # label_a2 will replace label_a1
         assert label_a1 not in new_proposal.labels
