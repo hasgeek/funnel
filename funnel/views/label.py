@@ -184,6 +184,10 @@ class LabelView(UrlForView, ModelView):
                     db.session.delete(olabel)
             db.session.delete(self.obj)
             db.session.commit()
+
+            if self.obj.main_label:
+                self.obj.main_label.options.reorder()
+                db.session.commit()
             flash(_("The label has been deleted"), category='success')
         return redirect(self.obj.project.url_for('labels'), code=303)
 
