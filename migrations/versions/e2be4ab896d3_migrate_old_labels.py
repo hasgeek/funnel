@@ -10,7 +10,6 @@ Create Date: 2019-04-22 12:50:31.062089
 revision = 'e2be4ab896d3'
 down_revision = '0b25df40d307'
 
-from datetime import datetime
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql import table, column
@@ -22,12 +21,12 @@ proposal = table('proposal',
     column('technical_level', sa.Unicode(40)),
     column('session_type', sa.Unicode(40)),
     column('section_id', sa.Integer()),
-    )
+)
 
 project = table('project',
     column('id', sa.Integer()),
     column('name', sa.Unicode(250))
-    )
+)
 
 section = table('section',
     column('id', sa.Integer()),
@@ -37,7 +36,7 @@ section = table('section',
     column('description', sa.UnicodeText()),
     column('created_at', sa.DateTime()),
     column('updated_at', sa.DateTime())
-    )
+)
 
 label = table('label',
     column('id', sa.Integer()),
@@ -53,13 +52,13 @@ label = table('label',
     column('archived', sa.Boolean()),
     column('created_at', sa.DateTime()),
     column('updated_at', sa.DateTime())
-    )
+)
 
 proposal_label = table('proposal_label',
     column('proposal_id', sa.Integer()),
     column('label_id', sa.Integer()),
     column('created_at', sa.DateTime())
-    )
+)
 
 
 def upgrade():
@@ -94,7 +93,7 @@ def upgrade():
                         proposal.select().where(proposal.c.section_id == sec['id']).where(proposal.c.project_id == sec['project_id'])
                     )
                 for prop in proposals:
-                    pl = conn.execute(proposal_label.insert().values({
+                    conn.execute(proposal_label.insert().values({
                         'proposal_id': prop['id'], 'label_id': lab['id'], 'created_at': sa.func.now()
                     }))
 
@@ -117,7 +116,7 @@ def upgrade():
                     proposal.select().where(proposal.c.project_id == proj['id']).where(proposal.c.technical_level == tl_title)
                 )
             for prop in proposals:
-                pl = conn.execute(proposal_label.insert().values({
+                conn.execute(proposal_label.insert().values({
                     'proposal_id': prop['id'], 'label_id': lab['id'], 'created_at': sa.func.now()
                 }))
 
