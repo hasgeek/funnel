@@ -33,7 +33,11 @@
           {% else %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
-          <!-- <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">delete</i></a> -->
+          {% if label.has_proposals %}
+            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">archive</i></a>
+          {% else %}
+            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">delete</i></a>
+          {% endif %}
           <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body1 mui--text-light">edit</i></a>
         </div>
       {%- endfor %}
