@@ -24,9 +24,9 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     def labels(self):
         form = forms.Form()
         if form.validate_on_submit():
-            idlist = request.values.getlist('id')
-            for idx, lid in enumerate(idlist, start=1):
-                lbl = Label.query.get(lid)
+            namelist = request.values.getlist('name')
+            for idx, lname in enumerate(namelist, start=1):
+                lbl = Label.query.filter_by(project=self.obj, name=lname).first()
                 if lbl is not None:
                     lbl.seq = idx
                     db.session.commit()
@@ -121,18 +121,18 @@ class LabelView(UrlForView, ModelView):
             return redirect(self.obj.project.url_for('labels'), code=303)
 
         if form.validate_on_submit():
-            idlist = request.values.getlist('id')
+            namelist = request.values.getlist('name')
             titlelist = request.values.getlist('title')
             emojilist = request.values.getlist('icon_emoji')
 
-            idlist.pop(0)
+            namelist.pop(0)
             titlelist.pop(0)
             emojilist.pop(0)
 
             for idx, title in enumerate(titlelist):
-                if idlist[idx]:
+                if namelist[idx]:
                     # existing sublabel
-                    subl = Label.query.filter_by(project=self.obj.project, id=idlist[idx]).first()
+                    subl = Label.query.filter_by(project=self.obj.project, name=namelist[idx]).first()
                     subl.title = titlelist[idx]
                     subl.icon_emoji = emojilist[idx]
                     subl.seq = idx + 1
