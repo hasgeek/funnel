@@ -36,15 +36,9 @@
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
           {% if label.has_proposals %}
-            <form method="POST" action="{{ label.url_for('archive') }}" class="label-box__action">
-              {{ form.hidden_tag() }}
-              <button type="submit" class="label-box__icon label-box__icon--right" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" onclick="return confirm('Are you sure you want to archive')">archive</i></button>
-            </form>
+            <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">archive</i></a>
           {% else %}
-            <form method="POST" action="{{ label.url_for('delete') }}" class="label-box__action">
-              {{ form.hidden_tag() }}
-              <button class="label-box__icon label-box__icon--right" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" onclick="return confirm('Are you sure you want to delete')">delete</i></button>
-            </form>
+            <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">delete</i></a>
           {% endif %}
             <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">edit</i></a>
         </div>
@@ -78,6 +72,38 @@
         });
       }
       $("#label-form").each(applySortable);
+
+      $('.js-delete-btn').click(function(event) {
+        event.preventDefault();
+        var btnTitle = $(this).attr('title').toLowerCase();
+        var url = $(this).attr('href');
+        var text = "Are you sure you want to " + btnTitle;
+        var csrftoken = 'csrf_token=' + document.head.querySelector("[name=csrf-token]").content;
+        if(window.confirm(text)) {
+          $.ajax({
+            type: 'POST',
+            url: url,
+            data : csrftoken,
+            success: function() {
+              window.location.href = window.location.href;
+            },
+            error(response) {
+              var errorMsg = '';
+              if (response.readyState === 4) {
+                if (response.status === 500) {
+                  errorMsg ='Internal Server Error. Please reload and try again.';
+                } else {
+                  errorMsg = JSON.parse(response.responseText).error_description;
+                }
+              } else {
+                errorMsg = 'Unable to connect. Please reload and try again.';
+              }
+              window.toastr.error(errorMsg);
+            }
+          });
+        }
+      })
+
     });
   </script>
 {% endblock %}
