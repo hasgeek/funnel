@@ -2,7 +2,7 @@
 
 from flask import current_app
 from werkzeug.datastructures import MultiDict
-from funnel.forms import LabelForm, LabelSeqForm, LabelOptionForm
+from funnel.forms import LabelForm
 
 
 class TestLabelForms(object):
@@ -24,18 +24,4 @@ class TestLabelForms(object):
                 'restricted': False
             }), meta={'csrf': False})
             # title is required
-            assert not form.validate()
-
-    def test_labelseq_form(self, test_client):
-        with current_app.test_request_context('/'):
-            form = LabelSeqForm(MultiDict({
-                'seq': u"1",
-            }), meta={'csrf': False})
-            assert form.validate()
-
-    def test_labelseq_form_invalid(self, test_client):
-        with current_app.test_request_context('/'):
-            form = LabelSeqForm(MultiDict({
-                'seq': u"",
-            }), meta={'csrf': False})
             assert not form.validate()
