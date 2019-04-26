@@ -114,7 +114,7 @@ def new_project(test_db, new_profile, new_user, new_team):
     return project
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 def new_main_label(test_db, new_project):
     main_label_a = Label(
         title=u"Parent Label A", project=new_project,
@@ -138,7 +138,7 @@ def new_main_label(test_db, new_project):
     return main_label_a
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 def new_main_label_unrestricted(test_db, new_project):
     main_label_b = Label(
         title=u"Parent Label B", project=new_project,
@@ -160,11 +160,6 @@ def new_main_label_unrestricted(test_db, new_project):
     test_db.session.commit()
 
     return main_label_b
-
-# Scope: function
-# These fixtures are run before every test function,
-# so that changes made to the objects they return in one test function
-# doesn't affect another test function.
 
 
 @pytest.fixture(scope='class')
