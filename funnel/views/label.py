@@ -4,6 +4,7 @@ from flask import flash, redirect, g, request
 from werkzeug.datastructures import MultiDict
 from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
 from baseframe import _, forms
+from baseframe.forms import render_delete_sqla
 
 from .. import app, funnelapp, lastuser
 from ..models import Label, db, Project, Profile
@@ -160,6 +161,35 @@ class LabelView(UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def archive(self):
+        form = forms.Form()
+        if form.validate_on_submit():
+            self.obj.archived = True
+            db.session.commit()
+            flash(_("The label has been archived"), category='success')
+        else:
+            flash(_("CSRF token is missing"), category='error')
+        return redirect(self.obj.project.url_for('labels'), code=303)
+
+    @route('delete', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('admin')
+    def delete(self):
+        has_proposals = False
+        if self.obj.has_options:
+            for subl in self.obj.options:
+                if not subl.archived and len(subl.proposals) > 0:
+                    has_proposals = True
+                    break
+        else:
+            if len(self.obj.proposals) > 0:
+                has_proposals = True
+        if has_proposals:
+            flash(_("Labels that have been assigned to proposals cannot be deleted"), category='error')
+        else:
+            return render_delete_sqla(self.obj, db, title=u"Confirm delete",
+                message=_(u"Delete label “{title}”? This cannot be undone".format(title=self.obj.title)),
+                success=_(u"You have deleted the label “{title}”".format(title=self.obj.title)),
+                next=self.obj.project.url_for('labels'))
         return redirect(self.obj.project.url_for('labels'), code=303)
 
 
