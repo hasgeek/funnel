@@ -179,6 +179,9 @@ class LabelView(UrlForView, ModelView):
         if self.obj.has_proposals:
             flash(_("Labels that have been assigned to proposals cannot be deleted"), category='error')
         else:
+            if self.obj.has_options:
+                for olabel in self.obj.options:
+                    db.session.delete(olabel)
             db.session.delete(self.obj)
             db.session.commit()
             flash(_("The label has been deleted"), category='success')
