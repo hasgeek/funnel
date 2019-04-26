@@ -111,7 +111,7 @@ class LabelView(UrlForView, ModelView):
     def edit(self):
         emptysubform = LabelOptionForm(MultiDict({}))
         subforms = []
-        if self.obj.has_options:
+        if not self.obj.main_label:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
             if self.obj.has_options:
                 for subl in self.obj.options:
@@ -152,8 +152,10 @@ class LabelView(UrlForView, ModelView):
                         self.obj.options.append(subl)
                         self.obj.options.reorder()
                         db.session.add(subl)
-                form.populate_obj(self.obj)
+
+            form.populate_obj(self.obj)
             db.session.commit()
+
             return redirect(self.obj.project.url_for('labels'), code=303)
         return dict(title="Edit label", form=form, subforms=subforms, emptysubform=emptysubform, project=self.obj.project)
 
