@@ -124,7 +124,7 @@ def upgrade():
         sessiontype_label = conn.execute(label.insert().values({
             'project_id': proj['id'], 'name': u"session-type", 'title': u"Session type",
             'seq': 3, 'description': u"", 'restricted': False, 'archived': False,
-            'required': True, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
+            'required': False, 'created_at': sa.func.now(), 'updated_at': sa.func.now()
         }).returning(label.c.id)).first()
 
         st_list = [(u'lecture', u"Lecture"), (u'demo', u"Demo"), (u'tutorial', u"Tutorial"),
