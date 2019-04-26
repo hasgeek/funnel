@@ -10,7 +10,7 @@ __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'Propos
     'ProposalMoveForm', 'ProposalLabelsAdminForm']
 
 
-def proposal_label_form(project, proposal, for_admin=False):
+def proposal_label_form(project, proposal):
     """
     Returns a label form for the given project and proposal.
     """
@@ -18,25 +18,41 @@ def proposal_label_form(project, proposal, for_admin=False):
         pass
 
     for label in project.labels:
-        field_kwargs = {
-            'label': label.form_label_text,
-            'description': label.description,
-            'validators': [forms.validators.DataRequired(__("Please select one"))] if label.required else [],
-        }
-        if label.has_options:
-            FieldType = forms.RadioField
-            field_kwargs['choices'] = [(option.name, option.title) for option in label.options if not option.archived]
-        else:
-            FieldType = forms.BooleanField
-
-        if for_admin:
-            if not label.archived and (label.restricted or not label.has_options):
-                setattr(ProposalLabelForm, label.name, FieldType(**field_kwargs))
-        else:
-            if label.has_options and not label.archived and not label.restricted:
-                setattr(ProposalLabelForm, label.name, FieldType(**field_kwargs))
+        if label.is_main and not label.archived and not label.restricted:
+            setattr(ProposalLabelForm, label.name, forms.RadioField(
+                label.form_label_text,
+                description=label.description,
+                validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+                choices=[(option.name, option.title) for option in label.options if not option.archived]
+            ))
 
     return ProposalLabelForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
+
+
+def proposal_label_admin_form(project, proposal):
+    """
+    Returns a label form to use in admin panel for given project and proposal
+    """
+    class ProposalLabelAdminForm(forms.Form):
+        pass
+
+    for label in project.labels:
+        if not label.archived and (label.restricted or not label.has_options):
+            form_kwargs = {}
+            if label.has_options:
+                FieldType = forms.RadioField
+                form_kwargs['choices'] = [(option.name, option.title) for option in label.options if not option.archived]
+            else:
+                FieldType = forms.BooleanField
+
+            setattr(ProposalLabelAdminForm, label.name, FieldType(
+                label.form_label_text,
+                description=label.description,
+                validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+                **form_kwargs
+            ))
+
+    return ProposalLabelAdminForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
 
 
 class TransferProposal(forms.Form):
@@ -54,7 +70,7 @@ class ProposalLabelsAdminForm(forms.Form):
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self):
-        self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj, for_admin=True)
+        self.formlabels.form = proposal_label_admin_form(project=self.edit_parent, proposal=self.edit_obj)
 
 
 class ProposalForm(forms.Form):
