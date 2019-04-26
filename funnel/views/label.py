@@ -4,7 +4,6 @@ from flask import flash, redirect, g, request
 from werkzeug.datastructures import MultiDict
 from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
 from baseframe import _, forms
-from baseframe.forms import render_delete_sqla
 
 from .. import app, funnelapp, lastuser
 from ..models import Label, db, Project, Profile
@@ -62,7 +61,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             for idx, title in enumerate(titlelist):
                 subform = LabelOptionForm(MultiDict({
                     'title': titlelist[idx], 'icon_emoji': emojilist[idx]
-                    }), meta={'csrf': False})  # parent form has valid CSRF token
+                }), meta={'csrf': False})  # parent form has valid CSRF token
 
                 if not subform.validate():
                     flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
@@ -98,8 +97,8 @@ class LabelView(UrlForView, ModelView):
 
     def loader(self, profile, project, label):
         proj = Project.query.join(Profile).filter(
-                Profile.name == profile, Project.name == project
-            ).first_or_404()
+            Profile.name == profile, Project.name == project
+        ).first_or_404()
         label = self.model.query.filter_by(project=proj, name=label).first_or_404()
         g.profile = proj.profile
         return label
@@ -139,7 +138,7 @@ class LabelView(UrlForView, ModelView):
                 else:
                     subform = LabelOptionForm(MultiDict({
                         'title': titlelist[idx], 'icon_emoji': emojilist[idx]
-                        }), meta={'csrf': False})  # parent form has valid CSRF token
+                    }), meta={'csrf': False})  # parent form has valid CSRF token
 
                     if not subform.validate():
                         flash(_("Error with a sublabel: {}").format(subform.errors.pop()), category='error')
