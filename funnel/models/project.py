@@ -437,7 +437,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'confirm-proposal',
                     'view_voteinfo',
                     'view_status',
-                    'edit-proposal',
+                    'edit_proposal',
                     'delete-proposal',
                     'edit-schedule',
                     'new-session',

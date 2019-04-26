@@ -168,7 +168,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('edit-proposal')
+    @requires_permission('edit_proposal')
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
         if self.obj.user != g.user:

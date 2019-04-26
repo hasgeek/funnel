@@ -285,7 +285,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             if user == self.owner:
                 perms.update([
                     'view-proposal',
-                    'edit-proposal',
+                    'edit_proposal',
                     'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
                     'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                     'transfer-proposal',
