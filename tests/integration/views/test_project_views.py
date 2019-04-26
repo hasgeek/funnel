@@ -2,7 +2,7 @@
 
 from werkzeug.datastructures import MultiDict
 from funnel.models import Label
-from funnel.forms import LabelForm, LabelOptionForm
+from funnel.forms import LabelForm
 
 
 class TestProjectViews(object):

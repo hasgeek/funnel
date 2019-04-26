@@ -10,7 +10,6 @@ class TestProject(object):
         upcoming_projects = Project.query.filter(Project.state.UPCOMING).all()
         assert len(upcoming_projects) >= 0
 
-
     def test_project_cfp_state_conditional(self, test_client, test_db):
         private_draft_cfp_projects = Project.query.filter(Project.cfp_state.PRIVATE_DRAFT).all()
         assert len(private_draft_cfp_projects) >= 0
