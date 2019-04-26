@@ -154,6 +154,7 @@ class LabelView(UrlForView, ModelView):
 
             form.populate_obj(self.obj)
             db.session.commit()
+            flash(_("Label has been edited"), category='success')
 
             return redirect(self.obj.project.url_for('labels'), code=303)
         return dict(title="Edit label", form=form, subforms=subforms, emptysubform=emptysubform, project=self.obj.project)
