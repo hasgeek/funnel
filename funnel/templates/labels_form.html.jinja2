@@ -1,0 +1,126 @@
+{% extends "formlayout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderfield %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block pageheaders %}
+  {% assets "css_emojionearea" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
+{% macro labelformfields(lform, subform=false, empty=false) %}
+  {%- if subform %}
+    <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+      {{ lform.hidden_tag() }}
+      <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
+      {{ renderfield(lform.seq, css_class="seq-input") }}
+  {%- endif %}
+  {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
+  {%- for error in lform.icon_emoji.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+  {%- if not empty %}
+    {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field") }}
+  {%- else -%}
+    {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field label-form__title-field--close") }}
+  {%- endif %}
+  {%- for error in lform.title.errors %}
+    <div><p class="mui-form__error">{{ error }}</p></div>
+  {%- endfor %}
+    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>{%- endif %}
+    <!-- Add archive button for existing sublabels -->
+  {%- if subform %}
+    </div>
+  {%- endif %}
+{% endmacro %}
+
+{% block content %}
+  {%- if form.errors %}
+    <div class="alert alert--error alert--dismissable">
+      <a class="alert__close" href="javascript:void(0);" aria-label="close"><i class="material-icons">clear</i></a>
+      <p class="alert__text"><i class="material-icons alert__icon">error</i>{% trans %}Please review the indicated issues{% endtrans %}</p>
+    </div>
+  {%- endif %}
+  {%- if message %}
+    <p class="form-message">{{ message }}</p>
+  {%- endif %}
+  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins label-form">
+    {{ form.hidden_tag() }}
+    {{ labelformfields(form) }}
+    <div id="child-form" class="label-form__subform">
+      {% if form.edit_obj and form.edit_obj.has_options and subforms %}
+        {% for subform in subforms %}
+          {{ labelformfields(subform, subform=true) }}
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form"><i class="material-icons mui--align-middle mui--text-subhead">add</i> Add option</button></div>
+    {%- if subforms|length > 0 %}
+      {{ renderfield(form.required) }}
+    {%- else -%}
+      {{ renderfield(form.required, css_class="mui--hide js-required-field") }}
+    {% endif %}
+    {%- for error in form.required.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
+    {{ renderfield(form.restricted) }}
+    {%- for error in form.restricted.errors %}
+      <div><p class="mui-form__error">{{ error }}</p></div>
+    {%- endfor %}
+    <div class="mui-form form-actions clearfix">
+      <div>
+        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
+        <span class="loading mui--hide"></span>
+      </div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block footerscripts %}
+  {% assets "js_emojionearea" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  {% assets "js_sortable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  <script type="text/javascript">
+    $(function() {
+      function initEmojiPicker() {
+        $('input.field-icon_emoji:not([style*="display: none"])').emojioneArea({
+          pickerPosition: "right",
+          autocomplete: false,
+          standalone: true
+        });
+      }
+      function applySortable() {
+        $(this).sortable({
+          placeholder: $(this).data('drag-placeholder'),
+          cursor: 'move',
+          update: function() {
+              $(this).children().each(function(index) {
+                $(this).children('input[name$="seq"]').val(++index);
+              });
+          }
+        });
+      }
+      $('#add-sublabel-form').click(function(event) {
+        event.preventDefault();
+        var formHtml = {{ labelformfields(emptysubform, subform=true, empty=true)|tojson|safe }};
+        $('#child-form').append(formHtml);
+        activate_widgets();
+        initEmojiPicker();
+        $('.js-required-field').removeClass('mui--hide');
+        $('.js-required-field input').prop('checked', true);
+        $("#child-form").each(applySortable);
+      });
+      $('#child-form').on('click', '.js-remove-sublabel-form', function() {
+        event.preventDefault();
+        console.log('this', $(this));
+        $(this).parent().remove();
+      });
+      initEmojiPicker();
+      $("#child-form").each(applySortable);
+    });
+  </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+{% endblock %}

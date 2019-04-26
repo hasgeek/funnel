@@ -6,11 +6,71 @@ from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
 from ..models import Project, Profile
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
+__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalLabelsForm',
+    'ProposalMoveForm', 'ProposalLabelsAdminForm']
+
+
+def proposal_label_form(project, proposal):
+    """
+    Returns a label form for the given project and proposal.
+    """
+    class ProposalLabelForm(forms.Form):
+        pass
+
+    for label in project.labels:
+        if label.has_options and not label.archived and not label.restricted:
+            setattr(ProposalLabelForm, label.name, forms.RadioField(
+                label.form_label_text,
+                description=label.description,
+                validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+                choices=[(option.name, option.title) for option in label.options if not option.archived]
+            ))
+
+    return ProposalLabelForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
+
+
+def proposal_label_admin_form(project, proposal):
+    """
+    Returns a label form to use in admin panel for given project and proposal
+    """
+    class ProposalLabelAdminForm(forms.Form):
+        pass
+
+    for label in project.labels:
+        if not label.archived and (label.restricted or not label.has_options):
+            form_kwargs = {}
+            if label.has_options:
+                FieldType = forms.RadioField
+                form_kwargs['choices'] = [(option.name, option.title) for option in label.options if not option.archived]
+            else:
+                FieldType = forms.BooleanField
+
+            setattr(ProposalLabelAdminForm, label.name, FieldType(
+                label.form_label_text,
+                description=label.description,
+                validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+                **form_kwargs
+            ))
+
+    return ProposalLabelAdminForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
 
 
 class TransferProposal(forms.Form):
     userid = forms.UserSelectField(__("Transfer to"), validators=[forms.validators.DataRequired()])
+
+
+class ProposalLabelsForm(forms.Form):
+    formlabels = forms.FormField(forms.Form, __("Labels"))
+
+    def set_queries(self):
+        self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj)
+
+
+class ProposalLabelsAdminForm(forms.Form):
+    formlabels = forms.FormField(forms.Form, __("Labels"))
+
+    def set_queries(self):
+        self.formlabels.form = proposal_label_admin_form(project=self.edit_parent, proposal=self.edit_obj)
 
 
 class ProposalForm(forms.Form):
@@ -19,23 +79,8 @@ class ProposalForm(forms.Form):
                  (0, __(u"I’m proposing a topic for someone to speak on"))])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()],
         description=__("The title of your session"))
-    section = QuerySelectField(__("Section"), get_label='title', validators=[forms.validators.DataRequired()],
-        widget=forms.ListWidget(prefix_label=False), option_widget=forms.RadioInput())
     objective = forms.MarkdownField(__("Objective"), validators=[forms.validators.DataRequired()],
         description=__("What is the expected benefit for someone attending this?"))
-    session_type = forms.RadioField(__("Session type"), validators=[forms.validators.DataRequired()], choices=[
-        ('Lecture', __("Lecture")),
-        ('Demo', __("Demo")),
-        ('Tutorial', __("Tutorial")),
-        ('Workshop', __("Workshop")),
-        ('Discussion', __("Discussion")),
-        ('Panel', __("Panel")),
-    ])
-    technical_level = forms.RadioField(__("Technical level"), validators=[forms.validators.DataRequired()], choices=[
-        ('Beginner', __("Beginner")),
-        ('Intermediate', __("Intermediate")),
-        ('Advanced', __("Advanced")),
-    ])
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("A detailed description of the session"))
     requirements = forms.MarkdownField(__("Requirements"),
@@ -63,6 +108,8 @@ class ProposalForm(forms.Form):
     location = forms.StringField(__("Your location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         description=__("Your location, to help plan for your travel if required"))
 
+    formlabels = forms.FormField(forms.Form, __("Labels"))
+
     def __init__(self, *args, **kwargs):
         super(ProposalForm, self).__init__(*args, **kwargs)
         project = kwargs.get('parent')
@@ -74,6 +121,9 @@ class ProposalForm(forms.Form):
             self.description.label.text = project.proposal_part_b.get('title')
         if project.proposal_part_b.get('hint'):
             self.description.description = project.proposal_part_b.get('hint')
+
+    def set_queries(self):
+        self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj)
 
 
 class ProposalTransitionForm(forms.Form):

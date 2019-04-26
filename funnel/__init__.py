@@ -100,6 +100,16 @@ app.assets.register('js_leaflet',
 app.assets.register('css_leaflet',
     Bundle(assets.require('leaflet.css', 'leaflet-search.css'),
         output='css/leaflet.packed.css', filters='cssmin'))
+app.assets.register('js_emojionearea',
+    Bundle(assets.require('!jquery.js', 'emojionearea-material.js'),
+        output='js/emojionearea.packed.js', filters='uglipyjs'))
+app.assets.register('css_emojionearea',
+    Bundle(assets.require('emojionearea-material.css'),
+        output='css/emojionearea.packed.css', filters='cssmin'))
+app.assets.register('js_sortable',
+    Bundle(assets.require('!jquery.js', 'jquery.ui.js', 'jquery.ui.sortable.touch.js'),
+        output='js/sortable.packed.js', filters='uglipyjs'))
+
 
 baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui'], theme='mui')
@@ -133,6 +143,15 @@ funnelapp.assets.register('js_leaflet',
 funnelapp.assets.register('css_leaflet',
     Bundle(assets.require('leaflet.css', 'leaflet-search.css'),
         output='css/leaflet.packed.css', filters='cssmin'))
+funnelapp.assets.register('js_emojionearea',
+    Bundle(assets.require('!jquery.js', 'emojionearea-material.js'),
+        output='js/emojionearea.packed.js', filters='uglipyjs'))
+funnelapp.assets.register('css_emojionearea',
+    Bundle(assets.require('emojionearea-material.css'),
+        output='css/emojionearea.packed.css', filters='cssmin'))
+funnelapp.assets.register('js_sortable',
+    Bundle(assets.require('!jquery.js', 'jquery.ui.js', 'jquery.ui.sortable.touch.js'),
+        output='js/sortable.packed.js', filters='uglipyjs'))
 
 # FIXME: Hack for external build system generating relative /static URLs.
 # Fix this by generating absolute URLs to the static subdomain during build.

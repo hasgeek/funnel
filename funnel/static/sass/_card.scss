@@ -97,3 +97,23 @@
   }
 }
 
+.card__body--minheight {
+  min-height: 150px;
+}
+
+.card__body--new {
+  min-height: 194px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .new-btn:hover {
+    text-decoration: none;
+  }
+}
+
+.card--small {
+  max-width: 400px;
+  margin-top: 10px;
+}
+
