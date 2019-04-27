@@ -11,7 +11,7 @@ revision = '14d1424b47'
 down_revision = '1c496c114b6'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
@@ -24,7 +24,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('proposal_space_id', 'user_id')
-        )
+    )
     op.add_column('proposal_space', sa.Column('allow_rsvp', sa.Boolean(), nullable=False, server_default='0'))
     op.alter_column('proposal_space', 'allow_rsvp', server_default=None)
 

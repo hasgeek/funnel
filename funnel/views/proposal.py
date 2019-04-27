@@ -4,7 +4,6 @@ from datetime import datetime
 from bleach import linkify
 
 from flask import g, redirect, request, Markup, abort, flash, escape
-from sqlalchemy import or_
 from coaster.utils import make_name
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
 from coaster.auth import current_auth
@@ -12,8 +11,10 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Section, Proposal, Comment
-from ..forms import ProposalForm, CommentForm, DeleteCommentForm, ProposalTransitionForm, ProposalMoveForm
+from ..models import db, Proposal, Comment
+from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
+    ProposalTransitionForm, ProposalMoveForm,
+    ProposalLabelsAdminForm)
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .decorators import legacy_redirect
 
@@ -94,24 +95,15 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     @requires_permission('new-proposal')
     def new_proposal(self):
         form = ProposalForm(model=Proposal, parent=self.obj)
-        del form.session_type  # We don't use this anymore
-        if self.obj.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj, Section.project == self.obj.parent_project), Section.public == True).order_by('title')  # NOQA
-        else:
-            form.section.query = Section.query.filter(Section.project == self.obj, Section.public == True).order_by('title')  # NOQA
-        if len(list(form.section.query.all())) == 0:
-            # Don't bother with sections when there aren't any
-            del form.section
         if request.method == 'GET':
             form.email.data = g.user.email
             form.phone.data = g.user.phone
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
-            with db.session.no_autoflush:
-                proposal.voteset.vote(g.user)  # Vote up your own proposal by default
-            form.populate_obj(proposal.formdata)
+            form.populate_obj(proposal)
             proposal.name = make_name(proposal.title)
             db.session.add(proposal)
+            proposal.voteset.vote(g.user)  # Vote up your own proposal by default
             db.session.commit()
             flash(_("Your new session has been saved"), 'info')
             return redirect(proposal.url_for(), code=303)
@@ -160,11 +152,14 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if 'move_to' in self.obj.current_access():
             proposal_move_form = ProposalMoveForm()
 
+        proposal_label_admin_form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
+
         return dict(project=self.obj.project, proposal=self.obj,
             comments=comments, commentform=commentform, delcommentform=delcommentform,
             links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
             part_a=self.obj.project.proposal_part_a.get('title', 'Objective'),
-            part_b=self.obj.project.proposal_part_b.get('title', 'Description'), csrf_form=Form())
+            part_b=self.obj.project.proposal_part_b.get('title', 'Description'), csrf_form=Form(),
+            proposal_label_admin_form=proposal_label_admin_form)
 
     @route('json')
     @requires_permission('view')
@@ -173,22 +168,13 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('edit-proposal')
+    @requires_permission('edit_proposal')
     def edit(self):
-        form = ProposalForm(obj=self.obj.formdata, model=Proposal, parent=self.obj.project)
-        if not self.obj.session_type:
-            del form.session_type  # Remove this if we're editing a proposal that had no session type
-        if self.obj.project.inherit_sections:
-            form.section.query = Section.query.filter(or_(Section.project == self.obj.project, Section.project == self.obj.project.parent_project), Section.public == True).order_by('title')  # NOQA
-        else:
-            form.section.query = Section.query.filter(Section.project == self.obj.project, Section.public == True).order_by('title')  # NOQA
-        if len(list(form.section.query.all())) == 0:
-            # Don't bother with sections when there aren't any
-            del form.section
+        form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
         if self.obj.user != g.user:
             del form.speaking
         if form.validate_on_submit():
-            form.populate_obj(self.obj.formdata)
+            form.populate_obj(self.obj)
             self.obj.name = make_name(self.obj.title)
             self.obj.edited_at = datetime.utcnow()
             db.session.commit()
@@ -266,6 +252,21 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def schedule(self):
         from .session import session_form
         return session_form(self.obj.project, proposal=self.obj)
+
+    @route('labels', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('admin')
+    def edit_labels(self):
+        form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Labels have been saved for this proposal."), 'info')
+            return redirect(self.obj.url_for(), 303)
+        else:
+            flash(_("Labels could not be saved for this proposal."), 'error')
+            return render_form(form, submit=_("Save changes"),
+                title=_("Edit labels for '{}'").format(self.obj.title))
 
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')

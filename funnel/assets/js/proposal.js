@@ -101,9 +101,72 @@ export const Video = {
   },
 };
 
+export const LabelsWidget = {
+  init() {
+    const Widget = this;
+    // On load, if the radio has been selected, then check mark the listwidget label
+    $('.listwidget input[type="radio"]').each(function() {
+      if(this.checked) {
+        $(this).siblings().find('.mui-form__label').addClass('checked');
+      }
+    });
+
+    $('.listwidget .mui-form__label').click(function() {
+      if($(this).hasClass('checked')) {
+        $(this).removeClass('checked');
+        $(this).siblings().find('input[type="radio"]').prop('checked', false);
+        Widget.updateLabels('', $(this).text().trim(), false);
+      } else {
+        $(this).addClass('checked');
+        $(this).siblings().find('input[type="radio"]').first().click();
+      }
+    });
+
+        // Add check mark to listwidget label
+    $('.listwidget input[type="radio"]').change(function() {
+      let label = $(this).parent().parent().prev('.mui-form__label');
+      label.addClass('checked');
+      let labelTxt = `${label.text()}: ${$(this).parent().find('label').text()}`.trim();
+      let attr = label.text().trim();
+      Widget.updateLabels(labelTxt, attr, this.checked);
+    });
+
+    $('.add-label-form input[type="checkbox"]').change(function() {
+      let labelTxt = $(this).parent('label').text().trim();
+      Widget.updateLabels(labelTxt, labelTxt, this.checked);
+    });
+
+    // Open and close dropdown
+    $(document).on('click', function(event) {
+      if ($('#label-select')[0] === event.target || !$(event.target).parents('#label-dropdown').length) {
+        Widget.handleDropdown();
+      }
+    });
+  },
+  handleDropdown() {
+    if($('#label-dropdown fieldset').hasClass('active')) {
+      $('#label-dropdown fieldset').removeClass('active');
+    } else {
+      $('#label-dropdown fieldset').addClass('active');
+    }
+  },
+  updateLabels(label='', attr='', action=true) {
+    if(action) {
+      if(label !== attr) {
+        $(`.label[data-labeltxt="${attr}"]`).remove();
+      }
+      let span = `<span class="label mui--text-caption mui--text-bold" data-labeltxt="${attr}">${label}</span>`;
+      $('#label-select').append(span);
+    } else {
+      $(`.label[data-labeltxt="${attr}"]`).remove();
+    }
+  }
+};
+
 $(() => {
   window. HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= ''}) {
     Comments.init(pageUrl);
+    LabelsWidget.init();
 
     if (videoWrapper) {
       Video.embedIframe(videoWrapper, videoUrl);

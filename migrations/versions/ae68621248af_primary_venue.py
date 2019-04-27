@@ -11,7 +11,7 @@ revision = 'ae68621248af'
 down_revision = '2441cb4f44d4'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
@@ -23,7 +23,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['venue_id'], ['venue.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('project_id')
-        )
+    )
     # This SQL function prevents project.primary_venue from pointing to a venue
     # in another project. It does not prevent a venue from being moved to a
     # different project, thereby leaving the primary_venue record invalid.
@@ -44,7 +44,7 @@ def upgrade():
         CREATE TRIGGER project_venue_primary_trigger BEFORE INSERT OR UPDATE
         ON project_venue_primary
         FOR EACH ROW EXECUTE PROCEDURE project_venue_primary_validate();
-        '''))
+    '''))
     op.execute(sa.DDL('''
         INSERT INTO project_venue_primary (project_id, venue_id, created_at, updated_at)
         SELECT DISTINCT ON (project_id) project_id, id, created_at, updated_at
@@ -57,5 +57,5 @@ def downgrade():
     op.execute(sa.DDL('''
         DROP TRIGGER project_venue_primary_trigger ON project_venue_primary;
         DROP FUNCTION project_venue_primary_validate();
-        '''))
+    '''))
     op.drop_table('project_venue_primary')

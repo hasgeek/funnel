@@ -20,3 +20,4 @@ from .section import *
 from .session import *
 from .user import *
 from .venue import *
+from .label import *

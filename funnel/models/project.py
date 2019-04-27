@@ -128,10 +128,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)
     parent_project = db.relationship('Project', remote_side='Project.id', backref='subprojects')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
-    labels = db.Column(JsonDict, nullable=False, server_default='{}')
+    part_labels = db.Column('labels', JsonDict, nullable=False, server_default='{}')
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
-            order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
+        order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
+    labels = db.relationship('Label', cascade='all, delete-orphan',
+        primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None, Label._archived == False)',
+        order_by='Label.seq', collection_class=ordering_list('seq', count_from=1))
+    all_labels = db.relationship('Label', lazy='dynamic')
 
     featured_sessions = db.relationship(
         'Session',
@@ -155,7 +159,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location'
             },
-        },
+        }
     }
 
     @cached_property
@@ -355,11 +359,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def proposal_part_a(self):
-        return self.labels.get('proposal', {}).get('part_a', {})
+        return self.part_labels.get('proposal', {}).get('part_a', {})
 
     @property
     def proposal_part_b(self):
-        return self.labels.get('proposal', {}).get('part_b', {})
+        return self.part_labels.get('proposal', {}).get('part_b', {})
 
     def set_labels(self, value=None):
         """
@@ -370,9 +374,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         are allowed to be customized per project.
         """
         if value and isinstance(value, dict):
-            self.labels = value
+            self.part_labels = value
         else:
-            self.labels = {
+            self.part_labels = {
                 "proposal": {
                     "part_a": {
                         "title": "Abstract",
@@ -425,7 +429,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'view-ticket-type',
                     'edit-participant',
                     'view-participant',
-                    'new-participant'
+                    'new-participant',
                 ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
@@ -433,7 +437,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'confirm-proposal',
                     'view_voteinfo',
                     'view_status',
-                    'edit-proposal',
+                    'edit_proposal',
                     'delete-proposal',
                     'edit-schedule',
                     'new-session',

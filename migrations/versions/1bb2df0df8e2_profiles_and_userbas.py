@@ -11,7 +11,7 @@ revision = '1bb2df0df8e2'
 down_revision = '523c53593e3c'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
@@ -31,7 +31,7 @@ def upgrade():
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name'),
         sa.UniqueConstraint('userid')
-        )
+    )
 
     op.add_column('proposal_space', sa.Column('profile_id', sa.Integer(), nullable=True))
     op.drop_constraint('proposal_space_name_key', 'proposal_space')

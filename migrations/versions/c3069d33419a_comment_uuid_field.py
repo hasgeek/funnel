@@ -11,7 +11,7 @@ down_revision = '69c2ced88981'
 
 from uuid import uuid4
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import table, column
 from sqlalchemy_utils import UUIDType
 from progressbar import ProgressBar
@@ -21,7 +21,7 @@ import progressbar.widgets
 comment = table('comment',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-    )
+)
 
 
 def get_progressbar(label, maxval):
@@ -31,7 +31,7 @@ def get_progressbar(label, maxval):
             progressbar.widgets.Percentage(), ' ',
             progressbar.widgets.Bar(), ' ',
             progressbar.widgets.ETA(), ' '
-            ])
+        ])
 
 
 def upgrade():

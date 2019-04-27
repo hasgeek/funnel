@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderfield, renderform %}
+{% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit %}
 {% from "comments.html.jinja2" import commenttree %}
 {% block title %}{{ proposal.title }} &ndash; {{ project.title }}{% endblock %}
 {% block description %}
@@ -21,6 +21,18 @@
 {% block top_title %}
   <h1 class="mui--text-display1"><strong>{{ project.title|e }}</strong></h1>
   <p class="mui--text-headline">{{ project.tagline|safe }}</p>
+  <p>
+  {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+    <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#participate" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>
+  {%- elif project.buy_tickets_url.url %}
+    <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.buy_tickets_url }}" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>
+  {%- elif project.allow_rsvp %}
+    <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#participate" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>
+  {%- endif %}
+  {% if project.cfp_state.PUBLIC -%}
+    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
+  {% endif %}
+  </p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -86,36 +98,10 @@
             </div>
           {% endif %}
         </div>
-      </div>
-      <div class="proposal-details--talk">
-        <div class="grid">
-          <div class="grid__col-auto proposal-details--talk__box">
-            <p class="mui--text-body2 mui--text-light zero-bottom-margin">Technical level</p>
-            <p class="mui--text-title">{{ proposal.technical_level }}</p>
-          </div>
-          {%- if proposal.section %}
-          <div class="grid__col-auto proposal-details--talk__box mui--text-center">
-            <p class="mui--text-body2 mui--text-light zero-bottom-margin">{% trans %}Section{% endtrans %}</p>
-            <p class="mui--text-title">{{ proposal.section.title }}</p>
-          </div>
-          {%- endif %}
-          {%- if proposal.session_type %}
-          <div class="grid__col-auto proposal-details--talk__box mui--text-center">
-            <p class="mui--text-body2 mui--text-light zero-bottom-margin">{% trans %}Session type{% endtrans %}</p>
-            <p class="mui--text-title">{{ proposal.session_type }}</p>
-          </div>
-          {%- endif %}
-          <div class="grid__col-auto proposal-details--talk__box mui--text-center">
-            <p class="mui--text-body2 mui--text-light zero-bottom-margin">Status</p>
-            {%- if project.current_roles.admin %}
-              <p class="mui--text-title zero-bottom-margin">{{ proposal.state.label.title }}</p>
-            {%- else %}
-              <p class="mui--text-title zero-bottom-margin">{% if proposal.state.CONFIRMED %}{{ proposal.state.label.title }}{% else %}{% trans %}Submitted{% endtrans %}{% endif %}</p>
-            {% endif %}
-            {% if proposal.state.SCHEDULED %}
-              <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">View proposal in schedule</a></p>
-            {% endif %}
-          </div>
+        <div class="proposal-details proposal-details--right">
+          {%- for label in proposal.labels %}
+            <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+          {%- endfor %}
         </div>
       </div>
     </section>
@@ -217,6 +203,22 @@
                   </p>
                 </form>
               {% endif %}
+              {%- if proposal_label_admin_form %}
+                <form action="{{ proposal.url_for('edit_labels') }}" method="post" class="add-label-form">
+                  {{ proposal_label_admin_form.hidden_tag() }}
+                  <p class="mui--text-title">Labels</p>
+                  <div class="selected-label" id="label-select">
+                    {%- for label in proposal.labels %}
+                      <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
+                    {%- endfor %}
+                    <i class="material-icons mui--text-light">arrow_drop_down</i>
+                  </div>
+                  <div id="label-dropdown" class="label-dropdown-wrapper">
+                    {{ renderfield(proposal_label_admin_form.formlabels, css_class="label-select-fields") }}
+                  </div>
+                  {{ rendersubmit([(None, "Save", '')]) }}
+                </form>
+              {%- endif %}
             </div>
           </div>
         {% endif %}
@@ -318,8 +320,10 @@
       proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-href');
     }
     HasGeek.ProposalInit(proposalConfig);
+
   });
 </script>
 <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+<script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
 {% endblock %}

@@ -11,7 +11,7 @@ revision = 'f8204bcd438'
 down_revision = '55b1ef63bee'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import table, column
 from coaster.sqlalchemy import JsonDict
 from coaster.gfm import markdown

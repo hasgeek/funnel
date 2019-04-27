@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import abort
 from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
@@ -10,8 +9,6 @@ from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
-from flask import request
-from pytz import timezone, utc, UnknownTimeZoneError
 from werkzeug.utils import cached_property
 from ..util import geonameid_from_location
 
@@ -52,42 +49,6 @@ class PROPOSAL_STATE(LabeledEnum):
 
 
 # --- Models ------------------------------------------------------------------
-
-class ProposalFormData(object):
-    """
-    Form data access helper for custom fields
-    """
-    def __init__(self, proposal):
-        self.__dict__['proposal'] = proposal
-        self.__dict__['data'] = proposal.data
-
-    def __getattr__(self, attr, default=_marker):
-        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
-            raise AttributeError("Invalid attribute: %s" % attr)
-
-        if default is _marker:
-            try:
-                if hasattr(self.proposal, attr):
-                    return getattr(self.proposal, attr)
-                return self.data[attr]
-            except KeyError:
-                raise AttributeError(attr)
-        else:
-            if hasattr(self.proposal, attr):
-                return getattr(self.proposal, attr, default)
-            return self.data.get(attr, default)
-
-    def __setattr__(self, attr, value):
-        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
-            raise AttributeError("Invalid attribute: %s" % attr)
-
-        if hasattr(self.proposal, attr):
-            if attr in self.proposal.__valid_fields__:
-                setattr(self.proposal, attr, value)
-            else:
-                raise AttributeError("Cannot set attribute: %s" % attr)
-        else:
-            self.data[attr] = value
 
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
@@ -143,33 +104,23 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
-    # XXX: The following two may overlap. Reconsider whether both are needed
-
-    # Allow these fields to be set on the proposal by custom forms
-    __valid_fields__ = ('title', 'speaker', 'speaking', 'email', 'phone', 'bio', 'section', 'objective', 'session_type',
-        'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
-        'latitude', 'longitude', 'coordinates')
-    # Never allow these fields to be set on the proposal or proposal.data by custom forms
-    __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'project_id',
-        'project', 'parent', 'voteset_id', 'voteset', 'commentset_id', 'commentset', 'edited_at', 'data')
-
     __roles__ = {
         'all': {
             'read': {
                 'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
                 'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
                 'latitude', 'longitude', 'coordinates'
-                },
+            },
             'call': {
                 'url_for'
-                }
-            },
+            }
+        },
         'reviewer': {
             'read': {
                 'email', 'phone'
-                }
             }
         }
+    }
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
@@ -279,10 +230,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.make_id()
 
     @property
-    def formdata(self):
-        return ProposalFormData(self)
-
-    @property
     def owner(self):
         return self.speaker or self.user
 
@@ -331,20 +278,18 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'vote_proposal',
                 'new_comment',
                 'vote_comment',
-                ])
+            ])
             if user == self.owner:
                 perms.update([
                     'view-proposal',
-                    'edit-proposal',
+                    'edit_proposal',
                     'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
                     'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                     'transfer-proposal',
-                    ])
+                ])
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
         return perms
-
-    # Roles
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
@@ -399,6 +344,6 @@ class ProposalRedirect(TimestampMixin, db.Model):
                 'profile': self.proposal.project.profile.name,
                 'project': self.proposal.project.name,
                 'proposal': self.proposal.url_name
-                }
+            }
         else:
             return {}
