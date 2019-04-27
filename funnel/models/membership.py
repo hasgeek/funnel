@@ -162,7 +162,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     __tablename__ = 'project_crew_membership'
 
     # List of is_role columns in this model
-    __role_columns__ = ('is_editor', 'is_reviewer', 'is_concierge', 'is_usher')
+    __role_columns__ = ('is_editor', 'is_concierge', 'is_usher')
     __parent_column__ = 'project_id'
 
     project_id = immutable(db.Column(
@@ -182,10 +182,9 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     #: Editors can edit all common and editorial details of an event
     is_editor = db.Column(db.Boolean, nullable=False, default=False)
-    #: Reviewers can interact with proposals
-    is_reviewer = db.Column(db.Boolean, nullable=False, default=False)
     #: Concierges are responsible for logistics and have write access
-    #: to common details plus read access to everything else
+    #: to common details plus read access to everything else. Unlike
+    #: editors, they cannot edit the schedule
     is_concierge = db.Column(db.Boolean, nullable=False, default=False)
     #: Ushers help participants find their way around an event and have
     #: the ability to scan badges at the door
@@ -195,7 +194,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     def __table_args__(cls):
         args = list(super(cls, cls).__table_args__)
         args.append(db.CheckConstraint(
-            'is_editor IS TRUE OR is_reviewer IS TRUE OR is_concierge IS TRUE OR is_usher IS TRUE',
+            'is_editor IS TRUE OR is_concierge IS TRUE OR is_usher IS TRUE',
             name='project_crew_membership_has_role'))
         return tuple(args)
 
@@ -212,16 +211,6 @@ Project.active_crew_memberships = db.relationship(
 )
 
 Project.active_editor_memberships = db.relationship(
-    ProjectCrewMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.active,
-        ProjectCrewMembership.is_editor == True  # NOQA
-    )
-)
-
-Project.active_reviewer_memberships = db.relationship(
     ProjectCrewMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
@@ -251,8 +240,7 @@ Project.active_usher_memberships = db.relationship(
     )
 )
 
-Profile.crew = association_proxy('active_crew_memberships', 'user')
-Profile.editors = association_proxy('active_editor_memberships', 'user')
-Profile.reviewers = association_proxy('active_reviewer_memberships', 'user')
-Profile.concierges = association_proxy('active_concierge_memberships', 'user')
-Profile.ushers = association_proxy('active_usher_memberships', 'user')
+Project.crew = association_proxy('active_crew_memberships', 'user')
+Project.editors = association_proxy('active_editor_memberships', 'user')
+Project.concierges = association_proxy('active_concierge_memberships', 'user')
+Project.ushers = association_proxy('active_usher_memberships', 'user')
