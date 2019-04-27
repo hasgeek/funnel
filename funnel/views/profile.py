@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from flask import g, Markup, request, flash, url_for, redirect
 from coaster.views import route, requires_permission, render_with, jsonp, UrlForView, ModelView
 from baseframe import _

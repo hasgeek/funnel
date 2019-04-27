@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
 from . import db, BaseMixin, MarkdownColumn, UuidMixin
 from .user import User
 from coaster.utils import LabeledEnum
@@ -142,5 +141,5 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 perms.update([
                     'edit_comment',
                     'delete_comment'
-                    ])
+                ])
         return perms

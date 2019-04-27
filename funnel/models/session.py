@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType
 from .project import Project
@@ -37,7 +36,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         db.CheckConstraint(
             '("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
             'session_start_end_check')
-        )
+    )
 
     @hybrid_property
     def scheduled(self):

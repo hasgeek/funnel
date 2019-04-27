@@ -8,7 +8,7 @@ __all__ = ['FEEDBACK_AUTH_TYPE', 'ProposalFeedback']
 
 # --- Constants ---------------------------------------------------------------
 
-class FEEDBACK_AUTH_TYPE:
+class FEEDBACK_AUTH_TYPE:  # NOQA
     NOAUTH = 0
     HGAUTH = 1
 

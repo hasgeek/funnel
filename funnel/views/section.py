@@ -19,7 +19,7 @@ def section_data(section):
         'description': section.description,
         'url': None,
         'json_url': None
-        }
+    }
 
 
 @route('/<profile>/<project>/sections')

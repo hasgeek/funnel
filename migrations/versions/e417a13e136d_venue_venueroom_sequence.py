@@ -10,26 +10,26 @@ revision = 'e417a13e136d'
 down_revision = 'c3069d33419a'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 from sqlalchemy.sql import table, column
 
 project = table('project',
     column('id', sa.Integer())
-    )
+)
 
 venue = table('venue',
     column('id', sa.Integer()),
     column('project_id', sa.Integer()),
     column('seq', sa.Integer()),
     column('created_at', sa.DateTime())
-    )
+)
 
 venue_room = table('venue_room',
     column('id', sa.Integer()),
     column('venue_id', sa.Integer()),
     column('seq', sa.Integer()),
     column('created_at', sa.DateTime())
-    )
+)
 
 
 def upgrade():

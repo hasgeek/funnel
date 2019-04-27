@@ -11,7 +11,7 @@ revision = '2db4d4be1fdf'
 down_revision = 'a2115fab4c4'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
@@ -24,7 +24,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ondelete='SET NULL'),
         sa.PrimaryKeyConstraint('profile_id', 'name')
-        )
+    )
 
 
 def downgrade():

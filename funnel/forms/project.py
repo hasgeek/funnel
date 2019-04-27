@@ -33,11 +33,13 @@ class ProjectForm(forms.Form):
         description=__("Eg. Bangalore, Mumbai, Pune"))
     date = forms.DateField(__("Start date"),
         validators=[forms.validators.DataRequired(__("Start date is required"))])
-    date_upto = forms.DateField(__("End date"),
+    date_upto = forms.DateField(
+        __("End date"),
         validators=[
             forms.validators.DataRequired(__("End date is required")),
             forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))
-            ])
+        ]
+    )
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),

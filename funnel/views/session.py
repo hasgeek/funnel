@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from pytz import timezone
 from baseframe import _
 from flask import request, render_template, jsonify, abort
 from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs

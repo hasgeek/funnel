@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-from datetime import datetime
 from flask import g, render_template, redirect, jsonify, Response
 from coaster.views import jsonp, load_model, render_with
 from .. import app, funnelapp, pages
