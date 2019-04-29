@@ -135,6 +135,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     labels = db.relationship('Label', cascade='all, delete-orphan',
         primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None, Label._archived == False)',
         order_by='Label.seq', collection_class=ordering_list('seq', count_from=1))
+    archived_labels = db.relationship('Label', cascade='all, delete-orphan',
+        primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None, Label._archived == True)',
+        order_by='Label.seq')
     all_labels = db.relationship('Label', lazy='dynamic')
 
     featured_sessions = db.relationship(

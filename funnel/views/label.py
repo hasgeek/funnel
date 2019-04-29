@@ -172,6 +172,22 @@ class LabelView(UrlForView, ModelView):
             flash(_("CSRF token is missing"), category='error')
         return redirect(self.obj.project.url_for('labels'), code=303)
 
+    @route('unarchive', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('admin')
+    def unarchive(self):
+        if not self.obj.archived:
+            flash(_("This label is not archived"), category='error')
+        else:
+            form = forms.Form()
+            if form.validate_on_submit():
+                self.obj.archived = False
+                db.session.commit()
+                flash(_("The label has been archived"), category='success')
+            else:
+                flash(_("CSRF token is missing"), category='error')
+        return redirect(self.obj.project.url_for('labels'), code=303)
+
     @route('delete', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('admin')
