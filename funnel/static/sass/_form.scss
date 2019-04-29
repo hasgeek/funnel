@@ -36,9 +36,10 @@
   .label-form__subform__close-btn {
     position: absolute;
     top: 0;
-    z-index: 100;
-    right: 5px;
-    background: #fff;
+    right: 0;
+    z-index: 2;
+    background: transparent;
+    padding: 10px;
   }
 
   .label-form__subform {
@@ -85,6 +86,14 @@
       margin: -.2ex 1ex .2ex -0.5ex;
     }
   }
+
+  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+    right: -251px;
+  }
+  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {
+    right: 0;
+    left: 40px;
+  }
 }
 
 .ui-dragable-box {
@@ -103,7 +112,7 @@
   }
 }
 
-.ui-dragable-box__header {
+.ui-dragable-box--header {
   padding: 0;
   margin: 10px 0;
 }

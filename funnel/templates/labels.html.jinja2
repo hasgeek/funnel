@@ -35,11 +35,14 @@
           {% else %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
-          <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">archive</i></a>
-          {% if not label.has_proposals %}
-            <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">delete</i></a>
-          {% endif %}
+          <div class="label-box__icon-wrapper">
             <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">edit</i></a>
+            {% if label.has_proposals %}
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">archive</i></a>
+            {% else %}
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">delete</i></a>
+            {% endif %}
+          </div>
         </div>
       {%- endfor %}
       <div class="mui-form form-actions clearfix">
@@ -51,32 +54,31 @@
     </form>
   </div>
  <div class="grid__col-xs-12">
-  <hr>
-   <h2>Archived labels</h2>
-   {%- for label in project.archived_labels %}
-   <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger">
-     <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
-     {% if label.has_options %}
-     <h3 class="mui--text-title mui--text-bold label-box__heading">
-       {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
-     <div class="sublabel-wrapper">
-       {%- for sublabel in label.options %}
-       <span
-        class="mui--text-subhead mui--text-light label-box__subheading">{% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }}
-         {% endif %}{{ sublabel.title }}</span>
-       {% else %}
-       <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
-       {%- endfor %}
-       </div>
+  {%- if project.archived_labels %}
+    <h2 class="mui--text-headline">Archived labels</h2>
+  {% endif %}
+  {%- for label in project.archived_labels %}
+    <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger">
+    <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
+      {% if label.has_options %}
+        <h3 class="mui--text-title mui--text-bold label-box__heading">
+          {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}
+        </h3>
+        <div class="sublabel-wrapper">
+          {%- for sublabel in label.options %}
+            <span class="mui--text-subhead mui--text-light label-box__subheading">
+            {% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }}{% endif %}{{ sublabel.title }}</span>{% else %}<span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
+          {%- endfor %}
+        </div>
      {% else %}
-     <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
+        <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
      {% endif %}
-     <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('unarchive') }}"
-      title="{% trans %}Unarchive{% endtrans %}"><i
+      <div class="label-box__icon-wrapper">
+        <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('unarchive') }}" title="{% trans %}Unarchive{% endtrans %}"><i
         class="material-icons mui--text-title mui--text-light">unarchive</i></a>
-     </div>
-   {%- endfor %}
-   </div>
+      </div>
+    </div>
+  {%- endfor %}
 </div>
 {% endblock %}
 

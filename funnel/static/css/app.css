@@ -425,9 +425,10 @@ html.touch .collapsible__body--disable {
 .label-form .label-form__subform__close-btn {
   position: absolute;
   top: 0;
-  z-index: 100;
-  right: 5px;
-  background: #fff;
+  right: 0;
+  z-index: 2;
+  background: transparent;
+  padding: 10px;
 }
 .label-form .label-form__subform {
   margin-left: 20px;
@@ -466,6 +467,13 @@ html.touch .collapsible__body--disable {
 .label-form .emojipicker .emojionearea .emojionearea-editor [class*=emojione-], .label-form .emojipicker .emojionearea .emojionearea-editor .emojioneemoji {
   margin: -.2ex 1ex .2ex -0.5ex;
 }
+.label-form .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+  right: -251px;
+}
+.label-form .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .label-form .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {
+  right: 0;
+  left: 40px;
+}
 
 .ui-dragable-box {
   padding: 25px 10px 10px 20px;
@@ -482,7 +490,7 @@ html.touch .collapsible__body--disable {
   top: 0;
 }
 
-.ui-dragable-box__header {
+.ui-dragable-box--header {
   padding: 0;
   margin: 10px 0;
 }
@@ -1560,7 +1568,6 @@ body > .proposal-box.ui-draggable {
   margin-top: 15px;
 }
 .label-box .label-box__icon--right {
-  float: right;
   padding: 0 15px;
   box-shadow: none;
   border: none;
@@ -1570,15 +1577,22 @@ body > .proposal-box.ui-draggable {
   margin: 15px 10px;
   display: inline-block;
 }
-.label-box .sublabel-wrapper {
-  display: inline-block;
-  max-width: 80%;
+@media (min-width: 1200px) {
+  .label-box .sublabel-wrapper {
+    display: inline-block;
+    max-width: 80%;
+  }
 }
 .label-box .label-box__subheading {
   margin-right: 10px;
 }
 .label-box .label-box__action {
   float: right;
+}
+.label-box .label-box__icon-wrapper {
+  position: absolute;
+  top: 10px;
+  right: 0;
 }
 
 .label-box--new {
