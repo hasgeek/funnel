@@ -71,7 +71,6 @@ class TestLabelViews(object):
             assert u"Manage labels" in resp.data.decode('utf-8')
             assert u"Only main labels can be edited" in resp.data.decode('utf-8')
 
-
     def test_edit_main_label_view(self, test_client, test_db, new_project, new_user, new_main_label):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid

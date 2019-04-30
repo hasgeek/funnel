@@ -37,7 +37,7 @@ def proposal_label_admin_form(project, proposal):
         pass
 
     for label in project.labels:
-        if not label.archived and (label.restricted or not label.has_options):
+        if label.is_for_admin:
             form_kwargs = {}
             if label.has_options:
                 FieldType = forms.RadioField

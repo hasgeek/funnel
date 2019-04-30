@@ -260,6 +260,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
+            for label in self.obj.project.labels:
+                if label.is_for_admin and label.name not in request.values:
+                    label.remove_from(self.obj)
             db.session.commit()
             flash(_("Labels have been saved for this proposal."), 'info')
             return redirect(self.obj.url_for(), 303)
