@@ -10,6 +10,20 @@ __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'Propos
     'ProposalMoveForm', 'ProposalLabelsAdminForm']
 
 
+class ClearableRadioField(forms.RadioField):
+    def validate(self, form, extra_validators=()):
+        if self.data == 'None':
+            # `self.data` is `u'None'` when the field data is missing from both formdata and object
+            # the field should validate. But populate_obj will only work if the value is not `u'None'`.
+            return True
+        else:
+            return super(ClearableRadioField, self).validate(form, extra_validators)
+
+    def populate_obj(self, obj, name):
+        if self.data in dict(self.choices):
+            setattr(obj, name, self.data)
+
+
 def proposal_label_form(project, proposal):
     """
     Returns a label form for the given project and proposal.
@@ -40,7 +54,7 @@ def proposal_label_admin_form(project, proposal):
         if label.is_for_admin:
             form_kwargs = {}
             if label.has_options:
-                FieldType = forms.RadioField
+                FieldType = ClearableRadioField
                 form_kwargs['choices'] = [(option.name, option.title) for option in label.options if not option.archived]
             else:
                 FieldType = forms.BooleanField
