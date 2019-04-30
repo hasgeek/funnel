@@ -309,12 +309,15 @@
 }
 
 .label {
-  padding: 5px 10px;
+  padding: 4px 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #79818B;
   border: 2px solid #F0F2F5;
   background-color: #F6F8FA;
   border-radius: 20px;
   display: inline-block;
-  margin: 0 10px 10px 0;
+  margin: 0 4px 4px 0;
   text-decoration: none;
 }
 
@@ -378,7 +381,7 @@
       padding-top: 0;
     }
     .mui-form__label {
-      font-size: 14px;
+      font-size: 16px;
       line-height: 24px;
       overflow: auto;
       margin: 0;
