@@ -125,6 +125,15 @@
       initEmojiPicker();
 
       $("#child-form").each(applySortable);
+
+      $('#label-form').on('submit', function(event) {
+        var optionCount = $("#child-form").find('.ui-dragable-box').length;
+        if(optionCount === 1) {
+          event.preventDefault();
+          window.toastr.error('Minimum 2 or more options are needed');
+          return false;
+        }
+      });
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
