@@ -156,6 +156,10 @@ class Label(BaseScopedNameMixin, db.Model):
         self._required = value
 
     @property
+    def is_for_admin(self):
+        return not self.archived and (self.restricted or not self.has_options)
+
+    @property
     def icon(self):
         """
         Returns an icon for displaying the label in space-constrained UI.
@@ -200,7 +204,9 @@ class Label(BaseScopedNameMixin, db.Model):
 
     def remove_from(self, proposal):
         if self.has_options:
-            raise ValueError("This label requires one of its options to be removed")
+            for opt in self.options:
+                if opt in proposal.labels:
+                    proposal.labels.remove(opt)
         if self in proposal.labels:
             proposal.labels.remove(self)
 
