@@ -107,7 +107,7 @@ export const LabelsWidget = {
     // On load, if the radio has been selected, then check mark the listwidget label
     $('.listwidget input[type="radio"]').each(function() {
       if(this.checked) {
-        $(this).siblings().find('.mui-form__label').addClass('checked');
+        $(this).parent().parent().prev('.mui-form__label').addClass('checked');
       }
     });
 
@@ -115,7 +115,8 @@ export const LabelsWidget = {
       if($(this).hasClass('checked')) {
         $(this).removeClass('checked');
         $(this).siblings().find('input[type="radio"]').prop('checked', false);
-        Widget.updateLabels('', $(this).text().trim(), false);
+        let attr = Widget.getLabelTxt($(this).text().trim());
+        Widget.updateLabels('', attr, false);
       } else {
         $(this).addClass('checked');
         $(this).siblings().find('input[type="radio"]').first().click();
@@ -126,13 +127,13 @@ export const LabelsWidget = {
     $('.listwidget input[type="radio"]').change(function() {
       let label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
-      let labelTxt = `${label.text()}: ${$(this).parent().find('label').text()}`.trim();
-      let attr = label.text().trim();
+      let labelTxt = `${Widget.getLabelTxt(label.text())}: ${Widget.getLabelTxt($(this).parent().find('label').text())}`;
+      let attr = Widget.getLabelTxt(label.text());
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
     $('.add-label-form input[type="checkbox"]').change(function() {
-      let labelTxt = $(this).parent('label').text().trim();
+      let labelTxt = Widget.getLabelTxt($(this).parent('label').text());
       Widget.updateLabels(labelTxt, labelTxt, this.checked);
     });
 
@@ -142,6 +143,9 @@ export const LabelsWidget = {
         Widget.handleDropdown();
       }
     });
+  },
+  getLabelTxt(labelTxt) {
+    return labelTxt.trim().replace(/\*$/, '');
   },
   handleDropdown() {
     if($('#label-dropdown fieldset').hasClass('active')) {
