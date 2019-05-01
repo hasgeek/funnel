@@ -12,7 +12,7 @@ __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'Propos
 
 class ClearableRadioField(forms.RadioField):
     def validate(self, form, extra_validators=()):
-        if self.data == 'None' and self.data not in dict(self.choices):
+        if getattr(form.edit_obj, self.name) is None and self.data not in dict(self.choices):
             # `self.data` is `u'None'` when the field data is missing from both formdata and object.
             return True
         else:
