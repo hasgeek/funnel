@@ -100,8 +100,17 @@
         </div>
         <div class="proposal-details proposal-details--right">
           {%- for label in proposal.labels %}
-            <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+            {% if not label.restricted %}
+              <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+            {%- endif %}
           {%- endfor %}
+          {%- if proposal.current_roles.admin %}
+            {%- for label in proposal.labels %}
+              {%- if label.restricted %}
+                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+              {%- endif %}
+            {%- endfor %}
+          {% endif %}
         </div>
       </div>
     </section>
