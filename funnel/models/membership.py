@@ -109,7 +109,7 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
     user_id = immutable(db.Column(
         None, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True))
     user = immutable(db.relationship(User, backref=db.backref('profile_admin_memberships',
-        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True)))
+        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True), foreign_keys=[user_id]))
 
     # Profile roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
@@ -172,15 +172,15 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     project_id = immutable(db.Column(
         None, db.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False))
-    project = immutable(db.relationship(Project, backref=db.backref('memberships',
+    project = immutable(db.relationship(Project, backref=db.backref('crew_memberships',
         lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True)))
     parent = immutable(db.synonym('project'))
 
     user_id = immutable(db.Column(
         None, db.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False, index=True))
-    user = immutable(db.relationship(
-        User, backref=db.backref('project_crew_memberships', lazy='dynamic')))
+    user = immutable(db.relationship(User, backref=db.backref('profile_crew_memberships',
+        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True), foreign_keys=[user_id]))
 
     # Project crew roles (at least one must be True):
 
@@ -265,15 +265,15 @@ class ProjectEditorialMembership(ImmutableMembershipMixin, db.Model):
     project_id = immutable(db.Column(
         None, db.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False))
-    project = immutable(db.relationship(Project, backref=db.backref('memberships',
+    project = immutable(db.relationship(Project, backref=db.backref('editorial_memberships',
         lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True)))
     parent = immutable(db.synonym('project'))
 
     user_id = immutable(db.Column(
         None, db.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False, index=True))
-    user = immutable(db.relationship(
-        User, backref=db.backref('project_editorial_memberships', lazy='dynamic')))
+    user = immutable(db.relationship(User, backref=db.backref('profile_editorial_memberships',
+        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True), foreign_keys=[user_id]))
 
     # Project editorial roles (at least one must be True):
 
