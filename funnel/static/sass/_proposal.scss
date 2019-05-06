@@ -309,13 +309,17 @@
 }
 
 .label {
-  padding: 5px 10px;
+  padding: 4px 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #79818B;
   border: 2px solid #F0F2F5;
   background-color: #F6F8FA;
   border-radius: 20px;
   display: inline-block;
-  margin: 0 10px 10px 0;
+  margin: 0 4px 4px 0;
   text-decoration: none;
+  max-width: 90%;
 }
 
 .label:hover {
@@ -345,6 +349,7 @@
     position: absolute;
     top: -500px;
     z-index: -1;
+    opacity: 0;
     left: 0px;
     width: 100%;
     margin: 0px;
@@ -352,10 +357,10 @@
     box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
     background-color: white;
     margin: 0;
-    -webkit-transition: top 0.25s linear, z-index 0.1s step-start;
-    -moz-transition: top 0.25s linear, z-index 0.1s step-start;
-    -ms-transition: top 0.25s linear, z-index 0.1s step-start;
-    -o-transition: top 0.25s linear, z-index 0.1s step-start;
+    -webkit-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
+    -moz-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
+    -ms-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
+    -o-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s lineart;
 
     legend {
       display: none;
@@ -365,11 +370,12 @@
   fieldset.active {
     top: 0;
     z-index: 1;
-    -webkit-transition: top 0.25s linear, z-index 0.25s step-end;
-    -moz-transition: top 0.25s linear, z-index 0.25s step-end;
-    -ms-transition: top 0.25s linear, z-index 0.25s step-end;
-    -o-transition: top 0.25s linear, z-index 0.25s step-end;
-    transition: top 0.25s linear, z-index 0.25s step-end;
+    opacity: 1;
+    -webkit-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+    -moz-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+    -ms-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+    -o-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+    transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
   }
 
   .listwidget {
@@ -378,7 +384,7 @@
       padding-top: 0;
     }
     .mui-form__label {
-      font-size: 14px;
+      font-size: 16px;
       line-height: 24px;
       overflow: auto;
       margin: 0;
