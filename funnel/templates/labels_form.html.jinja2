@@ -27,7 +27,8 @@
   {%- for error in lform.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>{%- endif %}
+    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>
+    {%- endif %}
     <!-- Add archive button for existing sublabels -->
   {%- if subform %}
     </div>
@@ -69,7 +70,7 @@
     {%- endfor %}
     <div class="mui-form form-actions clearfix">
       <div>
-        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Submit</button>
+        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Save label</button>
         <span class="loading mui--hide"></span>
       </div>
     </div>
@@ -87,7 +88,7 @@
     $(function() {
       function initEmojiPicker() {
         $('input.field-icon_emoji:not([style*="display: none"])').emojioneArea({
-          pickerPosition: "right",
+          pickerPosition: 'bottom',
           autocomplete: false,
           standalone: true
         });
@@ -115,11 +116,19 @@
       });
       $('#child-form').on('click', '.js-remove-sublabel-form', function() {
         event.preventDefault();
-        console.log('this', $(this));
         $(this).parent().remove();
       });
       initEmojiPicker();
       $("#child-form").each(applySortable);
+
+      $('#label-form').on('submit', function(event) {
+        var optionCount = $("#child-form").find('.ui-dragable-box').length;
+        if(optionCount === 1) {
+          event.preventDefault();
+          window.toastr.error('Minimum 2 or more options are needed');
+          return false;
+        }
+      });
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>

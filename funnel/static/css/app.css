@@ -425,9 +425,10 @@ html.touch .collapsible__body--disable {
 .label-form .label-form__subform__close-btn {
   position: absolute;
   top: 0;
-  z-index: 100;
-  right: 5px;
-  background: #fff;
+  right: 0;
+  z-index: 2;
+  background: transparent;
+  padding: 10px;
 }
 .label-form .label-form__subform {
   margin-left: 20px;
@@ -466,6 +467,21 @@ html.touch .collapsible__body--disable {
 .label-form .emojipicker .emojionearea .emojionearea-editor [class*=emojione-], .label-form .emojipicker .emojionearea .emojionearea-editor .emojioneemoji {
   margin: -.2ex 1ex .2ex -0.5ex;
 }
+.label-form .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+  right: -251px;
+}
+.label-form .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .label-form .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {
+  right: 0;
+  left: 40px;
+}
+
+.label-form__subform .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+  right: -210px;
+}
+.label-form__subform .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .label-form__subform .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {
+  right: 0;
+  left: 80px;
+}
 
 .ui-dragable-box {
   padding: 25px 10px 10px 20px;
@@ -482,7 +498,7 @@ html.touch .collapsible__body--disable {
   top: 0;
 }
 
-.ui-dragable-box__header {
+.ui-dragable-box--header {
   padding: 0;
   margin: 10px 0;
 }
@@ -1152,13 +1168,17 @@ html.touch .collapsible__body--disable {
 }
 
 .label {
-  padding: 5px 10px;
+  padding: 4px 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #79818B;
   border: 2px solid #F0F2F5;
   background-color: #F6F8FA;
   border-radius: 20px;
   display: inline-block;
-  margin: 0 10px 10px 0;
+  margin: 0 4px 4px 0;
   text-decoration: none;
+  max-width: 90%;
 }
 
 .label:hover {
@@ -1186,6 +1206,7 @@ html.touch .collapsible__body--disable {
   position: absolute;
   top: -500px;
   z-index: -1;
+  opacity: 0;
   left: 0px;
   width: 100%;
   margin: 0px;
@@ -1193,10 +1214,10 @@ html.touch .collapsible__body--disable {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   background-color: white;
   margin: 0;
-  -webkit-transition: top 0.25s linear, z-index 0.1s step-start;
-  -moz-transition: top 0.25s linear, z-index 0.1s step-start;
-  -ms-transition: top 0.25s linear, z-index 0.1s step-start;
-  -o-transition: top 0.25s linear, z-index 0.1s step-start;
+  -webkit-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
+  -moz-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
+  -ms-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
+  -o-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s lineart;
 }
 .add-label-form fieldset legend {
   display: none;
@@ -1204,18 +1225,19 @@ html.touch .collapsible__body--disable {
 .add-label-form fieldset.active {
   top: 0;
   z-index: 1;
-  -webkit-transition: top 0.25s linear, z-index 0.25s step-end;
-  -moz-transition: top 0.25s linear, z-index 0.25s step-end;
-  -ms-transition: top 0.25s linear, z-index 0.25s step-end;
-  -o-transition: top 0.25s linear, z-index 0.25s step-end;
-  transition: top 0.25s linear, z-index 0.25s step-end;
+  opacity: 1;
+  -webkit-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+  -moz-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+  -ms-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+  -o-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+  transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
 }
 .add-label-form .listwidget .mui-textfield {
   margin-bottom: 0;
   padding-top: 0;
 }
 .add-label-form .listwidget .mui-form__label {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 24px;
   overflow: auto;
   margin: 0;
@@ -1560,7 +1582,6 @@ body > .proposal-box.ui-draggable {
   margin-top: 15px;
 }
 .label-box .label-box__icon--right {
-  float: right;
   padding: 0 15px;
   box-shadow: none;
   border: none;
@@ -1570,15 +1591,24 @@ body > .proposal-box.ui-draggable {
   margin: 15px 10px;
   display: inline-block;
 }
-.label-box .sublabel-wrapper {
-  display: inline-block;
-  max-width: 80%;
+@media (min-width: 1200px) {
+  .label-box .sublabel-wrapper {
+    display: inline-block;
+    max-width: 80%;
+    vertical-align: middle;
+    margin-top: -5px;
+  }
 }
 .label-box .label-box__subheading {
   margin-right: 10px;
 }
 .label-box .label-box__action {
   float: right;
+}
+.label-box .label-box__icon-wrapper {
+  position: absolute;
+  top: 10px;
+  right: 0;
 }
 
 .label-box--new {

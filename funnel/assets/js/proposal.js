@@ -104,10 +104,11 @@ export const Video = {
 export const LabelsWidget = {
   init() {
     const Widget = this;
+
     // On load, if the radio has been selected, then check mark the listwidget label
     $('.listwidget input[type="radio"]').each(function() {
       if(this.checked) {
-        $(this).siblings().find('.mui-form__label').addClass('checked');
+        $(this).parent().parent().prev('.mui-form__label').addClass('checked');
       }
     });
 
@@ -115,40 +116,45 @@ export const LabelsWidget = {
       if($(this).hasClass('checked')) {
         $(this).removeClass('checked');
         $(this).siblings().find('input[type="radio"]').prop('checked', false);
-        Widget.updateLabels('', $(this).text().trim(), false);
+        let attr = Widget.getLabelTxt($(this).text().trim());
+        Widget.updateLabels('', attr, false);
       } else {
         $(this).addClass('checked');
         $(this).siblings().find('input[type="radio"]').first().click();
       }
     });
 
-        // Add check mark to listwidget label
+    // Add check mark to listwidget label
     $('.listwidget input[type="radio"]').change(function() {
       let label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
-      let labelTxt = `${label.text()}: ${$(this).parent().find('label').text()}`.trim();
-      let attr = label.text().trim();
+      let labelTxt = `${Widget.getLabelTxt(label.text())}: ${Widget.getLabelTxt($(this).parent().find('label').text())}`;
+      let attr = Widget.getLabelTxt(label.text());
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
     $('.add-label-form input[type="checkbox"]').change(function() {
-      let labelTxt = $(this).parent('label').text().trim();
+      let labelTxt = Widget.getLabelTxt($(this).parent('label').text());
       Widget.updateLabels(labelTxt, labelTxt, this.checked);
     });
 
     // Open and close dropdown
+    $('#label-select').on('click', function() {
+      if($('#label-dropdown fieldset').hasClass('active')) {
+        $('#label-dropdown fieldset').removeClass('active');
+      } else {
+        $('#label-dropdown fieldset').addClass('active');
+      }
+    });
+
     $(document).on('click', function(event) {
-      if ($('#label-select')[0] === event.target || !$(event.target).parents('#label-dropdown').length) {
-        Widget.handleDropdown();
+      if ($('#label-select')[0] !== event.target && !$(event.target).parents('#label-select').length && !$(event.target).parents('#label-dropdown').length) {
+        $('#label-dropdown fieldset').removeClass('active');
       }
     });
   },
-  handleDropdown() {
-    if($('#label-dropdown fieldset').hasClass('active')) {
-      $('#label-dropdown fieldset').removeClass('active');
-    } else {
-      $('#label-dropdown fieldset').addClass('active');
-    }
+  getLabelTxt(labelTxt) {
+    return labelTxt.trim().replace(/\*$/, '');
   },
   updateLabels(label='', attr='', action=true) {
     if(action) {
