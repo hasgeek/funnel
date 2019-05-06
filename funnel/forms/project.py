@@ -89,6 +89,16 @@ class ProjectForm(forms.Form):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
 
+    # We run `strftime()` on `date` and `date_upto` for generating `datelocation`.
+    # And `strftime()` canot handle dates before year 1900.
+    def validate_date(self, field):
+        if field.data and field.data.year < 1900:
+            raise forms.ValidationError(__("Please enter a year after 1900"))
+
+    def validate_date_upto(self, field):
+        if field.data and field.data.year < 1900:
+            raise forms.ValidationError(__("Please enter a year after 1900"))
+
 
 class CfpForm(forms.Form):
     instructions = forms.MarkdownField(__("Call for proposals"),

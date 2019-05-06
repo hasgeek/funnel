@@ -23,10 +23,8 @@ def index():
     upcoming_projects = all_projects[:3]
     all_projects = all_projects[3:]
     open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
-    draft_cfp_projects = [proj for proj in projects if proj.cfp_state.DRAFT and proj.current_roles.admin]
     return {'projects': projects.all(), 'past_projects': past_projects, 'all_projects': all_projects,
-        'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
-        'draft_cfp_projects': draft_cfp_projects}
+        'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects}
 
 
 @funnelapp.route('/', endpoint='index')
