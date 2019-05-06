@@ -88,6 +88,8 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
     # List of role columns in this model
     __role_columns__ = ('is_owner',)
     __parent_column__ = 'profile_id'
+    # List of roles offered by this model
+    offered_roles = ('profile_admin', 'profile_owner')
 
     # Control access to revocation and replacement methods
     __roles__ = {
@@ -164,6 +166,8 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     # List of is_role columns in this model
     __role_columns__ = ('is_editor', 'is_concierge', 'is_usher')
     __parent_column__ = 'project_id'
+    # List of roles offered by this model
+    offered_roles = ('profile_editor', 'profile_concierge', 'profile_usher')
 
     project_id = immutable(db.Column(
         None, db.ForeignKey('project.id', ondelete='CASCADE'),
@@ -255,6 +259,8 @@ class ProjectEditorialMembership(ImmutableMembershipMixin, db.Model):
     # List of is_role columns in this model
     __role_columns__ = ('is_reviewer', 'is_proposer', 'is_speaker')
     __parent_column__ = 'project_id'
+    # List of roles offered by this model
+    offered_roles = ('profile_reviewer', 'profile_proposer', 'profile_speaker')
 
     project_id = immutable(db.Column(
         None, db.ForeignKey('project.id', ondelete='CASCADE'),
