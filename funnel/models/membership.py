@@ -244,3 +244,92 @@ Project.crew = association_proxy('active_crew_memberships', 'user')
 Project.editors = association_proxy('active_editor_memberships', 'user')
 Project.concierges = association_proxy('active_concierge_memberships', 'user')
 Project.ushers = association_proxy('active_usher_memberships', 'user')
+
+
+class ProjectEditorialMembership(ImmutableMembershipMixin, db.Model):
+    """
+    Users can be part of editorial team of projects, with specified access rights.
+    """
+    __tablename__ = 'project_editorial_membership'
+
+    # List of is_role columns in this model
+    __role_columns__ = ('is_reviewer', 'is_proposer', 'is_speaker')
+    __parent_column__ = 'project_id'
+
+    project_id = immutable(db.Column(
+        None, db.ForeignKey('project.id', ondelete='CASCADE'),
+        nullable=False))
+    project = immutable(db.relationship(Project, backref=db.backref('memberships',
+        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True)))
+    parent = immutable(db.synonym('project'))
+
+    user_id = immutable(db.Column(
+        None, db.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False, index=True))
+    user = immutable(db.relationship(
+        User, backref=db.backref('project_editorial_memberships', lazy='dynamic')))
+
+    # Project editorial roles (at least one must be True):
+
+    #: Reviewers can update states of a proposal in the project
+    is_reviewer = db.Column(db.Boolean, nullable=False, default=False)
+    #: Proposers can edit proposal details, withdraw them,
+    # and invite new/existing users to be speakers
+    is_proposer = db.Column(db.Boolean, nullable=False, default=False)
+    #: Speakers can edit proposal details and withdraw them
+    is_speaker = db.Column(db.Boolean, nullable=False, default=False)
+
+    @declared_attr
+    def __table_args__(cls):
+        args = list(super(cls, cls).__table_args__)
+        args.append(db.CheckConstraint(
+            'is_reviewer IS TRUE OR is_proposer IS TRUE OR is_speaker IS TRUE',
+            name='project_editorial_membership_has_role'))
+        return tuple(args)
+
+
+# Project relationships: all editorial members, vs specific roles
+
+Project.active_editorial_memberships = db.relationship(
+    ProjectEditorialMembership,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        ProjectEditorialMembership.project_id == Project.id,
+        ProjectEditorialMembership.active
+    )
+)
+
+Project.active_reviewer_memberships = db.relationship(
+    ProjectEditorialMembership,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        ProjectEditorialMembership.project_id == Project.id,
+        ProjectEditorialMembership.active,
+        ProjectEditorialMembership.is_reviewer == True  # NOQA
+    )
+)
+
+Project.active_proposer_memberships = db.relationship(
+    ProjectEditorialMembership,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        ProjectEditorialMembership.project_id == Project.id,
+        ProjectEditorialMembership.active,
+        ProjectEditorialMembership.is_proposer == True  # NOQA
+    )
+)
+
+Project.active_speaker_memberships = db.relationship(
+    ProjectEditorialMembership,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        ProjectEditorialMembership.project_id == Project.id,
+        ProjectEditorialMembership.active,
+        ProjectEditorialMembership.is_speaker == True  # NOQA
+    )
+)
+
+Project.editorial_members = association_proxy('active_editorial_memberships', 'user')
+Project.reviewers = association_proxy('active_reviewer_memberships', 'user')
+Project.proposers = association_proxy('active_proposer_memberships', 'user')
+Project.speakers = association_proxy('active_speaker_memberships', 'user')
