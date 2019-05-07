@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from funnel.models import Project
 
 
@@ -22,15 +23,30 @@ class TestProject(object):
         expired_cfp_projects = Project.query.filter(Project.cfp_state.EXPIRED).all()
         assert len(expired_cfp_projects) >= 0
 
-    def test_draft_projects(self, test_client, test_db, new_profile, new_project):
+    def test_cfp_state_draft(self, test_client, test_db, new_profile, new_project):
+        assert new_project.cfp_start_at is None
         assert new_project.state.DRAFT
+        assert new_project.cfp_state.NONE
+        assert not new_project.cfp_state.DRAFT
         assert new_project in new_profile.draft_projects
-        assert new_project not in new_profile.listed_projects
+
+        new_project.open_cfp()
+        test_db.session.commit()
+
+        assert new_project.cfp_state.PUBLIC
+        assert new_project.cfp_start_at is None
+        assert new_project.cfp_state.DRAFT
+        assert new_project in new_profile.draft_projects
+
+        new_project.cfp_start_at = datetime.utcnow()
+        test_db.session.commit()
+
+        assert new_project.cfp_start_at is not None
+        assert not new_project.cfp_state.DRAFT
+        assert new_project in new_profile.draft_projects  # because project state is still draft
 
         new_project.publish()
         test_db.session.commit()
-
-        assert new_project.state.PUBLISHED
+        assert not new_project.cfp_state.DRAFT
+        assert not new_project.state.DRAFT
         assert new_project not in new_profile.draft_projects
-        assert new_project in new_profile.listed_projects
-
