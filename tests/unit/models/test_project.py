@@ -21,3 +21,16 @@ class TestProject(object):
         assert len(open_cfp_projects) >= 0
         expired_cfp_projects = Project.query.filter(Project.cfp_state.EXPIRED).all()
         assert len(expired_cfp_projects) >= 0
+
+    def test_draft_projects(self, test_client, test_db, new_profile, new_project):
+        assert new_project.state.DRAFT
+        assert new_project in new_profile.draft_projects
+        assert new_project not in new_profile.listed_projects
+
+        new_project.publish()
+        test_db.session.commit()
+
+        assert new_project.state.PUBLISHED
+        assert new_project not in new_profile.draft_projects
+        assert new_project in new_profile.listed_projects
+
