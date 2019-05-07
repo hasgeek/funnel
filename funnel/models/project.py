@@ -213,10 +213,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.date_upto < datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto < datetime.now().date(),
         label=('past', __("Past")))
     state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.date_upto >= datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto >= datetime.now().date(),
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
