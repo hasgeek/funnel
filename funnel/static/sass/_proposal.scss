@@ -107,7 +107,6 @@
   width: 100%;
   height: 0;
   padding-bottom: 56%;
-  background-color: #EFF2F7;
 
   .video_txt {
     text-align: center;
@@ -133,6 +132,20 @@
     transform: translate(-50%, -50%);
     font-size: 32px;
     color: #8492A6;
+  }
+}
+
+.proposal-video--novideo {
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
+  border: 2px dashed rgba(132,146,166,0.3);
+  border-radius: 2px;
+  
+  .proposal-video__banner {
+    background-color: #DDA32A;
+    padding: 10px;
+    opacity: 0.8;
   }
 }
 
@@ -315,7 +328,7 @@
   color: #79818B;
   border: 2px solid #F0F2F5;
   background-color: #F6F8FA;
-  border-radius: 20px;
+  border-radius: 2px;
   display: inline-block;
   margin: 0 4px 4px 0;
   text-decoration: none;

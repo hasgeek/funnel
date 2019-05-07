@@ -180,7 +180,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
-        return render_form(form=form, title=_("Edit session proposal"), submit=_("Save changes"),
+        return render_form(form=form, title=_("Edit session proposal"), submit=_("Update proposal"),
             message=Markup(
                 _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
 

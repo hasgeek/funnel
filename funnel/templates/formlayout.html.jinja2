@@ -32,6 +32,7 @@
 {% endblock %}
 
 {% block layoutscripts %}
+  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
   {%- if autosave %}
     <script type="text/javascript">
       $(function() {
