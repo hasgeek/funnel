@@ -38,7 +38,7 @@ class Label(BaseScopedNameMixin, db.Model):
     options = db.relationship(
         'Label',
         backref=db.backref('main_label', remote_side='Label.id'),
-        order_by='Label.seq',
+        order_by='Label.seq', passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1)
     )
 

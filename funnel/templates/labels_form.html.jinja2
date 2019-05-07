@@ -27,9 +27,9 @@
   {%- for error in lform.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-    {%- if empty %}
-      <button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>
-    {%- endif %}
+  {%- if empty %}
+    <button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>
+  {%- endif %}
   {%- if subform %}
     </div>
   {%- endif %}
@@ -88,7 +88,7 @@
     $(function() {
       function initEmojiPicker() {
         $('input.field-icon_emoji:not([style*="display: none"])').emojioneArea({
-          pickerPosition: "bottom",
+          pickerPosition: 'bottom',
           autocomplete: false,
           standalone: true
         });

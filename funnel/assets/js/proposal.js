@@ -104,6 +104,7 @@ export const Video = {
 export const LabelsWidget = {
   init() {
     const Widget = this;
+
     // On load, if the radio has been selected, then check mark the listwidget label
     $('.listwidget input[type="radio"]').each(function() {
       if(this.checked) {
@@ -123,7 +124,7 @@ export const LabelsWidget = {
       }
     });
 
-        // Add check mark to listwidget label
+    // Add check mark to listwidget label
     $('.listwidget input[type="radio"]').change(function() {
       let label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
@@ -138,21 +139,22 @@ export const LabelsWidget = {
     });
 
     // Open and close dropdown
+    $('#label-select').on('click', function() {
+      if($('#label-dropdown fieldset').hasClass('active')) {
+        $('#label-dropdown fieldset').removeClass('active');
+      } else {
+        $('#label-dropdown fieldset').addClass('active');
+      }
+    });
+
     $(document).on('click', function(event) {
-      if ($('#label-select')[0] === event.target || !$(event.target).parents('#label-dropdown').length) {
-        Widget.handleDropdown();
+      if ($('#label-select')[0] !== event.target && !$(event.target).parents('#label-select').length && !$(event.target).parents('#label-dropdown').length) {
+        $('#label-dropdown fieldset').removeClass('active');
       }
     });
   },
   getLabelTxt(labelTxt) {
     return labelTxt.trim().replace(/\*$/, '');
-  },
-  handleDropdown() {
-    if($('#label-dropdown fieldset').hasClass('active')) {
-      $('#label-dropdown fieldset').removeClass('active');
-    } else {
-      $('#label-dropdown fieldset').addClass('active');
-    }
   },
   updateLabels(label='', attr='', action=true) {
     if(action) {
