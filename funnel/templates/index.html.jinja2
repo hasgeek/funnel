@@ -204,11 +204,11 @@
               </div>
             </div>
           </li>
-        {% if draft_cfp_projects %}
-          {% for project in draft_cfp_projects %}
+        {% if draft_projects %}
+          {% for project in draft_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}">
               <div class="grid__cell">
-                <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
+                <div class="clickable-card card" data-href="{{ project.url_for() }}" title="{{ project.title }}">
                   <div class="card__image-wrapper">
                     {% if project.bg_image.url %}
                       <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -232,14 +232,14 @@
                     </div>
                   {% endif %}
                   <div class="card__footer">
-                    <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Publish project</a>
                   </div>
                 </div>
               </div>
             </li>
           {%- endfor -%}
           </ul>
-          {% if draft_cfp_projects|length > 3 %}
+          {% if draft_projects|length > 3 %}
             <div class="mui--text-center">
               <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)">Show all</a>
             </div>
