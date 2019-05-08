@@ -927,7 +927,7 @@ html.touch .collapsible__body--disable {
   }
 }
 .proposal__section {
-  padding: 1em;
+  padding: 1em 2em 2em;
   overflow-wrap: break-word;
 }
 
@@ -943,14 +943,14 @@ html.touch .collapsible__body--disable {
 @media (min-width: 992px) {
   .proposal__section--left {
     float: left;
-    width: calc(70% - 15px);
+    width: calc(70% - 2em);
     padding-bottom: 2em;
   }
 
   .proposal__admin-panel {
     float: right;
-    width: calc(30% - 15px);
-    margin-right: 15px;
+    width: calc(30% - 2em);
+    margin-right: 2em;
     margin-top: 30px;
   }
 }
@@ -971,7 +971,6 @@ html.touch .collapsible__body--disable {
   width: 100%;
   height: 0;
   padding-bottom: 56%;
-  background-color: #EFF2F7;
 }
 .proposal-video .video_txt {
   text-align: center;
@@ -995,6 +994,19 @@ html.touch .collapsible__body--disable {
   transform: translate(-50%, -50%);
   font-size: 32px;
   color: #8492A6;
+}
+
+.proposal-video--novideo {
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
+  border: 2px dashed rgba(132, 146, 166, 0.3);
+  border-radius: 2px;
+}
+.proposal-video--novideo .proposal-video__banner {
+  background-color: #DDA32A;
+  padding: 10px;
+  opacity: 0.8;
 }
 
 .proposal-details--talk {
@@ -1119,7 +1131,7 @@ html.touch .collapsible__body--disable {
   }
 }
 .proposal-content {
-  margin: 2em 0;
+  margin: 8px 0;
   min-height: 100px;
 }
 
@@ -1174,7 +1186,7 @@ html.touch .collapsible__body--disable {
   color: #79818B;
   border: 2px solid #F0F2F5;
   background-color: #F6F8FA;
-  border-radius: 20px;
+  border-radius: 2px;
   display: inline-block;
   margin: 0 4px 4px 0;
   text-decoration: none;
