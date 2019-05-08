@@ -29,7 +29,7 @@
   {%- elif project.allow_rsvp %}
     <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#participate" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>
   {%- endif %}
-  {% if project.cfp_state.PUBLIC -%}
+  {% if project.cfp_state.OPEN -%}
     <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
   {% endif %}
   </p>
