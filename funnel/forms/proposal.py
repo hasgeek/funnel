@@ -61,7 +61,7 @@ def proposal_label_admin_form(project, proposal):
             setattr(ProposalLabelAdminForm, label.name, FieldType(
                 label.form_label_text,
                 description=label.description,
-                validators=[forms.validators.DataRequired(__("Please select one"))] if label.required else [],
+                validators=[],  # required validator is only needed on proposal edit form, not the admin form
                 **form_kwargs
             ))
 
