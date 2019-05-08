@@ -100,8 +100,17 @@
         </div>
         <div class="proposal-details proposal-details--right">
           {%- for label in proposal.labels %}
-            <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+            {% if not label.restricted %}
+              <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+            {%- endif %}
           {%- endfor %}
+          {%- if proposal.current_roles.admin %}
+            {%- for label in proposal.labels %}
+              {%- if label.restricted %}
+                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+              {%- endif %}
+            {%- endfor %}
+          {% endif %}
         </div>
       </div>
     </section>
@@ -209,7 +218,9 @@
                   <p class="mui--text-title">Labels</p>
                   <div class="selected-label" id="label-select">
                     {%- for label in proposal.labels %}
-                      <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
+                      {%- if label.is_for_admin %}
+                        <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
+                      {%- endif %}
                     {%- endfor %}
                     <i class="material-icons mui--text-light">arrow_drop_down</i>
                   </div>

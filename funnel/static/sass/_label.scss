@@ -22,7 +22,9 @@
   @media(min-width: 1200px) {
     .sublabel-wrapper {
       display: inline-block;
-      max-width: 80%
+      max-width: 80%;
+      vertical-align: middle;
+      margin-top: -5px;
     }
   }
 

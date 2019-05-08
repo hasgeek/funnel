@@ -96,6 +96,16 @@
   }
 }
 
+.label-form__subform {
+  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+    right: -210px;
+  }
+  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {
+    right: 0;
+    left: 80px;
+  }
+}
+
 .ui-dragable-box {
   padding: 25px 10px 10px 20px;
   border-radius: 3px;
