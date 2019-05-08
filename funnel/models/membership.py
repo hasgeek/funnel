@@ -23,12 +23,14 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __role_columns__ = ()
     #: Parent column ('profile_id' or 'project_id' in the subclasses)
     __parent_column__ = None
+    #: Require timezones in timestamps
+    __with_timezone__ = True
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
-    granted_at = immutable(db.Column(db.DateTime, nullable=False, default=db.func.utcnow()))
+    granted_at = immutable(db.Column(db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()))
     #: End time of membership, ordinarily a mirror of updated_at
-    revoked_at = db.Column(db.DateTime, nullable=True)
+    revoked_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     @declared_attr
     def revoked_by_id(cls):
@@ -55,6 +57,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             unique=True,
             postgresql_where=db.text('revoked_at IS NOT NULL')
         ),)
+
+    def offered_roles(self):
+        """Roles offered by this membership record"""
+        return set()
 
     # Subclasses must gate these methods in __roles__
 
@@ -88,8 +94,6 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
     # List of role columns in this model
     __role_columns__ = ('is_owner',)
     __parent_column__ = 'profile_id'
-    # List of roles offered by this model
-    offered_roles = ('profile_admin', 'profile_owner')
 
     # Control access to revocation and replacement methods
     __roles__ = {
@@ -101,18 +105,42 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
     #: Profile that this membership is being granted on
     profile_id = immutable(db.Column(
         None, db.ForeignKey('profile.id', ondelete='CASCADE'), nullable=False))
-    profile = immutable(db.relationship(Profile, backref=db.backref('admin_memberships',
-        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True)))
+    profile = immutable(db.relationship(
+        Profile,
+        backref=db.backref(
+            'admin_memberships',
+            lazy='dynamic',
+            cascade='all, delete-orphan',
+            passive_deletes=True)))
     parent = immutable(db.synonym('profile'))
 
     #: User who is an admin or owner
     user_id = immutable(db.Column(
         None, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True))
-    user = immutable(db.relationship(User, backref=db.backref('profile_admin_memberships',
-        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True), foreign_keys=[user_id]))
+    user = immutable(db.relationship(
+        User,
+        foreign_keys=[user_id],
+        backref=db.backref(
+            'profile_admin_memberships',
+            lazy='dynamic',
+            cascade='all, delete-orphan',
+            passive_deletes=True)))
 
     # Profile roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
+
+    def offered_roles(self):
+        """Roles offered by this membership record"""
+        roles = {'profile_admin'}
+        if self.is_owner:
+            roles.add('profile_owner')
+        return roles
+
+    def roles_for(self, actor, anchors=()):
+        """Roles available to the specified actor and anchors"""
+        roles = super(ProfileAdminMembership, self).roles_for(actor, anchors)
+        roles.update(self.parent.roles_for(actor, anchors))
+        return roles
 
 
 # Add active membership relationships to Profile and User
@@ -166,21 +194,28 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     # List of is_role columns in this model
     __role_columns__ = ('is_editor', 'is_concierge', 'is_usher')
     __parent_column__ = 'project_id'
-    # List of roles offered by this model
-    offered_roles = ('profile_editor', 'profile_concierge', 'profile_usher')
 
     project_id = immutable(db.Column(
-        None, db.ForeignKey('project.id', ondelete='CASCADE'),
-        nullable=False))
-    project = immutable(db.relationship(Project, backref=db.backref('crew_memberships',
-        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True)))
+        None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False))
+    project = immutable(db.relationship(
+        Project,
+        backref=db.backref(
+            'crew_memberships',
+            lazy='dynamic',
+            cascade='all, delete-orphan',
+            passive_deletes=True)))
     parent = immutable(db.synonym('project'))
 
     user_id = immutable(db.Column(
-        None, db.ForeignKey('user.id', ondelete='CASCADE'),
-        nullable=False, index=True))
-    user = immutable(db.relationship(User, backref=db.backref('profile_crew_memberships',
-        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True), foreign_keys=[user_id]))
+        None, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True))
+    user = immutable(db.relationship(
+        User,
+        foreign_keys=[user_id],
+        backref=db.backref(
+            'profile_crew_memberships',
+            lazy='dynamic',
+            cascade='all, delete-orphan',
+            passive_deletes=True)))
 
     # Project crew roles (at least one must be True):
 
@@ -201,6 +236,23 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             'is_editor IS TRUE OR is_concierge IS TRUE OR is_usher IS TRUE',
             name='project_crew_membership_has_role'))
         return tuple(args)
+
+    def offered_roles(self):
+        """Roles offered by this membership record"""
+        roles = set()
+        if self.is_editor:
+            roles.add('project_editor')
+        if self.is_concierge:
+            roles.add('project_concierge')
+        if self.is_usher:
+            roles.add('project_usher')
+        return roles
+
+    def roles_for(self, actor, anchors=()):
+        """Roles available to the specified actor and anchors"""
+        roles = super(ProjectCrewMembership, self).roles_for(actor, anchors)
+        roles.update(self.parent.roles_for(actor, anchors))
+        return roles
 
 
 # Project relationships: all crew, vs specific roles
@@ -248,94 +300,3 @@ Project.crew = association_proxy('active_crew_memberships', 'user')
 Project.editors = association_proxy('active_editor_memberships', 'user')
 Project.concierges = association_proxy('active_concierge_memberships', 'user')
 Project.ushers = association_proxy('active_usher_memberships', 'user')
-
-
-class ProjectEditorialMembership(ImmutableMembershipMixin, db.Model):
-    """
-    Users can be part of editorial team of projects, with specified access rights.
-    """
-    __tablename__ = 'project_editorial_membership'
-
-    # List of is_role columns in this model
-    __role_columns__ = ('is_reviewer', 'is_proposer', 'is_speaker')
-    __parent_column__ = 'project_id'
-    # List of roles offered by this model
-    offered_roles = ('profile_reviewer', 'profile_proposer', 'profile_speaker')
-
-    project_id = immutable(db.Column(
-        None, db.ForeignKey('project.id', ondelete='CASCADE'),
-        nullable=False))
-    project = immutable(db.relationship(Project, backref=db.backref('editorial_memberships',
-        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True)))
-    parent = immutable(db.synonym('project'))
-
-    user_id = immutable(db.Column(
-        None, db.ForeignKey('user.id', ondelete='CASCADE'),
-        nullable=False, index=True))
-    user = immutable(db.relationship(User, backref=db.backref('profile_editorial_memberships',
-        lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True), foreign_keys=[user_id]))
-
-    # Project editorial roles (at least one must be True):
-
-    #: Reviewers can update states of a proposal in the project
-    is_reviewer = db.Column(db.Boolean, nullable=False, default=False)
-    #: Proposers can edit proposal details, withdraw them,
-    # and invite new/existing users to be speakers
-    is_proposer = db.Column(db.Boolean, nullable=False, default=False)
-    #: Speakers can edit proposal details and withdraw them
-    is_speaker = db.Column(db.Boolean, nullable=False, default=False)
-
-    @declared_attr
-    def __table_args__(cls):
-        args = list(super(cls, cls).__table_args__)
-        args.append(db.CheckConstraint(
-            'is_reviewer IS TRUE OR is_proposer IS TRUE OR is_speaker IS TRUE',
-            name='project_editorial_membership_has_role'))
-        return tuple(args)
-
-
-# Project relationships: all editorial members, vs specific roles
-
-Project.active_editorial_memberships = db.relationship(
-    ProjectEditorialMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectEditorialMembership.project_id == Project.id,
-        ProjectEditorialMembership.active
-    )
-)
-
-Project.active_reviewer_memberships = db.relationship(
-    ProjectEditorialMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectEditorialMembership.project_id == Project.id,
-        ProjectEditorialMembership.active,
-        ProjectEditorialMembership.is_reviewer == True  # NOQA
-    )
-)
-
-Project.active_proposer_memberships = db.relationship(
-    ProjectEditorialMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectEditorialMembership.project_id == Project.id,
-        ProjectEditorialMembership.active,
-        ProjectEditorialMembership.is_proposer == True  # NOQA
-    )
-)
-
-Project.active_speaker_memberships = db.relationship(
-    ProjectEditorialMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectEditorialMembership.project_id == Project.id,
-        ProjectEditorialMembership.active,
-        ProjectEditorialMembership.is_speaker == True  # NOQA
-    )
-)
-
-Project.editorial_members = association_proxy('active_editorial_memberships', 'user')
-Project.reviewers = association_proxy('active_reviewer_memberships', 'user')
-Project.proposers = association_proxy('active_proposer_memberships', 'user')
-Project.speakers = association_proxy('active_speaker_memberships', 'user')
