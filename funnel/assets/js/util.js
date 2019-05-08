@@ -1,7 +1,6 @@
 /* global ga */
 
 export const Utils = {
-  headerHeight: $('.mui-appbar').outerHeight(),
   // convert array of objects into hashmap
   tohashMap(objectArray, key) {
     let hashMap = {
@@ -36,13 +35,6 @@ export const Utils = {
       event.preventDefault();
       Utils.animateScrollTo($(this.hash).offset().top);
     });
-  },
-  pageScroll() {
-    let hash = window.location.href.split("#")[1];
-    if (hash) {
-      console.log('pagescroll', $(`#${hash}`).offset().top);
-      Utils.animateScrollTo($(`#${hash}`).offset().top - Utils.headerHeight);
-    }
   },
   sendToGA(category, action, label, value = '') {
     if (typeof ga !== 'undefined') {

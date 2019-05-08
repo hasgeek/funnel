@@ -5,7 +5,6 @@ $(() => {
 
   Utils.collapse();
   Utils.smoothScroll();
-  Utils.pageScroll();
 
   let intersectionObserverComponents = function() {
     ScrollActiveMenu.init('page-navbar', 'sub-navbar__item', 'sub-navbar__item--active');

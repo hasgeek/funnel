@@ -32,7 +32,16 @@
 {% endblock %}
 
 {% block layoutscripts %}
-  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  <script>
+    $(function() {
+      var hash = window.location.hash;
+      if (hash) {
+        $('html,body').animate({
+          scrollTop: $(window.location.hash).offset().top - $('.mui-appbar').outerHeight(),
+        }, 500);
+      }
+    });
+  </script>
   {%- if autosave %}
     <script type="text/javascript">
       $(function() {
