@@ -37,7 +37,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['venue_room_id'], ['venue_room.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('proposal_space_id', 'url_id')
-    )
+        )
     op.add_column('venue_room', sa.Column('bgcolor', sa.Unicode(length=6), nullable=True))
 
 

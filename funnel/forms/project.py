@@ -15,14 +15,14 @@ __all__ = [
     'EventForm', 'ProjectForm', 'CfpForm', 'ProjectTransitionForm', 'RsvpForm',
     'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm',
     'ProjectScheduleTransitionForm', 'ProjectCfpTransitionForm'
-]
+    ]
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {
     "org": "hasgeek",
     "item_collection_id": ""
-}
+    }
 
 
 class ProjectForm(forms.Form):
@@ -38,8 +38,8 @@ class ProjectForm(forms.Form):
         validators=[
             forms.validators.DataRequired(__("End date is required")),
             forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))
-        ]
-    )
+            ]
+        )
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),

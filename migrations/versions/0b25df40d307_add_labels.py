@@ -33,7 +33,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('project_id', 'name')
-    )
+        )
     op.create_table('proposal_label',
         sa.Column('proposal_id', sa.Integer(), nullable=False),
         sa.Column('label_id', sa.Integer(), nullable=False),
@@ -41,7 +41,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['label_id'], ['label.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('proposal_id', 'label_id')
-    )
+        )
     op.create_index(op.f('ix_proposal_label_label_id'), 'proposal_label', ['label_id'], unique=False)
 
 

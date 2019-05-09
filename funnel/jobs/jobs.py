@@ -48,7 +48,7 @@ def tag_locations(project_id):
                         tokens.append({'token': item.get('token', ''), 'geoname': {
                             'name': geoname['name'],
                             'geonameid': geoname['geonameid'],
-                        }})
+                            }})
                     else:
                         tokens.append({'token': item.get('token', '')})
 

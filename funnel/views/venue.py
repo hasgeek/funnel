@@ -31,7 +31,7 @@ def venue_data(venue):
         'longitude': venue.longitude,
         'url': None,
         'json_url': None,
-    }
+        }
 
 
 def room_data(room):
@@ -43,7 +43,7 @@ def room_data(room):
         'bgcolor': room.bgcolor,
         'url': None,
         'json_url': None,
-    }
+        }
 
 
 @route('/<profile>/<project>/venues')

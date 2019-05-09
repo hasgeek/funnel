@@ -14,7 +14,7 @@ proposal_label = db.Table(
     db.Column('proposal_id', None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False, primary_key=True),
     db.Column('label_id', None, db.ForeignKey('label.id', ondelete='CASCADE'), nullable=False, primary_key=True, index=True),
     db.Column('created_at', db.TIMESTAMP(timezone=True), default=db.func.utcnow())
-)
+    )
 
 
 class Label(BaseScopedNameMixin, db.Model):
@@ -33,14 +33,14 @@ class Label(BaseScopedNameMixin, db.Model):
         db.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True
-    )
+        )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
     options = db.relationship(
         'Label',
         backref=db.backref('main_label', remote_side='Label.id'),
         order_by='Label.seq', passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1)
-    )
+        )
 
     # TODO: Add sqlalchemy validator for `main_label` to ensure the parent's project matches.
     # Ideally add a SQL post-update trigger as well (code is in coaster's add_primary_relationship)
@@ -80,9 +80,9 @@ class Label(BaseScopedNameMixin, db.Model):
             'read': {
                 'name', 'title', 'project_id', 'project', 'seq',
                 'restricted', 'required', 'archived'
+                }
             }
         }
-    }
 
     @property
     def title_for_name(self):
@@ -219,7 +219,7 @@ class ProposalLabelProxyWrapper(object):
 
         label = Label.query.filter(
             Label.name == name, Label.project == self._obj.project
-        ).one_or_none()
+            ).one_or_none()
         if not label:
             raise AttributeError
 

@@ -49,11 +49,9 @@ def extract_twitter_handle(handle):
         return None
 
     parsed_handle = urlparse(handle)
-    if (
-            (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
+    if ((parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
             or (not parsed_handle.netloc and len(handle) > 16)
-            or (not parsed_handle.path)
-    ):
+            or (not parsed_handle.path)):
         return None
 
     return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace('@', '')

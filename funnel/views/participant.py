@@ -28,7 +28,7 @@ def participant_badge_data(participants, project):
             'company': participant.company,
             'qrcode_content': make_qrcode(u"{puk}{key}".format(puk=participant.puk, key=participant.key)),
             'order_no': ticket.order_no if ticket else ''
-        })
+            })
     return badges
 
 
@@ -45,7 +45,7 @@ def participant_data(participant, project_id, full=False):
             'phone': participant.phone,
             'project_id': project_id,
             'space_id': project_id,  # FIXME: Remove when the native app switches over
-        }
+            }
     else:
         return {
             '_id': participant.id,
@@ -55,7 +55,7 @@ def participant_data(participant, project_id, full=False):
             'company': participant.company,
             'project_id': project_id,
             'space_id': project_id,  # FIXME: Remove when the native app switches over
-        }
+            }
 
 
 def participant_checkin_data(participant, project, event):
@@ -67,7 +67,7 @@ def participant_checkin_data(participant, project, event):
         'badge_printed': participant.badge_printed,
         'checked_in': participant.checked_in,
         'ticket_type_titles': participant.ticket_type_titles
-    }
+        }
 
 
 @route('/<profile>/<project>/participants')

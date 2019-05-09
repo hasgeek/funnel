@@ -29,13 +29,13 @@ def upgrade():
     for space in results:
         if space['content']:
             for (section, title) in [
-                ('format', u"Format"),
-                ('criteria', u"Criteria for proposals"),
-                ('panel', u"Editorial panel"),
-                ('dates', u"Important dates"),
-                ('open_source', u"Commitment to Open Source"),
-                ('themes', u"Theme")
-            ]:
+                    ('format', u"Format"),
+                    ('criteria', u"Criteria for proposals"),
+                    ('panel', u"Editorial panel"),
+                    ('dates', u"Important dates"),
+                    ('open_source', u"Commitment to Open Source"),
+                    ('themes', u"Theme")
+                    ]:
                 modified = False
                 text = space['description_text']
                 if space['content'].get(section):

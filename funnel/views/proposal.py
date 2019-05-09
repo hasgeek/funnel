@@ -36,7 +36,7 @@ proposal_headers = [
     'comments',
     'submitted',
     'confirmed'
-]
+    ]
 
 
 def proposal_data(proposal):
@@ -69,14 +69,16 @@ def proposal_data(proposal):
             ('comments', proposal.commentset.count),
             ('submitted', proposal.created_at.isoformat() + 'Z'),
             ('confirmed', bool(proposal.state.CONFIRMED)),
-        ] + ([
+            ]
+        + ([
             ('email', proposal.email),
             ('phone', proposal.phone),
             ('location', proposal.location),
             ('votes_count', proposal.votes_count()),
             ('status', proposal.state.value),
             ('state', proposal.state.label.name),
-        ] if current_auth.permissions.view_contactinfo else []))
+            ] if current_auth.permissions.view_contactinfo else [])
+        )
 
 
 def proposal_data_flat(proposal):

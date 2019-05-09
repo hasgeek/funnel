@@ -32,10 +32,10 @@ def downgrade():
         sa.ForeignKeyConstraint(['project_id'], [u'project.id'], name=u'user_group_project_id_fkey'),
         sa.PrimaryKeyConstraint('id', name=u'user_group_pkey'),
         sa.UniqueConstraint('project_id', 'name', name=u'user_group_project_id_name_key')
-    )
+        )
     op.create_table('group_members',
         sa.Column('group_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column('user_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.ForeignKeyConstraint(['group_id'], [u'user_group.id'], name=u'group_members_group_id_fkey'),
         sa.ForeignKeyConstraint(['user_id'], [u'user.id'], name=u'group_members_user_id_fkey')
-    )
+        )
