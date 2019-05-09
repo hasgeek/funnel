@@ -25,7 +25,7 @@ def upgrade():
         sa.Column('body', JsonDict(), server_default='{}', nullable=False),
         sa.Column('revision', UUIDType(binary=False), nullable=True),
         sa.PrimaryKeyConstraint('table', 'table_row_id')
-    )
+        )
 
 
 def downgrade():

@@ -21,7 +21,7 @@ def upgrade():
     op.add_column(u'proposal_space', sa.Column('labels', JsonDict(), server_default='{}', nullable=False))
     op.execute(
         proposal_space.update().values({'labels': '{"proposal": {"part_a": {"title": "Objective", "hint": "What is the expected benefit for someone attending this?"}, "part_b": {"title": "Description", "hint": "A detailed description of the session."}}}'})
-    )
+        )
 
 
 def downgrade():

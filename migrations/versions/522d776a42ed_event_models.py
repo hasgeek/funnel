@@ -22,7 +22,7 @@ def upgrade():
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('event',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -31,7 +31,7 @@ def upgrade():
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('participant',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -54,7 +54,7 @@ def upgrade():
         sa.UniqueConstraint('key'),
         sa.UniqueConstraint('proposal_space_id', 'email'),
         sa.UniqueConstraint('puk')
-    )
+        )
     op.create_table('attendee',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -65,7 +65,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['event_id'], ['event.id'], ),
         sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('sync_ticket',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -80,7 +80,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('proposal_space_id', 'ticket_no')
-    )
+        )
     op.create_table('event_ticket_type',
         sa.Column('event_id', sa.Integer(), nullable=False),
         sa.Column('ticket_type_id', sa.Integer(), nullable=False),
@@ -88,7 +88,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['event_id'], ['event.id'], ),
         sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id'], ),
         sa.PrimaryKeyConstraint('event_id', 'ticket_type_id')
-    )
+        )
 
 
 def downgrade():

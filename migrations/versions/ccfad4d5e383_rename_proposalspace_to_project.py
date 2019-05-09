@@ -21,7 +21,7 @@ renamed_tables = [
     ('proposal_space_redirect', 'project_redirect'),
     ('proposal_space_section', 'section'),
     ('votespace', 'voteset'),
-]
+    ]
 
 # (old, new)
 renamed_sequences = [
@@ -29,7 +29,7 @@ renamed_sequences = [
     ('proposal_space_id_seq', 'project_id_seq'),
     ('proposal_space_section_id_seq', 'section_id_seq'),
     ('votespace_id_seq', 'voteset_id_seq'),
-]
+    ]
 
 # (table, old, new)
 renamed_columns = [
@@ -60,7 +60,7 @@ renamed_columns = [
     ('user_group', 'proposal_space_id', 'project_id'),
     ('venue', 'proposal_space_id', 'project_id'),
     ('vote', 'votespace_id', 'voteset_id'),
-]
+    ]
 
 # (table, old, new)
 renamed_constraints = [
@@ -117,7 +117,7 @@ renamed_constraints = [
     ('vote', 'vote_user_id_votespace_id_key', 'vote_user_id_voteset_id_key'),
     ('vote', 'vote_votespace_id_fkey', 'vote_voteset_id_fkey'),
     ('voteset', 'votespace_pkey', 'voteset_pkey'),
-]
+    ]
 
 
 def upgrade():

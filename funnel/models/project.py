@@ -158,9 +158,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location'
-            },
+                },
+            }
         }
-    }
 
     @cached_property
     def datelocation(self):
@@ -335,12 +335,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.subprojects:
             basequery = Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
+                )
         else:
             basequery = Proposal.query.filter_by(project=self)
         return Proposal.state.group(
             basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
-        )
+            )
 
     @property
     def proposals_by_confirmation(self):
@@ -383,14 +383,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         "title": "Abstract",
                         "hint": "Give us a brief description of your talk, key takeaways for the audience and the"
                         " intended audience."
-                    },
+                        },
                     "part_b": {
                         "title": "Outline",
                         "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or"
                         " text description."
+                        }
                     }
                 }
-            }
 
     def permissions(self, user, inherited=None):
         perms = super(Project, self).permissions(user, inherited)
@@ -431,7 +431,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant',
-                ])
+                    ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
                     'view_contactinfo',
@@ -448,11 +448,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant'
-                ])
+                    ])
             if self.checkin_team and user in self.checkin_team.users:
                 perms.update([
                     'checkin_event'
-                ])
+                    ])
         return perms
 
     @classmethod

@@ -22,12 +22,12 @@ import progressbar.widgets
 proposal = table('proposal',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-)
+    )
 
 session = table('session',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-)
+    )
 
 
 def get_progressbar(label, maxval):
@@ -37,7 +37,7 @@ def get_progressbar(label, maxval):
             progressbar.widgets.Percentage(), ' ',
             progressbar.widgets.Bar(), ' ',
             progressbar.widgets.ETA(), ' '
-        ])
+            ])
 
 
 def upgrade():

@@ -24,7 +24,7 @@ class TestLabelViews(object):
             # we'll send the label names in reverse order and that should
             # reorder them in the project
             resp = c.post(new_project.url_for('labels'), data=MultiDict({
-                    'name': [new_main_label.name, new_label.name]
+                'name': [new_main_label.name, new_label.name]
                 }), follow_redirects=True)
 
             # make sure the page loaded properly
@@ -43,7 +43,7 @@ class TestLabelViews(object):
             resp = c.post(new_project.url_for('new_label'), data=MultiDict({
                 'title': ["New Main Label", "New Option A", "New Option B"],
                 'icon_emoji': [u"💯", u"", u""],
-            }), follow_redirects=True)
+                }), follow_redirects=True)
 
             mlabel = Label.query.filter_by(project=new_project, title=u"New Main Label").first()
             assert mlabel is not None
@@ -71,7 +71,6 @@ class TestLabelViews(object):
             assert u"Manage labels" in resp.data.decode('utf-8')
             assert u"Only main labels can be edited" in resp.data.decode('utf-8')
 
-
     def test_edit_main_label_view(self, test_client, test_db, new_project, new_user, new_main_label):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
@@ -92,7 +91,7 @@ class TestLabelViews(object):
                 'name': ["parent-label-a", "label-a1", "label-a2"],
                 'title': ["Parent Label A Edited", "Label A1 Edited", "Label A2 Edited"],
                 'icon_emoji': [u"🔟", u"👍", u"❌"]
-            }), follow_redirects=True)
+                }), follow_redirects=True)
             assert u"Manage labels" in resp.data.decode('utf-8')
             assert u"Label has been edited" in resp.data.decode('utf-8')
 
