@@ -74,5 +74,5 @@ class ExplaraAPI(object):
                     'ticket_type': strip_or_empty(attendee.get('ticketName')),
                     'order_no': strip_or_empty(order.get('orderNo')),
                     'status': status
-                })
+                    })
         return tickets

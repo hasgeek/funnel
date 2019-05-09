@@ -20,7 +20,7 @@ from sqlalchemy_utils import UUIDType
 venue_room = table('venue_room',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-)
+    )
 
 
 def upgrade():

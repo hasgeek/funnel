@@ -21,7 +21,7 @@ import progressbar.widgets
 venue = table('venue',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-)
+    )
 
 
 def get_progressbar(label, maxval):
@@ -31,7 +31,7 @@ def get_progressbar(label, maxval):
             progressbar.widgets.Percentage(), ' ',
             progressbar.widgets.Bar(), ' ',
             progressbar.widgets.ETA(), ' '
-        ])
+            ])
 
 
 def upgrade():

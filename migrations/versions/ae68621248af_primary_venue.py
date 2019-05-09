@@ -23,7 +23,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['venue_id'], ['venue.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('project_id')
-    )
+        )
     # This SQL function prevents project.primary_venue from pointing to a venue
     # in another project. It does not prevent a venue from being moved to a
     # different project, thereby leaving the primary_venue record invalid.

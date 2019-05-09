@@ -26,7 +26,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('user_id', 'proposal_space_id', 'participant_id')
-    )
+        )
 
 
 def downgrade():

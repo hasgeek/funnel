@@ -35,9 +35,9 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
             'read': {
                 'id', 'name', 'title', 'description', 'address1', 'address2', 'city', 'state',
                 'postcode', 'country', 'project_details', 'room_list', 'seq', 'suuid'
+                },
             },
-        },
-    }
+        }
 
     @property
     def project_details(self):
@@ -69,9 +69,9 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'id', 'name', 'title', 'description', 'bgcolor', 'seq', 'venue_details',
                 'scoped_name', 'suuid'
+                },
             },
-        },
-    }
+        }
 
     @property
     def venue_details(self):

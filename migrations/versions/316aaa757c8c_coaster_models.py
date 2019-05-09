@@ -28,9 +28,9 @@ def downgrade():
         sa.Column(u'name', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
         sa.Column(u'title', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
         sa.PrimaryKeyConstraint(u'id', name=u'tag_pkey')
-    )
+        )
     op.create_table(u'proposal_tags',
         sa.Column(u'tag_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column(u'proposal_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.PrimaryKeyConstraint()
-    )
+        )
