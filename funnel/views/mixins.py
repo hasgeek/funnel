@@ -14,11 +14,11 @@ class ProjectViewMixin(object):
     def loader(self, profile, project, session=None):
         proj = self.model.query.join(Profile).filter(
             Project.name == project, Profile.name == profile
-        ).first()
+            ).first()
         if proj is None:
             projredir = ProjectRedirect.query.join(Profile).filter(
                 ProjectRedirect.name == project, Profile.name == profile
-            ).first_or_404()
+                ).first_or_404()
             proj = projredir.project
         if proj.state.DELETED:
             abort(410)
@@ -47,16 +47,16 @@ class ProposalViewMixin(object):
         if url_name_suuid:
             proposal = self.model.query.join(Project, Profile).filter(
                 Proposal.url_name_suuid == url_name_suuid
-            ).first_or_404()
+                ).first_or_404()
         else:
             proposal = self.model.query.join(Project, Profile).filter(
                 Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
-            ).first()
+                ).first()
             if proposal is None:
                 if request.method == 'GET':
                     redirect = ProposalRedirect.query.join(Project, Profile).filter(
                         Profile.name == profile, Project.name == project, ProposalRedirect.url_name == url_id_name
-                    ).first_or_404()
+                        ).first_or_404()
                     return redirect
                 else:
                     abort(404)
@@ -82,7 +82,7 @@ class SessionViewMixin(object):
     def loader(self, profile, project, session):
         session = self.model.query.join(Project, Profile).filter(
             Profile.name == profile, Project.name == project, Session.url_name_suuid == session
-        ).first_or_404()
+            ).first_or_404()
         return session
 
     def after_loader(self):
@@ -97,7 +97,7 @@ class VenueViewMixin(object):
     def loader(self, profile, project, venue):
         venue = self.model.query.join(Project, Profile).filter(
             Profile.name == profile, Project.name == project, Venue.name == venue
-        ).first_or_404()
+            ).first_or_404()
         g.profile = venue.project.profile
         return venue
 
@@ -109,7 +109,7 @@ class VenueRoomViewMixin(object):
     def loader(self, profile, project, venue, room):
         room = self.model.query.join(Venue, Project, Profile).filter(
             Profile.name == profile, Project.name == project, Venue.name == venue, VenueRoom.name == room
-        ).first_or_404()
+            ).first_or_404()
         g.profile = room.venue.project.profile
         return room
 
@@ -122,7 +122,7 @@ class SectionViewMixin(object):
         section = self.model.query.join(Project).join(Profile).filter(
             Project.name == project, Profile.name == profile,
             Section.name == section
-        ).first_or_404()
+            ).first_or_404()
         g.profile = section.project.profile
         return section
 
@@ -196,7 +196,7 @@ class DraftViewMixin(object):
                 draft = Draft(
                     table=Project.__tablename__, table_row_id=obj.uuid,
                     formdata=incoming_data, revision=uuid4()
-                )
+                    )
             db.session.add(draft)
             db.session.commit()
             return {'revision': draft.revision}

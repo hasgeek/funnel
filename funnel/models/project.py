@@ -158,9 +158,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location'
-            },
+                },
+            }
         }
-    }
 
     @cached_property
     def datelocation(self):
@@ -213,10 +213,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.date_upto < datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto < datetime.now().date(),
         label=('past', __("Past")))
     state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.date_upto >= datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto >= datetime.now().date(),
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
@@ -231,6 +231,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('private_draft', __("Private draft")))
     cfp_state.add_conditional_state('DRAFT', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is None,
+        lambda project: project.__table__.c.cfp_start_at == None,  # NOQA
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
@@ -334,12 +335,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.subprojects:
             basequery = Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
+                )
         else:
             basequery = Proposal.query.filter_by(project=self)
         return Proposal.state.group(
             basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
-        )
+            )
 
     @property
     def proposals_by_confirmation(self):
@@ -382,14 +383,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         "title": "Abstract",
                         "hint": "Give us a brief description of your talk, key takeaways for the audience and the"
                         " intended audience."
-                    },
+                        },
                     "part_b": {
                         "title": "Outline",
                         "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or"
                         " text description."
+                        }
                     }
                 }
-            }
 
     def permissions(self, user, inherited=None):
         perms = super(Project, self).permissions(user, inherited)
@@ -430,7 +431,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant',
-                ])
+                    ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
                     'view_contactinfo',
@@ -447,11 +448,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant'
-                ])
+                    ])
             if self.checkin_team and user in self.checkin_team.users:
                 perms.update([
                     'checkin_event'
-                ])
+                    ])
         return perms
 
     @classmethod
@@ -505,6 +506,14 @@ Profile.listed_projects = db.relationship(
         primaryjoin=db.and_(
             Profile.id == Project.profile_id, Project.parent_id == None,
             Project.state.PUBLISHED),
+        order_by=Project.date.desc())  # NOQA
+
+
+Profile.draft_projects = db.relationship(
+        Project, lazy='dynamic',
+        primaryjoin=db.and_(
+            Profile.id == Project.profile_id, Project.parent_id == None,
+            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)),
         order_by=Project.date.desc())  # NOQA
 
 

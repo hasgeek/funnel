@@ -67,7 +67,7 @@
         <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
-    {% if project.cfp_state.PUBLIC -%}
+    {% if project.cfp_state.OPEN -%}
       <li class="cta">
         {%- if not project.schedule_state.PUBLISHED %}<hr class="mui-divider">{% endif %}
         <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>

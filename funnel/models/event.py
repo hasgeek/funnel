@@ -26,7 +26,7 @@ event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     db.Column('event_id', None, db.ForeignKey('event.id'), primary_key=True),
     db.Column('ticket_type_id', None, db.ForeignKey('ticket_type.id'), primary_key=True),
     db.Column('created_at', db.DateTime, default=datetime.utcnow, nullable=False)
-)
+    )
 
 
 class ScopedNameTitleMixin(BaseScopedNameMixin):
@@ -209,7 +209,7 @@ class TicketClient(BaseMixin, db.Model):
                 company=ticket_dict['company'],
                 job_title=ticket_dict['job_title'],
                 city=ticket_dict['city']
-            )
+                )
 
             ticket = SyncTicket.get(self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no'))
             if ticket and (ticket.participant is not participant or ticket_dict.get('status') == u'cancelled'):

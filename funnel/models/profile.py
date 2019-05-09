@@ -29,9 +29,9 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'description'
+                },
             },
-        },
-    }
+        }
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)

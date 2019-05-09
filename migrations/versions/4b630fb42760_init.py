@@ -22,7 +22,7 @@ def upgrade():
         sa.Column('type', sa.Integer(), nullable=True),
         sa.Column('count', sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('tag',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -32,7 +32,7 @@ def upgrade():
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name'),
         sa.UniqueConstraint('title')
-    )
+        )
     op.create_table('commentspace',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -40,7 +40,7 @@ def upgrade():
         sa.Column('type', sa.Integer(), nullable=True),
         sa.Column('count', sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('user',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -59,7 +59,7 @@ def upgrade():
         sa.UniqueConstraint('lastuser_token'),
         sa.UniqueConstraint('userid'),
         sa.UniqueConstraint('username')
-    )
+        )
     op.create_table('vote',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -71,7 +71,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['votespace_id'], ['votespace.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('user_id', 'votespace_id')
-    )
+        )
     op.create_table('comment',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -89,7 +89,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('proposal_space',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -111,7 +111,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name')
-    )
+        )
     op.create_table('user_group',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -121,7 +121,7 @@ def upgrade():
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('proposal_space_section',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -138,14 +138,14 @@ def upgrade():
         sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('proposal_space_id', 'name')
-    )
+        )
     op.create_table('group_members',
         sa.Column('group_id', sa.Integer(), nullable=True),
         sa.Column('user_id', sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(['group_id'], ['user_group.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint()
-    )
+        )
     op.create_table('proposal',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -182,14 +182,14 @@ def upgrade():
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('proposal_tags',
         sa.Column('tag_id', sa.Integer(), nullable=True),
         sa.Column('proposal_id', sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ),
         sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], ),
         sa.PrimaryKeyConstraint()
-    )
+        )
 
 
 def downgrade():

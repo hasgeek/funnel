@@ -13,7 +13,7 @@ class TestLabelForms(object):
                 'icon_emoji': u"🔟",
                 'required': False,
                 'restricted': False
-            }), meta={'csrf': False})
+                }), meta={'csrf': False})
             assert form.validate()
 
     def test_label_form_invalid(self, test_client):
@@ -22,6 +22,6 @@ class TestLabelForms(object):
                 'icon_emoji': u"🔟",
                 'required': False,
                 'restricted': False
-            }), meta={'csrf': False})
+                }), meta={'csrf': False})
             # title is required
             assert not form.validate()

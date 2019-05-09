@@ -56,8 +56,8 @@
         <div class="grid__col-auto">
           <p class="mui--text-display1">
             <span class="s1">Hello!</span>
-            <span class="s2">HasGeek creates discussion spaces for geeks.</span>
-            <span class="s3">Come to our events to meet like-minded people,</span>
+            <span class="s2">HasGeek hosts discussion spaces for geeks.</span>
+            <span class="s3">Join us to meet like-minded people,</span>
             <span class="s1">learn new things</span>
             <span class="s2">and discover new opportunities.</span>
           </p>
@@ -204,11 +204,11 @@
               </div>
             </div>
           </li>
-        {% if draft_cfp_projects %}
-          {% for project in draft_cfp_projects %}
+        {% if draft_projects %}
+          {% for project in draft_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}">
               <div class="grid__cell">
-                <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
+                <div class="clickable-card card" data-href="{{ project.url_for() }}" title="{{ project.title }}">
                   <div class="card__image-wrapper">
                     {% if project.bg_image.url %}
                       <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -232,14 +232,14 @@
                     </div>
                   {% endif %}
                   <div class="card__footer">
-                    <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Publish project</a>
                   </div>
                 </div>
               </div>
             </li>
           {%- endfor -%}
           </ul>
-          {% if draft_cfp_projects|length > 3 %}
+          {% if draft_projects|length > 3 %}
             <div class="mui--text-center">
               <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)">Show all</a>
             </div>
@@ -349,24 +349,19 @@
     <div class="footer__container">
       <div class="mui-container">
         <div class="grid mui--text-body2 mui--text-left">
-          <div class="grid__col-sm-6 grid__col-md-5">
+          <div class="grid__col-sm-6 grid__col-md-6">
             <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about">About us and site policies</a></p>
             <p>
               #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
             </p>
           </div>
-          <div class="grid__col-sm-6 grid__col-md-3">
+          <div class="grid__col-sm-6 grid__col-md-6">
             <div>
               <p id="footer-twitter">
                 <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank" title="follow hasgeek">Follow @hasgeek</a>
               </p>
               <a class="fb-like" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
             </div>
-          </div>
-          <div class="grid__col-sm-3 grid__col-md-3">
-            <p>
-              Hosted by <a href="http://e2enetworks.com/" target="_blank" title="E2E Networks">E2E Networks</a>
-            </p>
           </div>
         </div>
       </div>

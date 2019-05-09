@@ -22,25 +22,25 @@ from coaster.utils import buid2uuid, uuid2buid
 project = table('project',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
-)
+    )
 
 profile = table('profile',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
     column('userid', sa.String(22)),
-)
+    )
 
 user = table('user',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
     column('userid', sa.String(22)),
-)
+    )
 
 team = table('team',
     column('id', sa.Integer()),
     column('uuid', UUIDType(binary=False)),
     column('userid', sa.String(22)),
-)
+    )
 
 
 def get_progressbar(label, maxval):
@@ -51,7 +51,7 @@ def get_progressbar(label, maxval):
             progressbar.widgets.Percentage(), ' ',
             progressbar.widgets.Bar(), ' ',
             progressbar.widgets.ETA(), ' '
-        ])
+            ])
 
 
 def upgrade():

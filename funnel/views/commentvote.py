@@ -151,15 +151,15 @@ class ProposalCommentViewMixin(object):
         if url_name_suuid:
             proposal = Proposal.query.join(Project, Profile).filter(
                 Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
-            ).first_or_404()
+                ).first_or_404()
         else:
             proposal = Proposal.query.join(Project, Profile).filter(
                 Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
-            ).first_or_404()
+                ).first_or_404()
 
         comment = Comment.query.join(
             Proposal, Comment.commentset_id == Proposal.commentset_id
-        ).filter(Comment.suuid == suuid, Proposal.id == proposal.id).first_or_404()
+            ).filter(Comment.suuid == suuid, Proposal.id == proposal.id).first_or_404()
 
         return ProposalComment(proposal, comment)
 
