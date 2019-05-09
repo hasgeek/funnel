@@ -101,78 +101,10 @@ export const Video = {
   },
 };
 
-export const LabelsWidget = {
-  init() {
-    const Widget = this;
-
-    // On load, if the radio has been selected, then check mark the listwidget label
-    $('.listwidget input[type="radio"]').each(function() {
-      if(this.checked) {
-        $(this).parent().parent().prev('.mui-form__label').addClass('checked');
-      }
-    });
-
-    $('.listwidget .mui-form__label').click(function() {
-      if($(this).hasClass('checked')) {
-        $(this).removeClass('checked');
-        $(this).siblings().find('input[type="radio"]').prop('checked', false);
-        let attr = Widget.getLabelTxt($(this).text().trim());
-        Widget.updateLabels('', attr, false);
-      } else {
-        $(this).addClass('checked');
-        $(this).siblings().find('input[type="radio"]').first().click();
-      }
-    });
-
-    // Add check mark to listwidget label
-    $('.listwidget input[type="radio"]').change(function() {
-      let label = $(this).parent().parent().prev('.mui-form__label');
-      label.addClass('checked');
-      let labelTxt = `${Widget.getLabelTxt(label.text())}: ${Widget.getLabelTxt($(this).parent().find('label').text())}`;
-      let attr = Widget.getLabelTxt(label.text());
-      Widget.updateLabels(labelTxt, attr, this.checked);
-    });
-
-    $('.add-label-form input[type="checkbox"]').change(function() {
-      let labelTxt = Widget.getLabelTxt($(this).parent('label').text());
-      Widget.updateLabels(labelTxt, labelTxt, this.checked);
-    });
-
-    // Open and close dropdown
-    $('#label-select').on('click', function() {
-      if($('#label-dropdown fieldset').hasClass('active')) {
-        $('#label-dropdown fieldset').removeClass('active');
-      } else {
-        $('#label-dropdown fieldset').addClass('active');
-      }
-    });
-
-    $(document).on('click', function(event) {
-      if ($('#label-select')[0] !== event.target && !$(event.target).parents('#label-select').length && !$(event.target).parents('#label-dropdown').length) {
-        $('#label-dropdown fieldset').removeClass('active');
-      }
-    });
-  },
-  getLabelTxt(labelTxt) {
-    return labelTxt.trim().replace(/\*$/, '');
-  },
-  updateLabels(label='', attr='', action=true) {
-    if(action) {
-      if(label !== attr) {
-        $(`.label[data-labeltxt="${attr}"]`).remove();
-      }
-      let span = `<span class="label mui--text-caption mui--text-bold" data-labeltxt="${attr}">${label}</span>`;
-      $('#label-select').append(span);
-    } else {
-      $(`.label[data-labeltxt="${attr}"]`).remove();
-    }
-  }
-};
-
 $(() => {
   window. HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= ''}) {
     Comments.init(pageUrl);
-    LabelsWidget.init();
+    // LabelsWidget.init();
 
     if (videoWrapper) {
       Video.embedIframe(videoWrapper, videoUrl);
