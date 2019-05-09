@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response, current_app
-from datetime import datetime, timedelta
+from datetime import timedelta
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import load_models, requestargs, route, requires_permission, UrlForView, ModelView
-from coaster.utils import midnight_to_utc, getbool
+from coaster.utils import midnight_to_utc, getbool, utcnow
 from .. import app, funnelapp, lastuser
 from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, ContactExchange, SyncTicket)
 from ..forms import ParticipantForm
@@ -142,7 +142,7 @@ def participant(profile, project, puk, key):
     TODO: The GET method to this endpoint is deprecated and will be removed by 1st September, 2018
     """
     if project.date_upto:
-        if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone, naive=True) < datetime.utcnow():
+        if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
             return jsonify(message=u"This event has concluded", code=401)
     participant = Participant.query.filter_by(puk=puk, project=project).first()
     if not participant:

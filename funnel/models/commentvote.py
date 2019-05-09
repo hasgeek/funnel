@@ -105,7 +105,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False)
 
-    edited_at = db.Column(db.DateTime, nullable=True)
+    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)

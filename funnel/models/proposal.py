@@ -96,7 +96,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     commentset = db.relationship(Commentset, uselist=False, lazy='joined',
         cascade='all, delete-orphan', single_parent=True)
 
-    edited_at = db.Column(db.DateTime, nullable=True)
+    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
     # Additional form data

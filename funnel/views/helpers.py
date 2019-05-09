@@ -23,7 +23,9 @@ def localize_date(date, from_tz=utc, to_tz=utc):
             from_tz = pytz_timezone(from_tz)
         if isinstance(to_tz, basestring):
             to_tz = pytz_timezone(to_tz)
-        return from_tz.localize(date).astimezone(to_tz).replace(tzinfo=None)
+        if date.tzinfo is None:
+            date = from_tz.localize(date)
+        return date.astimezone(to_tz)
     return date
 
 

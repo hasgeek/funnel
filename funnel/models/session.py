@@ -23,8 +23,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     proposal = db.relationship(Proposal,
         backref=db.backref('session', uselist=False, cascade='all, delete-orphan'))
     speaker = db.Column(db.Unicode(200), default=None, nullable=True)
-    start = db.Column(db.DateTime, nullable=True)
-    end = db.Column(db.DateTime, nullable=True)
+    start = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    end = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     venue_room_id = db.Column(None, db.ForeignKey('venue_room.id'), nullable=True)
     venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)

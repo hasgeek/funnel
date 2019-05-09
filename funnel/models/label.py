@@ -13,7 +13,7 @@ proposal_label = db.Table(
     'proposal_label', db.Model.metadata,
     db.Column('proposal_id', None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False, primary_key=True),
     db.Column('label_id', None, db.ForeignKey('label.id', ondelete='CASCADE'), nullable=False, primary_key=True, index=True),
-    db.Column('created_at', db.DateTime, default=db.func.utcnow())
+    db.Column('created_at', db.TIMESTAMP(timezone=True), default=db.func.utcnow())
 )
 
 

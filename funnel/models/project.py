@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-
 from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
@@ -10,7 +8,7 @@ from pytz import utc
 from baseframe import __
 
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, utcnow
 
 from ..util import geonameid_from_location
 from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType, db
@@ -94,8 +92,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         nullable=False)
     schedule_state = StateManager('_schedule_state', SCHEDULE_STATE, doc="Schedule state")
 
-    cfp_start_at = db.Column(db.DateTime, nullable=True)
-    cfp_end_at = db.Column(db.DateTime, nullable=True)
+    cfp_start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     # Columns for mobile
     bg_image = db.Column(UrlType, nullable=True)
@@ -213,10 +211,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto < datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto < utcnow().date(),
         label=('past', __("Past")))
     state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto >= datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto >= utcnow().date(),
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
@@ -234,17 +232,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lambda project: project.__table__.c.cfp_start_at == None,  # NOQA
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at > utcnow(),
         lambda project: db.and_(project.cfp_start_at is not None, project.cfp_start_at > db.func.utcnow()),
         label=('upcoming', __("Upcoming")))
     cfp_state.add_conditional_state('OPEN', cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= datetime.utcnow() and (
-            project.cfp_end_at is None or project.cfp_end_at > datetime.utcnow()),
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= utcnow() and (
+            project.cfp_end_at is None or project.cfp_end_at > utcnow()),
         lambda project: db.and_(project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow(), (
             project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow())),
         label=('open', __("Open")))
     cfp_state.add_conditional_state('EXPIRED', cfp_state.PUBLIC,
-        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= datetime.utcnow(),
+        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= utcnow(),
         lambda project: db.and_(project.cfp_end_at is not None, project.cfp_end_at <= db.func.utcnow()),
         label=('expired', __("Expired")))
 

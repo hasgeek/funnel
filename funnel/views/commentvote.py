@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from collections import namedtuple
 from flask import g, redirect, flash, abort, jsonify, request, render_template
 from coaster.auth import current_auth
-from coaster.utils import require_one_of
+from coaster.utils import require_one_of, utcnow
 from coaster.views import jsonp, route, requires_permission, UrlForView, ModelView
 from baseframe import _, forms
 
@@ -81,7 +80,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                 if comment:
                     if comment.current_permissions.edit_comment:
                         comment.message = commentform.message.data
-                        comment.edited_at = datetime.utcnow()
+                        comment.edited_at = utcnow()
                         flash(_("Your comment has been edited"), 'info')
                     else:
                         flash(_("You can only edit your own comments"), 'info')

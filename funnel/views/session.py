@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from baseframe import _
 from flask import request, render_template, jsonify, abort
+from coaster.utils import utcnow
 from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs
 from coaster.sqlalchemy import failsafe_add
 
@@ -92,7 +92,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
         return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
             from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),
             sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
-            timezone=self.obj.project.timezone.utcoffset(datetime.utcnow()).total_seconds(),
+            # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
+            timezone=utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
             venues=[venue.current_access() for venue in self.obj.project.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
 
