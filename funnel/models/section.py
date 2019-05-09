@@ -31,9 +31,9 @@ class Section(BaseScopedNameMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'description', 'public'
+                },
             },
-        },
-    }
+        }
 
     def __init__(self, **kwargs):
         super(Section, self).__init__(**kwargs)
@@ -46,5 +46,5 @@ class Section(BaseScopedNameMixin, db.Model):
             perms.update([
                 'edit-section',
                 'delete-section',
-            ])
+                ])
         return perms

@@ -44,7 +44,7 @@ project = table('project',
     column('cfp_state', sa.Integer()),
     column('cfp_start_at', sa.DateTime()),
     column('schedule_state', sa.Integer()),
-)
+    )
 
 
 downgrade_states = {
@@ -55,7 +55,7 @@ downgrade_states = {
     OLD_STATE.FEEDBACK: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED, None),
     OLD_STATE.CLOSED: (PROJECT_STATE.PUBLISHED, CFP_STATE.CLOSED, None),
     OLD_STATE.WITHDRAWN: (PROJECT_STATE.WITHDRAWN, CFP_STATE.CLOSED, None),
-}
+    }
 
 
 def upgrade():

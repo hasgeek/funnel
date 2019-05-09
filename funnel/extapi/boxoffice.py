@@ -41,6 +41,6 @@ class Boxoffice(object):
                         'ticket_type': line_item.get('item', {}).get('title', '')[:80],
                         'order_no': unicode(order.get('invoice_no')),
                         'status': status
-                    })
+                        })
 
         return tickets

@@ -35,7 +35,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
         sa.UniqueConstraint('proposal_space_id', 'name'),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_table('venue_room',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -48,7 +48,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['venue_id'], ['venue.id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('venue_id', 'name')
-    )
+        )
 
 
 def downgrade():

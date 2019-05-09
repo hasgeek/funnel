@@ -35,12 +35,14 @@
           {% else %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
-          {% if label.has_proposals %}
-            <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">archive</i></a>
-          {% else %}
-            <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">delete</i></a>
-          {% endif %}
+          <div class="label-box__icon-wrapper">
             <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">edit</i></a>
+            {% if label.has_proposals %}
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">archive</i></a>
+            {% else %}
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">delete</i></a>
+            {% endif %}
+          </div>
         </div>
       {%- endfor %}
       <div class="mui-form form-actions clearfix">

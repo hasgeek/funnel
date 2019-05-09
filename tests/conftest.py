@@ -18,17 +18,17 @@ TEST_DATA = {
         'testuser': {
             'username': u"testuser",
             'email': u"testuser@example.com",
-        },
+            },
         'testuser2': {
             'username': u"testuser2",
             'email': u"testuser2@example.com",
-        },
+            },
         'testuser3': {
             'username': u"testuser3",
             'email': u"testuser3@example.com",
-        },
+            },
+        }
     }
-}
 # Scope: session
 # These fixtures are run before every test session
 
@@ -120,7 +120,7 @@ def new_main_label(test_db, new_project):
     main_label_a = Label(
         title=u"Parent Label A", project=new_project,
         description=u"A test parent label"
-    )
+        )
     new_project.labels.append(main_label_a)
     test_db.session.add(main_label_a)
 
@@ -144,7 +144,7 @@ def new_main_label_unrestricted(test_db, new_project):
     main_label_b = Label(
         title=u"Parent Label B", project=new_project,
         description=u"A test parent label"
-    )
+        )
     new_project.labels.append(main_label_b)
     test_db.session.add(main_label_b)
 
@@ -178,7 +178,7 @@ def new_proposal(test_db, new_user, new_project):
         user=new_user, speaker=new_user, project=new_project,
         title=u"Test Proposal", description=u"Test proposal description",
         location=u"Bangalore"
-    )
+        )
     test_db.session.add(proposal)
     test_db.session.commit()
     return proposal
