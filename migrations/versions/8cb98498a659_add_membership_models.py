@@ -30,7 +30,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['revoked_by_id'], ['user.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_index(op.f('ix_profile_admin_membership_user_id'), 'profile_admin_membership', ['user_id'], unique=False)
     op.create_index('profile_admin_membership_active', 'profile_admin_membership', ['profile_id', 'user_id'], unique=True, postgresql_where=sa.text(u'revoked_at IS NOT NULL'))
 
@@ -51,7 +51,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['revoked_by_id'], ['user.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
     op.create_index(op.f('ix_project_crew_membership_user_id'), 'project_crew_membership', ['user_id'], unique=False)
     op.create_index('project_crew_membership_active', 'project_crew_membership', ['project_id', 'user_id'], unique=True, postgresql_where=sa.text(u'revoked_at IS NOT NULL'))
 

@@ -56,7 +56,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             cls.__tablename__ + '_active', cls.__parent_column__, 'user_id',
             unique=True,
             postgresql_where=db.text('revoked_at IS NOT NULL')
-        ),)
+            ),)
 
     def offered_roles(self):
         """Roles offered by this membership record"""
@@ -99,8 +99,8 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
     __roles__ = {
         'profile_owner': {
             'call': {'revoke', 'replace'},
+            }
         }
-    }
 
     #: Profile that this membership is being granted on
     profile_id = immutable(db.Column(
@@ -150,8 +150,8 @@ Profile.active_admin_memberships = db.relationship(ProfileAdminMembership,
     primaryjoin=db.and_(
         ProfileAdminMembership.profile_id == Profile.id,
         ProfileAdminMembership.active
+        )
     )
-)
 
 Profile.active_owner_memberships = db.relationship(
     ProfileAdminMembership,
@@ -160,8 +160,8 @@ Profile.active_owner_memberships = db.relationship(
         ProfileAdminMembership.profile_id == Profile.id,
         ProfileAdminMembership.active,
         ProfileAdminMembership.is_owner == True  # NOQA
+        )
     )
-)
 
 User.active_profile_admin_memberships = db.relationship(
     ProfileAdminMembership,
@@ -169,8 +169,8 @@ User.active_profile_admin_memberships = db.relationship(
     primaryjoin=db.and_(
         ProfileAdminMembership.user_id == User.id,
         ProfileAdminMembership.active
+        )
     )
-)
 
 User.active_profile_owner_memberships = db.relationship(
     ProfileAdminMembership,
@@ -179,8 +179,8 @@ User.active_profile_owner_memberships = db.relationship(
         ProfileAdminMembership.user_id == User.id,
         ProfileAdminMembership.active,
         ProfileAdminMembership.is_owner == True  # NOQA
+        )
     )
-)
 
 User.profiles_owned = association_proxy('active_profile_owner_memberships', 'profile')
 
@@ -263,8 +263,8 @@ Project.active_crew_memberships = db.relationship(
     primaryjoin=db.and_(
         ProjectCrewMembership.project_id == Project.id,
         ProjectCrewMembership.active
+        )
     )
-)
 
 Project.active_editor_memberships = db.relationship(
     ProjectCrewMembership,
