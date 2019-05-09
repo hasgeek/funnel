@@ -77,10 +77,10 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
         open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
-        draft_cfp_projects = [proj for proj in self.obj.listed_projects if proj.cfp_state.DRAFT and proj.current_roles.admin]
+        draft_projects = [proj for proj in self.obj.draft_projects if proj.current_roles.admin]
         return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects,
             'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
-            'open_cfp_projects': open_cfp_projects, 'draft_cfp_projects': draft_cfp_projects}
+            'open_cfp_projects': open_cfp_projects, 'draft_projects': draft_projects}
 
     @route('json')
     @render_with(json=True)

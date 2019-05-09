@@ -216,10 +216,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.date_upto < datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto < datetime.now().date(),
         label=('past', __("Past")))
     state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.date_upto >= datetime.now().date(),
+        lambda project: project.date_upto is not None and project.date_upto >= datetime.now().date(),
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
@@ -234,6 +234,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('private_draft', __("Private draft")))
     cfp_state.add_conditional_state('DRAFT', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is None,
+        lambda project: project.__table__.c.cfp_start_at == None,  # NOQA
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
@@ -499,6 +500,14 @@ Profile.listed_projects = db.relationship(
         primaryjoin=db.and_(
             Profile.id == Project.profile_id, Project.parent_id == None,
             Project.state.PUBLISHED),
+        order_by=Project.date.desc())  # NOQA
+
+
+Profile.draft_projects = db.relationship(
+        Project, lazy='dynamic',
+        primaryjoin=db.and_(
+            Profile.id == Project.profile_id, Project.parent_id == None,
+            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)),
         order_by=Project.date.desc())  # NOQA
 
 
