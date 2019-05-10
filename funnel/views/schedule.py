@@ -26,8 +26,8 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat() + 'Z' if session.scheduled else None,
-            'end': session.end.isoformat() + 'Z' if session.scheduled else None,
+            'start': session.start.isoformat() if session.scheduled else None,
+            'end': session.end.isoformat() if session.scheduled else None,
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
             'is_break': session.is_break,
@@ -64,8 +64,8 @@ def schedule_data(project):
         data[day][slot].append({
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat() + 'Z',
-            'end': session.end.isoformat() + 'Z',
+            'start': session.start.isoformat(),
+            'end': session.end.isoformat(),
             'url': session.url_for(_external=True),
             'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
             'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
