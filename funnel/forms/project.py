@@ -43,6 +43,7 @@ class ProjectForm(forms.Form):
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
+        description=__("Optional — Project website"),
         validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     description = forms.MarkdownField(__("Project description"), validators=[forms.validators.DataRequired()],
         description=__("About the project"))
@@ -52,11 +53,11 @@ class ProjectForm(forms.Form):
     bg_image = forms.URLField(__("Banner image URL"), description=u"Banner image for project cards on the homepage",
         validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     bg_color = forms.StringField(__("Background color"),
-        description=__("RGB color for the project. Enter without the '#'. E.g. CCCCCC."),
+        description=__("Optional — RGB color for the project. Enter without the '#'. E.g. CCCCCC."),
         validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
         default=u"CCCCCC")
     explore_url = forms.URLField(__("Explore tab URL"),
-        description=__(u"Page containing the explore tab’s contents, for the mobile app"),
+        description=__(u"Optional — Page containing the explore tab’s contents, for the mobile app"),
         validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     parent_project = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 

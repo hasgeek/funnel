@@ -20,7 +20,8 @@ class EditProfileForm(forms.Form):
     description = forms.MarkdownField(__("Welcome message"),
         validators=[forms.validators.DataRequired(_(u"Please write a message for the landing page"))],
         description=__("This welcome message will be shown on the landing page."))
-    logo_url = forms.URLField(__("Logo URL"), description=__("Profile logo"),
+    logo_url = forms.URLField(__("Logo URL"),
+        description=__("Optional — Profile logo will be shown on project landing page"),
         validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     admin_team = QuerySelectField(u"Admin Team",
         validators=[forms.validators.DataRequired(_(u"Please select a team"))],

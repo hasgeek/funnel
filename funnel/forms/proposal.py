@@ -84,17 +84,17 @@ class ProposalForm(forms.Form):
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
         description=__("A detailed description of the session"))
     requirements = forms.MarkdownField(__("Requirements"),
-        description=__("For workshops, what must participants bring to the session?"))
+        description=__("Optional — For workshops, what must participants bring to the session?"))
     slides = forms.URLField(__("Slides"),
         validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
-        description=__("Link to your slides. These can be just an outline initially. "
+        description=__("Optional — Link to your slides. These can be just an outline initially. "
             "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"))
     preview_video = forms.URLField(__("Preview Video"),
         validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
-        description=__("Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
+        description=__("Optional — Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
             "If you provide a YouTube/Vimeo link, we'll embed it in the page"))
     links = forms.TextAreaField(__("Links"),
-        description=__("Other links, one per line. Provide links to your profile and "
+        description=__("Optional — Other links, one per line. Provide links to your profile and "
             "slides and videos from your previous sessions; anything that'll help "
             "folks decide if they want to attend your session"))
     bio = forms.MarkdownField(__("Speaker bio"), validators=[forms.validators.DataRequired()],
