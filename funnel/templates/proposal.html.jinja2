@@ -365,7 +365,6 @@
         proposalConfig.labels.list.push('{{ label.name }}');
       {%- endif %}
     {%- endfor %}
-    console.log('proposalConfig.labels', proposalConfig.labels)
     proposalConfig.submitUrl = document.getElementById('assign-label-form').getAttribute('action')
     HasGeek.ProposalInit(proposalConfig);
 
@@ -387,8 +386,8 @@
             $(this).removeClass('checked');
             let attr = Widget.getLabelTxt($(this).text().trim());
             let label = $(this).siblings().find('input[type="radio"]');
+            let labelName = $(`input[name="${label.attr('name')}"]:checked`).val();
             label.prop('checked', false);
-            let labelName = label.val();
             Widget.updateLabels('', attr, labelName, false);
           } else {
             $(this).addClass('checked');
@@ -433,8 +432,9 @@
       updateLabels(label='', attr='', name='', action=true) {
         if(action) {
           if(label !== attr) {
-            this.removeLabel($(`.label[data-labeltxt="${attr}"]`).data('labelname'));
+            let labelName = $(`.label[data-labeltxt="${attr}"]`).data('labelname');
             $(`.label[data-labeltxt="${attr}"]`).remove();
+            this.removeLabel(labelName);
           }
           let span = `<span class="label mui--text-caption mui--text-bold" data-labeltxt="${attr}" data-labelname="${name}">${label}</span>`;
           $('#label-select').append(span);
@@ -464,7 +464,8 @@
             removeLabel: Widget.labels.removeList
           }),
           timeout: 15000,
-          success: function (remoteData) {
+          success: function (response) {
+            response.labels = Widget.labels.list;
           },
           error: function (response) {
             var errorMsg = '';
