@@ -20,14 +20,20 @@
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
       {{ form.hidden_tag() }}
       {%- for label in labels %}
-        <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
+        <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
           <i class="material-icons mui--text-body1 mui--text-light label-box__icon">drag_indicator</i>
           <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
             <div class="sublabel-wrapper">
               {%- for option in label.options %}
-                <span class="mui--text-subhead mui--text-light label-box__subheading">{% if option.icon_emoji %}{{ option.icon_emoji }} {% endif %}{{ option.title }}</span>
+                <span class="label mui--text-bold label-box__subheading">
+                  {% if option.icon_emoji %}{{ option.icon_emoji }} {% endif %}{{ option.title }}             
+                  {% if label.has_proposals %}
+                    <a class="js-delete-btn label-box__icon" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--align-middle mui--text-subhead mui--text-light">archive</i></a>
+                  {% else %}
+                    <a class="js-delete-btn label-box__icon" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--align-middle mui--text-subhead mui--text-light">delete</i></a>
+                  {% endif %}</span>
               {% else %}
                 <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
               {%- endfor %}
@@ -67,7 +73,7 @@
         <div class="sublabel-wrapper">
           {%- for sublabel in label.options %}
             <span class="mui--text-subhead mui--text-light label-box__subheading">
-            {% if sublabel.icon_emoji %}{{ sublabel.icon_emoji }}{% endif %}{{ sublabel.title }}</span>{% else %}<span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
+            {% if sublabel.icon_emoji %}<span class="label mui--text-bold">{{ sublabel.icon_emoji }}{% endif %}{{ sublabel.title }}</span>{% else %}<span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
           {%- endfor %}
         </div>
      {% else %}

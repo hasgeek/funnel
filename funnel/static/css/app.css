@@ -1589,10 +1589,12 @@ body > .proposal-box.ui-draggable {
 .label-box {
   margin: 10px 0;
   padding: 10px;
+  cursor: default !important;
 }
 .label-box .label-box__icon {
   float: left;
   margin-top: 15px;
+  cursor: pointer !important;
 }
 .label-box .label-box__icon--right {
   padding: 0 15px;
@@ -1609,11 +1611,15 @@ body > .proposal-box.ui-draggable {
     display: inline-block;
     max-width: 80%;
     vertical-align: middle;
-    margin-top: -5px;
+    margin-top: 1px;
   }
 }
 .label-box .label-box__subheading {
   margin-right: 10px;
+}
+.label-box .label-box__subheading .label-box__icon {
+  float: none;
+  padding: 0 10px;
 }
 .label-box .label-box__action {
   float: right;
@@ -1628,6 +1634,7 @@ body > .proposal-box.ui-draggable {
   margin: 15px auto 35px;
   width: 100%;
   max-width: 500px;
+  cursor: pointer !important;
 }
 .label-box--new a:hover {
   text-decoration: none;

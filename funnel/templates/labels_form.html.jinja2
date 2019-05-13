@@ -28,7 +28,7 @@
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
   {%- if empty %}
-    <button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>
+    <a class="js-remove-sublabel-form label-form__subform__close-btn mui--text-light"><i class="material-icons mui--text-body1">close</i></a>
   {%- endif %}
   {%- if subform %}
     </div>
@@ -55,7 +55,7 @@
         {% endfor %}
       {% endif %}
     </div>
-    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form"><i class="material-icons mui--align-middle mui--text-subhead">add</i> Add option</button></div>
+    <div><a class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form"><i class="material-icons mui--align-middle mui--text-subhead">add</i> Add option</a></div>
     {%- if subforms|length > 0 %}
       {{ renderfield(form.required) }}
     {%- else -%}
