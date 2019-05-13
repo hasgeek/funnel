@@ -42,10 +42,24 @@ class TestLabels(object):
         label_a2 = new_main_label.options[1]
         label_a1.apply_to(new_proposal)
         assert label_a1 in new_proposal.labels
+        assert label_a2 not in new_proposal.labels
 
         label_a2.apply_to(new_proposal)
         # because new_main_label is in radio mode,
         # label_a2 will replace label_a1
+        assert label_a1 not in new_proposal.labels
+        assert label_a2 in new_proposal.labels
+
+        # let's try invoking setattr of formlabels directly
+        setattr(new_proposal.formlabels, label_a1.name, True)
+        assert label_a1 in new_proposal.labels
+        assert label_a2 not in new_proposal.labels
+
+        setattr(new_proposal.formlabels, label_a1.name, False)
+        assert label_a1 not in new_proposal.labels
+        assert label_a2 not in new_proposal.labels
+
+        setattr(new_proposal.formlabels, label_a2.name, True)
         assert label_a1 not in new_proposal.labels
         assert label_a2 in new_proposal.labels
 

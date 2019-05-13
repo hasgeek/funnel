@@ -188,11 +188,15 @@ class Label(BaseScopedNameMixin, db.Model):
     def apply_to(self, proposal):
         if self.has_options:
             raise ValueError("This label requires one of its options to be used")
-        if self in proposal.labels:
+        if self.is_main_label and self in proposal.labels:
             return
 
         if self.main_label is not None:
+            # it's an option label. Check if there is any conflicting labels from the same main label
             existing_labels = set(self.main_label.options).intersection(set(proposal.labels))
+            if self in existing_labels:
+                existing_labels.remove(self)
+
             if existing_labels:
                 # the parent label is in radio mode and one of it's labels are
                 # already assigned to this proposal. We need to
@@ -200,7 +204,8 @@ class Label(BaseScopedNameMixin, db.Model):
                 for elabel in existing_labels:
                     proposal.labels.remove(elabel)
         # we can assign label to proposal
-        proposal.labels.append(self)
+        if self not in proposal.labels:
+            proposal.labels.append(self)
 
     def remove_from(self, proposal):
         if self.has_options:
@@ -246,11 +251,9 @@ class ProposalLabelProxyWrapper(object):
 
         if not label.has_options:
             if value is True:
-                if label not in self._obj.labels:
-                    self._obj.labels.append(label)
+                label.apply_to(self._obj)
             elif value is False:
-                if label in self._obj.labels:
-                    self._obj.labels.remove(label)
+                label.remove_from(self._obj)
             else:
                 raise ValueError("This label can only be set to True or False")
         else:
@@ -261,14 +264,8 @@ class ProposalLabelProxyWrapper(object):
             if not option_label:
                 raise ValueError("Invalid option for this label")
 
-            # Scan for conflicting labels and remove them. Iterate over a copy
-            # to allow mutation of the source list during iteration
-            for existing_label in list(self._obj.labels):
-                if existing_label != option_label and existing_label.main_label == option_label.main_label:
-                    self._obj.labels.remove(existing_label)
-
             if option_label not in self._obj.labels:
-                self._obj.labels.append(option_label)
+                option_label.apply_to(self._obj)
 
 
 class ProposalLabelProxy(object):

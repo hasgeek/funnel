@@ -11,7 +11,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Proposal, Comment
+from ..models import db, Proposal, Comment, Label
 from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
     ProposalTransitionForm, ProposalMoveForm,
     ProposalLabelsAdminForm)
@@ -254,22 +254,20 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return session_form(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
+    @render_with(json=True)
     @lastuser.requires_login
     @requires_permission('admin')
     def edit_labels(self):
-        form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            for label in self.obj.project.labels:
-                if label.is_for_admin and label.name not in request.values:
-                    label.remove_from(self.obj)
+        if 'removeLabel' in request.json:
+            for option_name in request.json['removeLabel']:
+                setattr(self.obj.formlabels, option_name, False)
             db.session.commit()
-            flash(_("Labels have been saved for this proposal."), 'info')
-            return redirect(self.obj.url_for(), 303)
-        else:
-            flash(_("Labels could not be saved for this proposal."), 'error')
-            return render_form(form, submit=_("Save changes"),
-                title=_("Edit labels for '{}'").format(self.obj.title))
+        if 'addLabel' in request.json:
+            for option_name in request.json['addLabel']:
+                setattr(self.obj.formlabels, option_name, True)
+            db.session.commit()
+        return {'status': 'ok', 'labels': [l.name for l in self.obj.labels]}
+
 
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')
