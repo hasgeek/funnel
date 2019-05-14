@@ -57,7 +57,7 @@ def mask_email(email):
 
 
 def clear_old_session(response):
-    if app.config.get('SESSION_COOKIE_NAME') != 'session' and 'session' in request.cookies:
+    if 'session' in request.cookies and app.config.get('SESSION_COOKIE_NAME') != 'session':
         response.set_cookie('session', '', expires=0, httponly=True)
     return response
 

@@ -21,6 +21,7 @@ lastuser = Lastuser()
 pages = FlatPages()
 rq = RQ()
 
+
 # --- Assets ------------------------------------------------------------------
 
 version = Version(__version__)
