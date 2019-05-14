@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 import coaster.app
-from flask import Flask, request
+from flask import Flask
 from flask_flatpages import FlatPages
 from flask_migrate import Migrate
 from flask_mail import Mail
@@ -66,15 +66,6 @@ pages.init_app(app)
 
 rq.init_app(app)
 rq.init_app(funnelapp)
-
-
-def clear_old_session(response):
-    if app.config.get('SESSION_COOKIE_NAME') != 'session' and 'session' in request.cookies:
-        response.set_cookie('session', '', expires=0, httponly=True)
-    return response
-
-
-app.after_request(clear_old_session)
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui'], theme='mui')
