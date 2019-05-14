@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 import coaster.app
-from flask import Flask
+from flask import Flask, request
 from flask_flatpages import FlatPages
 from flask_migrate import Migrate
 from flask_mail import Mail
@@ -69,8 +69,8 @@ rq.init_app(funnelapp)
 
 
 def clear_old_session(response):
-    if app.config.get('SESSION_COOKIE_NAME') != 'session':
-        response.set_cookie('session', '', expires=0, domain=app.config.get('SESSION_COOKIE_DOMAIN'))
+    if app.config.get('SESSION_COOKIE_NAME') != 'session' and 'session' in request.cookies:
+        response.set_cookie('session', '', expires=0, httponly=True)
     return response
 
 
