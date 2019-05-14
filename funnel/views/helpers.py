@@ -57,8 +57,13 @@ def mask_email(email):
 
 
 def clear_old_session(response):
-    if 'session' in request.cookies and app.config.get('SESSION_COOKIE_NAME') != 'session':
-        response.set_cookie('session', '', expires=0, httponly=True)
+    if app.config.get('DELETE_COOKIES'):
+        for cookie_name in app.config.get('DELETE_COOKIES'):
+            if cookie_name in request.cookies:
+                domain = app.config.get('DELETE_COOKIES')[cookie_name]['domain']
+                response.set_cookie(cookie_name, '', expires=0, httponly=True, domain=domain)
+                if app.config.get('DELETE_COOKIES')[cookie_name]['without_dot']:
+                    response.set_cookie(cookie_name, '', expires=0, httponly=True)
     return response
 
 
