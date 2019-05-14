@@ -21,7 +21,6 @@ lastuser = Lastuser()
 pages = FlatPages()
 rq = RQ()
 
-
 # --- Assets ------------------------------------------------------------------
 
 version = Version(__version__)
@@ -67,6 +66,15 @@ pages.init_app(app)
 
 rq.init_app(app)
 rq.init_app(funnelapp)
+
+
+def clear_old_session(response):
+    if app.config.get('SESSION_COOKIE_NAME') != 'session':
+        response.set_cookie('session', '', expires=0, domain=app.config.get('SESSION_COOKIE_DOMAIN'))
+    return response
+
+
+app.after_request(clear_old_session)
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui'], theme='mui')
