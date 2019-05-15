@@ -185,6 +185,19 @@ class Label(BaseScopedNameMixin, db.Model):
         roles.update(self.project.roles_for(actor, anchors))
         return roles
 
+    def is_applied_to(self, proposal):
+        if self.has_options:
+            return any(set(self.options).intersection(set(proposal.labels)))
+        else:
+            return self in proposal.labels
+
+    def option_applied_to(self, proposal):
+        if not self.has_options:
+            return self
+        else:
+            existing = set(self.options).intersection(set(proposal.labels))
+            return existing.pop() if existing is not None else None
+
     def apply_to(self, proposal):
         if self.has_options:
             raise ValueError("This label requires one of its options to be used")

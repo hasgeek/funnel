@@ -65,6 +65,17 @@ def proposal_label_admin_form(project, proposal):
                 **form_kwargs
                 ))
 
+    for label in project.archived_labels:
+        if label.restricted and label.is_applied_to(proposal):
+            FieldType = forms.BooleanField
+            if label.has_options:
+                label = label.option_applied_to(proposal)
+            setattr(ProposalLabelAdminForm, label.name, FieldType(
+                label.form_label_text,
+                description=label.description,
+                validators=[],  # required validator is only needed on proposal edit form, not the admin form
+                ))
+
     return ProposalLabelAdminForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
 
 
