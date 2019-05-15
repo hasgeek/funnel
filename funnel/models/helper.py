@@ -65,4 +65,4 @@ RESERVED_NAMES = set([
     'workshop',
     'workshops',
     'www',
-])
+    ])

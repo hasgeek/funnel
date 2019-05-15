@@ -23,7 +23,7 @@ def upgrade():
         sa.Column('primary', sa.Boolean(), nullable=False),
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ),
         sa.PrimaryKeyConstraint('project_id', 'geonameid')
-    )
+        )
     op.create_index(op.f('ix_project_location_geonameid'), 'project_location', ['geonameid'], unique=False)
     op.add_column(u'project', sa.Column('location', sa.Unicode(length=50), nullable=True))
     op.add_column(u'project', sa.Column('parsed_location', JsonDict(), server_default='{}', nullable=False))

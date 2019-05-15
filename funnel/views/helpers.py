@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from flask import request
 from coaster.gfm import markdown
 from datetime import datetime
 from flask_mail import Message
@@ -53,3 +54,14 @@ def mask_email(email):
         return u'{e}***'.format(e=email[:-3])
     username, domain = email.split('@')
     return u'{u}***@{d}'.format(u=username[:-3], d=domain)
+
+
+def clear_old_session(response):
+    for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
+        if cookie_name in request.cookies:
+            for domain in domains:
+                response.set_cookie(cookie_name, '', expires=0, httponly=True, domain=domain)
+    return response
+
+
+app.after_request(clear_old_session)
