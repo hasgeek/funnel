@@ -160,6 +160,9 @@ export const LabelsWidget = {
       let labelTxt = Widget.getLabelTxt($(this).parent('label').text());
       Widget.updateLabels(labelTxt, labelTxt, $(this).attr('name'), this.checked);
     });
+
+    Widget.config.addList = Widget.config.labels.slice(); 
+    Widget.config.removeList = [];
   },
   getLabelForm() {
     let Widget = this;
@@ -192,7 +195,6 @@ export const LabelsWidget = {
     return labelTxt.trim().replace(/\*$/, '');
   },
   updateLabels(label='', attr='', name='', action=true) {
-    console.log(label, attr, name, action)
     if(action) {
       if(label !== attr) {
         let labelName = $(`.label[data-labeltxt="${attr}"]`).data('labelname');
@@ -203,24 +205,24 @@ export const LabelsWidget = {
       this.config.select.append(span);
       this.addLabel(name);
     } else {
-      $(`.label[data-labeltxt="${attr}"]`).remove();
+      $(`.label[data-labelname="${name}"]`).remove();
       this.removeLabel(name);
     }
   },
   removeLabel(name='') {
-    if(this.config.labels.list.indexOf(name) > -1 ) {
-      this.config.labels.removeList.push(name);
+    if(this.config.labels.indexOf(name) > -1 ) {
+      this.config.removeList.push(name);
     }
-    if (this.config.labels.addList.indexOf(name) > -1) {
-      this.config.labels.addList.splice(this.config.labels.addList.indexOf(name), 1);
+    if (this.config.addList.indexOf(name) > -1) {
+      this.config.addList.splice(this.config.addList.indexOf(name), 1);
     }
   },
   addLabel(name='') {
-    if (this.config.labels.addList.indexOf(name) === -1) {
-      this.config.labels.addList.push(name)
+    if (this.config.addList.indexOf(name) === -1) {
+      this.config.addList.push(name)
     }
-    if (this.config.labels.removeList.indexOf(name) > -1) {
-      this.config.labels.removeList.splice(this.config.labels.removeList.indexOf(name), 1);
+    if (this.config.removeList.indexOf(name) > -1) {
+      this.config.removeList.splice(this.config.removeList.indexOf(name), 1);
     }
   },
   assignLabel() {
@@ -234,12 +236,12 @@ export const LabelsWidget = {
       dataType: 'json',
       contentType: 'application/json',
       data: JSON.stringify({
-        addLabel: Widget.config.labels.addList,
-        removeLabel: Widget.config.labels.removeList
+        addLabel: Widget.config.addList,
+        removeLabel: Widget.config.removeList
       }),
       timeout: 15000,
       success: function (response) {
-        response.labels = Widget.config.labels.list;
+        Widget.config.labels = response.labels ;
       },
       error: function (response) {
         let errorMsg = '';

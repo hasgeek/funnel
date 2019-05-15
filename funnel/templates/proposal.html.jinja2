@@ -355,15 +355,10 @@
     }
 
     proposalConfig.labelWidget = {};
-    proposalConfig.labelWidget.labels = {
-      list: [],
-      addList: [],
-      removeList: []
-    }
+    proposalConfig.labelWidget.labels = [];
     {%- for label in proposal.labels %}
       {%- if label.restricted %}
-        proposalConfig.labelWidget.labels.addList.push('{{ label.name }}');
-        proposalConfig.labelWidget.labels.list.push('{{ label.name }}');
+        proposalConfig.labelWidget.labels.push('{{ label.name }}');
       {%- endif %}
     {%- endfor %}
     proposalConfig.labelWidget.submitUrl = {{ proposal.url_for('edit_labels')|tojson }};
