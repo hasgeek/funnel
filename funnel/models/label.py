@@ -192,7 +192,8 @@ class Label(BaseScopedNameMixin, db.Model):
             return
 
         if self.main_label is not None:
-            # it's an option label. Check if there is any conflicting labels from the same main label
+            # it's an option label. Check if there is any
+            # conflicting labels from the same main label
             existing_labels = set(self.main_label.options).intersection(set(proposal.labels))
             if self in existing_labels:
                 existing_labels.remove(self)

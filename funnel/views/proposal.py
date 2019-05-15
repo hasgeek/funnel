@@ -11,7 +11,7 @@ from baseframe import _
 from baseframe.forms import render_form, render_delete_sqla, Form
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Proposal, Comment, Label
+from ..models import db, Proposal, Comment
 from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
     ProposalTransitionForm, ProposalMoveForm,
     ProposalLabelsAdminForm)
@@ -269,7 +269,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 setattr(self.obj.formlabels, option_name, True)
             db.session.commit()
         return {'status': 'ok', 'labels': [l.name for l in self.obj.labels]}
-
 
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')
