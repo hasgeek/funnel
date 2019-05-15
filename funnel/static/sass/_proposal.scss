@@ -345,6 +345,7 @@
   width: 100%;
   position: relative;
   cursor: pointer;
+  margin-bottom: 10px;
 
   .material-icons {
     position: absolute;
@@ -354,104 +355,101 @@
 }
 
 .add-label-form {
+  position: relative;
+
   .label-dropdown-wrapper {
-    position: relative;
-    margin-bottom: 10px;
-  }
-  fieldset {
-    border: none;
     position: absolute;
     top: -500px;
     z-index: -1;
     opacity: 0;
-    left: 0px;
-    width: 100%;
-    margin: 0px;
-    padding: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
-    background-color: white;
-    margin: 0;
-    -webkit-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-    -moz-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-    -ms-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-    -o-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s lineart;
-
-    legend {
-      display: none;
-    }
-  }
-
-  fieldset.active {
-    top: 0;
-    z-index: 1;
-    opacity: 1;
+    left: 0;
+    right: 0;
     -webkit-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
     -moz-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
     -ms-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
     -o-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
     transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
-  }
 
-  .listwidget {
-    .mui-textfield {
-      margin-bottom: 0;
-      padding-top: 0;
-    }
-    .mui-form__label {
-      font-size: 16px;
-      line-height: 24px;
-      overflow: auto;
-      margin: 0;
-      position: relative;
-      color: #1F2D3D;
-      padding-left: 20px;
-    }
-
-    ul {
-      padding-left: 20px;
-    }
-
-    .mui-form__label:before,
-    .mui-form__label:after {
-      position: absolute;
-      content: "";
-      display: inline-block;
-    }
-
-    .mui-form__label:before{
-      height: 13px;
-      width: 13px;
-      border: 1px solid #ccc;
-      left: 0px;
-      top: 4px;
-      border-radius: 3px;
-    }
-
-    .mui-form__label:after {
-      height: 4px;
-      width: 8px;
-      border-left: 1.4px solid #fff;
-      border-bottom: 1.2px solid #fff;
-      transform: rotate(-61deg);
-      left: 2px;
-      top: 8px;
-    }
-
-    .mui-form__label:after {
-      content: none;
-    }
-
-    .mui-form__label.checked:before {
-      background: #3A99FC;
+    fieldset {
       border: none;
-    }
-    .mui-form__label.checked:after {
-      content: "";
-    }
-  }
+      width: 100%;
+      margin: 0px;
+      padding: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
+      background-color: white;
+      margin: 0;
 
-  .mui-checkbox {
-    margin-bottom: 0;
+      legend {
+        display: none;
+      }
+    }
+
+    .listwidget {
+      .mui-textfield {
+        margin-bottom: 0;
+        padding-top: 0;
+      }
+      .mui-form__label {
+        font-size: 16px;
+        line-height: 24px;
+        overflow: auto;
+        margin: 0;
+        position: relative;
+        color: #1F2D3D;
+        padding-left: 20px;
+      }
+
+      ul {
+        padding-left: 20px;
+      }
+
+      .mui-form__label:before,
+      .mui-form__label:after {
+        position: absolute;
+        content: "";
+        display: inline-block;
+      }
+
+      .mui-form__label:before{
+        height: 13px;
+        width: 13px;
+        border: 1px solid #ccc;
+        left: 0px;
+        top: 4px;
+        border-radius: 3px;
+      }
+
+      .mui-form__label:after {
+        height: 4px;
+        width: 8px;
+        border-left: 1.4px solid #fff;
+        border-bottom: 1.2px solid #fff;
+        transform: rotate(-61deg);
+        left: 2px;
+        top: 8px;
+      }
+
+      .mui-form__label:after {
+        content: none;
+      }
+
+      .mui-form__label.checked:before {
+        background: #3A99FC;
+        border: none;
+      }
+      .mui-form__label.checked:after {
+        content: "";
+      }
+    }
+
+    .mui-checkbox {
+      margin-bottom: 0;
+    }
   }
-    
+}
+
+.label-dropdown-wrapper.active {
+  top: -10px;
+  z-index: 1;
+  opacity: 1;
 }

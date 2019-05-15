@@ -101,10 +101,167 @@ export const Video = {
   },
 };
 
+export const LabelsWidget = {
+  init(config) {
+    let Widget = this;
+    Widget.config = config;
+
+    // Open and close dropdown
+    $('#label-select').on('click', function() {
+      if(Widget.config.dropdown.hasClass('active')) {
+        Widget.assignLabel();
+      } else {
+        Widget.getLabelForm();
+      }
+    });
+
+    // Close dropdown on clicking outside dropdown wrapper
+    $(document).on('click', function(event) {
+      if ($('#label-select')[0] !== event.target && !$(event.target).parents('#label-select').length && !$(event.target).parents('#label-dropdown').length) {
+        if(Widget.config.dropdown.hasClass('active')) {
+          Widget.assignLabel();
+        }
+      }
+    });
+  },
+  widgetInit() {
+    let Widget = this;
+    // On load, if the radio has been selected, then check mark the listwidget label
+    $('.listwidget input[type="radio"]').each(function() {
+      if(this.checked) {
+        $(this).parent().parent().prev('.mui-form__label').addClass('checked');
+      }
+    });
+
+    $('.listwidget .mui-form__label').click(function() {
+      if($(this).hasClass('checked')) {
+        $(this).removeClass('checked');
+        let attr = Widget.getLabelTxt($(this).text().trim());
+        let label = $(this).siblings().find('input[type="radio"]');
+        let labelName = $(`input[name="${label.attr('name')}"]:checked`).val();
+        label.prop('checked', false);
+        Widget.updateLabels('', attr, labelName, false);
+      } else {
+        $(this).addClass('checked');
+        $(this).siblings().find('input[type="radio"]').first().click();
+      }
+    });
+
+    // Add check mark to listwidget label
+    $('.listwidget input[type="radio"]').change(function() {
+      let label = $(this).parent().parent().prev('.mui-form__label');
+      label.addClass('checked');
+      let labelTxt = `${Widget.getLabelTxt(label.text())}: ${Widget.getLabelTxt($(this).parent().find('label').text())}`;
+      let attr = Widget.getLabelTxt(label.text());
+      Widget.updateLabels(labelTxt, attr, $(this).val(), this.checked);
+    });
+
+    $('.add-label-form input[type="checkbox"]').change(function() {
+      let labelTxt = Widget.getLabelTxt($(this).parent('label').text());
+      Widget.updateLabels(labelTxt, labelTxt, $(this).attr('name'), this.checked);
+    });
+  },
+  getLabelForm() {
+    let Widget = this;
+    $.ajax({
+      type: 'GET',
+      url: Widget.config.getFormUrl,
+      dataType: 'json',
+      timeout: 15000,
+      success: function (response) {
+        Widget.config.dropdown.html(response.admin_form);
+        Widget.widgetInit();
+        Widget.config.dropdown.addClass('active');
+      },
+      error: function (response) {
+        let errorMsg = '';
+        if (response.readyState === 4) {
+          if (response.status === 500) {
+            errorMsg ='Internal Server Error. Please reload and try again.';
+          } else {
+            errorMsg = JSON.parse(response.responseText).error_description;
+          }
+        } else {
+          errorMsg = 'Unable to connect. Please reload and try again.';
+        }
+        window.toastr.error(errorMsg);
+      },
+    });
+  },
+  getLabelTxt(labelTxt) {
+    return labelTxt.trim().replace(/\*$/, '');
+  },
+  updateLabels(label='', attr='', name='', action=true) {
+    console.log(label, attr, name, action)
+    if(action) {
+      if(label !== attr) {
+        let labelName = $(`.label[data-labeltxt="${attr}"]`).data('labelname');
+        $(`.label[data-labeltxt="${attr}"]`).remove();
+        this.removeLabel(labelName);
+      }
+      let span = `<span class="label mui--text-caption mui--text-bold" data-labeltxt="${attr}" data-labelname="${name}">${label}</span>`;
+      this.config.select.append(span);
+      this.addLabel(name);
+    } else {
+      $(`.label[data-labeltxt="${attr}"]`).remove();
+      this.removeLabel(name);
+    }
+  },
+  removeLabel(name='') {
+    if(this.config.labels.list.indexOf(name) > -1 ) {
+      this.config.labels.removeList.push(name);
+    }
+    if (this.config.labels.addList.indexOf(name) > -1) {
+      this.config.labels.addList.splice(this.config.labels.addList.indexOf(name), 1);
+    }
+  },
+  addLabel(name='') {
+    if (this.config.labels.addList.indexOf(name) === -1) {
+      this.config.labels.addList.push(name)
+    }
+    if (this.config.labels.removeList.indexOf(name) > -1) {
+      this.config.labels.removeList.splice(this.config.labels.removeList.indexOf(name), 1);
+    }
+  },
+  assignLabel() {
+    let Widget = this;
+    Widget.config.dropdown.removeClass('active');
+    Widget.config.dropdown.html('');
+
+    $.ajax({
+      type: 'POST',
+      url: Widget.config.submitUrl,
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        addLabel: Widget.config.labels.addList,
+        removeLabel: Widget.config.labels.removeList
+      }),
+      timeout: 15000,
+      success: function (response) {
+        response.labels = Widget.config.labels.list;
+      },
+      error: function (response) {
+        let errorMsg = '';
+        if (response.readyState === 4) {
+          if (response.status === 500) {
+            errorMsg ='Internal Server Error. Please reload and try again.';
+          } else {
+            errorMsg = JSON.parse(response.responseText).error_description;
+          }
+        } else {
+          errorMsg = 'Unable to connect. Please reload and try again.';
+        }
+        window.toastr.error(errorMsg);
+      },
+    });
+  },
+};
+
 $(() => {
-  window. HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= ''}) {
+  window. HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= '', labelWidget=''}) {
     Comments.init(pageUrl);
-    // LabelsWidget.init();
+    LabelsWidget.init(labelWidget);
 
     if (videoWrapper) {
       Video.embedIframe(videoWrapper, videoUrl);

@@ -1203,6 +1203,7 @@ html.touch .collapsible__body--disable {
   width: 100%;
   position: relative;
   cursor: pointer;
+  margin-bottom: 10px;
 }
 .selected-label .material-icons {
   position: absolute;
@@ -1210,46 +1211,39 @@ html.touch .collapsible__body--disable {
   right: 0;
 }
 
-.add-label-form .label-dropdown-wrapper {
+.add-label-form {
   position: relative;
-  margin-bottom: 10px;
 }
-.add-label-form fieldset {
-  border: none;
+.add-label-form .label-dropdown-wrapper {
   position: absolute;
   top: -500px;
   z-index: -1;
   opacity: 0;
-  left: 0px;
-  width: 100%;
-  margin: 0px;
-  padding: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  background-color: white;
-  margin: 0;
-  -webkit-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-  -moz-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-  -ms-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-  -o-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s lineart;
-}
-.add-label-form fieldset legend {
-  display: none;
-}
-.add-label-form fieldset.active {
-  top: 0;
-  z-index: 1;
-  opacity: 1;
+  left: 0;
+  right: 0;
   -webkit-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
   -moz-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
   -ms-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
   -o-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
   transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
 }
-.add-label-form .listwidget .mui-textfield {
+.add-label-form .label-dropdown-wrapper fieldset {
+  border: none;
+  width: 100%;
+  margin: 0px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  background-color: white;
+  margin: 0;
+}
+.add-label-form .label-dropdown-wrapper fieldset legend {
+  display: none;
+}
+.add-label-form .label-dropdown-wrapper .listwidget .mui-textfield {
   margin-bottom: 0;
   padding-top: 0;
 }
-.add-label-form .listwidget .mui-form__label {
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label {
   font-size: 16px;
   line-height: 24px;
   overflow: auto;
@@ -1258,16 +1252,16 @@ html.touch .collapsible__body--disable {
   color: #1F2D3D;
   padding-left: 20px;
 }
-.add-label-form .listwidget ul {
+.add-label-form .label-dropdown-wrapper .listwidget ul {
   padding-left: 20px;
 }
-.add-label-form .listwidget .mui-form__label:before,
-.add-label-form .listwidget .mui-form__label:after {
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label:before,
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label:after {
   position: absolute;
   content: "";
   display: inline-block;
 }
-.add-label-form .listwidget .mui-form__label:before {
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label:before {
   height: 13px;
   width: 13px;
   border: 1px solid #ccc;
@@ -1275,7 +1269,7 @@ html.touch .collapsible__body--disable {
   top: 4px;
   border-radius: 3px;
 }
-.add-label-form .listwidget .mui-form__label:after {
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label:after {
   height: 4px;
   width: 8px;
   border-left: 1.4px solid #fff;
@@ -1284,18 +1278,24 @@ html.touch .collapsible__body--disable {
   left: 2px;
   top: 8px;
 }
-.add-label-form .listwidget .mui-form__label:after {
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label:after {
   content: none;
 }
-.add-label-form .listwidget .mui-form__label.checked:before {
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label.checked:before {
   background: #3A99FC;
   border: none;
 }
-.add-label-form .listwidget .mui-form__label.checked:after {
+.add-label-form .label-dropdown-wrapper .listwidget .mui-form__label.checked:after {
   content: "";
 }
-.add-label-form .mui-checkbox {
+.add-label-form .label-dropdown-wrapper .mui-checkbox {
   margin-bottom: 0;
+}
+
+.label-dropdown-wrapper.active {
+  top: -10px;
+  z-index: 1;
+  opacity: 1;
 }
 
 .proposal-list-header {
