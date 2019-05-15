@@ -220,6 +220,7 @@
               {% if proposal.current_roles.admin and  proposal_label_admin_form %}
                 <div id="label-select" class="selected-label">
                   <p class="mui--text-title">Labels</p>
+                  <span class="selected-label__box">
                   {%- for label in proposal.labels %}
                     {%- if label.restricted %}
                       <span class="label mui--text-caption mui--text-bold" 
@@ -230,6 +231,7 @@
                     </span>
                     {%- endif %}
                   {%- endfor %}
+                  </span>
                   <i class="material-icons mui--text-light">arrow_drop_down</i>
                 </div>
                 <form action="{{ proposal.url_for('edit_labels') }}" method="post" class="add-label-form" id="assign-label-form">

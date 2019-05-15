@@ -347,6 +347,11 @@
   cursor: pointer;
   margin-bottom: 10px;
 
+  .selected-label__box {
+    width: calc(100% - 30px);
+    display: inline-block;
+  }
+
   .material-icons {
     position: absolute;
     bottom: 10px;
@@ -444,6 +449,14 @@
 
     .mui-checkbox {
       margin-bottom: 0;
+
+      label {
+        font-size: 16px;
+        line-height: 24px;
+        overflow: auto;
+        margin: 0;
+        color: #1F2D3D;
+      }
     }
   }
 }

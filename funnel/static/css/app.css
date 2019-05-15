@@ -1205,6 +1205,10 @@ html.touch .collapsible__body--disable {
   cursor: pointer;
   margin-bottom: 10px;
 }
+.selected-label .selected-label__box {
+  width: calc(100% - 30px);
+  display: inline-block;
+}
 .selected-label .material-icons {
   position: absolute;
   bottom: 10px;
@@ -1290,6 +1294,13 @@ html.touch .collapsible__body--disable {
 }
 .add-label-form .label-dropdown-wrapper .mui-checkbox {
   margin-bottom: 0;
+}
+.add-label-form .label-dropdown-wrapper .mui-checkbox label {
+  font-size: 16px;
+  line-height: 24px;
+  overflow: auto;
+  margin: 0;
+  color: #1F2D3D;
 }
 
 .label-dropdown-wrapper.active {
