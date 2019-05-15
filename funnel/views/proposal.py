@@ -79,6 +79,7 @@ def proposal_data(proposal):
             ('status', proposal.state.value),
             ('state', proposal.state.label.name),
             ] if current_auth.permissions.view_contactinfo else [])
+        + ([('admin_form', proposal.labels_admin_form())] if proposal.current_roles.admin else [])
         )
 
 
