@@ -82,13 +82,28 @@
 
 {% block contentwrapper %}
   <div class="grid details-section">
-    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
+    <div class="grid__col-md-5 grid__col-lg-4">
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
         {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
+      {%- elif current_auth.user %}
+        <div class="sticky-admin-panel">
+          <div class="card">
+            <div class="card__header">
+              <h3 class="mui--text-title mui--text-uppercase mui--text-bold">{% trans %}My account{% endtrans %}</h3>
+            </div>
+            <div class="card__body">
+              <ol class="mui-list--aligned">
+                <li>
+                  <a href="{{ project.url_for('contact_exchange') }}" title="Scan badges to check-in">{% trans %}My contacts{% endtrans %}</a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
       {% endif %}
     </div>
 
-    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="about">
+    <div class="grid__col-md-7 grid__col-lg-8" id="about">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">About</h2>
       <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
