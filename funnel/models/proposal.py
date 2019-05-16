@@ -277,7 +277,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         admin_form = ProposalLabelsAdminForm(obj=self, model=self.__class__, parent=self.project)
         return render_template('label_admin_widget.html.jinja2', admin_form=admin_form)
 
-
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
