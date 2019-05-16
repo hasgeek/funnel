@@ -67,7 +67,7 @@ def proposal_data(proposal):
             ('bio', proposal.bio.html),
             ('votes', proposal.voteset.count),
             ('comments', proposal.commentset.count),
-            ('submitted', proposal.created_at.isoformat() + 'Z'),
+            ('submitted', proposal.created_at.isoformat()),
             ('confirmed', bool(proposal.state.CONFIRMED)),
             ]
         + ([
