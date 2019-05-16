@@ -258,10 +258,12 @@ class ProposalLabelProxyWrapper(object):
 
     def __setattr__(self, name, value):
         label = Label.query.filter(
-            Label.name == name, Label.project == self._obj.project, Label._archived == False
+            Label.name == name, Label.project == self._obj.project
         ).one_or_none()  # NOQA
         if not label:
             raise AttributeError
+        if label.archived and value is not False:
+            raise ValueError("Archived labels can only be unset")
 
         if not label.has_options:
             if value is True:
