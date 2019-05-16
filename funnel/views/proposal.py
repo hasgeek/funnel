@@ -62,9 +62,9 @@ def proposal_data(proposal):
             ('objective', proposal.objective.html),
             ('description', proposal.description.html),
             ('requirements', proposal.requirements.html),
-            ('slides', proposal.slides.url),
+            ('slides', proposal.slides.url if proposal.slides is not None else ''),
             ('links', proposal.links),
-            ('preview_video', proposal.preview_video.url),
+            ('preview_video', proposal.preview_video.url if proposal.preview_video is not None else ''),
             ('bio', proposal.bio.html),
             ('votes', proposal.voteset.count),
             ('comments', proposal.commentset.count),
@@ -261,15 +261,18 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def edit_labels(self):
-        if 'removeLabel' in request.json:
-            for option_name in request.json['removeLabel']:
-                setattr(self.obj.formlabels, option_name, False)
-            db.session.commit()
-        if 'addLabel' in request.json:
-            for option_name in request.json['addLabel']:
-                setattr(self.obj.formlabels, option_name, True)
-            db.session.commit()
-        return {'status': 'ok', 'labels': [l.name for l in self.obj.labels]}
+        try:
+            if 'removeLabel' in request.json:
+                for option_name in request.json['removeLabel']:
+                    setattr(self.obj.formlabels, option_name, False)
+                db.session.commit()
+            if 'addLabel' in request.json:
+                for option_name in request.json['addLabel']:
+                    setattr(self.obj.formlabels, option_name, True)
+                db.session.commit()
+            return {'status': 'ok', 'labels': [l.name for l in self.obj.labels]}
+        except ValueError as e:
+            return {'status': 'error', 'error_identifier': 'edit_label_error', 'error_description': str(e)}, 400
 
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')

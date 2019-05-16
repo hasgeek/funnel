@@ -185,18 +185,15 @@ class Label(BaseScopedNameMixin, db.Model):
         roles.update(self.project.roles_for(actor, anchors))
         return roles
 
-    def is_applied_to(self, proposal):
-        if self.has_options:
-            return any(set(self.options).intersection(set(proposal.labels)))
-        else:
-            return self in proposal.labels
-
     def option_applied_to(self, proposal):
-        if not self.has_options:
-            return self
-        else:
+        if self.has_options:
             existing = set(self.options).intersection(set(proposal.labels))
-            return existing.pop() if existing is not None else None
+            return existing.pop() if existing else None
+        else:
+            return self if self in proposal.labels else None
+
+    def is_applied_to(self, proposal):
+        return self.option_applied_to(proposal) is not None
 
     def apply_to(self, proposal):
         if self.has_options:

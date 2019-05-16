@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import json
 from werkzeug.datastructures import MultiDict
 from funnel.models import Label
+from funnel.forms import ProposalLabelsAdminForm
 
 
 class TestLabelViews(object):
@@ -176,3 +178,138 @@ class TestOptionedLabelDeleteView(object):
             # so the option labels should have been deleted as well
             for olabel in [label_a1, label_a2]:
                 assert Label.query.get(olabel.id) is None
+
+
+class TestProposalLabelsView(object):
+    def test_proposal_labels_update_view(self, test_client, test_db, new_user, new_label, new_main_label, new_proposal):
+        with test_client.session_transaction() as session:
+            session['lastuser_userid'] = new_user.userid
+        with test_client as c:
+            label_a1 = new_main_label.options[0]
+            label_a2 = new_main_label.options[1]
+
+            assert not label_a1.is_applied_to(new_proposal)
+            assert not label_a2.is_applied_to(new_proposal)
+            assert not new_main_label.is_applied_to(new_proposal)
+
+            respa = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [label_a1.name],
+                    'removeLabel': []
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respa.data)['status'] == 'ok'
+            assert label_a1.is_applied_to(new_proposal)
+            assert new_main_label.is_applied_to(new_proposal)
+            assert new_main_label.option_applied_to(new_proposal) == label_a1
+
+            respb = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [label_a2.name],
+                    'removeLabel': []
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respb.data)['status'] == 'ok'
+            assert not label_a1.is_applied_to(new_proposal)  # because a1 was replaced by a2
+            assert label_a2.is_applied_to(new_proposal)
+            assert new_main_label.is_applied_to(new_proposal)
+            assert new_main_label.option_applied_to(new_proposal) == label_a2
+
+            respc = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [],
+                    'removeLabel': [label_a1.name]  # this does nothing as a1 is not even appled to this proposal
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respc.data)['status'] == 'ok'
+            assert not label_a1.is_applied_to(new_proposal)
+            assert label_a2.is_applied_to(new_proposal)
+
+            respd = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [],
+                    'removeLabel': [label_a2.name]
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respd.data)['status'] == 'ok'
+            assert not label_a1.is_applied_to(new_proposal)
+            assert not label_a2.is_applied_to(new_proposal)
+            assert not new_main_label.is_applied_to(new_proposal)
+
+            assert not new_label.is_applied_to(new_proposal)
+            assert new_label.option_applied_to(new_proposal) is None
+            respd = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [new_label.name],
+                    'removeLabel': []
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respd.data)['status'] == 'ok'
+            assert new_label.is_applied_to(new_proposal)
+            assert new_label.option_applied_to(new_proposal) == new_label
+
+            respd = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [],
+                    'removeLabel': [new_label.name]
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respd.data)['status'] == 'ok'
+            assert not new_label.is_applied_to(new_proposal)
+            assert new_label.option_applied_to(new_proposal) is None
+
+    def test_proposal_labels_update_archived_view(self, test_client, test_db, new_user, new_label, new_main_label, new_proposal):
+        with test_client.session_transaction() as session:
+            session['lastuser_userid'] = new_user.userid
+        with test_client as c:
+            label_a1 = new_main_label.options[0]
+            label_a2 = new_main_label.options[1]
+
+            assert not label_a1.is_applied_to(new_proposal)
+            assert not label_a2.is_applied_to(new_proposal)
+            assert not new_main_label.is_applied_to(new_proposal)
+            assert not new_label.is_applied_to(new_proposal)
+
+            respa = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [label_a1.name],
+                    'removeLabel': []
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respa.data)['status'] == 'ok'
+            assert label_a1.is_applied_to(new_proposal)
+
+            # now let's archive new_main_label
+            respla = c.post(new_main_label.url_for('archive'), data={}, follow_redirects=True)
+            assert u"The label has been archived" in respla.data.decode('utf-8')
+            assert new_main_label.archived is True
+
+            # the option should still be attached to the proposal
+            assert label_a1.is_applied_to(new_proposal)
+
+            # this label should still load in the admin form which is sent along with proposal json
+            admin_form = ProposalLabelsAdminForm(obj=new_proposal, model=new_proposal.__class__, parent=new_proposal.project)
+            assert hasattr(admin_form.formlabels, label_a1.name)
+
+            respj = c.get(new_proposal.url_for('json'))
+            assert 'admin_form' in json.loads(respj.data)
+            assert label_a1.form_label_text in json.loads(respj.data).get('admin_form')
+
+            # now let's remove this label from the proposal
+            respa = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [],
+                    'removeLabel': [label_a1.name]
+                }), content_type='application/json', follow_redirects=True)
+
+            assert json.loads(respa.data)['status'] == 'ok'
+            assert not label_a1.is_applied_to(new_proposal)
+
+            # it should no longer load in admin form
+            admin_form = ProposalLabelsAdminForm(obj=new_proposal, model=new_proposal.__class__, parent=new_proposal.project)
+            assert not hasattr(admin_form.formlabels, label_a1.name)
+
+            respj = c.get(new_proposal.url_for('json'))
+            assert 'admin_form' in json.loads(respj.data)
+            assert label_a1.form_label_text not in json.loads(respj.data).get('admin_form')
+
+            # now the label can no longer be applied to a proposal
+            respa = c.post(new_proposal.url_for('edit_labels'), data=json.dumps({
+                    'addLabel': [label_a1.name],
+                    'removeLabel': []
+                }), content_type='application/json', follow_redirects=True)
+            assert respa.status_code == 400
+            assert json.loads(respa.data)['status'] == 'error'
+            assert json.loads(respa.data)['error_description'] == "Archived labels can only be unset"
