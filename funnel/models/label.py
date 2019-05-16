@@ -262,7 +262,7 @@ class ProposalLabelProxyWrapper(object):
         ).one_or_none()  # NOQA
         if not label:
             raise AttributeError
-        if label.archived and value is not False:
+        if label.archived and not label.is_applied_to(self._obj) and value is not False:
             raise ValueError("Archived labels can only be unset")
 
         if not label.has_options:
