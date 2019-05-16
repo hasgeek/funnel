@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from bleach import linkify
 
 from flask import g, redirect, request, Markup, abort, flash, escape
-from coaster.utils import make_name
+from coaster.utils import make_name, utcnow
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
 from coaster.auth import current_auth
 from baseframe import _
@@ -178,7 +177,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             self.obj.name = make_name(self.obj.title)
-            self.obj.edited_at = datetime.utcnow()
+            self.obj.edited_at = utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)

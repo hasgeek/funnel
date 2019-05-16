@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from coaster.utils import utcnow
 from funnel.models import Project
 
 
@@ -38,7 +38,7 @@ class TestProject(object):
         assert new_project.cfp_state.DRAFT
         assert new_project in new_profile.draft_projects
 
-        new_project.cfp_start_at = datetime.utcnow()
+        new_project.cfp_start_at = utcnow()
         test_db.session.commit()
 
         assert new_project.cfp_start_at is not None

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import base64
-from datetime import datetime
 from sqlalchemy.sql import text
 from . import db, BaseMixin, BaseScopedNameMixin
 from .project import Project
@@ -25,7 +24,7 @@ def make_private_key():
 event_ticket_type = db.Table('event_ticket_type', db.Model.metadata,
     db.Column('event_id', None, db.ForeignKey('event.id'), primary_key=True),
     db.Column('ticket_type_id', None, db.ForeignKey('ticket_type.id'), primary_key=True),
-    db.Column('created_at', db.DateTime, default=datetime.utcnow, nullable=False)
+    db.Column('created_at', db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False)
     )
 
 
