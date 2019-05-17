@@ -169,7 +169,7 @@ class LabelView(UrlForView, ModelView):
             db.session.commit()
             flash(_("The label has been archived"), category='success')
         else:
-            flash(_("CSRF token is missing"), category='error')
+            flash(_("An error occured. Please try again."), category='error')
         return redirect(self.obj.project.url_for('labels'), code=303)
 
     @route('unarchive', methods=['POST'])
@@ -185,7 +185,7 @@ class LabelView(UrlForView, ModelView):
                 db.session.commit()
                 flash(_("The label has been archived"), category='success')
             else:
-                flash(_("CSRF token is missing"), category='error')
+                flash(_("An error occured. Please try again."), category='error')
         return redirect(self.obj.project.url_for('labels'), code=303)
 
     @route('delete', methods=['GET', 'POST'])

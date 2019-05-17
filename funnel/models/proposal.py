@@ -271,12 +271,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def votes_count(self):
         return len(self.voteset.votes)
 
-    def labels_admin_form(self):
-        from flask import render_template
-        from ..forms import ProposalLabelsAdminForm
-        admin_form = ProposalLabelsAdminForm(obj=self, model=self.__class__, parent=self.project)
-        return render_template('label_admin_widget.html.jinja2', admin_form=admin_form)
-
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:

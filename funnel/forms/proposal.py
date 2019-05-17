@@ -10,19 +10,6 @@ __all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'Propos
     'ProposalMoveForm', 'ProposalLabelsAdminForm']
 
 
-class ClearableRadioField(forms.RadioField):
-    def validate(self, form, extra_validators=()):
-        if getattr(form.edit_obj, self.name) is None and not self.raw_data:
-            # The object has no value for this label and request sent no value for it
-            return True
-        else:
-            return super(ClearableRadioField, self).validate(form, extra_validators)
-
-    def populate_obj(self, obj, name):
-        if self.data in dict(self.choices):
-            setattr(obj, name, self.data)
-
-
 def proposal_label_form(project, proposal):
     """
     Returns a label form for the given project and proposal.
@@ -53,7 +40,7 @@ def proposal_label_admin_form(project, proposal):
         if label.is_for_admin:
             form_kwargs = {}
             if label.has_options:
-                FieldType = ClearableRadioField
+                FieldType = forms.RadioField
                 form_kwargs['choices'] = [(option.name, option.title) for option in label.options if not option.archived]
             else:
                 FieldType = forms.BooleanField
@@ -73,7 +60,6 @@ def proposal_label_admin_form(project, proposal):
             setattr(ProposalLabelAdminForm, label.name, FieldType(
                 label.form_label_text,
                 description=label.description,
-                validators=[],  # required validator is only needed on proposal edit form, not the admin form
                 ))
 
     return ProposalLabelAdminForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})

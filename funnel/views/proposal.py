@@ -3,7 +3,7 @@
 from datetime import datetime
 from bleach import linkify
 
-from flask import g, redirect, request, Markup, abort, flash, escape
+from flask import g, redirect, request, Markup, abort, flash, escape, render_template
 from coaster.utils import make_name
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
 from coaster.auth import current_auth
@@ -44,7 +44,7 @@ def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
     """
-    return dict(
+    data = dict(
         [
             ('id', proposal.suuid),
             ('name', proposal.url_name_suuid),
@@ -79,8 +79,14 @@ def proposal_data(proposal):
             ('status', proposal.state.value),
             ('state', proposal.state.label.name),
             ] if current_auth.permissions.view_contactinfo else [])
-        + ([('admin_form', proposal.labels_admin_form())] if proposal.current_roles.admin else [])
         )
+
+    if proposal.current_roles.admin:
+        admin_form = ProposalLabelsAdminForm(obj=proposal, model=Proposal, parent=proposal.project)
+        admin_form_html = render_template('label_admin_widget.html.jinja2', admin_form=admin_form)
+        data['admin_form'] = admin_form_html
+
+    return data
 
 
 def proposal_data_flat(proposal):
