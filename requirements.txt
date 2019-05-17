@@ -1,4 +1,4 @@
-Flask==1.0.2
+Flask==1.0.3
 Flask-Assets==0.12
 Flask-Mail==0.9.1
 Flask-RQ2==18.3
