@@ -3,7 +3,7 @@
 import os.path
 from flask import g, render_template, redirect, jsonify, Response
 from coaster.views import jsonp, load_model, render_with
-from .. import app, funnelapp, pages
+from .. import app, funnelapp, pages, lastuser
 from ..models import Project, Proposal
 from .project import project_data
 
@@ -34,6 +34,14 @@ def funnelindex():
     g.permissions = []
     projects = Project.fetch_sorted().all()  # NOQA
     return {'projects': projects}
+
+
+@app.route('/account')
+@lastuser.requires_login
+def account():
+    projects = Project.all_unsorted(legacy=False)
+    upcoming_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
+    return render_template('account.html.jinja2', projects=upcoming_projects)
 
 
 @app.route('/api/whoami')

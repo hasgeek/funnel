@@ -15,6 +15,7 @@ const badgeScan = {
         attendeeFound: false,
         scanning: true,
         showModal: false,
+        contacts: []
       },
       closeModal(event) {
         event.original.preventDefault();
@@ -46,6 +47,7 @@ const badgeScan = {
               'attendeeFound': true,
               'participant': response.participant,
             });
+            badgeScanComponent.push('contacts', response.participant);
           },
           error() {
             badgeScanComponent.set({
