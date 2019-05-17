@@ -3,8 +3,10 @@
 
 from coaster.sqlalchemy import (TimestampMixin, UuidMixin, BaseMixin, BaseNameMixin,
     BaseScopedNameMixin, BaseScopedIdNameMixin, BaseIdNameMixin, MarkdownColumn,
-    JsonDict, NoIdMixin, CoordinatesMixin, UrlType, make_timestamp_columns)
+    JsonDict, NoIdMixin, CoordinatesMixin, UrlType)
 from coaster.db import db
+
+TimestampMixin.__with_timezone__ = True
 
 from .commentvote import *
 from .contact_exchange import *

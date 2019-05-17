@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from pytz import utc
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event, Alarm
 from sqlalchemy import or_
@@ -10,6 +9,7 @@ from time import mktime
 
 from flask import json, jsonify, request, Response, current_app
 
+from coaster.utils import utcnow
 from coaster.views import requestargs, jsonp, cors, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
@@ -26,8 +26,8 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat() + 'Z' if session.scheduled else None,
-            'end': session.end.isoformat() + 'Z' if session.scheduled else None,
+            'start': session.start.isoformat() if session.scheduled else None,
+            'end': session.end.isoformat() if session.scheduled else None,
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
             'is_break': session.is_break,
@@ -64,8 +64,8 @@ def schedule_data(project):
         data[day][slot].append({
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat() + 'Z',
-            'end': session.end.isoformat() + 'Z',
+            'start': session.start.isoformat(),
+            'end': session.end.isoformat(),
             'url': session.url_for(_external=True),
             'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
             'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
@@ -104,11 +104,11 @@ def session_ical(session):
     event = Event()
     event.add('summary', session.title)
     event.add('uid', "/".join([session.project.name, session.url_name]) + '@' + request.host)
-    event.add('dtstart', utc.localize(session.start).astimezone(session.project.timezone))
-    event.add('dtend', utc.localize(session.end).astimezone(session.project.timezone))
-    event.add('dtstamp', utc.localize(datetime.now()).astimezone(session.project.timezone))
-    event.add('created', utc.localize(session.created_at).astimezone(session.project.timezone))
-    event.add('last-modified', utc.localize(session.updated_at).astimezone(session.project.timezone))
+    event.add('dtstart', session.start.astimezone(session.project.timezone))
+    event.add('dtend', session.end.astimezone(session.project.timezone))
+    event.add('dtstamp', utcnow().astimezone(session.project.timezone))
+    event.add('created', session.created_at.astimezone(session.project.timezone))
+    event.add('last-modified', session.updated_at.astimezone(session.project.timezone))
     if session.venue_room:
         location = [session.venue_room.title + " - " + session.venue_room.venue.title]
         if session.venue_room.venue.city:
@@ -268,7 +268,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @render_with('room_updates.html.jinja2')
     @requires_permission('view')
     def updates(self):
-        now = datetime.utcnow()
+        now = utcnow()
         current = Session.query.filter(
             Session.start <= now, Session.end >= now,
             Session.project == self.obj.venue.project,
