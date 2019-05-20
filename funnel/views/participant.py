@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, g, url_for, jsonify, make_response, current_app
+from flask import flash, redirect, render_template, request, url_for, jsonify, make_response, current_app
 from datetime import timedelta
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
+from coaster.auth import current_auth
 from coaster.views import load_models, requestargs, route, requires_permission, UrlForView, ModelView
 from coaster.utils import midnight_to_utc, getbool, utcnow
 from .. import app, funnelapp, lastuser
@@ -149,7 +150,7 @@ def participant(profile, project, puk, key):
         return jsonify(message=u"Participant not found", code=404)
     elif participant.key == key:
         try:
-            contact_exchange = ContactExchange(user_id=g.user.id, participant_id=participant.id, project_id=project.id)
+            contact_exchange = ContactExchange(user=current_auth.actor, participant=participant)
             db.session.add(contact_exchange)
             db.session.commit()
         except IntegrityError:
