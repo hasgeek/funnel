@@ -15,6 +15,7 @@ const badgeScan = {
         attendeeFound: false,
         scanning: true,
         showModal: false,
+        errorMsg: '',
         contacts: []
       },
       closeModal(event) {
@@ -49,10 +50,21 @@ const badgeScan = {
             });
             badgeScanComponent.push('contacts', response.participant);
           },
-          error() {
+          error(response) {
+            let errorMsg;
+            if (response.readyState === 4) {
+              if (response.status === 500) {
+                errorMsg ='Internal Server Error. Please reload and try again.';
+              } else {
+                errorMsg = JSON.parse(response.responseText).message;
+              }
+            } else {
+              errorMsg = 'Unable to connect. Please reload and try again.';
+            }
             badgeScanComponent.set({
               'scanning': false,
-              'attendeeFound': false
+              'attendeeFound': false,
+              'errorMsg': errorMsg
             });
           }
         });

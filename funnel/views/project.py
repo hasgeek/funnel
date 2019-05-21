@@ -281,11 +281,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for('admin'), code=303)
         return dict(profile=self.obj.profile, project=self.obj, events=self.obj.events, csrf_form=csrf_form)
 
-    @route('contact_exchange', methods=['GET', 'POST'])
-    @lastuser.requires_login
-    def contact_exchange(self):
-        return render_template('contact_exchange.html.jinja2', profile=self.obj.profile, project=self.obj)
-
 @route('/<project>/', subdomain='<profile>')
 class FunnelProjectView(ProjectView):
     pass

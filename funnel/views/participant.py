@@ -128,27 +128,25 @@ def participant_edit(profile, project, participant):
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
-@app.route('/<profile>/<project>/participant', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/participant', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/participant', methods=['GET', 'POST'])
+@funnelapp.route('/participant', methods=['GET', 'POST'], subdomain='<profile>')
 @lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
 @requestargs('puk', 'key')
-def participant(profile, project, puk, key):
+def participant(puk, key):
     """
     Endpoint for contact exchange.
 
     TODO: The GET method to this endpoint is deprecated and will be removed by 1st September, 2018
     """
+    participant = Participant.query.filter_by(puk=puk, key=key).first()
+    if not participant:
+        return make_response(jsonify(status='error', message=u"Participant not found"), 404) 
+    project = participant.project
+    print project
     if project.date_upto:
         if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
-            return jsonify(message=u"This event has concluded", code=401)
-    participant = Participant.query.filter_by(puk=puk, project=project).first()
-    if not participant:
-        return jsonify(message=u"Participant not found", code=404)
-    elif participant.key == key:
+            return make_response(jsonify(status='error', message=u"This event has concluded"), 401)
+
         try:
             contact_exchange = ContactExchange(user=current_auth.actor, participant=participant)
             db.session.add(contact_exchange)
@@ -158,7 +156,7 @@ def participant(profile, project, puk, key):
             db.session.rollback()
         return jsonify(participant=participant_data(participant, project.id, full=True))
     else:
-        return jsonify(message=u"Unauthorized contact exchange", code=401)
+        return make_response(jsonify(status='error', message=u"Unauthorized contact exchange"), 401)
 
 
 @app.route('/<profile>/<project>/participant/<participant_id>/badge')

@@ -37,11 +37,17 @@ def funnelindex():
 
 
 @app.route('/account')
+@funnelapp.route('/account')
 @lastuser.requires_login
 def account():
-    projects = Project.all_unsorted(legacy=False)
-    upcoming_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
-    return render_template('account.html.jinja2', projects=upcoming_projects)
+    return render_template('account.html.jinja2')
+
+
+@app.route('/contact_exchange')
+@funnelapp.route('/contact_exchange')
+@lastuser.requires_login
+def contact_exchange():
+    return render_template('contact_exchange.html.jinja2')
 
 
 @app.route('/api/whoami')

@@ -20,7 +20,10 @@
   <!-- My tickets -->
 
   <div class="grid__col-xs-12 grid__col-sm-6">
-    <h2 class="mui--text-title">My contacts</h2>
+    <div>
+      <h2 class="mui--text-title mui--pull-left">My contacts</h2>
+      <a href="{{ url_for('contact_exchange') }}" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="Scan badge" data-action="Scan badge">Scan attendee badge</a>
+    </div>
     {% for contact in current_auth.user.scanned_contacts %}
       <div class="card">
         <div class="card__header">
@@ -42,12 +45,6 @@
     {%- else -%}
       <p><i>No contacts</i></p>
     {%- endfor -%}
-    <p>Select a project to scan attendee badge</p>
-    <select onchange="window.location = this.value;">
-      {% for project in projects %}
-        <option value="{{ project.url_for('contact_exchange') }}">{{ project.title }}</option>
-      {%- endfor -%}
-    </select>
   </div>
 </div>
 {% endblock %}

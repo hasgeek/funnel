@@ -1,9 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
-{% from "baseframe/forms.html" import renderfield %}
-{% block title %}{{ project.title }}{% endblock %}
-{% block pageheaders %}
-{% endblock %}
+{% block title %}{% trans %}Contact exchange{% endtrans %}{% endblock %}
 
 {% block content %}
   {% raw %}
@@ -33,7 +29,7 @@
               <h4>{{ participant.phone }}</h4>
               <h5>{{ participant.company }}</h5>
             {{else}}
-              <h4>Attendee details not found</h4>
+              <h4 class="mui--text-danger">{{ errorMsg }}</h4>
             {{/if}}
             <a href="javascript:void(0);" on-click="closeModal(event)" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Close</a>
           </div>
@@ -41,25 +37,26 @@
         {{/if}}
       </div>
       <div class="grid__col-xs-12 grid__col-sm-6">
-        <h2 class="mui--text-title">Recently scanned contacts</h2>
+        <div>
+          <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
+          <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="My account" data-action="my account">My account</a>
+        </div>
         {{#each contacts:i}}
-          <div class="grid__col-xs-12">
-            <div class="card">
-              <div class="card__header">
-                <h3 class="mui--text-title mui--text-bold">{{ contacts[i].fullname }}</h3>
-              </div>
-              <div class="card__body card__body--lgtext mui--text-subhead">
-                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
-                {{#if contacts[i].phone }}
-                  <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
-                {{/if}}
-                {{#if contacts[i].twitter }}
-                  <p>@{{ contacts[i].twitter }}</p>
-                {{/if}}
-                {{#if contacts[i].company }}
-                  <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
-                {{/if}}
-              </div>
+          <div class="card">
+            <div class="card__header">
+              <h3 class="mui--text-title mui--text-bold">{{ contacts[i].fullname }}</h3>
+            </div>
+            <div class="card__body card__body--lgtext mui--text-subhead">
+              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
+              {{#if contacts[i].phone }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
+              {{/if}}
+              {{#if contacts[i].twitter }}
+                <p>@{{ contacts[i].twitter }}</p>
+              {{/if}}
+              {{#if contacts[i].company }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
+              {{/if}}
             </div>
           </div>
         {{/each}}
@@ -67,10 +64,6 @@
       </script>
     </div>
   {% endraw %}
-  <div class="grid">
-    <div class="grid__col-xs-12 grid__col-sm-6"></div>
-    <div class="grid__col-xs-12 grid__col-sm-6"><a href="/account">My account</a></div>
-  </div>
 {% endblock %}
 
 {% block footerscripts %}
@@ -79,11 +72,10 @@
     $(function() {
 
       var eventConfig = {};
-      eventConfig.participantApiUrl = "{{ url_for('participant', profile=project.profile.name, project=project.name) }}"
+      eventConfig.participantApiUrl = "{{ url_for('participant') }}"
 
       eventConfig.wrapperId = 'scan-badge-wrapper';
       eventConfig.templateId = 'scan-badge-template';
-      eventConfig.projectTitle = {{ project.title|tojson }};
 
       window.HasGeek.BadgeScanInit(eventConfig);
 
