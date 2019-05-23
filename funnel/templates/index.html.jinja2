@@ -32,13 +32,6 @@
 </script>
 {%- endblock %}
 
-{% block header -%}
-  {% macro site_title() %}
-    <a href="{{ url_for('index') }}" class="header__site-title__item">{{ config['SITE_TITLE'] }}</a>
-  {%- endmacro -%}
-  {{ hgtopnav(site_title=site_title()) }}
-{%- endblock %}
-
 {%- block image_src %}
   <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png') }}" />
   <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png') }}" />

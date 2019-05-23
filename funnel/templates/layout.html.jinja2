@@ -33,35 +33,47 @@
 
 {% block header -%}
   {% macro site_title() %}
-    {%- if g.profile -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item">
-        {%- if config['LEGACY'] -%}
+    {%- if config['LEGACY'] -%}
+      {%- if g.profile -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item">
           <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
-        {%- else -%} 
-         <img src="{{ url_for('static', filename='img/hg-logo.png') }}" class="header__site-title__logo"/>
-        {%- endif -%}
-      </a><i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-      <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
-      {%- if project %}
-        {%- if project.parent_project %}
+        </a><i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
+        {%- if project %}
+          {%- if project.parent_project %}
+            <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+            <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item">{{ project.parent_project.short_title() }}</a>
+          {%- endif %}
           <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-          <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item">{{ project.parent_project.short_title() }}</a>
+          <a href="{{ project.url_for() }}" class="header__site-title__item">{{ project.short_title() }}</a>
         {%- endif %}
-        <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-        <a href="{{ project.url_for() }}" class="header__site-title__item">{{ project.short_title() }}</a>
+      {%- else -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item">
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
+          {{ config['SITE_TITLE'] }}
+        </a>
       {%- endif %}
     {%- else -%}
       <a href="{{ url_for('index') }}" class="header__site-title__item">
-        {%- if config['LEGACY'] -%}
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
-        {%- else -%} 
-         <img src="{{ url_for('static', filename='img/hg-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin"/>
-        {%- endif -%}
-        {{ config['SITE_TITLE'] }}
-      </a>
-    {%- endif -%}
+        <img src="{{ url_for('static', filename='img/hg-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin"/></a>
+    {%- endif %}
   {% endmacro %}
-  {{ hgtopnav(site_title=site_title()) }}
+
+  {%- if config['LEGACY'] -%}
+      {{ hgtopnav(site_title=site_title()) }}
+  {%- else %}
+    {% with site_links=[] %}
+      {% macro site_links(title, icon) %}
+        <i class="material-icons mui--text-title mui--text-light mui--align-middle">{{ icon }}</i><p class="zero-bottom-margin">{{ title }}</p>
+      {% endmacro %}
+      {% if not current_auth.is_anonymous -%}
+        {% set site_links = [{'title': site_links('Feed', 'rss_feed'), 'url': url_for("feed")}, {'title':  site_links('Task', 'assignment_turned_in'), 'url': url_for("task")}, {'title': site_links('Account', 'account_circle'), 'url': url_for("account")}] %}
+      {%- else %}
+        {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
+      {%- endif %}
+      {{ hgtopnav(site_title=site_title(), site_links=site_links, auth=false, network=false) }}
+    {% endwith %}
+  {%- endif %}
 {%- endblock %}
 
 {% block bodytag %}<body class="mui--bg-primary">{% endblock %}

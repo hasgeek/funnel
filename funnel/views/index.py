@@ -50,6 +50,20 @@ def contact_exchange():
     return render_template('contact_exchange.html.jinja2')
 
 
+@app.route('/feed')
+@funnelapp.route('/feed')
+@lastuser.requires_login
+def feed():
+    return render_template('contact_exchange.html.jinja2')
+
+
+@app.route('/task')
+@funnelapp.route('/task')
+@lastuser.requires_login
+def task():
+    return render_template('contact_exchange.html.jinja2')
+
+
 @app.route('/api/whoami')
 @funnelapp.route('/api/whoami')
 def whoami():
