@@ -33,9 +33,9 @@
         <tbody>
           {%- for p in participants %}
             <tr id="p-{{ p.id }}">
-              <td class='js-searchable'>{{ p.fullname }}</td>
-              <td class='js-searchable'>{{ p.email }}</td>
-              <td class='js-searchable'>{{ p.company }}</td>
+              <td class='js-searchable' data-th="Name">{{ p.fullname }}</td>
+              <td class='js-searchable' data-th="Email">{{ p.email }}</td>
+              <td class='js-searchable' data-th="Company">{{ p.company }}</td>
             </tr>
           {%- endfor %}
         </tbody>
