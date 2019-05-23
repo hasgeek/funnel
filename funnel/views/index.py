@@ -16,7 +16,6 @@ def index_jsonify(data):
 @render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
 def index():
     g.profile = None
-    g.permissions = []
     projects = Project.all_unsorted(legacy=False)  # NOQA
     past_projects = projects.filter(Project.state.PAST).order_by(Project.date.desc()).all()
     all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
@@ -31,7 +30,6 @@ def index():
 @render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
 def funnelindex():
     g.profile = None
-    g.permissions = []
     projects = Project.fetch_sorted().all()  # NOQA
     return {'projects': projects}
 
@@ -62,7 +60,6 @@ def whoami():
 @app.route('/json')
 def all_projects_json():
     g.profile = None
-    g.permissions = []
     projects = Project.fetch_sorted(legacy=False).all()  # NOQA
     return jsonp(projects=map(project_data, projects),
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
@@ -71,7 +68,6 @@ def all_projects_json():
 @funnelapp.route('/json')
 def funnelapp_all_projects_json():
     g.profile = None
-    g.permissions = []
     projects = Project.fetch_sorted().all()  # NOQA
     return jsonp(projects=map(project_data, projects),
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
