@@ -67,10 +67,10 @@
       <script id='participant-row' type='text/ractive'>
       {{#each participants}}
         <tr id="p-{{ pid }}">
-          <td class='js-searchable'>{{ fullname }}</td>
-          <td class='js-searchable'>{{ ticket_type_titles }}</td>
-          <td class='js-searchable'>{{ email }}</td>
-          <td class='js-searchable'>{{ company }}</td>
+          <td class='js-searchable' data-th="Name">{{ fullname }}</td>
+          <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
+          <td class='js-searchable' data-th="Email">{{ email }}</td>
+          <td class='js-searchable' data-th="Company">{{ company }}</td>
           <td class='buttongrp-column'>
             <ul class="mui-list--unstyled">
               <li>
