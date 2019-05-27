@@ -1,3 +1,14 @@
+.header--fixed {
+    bottom: 0;
+}
+
+@media (min-width: 1200px) {
+    .header--fixed {
+        bottom: unset;
+        top: 0;
+    }
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
@@ -5,9 +16,38 @@
   top: -3px;
 }
 
-.header__site-title__logo {
-  width: 40px;
+.header__nav-list__item__icon {
+  opacity: 0.5;
+  line-height: 1;
+}
+
+@media only screen
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+  .header__nav-list__item__text {
+    display: inline-block;
+    margin-left: 8px;
+  }
+}
+
+.header__site-title__home {
+  display: inline-block;
+  text-align: center;
   vertical-align: middle;
+}
+
+.header__site-title__home:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.header__site-title__logo {
+  vertical-align: middle;
+  margin: auto;
+}
+
+.header__site-title__logo--small {
+  height: 18px;
 }
 
 .header__site-title__logo--margin {
@@ -25,6 +65,32 @@
     font-size: 24px;
     line-height: 32px;
     top: 0;
+  }
+}
+
+.header__site-title__logotxt {
+  position: relative;
+  top: -6px;
+}
+
+@media only screen
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+  .header__site-title__logo {
+    height: 25px;
+  }
+  .header__site-title__logo--small {
+    height: 18px;
+  }
+  .header__site-title__home {
+    position: relative;
+    top: -5px;
+  }
+  .header__site-title__logotxt {
+    display: inline-block;
+    position: relative;
+    top: 0;
+    left: 8px;
   }
 }
 
@@ -170,5 +236,39 @@
 @media (min-width: 1200px) {
   .sub-navbar {
     max-width: 1170px;
+  }
+}
+
+//Funnel header
+.funnel {
+  .header--fixed {
+    top: 0;
+    bottom: unset;
+  }
+  @media only screen
+  and (max-device-width: 1200px)
+  and (orientation: landscape) {
+      .header__nav {
+          min-height: 50px;
+      }
+  }
+  .header__nav-list {
+    justify-content: flex-end;
+  }
+  .content-wrapper {
+    padding-top: 50px;
+  }
+  .header__site-title {
+    width: calc(70% - 15px);
+  }
+  .header__site-title--smaller {
+    width: calc(35% - 15px);
+  }
+
+  .header__right-nav {
+    width: calc(30% - 15px);
+  }
+  .header__right-nav--larger {
+    width: calc(65% - 15px);
   }
 }
