@@ -3,10 +3,10 @@
 }
 
 @media (min-width: 1200px) {
-    .header--fixed {
-        bottom: unset;
-        top: 0;
-    }
+  .header--fixed {
+      bottom: unset;
+      top: 0;
+  }
 }
 
 .header__site-title__item {
@@ -21,12 +21,9 @@
   line-height: 1;
 }
 
-@media only screen
-and (max-device-width: 1200px)
-and (orientation: landscape) {
-  .header__nav-list__item__text {
-    display: inline-block;
-    margin-left: 8px;
+@media (min-width: 1200px) {
+  .header__nav-list {
+    max-width: 300px;
   }
 }
 
@@ -92,10 +89,10 @@ and (orientation: landscape) {
     top: 0;
     left: 8px;
   }
-}
-
-.header__nav-list {
-  max-width: 300px;
+  .header__nav-list__item__text {
+    display: inline-block;
+    margin-left: 8px;
+  }
 }
 
 .hg-banner {
