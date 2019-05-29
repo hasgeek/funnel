@@ -63,7 +63,7 @@
   {% endmacro %}
 
   {%- if config['LEGACY'] -%}
-      {{ hgtopnav(site_title=site_title(), css_class="funnel") }}
+      {{ hgtopnav(site_title=site_title()) }}
   {%- else %}
     {% with site_links=[] %}
       {% macro site_links(title, icon) %}
@@ -79,7 +79,13 @@
   {%- endif %}
 {%- endblock %}
 
-{% block bodytag %}<body class="mui--bg-primary {%- if config['LEGACY'] %} funnel{%- endif -%}">{% endblock %}
+{% block bodytag %}
+{%- if not config['LEGACY'] -%}
+  <body class="mui--bg-primary hg-app">
+{%- else %}
+  <body class="mui--bg-primary">
+{%- endif %}
+{% endblock %}
 
 {% block contenthead %}
   {% block banner %}

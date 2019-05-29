@@ -224,14 +224,37 @@ html.touch .collapsible__body--disable {
   background: transparent !important;
 }
 
-.header--fixed {
+.hg-app .header--fixed {
   bottom: 0;
+}
+.hg-app .header__nav-list {
+  justify-content: space-between;
+}
+.hg-app .header__right-nav--larger .header__nav-list {
+  justify-content: flex-end;
+}
+.hg-app .header__site-title {
+  width: calc(25% - 15px);
+}
+.hg-app .header__right-nav {
+  width: calc(75% - 15px);
+}
+.hg-app .header__button {
+  color: #fff;
+  line-height: 30.6px;
+  margin: 0;
+}
+.hg-app .content-wrapper {
+  padding-top: 0;
 }
 
 @media (min-width: 1200px) {
-  .header--fixed {
+  .hg-app .header--fixed {
     bottom: unset;
     top: 0;
+  }
+  .hg-app .content-wrapper {
+    padding-top: 50px;
   }
 }
 .header__site-title__item {
@@ -294,29 +317,29 @@ html.touch .collapsible__body--disable {
 }
 
 @media only screen and (max-device-width: 1200px) and (orientation: landscape) {
-  .header__site-title__logo {
+  .hg-app .header__site-title__logo {
     height: 25px;
   }
-
-  .header__site-title__logo--small {
+  .hg-app .header__site-title__logo--small {
     height: 18px;
   }
-
-  .header__site-title__home {
+  .hg-app .header__site-title__home {
     position: relative;
     top: -5px;
   }
-
-  .header__site-title__logotxt {
+  .hg-app .header__site-title__logotxt {
     display: inline-block;
     position: relative;
     top: 0;
     left: 8px;
   }
-
-  .header__nav-list__item__text {
+  .hg-app .header__nav-list__item__text {
     display: inline-block;
     margin-left: 8px;
+  }
+  .hg-app .header__button {
+    line-height: 25px;
+    height: 25px;
   }
 }
 .hg-banner {
@@ -446,34 +469,6 @@ html.touch .collapsible__body--disable {
     max-width: 1170px;
   }
 }
-.funnel .header--fixed {
-  top: 0;
-  bottom: unset;
-}
-@media only screen and (max-device-width: 1200px) and (orientation: landscape) {
-  .funnel .header__nav {
-    min-height: 50px;
-  }
-}
-.funnel .header__nav-list {
-  justify-content: flex-end;
-}
-.funnel .content-wrapper {
-  padding-top: 50px;
-}
-.funnel .header__site-title {
-  width: calc(70% - 15px);
-}
-.funnel .header__site-title--smaller {
-  width: calc(35% - 15px);
-}
-.funnel .header__right-nav {
-  width: calc(30% - 15px);
-}
-.funnel .header__right-nav--larger {
-  width: calc(65% - 15px);
-}
-
 .projects-wrapper {
   padding: 2em 0;
 }
