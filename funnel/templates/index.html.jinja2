@@ -89,7 +89,7 @@
               <div class="grid__cell card card--upcoming" title="{{ project.title }}">
                 <div class="card__image-wrapper">
                   {% if project.bg_image.url %}
-                    <a href="{{ project.url_for() }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
+                    <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
                     <noscript>
                       <a href="{{ project.url_for() }}"><img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
                     </noscript>
@@ -103,9 +103,8 @@
                 <div class="card__body">
                   <h3><a class="card__title__heading" href="{{ project.url_for() }}">{{ project.title }}</a></h3>
                   {% if project.datelocation %}<h4 class="mui--text-title"><i class="material-icons mui--text-title mui--text-light mui--align-middle">date_range</i> {{ project.datelocation }}</h4>{% endif %}
-                  {% if project.primary_venue %}<h5 class=" mui--text-title"><i class="material-icons mui--text-title mui--text-light mui--align-middle">place</i> {{ project.primary_venue.title }}, {{ project.primary_venue.city }}</h5>{% endif %}
+                  <!-- {% if project.primary_venue %}<h5 class=" mui--text-title"><i class="material-icons mui--text-title mui--text-light mui--align-middle">place</i> {{ project.primary_venue.title }}, {{ project.primary_venue.city }}</h5>{% endif %} -->
                   <p class="mui--text-subhead">{{ project.tagline }}</p>
-                  <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--primary" title="learn more" data-action="Learn more(index page card)">Learn more</a>
                 </div>
               </div>
             </li>

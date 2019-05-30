@@ -14,6 +14,11 @@
         <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ current_auth.user.email }}</p>
         <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ current_auth.user.phone }}</p>
       </div>
+      <div class="mui-divider"></div>
+      <div class="card__footer">
+        <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ current_auth.user.profile_url }}" title="Edit">{% trans %}Edit this{% endtrans %}</a>
+        <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout">{% trans %}Logout{% endtrans %}</a>
+      </div>
     </div>
   </div>
 

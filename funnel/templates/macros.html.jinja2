@@ -18,8 +18,8 @@
         <div class="desktop-head">
           {%- if project.profile.logo_url.url %}
             <div class="profile-details">
-              <img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
-              <p class="mui--text-subhead profile-details__title">by {{ project.profile.title|e }}</p>
+              <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
+              <a class="mui--text-subhead mui--text-dark profile-details__title" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
             </div>
           {% endif %}
           <div class="mui--pull-left project-details">
@@ -46,7 +46,7 @@
         <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
         <p class="mui--text-headline">{{ project.tagline|safe }}</p>
         <div class="profile-details">
-          {%- if project.profile.logo_url.url %}<img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>{% endif %}<span class="mui--text-subhead">by {{ project.profile.title|e }}</span>
+          {%- if project.profile.logo_url.url %}<a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>{% endif %}<a class="mui--text-subhead mui--text-dark" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
         </div>
       </div>
       <div class="grid__col-xs-12{% if project.banner_video_url.url or project.bg_image.url %} grid__col-md-5 grid__col-lg-4{% else %} date-wrapper--small {% endif %} date-wrapper xs-sm-padding">

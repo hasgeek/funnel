@@ -80,11 +80,11 @@
 {%- endblock %}
 
 {% block bodytag %}
-{%- if not config['LEGACY'] -%}
-  <body class="mui--bg-primary hg-app">
-{%- else %}
-  <body class="mui--bg-primary">
-{%- endif %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
 {% endblock %}
 
 {% block contenthead %}

@@ -13,17 +13,24 @@
 }
 
 @media (min-width: 992px) {
-  .desktop-head {
-    margin-top: -30px;
-  }
   .profile-details {
     display: block;
     float: left;
     max-width: 15%;
     margin-right: 20px;
+
+    .profile-details__title {
+      display: block;
+    }
   }
   .project-details {
     max-width: calc(100% - 15% - 20px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .desktop-head {
+    margin-top: 40px;
   }
 }
 
