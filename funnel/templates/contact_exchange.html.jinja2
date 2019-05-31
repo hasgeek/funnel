@@ -71,13 +71,13 @@
   <script type="text/javascript">
     $(function() {
 
-      var eventConfig = {};
-      eventConfig.participantApiUrl = "{{ url_for('participant') }}"
+      var scanConfig = {};
+      scanConfig.participantApiUrl = "{{ url_for('participant') }}"
 
-      eventConfig.wrapperId = 'scan-badge-wrapper';
-      eventConfig.templateId = 'scan-badge-template';
+      scanConfig.wrapperId = 'scan-badge-wrapper';
+      scanConfig.templateId = 'scan-badge-template';
 
-      window.HasGeek.BadgeScanInit(eventConfig);
+      window.HasGeek.BadgeScanInit(scanConfig);
 
     });
   </script>
