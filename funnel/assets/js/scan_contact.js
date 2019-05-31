@@ -2,13 +2,12 @@ import Ractive from "ractive";
 import jsQR from "jsqr";
 
 const badgeScan = {
-  init({participantApiUrl, wrapperId, templateId, projectTitle}) {
+  init({participantApiUrl, wrapperId, templateId}) {
     
     let badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
       data: {
-        projectTitle: projectTitle,
         video: {},
         error: 'Unable to access video. Please make sure you have a camera enabled',
         attendeeName: '',
