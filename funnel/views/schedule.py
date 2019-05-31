@@ -186,8 +186,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('edit')
     @render_with('schedule_edit.html.jinja2')
-    @lastuser.requires_login
-    @requires_permission('edit-schedule')
     def edit_schedule(self):
         proposals = {
             'unscheduled': [{
@@ -199,8 +197,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         # Set the proper range for the calendar to allow for date changes
         first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start.asc()).first()
         last_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.end.desc()).first()
-        from_date = (first_session and first_session.start.date() < self.obj.date and first_session.start) or self.obj.date
-        to_date = (last_session and last_session.start.date() > self.obj.date_upto and last_session.start) or self.obj.date_upto
+        from_date = first_session.start.date() if first_session and first_session.start.date() else None
+        to_date = last_session.start.date() if last_session and last_session.start.date() else None
         return dict(project=self.obj, proposals=proposals,
             from_date=date_js(from_date), to_date=date_js(to_date),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),

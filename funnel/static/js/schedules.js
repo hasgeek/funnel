@@ -44,7 +44,6 @@ $(function() {
             container: $('#settings'),
             color_form: $('#room_colors'),
             onColorChange: function(color) {
-                console.log('this', this, color);
                 ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
                 calendar.render();
             },
@@ -652,6 +651,29 @@ $(function() {
 
     }();
 
-    settings.init();
-    calendar.init(scheduled);
+    var scheduleWidgetInit = function() {
+        $('#calendar').html('');
+        settings.init();
+        calendar.init(scheduled);
+    }
+
+    if (from_date && to_date) {
+        var startDate = new Date(from_date);
+        to_date = startDate.setDate(startDate.getDate() + 2);
+        scheduleWidgetInit();
+    };
+
+    $('#select-date').on('change', function() {
+        var selectedDate =  new Date($('#select-date').val());
+        from_date = selectedDate.getTime()
+        to_date = selectedDate.setDate(selectedDate.getDate() + 2);
+        scheduleWidgetInit();
+    });
+
+    (function () {
+        // On the datepicket, set the current date if from_date is not available
+        var pickerDate = from_date ? new Date(from_date) : new Date();
+        document.getElementById("select-date").value = pickerDate.getFullYear() + '-' + ('0' + (pickerDate.getMonth() + 1)).slice(-2) + '-' + ('0' + pickerDate.getFullYear()).slice(-2);
+    })();
+
 });

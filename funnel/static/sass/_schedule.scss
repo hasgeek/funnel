@@ -200,6 +200,22 @@
 	}
 }
 
+.calendar-wrapper {
+	position: relative;
+
+	.datepicker-wrapper {
+	    position: absolute;
+	    width: 100%;
+	    top: -18px;
+
+	    input {
+	    	width: auto;
+    		margin: auto;
+    		font-size: 22px;
+	    }
+	}
+}
+
 .session-modal--nopadding {
 	padding: 0;
 
@@ -250,6 +266,9 @@
 }
 
 /* Calendar session */
+.calendar-wrapper .fc-header-title {
+	display: none;
+}
 .fc-event .fc-event-custom {
   position: absolute;
   bottom: 0px;
