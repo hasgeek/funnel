@@ -651,17 +651,11 @@ $(function() {
 
     }();
 
-    var scheduleWidgetInit = function() {
+    function scheduleWidgetInit() {
         $('#calendar').html('');
         settings.init();
         calendar.init(scheduled);
     }
-
-    if (from_date && to_date) {
-        var startDate = new Date(from_date);
-        to_date = startDate.setDate(startDate.getDate() + 2);
-        scheduleWidgetInit();
-    };
 
     $('#select-date').on('change', function() {
         var selectedDate =  new Date($('#select-date').val());
@@ -671,9 +665,11 @@ $(function() {
     });
 
     (function () {
-        // On the datepicket, set the current date if from_date is not available
-        var pickerDate = from_date ? new Date(from_date) : new Date();
-        document.getElementById("select-date").value = pickerDate.getFullYear() + '-' + ('0' + (pickerDate.getMonth() + 1)).slice(-2) + '-' + ('0' + pickerDate.getFullYear()).slice(-2);
+        // On the datepicker, set the current date if from_date is not available
+        var startDate = from_date ? new Date(from_date) : new Date();
+        document.getElementById("select-date").value = startDate.getFullYear() + '-' + ('0' + (startDate.getMonth() + 1)).slice(-2) + '-' + ('0' + startDate.getDate()).slice(-2);
+        $('#select-date').trigger("change");
     })();
+
 
 });
