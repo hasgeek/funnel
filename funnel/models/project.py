@@ -145,9 +145,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'Session',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
-    #: Redirect URLs from Funnel to Talkfunnel
-    legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
-
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
 
     __roles__ = {
