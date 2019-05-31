@@ -142,7 +142,6 @@ def participant(puk, key):
     if not participant:
         return make_response(jsonify(status='error', message=u"Participant not found"), 404) 
     project = participant.project
-    print project
     if project.date_upto:
         if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
             return make_response(jsonify(status='error', message=u"This event has concluded"), 401)
