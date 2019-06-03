@@ -71,4 +71,5 @@ def downgrade():
 
     for data in legacy_data:
         prof = conn.execute(sa.select([profile.c.id]).where(profile.c.name == data['profile_name']).limit(1)).fetchone()
-        conn.execute(sa.update(project).where(project.c.name == data['name']).where(project.c.profile_id == prof[0]).values({'legacy_name': data['legacy_name']}))
+        if prof:
+            conn.execute(sa.update(project).where(project.c.name == data['name']).where(project.c.profile_id == prof[0]).values({'legacy_name': data['legacy_name']}))
