@@ -726,24 +726,23 @@ html.touch .collapsible__body--disable {
 .card--upcoming {
   display: flex;
   box-shadow: none;
+  margin-bottom: 30px;
 }
-.card--upcoming .card__title__heading {
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 32px;
+.card--upcoming .card__image__tagline {
+  font-size: inherit;
 }
-.card--upcoming .card__title__heading {
-  font-weight: 400;
-  font-size: 34px;
-  line-height: 40px;
+.card--upcoming .card__image-wrapper,
+.card--upcoming .card__image--default {
+  min-height: auto;
 }
-.card--upcoming .card__image-wrapper a {
+.card--upcoming .card__image-wrapper a,
+.card--upcoming .card__image--default a {
   display: block;
-  width: 200px;
-  height: 200px;
-  margin-top: 14px;
+  width: 100px;
+  height: 100px;
 }
-.card--upcoming .card__image-wrapper img {
+.card--upcoming .card__image-wrapper img,
+.card--upcoming .card__image--default img {
   width: 100%;
   height: 100%;
   object-fit: cover;

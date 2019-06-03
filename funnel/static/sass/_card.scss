@@ -46,25 +46,19 @@
 .card--upcoming {
   display: flex;
   box-shadow: none;
+  margin-bottom: 30px;
 
-  .card__title__heading {
-    font-weight : 400;
-    font-size: 24px;
-    line-height: 32px;
+  .card__image__tagline {
+    font-size: inherit;
   }
 
-  .card__title__heading {
-    font-weight : 400;
-    font-size: 34px;
-    line-height: 40px;
-  }
-
-  .card__image-wrapper {
+  .card__image-wrapper,
+  .card__image--default {
+    min-height: auto;
     a {
       display: block;
-      width: 200px;
-      height: 200px;
-      margin-top: 14px;
+      width: 100px;
+      height: 100px;
     }
     img {
       width: 100%;

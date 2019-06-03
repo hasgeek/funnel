@@ -52,7 +52,7 @@
                 <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
               {{/if}}
               {{#if contacts[i].twitter }}
-                <p>@{{ contacts[i].twitter }}</p>
+                <p>{{ contacts[i].twitter }}</p>
               {{/if}}
               {{#if contacts[i].company }}
                 <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
@@ -71,13 +71,13 @@
   <script type="text/javascript">
     $(function() {
 
-      var eventConfig = {};
-      eventConfig.participantApiUrl = "{{ url_for('participant') }}"
+      var scanConfig = {};
+      scanConfig.participantApiUrl = "{{ url_for('participant') }}"
 
-      eventConfig.wrapperId = 'scan-badge-wrapper';
-      eventConfig.templateId = 'scan-badge-template';
+      scanConfig.wrapperId = 'scan-badge-wrapper';
+      scanConfig.templateId = 'scan-badge-template';
 
-      window.HasGeek.BadgeScanInit(eventConfig);
+      window.HasGeek.BadgeScanInit(scanConfig);
 
     });
   </script>
