@@ -59,26 +59,6 @@ def funnelapp_all_projects_json():
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
 
 
-# Legacy routes for funnel.hasgeek.com to talkfunnel migration
-# TODO: Figure out how to restrict these routes to just the funnel.hasgeek.com domain
-@funnelapp.route('/<project>/')
-@load_model(Project, {'legacy_name': 'project'}, 'project')
-def project_redirect(project):
-    return redirect(project.url_for())
-
-
-@funnelapp.route('/<project>/json')
-@load_model(Project, {'legacy_name': 'project'}, 'project')
-def project_redirect_json(project):
-    return redirect(project.url_for('json'))
-
-
-@funnelapp.route('/<project>/csv')
-@load_model(Project, {'legacy_name': 'project'}, 'project')
-def project_redirect_csv(project):
-    return redirect(project.url_for('csv'))
-
-
 @funnelapp.route('/<project>/<int:id>-<name>')
 @funnelapp.route('/<project>/<int:id>')
 @load_model(Proposal, {'id': 'id'}, 'proposal')
