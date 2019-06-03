@@ -20,6 +20,11 @@
   display: block;
 }
 
+.svg-icon {
+  position: relative;
+  top: 2px;
+}
+
 .no-js .js-lazyload-img {
   display: none;
 }

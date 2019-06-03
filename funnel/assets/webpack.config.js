@@ -49,6 +49,7 @@ module.exports = {
     "schedule_view": path.resolve(__dirname, "js/schedule_view.js"),
     "event": path.resolve(__dirname, "js/event.js"),
     "scan_badge": path.resolve(__dirname, "js/scan_badge.js"),
+    "scan_contact": path.resolve(__dirname, "js/scan_contact.js"),
   },
   output: {
     path: path.resolve(__dirname,  "../static/build"),

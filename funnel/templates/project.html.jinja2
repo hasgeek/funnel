@@ -82,13 +82,13 @@
 
 {% block contentwrapper %}
   <div class="grid details-section">
-    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
+    <div class="grid__col-md-5 grid__col-lg-4">
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
         {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
       {% endif %}
     </div>
 
-    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="about">
+    <div class="grid__col-md-7 grid__col-lg-8" id="about">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">About</h2>
       <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
