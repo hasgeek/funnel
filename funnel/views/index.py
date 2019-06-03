@@ -35,14 +35,12 @@ def funnelindex():
 
 
 @app.route('/account')
-@funnelapp.route('/account')
 @lastuser.requires_login
 def account():
     return render_template('account.html.jinja2')
 
 
 @app.route('/account/contacts')
-@funnelapp.route('/account/contacts')
 @lastuser.requires_login
 def contacts():
     return render_template('contacts.html.jinja2')

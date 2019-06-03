@@ -22,7 +22,6 @@ def contact_details(participant):
 
 
 @app.route('/contacts/connect', methods=['POST'])
-@funnelapp.route('/contacts/connect', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @requestargs('puk', 'key')
 def connect(puk, key):
