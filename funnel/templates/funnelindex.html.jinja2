@@ -51,9 +51,8 @@
 {% block basecontent %}
   <div class="page-content {%- if not g.profile %} page-content--top-padding{% endif %}">
     {%- if config['LEGACY'] and not g.profile %}
-      <div class="alert alert--warning alert--dismissable">
-        <a class="alert__close" href="javascript:void(0);" aria-label="close"><i class="material-icons mui--text-body1">clear</i></a>
-        <p class="alert__text mui--text-body1"><i class="material-icons alert__icon mui--text-body1">warning</i> {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use <a href="https://hasgeek.com" class="banner__headline-txt">HasGeek</a>.{% endtrans %}</p>
+      <div class="alert alert--warning funnel-notice">
+        <p class="alert__text"><i class="material-icons alert__icon mui--text-body1">warning</i> {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use <a href="https://hasgeek.com" class="banner__headline-txt">HasGeek</a>.{% endtrans %}</p>
       </div>
     {%- endif -%}
     {%- if not g.profile %}
