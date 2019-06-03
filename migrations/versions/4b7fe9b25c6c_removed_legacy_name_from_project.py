@@ -70,6 +70,6 @@ def downgrade():
     op.create_unique_constraint('project_legacy_name_key', 'project', ['legacy_name'])
 
     for data in legacy_data:
-        prof = conn.execute(sa.select([profile.c.id]).where(profile.c.name == data['profile_name']).limit(1)).fetchone()
-        if prof:
-            conn.execute(sa.update(project).where(project.c.name == data['name']).where(project.c.profile_id == prof[0]).values({'legacy_name': data['legacy_name']}))
+        profile_id = conn.execute(sa.select([profile.c.id]).where(profile.c.name == data['profile_name']).limit(1)).fetchone()
+        if profile_id:
+            conn.execute(sa.update(project).where(project.c.name == data['name']).where(project.c.profile_id == profile_id[0]).values({'legacy_name': data['legacy_name']}))
