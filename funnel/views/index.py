@@ -41,11 +41,11 @@ def account():
     return render_template('account.html.jinja2')
 
 
-@app.route('/contact_exchange')
-@funnelapp.route('/contact_exchange')
+@app.route('/contacts')
+@funnelapp.route('/contacts')
 @lastuser.requires_login
-def contact_exchange():
-    return render_template('contact_exchange.html.jinja2')
+def contacts():
+    return render_template('contacts.html.jinja2')
 
 
 @app.route('/api/whoami')

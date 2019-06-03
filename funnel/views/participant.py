@@ -128,19 +128,14 @@ def participant_edit(profile, project, participant):
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
-@app.route('/participant', methods=['GET', 'POST'])
-@funnelapp.route('/participant', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route('/contacts/participant', methods=['POST'])
+@funnelapp.route('/contacts/participant', methods=['POST'], subdomain='<profile>')
 @lastuser.requires_login
 @requestargs('puk', 'key')
 def participant(puk, key):
-    """
-    Endpoint for contact exchange.
-
-    TODO: The GET method to this endpoint is deprecated and will be removed by 1st September, 2018
-    """
     participant = Participant.query.filter_by(puk=puk, key=key).first()
     if not participant:
-        return make_response(jsonify(status='error', message=u"Participant not found"), 404) 
+        return make_response(jsonify(status='error', message=u"Participant not found"), 404)
     project = participant.project
     if project.date_upto:
         if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
@@ -155,7 +150,7 @@ def participant(puk, key):
             db.session.rollback()
         return jsonify(participant=participant_data(participant, project.id, full=True))
     else:
-        return make_response(jsonify(status='error', message=u"Unauthorized contact exchange"), 401)
+        return make_response(jsonify(status='error', message=u"Unauthorized contact exchange"), 403)
 
 
 @app.route('/<profile>/<project>/participant/<participant_id>/badge')
