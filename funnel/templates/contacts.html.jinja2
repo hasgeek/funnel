@@ -23,11 +23,18 @@
           <div class="modal__body">
             {{#if scanning}}
               <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
-            {{elseif attendeeFound}}
-              <h3>{{ participant.fullname }}</h3>
-              <h4>{{ participant.email }}</h4>
-              <h4>{{ participant.phone }}</h4>
-              <h5>{{ participant.company }}</h5>
+            {{elseif contactFound}}
+              <h3>{{ contact.fullname }}</h3>
+              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.email }}</p>
+              {{#if contact.phone }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.phone }}</p>
+              {{/if}}
+              {{#if contact.twitter }}
+                <p>{{ contact.twitter }}</p>
+              {{/if}}
+              {{#if contact.company }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.company }}</p>
+              {{/if}}
             {{else}}
               <h4 class="mui--text-danger">{{ errorMsg }}</h4>
             {{/if}}
@@ -72,7 +79,7 @@
     $(function() {
 
       var scanConfig = {};
-      scanConfig.participantApiUrl = "{{ url_for('participant') }}"
+      scanConfig.getContactApiUrl = "{{ url_for('connect') }}"
 
       scanConfig.wrapperId = 'scan-badge-wrapper';
       scanConfig.templateId = 'scan-badge-template';

@@ -41,8 +41,8 @@ def account():
     return render_template('account.html.jinja2')
 
 
-@app.route('/contacts')
-@funnelapp.route('/contacts')
+@app.route('/account/contacts')
+@funnelapp.route('/account/contacts')
 @lastuser.requires_login
 def contacts():
     return render_template('contacts.html.jinja2')

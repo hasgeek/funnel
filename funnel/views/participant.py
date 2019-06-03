@@ -128,31 +128,6 @@ def participant_edit(profile, project, participant):
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
 
 
-@app.route('/contacts/participant', methods=['POST'])
-@funnelapp.route('/contacts/participant', methods=['POST'], subdomain='<profile>')
-@lastuser.requires_login
-@requestargs('puk', 'key')
-def participant(puk, key):
-    participant = Participant.query.filter_by(puk=puk, key=key).first()
-    if not participant:
-        return make_response(jsonify(status='error', message=u"Participant not found"), 404)
-    project = participant.project
-    if project.date_upto:
-        if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
-            return make_response(jsonify(status='error', message=u"This event has concluded"), 401)
-
-        try:
-            contact_exchange = ContactExchange(user=current_auth.actor, participant=participant)
-            db.session.add(contact_exchange)
-            db.session.commit()
-        except IntegrityError:
-            current_app.logger.warning(u"Contact Exchange already present")
-            db.session.rollback()
-        return jsonify(participant=participant_data(participant, project.id, full=True))
-    else:
-        return make_response(jsonify(status='error', message=u"Unauthorized contact exchange"), 403)
-
-
 @app.route('/<profile>/<project>/participant/<participant_id>/badge')
 @funnelapp.route('/<project>/participant/<participant_id>/badge', subdomain='<profile>')
 @lastuser.requires_login
