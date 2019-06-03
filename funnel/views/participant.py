@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, url_for, jsonify, make_response, current_app
-from datetime import timedelta
+from flask import flash, redirect, render_template, request, url_for, jsonify, make_response
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.auth import current_auth
-from coaster.views import load_models, requestargs, route, requires_permission, UrlForView, ModelView
-from coaster.utils import midnight_to_utc, getbool, utcnow
+from coaster.views import load_models, route, requires_permission, UrlForView, ModelView
+from coaster.utils import getbool
 from .. import app, funnelapp, lastuser
-from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, ContactExchange, SyncTicket)
+from ..models import db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, SyncTicket
 from ..forms import ParticipantForm
 from ..views.helpers import mask_email
 from funnel.util import split_name, format_twitter_handle, make_qrcode

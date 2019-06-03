@@ -281,6 +281,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for('admin'), code=303)
         return dict(profile=self.obj.profile, project=self.obj, events=self.obj.events, csrf_form=csrf_form)
 
+
 @route('/<project>/', subdomain='<profile>')
 class FunnelProjectView(ProjectView):
     pass

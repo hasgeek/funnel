@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import jsonify, make_response, current_app
+from flask import jsonify, make_response, current_app, render_template, url_for, redirect
 from datetime import timedelta
 from sqlalchemy.exc import IntegrityError
 from coaster.auth import current_auth
@@ -18,10 +18,22 @@ def contact_details(participant):
             'email': participant.email,
             'twitter': format_twitter_handle(participant.twitter),
             'phone': participant.phone,
-        }
+            }
 
 
-@app.route('/contacts/connect', methods=['POST'])
+@app.route('/account/contacts')
+@lastuser.requires_login
+def contacts():
+    return render_template('contacts.html.jinja2')
+
+
+@funnelapp.route('/account/contacts', endpoint='contacts')
+def talkfunnel_contacts():
+    with app.app_context(), app.test_request_context():
+        return redirect(url_for('contacts', _external=True))
+
+
+@app.route('/account/contacts/connect', methods=['POST'])
 @lastuser.requires_login
 @requestargs('puk', 'key')
 def connect(puk, key):
