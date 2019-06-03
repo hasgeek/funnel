@@ -1,0 +1,91 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}Contacts{% endtrans %}{% endblock %}
+
+{% block content %}
+  {% raw %}
+    <div class="grid" id="scan-badge-wrapper">
+      <script id='scan-badge-template' type='text/ractive'>
+        <div class="grid__col-xs-12 grid__col-sm-6">
+        {{#if video}}
+          <h4 class="mui--text-subhead">Scan participant badge</h4>
+          <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
+        {{elseif error}}
+          <p class="mui--text-danger">{{ error }}</p>
+        {{/if}}
+        <canvas id="qrreader-canvas"></canvas>
+
+        {{#if showModal}}
+        <div id="status-msg" class="modal" tabindex="-1" role="dialog">
+          <div class="modal__header">
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><i class="material-icons">clear</i></a>
+            <h3 class="mui--text-title">Scanned contacts</h3>
+          </div>
+          <div class="modal__body">
+            {{#if scanning}}
+              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
+            {{elseif contactFound}}
+              <h3>{{ contact.fullname }}</h3>
+              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.email }}</p>
+              {{#if contact.phone }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.phone }}</p>
+              {{/if}}
+              {{#if contact.twitter }}
+                <p>{{ contact.twitter }}</p>
+              {{/if}}
+              {{#if contact.company }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.company }}</p>
+              {{/if}}
+            {{else}}
+              <h4 class="mui--text-danger">{{ errorMsg }}</h4>
+            {{/if}}
+            <a href="javascript:void(0);" on-click="closeModal(event)" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Close</a>
+          </div>
+        </div>
+        {{/if}}
+      </div>
+      <div class="grid__col-xs-12 grid__col-sm-6">
+        <div>
+          <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
+          <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="My account" data-action="my account">My account</a>
+        </div>
+        {{#each contacts:i}}
+          <div class="card">
+            <div class="card__header">
+              <h3 class="mui--text-title mui--text-bold">{{ contacts[i].fullname }}</h3>
+            </div>
+            <div class="card__body card__body--lgtext mui--text-subhead">
+              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
+              {{#if contacts[i].phone }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
+              {{/if}}
+              {{#if contacts[i].twitter }}
+                <p>{{ contacts[i].twitter }}</p>
+              {{/if}}
+              {{#if contacts[i].company }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
+              {{/if}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+      </script>
+    </div>
+  {% endraw %}
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('scan_contact')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      var scanConfig = {};
+      scanConfig.getContactApiUrl = "{{ url_for('connect') }}"
+
+      scanConfig.wrapperId = 'scan-badge-wrapper';
+      scanConfig.templateId = 'scan-badge-template';
+
+      window.HasGeek.BadgeScanInit(scanConfig);
+
+    });
+  </script>
+{% endblock %}
