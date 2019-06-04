@@ -40,6 +40,9 @@ ManifestPlugin.prototype.apply = function(compiler) {
 }
 
 module.exports = {
+  node: {
+    fs: "empty"
+  },
   devtool: 'source-map',
   entry: {
     "app": path.resolve(__dirname, "js/app.js"),
