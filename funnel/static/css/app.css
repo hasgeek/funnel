@@ -229,10 +229,6 @@ html.touch .collapsible__body--disable {
   line-height: 32px;
 }
 
-.contact-details {
-  width: calc(100% - 80px);
-}
-
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;
@@ -679,6 +675,31 @@ html.touch .collapsible__body--disable {
   margin-top: 10px;
 }
 
+.contact-card {
+  position: relative;
+}
+.contact-card .contact-card__details {
+  width: 100%;
+}
+.contact-card .contact-card__details .contact-card__details__download-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+@media (min-width: 1200px) {
+  .contact-card {
+    position: relative;
+  }
+  .contact-card .contact-card__details {
+    width: calc(100% - 80px);
+  }
+  .contact-card .contact-card__details .contact-card__details__download-btn {
+    position: relative;
+    top: 0;
+    right: 0;
+  }
+}
 .profile-details {
   display: flex;
   align-items: center;

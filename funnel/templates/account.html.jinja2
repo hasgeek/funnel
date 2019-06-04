@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
-{% block content %}
+{% block contentwrapper %}
 <div class="grid">
 
   <div class="grid__col-xs-12 grid__col-sm-6">
@@ -22,21 +22,19 @@
     </div>
   </div>
 
-  <!-- My tickets -->
-
   <div class="grid__col-xs-12 grid__col-sm-6">
     <div>
       <h2 class="mui--text-title mui--pull-left">My contacts</h2>
       <a href="{{ url_for('contacts') }}" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="Scan badge" data-action="Scan badge">Scan participant badge</a>
     </div>
     {% for contact in current_auth.user.scanned_contacts %}
-      <div class="card mui--z2">
+      <div class="card mui--z2 contact-card">
         <div class="card__body mui--clearfix">
           <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
-          <div class="mui--pull-right contact-details">
+          <div class="mui--pull-right contact-card__details">
             <div class="mui--clearfix">
               <h3 class="mui--text-title mui--pull-left">{{ contact.participant.fullname }}</h3>
-               <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href=""><i class="material-icons">save_alt</i></a>
+               <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href=""><i class="material-icons">save_alt</i></a>
             </div>
             <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.participant.email }}</p>
             {% if contact.participant.phone %}
