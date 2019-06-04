@@ -229,6 +229,10 @@ html.touch .collapsible__body--disable {
   line-height: 32px;
 }
 
+.contact-details {
+  width: calc(100% - 80px);
+}
+
 .header__site-title__item {
   font-size: 18px;
   line-height: 28px;

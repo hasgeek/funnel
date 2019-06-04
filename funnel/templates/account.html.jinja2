@@ -4,7 +4,7 @@
 {% block content %}
 <div class="grid">
 
-  <div class="grid__col-xs-12 grid__col-xs-6">
+  <div class="grid__col-xs-12 grid__col-sm-6">
     <h2 class="mui--text-title">My profile</h2>
     <div class="card">
       <div class="card__header">
@@ -30,21 +30,26 @@
       <a href="{{ url_for('contacts') }}" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="Scan badge" data-action="Scan badge">Scan participant badge</a>
     </div>
     {% for contact in current_auth.user.scanned_contacts %}
-      <div class="card">
-        <div class="card__header">
-          <h3 class="mui--text-title mui--text-bold">{{ contact.participant.fullname }}</h3>
-        </div>
-        <div class="card__body card__body--lgtext mui--text-subhead">
-          <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.participant.email }}</p>
-          {% if contact.participant.phone %}
-            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.participant.phone }}</p>
-          {% endif %}
-          {% if contact.participant.twitter %}
-            <p><img src="{{ url_for('static', filename='img/twitter.svg') }}" title="twitter-username" class="svg-icon"/> {{ contact.participant.twitter }}</p>
-          {% endif %}
-          {% if contact.participant.company %}
-            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.participant.company }}</p>
-          {% endif %}
+      <div class="card mui--z2">
+        <div class="card__body mui--clearfix">
+          <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
+          <div class="mui--pull-right contact-details">
+            <div class="mui--clearfix">
+              <h3 class="mui--text-title mui--pull-left">{{ contact.participant.fullname }}</h3>
+               <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href=""><i class="material-icons">save_alt</i></a>
+            </div>
+            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.participant.email }}</p>
+            {% if contact.participant.phone %}
+              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.participant.phone }}</p>
+            {% endif %}
+            {% if contact.participant.twitter %}
+              <p><img src="{{ url_for('static', filename='img/twitter.svg') }}" title="twitter-username" class="svg-icon"/> {{ contact.participant.twitter }}</p>
+            {% endif %}
+            {% if contact.participant.company %}
+              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.participant.company }}</p>
+            {% endif %}
+          </div>
+          <p class="mui--text-caption mui--pull-right">Contact saved on  {{ contact.created_at.strftime("%e %B %Y")}} at {{ contact.participant.project.title}}</p>
         </div>
       </div>
     {%- else -%}
@@ -55,4 +60,5 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('contact')) }}" type="text/javascript"></script>
 {% endblock %}
