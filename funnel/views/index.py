@@ -30,7 +30,7 @@ def index():
 @render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
 def talkfunnel_index():
     g.profile = None
-    projects = Project.fetch_sorted().all()  # NOQA
+    projects = Project.fetch_sorted(legacy=True).all()  # NOQA
     return {'projects': projects}
 
 
