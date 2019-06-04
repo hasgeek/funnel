@@ -40,6 +40,9 @@ ManifestPlugin.prototype.apply = function(compiler) {
 }
 
 module.exports = {
+  node: {
+    fs: "empty"
+  },
   devtool: 'source-map',
   entry: {
     "app": path.resolve(__dirname, "js/app.js"),
@@ -50,6 +53,7 @@ module.exports = {
     "event": path.resolve(__dirname, "js/event.js"),
     "scan_badge": path.resolve(__dirname, "js/scan_badge.js"),
     "scan_contact": path.resolve(__dirname, "js/scan_contact.js"),
+    "contact": path.resolve(__dirname, "js/contact.js"),
   },
   output: {
     path: path.resolve(__dirname,  "../static/build"),
