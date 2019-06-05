@@ -128,6 +128,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
     part_labels = db.Column('labels', JsonDict, nullable=False, server_default='{}')
 
+    #: Featured project flag. This can only be set by website editors, not
+    #: project editors or profile admins.
+    featured = db.Column(db.Boolean, default=False, nullable=False)
+
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
     labels = db.relationship('Label', cascade='all, delete-orphan',
