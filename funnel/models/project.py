@@ -125,7 +125,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)
     parent_project = db.relationship('Project', remote_side='Project.id', backref='subprojects')
-    inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or profile admins.
@@ -369,10 +368,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'view_contactinfo',
                     'edit_project',
                     'delete-project',
-                    'view-section',
-                    'new-section',
-                    'edit-section',
-                    'delete-section',
                     'confirm-proposal',
                     'view-venue',
                     'new-venue',

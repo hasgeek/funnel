@@ -23,7 +23,6 @@ class COMMENT_STATE(LabeledEnum):
 # What is this Voteset or Commentset attached to?
 class SET_TYPE:
     PROJECT = 0
-    PROJECT_SECTION = 1
     PROPOSAL = 2
     COMMENT = 3
 

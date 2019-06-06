@@ -3,7 +3,6 @@
 from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
-from .section import Section
 from .commentvote import Commentset, Voteset, SET_TYPE
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
@@ -70,9 +69,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
     parent = db.synonym('project')
 
-    section_id = db.Column(None, db.ForeignKey('section.id'), nullable=True)
-    section = db.relationship(Section, primaryjoin=section_id == Section.id,
-        backref="proposals")
     abstract = MarkdownColumn('abstract', nullable=True)
     outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
@@ -103,7 +99,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'title', 'speaker', 'speaking', 'bio', 'section', 'abstract',
+                'title', 'speaker', 'speaking', 'bio', 'abstract',
                 'outline', 'requirements', 'slides', 'preview_video', 'links', 'location',
                 'latitude', 'longitude', 'coordinates'
                 },

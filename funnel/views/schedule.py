@@ -121,8 +121,8 @@ def session_ical(session):
         event.add('description', session.description_text)
     if session.proposal:
         event.add('url', session.url_for(_external=True))
-        if session.proposal.section:
-            event.add('categories', [session.proposal.section.title])
+        if session.proposal.labels:
+            event.add('categories', [l.title for l in session.proposal.labels])
     alarm = Alarm()
     alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')

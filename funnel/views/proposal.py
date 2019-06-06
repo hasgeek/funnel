@@ -29,7 +29,6 @@ proposal_headers = [
     'slides',
     'preview_video',
     'phone',
-    'section',
     'type',
     'level',
     'votes',
@@ -55,7 +54,6 @@ def proposal_data(proposal):
             ('fullname', proposal.owner.fullname),
             ('proposer', proposal.user.pickername),
             ('speaker', proposal.speaker.pickername if proposal.speaker else None),
-            ('section', proposal.section.title if proposal.section else None),
             ('objective', proposal.abstract.html),  # TODO: Remove this, name has changed
             ('description', proposal.outline.html),  # TODO: Remove this, name has changed
             ('requirements', proposal.requirements.html),  # TODO: Remove this, name has changed
