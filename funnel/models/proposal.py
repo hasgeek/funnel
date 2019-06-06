@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
+from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
 from .commentvote import Commentset, Voteset, SET_TYPE
