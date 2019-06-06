@@ -78,9 +78,6 @@ def schedule_data(project):
             'description': session.description,
             'speaker_bio': session.speaker_bio,
             'speaker_bio_text': session.speaker_bio_text,
-            'section_name': session.proposal.section.name if session.proposal and session.proposal.section else None,
-            'section_title': session.proposal.section.title if session.proposal and session.proposal.section else None,
-            'technical_level': session.proposal.technical_level if session.proposal and session.proposal.section else None,
             })
     schedule = []
     for day in sorted(data):

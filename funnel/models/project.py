@@ -126,7 +126,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)
     parent_project = db.relationship('Project', remote_side='Project.id', backref='subprojects')
     inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
-    part_labels = db.Column('labels', JsonDict, nullable=False, server_default='{}')
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or profile admins.
@@ -356,40 +355,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cached_property
     def location_geonameid(self):
         return geonameid_from_location(self.location) if self.location else set()
-
-    @property
-    def proposal_part_a(self):
-        return self.part_labels.get('proposal', {}).get('part_a', {})
-
-    @property
-    def proposal_part_b(self):
-        return self.part_labels.get('proposal', {}).get('part_b', {})
-
-    def set_labels(self, value=None):
-        """
-        Sets 'labels' with the provided JSON, else with a default configuration
-        for fields with customizable labels.
-
-        Currently, the 'part_a' and 'part_b' fields in 'Proposal'
-        are allowed to be customized per project.
-        """
-        if value and isinstance(value, dict):
-            self.part_labels = value
-        else:
-            self.part_labels = {
-                "proposal": {
-                    "part_a": {
-                        "title": "Abstract",
-                        "hint": "Give us a brief description of your talk, key takeaways for the audience and the"
-                        " intended audience."
-                        },
-                    "part_b": {
-                        "title": "Outline",
-                        "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or"
-                        " text description."
-                        }
-                    }
-                }
 
     def permissions(self, user, inherited=None):
         perms = super(Project, self).permissions(user, inherited)

@@ -73,12 +73,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     section_id = db.Column(None, db.ForeignKey('section.id'), nullable=True)
     section = db.relationship(Section, primaryjoin=section_id == Section.id,
         backref="proposals")
-    objective = MarkdownColumn('objective', nullable=True)
-    part_a = db.synonym('objective')
-    session_type = db.Column(db.Unicode(40), nullable=True)
-    technical_level = db.Column(db.Unicode(40), nullable=True)
-    description = MarkdownColumn('description', nullable=True)
-    part_b = db.synonym('description')
+    abstract = MarkdownColumn('abstract', nullable=True)
+    outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(UrlType, nullable=True)
     preview_video = db.Column(UrlType, default=u'', nullable=True)
@@ -107,8 +103,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
-                'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
+                'title', 'speaker', 'speaking', 'bio', 'section', 'abstract',
+                'outline', 'requirements', 'slides', 'preview_video', 'links', 'location',
                 'latitude', 'longitude', 'coordinates'
                 },
             'call': {
