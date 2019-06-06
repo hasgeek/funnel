@@ -91,9 +91,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    # Additional form data
-    data = db.Column(JsonDict, nullable=False, server_default='{}')
-
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
     __roles__ = {
