@@ -10,14 +10,13 @@ from coaster.utils import getbool
 from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Project, Section, Proposal, Rsvp, RSVP_STATUS
-from ..forms import (ProjectForm, SubprojectForm, RsvpForm, ProjectTransitionForm,
+from ..models import db, Project, Proposal, Rsvp, RSVP_STATUS
+from ..forms import (ProjectForm, RsvpForm, ProjectTransitionForm,
     ProjectBoxofficeForm, CfpForm, ProjectScheduleTransitionForm, ProjectCfpTransitionForm)
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
 from .schedule import schedule_data
 from .venue import venue_data, room_data
-from .section import section_data
 from .mixins import ProjectViewMixin, ProfileViewMixin, DraftViewMixin
 from .decorators import legacy_redirect
 
@@ -83,12 +82,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @render_with('project.html.jinja2')
     @requires_permission('view')
     def view(self):
-        sections = Section.query.filter_by(project=self.obj, public=True).order_by('title').all()
-        sections_list = [s.current_access() for s in sections]
         rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        return {'project': self.obj, 'sections': sections_list,
+        return {'project': self.obj,
             'rsvp_form': rsvp_form, 'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form}
 
@@ -103,12 +100,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @render_with(json=True)
     @requires_permission('view')
     def json(self):
-        sections = Section.query.filter_by(project=self.obj, public=True).order_by('title').all()
         proposals = Proposal.query.filter_by(project=self.obj).order_by(db.desc('created_at')).all()
         return jsonp(**{
             'project': project_data(self.obj),
-            'space': project_data(self.obj),  # FIXME: Remove when the native app switches over
-            'sections': [section_data(s) for s in sections],
+            'space': project_data(self.obj),  # TODO: Remove when the native app switches over
             'venues': [venue_data(venue) for venue in self.obj.venues],
             'rooms': [room_data(room) for room in self.obj.rooms],
             'proposals': [proposal_data(proposal) for proposal in proposals],
@@ -139,10 +134,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
             # initialize forms with draft initial formdata.
             # if no draft exists, initial_formdata is None. wtforms ignore formdata if it's None.
-            if self.obj.parent_project:
-                form = SubprojectForm(obj=self.obj, model=Project, formdata=initial_formdata)
-            else:
-                form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project, formdata=initial_formdata)
+            form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project, formdata=initial_formdata)
 
             if not self.obj.timezone:
                 form.timezone.data = current_auth.user.timezone
@@ -152,10 +144,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             if getbool(request.args.get('form.autosave')):
                 return self.autosave_post()
             else:
-                if self.obj.parent_project:
-                    form = SubprojectForm(obj=self.obj, model=Project)
-                else:
-                    form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+                form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
                 if form.validate_on_submit():
                     form.populate_obj(self.obj)
                     db.session.commit()
