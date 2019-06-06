@@ -78,9 +78,6 @@ def schedule_data(project):
             'description': session.description,
             'speaker_bio': session.speaker_bio,
             'speaker_bio_text': session.speaker_bio_text,
-            'section_name': session.proposal.section.name if session.proposal and session.proposal.section else None,
-            'section_title': session.proposal.section.title if session.proposal and session.proposal.section else None,
-            'technical_level': session.proposal.technical_level if session.proposal and session.proposal.section else None,
             })
     schedule = []
     for day in sorted(data):
@@ -124,8 +121,8 @@ def session_ical(session):
         event.add('description', session.description_text)
     if session.proposal:
         event.add('url', session.url_for(_external=True))
-        if session.proposal.section:
-            event.add('categories', [session.proposal.section.title])
+        if session.proposal.labels:
+            event.add('categories', [l.title for l in session.proposal.labels])
     alarm = Alarm()
     alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')

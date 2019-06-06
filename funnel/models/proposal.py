@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
+from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, CoordinatesMixin, UrlType
 from .user import User
 from .project import Project
-from .section import Section
 from .commentvote import Commentset, Voteset, SET_TYPE
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
@@ -70,15 +69,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
     parent = db.synonym('project')
 
-    section_id = db.Column(None, db.ForeignKey('section.id'), nullable=True)
-    section = db.relationship(Section, primaryjoin=section_id == Section.id,
-        backref="proposals")
-    objective = MarkdownColumn('objective', nullable=True)
-    part_a = db.synonym('objective')
-    session_type = db.Column(db.Unicode(40), nullable=True)
-    technical_level = db.Column(db.Unicode(40), nullable=True)
-    description = MarkdownColumn('description', nullable=True)
-    part_b = db.synonym('description')
+    abstract = MarkdownColumn('abstract', nullable=True)
+    outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(UrlType, nullable=True)
     preview_video = db.Column(UrlType, default=u'', nullable=True)
@@ -99,16 +91,13 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    # Additional form data
-    data = db.Column(JsonDict, nullable=False, server_default='{}')
-
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 
     __roles__ = {
         'all': {
             'read': {
-                'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
-                'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
+                'title', 'speaker', 'speaking', 'bio', 'abstract',
+                'outline', 'requirements', 'slides', 'preview_video', 'links', 'location',
                 'latitude', 'longitude', 'coordinates'
                 },
             'call': {

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-from flask import g, render_template, redirect, jsonify, Response
+from flask import g, render_template, redirect, jsonify, Response, url_for
 from coaster.views import jsonp, load_model, render_with
-from .. import app, funnelapp, pages
+from .. import app, funnelapp, pages, lastuser
 from ..models import Project, Proposal
 from .project import project_data
 
@@ -28,10 +28,22 @@ def index():
 
 @funnelapp.route('/', endpoint='index')
 @render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
-def funnelindex():
+def talkfunnel_index():
     g.profile = None
-    projects = Project.fetch_sorted().all()  # NOQA
+    projects = Project.fetch_sorted(legacy=True).all()  # NOQA
     return {'projects': projects}
+
+
+@app.route('/account')
+@lastuser.requires_login
+def account():
+    return render_template('account.html.jinja2')
+
+
+@funnelapp.route('/account', endpoint='account')
+def talkfunnel_account():
+    with app.app_context(), app.test_request_context():
+        return redirect(url_for('account', _external=True))
 
 
 @app.route('/api/whoami')
@@ -57,26 +69,6 @@ def funnelapp_all_projects_json():
     projects = Project.fetch_sorted().all()  # NOQA
     return jsonp(projects=map(project_data, projects),
         spaces=map(project_data, projects))  # FIXME: Remove when the native app switches over
-
-
-# Legacy routes for funnel.hasgeek.com to talkfunnel migration
-# TODO: Figure out how to restrict these routes to just the funnel.hasgeek.com domain
-@funnelapp.route('/<project>/')
-@load_model(Project, {'legacy_name': 'project'}, 'project')
-def project_redirect(project):
-    return redirect(project.url_for())
-
-
-@funnelapp.route('/<project>/json')
-@load_model(Project, {'legacy_name': 'project'}, 'project')
-def project_redirect_json(project):
-    return redirect(project.url_for('json'))
-
-
-@funnelapp.route('/<project>/csv')
-@load_model(Project, {'legacy_name': 'project'}, 'project')
-def project_redirect_csv(project):
-    return redirect(project.url_for('csv'))
 
 
 @funnelapp.route('/<project>/<int:id>-<name>')

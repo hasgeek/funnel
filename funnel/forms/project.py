@@ -13,7 +13,7 @@ from ..models import RSVP_STATUS, Project
 
 __all__ = [
     'EventForm', 'ProjectForm', 'CfpForm', 'ProjectTransitionForm', 'RsvpForm',
-    'SubprojectForm', 'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm',
+    'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm',
     'ProjectScheduleTransitionForm', 'ProjectCfpTransitionForm'
     ]
 
@@ -133,10 +133,6 @@ class ProjectCfpTransitionForm(forms.Form):
 
     def set_queries(self):
         self.cfp_transition.choices = self.edit_obj.cfp_state.transitions().items()
-
-
-class SubprojectForm(ProjectForm):
-    inherit_sections = forms.BooleanField(__("Inherit sections from parent project?"), default=True)
 
 
 class RsvpForm(forms.Form):

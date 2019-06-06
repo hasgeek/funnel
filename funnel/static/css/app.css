@@ -20,6 +20,11 @@
   display: block;
 }
 
+.svg-icon {
+  position: relative;
+  top: 2px;
+}
+
 .no-js .js-lazyload-img {
   display: none;
 }
@@ -217,6 +222,11 @@ html.touch .collapsible__body--disable {
 
 .mui-btn--nopadding:hover {
   background: transparent !important;
+}
+
+.funnel-notice .alert__text {
+  font-size: 24px;
+  line-height: 32px;
 }
 
 .header__site-title__item {
@@ -665,6 +675,31 @@ html.touch .collapsible__body--disable {
   margin-top: 10px;
 }
 
+.contact-card {
+  position: relative;
+}
+.contact-card .contact-card__details {
+  width: 100%;
+}
+.contact-card .contact-card__details .contact-card__details__download-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+@media (min-width: 1200px) {
+  .contact-card {
+    position: relative;
+  }
+  .contact-card .contact-card__details {
+    width: calc(100% - 80px);
+  }
+  .contact-card .contact-card__details .contact-card__details__download-btn {
+    position: relative;
+    top: 0;
+    right: 0;
+  }
+}
 .profile-details {
   display: flex;
   align-items: center;

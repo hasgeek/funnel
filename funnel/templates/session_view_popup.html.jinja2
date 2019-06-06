@@ -26,22 +26,6 @@
   </div>
 </div>
 <div class="modal__body">
-  {% if session.proposal %}
-    <div class="proposal-status-wrapper">
-      <div class="grid">
-        {% if session.proposal.section %}
-        <div class="col-auto columns">
-          <p class="mui--text-body2 mui--text-light zero-bottom-margin">Section</p>
-          <p class="mui--text-title">{{ session.proposal.section.title }}</p>
-        </div>
-        {% endif %}
-        <div class="col-auto columns">
-          <p class="mui--text-body2 mui--text-light zero-bottom-margin">Technical Level</p>
-          <p class="mui--text-title">{{ session.proposal.technical_level }}</p>
-        </div>
-      </div>
-    </div>
-  {% endif %}
   <div class="section">
     {% if session.description_html %}
       <h3 class="mui--text-title"><strong>{% trans %}Description{% endtrans %}</strong></h3>
