@@ -176,7 +176,7 @@ def new_label(test_db, new_project):
 def new_proposal(test_db, new_user, new_project):
     proposal = Proposal(
         user=new_user, speaker=new_user, project=new_project,
-        title=u"Test Proposal", description=u"Test proposal description",
+        title=u"Test Proposal", outline=u"Test proposal description",
         location=u"Bangalore"
         )
     test_db.session.add(proposal)

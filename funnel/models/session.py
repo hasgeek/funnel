@@ -51,7 +51,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     def for_proposal(cls, proposal, create=False):
         session_obj = cls.query.filter_by(proposal=proposal).first()
         if session_obj is None and create:
-            session_obj = cls(title=proposal.title, description=proposal.description,
+            session_obj = cls(title=proposal.title, description=proposal.outline,
                 speaker_bio=proposal.bio, project=proposal.project, proposal=proposal)
             db.session.add(session_obj)
         return session_obj
