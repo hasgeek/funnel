@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from werkzeug.utils import cached_property
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 from pytz import utc
@@ -63,9 +64,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     location = db.Column(db.Unicode(50), default=u'', nullable=True)
     parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
-
-    date = db.Column(db.Date, nullable=True)
-    date_upto = db.Column(db.Date, nullable=True)
 
     website = db.Column(UrlType, nullable=True)
     timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
@@ -159,7 +157,31 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             }
         }
 
-    @cached_property
+    @hybrid_property
+    def date(self):
+        from .session import Session
+        first_session = self.sessions.filter(Session.scheduled).order_by(Session.start.asc()).first()
+        return first_session.start.date() if first_session is not None else None
+
+    @date.expression
+    def date(cls):
+        from .session import Session
+        test = db.select([Session.start]).where(Session.project_id == cls.id).where(Session.scheduled).order_by(Session.start.asc()).limit(1).label('date')
+        return test
+
+    @hybrid_property
+    def date_upto(self):
+        from .session import Session
+        last_session = self.sessions.filter(Session.scheduled).order_by(Session.start.desc()).first()
+        return last_session.start.date() if last_session is not None else None
+
+    @date_upto.expression
+    def date_upto(cls):
+        from .session import Session
+        test = db.select([Session.start]).where(Session.project_id == cls.id).where(Session.scheduled).order_by(Session.start.desc()).limit(1).label('date_upto')
+        return test
+
+    @property
     def datelocation(self):
         """
         Returns a date + location string for the event, the format depends on project dates

@@ -31,15 +31,6 @@ class ProjectForm(forms.Form):
     location = forms.StringField(__("Location"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
         description=__("Eg. Bangalore, Mumbai, Pune"))
-    date = forms.DateField(__("Start date"),
-        validators=[forms.validators.DataRequired(__("Start date is required"))])
-    date_upto = forms.DateField(
-        __("End date"),
-        validators=[
-            forms.validators.DataRequired(__("End date is required")),
-            forms.validators.GreaterThanEqualTo('date', __("End date cannot be before start date"))
-            ]
-        )
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
@@ -88,16 +79,6 @@ class ProjectForm(forms.Form):
     def validate_bg_color(self, field):
         if not valid_color_re.match(field.data):
             raise forms.ValidationError("Please enter a valid color code")
-
-    # We run `strftime()` on `date` and `date_upto` for generating `datelocation`.
-    # And `strftime()` canot handle dates before year 1900.
-    def validate_date(self, field):
-        if field.data and field.data.year < 1900:
-            raise forms.ValidationError(__("Please enter a year after 1900"))
-
-    def validate_date_upto(self, field):
-        if field.data and field.data.year < 1900:
-            raise forms.ValidationError(__("Please enter a year after 1900"))
 
 
 class CfpForm(forms.Form):
