@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy_searchable import SearchQueryMixin
+from coaster.sqlalchemy import Query
+
+__all__ = ['RESERVED_NAMES', 'SearchQuery']
+
+
 RESERVED_NAMES = set([
     '_baseframe',
     'admin',
@@ -50,6 +56,7 @@ RESERVED_NAMES = set([
     'proposals',
     'register',
     'reset',
+    'search',
     'smtp',
     'static',
     'ticket',
@@ -64,3 +71,8 @@ RESERVED_NAMES = set([
     'workshops',
     'www',
     ])
+
+
+class SearchQuery(Query, SearchQueryMixin):
+    """Adds Model.query.search"""
+    pass

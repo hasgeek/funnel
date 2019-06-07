@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, CoordinatesMixin, UrlType
-from .user import User
-from .project import Project
-from .commentvote import Commentset, Voteset, SET_TYPE
+from werkzeug.utils import cached_property
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
-from sqlalchemy.ext.hybrid import hybrid_property
-from werkzeug.utils import cached_property
+
 from ..util import geonameid_from_location
+from . import (TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn,
+    CoordinatesMixin, UrlType, TSVectorType, db)
+from .helper import SearchQuery
+from .user import User
+from .project import Project
+from .commentvote import Commentset, Voteset, SET_TYPE
+
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
@@ -52,6 +57,7 @@ class PROPOSAL_STATE(LabeledEnum):
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
+    query_class = SearchQuery
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -90,6 +96,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
+
+    search_vector = db.Column(TSVectorType(
+        'title', 'objective_text', 'description_text',
+        ))
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 

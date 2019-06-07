@@ -11,11 +11,12 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow
 
 from ..util import geonameid_from_location
-from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType, db
+from . import (BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType,
+    TSVectorType, db)
 from .user import Team, User
 from .profile import Profile
 from .commentvote import Commentset, SET_TYPE, Voteset
-from .helper import RESERVED_NAMES
+from .helper import RESERVED_NAMES, SearchQuery
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
@@ -48,6 +49,7 @@ class SCHEDULE_STATE(LabeledEnum):
 
 class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'project'
+    query_class = SearchQuery
     reserved_names = RESERVED_NAMES
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -129,6 +131,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or profile admins.
     featured = db.Column(db.Boolean, default=False, nullable=False)
+
+    search_vector = db.Column(TSVectorType(
+        'name', 'title', 'description_text', 'instructions_text', 'location',
+        weights={
+            'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
+            'location': 'C'
+            }
+        ))
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
