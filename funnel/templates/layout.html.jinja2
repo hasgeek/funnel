@@ -54,11 +54,7 @@
         </a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__home">
-        <img src="{{ url_for('static', filename='img/hg-logo-small.svg') }}" class="header__site-title__logo header__site-title__logo--small mui--hidden-xl"/>
-        <p class="zero-bottom-margin mui--text-menu mui--hidden-xl header__site-title__logotxt mui--text-dark">Home</p>
-        <img src="{{ url_for('static', filename='img/hg-logo.svg') }}" class="header__site-title__logo mui--hidden-xs mui--hidden-sm mui--hidden-md mui--hidden-lg"/>
-      </a>
+      <a href="/" class="header__site-title__item"><img src="/static/img/hg-logo.png" class="header__site-title__logo"></a>
     {%- endif %}
   {% endmacro %}
 

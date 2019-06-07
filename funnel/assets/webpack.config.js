@@ -43,6 +43,7 @@ module.exports = {
   devtool: 'source-map',
   entry: {
     "app": path.resolve(__dirname, "js/app.js"),
+    "home": path.resolve(__dirname, "js/home.js"),
     "project": path.resolve(__dirname, "js/project.js"),
     "proposals": path.resolve(__dirname, "js/proposals.js"),
     "proposal": path.resolve(__dirname, "js/proposal.js"),

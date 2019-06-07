@@ -42,8 +42,9 @@
     <div class="mui-container hg-banner">
       <div class="grid">
         <div class="grid__col-12">
-          <h1 class="mui--text-display2 mui--text-center">Find discussion spaces for geeks</h1>
-          <p class="mui--text-title mui--text-center mui--text-light">Meet like-minded people, learn new things and discover new opportunities</p>
+          <h1 class="mui--text-display2">Find discussion spaces for geeks</h1>
+          <p class="mui--text-title mui--text-light">Meet like-minded people, learn new things and discover new opportunities</p>
+          <div class="mui-divider mui-divider--banner"></div>
         </div>
       </div>
     </div>
@@ -67,12 +68,13 @@
 {%- endblock %}
 
 {% block basecontentbox %}
+  {% if upcoming_projects %}
   <div class="projects-wrapper">
     <div class="mui-container">
       <div class="grid">
         {% if upcoming_projects %}
-        <div class="grid__col-xs-12 grid__col-md-6 grid__col-lg-4">
-          <h3 class="mui--text-title mui--text-light">Featured project</h3>
+        <div class="grid__col-xs-12 grid__col-md-6">
+          <h3 class="mui--text-title mui--text-light">Spotlight</h3>
           {% with project = upcoming_projects[0] %}
           <div class="grid__cell">
             <div class="card clickable-card" data-href="{{ project.url_for() }}" title="{{ project.title }}">
@@ -88,14 +90,37 @@
                     <p class="card__image__tagline">{{ project.title }}</p>
                   </div>
                 {% endif %}
+                <div class="js-project-calendar card__calendar mui--clearfix mui--bg-accent" data-date="{{project.date}}" data-dateupto="{{project.date_upto}}">
+                  {% raw %} 
+                    <script class="calendar-template" type="text-template">
+                      <div class="month">
+                        <p class="mui--text-subhead mui--text-bold">{{month}}</p>
+                      </div>
+                      <div class="weeks">
+                        <div class="mui--clearfix">
+                          {{#weekdays}}
+                          <p class="week-name mui--text-subhead mui--text-light">{{ weekdayNarrow }}</p>
+                          {{/weekdays}}
+                        </div>
+                        {{#weekdays}}
+                        <div class="week mui--clearfix">
+                            {{#weekdayProject}}
+                              <p class="week__day {{^active}}mui--text-accent{{/active}} {{#active}}week__day--active mui--text-dark{{/active}}"><span class="week__day__txt">{{ date }}</span></p>
+                            {{/weekdayProject}}
+                        </div>
+                        {{/weekdays}}
+                      </div>
+                    </script>
+                   {% endraw %} 
+                </div>
               </div>
               <div class="card__title">
-                <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
-                <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
+                <h3 class="mui--text-display1 card__title__heading">{{ project.title }}</h3>
+                {% if project.primary_venue %}<p class="mui--text-body1 card__title__heading"><i class="material-icons mui--text-body1 mui--text-light mui--align-middle">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %} 
               </div>
               {% if project.tagline %}
                 <div class="card__body">
-                  <p class="mui--text-body2">{{ project.tagline }}</p>
+                  <p class="mui--text-title">{{ project.tagline }}</p>
                 </div>
               {% endif %}
               <noscript>
@@ -107,11 +132,11 @@
         </div>
         {% endif %}
         {% if upcoming_projects %}
-        <div class="grid__col-xs-12 grid__col-md-6 grid__col-lg-8">
+        <div class="grid__col-xs-12 grid__col-md-6">
           <h3 class="mui--text-title mui--text-light">Upcoming projects</h3>
-          <ul">
+          <ul class="mui-list--unstyled">
           {% for project in upcoming_projects %}
-            <li class="grid__cell card card--upcoming" title="{{ project.title }}">
+            <li class="card card--upcoming" title="{{ project.title }}">
               <div class="card__image-wrapper">
                 {% if project.bg_image.url %}
                   <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
@@ -126,10 +151,33 @@
                 {% endif %}
               </div>
               <div class="card__body">
-                <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
-                {% if project.datelocation %}<h4 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{ project.datelocation }}</h4>{% endif %}
-                <!-- {% if project.primary_venue %}<h5 class=" mui--text-title"><i class="material-icons mui--text-title mui--text-light mui--align-middle">place</i> {{ project.primary_venue.title }}, {{ project.primary_venue.city }}</h5>{% endif %} -->
-                <p class="mui--text-subhead mui--text-light zero-top-margin ">{{ project.tagline }}</p>
+                <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-subhead mui--text-dark">{{ project.title }}</a></h3>
+                {% if project.primary_venue %}<p class="mui--text-caption zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                <p class="mui--text-body2 mui--text-light zero-top-margin">{{ project.tagline }}</p>
+                <div class="mui-divider"></div>
+                <div class="js-project-calendar mui--clearfix" data-date="{{project.date}}" data-dateupto="{{project.date_upto}}">
+                  {% raw %} 
+                    <script class="calendar-template" type="text-template">
+                      <div class="month">
+                        <p class="mui--text-body1 mui--text-bold">{{month}}</p>
+                      </div>
+                      <div class="weeks">
+                        <div class="mui--clearfix">
+                          {{#weekdays}}
+                          <p class="week-name mui--text-body1 mui--text-light zero-bottom-margin">{{ weekdayNarrow }}</p>
+                          {{/weekdays}}
+                        </div>
+                        {{#weekdays}}
+                        <div class="week mui--clearfix">
+                            {{#weekdayProject}}
+                              <p class="week__day {{^active}}mui--text-accent{{/active}} {{#active}}week__day--active mui--text-dark{{/active}}"><span class="week__day__txt mui--text-body1">{{ date }}</span></p>
+                            {{/weekdayProject}}
+                        </div>
+                        {{/weekdays}}
+                      </div>
+                    </script>
+                   {% endraw %} 
+                </div>
               </div>
             </li>
           {%- endfor -%}
@@ -139,53 +187,48 @@
       </div>
     </div>
   </div>
+  {% endif %}
 
   {% if open_cfp_projects %}
     <div class="projects-wrapper mui--bg-accent">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline">These projects are currently accepting speaking proposals</h2>
+            <h2 class="mui--text-title mui--text-light">Call for proposals open now</h2>
           </div>
         </div>
         <ul class="grid projects">
           {% for project in open_cfp_projects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
-              <div class="grid__cell">
-                <div class="clickable-card card" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
-                  <div class="card__image-wrapper">
-                    {% if project.bg_image.url %}
-                      <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-                      <noscript>
-                        <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-                      </noscript>
-                    {% else %}
-                      <div class="card__image--default">
-                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
-                        <p class="card__image__tagline">{{ project.title }}</p>
-                      </div>
-                    {% endif %}
-                  </div>
-                  <div class="card__title">
-                    <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
-                    <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
-                  </div>
-                  {% if project.tagline %}
-                    <div class="card__body">
-                      <p class="mui--text-body2 zero-bottom-margin">{{ project.tagline }}</p>
+            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}">
+              <div class="card card--upcoming" data-href="{{ project.url_for('view_proposals') }}" title="{{ project.title }}">
+                <div class="card__image-wrapper card__image-wrapper--cfp">
+                  <div class="card__image-wrapper__overlay"></div>
+                  <p class="card__image-wrapper__text"><i class="material-icons mui--pull-left mui--text-display1">mic</i> <span class="mui--text-menu mui--pull-left">CFP <br>Now open</span></p>
+                  {% if project.bg_image.url %}
+                    <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
+                    <noscript>
+                      <a href="{{ project.url_for() }}"><img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
+                    </noscript>
+                  {% else %}
+                    <div class="card__image--default">
+                      <a href="{{ project.url_for() }}"><img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/></a>
+                      <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
                     </div>
                   {% endif %}
-                  <div class="card__footer">
-                    <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
-                  </div>
+                </div>
+                <div class="card__body card__body--cfp">
+                  <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
+                  {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
+                  <!-- Change to cfp tagline -->
+                  <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.instructions.html|firstline }}...</p>
                 </div>
               </div>
             </li>
           {%- endfor -%}
         </ul>
-        {% if open_cfp_project|length > 3 %}
+        {% if open_cfp_projects|length > 3 %}
           <div class="mui--text-center">
-            <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)">Show all</a>
+            <a href="javascript(0)" class="js-show-cfp-projects mui--text-uppercase" title="show all cfp projects" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)">Show more</a>
           </div>
         {% endif %}
       </div>
@@ -257,12 +300,13 @@
           </ul>
           {% if draft_projects|length > 3 %}
             <div class="mui--text-center">
-              <a href="javascript(0)" class="mui-btn mui-btn--primary js-show-cfp-projects" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)">Show all</a>
+              <a href="javascript(0)" class="js-show-cfp-projects mui--text-uppercase" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)">Show more</a>
             </div>
           {% endif %}
         {% endif %}
       </div>
     </div>
+    <div class="mui-divider"></div>
   {% endif %}
 
   {% if all_projects %}
@@ -386,6 +430,14 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('home')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var homepageConfig = {};
+      homepageConfig.calendarSelector = '.js-project-calendar';
+      HasGeek.HomeInit(homepageConfig);
+    });
+  </script>
   {% raw %}
   <div id="fb-root"></div>
   <script type="text/javascript">
