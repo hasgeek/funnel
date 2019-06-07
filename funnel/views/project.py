@@ -55,8 +55,6 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         if form.validate_on_submit():
             project = Project(user=current_auth.user, profile=self.obj)
             form.populate_obj(project)
-            # Set labels with default configuration
-            project.set_labels()
             db.session.add(project)
             db.session.commit()
             flash(_("Your new project has been created"), 'info')
