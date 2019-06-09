@@ -203,25 +203,27 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
         Only ``date`` format changes.
         """
-        datelocation_format = u"{date}–{date_upto} {year}"
-        if self.date == self.date_upto:
-            # if both dates are same, in case of single day project
-            strf_date = ""
-            datelocation_format = u"{date_upto} {year}"
-        elif self.date.month == self.date_upto.month:
-            # If multi-day event in same month
-            strf_date = "%d"
-        elif self.date.month != self.date_upto.month:
-            # If multi-day event across months
-            strf_date = "%d %b"
-        elif self.date.year != self.date_upto.year:
-            # if the start date and end dates are in different years,
-            strf_date = "%d %b %Y"
-        datelocation = datelocation_format.format(
-            date=self.date.strftime(strf_date),
-            date_upto=self.date_upto.strftime("%d %b"),
-            year=self.date.year)
-        return datelocation if not self.location else u', '.join([datelocation, self.location])
+        daterange = u""
+        if self.date and self.date_upto:
+            daterange_format = u"{date}–{date_upto} {year}"
+            if self.date == self.date_upto:
+                # if both dates are same, in case of single day project
+                strf_date = ""
+                daterange_format = u"{date_upto} {year}"
+            elif self.date.month == self.date_upto.month:
+                # If multi-day event in same month
+                strf_date = "%d"
+            elif self.date.month != self.date_upto.month:
+                # If multi-day event across months
+                strf_date = "%d %b"
+            elif self.date.year != self.date_upto.year:
+                # if the start date and end dates are in different years,
+                strf_date = "%d %b %Y"
+            daterange = daterange_format.format(
+                date=self.date.strftime(strf_date),
+                date_upto=self.date_upto.strftime("%d %b"),
+                year=self.date.year)
+        return u', '.join(filter(None, [daterange, self.location]))
 
     def __init__(self, **kwargs):
         super(Project, self).__init__(**kwargs)
