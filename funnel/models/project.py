@@ -166,7 +166,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @date.expression
     def date(cls):
         from .session import Session
-        test = db.select([Session.start]).where(Session.project_id == cls.id).where(Session.scheduled).order_by(Session.start.asc()).limit(1).label('date')
+        test = db.select([Session.start]) \
+            .where(Session.project_id == cls.id).where(Session.scheduled) \
+            .order_by(Session.start.asc()).limit(1).label('date')
         return test
 
     @hybrid_property
@@ -178,7 +180,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @date_upto.expression
     def date_upto(cls):
         from .session import Session
-        test = db.select([Session.start]).where(Session.project_id == cls.id).where(Session.scheduled).order_by(Session.start.desc()).limit(1).label('date_upto')
+        test = db.select([Session.end]) \
+            .where(Session.project_id == cls.id).where(Session.scheduled) \
+            .order_by(Session.start.desc()).limit(1).label('date_upto')
         return test
 
     @property

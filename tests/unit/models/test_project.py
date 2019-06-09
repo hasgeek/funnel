@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
 from coaster.utils import utcnow
-from funnel.models import Project
+from funnel.models import Project, Session
 
 
 class TestProject(object):
@@ -50,3 +51,36 @@ class TestProject(object):
         assert not new_project.cfp_state.DRAFT
         assert not new_project.state.DRAFT
         assert new_project not in new_profile.draft_projects
+
+    def test_project_dates(self, test_client, test_db, new_project):
+        # without any session the project will have no start and end dates
+        assert new_project.sessions.count() == 0
+        assert new_project.date is None
+        assert new_project.date_upto is None
+
+        # let's add some sessions
+        start_time_a = utcnow()
+        end_time_a = start_time_a + timedelta(hours=3)
+        new_session_a = Session(
+            name=u"test-session-a", title=u"Test Session A",
+            project=new_project, description=u"Test description",
+            speaker_bio=u"Test speaker bio", is_break=False, featured=False,
+            start=start_time_a, end=end_time_a
+            )
+        start_time_b = start_time_a + timedelta(days=2)
+        end_time_b = end_time_a + timedelta(days=2)
+        new_session_b = Session(
+            name=u"test-session-b", title=u"Test Session B",
+            project=new_project, description=u"Test description",
+            speaker_bio=u"Test speaker bio", is_break=False, featured=False,
+            start=start_time_b, end=end_time_b
+            )
+        test_db.session.add(new_session_a)
+        test_db.session.add(new_session_b)
+        test_db.session.commit()
+
+        # now project.date will be the first session's start date
+        # and project.date_upto will be the last session's end date
+        assert new_project.sessions.count() == 2
+        assert new_project.date == new_session_a.start.date()
+        assert new_project.date_upto == new_session_b.end.date()
