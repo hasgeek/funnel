@@ -4,7 +4,7 @@ from baseframe import _, forms
 from coaster.utils import require_one_of
 from werkzeug.datastructures import MultiDict
 from ..models import (Draft, Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
-    Venue, VenueRoom, Section, db)
+    Venue, VenueRoom, db)
 
 
 class ProjectViewMixin(object):
@@ -112,19 +112,6 @@ class VenueRoomViewMixin(object):
             ).first_or_404()
         g.profile = room.venue.project.profile
         return room
-
-
-class SectionViewMixin(object):
-    model = Section
-    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
-
-    def loader(self, profile, project, section):
-        section = self.model.query.join(Project).join(Profile).filter(
-            Project.name == project, Profile.name == profile,
-            Section.name == section
-            ).first_or_404()
-        g.profile = section.project.profile
-        return section
 
 
 class DraftViewMixin(object):

@@ -20,6 +20,11 @@
   display: block;
 }
 
+.svg-icon {
+  position: relative;
+  top: 2px;
+}
+
 .no-js .js-lazyload-img {
   display: none;
 }
@@ -224,4 +229,10 @@ html.touch .collapsible__body--disable {
 
 .mui-btn--nopadding:hover {
   background: transparent !important;
+}
+
+//Talkfunnel
+.funnel-notice .alert__text{
+  font-size: 24px;
+  line-height: 32px;
 }

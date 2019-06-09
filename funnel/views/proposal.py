@@ -29,7 +29,6 @@ proposal_headers = [
     'slides',
     'preview_video',
     'phone',
-    'section',
     'type',
     'level',
     'votes',
@@ -55,13 +54,16 @@ def proposal_data(proposal):
             ('fullname', proposal.owner.fullname),
             ('proposer', proposal.user.pickername),
             ('speaker', proposal.speaker.pickername if proposal.speaker else None),
-            ('section', proposal.section.title if proposal.section else None),
-            ('type', proposal.session_type),
-            ('level', proposal.technical_level),
-            ('objective', proposal.objective.html),
-            ('description', proposal.description.html),
-            ('requirements', proposal.requirements.html),
-            ('slides', proposal.slides.url if proposal.slides is not None else ''),
+            ('objective', proposal.abstract.html),  # TODO: Remove this, name has changed
+            ('description', proposal.outline.html),  # TODO: Remove this, name has changed
+            ('requirements', proposal.requirements.html),  # TODO: Remove this, name has changed
+            ('abstract_text', proposal.abstract.text),
+            ('abstract_html', proposal.abstract.html),
+            ('outline_text', proposal.outline.text),
+            ('outline_html', proposal.outline.html),
+            ('requirements_text', proposal.requirements.text),
+            ('requirements_html', proposal.requirements.html),
+            ('slides', proposal.slides.url),
             ('links', proposal.links),
             ('preview_video', proposal.preview_video.url if proposal.preview_video is not None else ''),
             ('bio', proposal.bio.html),
@@ -165,8 +167,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return dict(project=self.obj.project, proposal=self.obj,
             comments=comments, commentform=commentform, delcommentform=delcommentform,
             links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
-            part_a=self.obj.project.proposal_part_a.get('title', 'Objective'),
-            part_b=self.obj.project.proposal_part_b.get('title', 'Description'), csrf_form=Form(),
+            csrf_form=Form(),
             proposal_label_admin_form=proposal_label_admin_form)
 
     @route('json')

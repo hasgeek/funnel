@@ -89,10 +89,10 @@ class ProposalForm(forms.Form):
                  (0, __(u"I’m proposing a topic for someone to speak on"))])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()],
         description=__("The title of your session"))
-    objective = forms.MarkdownField(__("Objective"), validators=[forms.validators.DataRequired()],
-        description=__("What is the expected benefit for someone attending this?"))
-    description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
-        description=__("A detailed description of the session"))
+    abstract = forms.MarkdownField(__("Abstract"), validators=[forms.validators.DataRequired()],
+        description=__("A brief description of your session with target audience and key takeaways"))
+    outline = forms.MarkdownField(__("Outline"), validators=[forms.validators.DataRequired()],
+        description=__("A detailed description of the session with the sequence of ideas to be presented"))
     requirements = forms.MarkdownField(__("Requirements"),
         description=__("For workshops, what must participants bring to the session?"))
     slides = forms.URLField(__("Slides"),
@@ -119,18 +119,6 @@ class ProposalForm(forms.Form):
         description=__("Your location, to help plan for your travel if required"))
 
     formlabels = forms.FormField(forms.Form, __("Labels"))
-
-    def __init__(self, *args, **kwargs):
-        super(ProposalForm, self).__init__(*args, **kwargs)
-        project = kwargs.get('parent')
-        if project.proposal_part_a.get('title'):
-            self.objective.label.text = project.proposal_part_a.get('title')
-        if project.proposal_part_a.get('hint'):
-            self.objective.description = project.proposal_part_a.get('hint')
-        if project.proposal_part_b.get('title'):
-            self.description.label.text = project.proposal_part_b.get('title')
-        if project.proposal_part_b.get('hint'):
-            self.description.description = project.proposal_part_b.get('hint')
 
     def set_queries(self):
         self.formlabels.form = proposal_label_form(project=self.edit_parent, proposal=self.edit_obj)
