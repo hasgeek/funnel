@@ -104,6 +104,7 @@
           {% endif %}
         </div>
         <div class="proposal-details proposal-details--right">
+          <p>
           {%- for label in proposal.labels %}
             {% if not label.restricted %}
               <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
@@ -115,6 +116,10 @@
                 <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
               {%- endif %}
             {%- endfor %}
+          {% endif %}
+          </p>
+          {% if proposal.state.SCHEDULED %} 
+            <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">View proposal in schedule</a></p> 
           {% endif %}
         </div>
       </div>

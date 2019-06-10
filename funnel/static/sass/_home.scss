@@ -12,3 +12,18 @@
 	font-weight: bold;
 	text-transform: uppercase;
 }
+
+@media(min-width: 1200px) {
+  .spotlight {
+    position: relative;
+  }
+
+  .spotlight:after {
+    content: '';
+    border-left: 1px solid rgba(132,146,166,0.3);
+    height: 100px;
+    position: absolute;
+    right: 50px;
+    top: 35%;
+  } 
+}

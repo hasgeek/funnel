@@ -506,6 +506,20 @@ html.touch .collapsible__body--disable {
   text-transform: uppercase;
 }
 
+@media (min-width: 1200px) {
+  .spotlight {
+    position: relative;
+  }
+
+  .spotlight:after {
+    content: '';
+    border-left: 1px solid rgba(132, 146, 166, 0.3);
+    height: 100px;
+    position: absolute;
+    right: 50px;
+    top: 35%;
+  }
+}
 .cfp-action-btn {
   padding: 10px 0;
   cursor: pointer;
@@ -723,6 +737,7 @@ html.touch .collapsible__body--disable {
 }
 .card--upcoming {
   display: flex;
+  flex-wrap: wrap;
   box-shadow: none;
   margin-bottom: 30px;
   background: transparent;
@@ -733,25 +748,16 @@ html.touch .collapsible__body--disable {
 }
 .card--upcoming .card__image-wrapper,
 .card--upcoming .card__image--default {
+  flex: 0 0 100%;
   min-height: auto;
   border-radius: 2px;
   position: relative;
+  cursor: pointer;
 }
 .card--upcoming .card__image-wrapper a,
 .card--upcoming .card__image--default a {
   display: block;
-  width: 150px;
-  height: 150px;
-}
-.card--upcoming .card__image-wrapper img,
-.card--upcoming .card__image--default img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.card--upcoming .card__image-wrapper--cfp a {
-  width: 100px;
-  height: 100px;
 }
 .card--upcoming .card__image-wrapper--cfp .card__image-wrapper__overlay {
   position: absolute;
@@ -769,18 +775,47 @@ html.touch .collapsible__body--disable {
   bottom: 0;
 }
 .card--upcoming .card__body {
-  padding: 0 0 0 2em;
+  flex: 0 0 100%;
+  padding: 0;
   width: 100%;
   word-break: break-all;
 }
-.card--upcoming .card__body--cfp {
-  padding: 0 0 0 1em;
+.card--upcoming .card__calendar {
+  padding: 1em 0;
+  border-top: 1px solid rgba(132, 146, 166, 0.3);
 }
 
+@media (min-width: 768px) {
+  .card--upcoming .card__image-wrapper,
+  .card--upcoming .card__image--default {
+    flex: 0 0 150px;
+  }
+  .card--upcoming .card__image-wrapper a,
+  .card--upcoming .card__image--default a {
+    display: block;
+    width: 150px;
+    height: 150px;
+  }
+  .card--upcoming .card__image-wrapper img,
+  .card--upcoming .card__image--default img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card--upcoming .card__body {
+    flex: 0 0 calc(100% - 150px);
+    padding: 0 0 0 1em;
+  }
+}
 @media (min-width: 1200px) {
-  .card--upcoming .card__image-wrapper--cfp a {
-    width: 120px;
-    height: 120px;
+  .card--upcoming .card__body {
+    padding: 0 0 0 2em;
+  }
+  .card--upcoming .card__body--cfp {
+    padding: 0 0 0 1em;
+  }
+  .card--upcoming .card__image-wrapper--cfp {
+    height: 150px;
   }
 }
 .card__image--new {

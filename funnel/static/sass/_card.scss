@@ -51,6 +51,7 @@
 
 .card--upcoming {
   display: flex;
+  flex-wrap: wrap;
   box-shadow: none;
   margin-bottom: 30px;
   background: transparent;
@@ -62,26 +63,18 @@
 
   .card__image-wrapper,
   .card__image--default {
+    flex: 0 0 100%;
     min-height: auto;
     border-radius: 2px;
     position: relative;
+    cursor: pointer;
     a {
       display: block;
-      width: 150px;
-      height: 150px;
-    }
-    img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
   }
 
   .card__image-wrapper--cfp {
-    a {
-      width: 100px;
-      height: 100px;
-    }
     .card__image-wrapper__overlay {
       position: absolute;
       top: 0;
@@ -100,23 +93,51 @@
   }
 
   .card__body {
-    padding: 0 0 0 2em;
+    flex: 0 0 100%;
+    padding: 0;
     width: 100%;
     word-break: break-all;
   }
 
-  .card__body--cfp {
-    padding: 0 0 0 1em;
+  .card__calendar {
+    padding: 1em 0;
+    border-top: 1px solid rgba(132,146,166,0.3);
+  }
+}
+
+@media (min-width: 768px) {
+  .card--upcoming {
+    .card__image-wrapper,
+    .card__image--default {
+      flex: 0 0 150px;
+      a {
+        display: block;
+        width: 150px;
+        height: 150px;
+      }
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    .card__body {
+      flex: 0 0 calc(100% - 150px);
+      padding: 0 0 0 1em;
+    }
   }
 }
 
 @media (min-width: 1200px) {
   .card--upcoming {
+    .card__body {
+      padding: 0 0 0 2em;
+    }
+    .card__body--cfp {
+      padding: 0 0 0 1em;
+    }
     .card__image-wrapper--cfp {
-      a {
-        width: 120px;
-        height: 120px;
-      }
+      height: 150px;
     }
   }
 }
