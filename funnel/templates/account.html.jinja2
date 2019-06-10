@@ -11,12 +11,12 @@
         <h3 class="mui--text-title mui--text-bold">{{ current_auth.user.fullname }}</h3>
       </div>
       <div class="card__body card__body--lgtext mui--text-subhead">
-        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ current_auth.user.email }}</p>
-        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ current_auth.user.phone }}</p>
+        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">email</i> {{ current_auth.user.email }}</p>
+        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">call</i> {{ current_auth.user.phone }}</p>
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ current_auth.user.profile_url }}" title="Edit">{% trans %}Edit this{% endtrans %}</a>
+        <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ current_auth.user.profile_url }}" title="Edit">{% trans %}Edit{% endtrans %}</a>
         <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout">{% trans %}Logout{% endtrans %}</a>
       </div>
     </div>
@@ -35,15 +35,15 @@
           <h3 class="mui--text-title mui--text-bold">{{ contact.participant.fullname }}</h3>
         </div>
         <div class="card__body card__body--lgtext mui--text-subhead">
-          <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.participant.email }}</p>
+          <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">email</i> {{ contact.participant.email }}</p>
           {% if contact.participant.phone %}
-            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.participant.phone }}</p>
+            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">call</i> {{ contact.participant.phone }}</p>
           {% endif %}
           {% if contact.participant.twitter %}
             <p><img src="{{ url_for('static', filename='img/twitter.svg') }}" title="twitter-username" class="svg-icon"/> {{ contact.participant.twitter }}</p>
           {% endif %}
           {% if contact.participant.company %}
-            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.participant.company }}</p>
+            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">work</i> {{ contact.participant.company }}</p>
           {% endif %}
         </div>
       </div>

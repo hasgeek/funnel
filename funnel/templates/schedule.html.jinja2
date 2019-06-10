@@ -25,20 +25,20 @@
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url.url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.allow_rsvp %}
       <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- endif %}
     <li class="cta">
       <hr class="mui-divider">
-      <a href="{{ project.url_for('subscribe_schedule') }}" class="mui-btn mui-btn--flat mui--text-left" rel="modal:open" title="Add to calendar" data-action="Add to calendar(header)"><i class="material-icons mui--text-subhead mui--align-middle">calendar_today</i>{% trans %}Add to calendar{% endtrans %}</a>
+      <a href="{{ project.url_for('subscribe_schedule') }}" class="mui-btn mui-btn--flat mui--text-left" rel="modal:open" title="Add to calendar" data-action="Add to calendar(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">calendar_today</i>{% trans %}Add to calendar{% endtrans %}</a>
     </li>
     <div id="popup_subscribe" class="modal">
     </div>
@@ -69,7 +69,7 @@
                   <h2 class="mui--text-heading schedule__date">{{dateStr}}</h2>
                   <div class="mui--bg-accent">
                     <div class="schedule__row schedule__row--sticky">
-                        <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" style="min-width:{{timeSlotWidth}}px"><i class="material-icons mui--text-headline" style="position: relative;">schedule</i>
+                        <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" style="min-width:{{timeSlotWidth}}px"><i class="material-icons mui--text-headline" style="position: relative;" aria-hidden="true">schedule</i>
                         </p>
                       {{#rooms:room, roomindex}}
                         <div class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)"><p>{{title}}<br><small>{{venue_title}}</small></p></div>

@@ -37,14 +37,14 @@
       {%- if g.profile -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
           <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
-        </a><i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+        </a><i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
         <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
         {%- if project %}
           {%- if project.parent_project %}
-            <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+            <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
             <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title() }}">{{ project.parent_project.short_title() }}</a>
           {%- endif %}
-          <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
+          <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
           <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title() }}">{{ project.short_title() }}</a>
         {%- endif %}
       {%- else -%}
@@ -63,7 +63,7 @@
   {%- else %}
     {% with site_links=[] %}
       {% macro site_links(title, icon) %}
-        <i class="material-icons mui--text-title mui--align-middle header__nav-list__item__icon">{{ icon }}</i><p class="zero-bottom-margin header__nav-list__item__text mui--text-dark">{{ title }}</p>
+        <i class="material-icons mui--text-title mui--align-middle header__nav-list__item__icon" aria-hidden="true">{{ icon }}</i><p class="zero-bottom-margin header__nav-list__item__text mui--text-dark">{{ title }}</p>
       {% endmacro %}
       {% if not current_auth.is_anonymous -%}
         {% set site_links = [{'title': site_links('Feed', 'rss_feed'), 'url': url_for("feed")}, {'title':  site_links('Task', 'assignment_turned_in'), 'url': url_for("task")}, {'title': site_links('Account', 'account_circle'), 'url': url_for("account")}] %}
