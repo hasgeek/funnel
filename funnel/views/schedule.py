@@ -183,6 +183,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('edit')
     @render_with('schedule_edit.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('edit-schedule')
     def edit_schedule(self):
         proposals = {
             'unscheduled': [{
