@@ -21,9 +21,12 @@ def index():
     all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
     upcoming_projects = all_projects[:3]
     all_projects = all_projects[3:]
+    spotlight_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
+        .order_by(Project.date.asc()).limit(1).first()  # NOQA
     open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
     return {'projects': projects.all(), 'past_projects': past_projects, 'all_projects': all_projects,
-        'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects}
+        'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
+        'spotlight_project': spotlight_project}
 
 
 @funnelapp.route('/', endpoint='index')
