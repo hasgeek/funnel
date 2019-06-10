@@ -12,6 +12,22 @@ down_revision = '752dee4ae101'
 
 from alembic import op
 import sqlalchemy as sa  # NOQA
+from sqlalchemy.sql import table, column
+
+
+project = table('project',
+    column('id', sa.Integer()),
+    column('date', sa.Date()),
+    column('date_upto', sa.Date()),
+    )
+
+
+session = table('session',
+    column('id', sa.Integer()),
+    column('project_id', sa.Integer()),
+    column('start', sa.TIMESTAMP(timezone=True)),
+    column('end', sa.TIMESTAMP(timezone=True))
+    )
 
 
 def upgrade():
@@ -20,5 +36,16 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column('project', sa.Column('date_upto', sa.DATE(), autoincrement=False, nullable=True))
-    op.add_column('project', sa.Column('date', sa.DATE(), autoincrement=False, nullable=True))
+    conn = op.get_bind()
+
+    op.add_column('project', sa.Column('date', sa.Date(), nullable=True))
+    op.add_column('project', sa.Column('date_upto', sa.Date(), nullable=True))
+
+    projects = conn.execute(sa.select([project.c.id]))
+    for project_id in projects:
+        first_session = conn.execute(sa.select([session.c.start]).where(session.c.project_id == project_id[0]).where(session.c.start.isnot(None)).order_by(session.c.start.asc())).fetchone()
+        if first_session is not None:
+            conn.execute(sa.update(project).where(project.c.id == project_id[0]).values(date=first_session[0].date()))
+        last_session = conn.execute(sa.select([session.c.end]).where(session.c.project_id == project_id[0]).where(session.c.end.isnot(None)).order_by(session.c.end.desc())).fetchone()
+        if last_session is not None:
+            conn.execute(sa.update(project).where(project.c.id == project_id[0]).values(date_upto=last_session[0].date()))
