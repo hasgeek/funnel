@@ -66,7 +66,7 @@
         <i class="material-icons mui--text-title mui--align-middle header__nav-list__item__icon" aria-hidden="true">{{ icon }}</i><p class="zero-bottom-margin header__nav-list__item__text mui--text-dark">{{ title }}</p>
       {% endmacro %}
       {% if not current_auth.is_anonymous -%}
-        {% set site_links = [{'title': site_links('Feed', 'rss_feed'), 'url': url_for("feed")}, {'title':  site_links('Task', 'assignment_turned_in'), 'url': url_for("task")}, {'title': site_links('Account', 'account_circle'), 'url': url_for("account")}] %}
+        {% set site_links = [{'title': site_links('Account', 'account_circle'), 'url': url_for("account")}] %}
       {%- else %}
         {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
       {%- endif %}

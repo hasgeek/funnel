@@ -17,7 +17,6 @@ from .profile import *
 from .project import *
 from .proposal import *
 from .rsvp import *
-from .section import *
 from .session import *
 from .user import *
 from .venue import *

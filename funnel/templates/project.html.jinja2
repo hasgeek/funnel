@@ -44,6 +44,14 @@
   </script>
 {% endblock %}
 
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
 {%- macro page_btns(project) %}
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}

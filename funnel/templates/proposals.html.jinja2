@@ -9,6 +9,14 @@
   {%- endassets -%}
 {% endblock %}
 
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
 {%- macro proposal_list(project, proposals) %}
   <table id="proposals-table" class="proposal-list-table mui-table">
     <tbody>
@@ -35,10 +43,7 @@
             <ul class="mui-list--inline mui--text-body2 list-item-rgborder zero-bottom-margin">
               {%- if proposal.project != project %}
                 <li>{{ proposal.project.short_title() }}</li>
-              {% elif proposal.section.title %}
-                <li>{{ proposal.section.title }}</li>
               {% endif %}
-              <li>{{ proposal.technical_level }}</li>
               <li>{{ proposal.voteset.count }} upvotes</li>
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>

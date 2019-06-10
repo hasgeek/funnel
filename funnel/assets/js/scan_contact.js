@@ -2,7 +2,7 @@ import Ractive from "ractive";
 import jsQR from "jsqr";
 
 const badgeScan = {
-  init({participantApiUrl, wrapperId, templateId}) {
+  init({getContactApiUrl, wrapperId, templateId}) {
     
     let badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
@@ -10,8 +10,8 @@ const badgeScan = {
       data: {
         video: {},
         error: 'Unable to access video. Please make sure you have a camera enabled',
-        attendeeName: '',
-        attendeeFound: false,
+        contact: '',
+        contactFound: false,
         scanning: true,
         showModal: false,
         errorMsg: '',
@@ -22,7 +22,7 @@ const badgeScan = {
         $.modal.close();
         this.set('showModal', false);
       },
-      checkinAttendee(qrcode) {
+      getContact(qrcode) {
         this.set({
           'scanning': true,
           'showModal': true
@@ -36,7 +36,7 @@ const badgeScan = {
 
         $.ajax({
           type: 'POST',
-          url:  participantApiUrl,
+          url:  getContactApiUrl,
           data : formValues,
           timeout: 5000,
           dataType: 'json',
@@ -44,10 +44,10 @@ const badgeScan = {
             console.log('response', response);
             badgeScanComponent.set({
               'scanning': false,
-              'attendeeFound': true,
-              'participant': response.participant,
+              'contactFound': true,
+              'contact': response.contact,
             });
-            badgeScanComponent.push('contacts', response.participant);
+            badgeScanComponent.push('contacts', response.contact);
           },
           error(response) {
             let errorMsg;
@@ -62,7 +62,7 @@ const badgeScan = {
             }
             badgeScanComponent.set({
               'scanning': false,
-              'attendeeFound': false,
+              'contactFound': false,
               'errorMsg': errorMsg
             });
           }
@@ -80,7 +80,7 @@ const badgeScan = {
           let qrcode = jsQR(imageData.data, imageData.width, imageData.height);
 
           if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
-            this.checkinAttendee(qrcode.data);
+            this.getContact(qrcode.data);
           }
         }
         window.requestAnimationFrame(badgeScanComponent.renderFrame);
@@ -109,7 +109,7 @@ const badgeScan = {
 };
 
 $(() => {
-  window.HasGeek.BadgeScanInit = function (eventConfig) {
-    badgeScan.init(eventConfig);
+  window.HasGeek.BadgeScanInit = function (scanConfig) {
+    badgeScan.init(scanConfig);
   }
 });

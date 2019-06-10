@@ -1,14 +1,14 @@
 """Contact exchange model change
 
 Revision ID: c38fa391613f
-Revises: 252f9a705901
+Revises: 4b7fe9b25c6c
 Create Date: 2019-05-20 14:41:42.347664
 
 """
 
 # revision identifiers, used by Alembic.
 revision = 'c38fa391613f'
-down_revision = '252f9a705901'
+down_revision = '4b7fe9b25c6c'
 
 from alembic import op
 import sqlalchemy as sa  # NOQA

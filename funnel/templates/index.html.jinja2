@@ -224,8 +224,7 @@
                 <div class="card__body card__body--cfp">
                   <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
                   {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
-                  <!-- Change to cfp tagline -->
-                  <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.instructions.html|firstline }}...</p>
+                  <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
                 </div>
               </div>
             </li>

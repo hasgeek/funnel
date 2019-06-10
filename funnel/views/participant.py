@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, url_for, jsonify, make_response, current_app
-from datetime import timedelta
+from flask import flash, redirect, render_template, request, url_for, jsonify, make_response
 from sqlalchemy.exc import IntegrityError
 from baseframe import _
 from baseframe import forms
 from baseframe.forms import render_form
-from coaster.auth import current_auth
-from coaster.views import load_models, requestargs, route, requires_permission, UrlForView, ModelView
-from coaster.utils import midnight_to_utc, getbool, utcnow
+from coaster.views import load_models, route, requires_permission, UrlForView, ModelView
+from coaster.utils import getbool
 from .. import app, funnelapp, lastuser
-from ..models import (db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, ContactExchange, SyncTicket)
+from ..models import db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, SyncTicket
 from ..forms import ParticipantForm
 from ..views.helpers import mask_email
 from funnel.util import split_name, format_twitter_handle, make_qrcode
@@ -126,37 +124,6 @@ def participant_edit(profile, project, participant):
         flash(_(u"Your changes have been saved"), 'info')
         return redirect(project.url_for('admin'), code=303)
     return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
-
-
-@app.route('/participant', methods=['GET', 'POST'])
-@funnelapp.route('/participant', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@requestargs('puk', 'key')
-def participant(puk, key):
-    """
-    Endpoint for contact exchange.
-
-    TODO: The GET method to this endpoint is deprecated and will be removed by 1st September, 2018
-    """
-    participant = Participant.query.filter_by(puk=puk, key=key).first()
-    if not participant:
-        return make_response(jsonify(status='error', message=u"Participant not found"), 404) 
-    project = participant.project
-    print project
-    if project.date_upto:
-        if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
-            return make_response(jsonify(status='error', message=u"This event has concluded"), 401)
-
-        try:
-            contact_exchange = ContactExchange(user=current_auth.actor, participant=participant)
-            db.session.add(contact_exchange)
-            db.session.commit()
-        except IntegrityError:
-            current_app.logger.warning(u"Contact Exchange already present")
-            db.session.rollback()
-        return jsonify(participant=participant_data(participant, project.id, full=True))
-    else:
-        return make_response(jsonify(status='error', message=u"Unauthorized contact exchange"), 401)
 
 
 @app.route('/<profile>/<project>/participant/<participant_id>/badge')

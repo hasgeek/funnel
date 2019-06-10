@@ -224,14 +224,13 @@ html.touch .collapsible__body--disable {
   background: transparent !important;
 }
 
+.funnel-notice .alert__text {
+  font-size: 24px;
+  line-height: 32px;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
-}
-.hg-app .header__nav-list {
-  justify-content: space-between;
-}
-.hg-app .header__right-nav--larger .header__nav-list {
-  justify-content: flex-end;
 }
 .hg-app .header__site-title {
   width: calc(30% - 15px);
@@ -266,6 +265,13 @@ html.touch .collapsible__body--disable {
     display: inline-block;
     margin-left: 8px;
   }
+
+  .no-sticky-header .header--fixed {
+    position: relative;
+  }
+  .no-sticky-header .content-wrapper {
+    padding-top: 0;
+  }
 }
 .header__site-title__item {
   font-size: 18px;
@@ -281,7 +287,7 @@ html.touch .collapsible__body--disable {
 
 @media (min-width: 1200px) {
   .header__nav-list {
-    max-width: 300px;
+    max-width: 50%;
   }
 }
 .header__site-title__home {
@@ -428,6 +434,7 @@ html.touch .collapsible__body--disable {
   .banner__headline {
     font-size: 32px;
     line-height: 40px;
+    left: -40px;
   }
 }
 .banner__headline-txt {
@@ -900,6 +907,31 @@ html.touch .collapsible__body--disable {
   z-index: 2;
 }
 
+.contact-card {
+  position: relative;
+}
+.contact-card .contact-card__details {
+  width: 100%;
+}
+.contact-card .contact-card__details .contact-card__details__download-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+@media (min-width: 1200px) {
+  .contact-card {
+    position: relative;
+  }
+  .contact-card .contact-card__details {
+    width: calc(100% - 80px);
+  }
+  .contact-card .contact-card__details .contact-card__details__download-btn {
+    position: relative;
+    top: 0;
+    right: 0;
+  }
+}
 .profile-details {
   display: flex;
   align-items: center;

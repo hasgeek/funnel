@@ -50,8 +50,6 @@ RESERVED_NAMES = set([
     'proposals',
     'register',
     'reset',
-    'section',
-    'sections',
     'smtp',
     'static',
     'ticket',

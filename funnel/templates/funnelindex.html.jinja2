@@ -22,7 +22,7 @@
         <source srcset="{{ url_for('static', filename='img/banner-desktop.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
         <img src="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
       </picture>
-      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
+      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Talkfunnel</span> hosts <br class="mui--visible-lg-block mui--visible-xl-block">proposal submissions <br class="block mui--visible-lg-block mui--visible-xl-block">and reviews for events</h1>
     </div>
   {% endif %}
 {% endblock %}
@@ -50,6 +50,11 @@
 
 {% block basecontent %}
   <div class="page-content {%- if not g.profile %} page-content--top-padding{% endif %}">
+    {%- if config['LEGACY'] and not g.profile %}
+      <div class="alert alert--warning funnel-notice">
+        <p class="alert__text"><i class="material-icons alert__icon mui--text-body1">warning</i> {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use <a href="https://hasgeek.com" class="banner__headline-txt">HasGeek</a>.{% endtrans %}</p>
+      </div>
+    {%- endif -%}
     {%- if not g.profile %}
       <div class="grid">
         <div class="grid__col-sm-12">
