@@ -181,7 +181,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         from .session import Session
         return db.select([Session.end]) \
             .where(Session.project_id == cls.id).where(Session.scheduled) \
-            .order_by(Session.start.desc()).limit(1).label('date_upto')
+            .order_by(Session.end.desc()).limit(1).label('date_upto')
 
     @property
     def datelocation(self):
