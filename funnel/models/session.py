@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.hybrid import hybrid_property
-from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType
+from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType, TSVectorType
+from .helper import SearchQuery
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
@@ -12,6 +13,7 @@ __all__ = ['Session']
 
 class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'session'
+    query_class = SearchQuery
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = db.relationship(Project,
@@ -30,6 +32,15 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     is_break = db.Column(db.Boolean, default=False, nullable=False)
     featured = db.Column(db.Boolean, default=False, nullable=False)
     banner_image_url = db.Column(UrlType, nullable=True)
+
+    search_vector = db.Column(
+        TSVectorType(
+            'title', 'description_text', 'speaker_bio_text', 'speaker',
+            weights={
+                'title': 'A', 'description_text': 'B', 'speaker_bio_text': 'B', 'speaker': 'A'
+                }
+            ),
+        nullable=False)
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),

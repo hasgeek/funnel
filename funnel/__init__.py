@@ -159,3 +159,5 @@ funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
     view_func=funnelapp.send_static_file, subdomain=None)
 funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
     view_func=funnelapp.send_static_file, subdomain='<subdomain>')
+
+db.configure_mappers()

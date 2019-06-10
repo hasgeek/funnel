@@ -4,7 +4,8 @@ from sqlalchemy.sql import case, exists
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from . import db, BaseScopedNameMixin
+from . import db, BaseScopedNameMixin, TSVectorType
+from .helper import SearchQuery
 from .project import Project
 from .proposal import Proposal
 
@@ -19,6 +20,7 @@ proposal_label = db.Table(
 
 class Label(BaseScopedNameMixin, db.Model):
     __tablename__ = 'label'
+    query_class = SearchQuery
 
     project_id = db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
     project = db.relationship(Project)  # Backref is defined in the Project model with an ordering list
@@ -69,6 +71,13 @@ class Label(BaseScopedNameMixin, db.Model):
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
     _archived = db.Column('archived', db.Boolean, nullable=False, default=False)
+
+    search_vector = db.Column(
+        TSVectorType(
+            'name', 'title', 'description',
+            weights={'name': 'A', 'title': 'A', 'description': 'B'}
+            ),
+        nullable=False)
 
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')

@@ -97,9 +97,22 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    search_vector = db.Column(TSVectorType(
-        'title', 'objective_text', 'description_text',
-        ))
+    search_vector = db.Column(
+        TSVectorType(
+            'title', 'abstract_text', 'outline_text', 'requirements_text', 'slides',
+            'preview_video', 'links', 'bio',
+            weights={
+                'title': 'A',
+                'abstract_text': 'B',
+                'outline_text': 'B',
+                'requirements_text': 'B',
+                'slides': 'B',
+                'preview_video': 'C',
+                'links': 'B',
+                'bio': 'B',
+                }
+            ),
+        nullable=False)
 
     __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
 

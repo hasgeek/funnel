@@ -22,10 +22,12 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
-    search_vector = db.Column(TSVectorType(
-        'name', 'title', 'description',
-        weights={'name': 'A', 'title': 'A', 'description': 'B'}
-        ))
+    search_vector = db.Column(
+        TSVectorType(
+            'name', 'title', 'description',
+            weights={'name': 'A', 'title': 'A', 'description': 'B'}
+            ),
+        nullable=False)
 
     teams = db.relationship(
         Team, primaryjoin='Profile.uuid == foreign(Team.org_uuid)',

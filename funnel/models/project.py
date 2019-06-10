@@ -132,13 +132,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     #: project editors or profile admins.
     featured = db.Column(db.Boolean, default=False, nullable=False)
 
-    search_vector = db.Column(TSVectorType(
-        'name', 'title', 'description_text', 'instructions_text', 'location',
-        weights={
-            'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
-            'location': 'C'
-            }
-        ))
+    search_vector = db.Column(
+        TSVectorType(
+            'name', 'title', 'description_text', 'instructions_text', 'location',
+            weights={
+                'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
+                'location': 'C'
+                }
+            ),
+        nullable=False)
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))

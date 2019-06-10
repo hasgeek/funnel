@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from . import db, BaseMixin, MarkdownColumn, UuidMixin
+from . import db, BaseMixin, MarkdownColumn, UuidMixin, TSVectorType
+from .helper import SearchQuery
 from .user import User
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import cached, StateManager
@@ -85,6 +86,8 @@ class Commentset(BaseMixin, db.Model):
 
 class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
+    query_class = SearchQuery
+
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('comments', lazy='dynamic', cascade="all, delete-orphan"))
@@ -105,6 +108,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     voteset = db.relationship(Voteset, uselist=False)
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+
+    search_vector = db.Column(TSVectorType('message_text', weights={'message_text': 'A'}), nullable=False)
 
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
