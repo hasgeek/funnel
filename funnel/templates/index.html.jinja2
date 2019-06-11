@@ -102,7 +102,7 @@
                     </div>
                     <div class="week mui--clearfix">
                       {% for date in featured_project.calendar.weeks[0].dates %}
-                        <p class="week__day {% if featured_project.calendar.weeks[0].dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt mui--text-title">{{ date }}</span></p>
+                        <p class="week__day {% if featured_project.calendar.weeks[0].dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt">{{ date }}</span></p>
                       {% endfor %}
                     </div>
                   </div>

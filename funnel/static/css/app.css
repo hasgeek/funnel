@@ -873,8 +873,8 @@ html.touch .collapsible__body--disable {
   border-radius: 50%;
   background-color: #b2d6ff;
   background-color: Highlight;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   text-align: center;
   position: absolute;
   top: 0;
@@ -886,7 +886,8 @@ html.touch .collapsible__body--disable {
 .week .week__day__txt {
   position: relative;
   z-index: 2;
-  font-size: 90%;
+  font-size: 13px;
+  line-height: 24px;
 }
 .week .week__day--active .week__day__txt {
   color: #1F2D3D;
