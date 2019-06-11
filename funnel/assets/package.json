@@ -28,7 +28,6 @@
     "hammerjs": "^2.0.8",
     "jsqr": "^1.1.1",
     "leaflet": "^1.4.0",
-    "mustache": "^3.0.1",
     "ractive": "^0.7.3",
     "vcards-js": "^2.10.0",
     "vue": "^2.5.22"
