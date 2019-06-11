@@ -136,7 +136,7 @@
         {% endif %}
         {% if upcoming_projects %}
         <div class="grid__col-xs-12 grid__col-md-6">
-          <h2 class="mui--text-title mui--text-light mui--text-uppercase">Upcoming projects</h2>
+          <h2 class="mui--text-title mui--text-light mui--text-uppercase">Upcoming</h2>
           <ul class="mui-list--unstyled" role="list">
           {% for project in upcoming_projects %}
             <li class="card card--upcoming" role="listitem">
@@ -154,9 +154,9 @@
                 {% endif %}
               </div>
               <div class="card__body">
-                <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-subhead mui--text-dark">{{ project.title }}</a></h3>
-                {% if project.primary_venue %}<p class="mui--text-caption zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
-                <p class="mui--text-body2 mui--text-light zero-top-margin">{{ project.tagline }}</p>
+                <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-headline mui--text-dark">{{ project.title }}</a></h3>
+                {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
                 <noscript>
                   <p class="mui--text-body2 mui--text-light zero-top-margin">{{project.date}}–{{project.date_upto}}</p>
                 </noscript>

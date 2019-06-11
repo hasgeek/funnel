@@ -767,8 +767,6 @@ html.touch .collapsible__body--disable {
 .card--upcoming .card__body {
   flex: 0 0 100%;
   padding: 0;
-  width: 100%;
-  word-break: break-all;
 }
 .card--upcoming .card__calendar {
   padding: 1em 0;
