@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from babel.dates import format_date
+from isoweek import Week
 from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 from pytz import utc
+from collections import defaultdict
 
-from baseframe import __
+from baseframe import __, get_locale
 
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow
@@ -138,13 +141,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     all_labels = db.relationship('Label', lazy='dynamic')
 
     featured_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)')
     scheduled_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)')
     unscheduled_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
     __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
@@ -154,7 +157,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
-                'location'
+                'location', 'calendar'
                 },
             }
         }
@@ -313,6 +316,28 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             else:
                 redirect.project = self
         return value
+
+    @property
+    def calendar(self):
+        weeks = defaultdict(dict)
+        for session in self.scheduled_sessions:
+            weekobj = Week.withdate(session.start)
+            if weekobj.week not in weeks:
+                weeks[weekobj.week]['year'] = weekobj.year
+                weeks[weekobj.week]['dates'] = defaultdict(int)
+            for wdate in weekobj.days():
+                if session.start.date() == wdate:
+                    weeks[weekobj.week]['dates'][wdate.day] += 1
+                elif wdate.day not in weeks[weekobj.week]['dates']:
+                    weeks[weekobj.week]['dates'][wdate.day] = 0
+
+        weeks_list = []
+        for k in sorted(weeks.keys()):
+            # This way we dont rely on the order of sessions in `schedueld_session`.
+            # Sessions get sorted by week number, which is needed by the calendar widget.
+            weeks_list.append(weeks[k])
+
+        return {'locale': get_locale(), 'weeks': weeks_list, 'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
 
     @property
     def rooms(self):
