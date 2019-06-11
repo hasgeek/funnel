@@ -87,33 +87,25 @@
                   <div class="card__image--default">
                     <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
                     <p class="card__image__tagline">{{ featured_project.title }}</p>
-                    <noscript>
-                      <p class="mui--text-body2 mui--text-light zero-top-margin">{{featured_project.date}}–{{featured_project.date_upto}}</p>
-                    </noscript>
                   </div>
                 {% endif %}
-                <div class="js-project-calendar card__calendar mui--clearfix mui--bg-accent" data-date="{{featured_project.date}}" data-dateupto="{{featured_project.date_upto}}">
-                  {% raw %} 
-                    <script class="calendar-template" type="text-template">
-                      <div class="month">
-                        <p class="mui--text-subhead mui--text-bold">{{month}}</p>
-                      </div>
-                      <div class="weeks">
-                        <div class="mui--clearfix">
-                          {{#weekdays}}
-                          <p class="week-name mui--text-subhead mui--text-light">{{ weekdayNarrow }}</p>
-                          {{/weekdays}}
-                        </div>
-                        {{#weekdays}}
-                        <div class="week mui--clearfix">
-                            {{#weekdayProject}}
-                              <p class="week__day {{^active}}mui--text-accent{{/active}} {{#active}}week__day--active mui--text-dark{{/active}}"><span class="week__day__txt">{{ date }}</span></p>
-                            {{/weekdayProject}}
-                        </div>
-                        {{/weekdays}}
-                      </div>
-                    </script>
-                   {% endraw %} 
+                {{ featured_project.calendar|tojson }}
+                <div class="card__calendar mui--clearfix mui--bg-accent">
+                  <div class="month">
+                    <p class="mui--text-subhead mui--text-bold">{{ featured_project.calendar.locale }}</p>
+                  </div>
+                  <div class="weeks">
+                    <div class="mui--clearfix">
+                      {% for day in featured_project.calendar.days %}
+                        <p class="week-name mui--text-subhead mui--text-light">{{ day }}</p>
+                      {% endfor %}
+                    </div>
+                    <div class="week mui--clearfix">
+                      {% for date in featured_project.calendar.weeks[0].dates %}
+                        <p class="week__day {% if featured_project.calendar.weeks[0].dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt">{{ date }}</span></p>
+                      {% endfor %}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="card__title">
@@ -157,32 +149,26 @@
                 <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-headline mui--text-dark">{{ project.title }}</a></h3>
                 {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                 <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
-                <noscript>
-                  <p class="mui--text-body2 mui--text-light zero-top-margin">{{project.date}}–{{project.date_upto}}</p>
-                </noscript>
-                <div class="js-project-calendar mui--clearfix card__calendar" data-date="{{project.date}}" data-dateupto="{{project.date_upto}}">
-                  {% raw %} 
-                    <script class="calendar-template" type="text-template">
-                      <div class="month">
-                        <p class="mui--text-body1 mui--text-bold">{{month}}</p>
+                {{ project.calendar|tojson }}
+                {% if project.calendar.weeks[0] and project.calendar.weeks[0].dates %}
+                  <div class="card__calendar">
+                    <div class="month">
+                      <p class="mui--text-subhead mui--text-bold">{{ project.calendar.locale }}</p>
+                    </div>
+                    <div class="weeks">
+                      <div class="mui--clearfix">
+                        {% for day in project.calendar.days %}
+                          <p class="week-name mui--text-subhead mui--text-light">{{ day }}</p>
+                        {% endfor %}
                       </div>
-                      <div class="weeks">
-                        <div class="mui--clearfix">
-                          {{#weekdays}}
-                          <p class="week-name mui--text-body1 mui--text-light zero-bottom-margin">{{ weekdayNarrow }}</p>
-                          {{/weekdays}}
-                        </div>
-                        {{#weekdays}}
-                        <div class="week mui--clearfix">
-                            {{#weekdayProject}}
-                              <p class="week__day {{^active}}mui--text-accent{{/active}} {{#active}}week__day--active mui--text-dark{{/active}}"><span class="week__day__txt mui--text-body1">{{ date }}</span></p>
-                            {{/weekdayProject}}
-                        </div>
-                        {{/weekdays}}
+                      <div class="week mui--clearfix">
+                        {% for date in project.calendar.weeks[0].dates %}
+                          <p class="week__day {% if project.calendar.weeks[0].dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt">{{ date }}</span></p>
+                        {% endfor %}
                       </div>
-                    </script>
-                  {% endraw %} 
-                </div>
+                    </div>
+                  </div>
+                {% endif %}
               </div>
             </li>
           {%- endfor -%}
@@ -360,16 +346,4 @@
       </div>
     </div>
   {% endif %}
-{% endblock %}
-
-
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('home')) }}" type="text/javascript"></script>
-  <script type="text/javascript">
-    $(function() {
-      var homepageConfig = {};
-      homepageConfig.calendarSelector = '.js-project-calendar';
-      HasGeek.HomeInit(homepageConfig);
-    });
-  </script>
 {% endblock %}

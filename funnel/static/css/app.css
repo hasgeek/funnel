@@ -856,23 +856,21 @@ html.touch .collapsible__body--disable {
 }
 
 .week {
-  float: left;
-  vertical-align: top;
-  min-width: calc(100%/7);
-  text-align: center;
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
 }
 .week .week__day {
   text-align: center;
   position: relative;
-}
-.week .week__day--name {
-  display: inline-block;
+  width: calc(100%/7);
 }
 .week .week__day--active:after {
   content: '';
   font-weight: bold;
   border-radius: 50%;
-  background-color: #CFE9DD;
+  background-color: #b2d6ff;
+  background-color: Highlight;
   width: 24px;
   height: 24px;
   text-align: center;
@@ -886,6 +884,10 @@ html.touch .collapsible__body--disable {
 .week .week__day__txt {
   position: relative;
   z-index: 2;
+}
+.week .week__day--active .week__day__txt {
+  color: #1F2D3D;
+  color: HighlightText;
 }
 
 .contact-card {
