@@ -17,14 +17,13 @@ def index_jsonify(data):
 def index():
     g.profile = None
     projects = Project.all_unsorted(legacy=False)  # NOQA
-    past_projects = projects.filter(Project.state.PAST).order_by(Project.date.desc()).all()
     all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
     upcoming_projects = all_projects[:3]
     all_projects = all_projects[3:]
     featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
         .order_by(Project.date.asc()).limit(1).first()  # NOQA
     open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
-    return {'projects': projects.all(), 'past_projects': past_projects, 'all_projects': all_projects,
+    return {'projects': projects.all(), 'all_projects': all_projects,
         'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
         'featured_project': featured_project}
 

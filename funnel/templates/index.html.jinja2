@@ -92,17 +92,17 @@
                 {{ featured_project.calendar|tojson }}
                 <div class="card__calendar mui--clearfix mui--bg-accent">
                   <div class="month">
-                    <p class="mui--text-subhead mui--text-bold">{{ featured_project.calendar.locale }}</p>
+                    <p class="mui--text-title mui--text-bold">{{ featured_project.calendar.month }}</p>
                   </div>
                   <div class="weeks">
                     <div class="mui--clearfix">
                       {% for day in featured_project.calendar.days %}
-                        <p class="week-name mui--text-subhead mui--text-light">{{ day }}</p>
+                        <p class="week-name mui--text-title mui--text-light">{{ day }}</p>
                       {% endfor %}
                     </div>
                     <div class="week mui--clearfix">
                       {% for date in featured_project.calendar.weeks[0].dates %}
-                        <p class="week__day {% if featured_project.calendar.weeks[0].dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt">{{ date }}</span></p>
+                        <p class="week__day {% if featured_project.calendar.weeks[0].dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt mui--text-title">{{ date }}</span></p>
                       {% endfor %}
                     </div>
                   </div>
@@ -153,7 +153,7 @@
                 {% if project.calendar.weeks[0] and project.calendar.weeks[0].dates %}
                   <div class="card__calendar">
                     <div class="month">
-                      <p class="mui--text-subhead mui--text-bold">{{ project.calendar.locale }}</p>
+                      <p class="mui--text-subhead mui--text-bold">{{ project.calendar.month }}</p>
                     </div>
                     <div class="weeks">
                       <div class="mui--clearfix">
@@ -346,4 +346,38 @@
       </div>
     </div>
   {% endif %}
+
+  {% if past_projects %}  
+    <div class="projects-wrapper mui--bg-accent"> 
+      <div class="mui-container"> 
+        <div class="grid">  
+          <div class="grid__col-12">  
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">Past projects</h2>  
+            <p class="mui--text-body1">{{ past_projects|length }} projects</p>  
+          </div>  
+        </div>  
+        <div class="grid projects"> 
+          <table class="mui-table mui-table--bordered mui-table--responsive past-events-table"> 
+            <thead class="mui--bg-primary-light"> 
+              <tr>  
+                <th class="mui--text-subhead mui--text-capitalize">Date</th>  
+                <th class="mui--text-subhead mui--text-capitalize">Event name</th>  
+                <th class="mui--text-subhead mui--text-capitalize">Location</th>  
+              </tr> 
+            </thead>  
+            <tbody> 
+              {% for project in past_projects %}  
+                <tr>  
+                  <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td> 
+                  <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td> 
+                  <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td> 
+                </tr> 
+              {%- endfor -%}  
+            </tbody>  
+          </table>  
+        </div>  
+      </div>  
+    </div>
+  {% endif %}
+
 {% endblock %}
