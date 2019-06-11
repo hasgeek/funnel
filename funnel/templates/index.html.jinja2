@@ -360,79 +360,8 @@
       </div>
     </div>
   {% endif %}
-
-
-  {% if past_projects %}
-    <div class="projects-wrapper mui--bg-accent">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-title mui--text-light mui--text-uppercase">All past projects</h2>
-            <p class="mui--text-body1">{{ past_projects|length }} projects</p>
-          </div>
-        </div>
-        <div class="grid projects">
-          <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
-            <thead class="mui--bg-primary-light">
-              <tr>
-                <th class="mui--text-subhead mui--text-capitalize">Date</th>
-                <th class="mui--text-subhead mui--text-capitalize">Event name</th>
-                <th class="mui--text-subhead mui--text-capitalize">Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for project in past_projects %}
-                <tr>
-                  <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td>
-                  <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
-                  <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
-                </tr>
-              {%- endfor -%}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  {% else %}
-    <div class="projects-wrapper mui--bg-accent">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-sm-12">
-            <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-              {% if current_auth.permissions.new_project %}<a href="{{g.profile.url_for('new_project')}}" title="Create one">{% trans %}Create one{% endtrans %}</a>.{% endif %}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  {% endif %}
-
 {% endblock %}
 
-{% block basefooter -%}
-  <footer class="footer footer--homepage">
-    <div class="footer__container">
-      <div class="mui-container">
-        <div class="grid mui--text-body2 mui--text-left">
-          <div class="grid__col-sm-6 grid__col-md-6">
-            <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about">About us and site policies</a></p>
-            <p>
-              #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
-            </p>
-          </div>
-          <div class="grid__col-sm-6 grid__col-md-6">
-            <div>
-              <p id="footer-twitter">
-                <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank" title="follow hasgeek">Follow @hasgeek</a>
-              </p>
-              <a class="fb-like" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-{% endblock %}
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('home')) }}" type="text/javascript"></script>
@@ -443,25 +372,4 @@
       HasGeek.HomeInit(homepageConfig);
     });
   </script>
-  {% raw %}
-  <div id="fb-root"></div>
-  <script type="text/javascript">
-    $(window).load(function() {
-      (function(d, s, id) {
-      var js;
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0';
-      document.body.appendChild(js);
-      }(document, 'script', 'facebook-jssdk'));
-      (function(d, s, id) {
-      var js;
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = 'https://platform.twitter.com/widgets.js';
-      document.body.appendChild(js);
-      }(document, 'script', 'twitter-js'));
-    });
-  </script>
-  {% endraw %}
 {% endblock %}

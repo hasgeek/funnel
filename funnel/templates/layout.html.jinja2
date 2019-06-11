@@ -54,7 +54,7 @@
         </a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
     {%- endif %}
   {% endmacro %}
 
@@ -62,11 +62,8 @@
       {{ hgtopnav(site_title=site_title()) }}
   {%- else %}
     {% with site_links=[] %}
-      {% macro site_links(title, icon) %}
-        <i class="material-icons mui--text-title mui--align-middle header__nav-list__item__icon" aria-hidden="true">{{ icon }}</i><p class="zero-bottom-margin header__nav-list__item__text mui--text-dark">{{ title }}</p>
-      {% endmacro %}
       {% if not current_auth.is_anonymous -%}
-        {% set site_links = [{'title': site_links('Account', 'account_circle'), 'url': url_for("account")}] %}
+        {% set site_links = [{'title': 'Account', 'icon': 'account_circle', 'url': url_for("account")}] %}
       {%- else %}
         {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
       {%- endif %}
@@ -124,13 +121,9 @@
   {%- if not config['LEGACY'] -%}
   <div class="mui-container">
     <div class="grid mui--text-body2">
-      <div class="grid__col-sm-6 mui--text-center">
-        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about"><br>About us and site policies</a>.</p>
-      </div>
-      <div class="grid__col-sm-6 mui--text-center">
-        <p>
-          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
-        </p>
+      <div class="grid__col-sm-12 mui--text-center">
+        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %}</p>
+        <p><a href="/about/" title="about">About us and site policies</a>.</p>
       </div>
       </div>
     </div>

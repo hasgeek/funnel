@@ -33,10 +33,6 @@
     .content-wrapper {
       padding-top: 52px;
     }
-    .header__nav-list__item__text {
-      display: inline-block;
-      margin-left: 8px;
-    }
   }
   .no-sticky-header {
     .header--fixed {
@@ -53,11 +49,6 @@
   line-height: 28px;
   position: relative;
   top: -3px;
-}
-
-.header__nav-list__item__icon {
-  opacity: 0.5;
-  line-height: 1;
 }
 
 @media (min-width: 1200px) {
@@ -231,16 +222,6 @@ and (orientation: landscape) {
 
 .banner__headline-txt {
   color: #f0a40c;
-}
-
-.no-sticky-header {
-  .header--fixed {
-    position: relative;
-  }
-  .mui--appbar-height {
-    height: 0;
-    min-height: 0;
-  }
 }
 
 .sub-navbar-container {
