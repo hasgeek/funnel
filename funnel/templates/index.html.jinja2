@@ -91,19 +91,27 @@
                 {% endif %}
                 {% if featured_project.calendar.weeks and featured_project.calendar.weeks|length > 0 %}
                   <div class="card__calendar mui--clearfix mui--bg-accent">
-                    <div class="weeks">
-                      <div class="week">
-                        <p class="week-name mui--text-title mui--text-light" aria-hidden="true"></p>
+                    <div class="calendar">
+                      <div class="calendar__weekdays">
+                        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"</p>
                         {% for day in featured_project.calendar.days %}
-                          <p class="week-name mui--text-title mui--text-light">{{ day }}</p>
+                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ week }}</p>
                         {% endfor %}
                       </div>
-                      <div class="week mui--clearfix">
-                        {% for week in featured_project.calendar.weeks %}
-                          <p class="week__day week__day--month mui--text-title mui--text-bold">{{ week.month }}</p>
-                          {% for date in week.dates %}
-                            <p class="week__day {% if  week.dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt">{{ date }}</span></p>
-                          {% endfor %}
+                      <div class="calendar__weekdays">
+                        {% for week in featured_project.calendar.weeks|sort(attribute='year') %}
+                          <div class="calendar__weekdays__month">
+                            {% if loop.index == 1 or featured_project.calendar.weeks[loop.index - 2] and week.month != featured_project.calendar.weeks[loop.index - 2].month %}
+                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                            {% else %}
+                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
+                            {% endif %}
+                          </div>
+                          <div class="calendar__weekdays__dates">
+                            {% for date in week.dates|sort(week.dates|int) %}
+                              <p class="calendar__weekdays__date {% if  week.dates[date] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date }}</span></p>
+                            {% endfor %}
+                          </div>
                         {% endfor %}
                       </div>
                     </div>
@@ -153,19 +161,27 @@
                 <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
                 {% if project.calendar.weeks and project.calendar.weeks|length > 0 %}
                   <div class="card__calendar">
-                    <div class="weeks">
-                      <div class="week">
-                        <p class="week-name mui--text-title mui--text-light" aria-hidden="true"></p>
+                    <div class="calendar">
+                      <div class="calendar__weekdays">
+                        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
                         {% for day in project.calendar.days %}
-                          <p class="week-name mui--text-title mui--text-light">{{ day }}</p>
+                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ week }}</p>
                         {% endfor %}
                       </div>
-                      <div class="week mui--clearfix">
+                      <div class="calendar__weekdays">
                         {% for week in project.calendar.weeks %}
-                          <p class="week__day week__day--month mui--text-title mui--text-bold">{{ week.month }}</p>
-                          {% for date in week.dates %}
-                            <p class="week__day {% if  week.dates[date] > 0 %}week__day--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="week__day__txt">{{ date }}</span></p>
-                          {% endfor %}
+                          <div class="calendar__weekdays__month">
+                            {% if loop.index == 1 or project.calendar.weeks[loop.index - 2] and week.month != project.calendar.weeks[loop.index - 2].month %}
+                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                            {% else %}
+                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
+                            {% endif %}
+                          </div>
+                          <div class="calendar__weekdays__dates">
+                            {% for date in week.dates|sort(week.dates|int) %}
+                              <p class="calendar__weekdays__date {% if  week.dates[date] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date }}</span></p>
+                            {% endfor %}
+                          </div>
                         {% endfor %}
                       </div>
                     </div>

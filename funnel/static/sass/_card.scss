@@ -181,11 +181,82 @@
   font-variant: all-small-caps;
 }
 
-.weeks {
+.calendar {
   width: 100%;
+
+  .calendar__weekdays {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .calendar__weekdays__name {
+    text-align: center;
+    position: relative;
+    width: calc(100%/8);
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .calendar__weekdays__name--weekday {
+    font-variant: all-small-caps;
+  }
+
+  .calendar__weekdays__name--month {
+    font-size: 18px;
+    line-height: 28px;
+    font-variant: all-small-caps;
+  }
+
+  .calendar__weekdays__date {
+    position: relative;
+    width: calc(100%/7);
+    text-align: center;
+    font-size: 14px;
+    line-height: 28px;
+
+    .calendar__weekdays__date__text {
+      position: relative;
+      z-index: 2;
+    }
+  }
+
+  .calendar__weekdays__date--active:after {
+    content: '';
+    font-weight: bold;
+    border-radius: 50%;
+    background-color: #b2d6ff;
+    background-color: Highlight;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    z-index: 1
+  }
+
+  .calendar__weekdays__date--active .calendar__weekdays__date__text {
+    color: #1F2D3D;
+    color: HighlightText;
+  }
+
+  .calendar__weekdays__month {
+    width: calc(100%/8);
+    word-break: keep-all;
+  }
+
+  .calendar__weekdays__dates {
+    width: calc(100% - 100%/8);
+    display: flex;
+    flex-wrap: wrap;
+  }
+
 }
 
-.week-name {
+.weekname {
   float: left;
   min-width: calc(100%/8);
   text-align: center;
