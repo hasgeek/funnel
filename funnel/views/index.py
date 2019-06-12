@@ -22,6 +22,7 @@ def index():
     all_projects = all_projects[3:]
     featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
         .order_by(Project.date.asc()).limit(1).first()  # NOQA
+    upcoming_projects.remove(featured_project)
     open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
     return {'projects': projects.all(), 'all_projects': all_projects,
         'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
