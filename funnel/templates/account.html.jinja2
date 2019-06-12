@@ -13,7 +13,7 @@
       </div>
       <div class="card__body card__body--lgtext mui--text-subhead">
         <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">email</i> {{ current_auth.user.email }}</p>
-        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">call</i> {{ current_auth.user.phone }}</p>
+        {% if current_auth.user.phone %}<p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">call</i> {{ current_auth.user.phone }}</p>{% endif %}
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">

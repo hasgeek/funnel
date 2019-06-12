@@ -166,6 +166,9 @@
               <li>
                 <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
               </li>
+              <li>
+                <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
+              </li>
               {% if project.cfp_state.NONE -%}
                 <li>
                   <a href="{{ project.url_for('cfp') }}" title="Add a CfP">{% trans %}Add a CfP{% endtrans %}</a>
@@ -180,9 +183,6 @@
               </li>
               <li>
                 <a href="{{ project.url_for('labels') }}" title="Manage labels">{% trans %}Manage labels{% endtrans %}</a>
-              </li>
-              <li>
-                <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
               </li>
               <li>
                 <a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% trans %}Setup events for check-in{% endtrans %}</a>

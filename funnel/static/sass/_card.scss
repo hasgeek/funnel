@@ -55,7 +55,6 @@
   box-shadow: none;
   margin-bottom: 30px;
   background: transparent;
-  max-width: 450px;
 
   .card__image__tagline {
     font-size: inherit;
@@ -183,13 +182,12 @@
 }
 
 .weeks {
-  float: left;
-  width: calc(100% - 35px);
+  width: 100%;
 }
 
 .week-name {
   float: left;
-  min-width: calc(100%/7);
+  min-width: calc(100%/8);
   text-align: center;
   font-variant: all-small-caps;
 }
@@ -202,7 +200,11 @@
   .week__day {
     text-align: center;
     position: relative;
-    width: calc(100%/7);
+    width: calc(100%/8);
+  }
+  .week__day--month {
+    font-variant: all-small-caps;
+    line-height: 24px;
   }
   .week__day--active:after {
     content: '';
