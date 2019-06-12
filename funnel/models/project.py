@@ -328,16 +328,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             for wdate in weekobj.days():
                 if session.start.date() == wdate:
                     weeks[weekobj.week]['dates'][wdate.day] += 1
-                elif wdate.day not in weeks[weekobj.week]['dates']:
-                    weeks[weekobj.week]['dates'][wdate.day] = 0
+                    weeks[weekobj.week].setdefault('month', format_date(wdate, 'MMM', locale=get_locale()))
+                else:
+                    weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
 
         weeks_list = []
         for k in sorted(weeks.keys()):
             # This way we dont rely on the order of sessions in `schedueld_session`.
-            # Sessions get sorted by week number, which is needed by the calendar widget.
+            # Sessions get sorted by week, which is needed by the calendar widget.
             weeks_list.append(weeks[k])
 
-        return {'locale': get_locale(), 'weeks': weeks_list, 'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
+        return {
+            'locale': get_locale(), 'weeks': weeks_list,
+            'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
 
     @property
     def rooms(self):
