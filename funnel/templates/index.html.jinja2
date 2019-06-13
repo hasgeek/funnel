@@ -9,7 +9,7 @@
   {  "@context" : "http://schema.org",
      "@type" : "WebSite",
      "name" : "{{ config['SITE_TITLE'] }}",
-     "url" : "{{ url_for('index', _external=true) }}"
+     "url" : "{{ url_for('IndexView_home', _external=true) }}"
   }
 </script>
 <script type="application/ld+json">
@@ -17,7 +17,7 @@
     "@context" : "http://schema.org",
     "@type" : "Organization",
     "name" : "{{ config['SITE_TITLE'] }}",
-    "url" : "{{ url_for('index', _external=true) }}",
+    "url" : "{{ url_for('IndexView_home', _external=true) }}",
     "logo" : "{{ url_for('static', filename='img/hg-banner.png', _external=true) }}",
     "contactPoint" : [{
       "@type" : "ContactPoint",
@@ -120,7 +120,7 @@
               </div>
               <div class="card__title">
                 <h3 class="mui--text-display1 card__title__heading">{{ featured_project.title }}</h3>
-                {% if featured_project.primary_venue %}<p class="mui--text-body1 card__title__heading"><i class="material-icons mui--text-body1 mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}</p>{% endif %} 
+                {% if featured_project.primary_venue %}<p class="mui--text-body1 card__title__heading"><i class="material-icons mui--text-body1 mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}</p>{% endif %}
               </div>
               {% if featured_project.tagline %}
                 <div class="card__body">
@@ -142,6 +142,7 @@
           <ul class="mui-list--unstyled" role="list">
           {% for project in upcoming_projects %}
             <li class="card card--upcoming" role="listitem">
+            {{ project.calendar }}
               <div class="card__image-wrapper">
                 {% if project.bg_image.url %}
                   <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}" aria-label="{{ project.title }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
@@ -281,7 +282,7 @@
                       <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                       <noscript>
                         <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-                      </noscript>                     
+                      </noscript>
                     {% else %}
                       <div class="card__image--default">
                         <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
@@ -365,36 +366,36 @@
     </div>
   {% endif %}
 
-  {% if past_projects %}  
-    <div class="projects-wrapper mui--bg-accent"> 
-      <div class="mui-container"> 
-        <div class="grid">  
-          <div class="grid__col-12">  
-            <h2 class="mui--text-title mui--text-light mui--text-uppercase">Past projects</h2>  
-            <p class="mui--text-body1">{{ past_projects|length }} projects</p>  
-          </div>  
-        </div>  
-        <div class="grid projects"> 
-          <table class="mui-table mui-table--bordered mui-table--responsive past-events-table"> 
-            <thead class="mui--bg-primary-light"> 
-              <tr>  
-                <th class="mui--text-subhead mui--text-capitalize">Date</th>  
-                <th class="mui--text-subhead mui--text-capitalize">Event name</th>  
-                <th class="mui--text-subhead mui--text-capitalize">Location</th>  
-              </tr> 
-            </thead>  
-            <tbody> 
-              {% for project in past_projects %}  
-                <tr>  
-                  <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td> 
-                  <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td> 
-                  <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td> 
-                </tr> 
-              {%- endfor -%}  
-            </tbody>  
-          </table>  
-        </div>  
-      </div>  
+  {% if past_projects %}
+    <div class="projects-wrapper mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">Past projects</h2>
+            <p class="mui--text-body1">{{ past_projects|length }} projects</p>
+          </div>
+        </div>
+        <div class="grid projects">
+          <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
+            <thead class="mui--bg-primary-light">
+              <tr>
+                <th class="mui--text-subhead mui--text-capitalize">Date</th>
+                <th class="mui--text-subhead mui--text-capitalize">Event name</th>
+                <th class="mui--text-subhead mui--text-capitalize">Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in past_projects %}
+                <tr>
+                  <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td>
+                  <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
+                  <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
+                </tr>
+              {%- endfor -%}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   {% endif %}
 

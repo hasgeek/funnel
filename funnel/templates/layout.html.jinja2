@@ -35,7 +35,7 @@
   {% macro site_title() %}
     {%- if config['LEGACY'] -%}
       {%- if g.profile -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
+        <a href="{{ url_for('IndexView_home') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
           <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
         </a><i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
         <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
@@ -48,13 +48,13 @@
           <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title() }}">{{ project.short_title() }}</a>
         {%- endif %}
       {%- else -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
+        <a href="{{ url_for('IndexView_home') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
           <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
           {{ config['SITE_TITLE'] }}
         </a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <a href="{{ url_for('IndexView_home') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
     {%- endif %}
   {% endmacro %}
 

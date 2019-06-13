@@ -2,7 +2,7 @@
 
 import os.path
 from flask import g, render_template, redirect, jsonify, Response, url_for
-from coaster.views import jsonp, load_model, render_with
+from coaster.views import jsonp, load_model, render_with, ClassView, route
 from .. import app, funnelapp, pages, lastuser
 from ..models import Project, Proposal
 from .project import project_data
@@ -12,22 +12,24 @@ def index_jsonify(data):
     return jsonify(projects=[d for d in [s.current_access() for s in data['projects']] if d])
 
 
-@app.route('/')
-@render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
-def index():
-    g.profile = None
-    projects = Project.all_unsorted(legacy=False)  # NOQA
-    all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
-    upcoming_projects = all_projects[:3]
-    all_projects = all_projects[3:]
-    featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
-        .order_by(Project.date.asc()).limit(1).first()  # NOQA
-    if featured_project in upcoming_projects:
-        upcoming_projects.remove(featured_project)
-    open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
-    return {'projects': projects.all(), 'all_projects': all_projects,
-        'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
-        'featured_project': featured_project}
+@route('/')
+class IndexView(ClassView):
+    @route('')
+    @render_with('index.html.jinja2', json=True)
+    def home(self):
+        g.profile = None
+        projects = Project.all_unsorted(legacy=False)  # NOQA
+        all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
+        upcoming_projects = all_projects[:3]
+        all_projects = all_projects[3:]
+        featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
+            .order_by(Project.date.asc()).limit(1).first()  # NOQA
+        if featured_project in upcoming_projects:
+            upcoming_projects.remove(featured_project)
+        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
+        return {'projects': projects.all(), 'all_projects': all_projects,
+            'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
+            'featured_project': featured_project}
 
 
 @funnelapp.route('/', endpoint='index')
@@ -36,6 +38,9 @@ def talkfunnel_index():
     g.profile = None
     projects = Project.fetch_sorted(legacy=True).all()  # NOQA
     return {'projects': projects}
+
+
+IndexView.init_app(app)
 
 
 @app.route('/account')

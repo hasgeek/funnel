@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 from pytz import utc
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from baseframe import __, get_locale
 
@@ -324,19 +324,24 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             weekobj = Week.withdate(session.start)
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year
-                weeks[weekobj.week]['dates'] = defaultdict(int)
+                # Order is important, and we need dict to count easily
+                weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
+                weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
                 if session.start.date() == wdate:
                     weeks[weekobj.week]['dates'][wdate.day] += 1
                     weeks[weekobj.week].setdefault('month', format_date(wdate, 'MMM', locale=get_locale()))
-                else:
-                    weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
 
         weeks_list = []
         for k in sorted(weeks.keys()):
             # This way we dont rely on the order of sessions in `schedueld_session`.
-            # Sessions get sorted by week, which is needed by the calendar widget.
+            # Sessions get sorted by order of the week, which is needed by the calendar widget.
             weeks_list.append(weeks[k])
+
+        for week in weeks_list:
+            # Convering to JSON messes up dictionary key order even though we used OrderedDict.
+            # This turns the OrderedDict into a list of tuples and JSON preserves that order.
+            week['dates'] = week['dates'].items()
 
         return {
             'locale': get_locale(), 'weeks': weeks_list,
