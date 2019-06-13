@@ -321,24 +321,28 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @cached_property
     def calendar_weeks(self):
+        session_dates = db.session.query('date', 'count').from_statement(db.text(
+            '''
+            SELECT DATE_TRUNC('day', "start" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
+            FROM "session" WHERE "project_id" = :project_id AND "start" IS NOT NULL AND "end" IS NOT NULL
+            GROUP BY date ORDER BY date;
+            ''')).params(timezone=self.timezone.zone, project_id=self.id)
         weeks = defaultdict(dict)
-        for session in self.scheduled_sessions:
-            weekobj = Week.withdate(session.start.astimezone(self.timezone))
+        for result in session_dates:
+            weekobj = Week.withdate(result.date)
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
                 weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
-                if session.start.astimezone(self.timezone).date() == wdate:
-                    weeks[weekobj.week]['dates'][wdate.day] += 1
-                    weeks[weekobj.week].setdefault('month', format_date(wdate, 'MMM', locale=get_locale()))
+                if result.date.date() == wdate:
+                    weeks[weekobj.week]['dates'][wdate.day] += result.count
+                    if 'month' not in weeks[weekobj.week]:
+                        weeks[weekobj.week]['month'] = format_date(wdate, 'MMM', locale=get_locale())
 
-        weeks_list = []
-        for k in sorted(weeks.keys()):
-            # This way we dont rely on the order of sessions in `scheduled_session`.
-            # Sessions get sorted by order of the week, which is needed by the calendar widget.
-            weeks_list.append(weeks[k])
+        # Extract sorted weeks as a list
+        weeks_list = [v for k, v in sorted(weeks.items())]
 
         for week in weeks_list:
             # Convering to JSON messes up dictionary key order even though we used OrderedDict.
