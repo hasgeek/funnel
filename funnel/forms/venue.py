@@ -13,18 +13,24 @@ __all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
 class VenueForm(forms.Form):
     title = forms.StringField(__("Name"),
         description=__("Name of the venue"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
+        filters=[forms.filters.strip()])
     description = forms.MarkdownField(__("Description"), description=__("An optional note about the venue"))
     address1 = forms.StringField(__("Address (line 1)"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=160)])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=160)],
+        filters=[forms.filters.strip()])
     address2 = forms.StringField(__("Address (line 2)"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=160)])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=160)],
+        filters=[forms.filters.strip()])
     city = forms.StringField(__("City"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=30)])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=30)],
+        filters=[forms.filters.strip()])
     state = forms.StringField(__("State"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=30)])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=30)],
+        filters=[forms.filters.strip()])
     postcode = forms.StringField(__("Post code"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=20)])
+        validators=[forms.validators.Optional(), forms.validators.Length(max=20)],
+        filters=[forms.filters.strip()])
     country = forms.SelectField(__("Country"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2)],
         choices=[], default='IN')
@@ -40,7 +46,8 @@ class VenueForm(forms.Form):
 
 class VenueRoomForm(forms.Form):
     title = forms.StringField(__("Name"), description=__("Name of the room"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)])
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
+        filters=[forms.filters.strip()])
     description = forms.MarkdownField(__("Description"), description=__("An optional note about the room"))
     bgcolor = forms.StringField(__("Event Color"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
