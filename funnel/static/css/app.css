@@ -1849,7 +1849,7 @@ body > .proposal-box.ui-draggable {
   margin-top: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
   .footer {
     padding-bottom: 0;
   }
