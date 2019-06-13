@@ -1395,47 +1395,6 @@ html.touch .collapsible__body--disable {
   color: #1F2D3D;
 }
 
-.vote-wrapper {
-  margin-top: 0.5em;
-}
-
-.vote-wrapper form {
-  display: inline-block;
-}
-
-.action-btn {
-  border: none;
-  background: none;
-  cursor: pointer;
-  line-height: 28px;
-}
-
-.action-btn--login {
-  padding: 6px 15px;
-  line-height: 17px;
-}
-
-.action-btn__icons {
-  line-height: 0;
-  font-weight: bold;
-  position: relative;
-  top: 7px;
-  right: 2px;
-}
-
-.action-btn__icons--small {
-  font-size: 16px;
-  top: 4px;
-}
-
-.action-btn--nopadding {
-  padding: 0;
-}
-
-.action-btn:hover {
-  color: #4A90E2;
-}
-
 .proposal__admin-panel .mui-select {
   width: 100%;
 }
@@ -1469,22 +1428,7 @@ html.touch .collapsible__body--disable {
   margin: 1em 0;
 }
 
-.comment--vote,
 .comment--content {
-  display: inline-block;
-}
-
-.comment--vote {
-  vertical-align: top;
-  width: 20px;
-  text-align: center;
-  margin-top: -4px;
-  margin-right: 5px;
-}
-
-.comment--vote--count {
-  text-align: center;
-  width: 100%;
   display: inline-block;
 }
 
