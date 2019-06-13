@@ -9,7 +9,7 @@
   {  "@context" : "http://schema.org",
      "@type" : "WebSite",
      "name" : "{{ config['SITE_TITLE'] }}",
-     "url" : "{{ url_for('IndexView_home', _external=true) }}"
+     "url" : "{{ url_for('index', _external=true) }}"
   }
 </script>
 <script type="application/ld+json">
@@ -17,7 +17,7 @@
     "@context" : "http://schema.org",
     "@type" : "Organization",
     "name" : "{{ config['SITE_TITLE'] }}",
-    "url" : "{{ url_for('IndexView_home', _external=true) }}",
+    "url" : "{{ url_for('index', _external=true) }}",
     "logo" : "{{ url_for('static', filename='img/hg-banner.png', _external=true) }}",
     "contactPoint" : [{
       "@type" : "ContactPoint",

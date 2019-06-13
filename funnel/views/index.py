@@ -14,7 +14,6 @@ def index_jsonify(data):
 
 @route('/')
 class IndexView(ClassView):
-    @route('')
     @render_with('index.html.jinja2', json=True)
     def home(self):
         g.profile = None
@@ -32,15 +31,19 @@ class IndexView(ClassView):
             'featured_project': featured_project}
 
 
-@funnelapp.route('/', endpoint='index')
-@render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
-def talkfunnel_index():
-    g.profile = None
-    projects = Project.fetch_sorted(legacy=True).all()  # NOQA
-    return {'projects': projects}
+@route('/')
+class FunnelIndexView(ClassView):
+    @render_with('funnelindex.html.jinja2', json=True)
+    def home(self):
+        g.profile = None
+        projects = Project.fetch_sorted(legacy=True).all()  # NOQA
+        return {'projects': projects}
 
 
+IndexView.add_route_for('home', '', endpoint='index')
 IndexView.init_app(app)
+FunnelIndexView.add_route_for('home', '', endpoint='index')
+FunnelIndexView.init_app(funnelapp)
 
 
 @app.route('/account')
