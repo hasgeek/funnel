@@ -38,7 +38,7 @@ def project_data(project):
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'bg_color': project.bg_color,
         'explore_url': project.explore_url.url if project.explore_url is not None else "",
-        'calendar': project.calendar
+        'calendar_weeks': project.calendar_weeks
         }
 
 
@@ -268,6 +268,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return dict(profile=self.obj.profile, project=self.obj, events=self.obj.events, csrf_form=csrf_form)
+
 
 @route('/<project>/', subdomain='<profile>')
 class FunnelProjectView(ProjectView):

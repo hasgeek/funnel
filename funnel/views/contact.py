@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
-from flask import jsonify, make_response, current_app, render_template, url_for, redirect
+
 from datetime import timedelta
+from flask import jsonify, make_response, current_app, url_for, redirect
 from sqlalchemy.exc import IntegrityError
+
 from coaster.auth import current_auth
 from coaster.views import requestargs, ClassView, route, render_with
 from coaster.utils import midnight_to_utc, utcnow
+
 from .. import app, funnelapp, lastuser
 from ..models import (db, Participant, ContactExchange)
-from funnel.util import format_twitter_handle
+from ..util import format_twitter_handle
 
 
 def contact_details(participant):

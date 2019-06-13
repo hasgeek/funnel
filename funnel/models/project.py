@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict, OrderedDict
+
+from pytz import utc
 from babel.dates import format_date
 from isoweek import Week
+
 from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
-from pytz import utc
-from collections import defaultdict, OrderedDict
 
 from baseframe import __, get_locale
 
@@ -157,7 +159,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
-                'location', 'calendar'
+                'location', 'calendar_weeks'
                 },
             }
         }
@@ -317,24 +319,24 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 redirect.project = self
         return value
 
-    @property
-    def calendar(self):
+    @cached_property
+    def calendar_weeks(self):
         weeks = defaultdict(dict)
         for session in self.scheduled_sessions:
-            weekobj = Week.withdate(session.start)
+            weekobj = Week.withdate(session.start.astimezone(self.timezone))
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
                 weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
-                if session.start.date() == wdate:
+                if session.start.astimezone(self.timezone).date() == wdate:
                     weeks[weekobj.week]['dates'][wdate.day] += 1
                     weeks[weekobj.week].setdefault('month', format_date(wdate, 'MMM', locale=get_locale()))
 
         weeks_list = []
         for k in sorted(weeks.keys()):
-            # This way we dont rely on the order of sessions in `schedueld_session`.
+            # This way we dont rely on the order of sessions in `scheduled_session`.
             # Sessions get sorted by order of the week, which is needed by the calendar widget.
             weeks_list.append(weeks[k])
 

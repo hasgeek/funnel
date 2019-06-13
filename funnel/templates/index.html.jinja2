@@ -89,19 +89,19 @@
                     <p class="card__image__tagline">{{ featured_project.title }}</p>
                   </div>
                 {% endif %}
-                {% if featured_project.calendar.weeks and featured_project.calendar.weeks|length > 0 %}
+                {% if featured_project.calendar_weeks.weeks and featured_project.calendar_weeks.weeks|length > 0 %}
                   <div class="card__calendar mui--clearfix mui--bg-accent">
                     <div class="calendar">
                       <div class="calendar__weekdays">
                         <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"</p>
-                        {% for weekday in featured_project.calendar.days %}
+                        {% for weekday in featured_project.calendar_weeks.days %}
                           <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
                         {% endfor %}
                       </div>
                       <div class="calendar__weekdays">
-                        {% for week in featured_project.calendar.weeks|sort(attribute='year') %}
+                        {% for week in featured_project.calendar_weeks.weeks|sort(attribute='year') %}
                           <div class="calendar__weekdays__month">
-                            {% if loop.index == 1 or featured_project.calendar.weeks[loop.index - 2] and week.month != featured_project.calendar.weeks[loop.index - 2].month %}
+                            {% if loop.index == 1 or featured_project.calendar_weeks.weeks[loop.index - 2] and week.month != featured_project.calendar_weeks.weeks[loop.index - 2].month %}
                               <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
                             {% else %}
                               <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
@@ -159,19 +159,19 @@
                 <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-headline mui--text-dark">{{ project.title }}</a></h3>
                 {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                 <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
-                {% if project.calendar.weeks and project.calendar.weeks|length > 0 %}
+                {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                   <div class="card__calendar">
                     <div class="calendar">
                       <div class="calendar__weekdays">
                         <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-                        {% for weekday in project.calendar.days %}
+                        {% for weekday in project.calendar_weeks.days %}
                           <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
                         {% endfor %}
                       </div>
                       <div class="calendar__weekdays">
-                        {% for week in project.calendar.weeks %}
+                        {% for week in project.calendar_weeks.weeks %}
                           <div class="calendar__weekdays__month">
-                            {% if loop.index == 1 or project.calendar.weeks[loop.index - 2] and week.month != project.calendar.weeks[loop.index - 2].month %}
+                            {% if loop.index == 1 or project.calendar_weeks.weeks[loop.index - 2] and week.month != project.calendar_weeks.weeks[loop.index - 2].month %}
                               <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
                             {% else %}
                               <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
