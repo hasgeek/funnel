@@ -46,18 +46,6 @@ FunnelIndexView.add_route_for('home', '', endpoint='index')
 FunnelIndexView.init_app(funnelapp)
 
 
-@app.route('/account')
-@lastuser.requires_login
-def account():
-    return render_template('account.html.jinja2')
-
-
-@funnelapp.route('/account', endpoint='account')
-def talkfunnel_account():
-    with app.app_context(), app.test_request_context():
-        return redirect(url_for('account', _external=True))
-
-
 @app.route('/api/whoami')
 @funnelapp.route('/api/whoami')
 def whoami():
