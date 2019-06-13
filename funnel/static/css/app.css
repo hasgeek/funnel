@@ -74,6 +74,10 @@
   padding-top: 2em;
 }
 
+.page-content--top-padding {
+  padding-top: 0;
+}
+
 @media (min-width: 992px) {
   .page-content--top-padding {
     padding-top: 3em;
@@ -224,11 +228,6 @@ html.touch .collapsible__body--disable {
   background: transparent !important;
 }
 
-.funnel-notice .alert__text {
-  font-size: 24px;
-  line-height: 32px;
-}
-
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -349,89 +348,6 @@ html.touch .collapsible__body--disable {
     height: 25px;
   }
 }
-.hg-banner {
-  padding-top: 2em;
-}
-.hg-banner .mui-divider--banner {
-  height: 4px;
-  background-color: #dda32a;
-  width: 20%;
-  margin: 1em 0 0;
-}
-
-@media (min-width: 1200px) {
-  .hg-banner {
-    text-align: center;
-  }
-  .hg-banner .mui-divider--banner {
-    margin: 1em auto 0;
-  }
-}
-.logo-wrapper {
-  max-width: 200px;
-}
-
-.hg-logo {
-  width: 185px;
-  height: 139px;
-}
-
-.hg-banner .s1 {
-  color: #df5e0e;
-}
-.hg-banner .s2 {
-  color: #816894;
-}
-.hg-banner .s3 {
-  color: #f0a40c;
-}
-
-.banner {
-  position: relative;
-  overflow: hidden;
-}
-
-@media (min-width: 992px) {
-  .banner {
-    border-bottom: 2px solid rgba(132, 146, 166, 0.3);
-  }
-}
-.banner__img {
-  width: 100%;
-  display: block;
-}
-
-.banner__headline {
-  color: #816894;
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 40px;
-  padding: 0 30px;
-  z-index: 2;
-}
-
-@media (min-width: 992px) {
-  .banner__headline {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    right: 0;
-    transform: translate(0%, -50%);
-    font-size: 24px;
-    line-height: 32px;
-  }
-}
-@media (min-width: 1200px) {
-  .banner__headline {
-    font-size: 32px;
-    line-height: 40px;
-    left: -40px;
-  }
-}
-.banner__headline-txt {
-  color: #f0a40c;
-}
-
 .sub-navbar-container {
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   border-top: 1px solid rgba(132, 146, 166, 0.3);
@@ -496,6 +412,78 @@ html.touch .collapsible__body--disable {
   text-transform: uppercase;
 }
 
+.hg-banner {
+  padding-top: 2em;
+}
+.hg-banner .headline {
+  font-size: 32px;
+  line-height: 40px;
+}
+.hg-banner .mui-divider--banner {
+  height: 4px;
+  background-color: #dda32a;
+  width: 20%;
+  margin: 1em 0 0;
+}
+
+@media (min-width: 992px) {
+  .hg-banner {
+    text-align: center;
+  }
+  .hg-banner .headline {
+    font-size: 48px;
+    line-height: 58px;
+  }
+  .hg-banner .mui-divider--banner {
+    margin: 1em auto 0;
+  }
+}
+.funnel-banner {
+  position: relative;
+  overflow: hidden;
+}
+.funnel-banner .banner__img {
+  width: 100%;
+  display: block;
+}
+.funnel-banner .banner__headline {
+  color: #816894;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 40px;
+  padding: 0 30px;
+  z-index: 2;
+}
+.funnel-banner .banner__headline-txt {
+  color: #f0a40c;
+}
+
+@media (min-width: 992px) {
+  .funnel-banner {
+    border-bottom: 2px solid rgba(132, 146, 166, 0.3);
+  }
+  .funnel-banner .banner__headline {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    right: 0;
+    transform: translate(0%, -50%);
+    font-size: 24px;
+    line-height: 32px;
+  }
+}
+@media (min-width: 1200px) {
+  .funnel-banner .banner__headline {
+    font-size: 32px;
+    line-height: 40px;
+    left: -40px;
+  }
+}
+@media (min-width: 992px) {
+  .upcoming {
+    padding-left: 2em;
+  }
+}
 @media (min-width: 1200px) {
   .spotlight {
     position: relative;
@@ -506,10 +494,19 @@ html.touch .collapsible__body--disable {
     border-left: 1px solid rgba(132, 146, 166, 0.3);
     height: 100px;
     position: absolute;
-    right: 50px;
+    right: 0;
     top: 35%;
   }
+
+  .upcoming {
+    padding-left: 3em;
+  }
 }
+.funnel-notice .alert__text {
+  font-size: 24px;
+  line-height: 32px;
+}
+
 .cfp-action-btn {
   padding: 10px 0;
   cursor: pointer;
@@ -679,7 +676,7 @@ html.touch .collapsible__body--disable {
   color: #1F2D3D;
   display: block;
   cursor: pointer;
-  max-width: 450px;
+  max-width: 400px;
 }
 
 .clickable-card:focus,
@@ -725,18 +722,22 @@ html.touch .collapsible__body--disable {
     font-size: 24px;
   }
 }
-.card--upcoming {
+.card--upcoming,
+.card--cfp {
   display: flex;
   flex-wrap: wrap;
   box-shadow: none;
   margin-bottom: 30px;
   background: transparent;
 }
-.card--upcoming .card__image__tagline {
+.card--upcoming .card__image__tagline,
+.card--cfp .card__image__tagline {
   font-size: inherit;
 }
 .card--upcoming .card__image-wrapper,
-.card--upcoming .card__image--default {
+.card--upcoming .card__image--default,
+.card--cfp .card__image-wrapper,
+.card--cfp .card__image--default {
   flex: 0 0 100%;
   min-height: auto;
   border-radius: 2px;
@@ -744,11 +745,14 @@ html.touch .collapsible__body--disable {
   cursor: pointer;
 }
 .card--upcoming .card__image-wrapper a,
-.card--upcoming .card__image--default a {
+.card--upcoming .card__image--default a,
+.card--cfp .card__image-wrapper a,
+.card--cfp .card__image--default a {
   display: block;
   width: 100%;
 }
-.card--upcoming .card__image-wrapper--cfp .card__image-wrapper__overlay {
+.card--upcoming .card__image-wrapper--cfp .card__image-wrapper__overlay,
+.card--cfp .card__image-wrapper--cfp .card__image-wrapper__overlay {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -757,51 +761,48 @@ html.touch .collapsible__body--disable {
   z-index: 1;
   background-image: linear-gradient(to bottom, rgba(67, 89, 111, 0.5), #202d3c);
 }
-.card--upcoming .card__image-wrapper--cfp .card__image-wrapper__text {
+.card--upcoming .card__image-wrapper--cfp .card__image-wrapper__text,
+.card--cfp .card__image-wrapper--cfp .card__image-wrapper__text {
   position: absolute;
   z-index: 2;
   color: #fff;
   bottom: 0;
 }
-.card--upcoming .card__body {
+.card--upcoming .card__body,
+.card--cfp .card__body {
   flex: 0 0 100%;
   padding: 0;
 }
-.card--upcoming .card__calendar {
+.card--upcoming .card__calendar,
+.card--cfp .card__calendar {
   padding: 1em 0;
   border-top: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 @media (min-width: 768px) {
   .card--upcoming .card__image-wrapper,
-  .card--upcoming .card__image--default {
-    flex: 0 0 150px;
+  .card--upcoming .card__image--default,
+  .card--cfp .card__image-wrapper,
+  .card--cfp .card__image--default {
+    flex: 0 0 300px;
   }
-  .card--upcoming .card__image-wrapper a,
-  .card--upcoming .card__image--default a {
-    display: block;
-    width: 150px;
-    height: 150px;
-  }
-  .card--upcoming .card__image-wrapper img,
-  .card--upcoming .card__image--default img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .card--upcoming .card__body {
-    flex: 0 0 calc(100% - 150px);
+  .card--upcoming .card__body,
+  .card--cfp .card__body {
+    flex: 0 0 calc(100% - 300px);
     padding: 0 0 0 1em;
   }
 }
 @media (min-width: 1200px) {
-  .card--upcoming .card__body {
+  .card--upcoming .card__body,
+  .card--cfp .card__body {
     padding: 0 0 0 2em;
   }
-  .card--upcoming .card__body--cfp {
+  .card--upcoming .card__body--cfp,
+  .card--cfp .card__body--cfp {
     padding: 0 0 0 1em;
   }
-  .card--upcoming .card__image-wrapper--cfp {
+  .card--upcoming .card__image-wrapper--cfp,
+  .card--cfp .card__image-wrapper--cfp {
     height: 150px;
   }
 }
@@ -836,12 +837,6 @@ html.touch .collapsible__body--disable {
 .card--small {
   max-width: 400px;
   margin-top: 10px;
-}
-
-.month {
-  float: left;
-  width: 35px;
-  font-variant: all-small-caps;
 }
 
 .calendar {
@@ -906,54 +901,6 @@ html.touch .collapsible__body--disable {
   width: calc(100% - 100%/8);
   display: flex;
   flex-wrap: wrap;
-}
-
-.weekname {
-  float: left;
-  min-width: calc(100%/8);
-  text-align: center;
-  font-variant: all-small-caps;
-}
-
-.week {
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-}
-.week .week__day {
-  text-align: center;
-  position: relative;
-  width: calc(100%/8);
-}
-.week .week__day--month {
-  font-variant: all-small-caps;
-  line-height: 24px;
-}
-.week .week__day--active:after {
-  content: '';
-  font-weight: bold;
-  border-radius: 50%;
-  background-color: #b2d6ff;
-  background-color: Highlight;
-  width: 24px;
-  height: 24px;
-  text-align: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  z-index: 1;
-}
-.week .week__day__txt {
-  position: relative;
-  z-index: 2;
-  font-size: 13px;
-  line-height: 24px;
-}
-.week .week__day--active .week__day__txt {
-  color: #1F2D3D;
-  color: HighlightText;
 }
 
 .contact-card {
