@@ -57,7 +57,7 @@ def profile_new():
         message=_(u"Talkfunnel is a free service while in beta. Sign up now to help us test the service."),
         submit="Next",
         formid="profile_new",
-        cancel_url=url_for('IndexView_home'),
+        cancel_url=url_for('index'),
         ajax=False)
 
 
