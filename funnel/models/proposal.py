@@ -96,7 +96,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    search_vector = db.Column(
+    search_vector = db.deferred(db.Column(
         TSVectorType(
             'title', 'abstract_text', 'outline_text', 'requirements_text', 'slides',
             'preview_video', 'links', 'bio_text',
@@ -109,13 +109,14 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'preview_video': 'C',
                 'links': 'B',
                 'bio_text': 'B',
-                }
+                },
+            regconfig='english',
             ),
-        nullable=False)
+        nullable=False))
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
-        db.Index('ix_proposal_search_vector', search_vector, postgresql_using='gin'),
+        db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
     __roles__ = {

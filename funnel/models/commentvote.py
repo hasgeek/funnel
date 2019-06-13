@@ -110,10 +110,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
-    search_vector = db.Column(TSVectorType('message_text', weights={'message_text': 'A'}), nullable=False)
+    search_vector = db.deferred(db.Column(
+        TSVectorType('message_text', weights={'message_text': 'A'}, regconfig='english'),
+        nullable=False))
 
     __table_args__ = (
-        db.Index('ix_comment_search_vector', search_vector, postgresql_using='gin'),
+        db.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
     def __init__(self, **kwargs):

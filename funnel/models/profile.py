@@ -21,19 +21,20 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
-    search_vector = db.Column(
+    search_vector = db.deferred(db.Column(
         TSVectorType(
             'name', 'title', 'description_text',
-            weights={'name': 'A', 'title': 'A', 'description_text': 'B'}
+            weights={'name': 'A', 'title': 'A', 'description_text': 'B'},
+            regconfig='english',
             ),
-        nullable=False)
+        nullable=False))
 
     teams = db.relationship(
         Team, primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
         backref='profile', lazy='dynamic')
 
     __table_args__ = (
-        db.Index('ix_profile_search_vector', search_vector, postgresql_using='gin'),
+        db.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
     __roles__ = {

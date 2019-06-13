@@ -71,19 +71,20 @@ class Label(BaseScopedNameMixin, db.Model):
     #: although all the previous records will stay in database.
     _archived = db.Column('archived', db.Boolean, nullable=False, default=False)
 
-    search_vector = db.Column(
+    search_vector = db.deferred(db.Column(
         TSVectorType(
             'name', 'title', 'description',
-            weights={'name': 'A', 'title': 'A', 'description': 'B'}
+            weights={'name': 'A', 'title': 'A', 'description': 'B'},
+            regconfig='english',
             ),
-        nullable=False)
+        nullable=False))
 
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
-        db.Index('ix_label_search_vector', search_vector, postgresql_using='gin'),
+        db.Index('ix_label_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
     __roles__ = {

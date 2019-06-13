@@ -32,21 +32,22 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     featured = db.Column(db.Boolean, default=False, nullable=False)
     banner_image_url = db.Column(UrlType, nullable=True)
 
-    search_vector = db.Column(
+    search_vector = db.deferred(db.Column(
         TSVectorType(
             'title', 'description_text', 'speaker_bio_text', 'speaker',
             weights={
                 'title': 'A', 'description_text': 'B', 'speaker_bio_text': 'B', 'speaker': 'A'
-                }
+                },
+            regconfig='english',
             ),
-        nullable=False)
+        nullable=False))
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
         db.CheckConstraint(
             '("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
             'session_start_end_check'),
-        db.Index('ix_session_search_vector', search_vector, postgresql_using='gin'),
+        db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
     @hybrid_property

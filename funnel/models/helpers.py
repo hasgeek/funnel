@@ -88,12 +88,12 @@ def add_search_trigger(model, column_name):
 
         class MyModel(db.Model):
             ...
-            search_vector = db.Column(
-                TSVectorType('name', 'title', weights={'name': 'A', 'title': 'B'}),
-                nullable=False)
+            search_vector = db.deferred(db.Column(
+                TSVectorType('name', 'title', weights={'name': 'A', 'title': 'B'}, regconfig='english'),
+                nullable=False))
 
             __table_args__ = (
-                db.Index('ix_mymodel_search_vector', search_vector, postgresql_using='gin'),
+                db.Index('ix_mymodel_search_vector', 'search_vector', postgresql_using='gin'),
                 )
 
         add_search_trigger(MyModel, 'search_vector')
@@ -112,13 +112,16 @@ def add_search_trigger(model, column_name):
     function_name = model.__tablename__ + '_' + column_name + '_update'
     trigger_name = model.__tablename__ + '_' + column_name + '_trigger'
     weights = column.type.options.get('weights', {})
+    regconfig = column.type.options.get('regconfig', 'english')
 
     trigger_fields = []
     update_fields = []
 
     for col in column.type.columns:
-        texpr = "to_tsvector('english', COALESCE(NEW.{col}, ''))".format(col=pgquote(col))
-        uexpr = "to_tsvector('english', COALESCE({col}, ''))".format(col=pgquote(col))
+        texpr = "to_tsvector('{regconfig}', COALESCE(NEW.{col}, ''))".format(
+            regconfig=regconfig, col=pgquote(col))
+        uexpr = "to_tsvector('{regconfig}', COALESCE({col}, ''))".format(
+            regconfig=regconfig, col=pgquote(col))
         if col in weights:
             texpr = "setweight({expr}, '{weight}')".format(expr=texpr, weight=weights[col])
             uexpr = "setweight({expr}, '{weight}')".format(expr=uexpr, weight=weights[col])

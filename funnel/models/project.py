@@ -131,15 +131,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     #: project editors or profile admins.
     featured = db.Column(db.Boolean, default=False, nullable=False)
 
-    search_vector = db.Column(
+    search_vector = db.deferred(db.Column(
         TSVectorType(
             'name', 'title', 'description_text', 'instructions_text', 'location',
             weights={
                 'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
                 'location': 'C'
-                }
+                },
+            regconfig='english',
             ),
-        nullable=False)
+        nullable=False))
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
@@ -160,7 +161,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
-        db.Index('ix_project_search_vector', search_vector, postgresql_using='gin'),
+        db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
     __roles__ = {
