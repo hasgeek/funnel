@@ -94,8 +94,8 @@
                     <div class="calendar">
                       <div class="calendar__weekdays">
                         <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"</p>
-                        {% for day in featured_project.calendar.days %}
-                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ week }}</p>
+                        {% for weekday in featured_project.calendar.days %}
+                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
                         {% endfor %}
                       </div>
                       <div class="calendar__weekdays">
@@ -108,8 +108,8 @@
                             {% endif %}
                           </div>
                           <div class="calendar__weekdays__dates">
-                            {% for date in week.dates|sort(week.dates|int) %}
-                              <p class="calendar__weekdays__date {% if  week.dates[date] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date }}</span></p>
+                            {% for date in week.dates %}
+                              <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
                             {% endfor %}
                           </div>
                         {% endfor %}
@@ -142,7 +142,6 @@
           <ul class="mui-list--unstyled" role="list">
           {% for project in upcoming_projects %}
             <li class="card card--upcoming" role="listitem">
-            {{ project.calendar }}
               <div class="card__image-wrapper">
                 {% if project.bg_image.url %}
                   <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}" aria-label="{{ project.title }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
@@ -160,13 +159,14 @@
                 <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-headline mui--text-dark">{{ project.title }}</a></h3>
                 {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                 <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
+                {{ project.calendar }}
                 {% if project.calendar.weeks and project.calendar.weeks|length > 0 %}
                   <div class="card__calendar">
                     <div class="calendar">
                       <div class="calendar__weekdays">
                         <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-                        {% for day in project.calendar.days %}
-                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ week }}</p>
+                        {% for weekday in project.calendar.days %}
+                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
                         {% endfor %}
                       </div>
                       <div class="calendar__weekdays">
@@ -179,8 +179,8 @@
                             {% endif %}
                           </div>
                           <div class="calendar__weekdays__dates">
-                            {% for date in week.dates|sort(week.dates|int) %}
-                              <p class="calendar__weekdays__date {% if  week.dates[date] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date }}</span></p>
+                            {% for date in week.dates %}
+                              <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
                             {% endfor %}
                           </div>
                         {% endfor %}
