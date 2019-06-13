@@ -4,14 +4,13 @@ from flask_lastuser.sqlalchemy import ProfileBase
 
 from . import MarkdownColumn, UuidMixin, UrlType, TSVectorType, db
 from .user import UseridMixin, Team
-from .helper import RESERVED_NAMES, SearchQuery
+from .helpers import RESERVED_NAMES, add_search_trigger
 
 __all__ = ['Profile']
 
 
 class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
-    query_class = SearchQuery
     reserved_names = RESERVED_NAMES
 
     admin_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
@@ -24,14 +23,18 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
 
     search_vector = db.Column(
         TSVectorType(
-            'name', 'title', 'description',
-            weights={'name': 'A', 'title': 'A', 'description': 'B'}
+            'name', 'title', 'description_text',
+            weights={'name': 'A', 'title': 'A', 'description_text': 'B'}
             ),
         nullable=False)
 
     teams = db.relationship(
         Team, primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
         backref='profile', lazy='dynamic')
+
+    __table_args__ = (
+        db.Index('ix_profile_search_vector', search_vector, postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
@@ -58,3 +61,6 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         if actor is not None and self.admin_team in actor.teams:
             roles.add('admin')
         return roles
+
+
+add_search_trigger(Profile, 'search_vector')

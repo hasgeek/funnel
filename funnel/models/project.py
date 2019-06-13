@@ -16,7 +16,7 @@ from . import (BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, Uu
 from .user import Team, User
 from .profile import Profile
 from .commentvote import Commentset, SET_TYPE, Voteset
-from .helper import RESERVED_NAMES, SearchQuery
+from .helpers import RESERVED_NAMES, add_search_trigger
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
@@ -49,7 +49,6 @@ class SCHEDULE_STATE(LabeledEnum):
 
 class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'project'
-    query_class = SearchQuery
     reserved_names = RESERVED_NAMES
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -159,7 +158,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'Session',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
-    __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
+    __table_args__ = (
+        db.UniqueConstraint('profile_id', 'name'),
+        db.Index('ix_project_search_vector', search_vector, postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
@@ -461,6 +463,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             roles.add('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
+
+
+add_search_trigger(Project, 'search_vector')
 
 
 Profile.listed_projects = db.relationship(

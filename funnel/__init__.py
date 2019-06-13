@@ -70,6 +70,10 @@ rq.init_app(funnelapp)
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui'], theme='mui')
+baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
+    'pygments', 'toastr', 'baseframe-mui'], theme='mui')
+
+# Register JS and CSS assets on both apps
 app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js', 'jquery.ui.sortable.touch.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -110,9 +114,6 @@ app.assets.register('js_sortable',
     Bundle(assets.require('!jquery.js', 'jquery.ui.js', 'jquery.ui.sortable.touch.js'),
         output='js/sortable.packed.js', filters='uglipyjs'))
 
-
-baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
-    'pygments', 'toastr', 'baseframe-mui'], theme='mui')
 funnelapp.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js', 'jquery.ui.sortable.touch.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -160,4 +161,6 @@ funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
 funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
     view_func=funnelapp.send_static_file, subdomain='<subdomain>')
 
+# Database model loading (from Funnel or extensions) is complete.
+# Configure database mappers now, before the process is forked for workers.
 db.configure_mappers()

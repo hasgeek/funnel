@@ -2,7 +2,6 @@
 # flake8: noqa
 
 from sqlalchemy_utils import TSVectorType
-from sqlalchemy_searchable import make_searchable
 from coaster.sqlalchemy import (TimestampMixin, UuidMixin, BaseMixin, BaseNameMixin,
     BaseScopedNameMixin, BaseScopedIdNameMixin, BaseIdNameMixin, MarkdownColumn,
     JsonDict, NoIdMixin, CoordinatesMixin, UrlType)
@@ -10,7 +9,6 @@ from coaster.db import db
 
 
 TimestampMixin.__with_timezone__ = True
-make_searchable(db.metadata)
 
 
 from .commentvote import *

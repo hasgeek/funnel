@@ -5,9 +5,9 @@ from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from . import db, BaseScopedNameMixin, TSVectorType
-from .helper import SearchQuery
 from .project import Project
 from .proposal import Proposal
+from .helpers import add_search_trigger
 
 
 proposal_label = db.Table(
@@ -20,7 +20,6 @@ proposal_label = db.Table(
 
 class Label(BaseScopedNameMixin, db.Model):
     __tablename__ = 'label'
-    query_class = SearchQuery
 
     project_id = db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
     project = db.relationship(Project)  # Backref is defined in the Project model with an ordering list
@@ -82,7 +81,10 @@ class Label(BaseScopedNameMixin, db.Model):
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'name'),
+        db.Index('ix_label_search_vector', search_vector, postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
@@ -212,6 +214,9 @@ class Label(BaseScopedNameMixin, db.Model):
             raise ValueError("This label requires one of its options to be removed")
         if self in proposal.labels:
             proposal.labels.remove(self)
+
+
+add_search_trigger(Label, 'search_vector')
 
 
 class ProposalLabelProxyWrapper(object):

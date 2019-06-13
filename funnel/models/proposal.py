@@ -10,10 +10,10 @@ from baseframe import __
 from ..util import geonameid_from_location
 from . import (TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn,
     CoordinatesMixin, UrlType, TSVectorType, db)
-from .helper import SearchQuery
 from .user import User
 from .project import Project
 from .commentvote import Commentset, Voteset, SET_TYPE
+from .helpers import add_search_trigger
 
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
@@ -57,7 +57,6 @@ class PROPOSAL_STATE(LabeledEnum):
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
-    query_class = SearchQuery
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
@@ -100,7 +99,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     search_vector = db.Column(
         TSVectorType(
             'title', 'abstract_text', 'outline_text', 'requirements_text', 'slides',
-            'preview_video', 'links', 'bio',
+            'preview_video', 'links', 'bio_text',
             weights={
                 'title': 'A',
                 'abstract_text': 'B',
@@ -109,12 +108,15 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'slides': 'B',
                 'preview_video': 'C',
                 'links': 'B',
-                'bio': 'B',
+                'bio_text': 'B',
                 }
             ),
         nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'url_id'),
+        db.Index('ix_proposal_search_vector', search_vector, postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
@@ -313,6 +315,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if self.state.DRAFT and 'reader' in roles:
             roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
+
+
+add_search_trigger(Proposal, 'search_vector')
 
 
 class ProposalRedirect(TimestampMixin, db.Model):

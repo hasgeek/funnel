@@ -2,10 +2,10 @@
 
 from sqlalchemy.ext.hybrid import hybrid_property
 from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType, TSVectorType
-from .helper import SearchQuery
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
+from .helpers import add_search_trigger
 
 
 __all__ = ['Session']
@@ -13,7 +13,6 @@ __all__ = ['Session']
 
 class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'session'
-    query_class = SearchQuery
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = db.relationship(Project,
@@ -46,7 +45,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         db.UniqueConstraint('project_id', 'url_id'),
         db.CheckConstraint(
             '("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
-            'session_start_end_check')
+            'session_start_end_check'),
+        db.Index('ix_session_search_vector', search_vector, postgresql_using='gin'),
         )
 
     @hybrid_property
@@ -72,3 +72,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         # so it becomes an unscheduled session.
         self.start = None
         self.end = None
+
+
+add_search_trigger(Session, 'search_vector')
