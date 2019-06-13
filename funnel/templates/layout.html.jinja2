@@ -63,7 +63,7 @@
   {%- else %}
     {% with site_links=[] %}
       {% if not current_auth.is_anonymous -%}
-        {% set site_links = [{'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'section' :'account' }] %}
+        {% set site_links = [{'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'name' :'account' }] %}
       {%- else %}
         {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
       {%- endif %}
