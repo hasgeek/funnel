@@ -7,6 +7,8 @@ from .. import app, funnelapp, lastuser
 
 @route('/account')
 class AccountView(ClassView):
+    current_section = 'account'  # needed for showing active tab
+
     @route('', endpoint='account')
     @lastuser.requires_login
     @render_with('account.html.jinja2')

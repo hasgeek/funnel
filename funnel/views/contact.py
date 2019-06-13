@@ -23,6 +23,8 @@ def contact_details(participant):
 
 @route('/account/contacts')
 class ContactView(ClassView):
+    current_section = 'account'  # needed for showing active tab
+
     @route('', endpoint='contacts')
     @render_with('contacts.html.jinja2')
     def contacts(self):
