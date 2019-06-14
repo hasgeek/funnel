@@ -62,7 +62,7 @@ def highlight_snippet(text):
 
 # --- Search functions --------------------------------------------------------
 
-@cache.memoize(timeout=300)
+# @cache.memoize(timeout=300)
 def search_counts(squery):
     """Return counts of search results"""
     return [{
@@ -72,7 +72,7 @@ def search_counts(squery):
         for k, v in search_types.items()]
 
 
-@cache.memoize(timeout=300)
+# @cache.memoize(timeout=300)
 def search_results(squery, stype, page=1, per_page=20):
     """Return search results"""
     # Pick up model data for the given type string
@@ -135,10 +135,9 @@ def search_results(squery, stype, page=1, per_page=20):
 
 
 # --- Views -------------------------------------------------------------------
-
 class SearchView(ClassView):
     @route('/search')
-    @render_with(json=True)
+    @render_with('search.html.jinja2', json=True)
     @requestargs('q', ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
         squery = for_tsquery(q)

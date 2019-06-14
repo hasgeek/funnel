@@ -32,6 +32,11 @@
 {%- endblock %}
 
 {% block header -%}
+  <form action='/search' class="search-form">
+    <input type="search" name="q" aria-label="Search the site" placeholder="Search..." class="search-form__field">
+    <input type="text" name="type" value="project" hidden>
+    <input type="submit" hidden/>
+  </form>
   {% macro site_title() %}
     {%- if config['LEGACY'] -%}
       {%- if g.profile -%}
@@ -63,7 +68,7 @@
   {%- else %}
     {% with site_links=[] %}
       {% if not current_auth.is_anonymous -%}
-        {% set site_links = [{'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'name' :'account' }] %}
+        {% set site_links = [{'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'name' :'account'}] %}
       {%- else %}
         {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
       {%- endif %}

@@ -1,0 +1,31 @@
+.tabs {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  overflow: scroll;
+  align-items: center;
+
+  .tabs__item {
+    padding: 1em;
+    border-bottom: 2px solid transparent;
+    transition: border-color 1.5s ease;
+    cursor: pointer;
+  }
+
+  .tabs__item--active {
+    border-bottom: 2px solid #856A91;
+  }
+}
+
+.search {
+  margin-top: 1em;
+
+  .search__results {
+    margin-bottom: 2em;
+  }
+}
+
+
+@media(min-width: 1200px) {
+  
+}

@@ -1,0 +1,112 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import ajaxform %}
+{% block title %}Search{% endblock %}
+{% block description %}Search{% endblock %}
+
+{% block contentwrapper %}
+  <div class="grid details-section">
+    <div class="grid__col-12">
+      <div id="search-wrapper">
+        {% raw %}
+        <script id='search-template' type='text/ractive'>
+          <div class="tabs">
+            {{#each tabs}}
+              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if active == type}}tabs__item--active{{/if}}" on-click="updateResults(event, type)">{{ label }}</p>
+            {{/each}}
+          </div>
+          <div class="search">
+            {{#each results:result }}
+              {{#if result == active}}
+                {{#results[result]}}
+                  <div class="search__results">
+                    <h3 class="mui--text-title"><a href={{ url }}>{{{ title }}}</a></h3>
+                    <p class="mui--text-body1">{{{ snippets }}}</p>
+                  </div>
+                {{/}}
+              {{/if}}
+            {{/each}}
+          </div>
+        </script>
+        {% endraw %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/0.7.3/ractive-legacy.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+
+
+
+      var searchConfig = {
+        counts: {{ counts|tojson }},
+        results: {{ results|tojson }}
+      };
+
+      function init(config) {
+        let searchWidget = new Ractive({
+          el: '#search-wrapper',
+          template: '#search-template',
+          data: {
+            tabs: config.counts,
+            results: config.results,
+            active: 'project',
+            url: window.location.pathname,
+            queryString: ''
+          },
+          getQueryString() {
+            let searchStr = window.location.search.substring(1).split('&');
+            let queryString = searchStr.map(function(param){
+              let paramSplit = param.split('=');
+              if (paramSplit[0] === 'q') {
+                return paramSplit[1];
+              }
+            }).filter(function(val){
+              return typeof val !== 'undefined' && val !== "";
+            });
+            this.set('queryString', queryString);
+          },
+          updateResults(event, type) {
+            event.original.preventDefault();
+            console.log('type', type);
+            this.fetchResult(type);
+          },
+          fetchResult(type) {
+            let widget = this;
+            let url = `${widget.get('url')}?q=${widget.get('queryString')}&type=${type}`
+            $.ajax({
+              type: 'GET',
+              url: url,
+              timeout: 5000,
+              dataType: 'json',
+              success: function(data) {
+                widget.set('results' + '.' + type, data.results.items);
+                widget.set('active', type);
+                widget.handleBrowserHistory(type, url)
+              }
+            });
+          },
+          handleBrowserHistory(type, url) {
+            let widget = this;
+            window.history.pushState({'type': type}, '', url);
+            $(window).on('popstate', () => {
+              if(window.history.state) {
+                widget.set('active', window.history.state.type)
+              }
+            });
+          },
+          updateMetaTags: function(pageDetails) {
+          },
+          onrender() {
+            this.getQueryString();
+          }
+        });
+      }
+
+      init(searchConfig);
+
+    });
+  </script>
+{% endblock %}

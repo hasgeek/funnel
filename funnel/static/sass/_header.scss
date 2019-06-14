@@ -17,7 +17,7 @@
     margin: 0;
   }
   .content-wrapper {
-    padding-top: 0;
+    padding-top: 44px;
   }
 }
 
@@ -183,4 +183,41 @@ and (orientation: landscape) {
   .sub-navbar {
     max-width: 1170px;
   }
+}
+
+.search-form {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  left: 0;
+  box-shadow: 0 1px 3px rgba(158,158,158,0.12), 0 1px 2px rgba(158,158,158,0.24);
+
+  .search-form__field {
+    width: 100%;
+    background-color: #f9fafc;
+    border: none;
+    padding: 1em;
+    color: #79818b;
+  }
+}
+
+
+@media(min-width: 1200px) {
+ .search-form {
+    position: absolute;
+    width: 450px;
+    margin: auto;
+    top: 8px;
+    left: calc(50% - 225px);
+    box-shadow: none;
+
+    .search-form__field {
+      width: 100%;
+      border-radius: 2px;
+      background-color: #eff2f6;
+      border: none;
+      padding: 0.5em 1em;
+      color: #79818b;
+    }
+  } 
 }
