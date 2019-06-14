@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.hybrid import hybrid_property
-from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType
+from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType, TSVectorType
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
+from .helpers import add_search_trigger
 
 
 __all__ = ['Session']
@@ -31,11 +32,22 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     featured = db.Column(db.Boolean, default=False, nullable=False)
     banner_image_url = db.Column(UrlType, nullable=True)
 
+    search_vector = db.deferred(db.Column(
+        TSVectorType(
+            'title', 'description_text', 'speaker_bio_text', 'speaker',
+            weights={
+                'title': 'A', 'description_text': 'B', 'speaker_bio_text': 'B', 'speaker': 'A'
+                },
+            regconfig='english',
+            ),
+        nullable=False))
+
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
         db.CheckConstraint(
             '("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
-            'session_start_end_check')
+            'session_start_end_check'),
+        db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
     @hybrid_property
@@ -61,3 +73,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         # so it becomes an unscheduled session.
         self.start = None
         self.end = None
+
+
+add_search_trigger(Session, 'search_vector')

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from . import db, BaseMixin, MarkdownColumn, UuidMixin
-from .user import User
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import cached, StateManager
 from baseframe import __
+
+from . import db, BaseMixin, MarkdownColumn, UuidMixin, TSVectorType
+from .user import User
+from .helpers import add_search_trigger
+
 
 __all__ = ['Voteset', 'Vote', 'Commentset', 'Comment']
 
@@ -85,6 +88,7 @@ class Commentset(BaseMixin, db.Model):
 
 class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
+
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('comments', lazy='dynamic', cascade="all, delete-orphan"))
@@ -105,6 +109,14 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     voteset = db.relationship(Voteset, uselist=False)
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+
+    search_vector = db.deferred(db.Column(
+        TSVectorType('message_text', weights={'message_text': 'A'}, regconfig='english'),
+        nullable=False))
+
+    __table_args__ = (
+        db.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
+        )
 
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
@@ -142,3 +154,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                     'delete_comment'
                     ])
         return perms
+
+
+add_search_trigger(Comment, 'search_vector')
