@@ -11,12 +11,12 @@
         <script id='search-template' type='text/ractive'>
           <div class="tabs">
             {{#each tabs}}
-              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if active == type}}tabs__item--active{{/if}}" on-click="updateResults(event, type)">{{ label }}</p>
+              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateResults(event, type)">{{ label }}</p>
             {{/each}}
           </div>
           <div class="search">
             {{#each results:result }}
-              {{#if result == active}}
+              {{#if result == activeTab}}
                 {{#results[result]}}
                   <div class="search__results">
                     <h3 class="mui--text-title"><a href={{ url }}>{{{ title }}}</a></h3>
@@ -38,8 +38,6 @@
   <script type="text/javascript">
     $(function() {
 
-
-
       var searchConfig = {
         counts: {{ counts|tojson }},
         results: {{ results|tojson }}
@@ -51,56 +49,62 @@
           template: '#search-template',
           data: {
             tabs: config.counts,
-            results: config.results,
-            active: 'project',
+            results: '',
+            activeTab: '',
             url: window.location.pathname,
             queryString: ''
           },
-          getQueryString() {
+          getQueryString(paramName) {
             let searchStr = window.location.search.substring(1).split('&');
             let queryString = searchStr.map(function(param){
               let paramSplit = param.split('=');
-              if (paramSplit[0] === 'q') {
+              if (paramSplit[0] === paramName) {
                 return paramSplit[1];
               }
             }).filter(function(val){
               return typeof val !== 'undefined' && val !== "";
             });
-            this.set('queryString', queryString);
+            return queryString[0];
           },
-          updateResults(event, type) {
+          updateResults(event, searchType) {
             event.original.preventDefault();
-            console.log('type', type);
-            this.fetchResult(type);
+            this.fetchResult(searchType);
           },
-          fetchResult(type) {
+          fetchResult(searchType) {
             let widget = this;
-            let url = `${widget.get('url')}?q=${widget.get('queryString')}&type=${type}`
+            let url = `${widget.get('url')}?q=${widget.get('queryString')}&type=${searchType}`
             $.ajax({
               type: 'GET',
               url: url,
               timeout: 5000,
               dataType: 'json',
               success: function(data) {
-                widget.set('results' + '.' + type, data.results.items);
-                widget.set('active', type);
-                widget.handleBrowserHistory(type, url)
+                widget.updateTabResults(searchType, data.results.items, url);
               }
             });
           },
-          handleBrowserHistory(type, url) {
+          updateTabResults(searchType, result, url='') {
+            this.set('results.' + searchType, result);
+            this.set('activeTab', searchType);
+            if (url) {
+              this.handleBrowserHistory(searchType, url);
+            }
+          },
+          handleBrowserHistory(searchType, url) {
             let widget = this;
-            window.history.pushState({'type': type}, '', url);
+            window.history.pushState({'searchType': searchType}, '', url);
             $(window).on('popstate', () => {
               if(window.history.state) {
-                widget.set('active', window.history.state.type)
+                widget.set('activeTab', window.history.state.searchType)
               }
             });
           },
           updateMetaTags: function(pageDetails) {
           },
           onrender() {
-            this.getQueryString();
+            let queryString = this.getQueryString('q');
+            this.set('queryString', queryString);
+            this.updateTabResults(this.getQueryString('type'), config.results.items);
           }
         });
       }
