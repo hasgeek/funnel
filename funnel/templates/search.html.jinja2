@@ -11,14 +11,14 @@
         <script id='search-template' type='text/ractive'>
           <div class="tabs">
             {{#each tabs}}
-              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateResults(event, type)">{{ label }}</p>
+              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(event, type)">{{ label }}</p>
             {{/each}}
           </div>
-          <div class="search">
+          <div class="tab-content">
             {{#each results:result }}
               {{#if result == activeTab}}
                 {{#results[result]}}
-                  <div class="search__results">
+                  <div class="tab-content__results">
                     <h3 class="mui--text-title"><a href={{ url }}>{{{ title }}}</a></h3>
                     <p class="mui--text-body1">{{{ snippets }}}</p>
                   </div>
@@ -66,9 +66,13 @@
             });
             return queryString[0];
           },
-          updateResults(event, searchType) {
+          updateTabContent(event, searchType) {
             event.original.preventDefault();
-            this.fetchResult(searchType);
+            if(this.get('results.' + searchType)) {
+              this.activateTab(searchType);
+            } else {
+              this.fetchResult(searchType);
+            }
           },
           fetchResult(searchType) {
             let widget = this;
@@ -79,12 +83,14 @@
               timeout: 5000,
               dataType: 'json',
               success: function(data) {
-                widget.updateTabResults(searchType, data.results.items, url);
+                widget.activateTab(searchType, data.results.items, url);
               }
             });
           },
-          updateTabResults(searchType, result, url='') {
-            this.set('results.' + searchType, result);
+          activateTab(searchType, result='', url='') {
+            if(result) {
+              this.set('results.' + searchType, result);
+            }
             this.set('activeTab', searchType);
             if (url) {
               this.handleBrowserHistory(searchType, url);
@@ -104,7 +110,7 @@
           onrender() {
             let queryString = this.getQueryString('q');
             this.set('queryString', queryString);
-            this.updateTabResults(this.getQueryString('type'), config.results.items);
+            this.activateTab(this.getQueryString('type'), config.results.items);
           }
         });
       }
