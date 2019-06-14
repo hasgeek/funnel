@@ -9,7 +9,13 @@
   {%- endassets -%}
 {% endblock %}
 
-{% block bodytag %}<body class="mui--bg-primary no-sticky-header">{% endblock %}
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
 
 {%- macro proposal_list(project, proposals) %}
   <table id="proposals-table" class="proposal-list-table mui-table">
@@ -26,7 +32,8 @@
                 {%- endif %}
                 {%- if g.user and current_auth.permissions.edit_project %}
                   {%- if proposal.has_outstation_speaker %}
-                    <i class="material-icons mui--text-subhead mui--align-middle" aria-label="Outstation Speaker">flight</i>
+                    <i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">flight</i>
+                    <span class="mui--hide" aria-label="Outstation Speaker"></span>
                   {%- endif %}
                 {%- endif %}
               {%- else -%}
@@ -41,10 +48,10 @@
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
               {% if proposal.preview_video.url %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" aria-label="Preview video" class="material-icons icon-middle">play_arrow</i></li>
+                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" class="material-icons icon-middle" aria-hidden="true">play_arrow</i><span class="mui--hide" aria-label="This proposal has a preview video"></span></li>
               {% endif %}
               {% if proposal.slides.url %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" aria-label="Outstation Speaker" aria-label="Slides" class="material-icons icon-middle">slideshow</i></li>
+                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" class="material-icons icon-middle" aria-hidden="true">slideshow</i>><span class="mui--hide" aria-label="This proposal has slides"></span></li>
               {% endif %}
             </ul>
           </td>
@@ -62,27 +69,27 @@
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data %}
       <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url.url %}
       <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.allow_rsvp %}
       <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- endif %}
     {%- if project.schedule_state.PUBLISHED %}
       <li class="cta">
         <hr class="mui-divider">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
     {% if project.cfp_state.OPEN -%}
       <li class="cta">
         {%- if not project.schedule_state.PUBLISHED %}<hr class="mui-divider">{% endif %}
-        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>
@@ -131,7 +138,7 @@
             </form>
           </div>
           {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
-              <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon">keyboard_arrow_up</i></p>
+              <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
               <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
           {%- endfor -%}
         {%- else %}
