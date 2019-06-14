@@ -9,7 +9,10 @@ __all__ = ['LabelForm', 'LabelOptionForm']
 class LabelForm(forms.Form):
     name = forms.StringField("", widget=forms.HiddenInput(), validators=[forms.validators.Optional()])
     title = forms.StringField(__("Label"),
-        validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
+        validators=[
+            forms.validators.DataRequired(__(u"This can’t be empty")),
+            forms.validators.Length(max=250)],
+        filters=[forms.filters.strip()])
     icon_emoji = forms.StringField("")
     required = forms.BooleanField(__("Make this label mandatory in proposal forms"), default=False,
         description=__("If checked, proposers must select one of the options"))
@@ -20,6 +23,9 @@ class LabelForm(forms.Form):
 class LabelOptionForm(forms.Form):
     name = forms.StringField("", widget=forms.HiddenInput(), validators=[forms.validators.Optional()])
     title = forms.StringField(__("Option"),
-        validators=[forms.validators.DataRequired(__(u"This can’t be empty")), forms.validators.Length(max=250)])
+        validators=[
+            forms.validators.DataRequired(__(u"This can’t be empty")),
+            forms.validators.Length(max=250)],
+        filters=[forms.filters.strip()])
     icon_emoji = forms.StringField("")
     seq = forms.IntegerField("", widget=forms.HiddenInput())

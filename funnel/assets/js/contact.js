@@ -1,4 +1,4 @@
-var vCardsJS = require('vcards-js');
+import vCardsJS from "vcards-js";
 
 $(() => {
   window.HasGeek.downloadVcard = function (element, fullname, email, phone, company) {

@@ -74,6 +74,10 @@
   padding-top: 2em;
 }
 
+.page-content--top-padding {
+  padding-top: 0;
+}
+
 @media(min-width: 992px) {
   .page-content--top-padding {
     padding-top: 3em;
@@ -229,10 +233,4 @@ html.touch .collapsible__body--disable {
 
 .mui-btn--nopadding:hover {
   background: transparent !important;
-}
-
-//Talkfunnel
-.funnel-notice .alert__text{
-  font-size: 24px;
-  line-height: 32px;
 }

@@ -33,38 +33,52 @@
 
 {% block header -%}
   {% macro site_title() %}
-    {%- if g.profile -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item">
-        {%- if config['LEGACY'] -%}
+    {%- if config['LEGACY'] -%}
+      {%- if g.profile -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
           <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
-        {%- else -%} 
-         <img src="{{ url_for('static', filename='img/hg-logo.png') }}" class="header__site-title__logo"/>
-        {%- endif -%}
-      </a><i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-      <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
-      {%- if project %}
-        {%- if project.parent_project %}
-          <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-          <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item">{{ project.parent_project.short_title() }}</a>
+        </a><i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
+        {%- if project %}
+          {%- if project.parent_project %}
+            <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+            <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title() }}">{{ project.parent_project.short_title() }}</a>
+          {%- endif %}
+          <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+          <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title() }}">{{ project.short_title() }}</a>
         {%- endif %}
-        <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-        <a href="{{ project.url_for() }}" class="header__site-title__item">{{ project.short_title() }}</a>
+      {%- else -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
+          {{ config['SITE_TITLE'] }}
+        </a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item">
-        {%- if config['LEGACY'] -%}
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
-        {%- else -%} 
-         <img src="{{ url_for('static', filename='img/hg-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin"/>
-        {%- endif -%}
-        {{ config['SITE_TITLE'] }}
-      </a>
-    {%- endif -%}
+      <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+    {%- endif %}
   {% endmacro %}
-  {{ hgtopnav(site_title=site_title()) }}
+
+  {%- if config['LEGACY'] -%}
+      {{ hgtopnav(site_title=site_title()) }}
+  {%- else %}
+    {% with site_links=[] %}
+      {% if not current_auth.is_anonymous -%}
+        {% set site_links = [{'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'name' :'account' }] %}
+      {%- else %}
+        {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
+      {%- endif %}
+      {{ hgtopnav(site_title=site_title(), site_links=site_links, auth=false, network=false) }}
+    {% endwith %}
+  {%- endif %}
 {%- endblock %}
 
-{% block bodytag %}<body class="mui--bg-primary">{% endblock %}
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
 
 {% block contenthead %}
   {% block banner %}
@@ -107,13 +121,9 @@
   {%- if not config['LEGACY'] -%}
   <div class="mui-container">
     <div class="grid mui--text-body2">
-      <div class="grid__col-sm-6 mui--text-center">
-        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/" title="about"><br>About us and site policies</a>.</p>
-      </div>
-      <div class="grid__col-sm-6 mui--text-center">
-        <p>
-          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com" title="mailto">info@hasgeek.com</a>, <a href="tel:+917676332020" title="tel">+91 7676 33 2020</a>
-        </p>
+      <div class="grid__col-sm-12 mui--text-center">
+        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %}</p>
+        <p><a href="/about/" title="about">About us and site policies</a>.</p>
       </div>
       </div>
     </div>

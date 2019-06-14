@@ -170,7 +170,7 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window. HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= ''}) {
+  window.HasGeek.ProposalInit = function ({pageUrl, videoWrapper= '', videoUrl= ''}) {
     Comments.init(pageUrl);
     LabelsWidget.init();
 

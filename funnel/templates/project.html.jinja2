@@ -44,13 +44,19 @@
   </script>
 {% endblock %}
 
-{% block bodytag %}<body class="mui--bg-primary no-sticky-header">{% endblock %}
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
 
 {%- macro page_btns(project) %}
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}
       <li class="cta">
-        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary js-smooth-scroll js-samepage" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary js-smooth-scroll js-samepage" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url.url %}
       <li class="cta">
@@ -64,13 +70,13 @@
     {%- if project.schedule_state.PUBLISHED %}
       <li class="cta">
         <hr class="mui-divider">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
     {% if project.cfp_state.OPEN -%}
       <li class="cta">
         {%- if not project.schedule_state.PUBLISHED %}<hr class="mui-divider">{% endif %}
-        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>

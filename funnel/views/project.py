@@ -38,6 +38,7 @@ def project_data(project):
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'bg_color': project.bg_color,
         'explore_url': project.explore_url.url if project.explore_url is not None else "",
+        'calendar_weeks': project.calendar_weeks
         }
 
 
