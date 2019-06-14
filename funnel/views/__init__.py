@@ -3,4 +3,3 @@
 
 from . import (index, login, profile, project, proposal, commentvote,
     venue, schedule, session, event, participant, label, contact, account, search)
-

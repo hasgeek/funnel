@@ -75,8 +75,9 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         self.end = None
 
 
-
 add_search_trigger(Session, 'search_vector')
+
+
 # Project schedule column expressions
 # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
 Project.schedule_start_at = db.column_property(
