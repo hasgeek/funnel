@@ -173,7 +173,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
-                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
+                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location', 'calendar_weeks'
                 },
             }

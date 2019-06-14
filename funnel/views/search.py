@@ -72,7 +72,7 @@ def search_counts(squery):
         for k, v in search_types.items()]
 
 
-@cache.memoize(timeout=300)
+# @cache.memoize(timeout=300)
 def search_results(squery, stype, page=1, per_page=20):
     """Return search results"""
     # Pick up model data for the given type string
@@ -122,6 +122,7 @@ def search_results(squery, stype, page=1, per_page=20):
             'title': highlight_snippet(title) if title is not None else None,
             'url': item.absolute_url,
             'snippets': highlight_snippet(snippet).split(pg_delimiter),
+            'obj': dict(item.current_access()),
             } for item, title, snippet in pagination.items],
         'has_next': pagination.has_next,
         'has_prev': pagination.has_prev,
