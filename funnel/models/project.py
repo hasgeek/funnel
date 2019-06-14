@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict, OrderedDict
+
+from pytz import utc
+from babel.dates import format_date
+from isoweek import Week
+
 from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
-from pytz import utc
 
-from baseframe import __
+from baseframe import __, get_locale
 
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum, utcnow
+from coaster.utils import LabeledEnum, utcnow, valid_username
 
 from ..util import geonameid_from_location
 from . import (BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType,
@@ -150,13 +155,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     all_labels = db.relationship('Label', lazy='dynamic')
 
     featured_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)')
     scheduled_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)')
     unscheduled_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
     __table_args__ = (
@@ -169,10 +174,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
-                'location'
+                'location', 'calendar_weeks'
                 },
             }
         }
+
+    def __init__(self, **kwargs):
+        super(Project, self).__init__(**kwargs)
+        self.voteset = Voteset(type=SET_TYPE.PROJECT)
+        self.commentset = Commentset(type=SET_TYPE.PROJECT)
+
+    def __repr__(self):
+        return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     @cached_property
     def datelocation(self):
@@ -216,19 +229,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
 
-    def __init__(self, **kwargs):
-        super(Project, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROJECT)
-        self.commentset = Commentset(type=SET_TYPE.PROJECT)
-
-    def __repr__(self):
-        return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
-
     state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto < utcnow().date(),
+        lambda project: project.schedule_end_at is not None and project.schedule_end_at < utcnow(),
+        lambda project: project.schedule_end_at < utcnow(),
         label=('past', __("Past")))
     state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto >= utcnow().date(),
+        lambda project: project.schedule_end_at is not None and project.schedule_end_at >= utcnow(),
+        lambda project: project.schedule_end_at >= utcnow(),
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
@@ -317,7 +324,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @db.validates('name')
     def _validate_name(self, key, value):
         value = unicode(value).strip() if value is not None else None
-        if not value:
+        if not value or not valid_username(value):
             raise ValueError(value)
 
         if value != self.name and self.name is not None and self.profile is not None:
@@ -328,6 +335,40 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             else:
                 redirect.project = self
         return value
+
+    @cached_property
+    def calendar_weeks(self):
+        session_dates = db.session.query('date', 'count').from_statement(db.text(
+            '''
+            SELECT DATE_TRUNC('day', "start" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
+            FROM "session" WHERE "project_id" = :project_id AND "start" IS NOT NULL AND "end" IS NOT NULL
+            GROUP BY date ORDER BY date;
+            ''')).params(timezone=self.timezone.zone, project_id=self.id)
+        weeks = defaultdict(dict)
+        for result in session_dates:
+            weekobj = Week.withdate(result.date)
+            if weekobj.week not in weeks:
+                weeks[weekobj.week]['year'] = weekobj.year
+                # Order is important, and we need dict to count easily
+                weeks[weekobj.week]['dates'] = OrderedDict()
+            for wdate in weekobj.days():
+                weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
+                if result.date.date() == wdate:
+                    weeks[weekobj.week]['dates'][wdate.day] += result.count
+                    if 'month' not in weeks[weekobj.week]:
+                        weeks[weekobj.week]['month'] = format_date(wdate, 'MMM', locale=get_locale())
+
+        # Extract sorted weeks as a list
+        weeks_list = [v for k, v in sorted(weeks.items())]
+
+        for week in weeks_list:
+            # Convering to JSON messes up dictionary key order even though we used OrderedDict.
+            # This turns the OrderedDict into a list of tuples and JSON preserves that order.
+            week['dates'] = week['dates'].items()
+
+        return {
+            'locale': get_locale(), 'weeks': weeks_list,
+            'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
 
     @property
     def rooms(self):

@@ -76,3 +76,18 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
 
 
 add_search_trigger(Session, 'search_vector')
+
+
+# Project schedule column expressions
+# Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
+Project.schedule_start_at = db.column_property(
+    db.select([db.func.min(Session.start)]
+        ).where(Session.start.isnot(None)).where(Session.project_id == Project.id
+        ).correlate_except(Session)
+    )
+
+Project.schedule_end_at = db.column_property(
+    db.select([db.func.max(Session.end)]
+        ).where(Session.end.isnot(None)).where(Session.project_id == Project.id
+        ).correlate_except(Session)
+    )

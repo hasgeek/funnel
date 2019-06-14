@@ -78,6 +78,7 @@ class ProposalForm(forms.Form):
         choices=[(1, __(u"I will be speaking")),
                  (0, __(u"I’m proposing a topic for someone to speak on"))])
     title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
         description=__("The title of your session"))
     abstract = forms.MarkdownField(__("Abstract"), validators=[forms.validators.DataRequired()],
         description=__("A brief description of your session with target audience and key takeaways"))
@@ -86,11 +87,11 @@ class ProposalForm(forms.Form):
     requirements = forms.MarkdownField(__("Requirements"),
         description=__("For workshops, what must participants bring to the session?"))
     slides = forms.URLField(__("Slides"),
-        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl()],
         description=__("Link to your slides. These can be just an outline initially. "
             "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"))
     preview_video = forms.URLField(__("Preview Video"),
-        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
+        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl()],
         description=__("Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
             "If you provide a YouTube/Vimeo link, we'll embed it in the page"))
     links = forms.TextAreaField(__("Links"),
@@ -99,10 +100,15 @@ class ProposalForm(forms.Form):
             "folks decide if they want to attend your session"))
     bio = forms.MarkdownField(__("Speaker bio"), validators=[forms.validators.DataRequired()],
         description=__("Tell us why you are the best person to be taking this session"))
-    email = forms.EmailField(__("Your email address"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+    email = forms.EmailField(__("Your email address"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=80),
+            forms.validators.ValidEmail()],
         description=__("An email address we can contact you at. "
             "Not displayed anywhere"))
-    phone = forms.StringField(__("Phone number"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+    phone = forms.StringField(__("Phone number"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         description=__("A phone number we can call you at to discuss your proposal, if required. "
             "Will not be displayed"))
     location = forms.StringField(__("Your location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
