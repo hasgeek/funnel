@@ -51,8 +51,7 @@ class ProjectForm(forms.Form):
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
-            forms.validators.ValidUrl()],
-        filters=[forms.filters.strip()])
+            forms.validators.ValidUrl()])
     description = forms.MarkdownField(__("Project description"), validators=[forms.validators.DataRequired()],
         description=__("About the project"))
     timezone = forms.SelectField(__("Timezone"),
