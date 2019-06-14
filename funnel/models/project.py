@@ -13,7 +13,7 @@ from sqlalchemy_utils import TimezoneType
 from baseframe import __, get_locale
 
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum, utcnow
+from coaster.utils import LabeledEnum, utcnow, valid_username
 
 from ..util import geonameid_from_location
 from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType, db
@@ -164,6 +164,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             }
         }
 
+    def __init__(self, **kwargs):
+        super(Project, self).__init__(**kwargs)
+        self.voteset = Voteset(type=SET_TYPE.PROJECT)
+        self.commentset = Commentset(type=SET_TYPE.PROJECT)
+
+    def __repr__(self):
+        return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
+
     @cached_property
     def datelocation(self):
         """
@@ -206,19 +214,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
 
-    def __init__(self, **kwargs):
-        super(Project, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROJECT)
-        self.commentset = Commentset(type=SET_TYPE.PROJECT)
-
-    def __repr__(self):
-        return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
-
     state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto < utcnow().date(),
+        lambda project: project.schedule_end_at is not None and project.schedule_end_at < utcnow(),
+        lambda project: project.schedule_end_at < utcnow(),
         label=('past', __("Past")))
     state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto >= utcnow().date(),
+        lambda project: project.schedule_end_at is not None and project.schedule_end_at >= utcnow(),
+        lambda project: project.schedule_end_at >= utcnow(),
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
@@ -307,7 +309,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @db.validates('name')
     def _validate_name(self, key, value):
         value = unicode(value).strip() if value is not None else None
-        if not value:
+        if not value or not valid_username(value):
             raise ValueError(value)
 
         if value != self.name and self.name is not None and self.profile is not None:
