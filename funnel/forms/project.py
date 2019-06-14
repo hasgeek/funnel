@@ -27,14 +27,20 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {
 
 class ProjectForm(forms.Form):
     name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
-    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    title = forms.StringField(__("Title"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()])
     location = forms.StringField(__("Location"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
+        filters=[forms.filters.strip()],
         description=__("Eg. Bangalore, Mumbai, Pune"))
     tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
-        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.URL(),
+            forms.validators.ValidUrl()])
     description = forms.MarkdownField(__("Project description"), validators=[forms.validators.DataRequired()],
         description=__("About the project"))
     timezone = forms.SelectField(__("Timezone"),
@@ -48,7 +54,10 @@ class ProjectForm(forms.Form):
         default=u"CCCCCC")
     explore_url = forms.URLField(__("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
-        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.URL(),
+            forms.validators.ValidUrl()])
     parent_project = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
@@ -121,13 +130,17 @@ class RsvpForm(forms.Form):
 
 
 class EventForm(forms.Form):
-    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    title = forms.StringField(__("Title"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()])
     badge_template = forms.URLField(__("Badge template URL"), description=u"URL of background image for the badge",
-        validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
+        validators=[forms.validators.Optional(), forms.validators.ValidUrl()])
 
 
 class TicketClientForm(forms.Form):
-    name = forms.StringField(__("Name"), validators=[forms.validators.DataRequired()])
+    name = forms.StringField(__("Name"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()])
     clientid = forms.StringField(__("Client id"), validators=[forms.validators.DataRequired()])
     client_eventid = forms.StringField(__("Client event id"), validators=[forms.validators.DataRequired()])
     client_secret = forms.StringField(__("Client event secret"), validators=[forms.validators.DataRequired()])
@@ -135,7 +148,9 @@ class TicketClientForm(forms.Form):
 
 
 class TicketTypeForm(forms.Form):
-    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    title = forms.StringField(__("Title"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()])
     events = QuerySelectMultipleField(__("Events"),
         widget=ListWidget(), option_widget=CheckboxInput(), allow_blank=True, get_label='title', query_factory=lambda: [])
 

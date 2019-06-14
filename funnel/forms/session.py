@@ -6,10 +6,14 @@ from coaster.utils import nullint
 
 
 class SessionForm(forms.Form):
-    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()])
+    title = forms.StringField(__("Title"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()])
     venue_room_id = forms.SelectField(__("Room"), choices=[], coerce=nullint, validators=[forms.validators.Optional()])
     description = forms.MarkdownField(__("Description"), validators=[forms.validators.Optional()])
-    speaker = forms.StringField(__("Speaker"), validators=[forms.validators.Optional(), forms.validators.Length(max=200)])
+    speaker = forms.StringField(__("Speaker"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=200)],
+        filters=[forms.filters.strip()])
     speaker_bio = forms.MarkdownField(__("Speaker bio"), validators=[forms.validators.Optional()])
     banner_image_url = forms.URLField(__("Banner image URL"), description=u"Banner image for session card",
         validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
