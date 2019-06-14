@@ -22,7 +22,7 @@ class IndexView(ClassView):
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
         featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
-            .order_by(Project.date.asc()).limit(1).first()  # NOQA
+            .order_by(Project.schedule_start_at.asc()).limit(1).first()  # NOQA
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
         open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
