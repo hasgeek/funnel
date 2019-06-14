@@ -215,10 +215,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return datelocation if not self.location else u', '.join([datelocation, self.location])
 
     state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.schedule_end_at < utcnow().date(),
+        lambda project: project.schedule_end_at is not None and project.schedule_end_at < utcnow(),
+        lambda project: project.schedule_end_at < utcnow(),
         label=('past', __("Past")))
     state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.schedule_end_at >= utcnow().date(),
+        lambda project: project.schedule_end_at is not None and project.schedule_end_at >= utcnow(),
+        lambda project: project.schedule_end_at >= utcnow(),
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
