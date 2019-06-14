@@ -76,11 +76,16 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
+        featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
+            .order_by(Project.date.asc()).limit(1).first()  # NOQA
+        if featured_project in upcoming_projects:
+            upcoming_projects.remove(featured_project)
         open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
         draft_projects = [proj for proj in self.obj.draft_projects if proj.current_roles.admin]
         return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects,
             'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
-            'open_cfp_projects': open_cfp_projects, 'draft_projects': draft_projects}
+            'open_cfp_projects': open_cfp_projects, 'draft_projects': draft_projects,
+            'featured_project': featured_project}
 
     @route('json')
     @render_with(json=True)

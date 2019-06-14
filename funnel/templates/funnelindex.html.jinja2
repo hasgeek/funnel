@@ -16,7 +16,7 @@
 
 {% block banner %}
   {%- if not g.profile %}
-    <div class="banner">
+    <div class="funnel-banner">
       <picture class="banner__img">
         <source media="(max-width: 992px)" srcset="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
         <source srcset="{{ url_for('static', filename='img/banner-desktop.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
@@ -39,11 +39,6 @@
           </div>
         </div>
       </div>
-    </div>
-  {% endif %}
-  {%- if not config['LEGACY'] and g.profile and current_auth.permissions.new_project -%}
-    <div class="mui-container floating-btn-wrapper">
-      <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--fab mui-btn--primary create-floating-btn" title="Create new project">+</a>
     </div>
   {% endif %}
 {%- endblock %}

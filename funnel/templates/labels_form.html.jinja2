@@ -12,7 +12,7 @@
   {%- if subform %}
     <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
       {{ lform.hidden_tag() }}
-      <i class="material-icons mui--text-body1 drag-icon">drag_indicator</i>
+      <i class="material-icons mui--text-body1 drag-icon" aria-hidden="true">drag_indicator</i>
       {{ renderfield(lform.seq, css_class="seq-input") }}
   {%- endif %}
   {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
@@ -27,7 +27,7 @@
   {%- for error in lform.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn"><i class="material-icons mui--text-body1">close</i></button>
+    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="Close"><i class="material-icons mui--text-body1" aria-hidden="true">close</i></button>
     {%- endif %}
     <!-- Add archive button for existing sublabels -->
   {%- if subform %}
@@ -38,8 +38,8 @@
 {% block content %}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
-      <a class="alert__close" href="javascript:void(0);" aria-label="close"><i class="material-icons">clear</i></a>
-      <p class="alert__text"><i class="material-icons alert__icon">error</i>{% trans %}Please review the indicated issues{% endtrans %}</p>
+      <a class="alert__close" href="javascript:void(0);" aria-label="close"><i class="material-icons" aria-hidden="true">clear</i></a>
+      <p class="alert__text"><i class="material-icons alert__icon" aria-hidden="true">error</i>{% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}
   {%- if message %}
@@ -55,7 +55,7 @@
         {% endfor %}
       {% endif %}
     </div>
-    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form"><i class="material-icons mui--align-middle mui--text-subhead">add</i> Add option</button></div>
+    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form"><i class="material-icons mui--align-middle mui--text-subhead" aria-hidden="true">add</i> Add option</button></div>
     {%- if subforms|length > 0 %}
       {{ renderfield(form.required) }}
     {%- else -%}
