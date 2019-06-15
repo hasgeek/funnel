@@ -91,7 +91,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False, lazy='joined',
-        cascade='all, delete-orphan', single_parent=True)
+        cascade='all, delete-orphan', single_parent=True,
+        backref=db.backref('proposal', uselist=False))
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)

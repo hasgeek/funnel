@@ -2,7 +2,7 @@
 
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import cached, StateManager
-from baseframe import __
+from baseframe import _, __
 
 from . import db, BaseMixin, MarkdownColumn, UuidMixin, TSVectorType
 from .user import User
@@ -110,6 +110,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
+    __roles__ = {
+        'all': {
+            'read': {'absolute_url', 'created_at', 'edited_at', 'user', 'title', 'message'}
+            }
+        }
+
     search_vector = db.deferred(db.Column(
         TSVectorType('message_text', weights={'message_text': 'A'}, regconfig='english'),
         nullable=False))
@@ -121,6 +127,21 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
         self.voteset = Voteset(type=SET_TYPE.COMMENT)
+
+    @property
+    def absolute_url(self):
+        if self.commentset.proposal:
+            return self.commentset.proposal.absolute_url + '#c' + self.suuid
+
+    @property
+    def title(self):
+        obj = self.commentset.proposal
+        if obj:
+            return _("{user} commented on {obj}").format(
+                user=self.user.pickername,
+                obj=self.commentset.proposal.title)
+        else:
+            return _("{user} commented").format(user=self.user.pickername)
 
     @state.transition(None, state.DELETED)
     def delete(self):
