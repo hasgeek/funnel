@@ -10,6 +10,13 @@
     border-bottom: 2px solid transparent;
     transition: border-color 1.5s ease;
     cursor: pointer;
+    margin-bottom: 2em;
+
+    .chip {
+      margin-left: 10px;
+      border-radius: 32px;
+      padding: 0 12px;
+    }
   }
 
   .tabs__item--active {
@@ -18,8 +25,6 @@
 }
 
 .tab-content {
-  margin-top: 1em;
-
   .tab-content__results {
     margin-bottom: 2em;
   }

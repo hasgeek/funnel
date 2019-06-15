@@ -4,25 +4,64 @@
 {% block description %}Search{% endblock %}
 
 {% block contentwrapper %}
-  <div class="grid details-section">
+  <div class="grid details-section js-lazyload-results">
     <div class="grid__col-12">
       <div id="search-wrapper">
         {% raw %}
         <script id='search-template' type='text/ractive'>
           <div class="tabs">
             {{#each tabs}}
-              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(event, type)">{{ label }}</p>
+              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(event, type)">{{ label }} <span class="chip">{{ count }}</span></p>
             {{/each}}
           </div>
           <div class="tab-content">
             {{#each results:result }}
               {{#if result == activeTab}}
-                {{#results[result]}}
+                {{#results[result].items}}
                   <div class="tab-content__results">
-                    <h3 class="mui--text-title"><a href={{ url }}>{{{ title }}}</a></h3>
-                    <p class="mui--text-body1">{{{ snippets }}}</p>
+                    {{#if result == 'project'}}
+                      <div class="card card--upcoming">
+                        <div class="card__image-wrapper">
+                          {{#if obj.bg_image }}
+                            <a href="{{ obj.url }}" aria-label="{{ title }}"><img class="card__image" src="{{ obj.bg_image }}" alt="{{ title }}"/></a>
+                          {{else}}
+                            <div class="card__image--default">
+                              <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/></a>
+                              <p class="card__image__tagline mui--text-body1">{{{ title }}}</p>
+                            </div>
+                          {{/if}}
+                        </div>
+                        <div class="card__body">
+                          <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-dark">{{{ title }}}</a></h3>
+                          <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
+                          <p class="mui--text-subhead mui--text-light zero-top-margin">{{{ snippets }}}</p>
+                        </div>
+                      </div>
+                    {{else}}
+                      <div>
+                        <h3 class="zero-top-margin zero-bottom-margin">
+                          {{#if url }}
+                            <a href="{{ url }}" class="mui--text-title mui--text-dark">{{{ title }}}</a>
+                          {{else}}
+                            {{{ title }}}
+                          {{/if}}
+                        </h3>
+                        <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
+                        <p class="mui--text-body1 mui--text-light zero-top-margin">{{{ snippets }}}</p>
+                        {{#if obj.project && obj.project.absolute_url }}
+                          <a href="{{ url }}" class="mui--text-title mui--text-dark mui--text-bold">{{{ obj.project.title }}}</a>
+                        {{/if}}
+                        {{#if obj && obj.bio }}
+                          <p class="mui--text-subhead">Speaker bio</p>
+                          <p class="mui--text-body1 mui--text-light zero-top-margin">{{{ obj.bio }}}</p>
+                        {{/if}}
+                      </div>
+                    {{/if}}
                   </div>
                 {{/}}
+                {{#if results[result].next_num }}
+                  <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i> Loading more</p>
+                {{/if}}
               {{/if}}
             {{/each}}
           </div>
@@ -40,7 +79,8 @@
 
       var searchConfig = {
         counts: {{ counts|tojson }},
-        results: {{ results|tojson }}
+        results: {{ results|tojson }},
+        defaultImage: "{{url_for('static', filename='img/card-background.png')}}"
       };
 
       function init(config) {
@@ -52,7 +92,8 @@
             results: '',
             activeTab: '',
             url: window.location.pathname,
-            queryString: ''
+            queryString: '',
+            defaultImage: config.defaultImage
           },
           getQueryString(paramName) {
             let searchStr = window.location.search.substring(1).split('&');
@@ -74,27 +115,37 @@
               this.fetchResult(searchType);
             }
           },
-          fetchResult(searchType) {
+          fetchResult(searchType, page=1) {
             let widget = this;
-            let url = `${widget.get('url')}?q=${widget.get('queryString')}&type=${searchType}`
+            let url = `${widget.get('url')}?q=${widget.get('queryString')}&type=${searchType}&page=${page}`
             $.ajax({
               type: 'GET',
               url: url,
               timeout: 5000,
               dataType: 'json',
               success: function(data) {
-                widget.activateTab(searchType, data.results.items, url);
+                widget.activateTab(searchType, data.results, url, page);
               }
             });
           },
-          activateTab(searchType, result='', url='') {
+          activateTab(searchType, result='', url='', page) {
             if(result) {
-              this.set('results.' + searchType, result);
+              if(page > 1) {
+                let existingResults = this.get('results.' + searchType);
+                let searchResults = [];
+                searchResults.push(...existingResults.items);
+                searchResults.push(...result.items);
+                result.items = searchResults
+                this.set('results.' + searchType, result);
+              } else {
+                this.set('results.' + searchType, result);
+              }
             }
             this.set('activeTab', searchType);
             if (url) {
               this.handleBrowserHistory(searchType, url);
             }
+            this.lazyoad();
           },
           handleBrowserHistory(searchType, url) {
             let widget = this;
@@ -107,10 +158,37 @@
           },
           updateMetaTags: function(pageDetails) {
           },
+          lazyoad: function() {
+            let lazyLoader = document.querySelector('.js-lazy-loader');
+            if(lazyLoader) {
+              this.handleObserver = this.handleObserver.bind(this);
+
+              let observer = new IntersectionObserver(
+                this.handleObserver,
+                {
+                  rootMargin: '0px',
+                  threshold: 0.5 
+                },
+              );
+              observer.observe(lazyLoader);
+            }
+          },
+          handleObserver(entries) {
+            let widget = this;
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                let nextPage = entry.target.getAttribute('data-next-page');
+                if(nextPage) {
+                  this.fetchResult(this.get('activeTab'), nextPage);
+                }
+              }
+              return;
+            });
+          },
           onrender() {
             let queryString = this.getQueryString('q');
             this.set('queryString', queryString);
-            this.activateTab(this.getQueryString('type'), config.results.items);
+            this.activateTab(this.getQueryString('type'), config.results);
           }
         });
       }

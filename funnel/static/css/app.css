@@ -1889,14 +1889,17 @@ body > .proposal-box.ui-draggable {
   border-bottom: 2px solid transparent;
   transition: border-color 1.5s ease;
   cursor: pointer;
+  margin-bottom: 2em;
+}
+.tabs .tabs__item .chip {
+  margin-left: 10px;
+  border-radius: 32px;
+  padding: 0 12px;
 }
 .tabs .tabs__item--active {
   border-bottom: 2px solid #856A91;
 }
 
-.tab-content {
-  margin-top: 1em;
-}
 .tab-content .tab-content__results {
   margin-bottom: 2em;
 }

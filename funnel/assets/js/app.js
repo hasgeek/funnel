@@ -11,7 +11,8 @@ $(() => {
     LazyloadImg.init('js-lazyload-img');
   };
 
-  if(document.querySelector('#page-navbar') || document.querySelector('.js-lazyload-img')) {
+  if(document.querySelector('#page-navbar') || document.querySelector('.js-lazyload-img') ||
+    document.querySelector('.js-lazyload-results')) {
     if (!('IntersectionObserver' in global &&
     'IntersectionObserverEntry' in global &&
     'intersectionRatio' in IntersectionObserverEntry.prototype)) {
