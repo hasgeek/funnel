@@ -386,7 +386,7 @@
             <tbody>
               {% for project in past_projects %}
                 <tr>
-                  <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td>
+                  <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.schedule_start_at|longdate }}</p></td>
                   <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
                   <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
                 </tr>

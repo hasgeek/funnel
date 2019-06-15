@@ -14,18 +14,18 @@ def index_jsonify(data):
 
 @route('/')
 class IndexView(ClassView):
-    @render_with('index.html.jinja2', json=True)
+    @render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
     def home(self):
         g.profile = None
         projects = Project.all_unsorted(legacy=False)  # NOQA
-        all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
+        all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.schedule_start_at.asc()).all()
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
         featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
             .order_by(Project.schedule_start_at.asc()).limit(1).first()  # NOQA
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
-        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
+        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.schedule_start_at.asc()).all()
         return {'projects': projects.all(), 'all_projects': all_projects,
             'upcoming_projects': upcoming_projects, 'open_cfp_projects': open_cfp_projects,
             'featured_project': featured_project}
@@ -33,7 +33,7 @@ class IndexView(ClassView):
 
 @route('/')
 class FunnelIndexView(ClassView):
-    @render_with('funnelindex.html.jinja2', json=True)
+    @render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
     def home(self):
         g.profile = None
         projects = Project.fetch_sorted(legacy=True).all()  # NOQA

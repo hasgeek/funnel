@@ -55,8 +55,8 @@ class TestProject(object):
     def test_project_dates(self, test_client, test_db, new_project):
         # without any session the project will have no start and end dates
         assert new_project.sessions.count() == 0
-        assert new_project.date is None
-        assert new_project.date_upto is None
+        assert new_project.schedule_start_at is None
+        assert new_project.schedule_end_at is None
 
         # let's add some sessions
         start_time_a = utcnow()
@@ -79,8 +79,8 @@ class TestProject(object):
         test_db.session.add(new_session_b)
         test_db.session.commit()
 
-        # now project.date will be the first session's start date
-        # and project.date_upto will be the last session's end date
+        # now project.schedule_start_at will be the first session's start date
+        # and project.schedule_end_at will be the last session's end date
         assert new_project.sessions.count() == 2
-        assert new_project.date == new_session_a.start.date()
-        assert new_project.date_upto == new_session_b.end.date()
+        assert new_project.schedule_start_at.date() == new_session_a.start.date()
+        assert new_project.schedule_end_at.date() == new_session_b.end.date()

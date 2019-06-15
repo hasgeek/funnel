@@ -155,7 +155,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
+                'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location', 'calendar_weeks'
                 },
@@ -187,31 +187,31 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         If multi-day event across years
         > 30 Dec 2018–02 Jan 2019, Bangalore
 
-        ``datelocation_format`` always keeps ``date_upto`` format as ``–DD Mmm YYYY``.
-        Depending on the scenario mentioned below, format for ``date`` changes. Above examples
+        ``datelocation_format`` always keeps ``schedule_end_at`` format as ``–DD Mmm YYYY``.
+        Depending on the scenario mentioned below, format for ``schedule_start_at`` changes. Above examples
         demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
-        Only ``date`` format changes.
+        Only ``schedule_start_at`` format changes.
         """
         daterange = u""
-        if self.date and self.date_upto:
-            daterange_format = u"{date}–{date_upto} {year}"
-            if self.date == self.date_upto:
+        if self.schedule_start_at and self.schedule_end_at:
+            daterange_format = u"{schedule_start_at}–{schedule_end_at} {year}"
+            if self.schedule_start_at == self.schedule_end_at:
                 # if both dates are same, in case of single day project
                 strf_date = ""
-                daterange_format = u"{date_upto} {year}"
-            elif self.date.month == self.date_upto.month:
+                daterange_format = u"{schedule_end_at} {year}"
+            elif self.schedule_start_at.month == self.schedule_end_at.month:
                 # If multi-day event in same month
                 strf_date = "%d"
-            elif self.date.month != self.date_upto.month:
+            elif self.schedule_start_at.month != self.schedule_end_at.month:
                 # If multi-day event across months
                 strf_date = "%d %b"
-            elif self.date.year != self.date_upto.year:
+            elif self.schedule_start_at.year != self.schedule_end_at.year:
                 # if the start date and end dates are in different years,
                 strf_date = "%d %b %Y"
             daterange = daterange_format.format(
-                date=self.date.strftime(strf_date),
-                date_upto=self.date_upto.strftime("%d %b"),
-                year=self.date.year)
+                schedule_start_at=self.schedule_start_at.astimezone(self.timezone).strftime(strf_date),
+                schedule_end_at=self.schedule_end_at.astimezone(self.timezone).strftime("%d %b"),
+                year=self.schedule_start_at.astimezone(self.timezone).year)
         return u', '.join(filter(None, [daterange, self.location]))
 
     state.add_conditional_state('PAST', state.PUBLISHED,
@@ -496,16 +496,14 @@ Profile.listed_projects = db.relationship(
         Project, lazy='dynamic',
         primaryjoin=db.and_(
             Profile.id == Project.profile_id, Project.parent_id == None,
-            Project.state.PUBLISHED),
-        order_by=Project.date.desc())  # NOQA
+            Project.state.PUBLISHED))  # NOQA
 
 
 Profile.draft_projects = db.relationship(
         Project, lazy='dynamic',
         primaryjoin=db.and_(
             Profile.id == Project.profile_id, Project.parent_id == None,
-            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)),
-        order_by=Project.date.desc())  # NOQA
+            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)))  # NOQA
 
 
 class ProjectRedirect(TimestampMixin, db.Model):

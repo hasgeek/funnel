@@ -145,7 +145,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         return dict(project=self.obj,
-            from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
+            from_date=date_js(self.obj.schedule_start_at), to_date=date_js(self.obj.schedule_end_at),
             sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             venues=[venue.current_access() for venue in self.obj.venues],
@@ -194,7 +194,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
             }
         return dict(project=self.obj, proposals=proposals,
-            from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
+            from_date=date_js(self.obj.schedule_start_at), to_date=date_js(self.obj.schedule_end_at),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             venues=[venue.current_access() for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))

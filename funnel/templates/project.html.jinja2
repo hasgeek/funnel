@@ -14,7 +14,7 @@
     "@type": "Event",
     "name": "{{ project.title }}",
     "url": "{{ project.url_for(_external=true) }}",
-    "startDate": "{{ project.date }}",
+    "startDate": "{{ project.schedule_start_at }}",
     {% if project.primary_venue -%}
     "location": {
       "@type": "Place",
@@ -35,7 +35,7 @@
      ],
     {% endif -%}
     "description": "{{ project.tagline|safe }}",
-    "endDate": "{{ project.date_upto }}",
+    "endDate": "{{ project.schedule_end_at }}",
     "offers": {
       "@type": "Offer",
       "url": "{{ project.url_for(_external=true) }}"
