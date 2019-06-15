@@ -58,6 +58,8 @@
                       </div>
                     {{/if}}
                   </div>
+                {{else}}
+                  <p class="mui--text-title">No results found</p>
                 {{/}}
                 {{#if results[result].next_num }}
                   <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i> Loading more</p>
@@ -79,7 +81,7 @@
 
       var searchConfig = {
         counts: {{ counts|tojson }},
-        results: {{ results|tojson }},
+        results: {{results|default("")|tojson}},
         defaultImage: "{{url_for('static', filename='img/card-background.png')}}"
       };
 
@@ -185,10 +187,22 @@
               return;
             });
           },
-          onrender() {
+          initTab() {
             let queryString = this.getQueryString('q');
             this.set('queryString', queryString);
-            this.activateTab(this.getQueryString('type'), config.results);
+            // Fill the search box with queryString
+            document.querySelector('.js-search-field').value = queryString;
+
+            let searchType = this.getQueryString('type');
+            if(searchType && config.results) {
+              this.activateTab(this.getQueryString('type'), config.results);
+            } else {
+              let deafultSearchType = this.get('tabs')[0]['type'];
+              this.fetchResult(deafultSearchType);
+            }
+          },
+          onrender() {
+            this.initTab();
           }
         });
       }
