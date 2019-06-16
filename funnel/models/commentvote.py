@@ -117,7 +117,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         }
 
     search_vector = db.deferred(db.Column(
-        TSVectorType('message_text', weights={'message_text': 'A'}, regconfig='english'),
+        TSVectorType(
+            'message_text',
+            weights={'message_text': 'A'},
+            regconfig='english',
+            hltext=lambda: Comment.message_html,
+            ),
         nullable=False))
 
     __table_args__ = (

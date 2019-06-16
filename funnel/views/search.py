@@ -13,9 +13,9 @@ from .. import app, funnelapp
 # --- Definitions -------------------------------------------------------------
 
 # PostgreSQL ts_headline markers, picked for low probability of conflict with db content
-pg_startsel = "{{{{{[[[[["
-pg_stopsel = "]]]]]}}}}}"
-pg_delimiter = '|!|!|'
+pg_startsel = '<b>'
+pg_stopsel = '</b>'
+pg_delimiter = u' … '
 
 # TODO: extend SearchModel to include profile_query_factory and project_query_factory
 # for scoped search
@@ -46,18 +46,9 @@ search_types = OrderedDict([
 
 # --- Utilities ---------------------------------------------------------------
 
-def intersperse_spaces(iterable):
-    """Insert spaces between each element of the given list"""
-    # From https://stackoverflow.com/a/5656097/78903
-    it = iter(iterable)
-    yield next(it)
-    for x in it:
-        yield ' '
-        yield x
-
-
-def highlight_snippet(text):
-    return escape(text).replace(pg_startsel, Markup('<b>')).replace(pg_stopsel, Markup('</b>'))
+def escape_quotes(text):
+    """PostgreSQL strips tags for us, but to be completely safe we need to escape quotes"""
+    return Markup(text.replace('"', '&quot;').replace("'", '&#39;'))
 
 
 # --- Search functions --------------------------------------------------------
@@ -99,15 +90,21 @@ def search_results(squery, stype, page=1, per_page=20):
     else:
         title_column = expression.null()
 
+    if 'hltext' in st.model.search_vector.type.options:
+        hltext = st.model.search_vector.type.options['hltext']()
+    else:
+        hltext = db.func.concat_ws(
+            ' / ', *(getattr(st.model, c) for c in st.model.search_vector.type.columns))
+
     # Also show a snippet of the item's text with search terms highlighted
     # Because we are searching against raw Markdown instead of rendered HTML,
     # the snippet will be somewhat bland. We can live with it for now.
     snippet_column = db.func.ts_headline(
         regconfig,
-        db.func.concat(*intersperse_spaces(
-            getattr(st.model, c) for c in st.model.search_vector.type.columns)),
+        hltext,
         db.func.to_tsquery(squery),
-        'MaxFragments=5, FragmentDelimiter="%s", '
+        'MaxFragments=2, FragmentDelimiter="%s", '
+        'MinWords=5, MaxWords=20, '
         'StartSel="%s", StopSel="%s"' % (pg_delimiter, pg_startsel, pg_stopsel),
         type_=db.UnicodeText
         )
@@ -119,9 +116,10 @@ def search_results(squery, stype, page=1, per_page=20):
     # Return a page of results
     return {
         'items': [{
-            'title': highlight_snippet(title) if title is not None else None,
+            'title': escape_quotes(title) if title is not None else None,
             'url': item.absolute_url,
-            'snippets': highlight_snippet(snippet).split(pg_delimiter),
+            'snippet': escape_quotes(snippet),
+            'snippets': escape_quotes(snippet).split(pg_delimiter),
             'obj': dict(item.current_access()),
             } for item, title, snippet in pagination.items],
         'has_next': pagination.has_next,

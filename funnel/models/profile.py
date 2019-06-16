@@ -26,6 +26,7 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
             'name', 'title', 'description_text',
             weights={'name': 'A', 'title': 'A', 'description_text': 'B'},
             regconfig='english',
+            hltext=lambda: db.func.concat_ws(' / ', Profile.title, Profile.description_html),
             ),
         nullable=False))
 

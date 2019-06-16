@@ -112,6 +112,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 'bio_text': 'B',
                 },
             regconfig='english',
+            hltext=lambda: db.func.concat_ws(' / ', Proposal.title, Proposal.abstract_html,
+                Proposal.outline_html, Proposal.requirements_html,
+                Proposal.links, Proposal.bio_html),
             ),
         nullable=False))
 

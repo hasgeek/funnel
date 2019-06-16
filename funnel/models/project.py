@@ -144,6 +144,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'location': 'C'
                 },
             regconfig='english',
+            hltext=lambda: db.func.concat_ws(
+                ' / ', Project.title, Project.location,
+                Project.description_html, Project.instructions_html),
             ),
         nullable=False))
 
@@ -248,12 +251,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lambda project: db.session.query(project.sessions.exists()).scalar(),
         label=('has_sessions', __("Has Sessions")))
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
-        lambda project: project.instructions.html != '',
-        lambda project: project.__table__.c.instructions_html != '',
+        lambda project: project.instructions_html != '',
         label=('private_draft', __("Private draft")))
     cfp_state.add_conditional_state('DRAFT', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is None,
-        lambda project: project.__table__.c.cfp_start_at == None,  # NOQA
+        lambda project: project.cfp_start_at == None,  # NOQA
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at > utcnow(),

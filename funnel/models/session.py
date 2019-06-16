@@ -39,6 +39,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
                 'title': 'A', 'description_text': 'B', 'speaker_bio_text': 'B', 'speaker': 'A'
                 },
             regconfig='english',
+            hltext=lambda: db.func.concat_ws(' / ', Session.title, Session.speaker,
+                Session.description_html, Session.speaker_bio_html),
             ),
         nullable=False))
 

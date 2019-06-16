@@ -76,6 +76,7 @@ class Label(BaseScopedNameMixin, db.Model):
             'name', 'title', 'description',
             weights={'name': 'A', 'title': 'A', 'description': 'B'},
             regconfig='english',
+            hltext=lambda: db.func.concat_ws(' / ', Label.title, Label.description),
             ),
         nullable=False))
 
