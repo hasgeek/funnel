@@ -34,7 +34,7 @@
                         <div class="card__body">
                           <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-hyperlink">{{{ title }}}</a></h3>
                           <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
-                          <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="quotes">"</span>{{{ snippets }}}<span class="quotes">"</span></p>
+                          <p class="mui--text-body1 mui--text-light zero-top-margin snippets">{{{ snippets }}}</p>
                         </div>
                       </div>
                     {{else}}
@@ -47,7 +47,7 @@
                           {{/if}}
                         </h3>
                         <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
-                        <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="quotes">"</span>{{{ snippets }}}<span class="quotes">"</span></p>
+                        <p class="mui--text-body1 mui--text-light zero-top-margin snippets">{{{ snippets }}}</p>
                         {{#if obj.project && obj.project.absolute_url }}
                           <a href="{{ url }}" class="mui--text-title mui--text-hyperlink mui--text-bold">{{{ obj.project.title }}}</a>
                         {{/if}}
