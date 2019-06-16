@@ -57,9 +57,9 @@
         </div>
       </div>
     {% endif %}
-    {% if all_projects %}
+    {% if projects %}
       <ul class="grid projects">
-        {% for project in all_projects %}
+        {% for project in projects %}
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
             <div class="grid__cell">
               <div class="card clickable-card" title="{{ project.title }}" data-href="{{ project.url_for() }}">
