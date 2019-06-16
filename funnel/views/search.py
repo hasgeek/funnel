@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, namedtuple
-from flask import Markup, request, escape
+from flask import Markup, request, escape, redirect, url_for
 import sqlalchemy.sql.expression as expression
 from coaster.utils import for_tsquery
 from coaster.views import requestargs, render_with, route, ClassView
@@ -144,7 +144,7 @@ class SearchView(ClassView):
         squery = for_tsquery(q)
         stype = request.args.get('type')  # Can't use requestargs as it doesn't support name changes
         if not squery:
-            return {}
+            return redirect(url_for('index'))
         if stype is None or stype not in search_types:
             return {
                 'type': None,
