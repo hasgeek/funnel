@@ -8,7 +8,7 @@
   .tabs__item {
     padding: 1em;
     cursor: pointer;
-    margin-bottom: 1em;
+    margin-bottom: 2em;
     position: relative;
 
     .chip {
@@ -18,19 +18,12 @@
     }
   }
 
-  .tabs__item:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    display: block;
-    width: 0;
-    height: 2px;
-    background: #856A91;
-    transition: width 0.5s ease;
+  .tabs__item {
+    border-bottom: 2px solid transparent;
   }
 
-  .tabs__item--active:after {
-    width: 100%;
+  .tabs__item--active {
+    border-bottom: 2px solid #856A91;
   }
 }
 
@@ -41,6 +34,17 @@
     .snippets {
       padding: 16px;
       border: 1px solid rgba(132,146,166,0.3);
+      position: relative;
+    }
+    .search-icon {
+      width: 20px;
+      display: inline-block;
+    }
+    .search-icon:after {
+      content: '🔍';
+      opacity: 0.4;
+      position: relative;
+      top: 1px;
     }
   }
 }
