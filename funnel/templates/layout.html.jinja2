@@ -55,7 +55,7 @@
       {%- endif %}
     {%- else -%}
       <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
-      <form action='/search' class="search-form">
+      <form action='/search' class="search-form js-search-form">
         <input type="search" name="q" aria-label="Search the site" placeholder="Search..." class="search-form__field js-search-field">
         <input type="text" name="type" value="project" hidden>
         <input type="submit" hidden/>
@@ -69,11 +69,13 @@
     {% with site_links=[] %}
       {% if not current_auth.is_anonymous -%}
         {% set site_links = [
-          {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search'},
+          {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
           {'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'name' :'account'}
           ]%}
       {%- else %}
-        {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
+        {% set site_links = [
+           {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
+          {'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'},] %}
       {%- endif %}
       {{ hgtopnav(site_title=site_title(), site_links=site_links, auth=false, network=false) }}
     {% endwith %}
@@ -178,6 +180,23 @@
         });
       });
     }
+
+  // TODO: Move to app.js
+  $('.js-search-show').on('click', function toggleSearchForm(event) {
+    event.preventDefault();
+    $('.js-search-form').toggleClass('search-form--show');
+    $('.js-search-field').focus();
+  });
+
+  // Clicking outside close search form if open
+  $('body').on('click', function closeSearchForm(event) {
+    console.log('event target', $(event.target));
+    if($('.js-search-form').hasClass('search-form--show') && 
+        !$(event.target).is('.js-search-field') && 
+        !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
+      $('.js-search-form').removeClass('search-form--show');
+    }
+  });
   </script>
   {%- endif -%}
   {% block footerscripts %}{% endblock %}

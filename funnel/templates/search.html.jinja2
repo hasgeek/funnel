@@ -84,7 +84,9 @@
         results: {{results|default("")|tojson}},
         defaultImage: "{{url_for('static', filename='img/card-background.png')}}"
       };
+      init(searchConfig);
 
+      // TODO: Move to search.js
       function init(config) {
         let searchWidget = new Ractive({
           el: '#search-wrapper',
@@ -206,9 +208,6 @@
           }
         });
       }
-
-      init(searchConfig);
-
     });
   </script>
 {% endblock %}
