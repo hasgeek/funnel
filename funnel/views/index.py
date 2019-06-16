@@ -41,7 +41,7 @@ class FunnelIndexView(ClassView):
     def home(self):
         g.profile = None
         projects = Project.fetch_sorted(legacy=True).all()  # NOQA
-        return {'projects': projects}
+        return {'all_projects': projects}
 
 
 IndexView.add_route_for('home', '', endpoint='index')
