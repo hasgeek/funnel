@@ -26,7 +26,7 @@
             background-color: #eff2f6;
             border: none;
             padding: 15px 30px;
-            color: #79818b;
+            color: #1F2D3D;
             font-size: 14px;
           }
         }
@@ -82,6 +82,8 @@
             .header__site-title__logo {
               height: 35px;
               margin-right: 15px;
+              position: relative;
+              top: -2px;
             }
 
             .search-form {

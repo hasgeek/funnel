@@ -180,23 +180,6 @@
         });
       });
     }
-
-  // TODO: Move to app.js
-  $('.js-search-show').on('click', function toggleSearchForm(event) {
-    event.preventDefault();
-    $('.js-search-form').toggleClass('search-form--show');
-    $('.js-search-field').focus();
-  });
-
-  // Clicking outside close search form if open
-  $('body').on('click', function closeSearchForm(event) {
-    console.log('event target', $(event.target));
-    if($('.js-search-form').hasClass('search-form--show') && 
-        !$(event.target).is('.js-search-field') && 
-        !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
-      $('.js-search-form').removeClass('search-form--show');
-    }
-  });
   </script>
   {%- endif -%}
   {% block footerscripts %}{% endblock %}

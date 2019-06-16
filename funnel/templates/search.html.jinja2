@@ -23,7 +23,7 @@
                       <div class="card card--upcoming">
                         <div class="card__image-wrapper">
                           {{#if obj.bg_image }}
-                            <a href="{{ obj.url }}" aria-label="{{ title }}"><img class="card__image" src="{{ obj.bg_image }}" alt="{{ title }}"/></a>
+                            <a href="{{ obj.url }}" aria-label="{{ title }}" class="mui--text-hyperlink"><img class="card__image" src="{{ obj.bg_image }}" alt="{{ title }}"/></a>
                           {{else}}
                             <div class="card__image--default">
                               <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/></a>
@@ -32,24 +32,24 @@
                           {{/if}}
                         </div>
                         <div class="card__body">
-                          <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-dark">{{{ title }}}</a></h3>
+                          <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-hyperlink">{{{ title }}}</a></h3>
                           <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
-                          <p class="mui--text-subhead mui--text-light zero-top-margin">{{{ snippets }}}</p>
+                          <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="quotes">"</span>{{{ snippets }}}<span class="quotes">"</span></p>
                         </div>
                       </div>
                     {{else}}
                       <div>
                         <h3 class="zero-top-margin zero-bottom-margin">
                           {{#if url }}
-                            <a href="{{ url }}" class="mui--text-title mui--text-dark">{{{ title }}}</a>
+                            <a href="{{ url }}" class="mui--text-title mmui--text-hyperlink">{{{ title }}}</a>
                           {{else}}
                             {{{ title }}}
                           {{/if}}
                         </h3>
                         <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
-                        <p class="mui--text-body1 mui--text-light zero-top-margin">{{{ snippets }}}</p>
+                        <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="quotes">"</span>{{{ snippets }}}<span class="quotes">"</span></p>
                         {{#if obj.project && obj.project.absolute_url }}
-                          <a href="{{ url }}" class="mui--text-title mui--text-dark mui--text-bold">{{{ obj.project.title }}}</a>
+                          <a href="{{ url }}" class="mui--text-title mui--text-hyperlink mui--text-bold">{{{ obj.project.title }}}</a>
                         {{/if}}
                         {{#if obj && obj.bio }}
                           <p class="mui--text-subhead">Speaker bio</p>
@@ -75,7 +75,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/0.7.3/ractive-legacy.js" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('search')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
 
@@ -84,130 +84,9 @@
         results: {{results|default("")|tojson}},
         defaultImage: "{{url_for('static', filename='img/card-background.png')}}"
       };
-      init(searchConfig);
 
-      // TODO: Move to search.js
-      function init(config) {
-        let searchWidget = new Ractive({
-          el: '#search-wrapper',
-          template: '#search-template',
-          data: {
-            tabs: config.counts,
-            results: '',
-            activeTab: '',
-            url: window.location.pathname,
-            queryString: '',
-            defaultImage: config.defaultImage
-          },
-          getQueryString(paramName) {
-            let searchStr = window.location.search.substring(1).split('&');
-            let queryString = searchStr.map(function(param){
-              let paramSplit = param.split('=');
-              if (paramSplit[0] === paramName) {
-                return paramSplit[1];
-              }
-            }).filter(function(val){
-              return typeof val !== 'undefined' && val !== "";
-            });
-            return queryString[0];
-          },
-          updateTabContent(event, searchType) {
-            event.original.preventDefault();
-            if(this.get('results.' + searchType)) {
-              this.activateTab(searchType);
-            } else {
-              this.fetchResult(searchType);
-            }
-          },
-          fetchResult(searchType, page=1) {
-            let widget = this;
-            let url = `${widget.get('url')}?q=${widget.get('queryString')}&type=${searchType}&page=${page}`
-            $.ajax({
-              type: 'GET',
-              url: url,
-              timeout: 5000,
-              dataType: 'json',
-              success: function(data) {
-                widget.activateTab(searchType, data.results, url, page);
-              }
-            });
-          },
-          activateTab(searchType, result='', url='', page) {
-            if(result) {
-              if(page > 1) {
-                let existingResults = this.get('results.' + searchType);
-                let searchResults = [];
-                searchResults.push(...existingResults.items);
-                searchResults.push(...result.items);
-                result.items = searchResults
-                this.set('results.' + searchType, result);
-              } else {
-                this.set('results.' + searchType, result);
-              }
-            }
-            this.set('activeTab', searchType);
-            if (url) {
-              this.handleBrowserHistory(searchType, url);
-            }
-            this.lazyoad();
-          },
-          handleBrowserHistory(searchType, url) {
-            let widget = this;
-            window.history.pushState({'searchType': searchType}, '', url);
-            $(window).on('popstate', () => {
-              if(window.history.state) {
-                widget.set('activeTab', window.history.state.searchType)
-              }
-            });
-          },
-          updateMetaTags: function(pageDetails) {
-          },
-          lazyoad: function() {
-            let lazyLoader = document.querySelector('.js-lazy-loader');
-            if(lazyLoader) {
-              this.handleObserver = this.handleObserver.bind(this);
+      HasGeek.Search(searchConfig);
 
-              let observer = new IntersectionObserver(
-                this.handleObserver,
-                {
-                  rootMargin: '0px',
-                  threshold: 0.5 
-                },
-              );
-              observer.observe(lazyLoader);
-            }
-          },
-          handleObserver(entries) {
-            let widget = this;
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                let nextPage = entry.target.getAttribute('data-next-page');
-                if(nextPage) {
-                  this.fetchResult(this.get('activeTab'), nextPage);
-                }
-              }
-              return;
-            });
-          },
-          initTab() {
-            let queryString = this.getQueryString('q');
-            this.set('queryString', queryString);
-            // Fill the search box with queryString
-            document.querySelector('.js-search-field').value = queryString;
-
-            let searchType = this.getQueryString('type');
-            if(searchType && config.results) {
-              this.activateTab(this.getQueryString('type'), config.results);
-            } else {
-              let deafultSearchType = this.get('tabs')[0]['type'];
-              this.fetchResult(deafultSearchType);
-            }
-          },
-          onrender() {
-            this.initTab();
-          }
-        });
-      }
     });
   </script>
 {% endblock %}

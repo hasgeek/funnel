@@ -47,4 +47,19 @@ $(() => {
     $(projectElemClass).removeClass('mui--hide');
     $(this).addClass('mui--hide');
   });
+
+  $('.js-search-show').on('click', function toggleSearchForm(event) {
+    event.preventDefault();
+    $('.js-search-form').toggleClass('search-form--show');
+    $('.js-search-field').focus();
+  });
+
+  // Clicking outside close search form if open
+  $('body').on('click', function closeSearchForm(event) {
+    if($('.js-search-form').hasClass('search-form--show') && 
+        !$(event.target).is('.js-search-field') && 
+        !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
+      $('.js-search-form').removeClass('search-form--show');
+    }
+  });
 });

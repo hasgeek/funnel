@@ -254,7 +254,7 @@ html.touch .collapsible__body--disable {
   background-color: #eff2f6;
   border: none;
   padding: 15px 30px;
-  color: #79818b;
+  color: #1F2D3D;
   font-size: 14px;
 }
 .hg-app .header--fixed .header__nav .header__site-title .search-form--show {
@@ -295,6 +295,8 @@ html.touch .collapsible__body--disable {
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .header__site-title__logo {
     height: 35px;
     margin-right: 15px;
+    position: relative;
+    top: -2px;
   }
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form {
     position: relative;
@@ -1940,22 +1942,39 @@ body > .proposal-box.ui-draggable {
 }
 .tabs .tabs__item {
   padding: 1em;
-  border-bottom: 2px solid transparent;
-  transition: border-color 1.5s ease;
   cursor: pointer;
-  margin-bottom: 2em;
+  margin-bottom: 1em;
+  position: relative;
 }
 .tabs .tabs__item .chip {
   margin-left: 10px;
   border-radius: 32px;
   padding: 0 12px;
 }
-.tabs .tabs__item--active {
-  border-bottom: 2px solid #856A91;
+.tabs .tabs__item:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  display: block;
+  width: 0;
+  height: 2px;
+  background: #856A91;
+  transition: width 0.5s ease;
+}
+.tabs .tabs__item--active:after {
+  width: 100%;
 }
 
 .tab-content .tab-content__results {
   margin-bottom: 2em;
+}
+.tab-content .tab-content__results .snippets {
+  padding: 16px;
+  border: 1px solid rgba(132, 146, 166, 0.3);
+}
+.tab-content .tab-content__results .snippets .quotes {
+  font-size: 25px;
+  font-weight: bold;
 }
 
 .footer {
