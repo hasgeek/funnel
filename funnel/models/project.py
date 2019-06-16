@@ -161,6 +161,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
                 'location', 'calendar_weeks'
                 },
+            'call': {
+                'url_for',
+                }
             }
         }
 
