@@ -227,6 +227,18 @@ and (orientation: landscape) {
             }
           }
         }
+        .header__right-nav {
+          .header__nav-list {
+            .header__nav-list__item {
+              .header__nav-links .header__nav-links__icon {
+                font-size: 18px;
+              }
+              .header__nav-links .header__nav-links__text  {
+                font-size: 16px;
+              }
+            }
+          }
+        }
       }
     }
     .content-wrapper {

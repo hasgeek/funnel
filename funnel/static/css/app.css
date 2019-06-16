@@ -374,6 +374,12 @@ html.touch .collapsible__body--disable {
     padding: 5px 10px;
     font-size: 12px;
   }
+  .hg-app .header--fixed .header__nav .header__right-nav .header__nav-list .header__nav-list__item .header__nav-links .header__nav-links__icon {
+    font-size: 18px;
+  }
+  .hg-app .header--fixed .header__nav .header__right-nav .header__nav-list .header__nav-list__item .header__nav-links .header__nav-links__text {
+    font-size: 16px;
+  }
   .hg-app .content-wrapper {
     padding-top: 35px;
   }
