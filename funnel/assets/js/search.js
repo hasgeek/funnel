@@ -19,7 +19,7 @@ const Search = {
         },
         formatDate: function (date) {
           let d = new Date(date);
-          return d.toDateString();
+          return d.toLocaleDateString('default', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
         },
       },
       getQueryString(paramName) {
@@ -103,7 +103,7 @@ const Search = {
             this.handleObserver,
             {
               rootMargin: '0px',
-              threshold: 0.5 
+              threshold: 0.5
             },
           );
           observer.observe(lazyLoader);
