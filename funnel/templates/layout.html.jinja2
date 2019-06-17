@@ -55,6 +55,11 @@
       {%- endif %}
     {%- else -%}
       <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <form action='/search' class="search-form js-search-form">
+        <input type="search" name="q" aria-label="Search the site" placeholder="Search..." class="search-form__field js-search-field">
+        <input type="text" name="type" value="project" hidden>
+        <input type="submit" hidden/>
+      </form>
     {%- endif %}
   {% endmacro %}
 
@@ -63,9 +68,14 @@
   {%- else %}
     {% with site_links=[] %}
       {% if not current_auth.is_anonymous -%}
-        {% set site_links = [{'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'name' :'account' }] %}
+        {% set site_links = [
+          {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
+          {'title': 'Account', 'icon': 'account_circle', 'url': url_for("account"), 'name' :'account'}
+          ]%}
       {%- else %}
-        {% set site_links = [{'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'}] %}
+        {% set site_links = [
+           {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
+          {'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'},] %}
       {%- endif %}
       {{ hgtopnav(site_title=site_title(), site_links=site_links, auth=false, network=false) }}
     {% endwith %}

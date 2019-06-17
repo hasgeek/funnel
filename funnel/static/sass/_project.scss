@@ -8,7 +8,7 @@
     margin-right: 15px;
   }
   .profile-details__title {
-    word-break: break-all;
+    word-break: keep-all;
   }
 }
 
@@ -29,8 +29,8 @@
 }
 
 @media (min-width: 1200px) {
-  .desktop-head {
-    margin-top: 40px;
+  .project-header {
+    margin-top: 20px;
   }
 }
 
@@ -195,23 +195,4 @@
   position: relative;
   outline: none;
   margin-bottom: 2em;
-}
-
-.project-section .session-card {
-  padding: 0;
-  display: flex;
-  background: none;
-  border-bottom: 1px solid rgba(132,146,166,0.3);
-
-  .session-card__image {
-    width: 30%;
-    height: 100%;
-  }
-
-  .session-card__title {
-    width: 70%;
-    padding-left: 15px;
-    justify-content: center;
-    align-self: center;
-  }
 }
