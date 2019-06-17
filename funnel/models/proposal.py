@@ -126,9 +126,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'title', 'speaker', 'speaking', 'bio', 'abstract',
+                'title', 'user', 'speaker', 'speaking', 'bio', 'abstract',
                 'outline', 'requirements', 'slides', 'preview_video', 'links', 'location',
-                'latitude', 'longitude', 'coordinates'
+                'latitude', 'longitude', 'coordinates', 'session', 'project',
                 },
             'call': {
                 'url_for'

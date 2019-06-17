@@ -52,6 +52,21 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'title', 'project', 'speaker', 'user', 'featured',
+                'description', 'speaker_bio', 'start', 'end', 'venue_room', 'is_break',
+                'banner_image_url',
+                }
+            }
+        }
+
+    @hybrid_property
+    def user(self):
+        if self.proposal:
+            return self.proposal.speaker
+
     @hybrid_property
     def scheduled(self):
         # A session is scheduled only when both start and end fields have a value

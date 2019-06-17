@@ -91,7 +91,7 @@ class Label(BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'name', 'title', 'project_id', 'project', 'seq',
+                'name', 'title', 'project', 'seq',
                 'restricted', 'required', 'archived'
                 }
             }
