@@ -88,7 +88,7 @@
                         {{/if}}
                         <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
                         <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">for</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                        <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start) }}–{{ formatTime(obj.end) }}, <span class="mui--text-light">on</span> {{ formatDate(obj.start) }}</p>
+                        <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start) }}–{{ formatTime(obj.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start) }}</p>
                         <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p> 
                       </div>
                     {{elseif result == 'proposal'}}
@@ -101,7 +101,7 @@
                         <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
                         <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">for</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                         {{#if obj.session }}
-                          <p class="mui--text-body1 mui--text-bold zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start) }}–{{ formatTime(obj.session.end) }}, <span class="mui--text-light">on</span> {{ formatDate(obj.session.start) }}</p>
+                          <p class="mui--text-body1 mui--text-bold zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start) }}–{{ formatTime(obj.session.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start) }}</p>
                         {{/if}}
                         <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet }}}</p> 
                       </div>
