@@ -162,7 +162,7 @@ def add_search_trigger(model, column_name):
     drop_statement = dedent(
         '''
         DROP TRIGGER {trigger_name} ON {table_name};
-        DROP FUNCTION {function_name};
+        DROP FUNCTION {function_name}();
         '''.format(
             trigger_name=pgquote(trigger_name),
             table_name=pgquote(model.__tablename__),

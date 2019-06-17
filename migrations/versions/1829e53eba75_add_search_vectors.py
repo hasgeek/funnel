@@ -134,22 +134,22 @@ def downgrade():
     op.execute(sa.DDL(dedent(
         '''
         DROP TRIGGER comment_search_vector_trigger ON comment;
-        DROP FUNCTION comment_search_vector_update;
+        DROP FUNCTION comment_search_vector_update();
 
         DROP TRIGGER label_search_vector_trigger ON label;
-        DROP FUNCTION label_search_vector_update;
+        DROP FUNCTION label_search_vector_update();
 
         DROP TRIGGER profile_search_vector_trigger ON profile;
-        DROP FUNCTION profile_search_vector_update;
+        DROP FUNCTION profile_search_vector_update();
 
         DROP TRIGGER project_search_vector_trigger ON project;
-        DROP FUNCTION project_search_vector_update;
+        DROP FUNCTION project_search_vector_update();
 
         DROP TRIGGER proposal_search_vector_trigger ON proposal;
-        DROP FUNCTION proposal_search_vector_update;
+        DROP FUNCTION proposal_search_vector_update();
 
         DROP TRIGGER session_search_vector_trigger ON session;
-        DROP FUNCTION session_search_vector_update;
+        DROP FUNCTION session_search_vector_update();
         ''')))
 
     op.drop_index('ix_session_search_vector', table_name='session')
