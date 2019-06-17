@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, namedtuple
-from flask import Markup, request, escape, redirect, url_for
+from flask import Markup, request, redirect, url_for
 import sqlalchemy.sql.expression as expression
 from coaster.utils import for_tsquery
 from coaster.views import requestargs, render_with, route, ClassView
-from baseframe import __, cache
+from baseframe import __
 from ..models import db, Profile, Project, Label, Proposal, Session, Comment
 from .. import app, funnelapp
 
@@ -59,7 +59,8 @@ def search_counts(squery):
     return [{
         'type': k,
         'label': v.label,
-        'count': v.query_factory().filter(v.model.search_vector.match(squery)).count()}
+        'count': v.query_factory().options(db.load_only(v.model.id)).filter(
+            v.model.search_vector.match(squery)).count()}
         for k, v in search_types.items()]
 
 
