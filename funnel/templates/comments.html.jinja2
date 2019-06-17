@@ -1,7 +1,7 @@
 {% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
-    <div id="c{{ comment.id }}">
+    <div id="c{{ comment.suuid }}">
       <div class="comment--content">
         <div class="comment--header">
           <button class="js-collapse action-btn action-btn--nopadding"><i class="material-icons mui--align-middle mui--text-menu">remove_circle_outline</i></button>
@@ -32,12 +32,12 @@
           {%- endif %}
           <div data-id="{{ comment.suuid }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
-              {% if current_auth %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.id }}">[Reply]</a>{% endif %}
-              {% if comment.current_permissions.edit_comment %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.id }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
-              {% if comment.current_permissions.delete_comment %}<a title="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.id }}">[{% trans %}Delete{% endtrans %}]</a>{% endif %}
+              {% if current_auth %}<a title="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.suuid }}">[Reply]</a>{% endif %}
+              {% if comment.current_permissions.edit_comment %}<a title="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.suuid }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
+              {% if comment.current_permissions.delete_comment %}<a title="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.suuid }}">[{% trans %}Delete{% endtrans %}]</a>{% endif %}
             {%- endif %}
-            <a title="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.id }}">[{% trans %}Link{% endtrans %}]</a>
-            {% if comment.parent %}<a title="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.id }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
+            <a title="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.suuid }}">[{% trans %}Link{% endtrans %}]</a>
+            {% if comment.parent %}<a title="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.suuid }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
           </div>
         </div>
         {% if comment.children %}

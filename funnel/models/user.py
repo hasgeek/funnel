@@ -37,6 +37,14 @@ class UseridMixin(object):
 class User(UseridMixin, UuidMixin, UserBase2, db.Model):
     __tablename__ = 'user'
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'username', 'fullname', 'avatar',
+                }
+            }
+        }
+
 
 class Team(UseridMixin, UuidMixin, TeamBase, db.Model):
     __tablename__ = 'team'

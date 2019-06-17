@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, CoordinatesMixin, UrlType
-from .user import User
-from .project import Project
-from .commentvote import Commentset, Voteset, SET_TYPE
+from werkzeug.utils import cached_property
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from coaster.utils import LabeledEnum
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from baseframe import __
-from sqlalchemy.ext.hybrid import hybrid_property
-from werkzeug.utils import cached_property
+
 from ..util import geonameid_from_location
+from . import (TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn,
+    CoordinatesMixin, UrlType, TSVectorType, db)
+from .user import User
+from .project import Project
+from .commentvote import Commentset, Voteset, SET_TYPE
+from .helpers import add_search_trigger
+
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
@@ -86,19 +91,44 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False, lazy='joined',
-        cascade='all, delete-orphan', single_parent=True)
+        cascade='all, delete-orphan', single_parent=True,
+        backref=db.backref('proposal', uselist=False))
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
+    search_vector = db.deferred(db.Column(
+        TSVectorType(
+            'title', 'abstract_text', 'outline_text', 'requirements_text', 'slides',
+            'preview_video', 'links', 'bio_text',
+            weights={
+                'title': 'A',
+                'abstract_text': 'B',
+                'outline_text': 'B',
+                'requirements_text': 'B',
+                'slides': 'B',
+                'preview_video': 'C',
+                'links': 'B',
+                'bio_text': 'B',
+                },
+            regconfig='english',
+            hltext=lambda: db.func.concat_ws(' / ', Proposal.title, Proposal.abstract_html,
+                Proposal.outline_html, Proposal.requirements_html,
+                Proposal.links, Proposal.bio_html),
+            ),
+        nullable=False))
+
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'url_id'),
+        db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
             'read': {
-                'title', 'speaker', 'speaking', 'bio', 'abstract',
+                'title', 'user', 'speaker', 'speaking', 'bio', 'abstract',
                 'outline', 'requirements', 'slides', 'preview_video', 'links', 'location',
-                'latitude', 'longitude', 'coordinates'
+                'latitude', 'longitude', 'coordinates', 'session', 'project',
                 },
             'call': {
                 'url_for'
@@ -290,6 +320,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if self.state.DRAFT and 'reader' in roles:
             roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
+
+
+add_search_trigger(Proposal, 'search_vector')
 
 
 class ProposalRedirect(TimestampMixin, db.Model):

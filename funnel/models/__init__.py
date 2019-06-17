@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 # flake8: noqa
 
+from sqlalchemy_utils import TSVectorType
 from coaster.sqlalchemy import (TimestampMixin, UuidMixin, BaseMixin, BaseNameMixin,
     BaseScopedNameMixin, BaseScopedIdNameMixin, BaseIdNameMixin, MarkdownColumn,
     JsonDict, NoIdMixin, CoordinatesMixin, UrlType)
 from coaster.db import db
 
+
 TimestampMixin.__with_timezone__ = True
+
 
 from .commentvote import *
 from .contact_exchange import *
