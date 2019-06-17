@@ -53,6 +53,10 @@
               color: #fff;
               line-height: 30.6px;
               margin: 0;
+
+              .header__nav-links__text {
+                margin-left: 0 !important;
+              }
             }
           }
         }

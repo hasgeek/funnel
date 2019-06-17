@@ -1,13 +1,17 @@
-.clickable-card {
+.clickable-card,
+.card-wrapper {
   color: #1F2D3D;
   display: block;
   cursor: pointer;
-  max-width: 400px;
+  text-decoration: none;
 }
 
 .clickable-card:focus,
 .clickable-card:hover,
-.clickable-card:active {
+.clickable-card:active,
+.card-wrapper:focus,
+.card-wrapper:hover,
+.card-wrapper:active {
   color: #1F2D3D;
   outline: none;
   text-decoration: none;
@@ -53,7 +57,6 @@
 .card--cfp {
   display: flex;
   flex-wrap: wrap;
-  box-shadow: none;
   margin-bottom: 30px;
   background: transparent;
 
@@ -94,7 +97,6 @@
 
   .card__body {
     flex: 0 0 100%;
-    padding: 0;
   }
 
   .card__calendar {
@@ -106,6 +108,8 @@
 @media (min-width: 768px) {
   .card--upcoming,
   .card--cfp {
+    box-shadow: none;
+
     .card__image-wrapper,
     .card__image--default {
       flex: 0 0 300px;
@@ -167,6 +171,27 @@
   margin-top: 10px;
 }
 
+.session-card {
+  .session-card__header {
+    padding: 0;
+    display: flex;
+    background: none;
+    border-bottom: 1px solid rgba(132,146,166,0.3);
+
+    .session-card__header__image {
+      width: 30%;
+      height: 100%;
+    }
+
+    .session-card__header__title {
+      width: 70%;
+      padding-left: 15px;
+      justify-content: center;
+      align-self: center;
+    }
+  } 
+}
+
 .calendar {
   width: 100%;
 
@@ -192,6 +217,7 @@
     font-size: 18px;
     line-height: 28px;
     font-variant: all-small-caps;
+    width: 100%;
   }
 
   .calendar__weekdays__date {

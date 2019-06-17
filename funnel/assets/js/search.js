@@ -12,7 +12,15 @@ const Search = {
         activeTab: '',
         pagePath: window.location.pathname,
         queryString: '',
-        defaultImage: config.defaultImage
+        defaultImage: config.defaultImage,
+        formatTime: function (date) {
+          let d = new Date(date);
+          return d.toLocaleTimeString('default', { hour: 'numeric', minute: 'numeric' });
+        },
+        formatDate: function (date) {
+          let d = new Date(date);
+          return d.toDateString();
+        },
       },
       getQueryString(paramName) {
         let searchStr = window.location.search.substring(1).split('&');
@@ -62,19 +70,29 @@ const Search = {
         }
         this.set('activeTab', searchType);
         if (url) {
-          this.handleBrowserHistory(searchType, url);
+          this.handleBrowserHistory(url);
         }
+        this.updateMetaTags(searchType, url);
         this.lazyoad();
       },
-      handleBrowserHistory(searchType, url) {
-        window.history.pushState({'searchType': searchType}, '', url);
-        $(window).on('popstate', () => {
-          if(window.history.state) {
-            widget.set('activeTab', window.history.state.searchType)
-          }
-        });
+      handleBrowserHistory(url='') {
+        window.history.replaceState('', '', url);
       },
-      updateMetaTags: function() {
+      updateMetaTags: function(searchType, url='') {
+      	let q = this.get('queryString');
+      	let { count } = this.get('results.' + searchType);
+      	let title = `Search results: ${q}`;
+      	let description = `${count} results found for "${q}"`;
+
+      	$('title').html(title);
+        $('meta[name=DC\\.title]').attr('content', title);
+        $('meta[property=og\\:title]').attr('content', title);
+        $('meta[name=description]').attr('content', description);
+        $('meta[property=og\\:description]').attr('content', description);
+        if(url) {
+        	$('link[rel=canonical]').attr('href', url);
+        	$('meta[property=og\\:url]').attr('content', url);
+        }
       },
       lazyoad: function() {
         let lazyLoader = document.querySelector('.js-lazy-loader');
@@ -113,7 +131,6 @@ const Search = {
           this.activateTab(searchType, config.results);
         } else {
         	searchType = this.get('tabs')[0]['type'];
-        	console.log('searchType', searchType);
           this.fetchResult(searchType);
         }
       },

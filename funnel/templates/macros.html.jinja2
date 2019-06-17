@@ -15,11 +15,11 @@
   <div class="mui-container headline">
     <div class="grid">
       <div class="grid__col-md-12 mui--hidden-xs mui--hidden-sm mui--hidden-md">
-        <div class="content-wrapper">
+        <div class="project-header">
           {%- if project.profile.logo_url.url %}
             <div class="profile-details">
               <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
-              <a class="mui--text-subhead mui--text-dark profile-details__title" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
+              <a class="mui--text-subhead profile-details__title" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
             </div>
           {% endif %}
           <div class="mui--pull-left project-details">
