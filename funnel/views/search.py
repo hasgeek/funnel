@@ -6,7 +6,7 @@ import sqlalchemy.sql.expression as expression
 from coaster.utils import for_tsquery
 from coaster.views import requestargs, render_with, route, ClassView
 from baseframe import __
-from ..models import db, Profile, Project, Label, Proposal, Session, Comment
+from ..models import db, Profile, Project, Proposal, Session, Comment
 from .. import app, funnelapp
 
 
@@ -136,7 +136,7 @@ class SearchView(ClassView):
     @render_with('search.html.jinja2', json=True)
     @requestargs('q', ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
-        squery = for_tsquery(q)
+        squery = for_tsquery(q or '')
         stype = request.args.get('type')  # Can't use requestargs as it doesn't support name changes
         if not squery:
             return redirect(url_for('index'))
