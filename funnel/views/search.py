@@ -6,7 +6,7 @@ import sqlalchemy.sql.expression as expression
 from coaster.utils import for_tsquery
 from coaster.views import requestargs, render_with, route, ClassView
 from baseframe import __
-from ..models import db, Profile, Project, Proposal, Session, Comment
+from ..models import db, User, Profile, Project, Proposal, Session, Comment
 from .. import app, funnelapp
 
 
@@ -31,13 +31,13 @@ search_types = OrderedDict([
         lambda: Profile.query)),
     ('session', SearchModel(
         __("Sessions"), Session, True,
-        lambda: Session.query)),
+        lambda: Session.query.join(Proposal).join(User, Proposal.speaker))),  # FIXME: undefer userinfo
     ('proposal', SearchModel(
         __("Proposals"), Proposal, True,
-        lambda: Proposal.query)),
+        lambda: Proposal.query.join(User, Proposal.speaker).options(db.undefer('user.userinfo')))),
     ('comment', SearchModel(
         __("Comments"), Comment, False,
-        lambda: Comment.query)),
+        lambda: Comment.query.join(User).options(db.undefer('user.userinfo')))),
     ])
 
 
