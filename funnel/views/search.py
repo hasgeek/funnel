@@ -38,9 +38,6 @@ search_types = OrderedDict([
     ('comment', SearchModel(
         __("Comments"), Comment, False,
         lambda: Comment.query)),
-    ('label', SearchModel(
-        __("Labels"), Label, True,
-        lambda: Label.query)),
     ])
 
 
