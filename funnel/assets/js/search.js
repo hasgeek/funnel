@@ -2,7 +2,7 @@ import Ractive from "ractive";
 
 const Search = {
   init(config) {
-  	Ractive.DEBUG = false;
+    Ractive.DEBUG = false;
     let widget = new Ractive({
       el: '#search-wrapper',
       template: '#search-template',
@@ -23,20 +23,27 @@ const Search = {
         },
       },
       getQueryString(paramName) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has(paramName)) {
+          return urlParams.get(paramName)
+        }
+        return false;
+        /*
         let searchStr = window.location.search.substring(1).split('&');
         let queryString = searchStr.map((param) => {
           let paramSplit = param.split('=');
           if (paramSplit[0] === paramName) {
             return paramSplit[1];
           } else {
-          	return false;
+            return false;
           }
         }).filter(val => val && val !== "");
         return queryString[0];
+        */
       },
       updateTabContent(event, searchType) {
         event.original.preventDefault();
-        if(this.get('results.' + searchType)) {
+        if (this.get('results.' + searchType)) {
         	let url = `${this.get('pagePath')}?q=${this.get('queryString')}&type=${searchType}`;
           this.activateTab(searchType, '', url);
         } else {
