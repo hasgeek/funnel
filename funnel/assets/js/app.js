@@ -29,6 +29,13 @@ $(() => {
     }
   }
 
+  if(!'URLSearchParams' in window) {
+    let polyfill = document.createElement('script');
+    polyfill.setAttribute('type','text/javascript');
+    polyfill.setAttribute('src','https://cdnjs.cloudflare.com/ajax/libs/url-search-params/1.1.0/url-search-params.js');
+    document.head.appendChild(polyfill);
+  }
+
   // Send click events to Google analytics
   $('.mui-btn, a').click(function gaHandler() {
     let action = $(this).attr('data-action') || $(this).attr('title') || $(this).html();

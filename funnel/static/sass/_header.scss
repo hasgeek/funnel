@@ -6,6 +6,9 @@
       padding: 0 15px;
       justify-content: space-between;
 
+      .header__site-title--smaller {
+        width: 58%;
+      }
       .header__site-title {
         padding: 0;
 
@@ -29,6 +32,9 @@
             color: #1F2D3D;
             font-size: 16px;
           }
+          .search-form__submit {
+            visibility: hidden;
+          }
         }
         .search-form--show {
           display: inline-block;
@@ -36,7 +42,7 @@
       }
 
       .header__right-nav {
-        width: 100%;
+        width: 84%;
         padding: 0;
 
         .header__nav-list {
@@ -55,6 +61,10 @@
               margin: 0;
 
               .header__nav-links__text {
+                height: 30.6px;
+                line-height: 30.6px;
+                padding: 0;
+                font-size: 13px;
                 margin-left: 0 !important;
               }
             }
@@ -124,6 +134,19 @@
                 font-size: 18px;
                 margin-left: 8px;
               }
+              .header__button {
+                color: #fff;
+                line-height: 30.6px;
+                margin: 0;
+
+                .header__nav-links__text {
+                  height: 30.6px;
+                  line-height: 30.6px;
+                  padding: 0;
+                  font-size: 13px;
+                  margin-left: 0 !important;
+                }
+              }
             }
           }
         }
@@ -157,14 +180,6 @@
           }
         }
       }
-    }
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  .hg-app {
-    .header .mui-container {
-      max-width: 100%;
     }
   }
 }

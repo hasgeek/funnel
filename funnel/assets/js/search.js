@@ -28,18 +28,6 @@ const Search = {
           return urlParams.get(paramName)
         }
         return false;
-        /*
-        let searchStr = window.location.search.substring(1).split('&');
-        let queryString = searchStr.map((param) => {
-          let paramSplit = param.split('=');
-          if (paramSplit[0] === paramName) {
-            return paramSplit[1];
-          } else {
-            return false;
-          }
-        }).filter(val => val && val !== "");
-        return queryString[0];
-        */
       },
       updateTabContent(event, searchType) {
         event.original.preventDefault();
