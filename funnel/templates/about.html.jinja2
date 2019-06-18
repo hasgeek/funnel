@@ -63,9 +63,9 @@
       <div class="grid__col-sm-6 grid__col-md-6">
         <div>
           <p id="footer-twitter">
-            <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank">Follow @hasgeek</a>
+            <a href="https://twitter.com/hasgeek" target="_blank">Follow @hasgeek</a>
           </p>
-          <a class="fb-like" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
+          <a href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
         </div>
       </div>
     </div>
@@ -73,25 +73,4 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% raw %}
-  <div id="fb-root"></div>
-  <script type="text/javascript">
-    $(window).load(function() {
-      (function(d, s, id) {
-      var js;
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0';
-      document.body.appendChild(js);
-      }(document, 'script', 'facebook-jssdk'));
-      (function(d, s, id) {
-      var js;
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = 'https://platform.twitter.com/widgets.js';
-      document.body.appendChild(js);
-      }(document, 'script', 'twitter-js'));
-    });
-  </script>
-  {% endraw %}
 {% endblock %}

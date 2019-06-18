@@ -56,9 +56,9 @@
     {%- else -%}
       <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
       <form action='/search' class="search-form js-search-form">
-        <input type="search" name="q" aria-label="Search the site" placeholder="Search..." class="search-form__field js-search-field">
+        <input type="text" name="q" aria-label="Search the site" placeholder="Search..." class="search-form__field js-search-field">
         <input type="text" name="type" value="project" hidden>
-        <input type="submit" hidden>
+        <button type="submit" class="search-form__submit">
       </form>
     {%- endif %}
   {% endmacro %}
