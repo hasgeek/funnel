@@ -3,129 +3,151 @@
 {% block title %}Search{% endblock %}
 {% block description %}Search{% endblock %}
 
-{% block contentwrapper %}
-  <div class="grid details-section js-lazyload-results">
-    <div class="grid__col-12">
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app search-page">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
+
+{% block headline -%}
+{%- endblock %}
+
+{% block basecontentbox %}
+    <div class="js-lazyload-results">
       <div id="search-wrapper">
         {% raw %}
         <script id='search-template' type='text/ractive'>
-          <div class="tabs">
-            {{#each tabs}}
-              <p class="mui--text-subhead tabs__item mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(event, type)">{{ label }} <span class="chip">{{ count }}</span></p>
-            {{/each}}
-          </div>
-          <div class="tab-content grid__col-sm-12 grid__col-lg-9">
-            {{#each results:result }}
-              {{#if result == activeTab}}
-                {{#results[result].items}}
-                  <div class="tab-content__results">
-                    {{#if result == 'project'}}
-                      <div class="card card--upcoming">
-                        <div class="card__image-wrapper">
-                          {{#if obj.bg_image }}
-                            <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ obj.bg_image }}" alt="{{ title }}"/></a>
-                          {{else}}
-                            <div class="card__image--default">
-                              <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/></a>
-                              <p class="card__image__tagline mui--text-body1">{{ title }}</p>
-                            </div>
-                          {{/if}}
-                          {{#if obj.calendar_weeks.weeks && obj.calendar_weeks.weeks.length > 0 }}
-                            <div class="card__calendar">
-                              <div class="calendar">
-                                <div class="calendar__weekdays">
-                                  <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-                                  {{#each obj.calendar_weeks.days }}
-                                    <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ . }}</p>
-                                  {{/each}}
-                                </div>
-                                <div class="calendar__weekdays">
-                                  {{#obj.calendar_weeks.weeks}}{{# { week: . } }}
-                                    <div class="calendar__weekdays__month">
-                                      <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
-                                    </div>
-                                    <div class="calendar__weekdays__dates">
-                                      {{#week.dates}}{{# { date: . } }}
-                                        <p class="calendar__weekdays__date {{#if date[1] > 0 }}calendar__weekdays__date--active mui--text-dark {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
-                                      {{/}}{{/date}}
-                                    </div>
-                                  {{/}}{{/week}}
-                                </div>
-                              </div>
-                            {{/if}}
-                        </div>
-                        <div class="card__body">
-                          <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline">{{{ title }}}</a></h3>
-                          {{#if obj.location }}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{obj.location}}</p>{{/if}}
-                          <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
-                          <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
-                        </div>
-                      </div>
-                    {{elseif result == 'profile'}}
-                      <div class="card card--upcoming">
-                        <div class="card__image-wrapper">
-                          {{#if obj.logo_url }}
-                            <a href="{{ obj.url }}" aria-label="{{ title }}" class="mui--text-hyperlink"><img class="card__image" src="{{ obj.logo_url }}" alt="{{ title }}"/></a>
-                          {{else}}
-                            <div class="card__image--default">
-                              <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/></a>
-                              <p class="card__image__tagline mui--text-body1">{{{ title }}}</p>
-                            </div>
-                          {{/if}}
-                        </div>
-                        <div class="card__body">
-                          <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-hyperlink">{{{ title }}}</a></h3>
-                          <p class="mui--text-subhead mui--text-light zero-top-margin">{{{ obj.description.html }}}</p>
-                          <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
-                        </div>
-                      </div>
-                    {{elseif result == 'session'}}
-                      <div class="search-box">
-                        {{#if obj.user.avatar }}
-                          <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                        {{else}}
-                          <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                        {{/if}}
-                        <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
-                        <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                        <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start) }}–{{ formatTime(obj.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start) }}</p>
-                        <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
-                      </div>
-                    {{elseif result == 'proposal'}}
-                      <div class="search-box">
-                        {{#if obj.user.avatar }}
-                          <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                        {{else}}
-                          <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
-                        {{/if}}
-                        <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
-                        <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                        {{#if obj.session }}
-                          <p class="mui--text-body1 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start) }}–{{ formatTime(obj.session.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start) }}</p>
-                        {{/if}}
-                        <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
-                      </div>
-                    {{elseif result == 'comment'}}
-                      <div class="search-box">
-                        {{#if obj.user.avatar }}
-                          <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                        {{else}}
-                          <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
-                        {{/if}}
-                        <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ obj.title }}}</a></h2>
-                        <p class="mui--text-body1 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
-                        <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
-                      </div>
-                    {{/if}}
+          <div class="tabs-wrapper">
+            <div class="mui-container">
+              <div class="grid">
+                <div class="grid__col-12">
+                  <div class="tabs">
+                    {{#each tabs}}
+                      <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(event, type)">{{ label }} <span class="count mui--text-caption">{{ count }}</span></p>
+                    {{/each}}
                   </div>
-                {{else}}
-                  <p class="mui--text-title">No results found</p>
-                {{/}}
-                {{#if results[result].next_num }}
-                  <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i> Loading more</p>
-                {{/if}}
-              {{/if}}
-            {{/each}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mui-container">
+            <div class="grid">
+              <div class="tab-content grid__col-sm-12 grid__col-lg-9">
+                {{#each results:result }}
+                  {{#if result == activeTab}}
+                    {{#results[result].items}}
+                      <div class="tab-content__results">
+                        {{#if result == 'project'}}
+                          <div class="card card--upcoming">
+                            <div class="card__image-wrapper">
+                              {{#if obj.bg_image }}
+                                <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ obj.bg_image }}" alt="{{ title }}"/></a>
+                              {{else}}
+                                <div class="card__image--default">
+                                  <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/></a>
+                                  <p class="card__image__tagline mui--text-body1">{{ title }}</p>
+                                </div>
+                              {{/if}}
+                              {{#if obj.calendar_weeks.weeks && obj.calendar_weeks.weeks.length > 0 }}
+                                <div class="card__calendar">
+                                  <div class="calendar">
+                                    <div class="calendar__weekdays">
+                                      <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
+                                      {{#each obj.calendar_weeks.days }}
+                                        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ . }}</p>
+                                      {{/each}}
+                                    </div>
+                                    <div class="calendar__weekdays">
+                                      {{#obj.calendar_weeks.weeks}}{{# { week: . } }}
+                                        <div class="calendar__weekdays__month">
+                                          <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                                        </div>
+                                        <div class="calendar__weekdays__dates">
+                                          {{#week.dates}}{{# { date: . } }}
+                                            <p class="calendar__weekdays__date {{#if date[1] > 0 }}calendar__weekdays__date--active mui--text-dark {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
+                                          {{/}}{{/date}}
+                                        </div>
+                                      {{/}}{{/week}}
+                                    </div>
+                                  </div>
+                                {{/if}}
+                            </div>
+                            <div class="card__body">
+                              <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline">{{{ title }}}</a></h3>
+                              {{#if obj.location }}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{obj.location}}</p>{{/if}}
+                              <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
+                              <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                            </div>
+                          </div>
+                        {{elseif result == 'profile'}}
+                          <div class="card card--upcoming">
+                            <div class="card__image-wrapper">
+                              {{#if obj.logo_url }}
+                                <a href="{{ obj.url }}" aria-label="{{ title }}" class="mui--text-hyperlink"><img class="card__image" src="{{ obj.logo_url }}" alt="{{ title }}"/></a>
+                              {{else}}
+                                <div class="card__image--default">
+                                  <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/></a>
+                                  <p class="card__image__tagline mui--text-body1">{{{ title }}}</p>
+                                </div>
+                              {{/if}}
+                            </div>
+                            <div class="card__body">
+                              <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-hyperlink">{{{ title }}}</a></h3>
+                              <p class="mui--text-subhead mui--text-light zero-top-margin">{{{ obj.description.html }}}</p>
+                              <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                            </div>
+                          </div>
+                        {{elseif result == 'session'}}
+                          <div class="search-box">
+                            {{#if obj.user.avatar }}
+                              <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
+                            {{else}}
+                              <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
+                            {{/if}}
+                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
+                            <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
+                            <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start) }}–{{ formatTime(obj.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start) }}</p>
+                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                          </div>
+                        {{elseif result == 'proposal'}}
+                          <div class="search-box">
+                            {{#if obj.user.avatar }}
+                              <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
+                            {{else}}
+                              <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
+                            {{/if}}
+                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
+                            <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
+                            {{#if obj.session }}
+                              <p class="mui--text-body1 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start) }}–{{ formatTime(obj.session.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start) }}</p>
+                            {{/if}}
+                            <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                          </div>
+                        {{elseif result == 'comment'}}
+                          <div class="search-box">
+                            {{#if obj.user.avatar }}
+                              <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
+                            {{else}}
+                              <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
+                            {{/if}}
+                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ obj.title }}}</a></h2>
+                            <p class="mui--text-body1 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
+                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                          </div>
+                        {{/if}}
+                      </div>
+                    {{else}}
+                      <p class="mui--text-title">No results found</p>
+                    {{/}}
+                    {{#if results[result].next_num }}
+                      <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i> Loading more</p>
+                    {{/if}}
+                  {{/if}}
+                {{/each}}
+              </div>
+            </div>
           </div>
         </script>
         {% endraw %}
