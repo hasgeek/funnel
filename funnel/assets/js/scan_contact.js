@@ -1,5 +1,6 @@
 import Ractive from "ractive";
 import jsQR from "jsqr";
+import vCardsJS from "vcards-js";
 
 const badgeScan = {
   init({getContactApiUrl, wrapperId, templateId}) {
@@ -22,6 +23,18 @@ const badgeScan = {
         $.modal.close();
         this.set('showModal', false);
       },
+      downloadContact(event) {
+        let contact = badgeScanComponent.get(event.keypath);
+        let vCard = vCardsJS();
+        let lastName;
+        [vCard.firstName, ...lastName] = contact.fullname.split(' ');
+        vCard.lastName = lastName.join(' ');
+        vCard.email = contact.email;
+        vCard.cellPhone = contact.phone;    
+        vCard.organization = contact.company;
+        event.node.setAttribute('href', 'data:text/x-vcard;charset=utf-8,' + encodeURIComponent(vCard.getFormattedString()));
+        event.node.setAttribute('download', `${vCard.firstName}.vcf`);
+      },
       getContact(qrcode) {
         this.set({
           'scanning': true,
@@ -41,13 +54,16 @@ const badgeScan = {
           timeout: 5000,
           dataType: 'json',
           success(response) {
-            console.log('response', response);
             badgeScanComponent.set({
               'scanning': false,
               'contactFound': true,
               'contact': response.contact,
             });
-            badgeScanComponent.push('contacts', response.contact);
+            if(!badgeScanComponent.get('contacts').some(contact => 
+              contact.fullname === response.contact.fullname && 
+              contact.email === response.contact.email)) {
+              badgeScanComponent.push('contacts', response.contact);
+            }
           },
           error(response) {
             let errorMsg;
