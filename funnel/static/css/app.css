@@ -233,6 +233,7 @@ html.touch .collapsible__body--disable {
   bottom: 0;
 }
 .hg-app .header--fixed .header__nav {
+  height: 50px;
   padding: 0 15px;
   justify-content: space-between;
 }
@@ -371,6 +372,9 @@ html.touch .collapsible__body--disable {
   }
 }
 @media only screen and (max-device-width: 767px) and (orientation: landscape) {
+  .hg-app .header--fixed .header__nav {
+    height: 35px;
+  }
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .header__site-title__logo {
     height: 25px;
   }
@@ -485,6 +489,8 @@ html.touch .collapsible__body--disable {
   text-decoration: none;
   border-bottom: 2px solid transparent;
   transition: border-color 1.5s ease;
+  min-width: 0;
+  min-height: 0;
 }
 .sub-navbar .mui-btn {
   margin: 0 0.5em;
