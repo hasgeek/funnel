@@ -1,0 +1,50 @@
+.scanner-wrapper {
+  position: relative;
+  margin: auto;
+  text-align: center;
+
+  .camera-canvas {
+    max-width: 100%;
+    position: relative;
+  }
+
+  .scanner-wrapper__badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: block;
+    z-index: 1000;
+    visibility: hidden;
+  }
+  .scanner-wrapper__badge--show {
+    visibility: visible;
+  }
+}
+
+.scanned-contacts {
+  padding: 32px;
+  max-width: 600px;
+  margin: auto;
+}
+
+@media(min-width: 1200px) {
+  .scanner-wrapper {
+    float: left;
+    padding: 32px;
+    text-align: left;
+
+    .scanner-wrapper__badge {
+      top: 32px;
+      left: 32px;
+      right: auto;
+      margin: 0;
+    }
+  }
+  .scanned-contacts {
+    float: right;
+    width: 30%;
+    padding: 32px;
+  }
+}

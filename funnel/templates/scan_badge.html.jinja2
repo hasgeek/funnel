@@ -5,6 +5,11 @@
 {% block pageheaders %}
 {% endblock %}
 
+{% block top_title %}
+  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
+  <p class="mui--text-body1"><a href="{{ project.url_for('events') }}" title="Setup events for check-in"><i class="material-icons mui--text-body2 mui--align-bottom" aria-hidden="true">keyboard_backspace</i> {% trans %}Back to setup events{% endtrans %}</a></p>
+{% endblock %}
+
 {% block content %}
   <div class="grid" id="scan-badge-wrapper">
     {% raw %}
