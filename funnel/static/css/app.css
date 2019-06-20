@@ -2075,9 +2075,8 @@ body > .proposal-box.ui-draggable {
   margin: auto;
   text-align: center;
 }
-.scanner-wrapper .camera-canvas {
-  max-width: 100%;
-  position: relative;
+.scanner-wrapper .scanner-wrapper__camera {
+  max-width: 100% !important;
 }
 .scanner-wrapper .scanner-wrapper__badge {
   position: absolute;
@@ -2088,6 +2087,7 @@ body > .proposal-box.ui-draggable {
   display: block;
   z-index: 1000;
   visibility: hidden;
+  max-width: 100% !important;
 }
 .scanner-wrapper .scanner-wrapper__badge--show {
   visibility: visible;

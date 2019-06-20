@@ -3,9 +3,8 @@
   margin: auto;
   text-align: center;
 
-  .camera-canvas {
-    max-width: 100%;
-    position: relative;
+  .scanner-wrapper__camera {
+    max-width: 100% !important;
   }
 
   .scanner-wrapper__badge {
@@ -17,6 +16,7 @@
     display: block;
     z-index: 1000;
     visibility: hidden;
+    max-width: 100% !important;
   }
   .scanner-wrapper__badge--show {
     visibility: visible;
