@@ -10,10 +10,12 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
-    width: 100%;
     display: block;
     z-index: 1000;
+    visibility: hidden;
+  }
+  .scanner-wrapper__badge--show {
+    visibility: visible;
   }
 }
 
@@ -26,6 +28,11 @@
     float: left;
     width: calc(50% - 64px);
     padding: 32px;
+
+    .scanner-wrapper__badge {
+      top: 32px;
+      left: 32px;
+    }
   }
   .scanned-contacts {
     float: right;

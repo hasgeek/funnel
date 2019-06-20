@@ -17,7 +17,8 @@ const badgeScan = {
         showModal: false,
         errorMsg: '',
         contacts: [],
-        scannerOverlay: scannerOverlay
+        scannerOverlay: scannerOverlay,
+        showOverlay: false,
       },
       closeModal(event) {
         event.original.preventDefault();
@@ -88,11 +89,14 @@ const badgeScan = {
       renderFrame() {
         let canvasElement = document.getElementById("qrreader-canvas");
         let canvas = canvasElement.getContext("2d");
+        let overlayElement = document.getElementById("qrreader-overlay");
 
         if (this.get('video').readyState === this.get('video').HAVE_ENOUGH_DATA) {
           canvasElement.height = this.get('video').videoHeight;
           canvasElement.width = this.get('video').videoWidth;
+          overlayElement.width = this.get('video').videoWidth;
           canvas.drawImage(this.get('video'), 0, 0, canvasElement.width, canvasElement.height);
+          this.set('showOverlay', true);
           let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
           let qrcode = jsQR(imageData.data, imageData.width, imageData.height);
 

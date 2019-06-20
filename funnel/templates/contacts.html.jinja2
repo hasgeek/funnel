@@ -10,7 +10,7 @@
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper">
           <canvas id="qrreader-canvas" class="scanner-wrapper__camera"></canvas>
-          <img src="{{ scannerOverlay }}" class="canner-wrapper__badge"/>
+          <img src="{{ scannerOverlay }}" class="scanner-wrapper__badge {{#if showOverlay}}scanner-wrapper__badge--show{{/if}}" id="qrreader-overlay"/>
           {{#if video}}
             <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
           {{elseif error}}
@@ -46,12 +46,12 @@
         </div>
         {{/if}}
         <div class="scanned-contacts">
-          <div>
+          <div class="mui--clearfix">
             <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
             <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="My account" data-action="my account">My account</a>
           </div>
           {{#each contacts:i}}
-            <div class="card mui--z2 contact-card">
+            <div class="card mui--z2 contact-card card--small">
               <div class="card__body mui--clearfix">
                 <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
                 <div class="mui--pull-right contact-card__details">
