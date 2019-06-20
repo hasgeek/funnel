@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="320px" height="240px" viewBox="0 0 320 240" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.2 (78181) - https://sketchapp.com -->
+    <title>overlay</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="0%" y1="21.875%" x2="100%" y2="78.125%" id="linearGradient-1">
+            <stop stop-color="#816894" offset="0%"></stop>
+            <stop stop-color="#816894" stop-opacity="0.545181381" offset="28.40851%"></stop>
+            <stop stop-color="#DF5E0D" stop-opacity="0.536931818" offset="64.5101214%"></stop>
+            <stop stop-color="#F1A40B" stop-opacity="0.485795455" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Search-tabs-v2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="overlay">
+            <rect id="Rectangle-Copy-7" fill="url(#linearGradient-1)" x="0" y="0" width="320" height="240"></rect>
+            <g id="Group-Copy-5" transform="translate(132.000000, 68.000000)" opacity="0.5">
+                <g id="Group-Copy-3">
+                    <g id="baseline-center_focus_strong-24px">
+                        <polygon id="Path" points="0 0 56 0 56 56 0 56"></polygon>
+                        <path d="M28,18.6666667 C22.8433333,18.6666667 18.6666667,22.8433333 18.6666667,28 C18.6666667,33.1566667 22.8433333,37.3333333 28,37.3333333 C33.1566667,37.3333333 37.3333333,33.1566667 37.3333333,28 C37.3333333,22.8433333 33.1566667,18.6666667 28,18.6666667 Z M11.6666667,35 L7,35 L7,44.3333333 C7,46.9 9.1,49 11.6666667,49 L21,49 L21,44.3333333 L11.6666667,44.3333333 L11.6666667,35 Z M11.6666667,11.6666667 L21,11.6666667 L21,7 L11.6666667,7 C9.1,7 7,9.1 7,11.6666667 L7,21 L11.6666667,21 L11.6666667,11.6666667 Z M44.3333333,7 L35,7 L35,11.6666667 L44.3333333,11.6666667 L44.3333333,21 L49,21 L49,11.6666667 C49,9.1 46.9,7 44.3333333,7 Z M44.3333333,44.3333333 L35,44.3333333 L35,49 L44.3333333,49 C46.9,49 49,46.9 49,44.3333333 L49,35 L44.3333333,35 L44.3333333,44.3333333 Z" id="Shape" fill="#FFFFFF" fill-rule="nonzero"></path>
+                    </g>
+                </g>
+            </g>
+            <text id="Scan-Badge-Copy-4" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="24" font-weight="bold" letter-spacing="0.857142857" fill="#FFFFFF" fill-opacity="0.5">
+                <tspan x="89.3142857" y="172">SCAN BADGE</tspan>
+            </text>
+        </g>
+    </g>
+</svg>
