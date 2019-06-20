@@ -3,6 +3,7 @@
     bottom: 0;
 
     .header__nav {
+      height: 50px;
       padding: 0 15px;
       justify-content: space-between;
 
@@ -193,7 +194,7 @@ and (orientation: landscape) {
 
     .header--fixed {
       .header__nav {
-
+        height: 35px;
         .header__site-title {
           .header__site-title__title {
             .header__site-title__logo {
@@ -345,6 +346,8 @@ and (orientation: landscape) {
     text-decoration: none;
     border-bottom: 2px solid transparent;
     transition: border-color 1.5s ease;
+    min-width: 0;
+    min-height: 0;
   }
 
   .mui-btn {
