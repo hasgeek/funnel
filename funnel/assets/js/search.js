@@ -29,8 +29,7 @@ const Search = {
         }
         return false;
       },
-      updateTabContent(event, searchType) {
-        event.original.preventDefault();
+      updateTabContent(searchType) {
         if (this.get('results.' + searchType)) {
         	let url = `${this.get('pagePath')}?q=${this.get('queryString')}&type=${searchType}`;
           this.activateTab(searchType, '', url);
@@ -64,6 +63,9 @@ const Search = {
           }
         }
         this.set('activeTab', searchType);
+        $('#scrollable-tabs').animate({
+          scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
+        }, 500);
         if (url) {
           this.handleBrowserHistory(url);
         }
@@ -114,6 +116,16 @@ const Search = {
           }
           return;
         });
+      },
+      getCurrentTabIndex() {
+        return this.get('tabs').findIndex(tab => tab.type === this.get('activeTab'))
+      },
+      swipe(action) {
+        let tabs = this.get('tabs');
+        let activeTabIndex = this.getCurrentTabIndex();
+        if (activeTabIndex + action >= 0 && activeTabIndex + action < tabs.length) {
+          this.updateTabContent(tabs[activeTabIndex + action].type);
+        }
       },
       initTab() {
         let queryString = this.getQueryString('q');
