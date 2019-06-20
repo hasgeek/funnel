@@ -318,6 +318,9 @@ html.touch .collapsible__body--disable {
     border-radius: 2px;
     padding: 8px 10px;
   }
+  .hg-app .header--fixed .header__nav .header__site-title--smaller {
+    width: 67%;
+  }
   .hg-app .header--fixed .header__nav .header__right-nav {
     width: 250px;
   }
@@ -348,6 +351,9 @@ html.touch .collapsible__body--disable {
     padding: 0;
     font-size: 13px;
     margin-left: 0 !important;
+  }
+  .hg-app .header--fixed .header__nav .header__right-nav--larger .header__nav-list {
+    justify-content: flex-end;
   }
   .hg-app .content-wrapper {
     padding-top: 52px;
@@ -2066,6 +2072,8 @@ body > .proposal-box.ui-draggable {
 
 .scanner-wrapper {
   position: relative;
+  margin: auto;
+  text-align: center;
 }
 .scanner-wrapper .camera-canvas {
   max-width: 100%;
@@ -2075,6 +2083,8 @@ body > .proposal-box.ui-draggable {
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
+  margin: auto;
   display: block;
   z-index: 1000;
   visibility: hidden;
@@ -2085,22 +2095,26 @@ body > .proposal-box.ui-draggable {
 
 .scanned-contacts {
   padding: 32px;
+  max-width: 600px;
+  margin: auto;
 }
 
 @media (min-width: 1200px) {
   .scanner-wrapper {
     float: left;
-    width: calc(50% - 64px);
     padding: 32px;
+    text-align: left;
   }
   .scanner-wrapper .scanner-wrapper__badge {
     top: 32px;
     left: 32px;
+    right: auto;
+    margin: 0;
   }
 
   .scanned-contacts {
     float: right;
-    width: calc(50% - 64px);
+    width: 30%;
     padding: 32px;
   }
 }

@@ -119,10 +119,16 @@
           }
         }
 
+        .header__site-title--smaller {
+          width: 67%;
+        }
+
         .header__right-nav {
           width: 250px;
+
           .header__nav-list {
             justify-content: space-between;
+
             .header__nav-list__item:first-child {
               display: none;
             }
@@ -151,6 +157,12 @@
                 }
               }
             }
+          }
+        }
+
+        .header__right-nav--larger {
+          .header__nav-list {
+            justify-content: flex-end;
           }
         }
       }
