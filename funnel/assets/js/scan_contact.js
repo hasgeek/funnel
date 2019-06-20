@@ -95,6 +95,7 @@ const badgeScan = {
           canvasElement.height = this.get('video').videoHeight;
           canvasElement.width = this.get('video').videoWidth;
           overlayElement.width = this.get('video').videoWidth;
+          overlayElement.height = this.get('video').videoHeight;
           canvas.drawImage(this.get('video'), 0, 0, canvasElement.width, canvasElement.height);
           this.set('showOverlay', true);
           let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
