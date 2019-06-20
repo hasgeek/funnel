@@ -17,9 +17,22 @@
     z-index: 1000;
     visibility: hidden;
     max-width: 100% !important;
+    background-image: linear-gradient(135deg, #816894 0%, rgba(129,104,148,0.55) 28%, rgba(223,94,13,0.54) 64%, rgba(241,164,11,0.49) 100%);
   }
   .scanner-wrapper__badge--show {
     visibility: visible;
+  }
+  .scanner-wrapper__badge--icon {
+    position: absolute;
+    top: 35%;
+    left: 0;
+    right: 0;
+    margin: auto;
+    text-align: center;
+    color: #fff;
+    z-index: 1001;
+    font-size: 100px;
+    opacity: 0.5;
   }
 }
 

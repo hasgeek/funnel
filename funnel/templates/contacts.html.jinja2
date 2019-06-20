@@ -10,7 +10,8 @@
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper">
           <canvas id="qrreader-canvas" class="scanner-wrapper__camera"></canvas>
-          <img src="{{ scannerOverlay }}" class="scanner-wrapper__badge {{#if showOverlay}}scanner-wrapper__badge--show{{/if}}" id="qrreader-overlay"/>
+          <canvas class="scanner-wrapper__badge {{#if showOverlay}}scanner-wrapper__badge--show{{/if}}" id="qrreader-overlay"></canvas>
+          {{#if showOverlay}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
           {{#if video}}
             <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
           {{elseif error}}
@@ -91,7 +92,6 @@
 
       scanConfig.wrapperId = 'scan-badge-wrapper';
       scanConfig.templateId = 'scan-badge-template';
-      scanConfig.scannerOverlay = "{{url_for('static', filename='img/overlay.svg')}}"
 
       window.HasGeek.BadgeScanInit(scanConfig);
 
