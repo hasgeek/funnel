@@ -3,7 +3,7 @@ import jsQR from "jsqr";
 import vCardsJS from "vcards-js";
 
 const badgeScan = {
-  init({getContactApiUrl, wrapperId, templateId}) {
+  init({getContactApiUrl, wrapperId, templateId, scannerOverlay}) {
     
     let badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
@@ -16,7 +16,8 @@ const badgeScan = {
         scanning: true,
         showModal: false,
         errorMsg: '',
-        contacts: []
+        contacts: [],
+        scannerOverlay: scannerOverlay
       },
       closeModal(event) {
         event.original.preventDefault();

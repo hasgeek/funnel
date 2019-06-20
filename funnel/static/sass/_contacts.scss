@@ -1,0 +1,35 @@
+.scanner-wrapper {
+  position: relative;
+
+  .camera-canvas {
+    max-width: 100%;
+    position: relative;
+  }
+
+  .scanner-wrapper__badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: block;
+    z-index: 1000;
+  }
+}
+
+.scanned-contacts {
+  padding: 32px;
+}
+
+@media(min-width: 1200px) {
+  .scanner-wrapper {
+    float: left;
+    width: calc(50% - 64px);
+    padding: 32px;
+  }
+  .scanned-contacts {
+    float: right;
+    width: calc(50% - 64px);
+    padding: 32px;
+  }
+}
