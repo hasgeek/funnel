@@ -1,14 +1,14 @@
 """removed date, date_upto from project
 
 Revision ID: c11dc931b903
-Revises: 752dee4ae101
+Revises: 1829e53eba75
 Create Date: 2019-06-08 10:58:13.772112
 
 """
 
 # revision identifiers, used by Alembic.
 revision = 'c11dc931b903'
-down_revision = '752dee4ae101'
+down_revision = '1829e53eba75'
 
 from alembic import op
 import sqlalchemy as sa  # NOQA
