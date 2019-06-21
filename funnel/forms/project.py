@@ -26,16 +26,16 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {
 
 
 class ProjectForm(forms.Form):
-    name = forms.StringField(__("URL name"), validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
-    title = forms.StringField(__("Title"),
-        validators=[forms.validators.DataRequired()],
+    name = forms.StringField(__("URL name"),
+        validators=[forms.validators.DataRequired(), forms.ValidName(), AvailableName()])
+    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()])
     location = forms.StringField(__("Location"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
-        filters=[forms.filters.strip()],
-        description=__("Eg. Bangalore, Mumbai, Pune"))
-    tagline = forms.StringField(__("Tagline"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
-        description=__("This is displayed on the card on the homepage"))
+        filters=[forms.filters.strip()], description=__("Eg. Bangalore, Mumbai, Pune"))
+    tagline = forms.StringField(__("Tagline"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
+        filters=[forms.filters.strip()], description=__("This is displayed on the card on the homepage"))
     website = forms.URLField(__("Website"),
         validators=[
             forms.validators.Optional(),

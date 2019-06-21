@@ -108,7 +108,7 @@ def new_profile(test_db, new_team):
 def new_project(test_db, new_profile, new_user, new_team):
     project = Project(
         profile=new_profile, user=new_user, title=u"Test Project",
-        tagline=u"Test tagline", description=u"Test description",
+        tagline=u"Test tagline", description=u"Test description", location=u"Test Location",
         admin_team=new_team, review_team=new_team, checkin_team=new_team)
     test_db.session.add(project)
     test_db.session.commit()

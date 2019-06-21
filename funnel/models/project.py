@@ -190,7 +190,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    @cached_property
+    @property
     def datelocation(self):
         """
         Returns a date + location string for the event, the format depends on project dates
@@ -214,24 +214,26 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         daterange = u""
         if self.schedule_start_at and self.schedule_end_at:
+            schedule_start_at_date = self.schedule_start_at.astimezone(self.timezone).date()
+            schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
             daterange_format = u"{schedule_start_at}–{schedule_end_at} {year}"
-            if self.schedule_start_at == self.schedule_end_at:
+            if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
                 strf_date = ""
                 daterange_format = u"{schedule_end_at} {year}"
-            elif self.schedule_start_at.month == self.schedule_end_at.month:
-                # If multi-day event in same month
-                strf_date = "%d"
-            elif self.schedule_start_at.month != self.schedule_end_at.month:
-                # If multi-day event across months
-                strf_date = "%d %b"
-            elif self.schedule_start_at.year != self.schedule_end_at.year:
+            elif schedule_start_at_date.year != schedule_end_at_date.year:
                 # if the start date and end dates are in different years,
                 strf_date = "%d %b %Y"
+            elif schedule_start_at_date.month != schedule_end_at_date.month:
+                # If multi-day event across months
+                strf_date = "%d %b"
+            elif schedule_start_at_date.month == schedule_end_at_date.month:
+                # If multi-day event in same month
+                strf_date = "%d"
             daterange = daterange_format.format(
-                schedule_start_at=self.schedule_start_at.astimezone(self.timezone).strftime(strf_date),
-                schedule_end_at=self.schedule_end_at.astimezone(self.timezone).strftime("%d %b"),
-                year=self.schedule_start_at.astimezone(self.timezone).year)
+                schedule_start_at=schedule_start_at_date.strftime(strf_date),
+                schedule_end_at=schedule_end_at_date.strftime("%d %b"),
+                year=schedule_end_at_date.year)
         return u', '.join(filter(None, [daterange, self.location]))
 
     state.add_conditional_state('PAST', state.PUBLISHED,

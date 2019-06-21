@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from coaster.utils import utcnow
 from funnel.models import Project, Session
 
@@ -57,9 +57,10 @@ class TestProject(object):
         assert new_project.sessions.count() == 0
         assert new_project.schedule_start_at is None
         assert new_project.schedule_end_at is None
+        assert new_project.datelocation == u"Test Location"
 
         # let's add some sessions
-        start_time_a = utcnow()
+        start_time_a = datetime(2019, 6, 12, 12, 15, 0).replace(tzinfo=new_project.timezone)
         end_time_a = start_time_a + timedelta(hours=3)
         new_session_a = Session(
             name=u"test-session-a", title=u"Test Session A",
@@ -84,3 +85,50 @@ class TestProject(object):
         assert new_project.sessions.count() == 2
         assert new_project.schedule_start_at.date() == new_session_a.start.date()
         assert new_project.schedule_end_at.date() == new_session_b.end.date()
+
+        # both session dates are in same month, hence the format below.
+        assert new_project.datelocation == u"{start_at}–{end_at} {month} {year}, {location}".format(
+            start_at=start_time_a.day, end_at=end_time_b.day, month=start_time_a.strftime("%b"),
+            year=end_time_b.year, location=new_project.location
+            )
+
+        # The sessions are in different months
+        new_session_a.start = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.end = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.start = datetime(2019, 7, 1, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.end = datetime(2019, 7, 1, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        test_db.session.commit()
+
+        assert new_project.datelocation == u"{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
+            start_date=new_session_a.start.strftime("%d"), start_month=new_session_a.start.strftime("%b"),
+            end_date=new_session_b.end.strftime("%d"), end_month=new_session_b.end.strftime("%b"),
+            year=new_session_b.end.year, location=new_project.location
+            )
+
+        # Both sessions are on same day
+        new_session_a.start = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.end = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.start = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.end = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        test_db.session.commit()
+
+        assert new_project.datelocation == u"{start_date} {end_month} {year}, {location}".format(
+            start_date=new_session_a.start.strftime("%d"), end_month=new_session_b.end.strftime("%b"),
+            year=new_session_b.end.year, location=new_project.location
+            )
+
+        # The sessions are in different years
+        new_session_a.start = datetime(2018, 12, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.end = datetime(2018, 12, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.start = datetime(2019, 1, 1, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.end = datetime(2019, 1, 1, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        test_db.session.commit()
+
+        assert new_project.datelocation == u"{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
+            start_date=new_session_a.start.strftime("%d"), start_month=new_session_a.start.strftime("%b"),
+            end_date=new_session_b.end.strftime("%d"), end_month=new_session_b.end.strftime("%b"),
+            start_year=new_session_a.start.strftime("%Y"), end_year=new_session_b.end.strftime("%Y"),
+            location=new_project.location
+            )
+
+
