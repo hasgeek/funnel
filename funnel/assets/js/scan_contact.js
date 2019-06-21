@@ -1,8 +1,9 @@
 import Ractive from "ractive";
 import jsQR from "jsqr";
+import vCardsJS from "vcards-js";
 
 const badgeScan = {
-  init({getContactApiUrl, wrapperId, templateId}) {
+  init({getContactApiUrl, wrapperId, templateId, scannerOverlay}) {
     
     let badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
@@ -15,12 +16,26 @@ const badgeScan = {
         scanning: true,
         showModal: false,
         errorMsg: '',
-        contacts: []
+        contacts: [],
+        scannerOverlay: scannerOverlay,
+        showOverlay: false,
       },
       closeModal(event) {
         event.original.preventDefault();
         $.modal.close();
         this.set('showModal', false);
+      },
+      downloadContact(event) {
+        let contact = badgeScanComponent.get(event.keypath);
+        let vCard = vCardsJS();
+        let lastName;
+        [vCard.firstName, ...lastName] = contact.fullname.split(' ');
+        vCard.lastName = lastName.join(' ');
+        vCard.email = contact.email;
+        vCard.cellPhone = contact.phone;    
+        vCard.organization = contact.company;
+        event.node.setAttribute('href', 'data:text/x-vcard;charset=utf-8,' + encodeURIComponent(vCard.getFormattedString()));
+        event.node.setAttribute('download', `${vCard.firstName}.vcf`);
       },
       getContact(qrcode) {
         this.set({
@@ -41,13 +56,16 @@ const badgeScan = {
           timeout: 5000,
           dataType: 'json',
           success(response) {
-            console.log('response', response);
             badgeScanComponent.set({
               'scanning': false,
               'contactFound': true,
               'contact': response.contact,
             });
-            badgeScanComponent.push('contacts', response.contact);
+            if(!badgeScanComponent.get('contacts').some(contact => 
+              contact.fullname === response.contact.fullname && 
+              contact.email === response.contact.email)) {
+              badgeScanComponent.push('contacts', response.contact);
+            }
           },
           error(response) {
             let errorMsg;
@@ -71,11 +89,15 @@ const badgeScan = {
       renderFrame() {
         let canvasElement = document.getElementById("qrreader-canvas");
         let canvas = canvasElement.getContext("2d");
+        let overlayElement = document.getElementById("qrreader-overlay");
 
         if (this.get('video').readyState === this.get('video').HAVE_ENOUGH_DATA) {
           canvasElement.height = this.get('video').videoHeight;
           canvasElement.width = this.get('video').videoWidth;
+          overlayElement.width = this.get('video').videoWidth;
+          overlayElement.height = this.get('video').videoHeight;
           canvas.drawImage(this.get('video'), 0, 0, canvasElement.width, canvasElement.height);
+          this.set('showOverlay', true);
           let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
           let qrcode = jsQR(imageData.data, imageData.width, imageData.height);
 

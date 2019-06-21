@@ -280,7 +280,6 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             next.end = localize_date(next.end, to_tz=self.obj.venue.project.timezone)
             nextdiff = next.start.date() - now.date()
             nextdiff = nextdiff.total_seconds() / 86400
-        print current, next
         return dict(room=self.obj, current=current, next=next, nextdiff=nextdiff)
 
 

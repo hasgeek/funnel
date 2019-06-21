@@ -1,19 +1,23 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% trans %}Contacts{% endtrans %}{% endblock %}
 
-{% block content %}
-  {% raw %}
-    <div class="grid" id="scan-badge-wrapper">
-      <script id='scan-badge-template' type='text/ractive'>
-        <div class="grid__col-xs-12 grid__col-sm-6">
-        {{#if video}}
-          <h4 class="mui--text-subhead">Scan participant badge</h4>
-          <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
-        {{elseif error}}
-          <p class="mui--text-danger">{{ error }}</p>
-        {{/if}}
-        <canvas id="qrreader-canvas"></canvas>
+{% block headline -%}
+{% endblock %}
 
+{% block basecontentbox %}
+  {% raw %}
+    <div id="scan-badge-wrapper">
+      <script id='scan-badge-template' type='text/ractive'>
+        <div class="scanner-wrapper">
+          <canvas id="qrreader-canvas" class="scanner-wrapper__camera"></canvas>
+          <canvas class="scanner-wrapper__badge {{#if showOverlay}}scanner-wrapper__badge--show{{/if}}" id="qrreader-overlay"></canvas>
+          {{#if showOverlay}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          {{#if video}}
+            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
+          {{elseif error}}
+            <p class="mui--text-danger">{{ error }}</p>
+          {{/if}}
+        </div>
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
@@ -42,32 +46,37 @@
           </div>
         </div>
         {{/if}}
-      </div>
-      <div class="grid__col-xs-12 grid__col-sm-6">
-        <div>
-          <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
-          <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="My account" data-action="my account">My account</a>
-        </div>
-        {{#each contacts:i}}
-          <div class="card">
-            <div class="card__header">
-              <h3 class="mui--text-title mui--text-bold">{{ contacts[i].fullname }}</h3>
-            </div>
-            <div class="card__body card__body--lgtext mui--text-subhead">
-              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
-              {{#if contacts[i].phone }}
-                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
-              {{/if}}
-              {{#if contacts[i].twitter }}
-                <p>{{ contacts[i].twitter }}</p>
-              {{/if}}
-              {{#if contacts[i].company }}
-                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
-              {{/if}}
-            </div>
+        <div class="scanned-contacts">
+          <div class="mui--clearfix">
+            <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
+            <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="My account" data-action="my account">My account</a>
           </div>
-        {{/each}}
-      </div>
+          {{#each contacts:i}}
+            <div class="card mui--z2 contact-card card--small">
+              <div class="card__body mui--clearfix">
+                <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
+                <div class="mui--pull-right contact-card__details">
+                  <div class="mui--clearfix">
+                    <h3 class="mui--text-title mui--text-bold mui--pull-left">{{ contacts[i].fullname }}</h3>
+                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><i class="material-icons">save_alt</i></a>
+                  </div>
+                  <div class="card__body card__body--lgtext mui--text-subhead">
+                    <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
+                    {{#if contacts[i].phone }}
+                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
+                    {{/if}}
+                    {{#if contacts[i].twitter }}
+                      <p>{{ contacts[i].twitter }}</p>
+                    {{/if}}
+                    {{#if contacts[i].company }}
+                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/each}}
+        </div>
       </script>
     </div>
   {% endraw %}

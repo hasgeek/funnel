@@ -66,7 +66,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('index.html.jinja2')
+    @render_with('index.html.jinja2', json=True)
     @requires_permission('view')
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.
@@ -82,10 +82,15 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             upcoming_projects.remove(featured_project)
         open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.schedule_start_at.asc()).all()
         draft_projects = [proj for proj in self.obj.draft_projects if proj.current_roles.admin]
-        return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects,
-            'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
-            'open_cfp_projects': open_cfp_projects, 'draft_projects': draft_projects,
-            'featured_project': featured_project}
+        return {
+            'profile': self.obj.current_access(),
+            'past_projects': [p.current_access() for p in past_projects],
+            'all_projects': [p.current_access() for p in all_projects],
+            'upcoming_projects': [p.current_access() for p in upcoming_projects],
+            'open_cfp_projects': [p.current_access() for p in open_cfp_projects],
+            'draft_projects': [p.current_access() for p in draft_projects],
+            'featured_project': featured_project.current_access() if featured_project else None
+            }
 
     @route('json')
     @render_with(json=True)

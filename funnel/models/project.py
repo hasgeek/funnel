@@ -17,11 +17,12 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow, valid_username
 
 from ..util import geonameid_from_location
-from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType, db
+from . import (BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType,
+    TSVectorType, db)
 from .user import Team, User
 from .profile import Profile
 from .commentvote import Commentset, SET_TYPE, Voteset
-from .helper import RESERVED_NAMES
+from .helpers import RESERVED_NAMES, add_search_trigger
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
@@ -133,6 +134,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     #: project editors or profile admins.
     featured = db.Column(db.Boolean, default=False, nullable=False)
 
+    search_vector = db.deferred(db.Column(
+        TSVectorType(
+            'name', 'title', 'description_text', 'instructions_text', 'location',
+            weights={
+                'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
+                'location': 'C'
+                },
+            regconfig='english',
+            hltext=lambda: db.func.concat_ws(
+                ' / ', Project.title, Project.location,
+                Project.description_html, Project.instructions_html),
+            ),
+        nullable=False))
+
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
     labels = db.relationship('Label', cascade='all, delete-orphan',
@@ -150,15 +165,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'Session', order_by="Session.start.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
-    __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
+    __table_args__ = (
+        db.UniqueConstraint('profile_id', 'name'),
+        db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
-                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
-                'location', 'calendar_weeks'
+                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks'
                 },
+            'call': {
+                'url_for',
+                }
             }
         }
 
@@ -230,12 +250,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lambda project: db.session.query(project.sessions.exists()).scalar(),
         label=('has_sessions', __("Has Sessions")))
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
-        lambda project: project.instructions.html != '',
-        lambda project: project.__table__.c.instructions_html != '',
+        lambda project: project.instructions_html != '',
         label=('private_draft', __("Private draft")))
     cfp_state.add_conditional_state('DRAFT', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is None,
-        lambda project: project.__table__.c.cfp_start_at == None,  # NOQA
+        lambda project: project.cfp_start_at == None,  # NOQA
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at > utcnow(),
@@ -490,6 +509,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             roles.add('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
+
+
+add_search_trigger(Project, 'search_vector')
 
 
 Profile.listed_projects = db.relationship(

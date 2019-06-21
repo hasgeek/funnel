@@ -35,7 +35,7 @@
           <div class="mui--pull-right contact-card__details">
             <div class="mui--clearfix">
               <h3 class="mui--text-title mui--pull-left">{{ contact.participant.fullname }}</h3>
-               <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href=""><i class="material-icons">save_alt</i></a>
+               <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact"><i class="material-icons">save_alt</i></a>
             </div>
             <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.participant.email }}</p>
             {% if contact.participant.phone %}
