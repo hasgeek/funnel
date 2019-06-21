@@ -216,11 +216,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.schedule_start_at and self.schedule_end_at:
             schedule_start_at_date = self.schedule_start_at.astimezone(self.timezone).date()
             schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
-            daterange_format = u"{schedule_start_at}–{schedule_end_at} {year}"
+            daterange_format = u"{start_date}–{end_date} {year}"
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
                 strf_date = ""
-                daterange_format = u"{schedule_end_at} {year}"
+                daterange_format = u"{end_date} {year}"
             elif schedule_start_at_date.year != schedule_end_at_date.year:
                 # if the start date and end dates are in different years,
                 strf_date = "%d %b %Y"
@@ -231,8 +231,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 # If multi-day event in same month
                 strf_date = "%d"
             daterange = daterange_format.format(
-                schedule_start_at=schedule_start_at_date.strftime(strf_date),
-                schedule_end_at=schedule_end_at_date.strftime("%d %b"),
+                start_date=schedule_start_at_date.strftime(strf_date),
+                end_date=schedule_end_at_date.strftime("%d %b"),
                 year=schedule_end_at_date.year)
         return u', '.join(filter(None, [daterange, self.location]))
 
