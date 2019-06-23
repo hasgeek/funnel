@@ -4,7 +4,7 @@
 from sqlalchemy_utils import TSVectorType
 from coaster.sqlalchemy import (TimestampMixin, UuidMixin, BaseMixin, BaseNameMixin,
     BaseScopedNameMixin, BaseScopedIdNameMixin, BaseIdNameMixin, MarkdownColumn,
-    JsonDict, NoIdMixin, CoordinatesMixin, UrlType)
+    JsonDict, NoIdMixin, CoordinatesMixin, UrlType, RoleMixin, with_roles)
 from coaster.db import db
 
 

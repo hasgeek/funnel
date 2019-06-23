@@ -9,15 +9,15 @@
     <h2 class="mui--text-title">My profile</h2>
     <div class="card">
       <div class="card__header">
-        <h3 class="mui--text-title mui--text-bold">{{ current_auth.user.fullname }}</h3>
+        <h3 class="mui--text-title mui--text-bold">{{ user.fullname }}</h3>
       </div>
       <div class="card__body card__body--lgtext mui--text-subhead">
-        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">email</i> {{ current_auth.user.email }}</p>
-        {% if current_auth.user.phone %}<p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">call</i> {{ current_auth.user.phone }}</p>{% endif %}
+        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">email</i> {{ user.email }}</p>
+        {% if user.phone %}<p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">call</i> {{ user.phone }}</p>{% endif %}
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ current_auth.user.profile_url }}" title="Edit">{% trans %}Edit{% endtrans %}</a>
+        <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ user.profile_url }}" title="Edit">{% trans %}Edit{% endtrans %}</a>
         <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout">{% trans %}Logout{% endtrans %}</a>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <h2 class="mui--text-title mui--pull-left">My contacts</h2>
       <a href="{{ url_for('contacts') }}" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="Scan badge" data-action="Scan badge">Scan participant badge</a>
     </div>
-    {% for contact in current_auth.user.scanned_contacts %}
+    {% for contact in contacts %}
       <div class="card mui--z2 contact-card">
         <div class="card__body mui--clearfix">
           <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
@@ -48,7 +48,7 @@
               <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.participant.company }}</p>
             {% endif %}
           </div>
-          <p class="mui--text-caption mui--pull-right">Contact saved on  {{ contact.created_at.strftime("%e %B %Y")}} at {{ contact.participant.project.title}}</p>
+          <p class="mui--text-caption mui--pull-right">Contact saved on  {{ contact.scanned_at|shortdate }} at {{ contact.participant.project.title}}</p>
         </div>
       </div>
     {%- else -%}

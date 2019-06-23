@@ -8,6 +8,8 @@ from coaster.auth import current_auth
 from coaster.views import requestargs, ClassView, route, render_with
 from coaster.utils import midnight_to_utc, utcnow
 
+from baseframe import _
+
 from .. import app, funnelapp, lastuser
 from ..models import (db, Participant, ContactExchange)
 from ..util import format_twitter_handle
@@ -27,7 +29,7 @@ def contact_details(participant):
 @route('/account/contacts')
 class ContactView(ClassView):
     current_section = 'contact'
-    
+
     @route('', endpoint='contacts')
     @render_with('contacts.html.jinja2')
     def contacts(self):
@@ -45,7 +47,7 @@ class ContactView(ClassView):
         if project.date_upto:
             if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
                 return make_response(jsonify(status='error',
-                    message=u"This project has concluded"), 401)
+                    message=_(u"This project has concluded")), 401)
 
             try:
                 contact_exchange = ContactExchange(user=current_auth.actor,
