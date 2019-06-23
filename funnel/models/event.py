@@ -129,7 +129,6 @@ class Participant(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('project_id', 'email'),)
 
     def roles_for(self, actor, anchors=()):
-        from . import ContactExchange
         roles = super(Participant, self).roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('subject')
@@ -279,3 +278,8 @@ class SyncTicket(BaseMixin, db.Model):
             db.session.add(ticket)
 
         return ticket
+
+
+# Import symbols required only in functions at bottom of file to avoid
+# cyclic dependency failures.
+from .contact_exchange import ContactExchange

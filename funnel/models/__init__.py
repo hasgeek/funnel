@@ -12,9 +12,9 @@ TimestampMixin.__with_timezone__ = True
 
 
 from .commentvote import *
-from .contact_exchange import *
 from .draft import *
 from .event import *
+from .contact_exchange import *
 from .feedback import *
 from .profile import *
 from .project import *
