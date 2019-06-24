@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.associationproxy import association_proxy
+from collections import OrderedDict
 
+from sqlalchemy.ext.associationproxy import association_proxy
 from . import db, TimestampMixin, RoleMixin
 from .user import User
+from .project import Project
 from .event import Participant
 
 __all__ = ['ContactExchange']
@@ -51,6 +53,24 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         if actor == self.participant.user:
             roles.add('subject')
         return roles
+
+    @classmethod
+    def grouped_counts_for(cls, user, archived=False):
+        """
+        Return contacts grouped by project and date
+        """
+
+        query = ContactExchange.query.join(Participant).join(Project).filter(ContactExchange.user == user).order_by(cls.scanned_at.desc())
+        if not archived:
+            query = query.filter(ContactExchange.archived == False)  # NOQA: E712
+
+        results = OrderedDict()
+
+        for cx in query:
+            date = cx.scanned_at.astimezone(cx.participant.project.timezone).date()
+            results.setdefault(date, OrderedDict()).setdefault(cx.participant.project, []).append(cx)
+
+        return results
 
 
 Participant.scanning_users = association_proxy('scanned_contacts', 'user')

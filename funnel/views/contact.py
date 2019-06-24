@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
-from flask import jsonify, make_response, current_app, url_for, redirect
+from datetime import datetime, timedelta
+from flask import request, jsonify, make_response, current_app, url_for, redirect
 from sqlalchemy.exc import IntegrityError
 
 from coaster.auth import current_auth
 from coaster.views import requestargs, ClassView, route, render_with
-from coaster.utils import midnight_to_utc, utcnow
+from coaster.utils import midnight_to_utc, utcnow, getbool
 
 from baseframe import _
 
 from .. import app, funnelapp, lastuser
-from ..models import (db, Participant, ContactExchange)
+from ..models import (db, Participant, ContactExchange, Project)
 from ..util import format_twitter_handle
 
 
@@ -30,13 +30,24 @@ def contact_details(participant):
 class ContactView(ClassView):
     current_section = 'contact'
 
+    def get_project_and_date(self, suuid, datestr):
+        if suuid is not None:
+            project = Project.query.filter_by(suuid=suuid).options(db.load_only(Project.id, Project.title)).one_or_404()
+        else:
+            project = None
+        dt = datetime.strptime(datestr, '%Y%m%d')
+        return project, dt.date()
+
     @route('', endpoint='contacts')
-    @render_with(json=True)
+    @lastuser.requires_login
+    @render_with('contacts.html.jinja2')
     def contacts(self):
         """List of contacts"""
-        return {}
+        archived = getbool(request.args.get('archived'))
+        return {'contacts': ContactExchange.grouped_counts_for(current_auth.user, archived=archived)}
 
     @route('scan', endpoint='scan_contact')
+    @lastuser.requires_login
     @render_with('scan_contact.html.jinja2')
     def scan(self):
         """Scan a badge"""
@@ -55,7 +66,7 @@ class ContactView(ClassView):
         if project.date_upto:
             if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
                 return make_response(jsonify(status='error',
-                    message=_(u"This project has concluded")), 401)
+                    message=_(u"This project has concluded")), 403)
 
             try:
                 contact_exchange = ContactExchange(user=current_auth.actor,
