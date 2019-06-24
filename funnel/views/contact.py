@@ -31,14 +31,22 @@ class ContactView(ClassView):
     current_section = 'contact'
 
     @route('', endpoint='contacts')
-    @render_with('contacts.html.jinja2')
+    @render_with(json=True)
     def contacts(self):
+        """List of contacts"""
         return {}
 
-    @route('connect', endpoint='connect', methods=['POST'])
+    @route('scan', endpoint='scan_contact')
+    @render_with('scan_contact.html.jinja2')
+    def scan(self):
+        """Scan a badge"""
+        return {}
+
+    @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @lastuser.requires_login
     @requestargs('puk', 'key')
     def connect(self, puk, key):
+        """Scan verification"""
         participant = Participant.query.filter_by(puk=puk, key=key).first()
         if not participant:
             return make_response(jsonify(status='error',
@@ -55,7 +63,7 @@ class ContactView(ClassView):
                 db.session.add(contact_exchange)
                 db.session.commit()
             except IntegrityError:
-                current_app.logger.warning(u"Contact Exchange already present")
+                current_app.logger.warning(u"Contact already scanned")
                 db.session.rollback()
             return jsonify(contact=contact_details(participant))
         else:
@@ -69,6 +77,11 @@ class FunnelContactView(ClassView):
     def contacts(self):
         with app.app_context(), app.test_request_context():
             return redirect(url_for('contacts', _external=True))
+
+    @route('', endpoint='scan_contact')
+    def scan(self):
+        with app.app_context(), app.test_request_context():
+            return redirect(url_for('scan_contact', _external=True))
 
 
 ContactView.init_app(app)
