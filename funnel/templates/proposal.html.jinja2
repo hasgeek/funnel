@@ -16,10 +16,8 @@
   {%- endassets -%}
 {% endblock %}
 
-{% block heading %}{# Inhibit display of page-level title #}{% endblock %}
-
 {% block top_title %}
-  <h1 class="mui--text-display1"><strong>{{ project.title|e }}</strong></h1>
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title|e }}</a></strong></h1>
   <p class="mui--text-headline">{{ project.tagline|safe }}</p>
   <p>
   {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
