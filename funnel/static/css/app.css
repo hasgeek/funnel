@@ -263,9 +263,6 @@ html.touch .collapsible__body--disable {
 .hg-app .header--fixed .header__nav .header__site-title .search-form--show {
   display: inline-block;
 }
-.hg-app .header--fixed .header__nav .header__site-title--smaller {
-  width: 58%;
-}
 .hg-app .header--fixed .header__nav .header__right-nav {
   width: 60%;
   padding: 0;
