@@ -32,34 +32,30 @@
   <div class="mui-container tab-content">
     <div class="grid">
       <div class="grid__col-xs-12 grid__col-sm-6">
-        {% for date in contacts %}
-          {% for project in contacts[date] %}
-            <div class="tab-content__results">
-              <div class="mui--clearfix">
-                <div class="mui--pull-left">
-                  <p class="mui--text-title zero-bottom-margin">{{ project.title }}</p>
-                  <p class="mui--text-body1 mui--text-light">{{ date|longdate }}</p>
+        {% for project,dates in contacts %}
+          <div class="tab-content__results">
+          <p class="mui--text-title collapsible__header">{{ project.title }} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
+            {% for daterow in dates %}
+            <div class="collapsible__body mui-list--aligned ">
+              <p class="mui--text-subhead collapsible__header">{{ daterow.date|longdate }} <span class="count-chip mui--text-caption">{{ daterow.count }}</span> <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
+              <div class="collapsible__body mui-list--aligned">
+                <div class="mui--clearfix">
+                <div class="mui--pull-right">
+                  <a href="" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="CSV"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
+                  <a href="" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="Archive"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">archive</i> {% trans %}Archive{% endtrans %}</a>
                 </div>
-                <!-- <a href="{{ project.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark mui--pull-right" target="_blank" title="CSV"><i class="material-icons mui--text-subhead mui--align-top" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a> -->
               </div>
-              <table class="mui-table mui-table--bordered mui-table--responsive">
-                <tbody>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                  </tr>
-                  {% for contact in contacts[date][project] %}
-                    <tr>
-                      <td data-th="Name"><p>{{ contact.participant.fullname }}</p></td>
-                      <td data-th="Email"><p>{{ contact.participant.email }}</p></td>
-                      <td data-th="Phone"><p>{{ contact.participant.phone }}</p></td>
-                    </tr>
-                  {%- endfor -%}
-                </tbody>
-              </table>
+                {% for contact in daterow.contacts.all() %}
+                  <div class="user-box">
+                    <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="{{ contact.participant.fullname }}" aria-labl="{{ contact.participant.fullname }}" />
+                    <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
+                    <p class="mui--text-body1">{{ contact.participant.email }}</p>
+                  </div>
+                {%- endfor -%}
             </div>
-          {%- endfor -%}
+            </div>
+            {%- endfor -%}
+          </div>
         {%- endfor -%}
       </div>
     </div>

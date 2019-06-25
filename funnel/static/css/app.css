@@ -226,6 +226,26 @@ html.touch .collapsible__body--disable {
   background: transparent !important;
 }
 
+.count-chip {
+  color: #e05f25;
+  position: relative;
+  top: -12px;
+  font-size: 12px;
+}
+
+.user-box {
+  padding: 8px 8px 8px 50px;
+  position: relative;
+}
+.user-box .user-gravatar {
+  width: 40px;
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 11px;
+  border-radius: 50%;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -535,12 +555,6 @@ html.touch .collapsible__body--disable {
   margin: 0;
   text-align: center;
   cursor: pointer;
-}
-.tabs .tabs__item .count {
-  color: #e05f25;
-  position: relative;
-  top: -12px;
-  font-size: 12px;
 }
 .tabs .tabs__item a:hover,
 .tabs .tabs__item a:focus {
@@ -2063,19 +2077,6 @@ body > .proposal-box.ui-draggable {
   opacity: 0.4;
   position: relative;
   top: 1px;
-}
-
-.search-box {
-  padding: 8px 8px 8px 50px;
-  position: relative;
-}
-.search-box .user-gravatar {
-  width: 40px;
-  display: inline-block;
-  position: absolute;
-  left: 0;
-  top: 11px;
-  border-radius: 50%;
 }
 
 .scanner-wrapper {

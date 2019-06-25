@@ -410,13 +410,6 @@ and (orientation: landscape) {
     text-align: center;
     cursor: pointer;
 
-    .count {
-      color: #e05f25;
-      position: relative;
-      top: -12px;
-      font-size: 12px;
-    }
-
     a:hover,
     a:focus {
       text-decoration: none;
