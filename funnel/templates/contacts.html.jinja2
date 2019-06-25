@@ -1,0 +1,79 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app tabs-navbar">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
+
+{% block headline -%}
+{%- endblock %}
+
+{% block basecontentbox %}
+  <div class="tabs-wrapper">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="tabs" id="scrollable-tabs">
+            <p class="tabs__item tabs__item-control tabs__item-control--prev js-scroll-prev mui--text-body1 mui--text-light" aria-label="previous"><i class="material-icons tabs__item-control__icon">chevron_left</i></p>
+            <p class="tabs__item"><a href="{{ url_for('account') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Profile</a></p>
+            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Contacts</p>
+            <p class="tabs__item"><a href="{{ url_for('scan_contact') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Scan badge</a></p>
+            <p class="tabs__item tabs__item-control tabs__item-control--next js-scroll-next mui--text-body1 mui--text-light" aria-label="next"><i class="material-icons tabs__item-control__icon">chevron_right</i></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mui-container tab-content">
+    <div class="grid">
+      <div class="grid__col-xs-12 grid__col-lg-6">
+        {% for date in contacts %}
+          {% for project in contacts[date] %}
+            <div class="tab-content__results">
+              <div class="mui--clearfix">
+                <div class="mui--pull-left">
+                  <p class="mui--text-title zero-bottom-margin">{{ project.title }}</p>
+                  <p class="mui--text-body1 mui--text-light">{{ date|longdate }}</p>
+                </div>
+                <!-- <a href="{{ project.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark mui--pull-right" target="_blank" title="CSV"><i class="material-icons mui--text-subhead mui--align-top" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a> -->
+              </div>
+              <table class="mui-table mui-table--bordered mui-table--responsive">
+                <tbody>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                  </tr>
+                  {% for contact in contacts[date][project] %}
+                    <tr>
+                      <td data-th="Name"><p>{{ contact.participant.fullname }}</p></td>
+                      <td data-th="Email"><p>{{ contact.participant.email }}</p></td>
+                      <td data-th="Phone"><p>{{ contact.participant.phone }}</p></td>
+                    </tr>
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </div>
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script type="text/javascript">
+    $(function() {
+
+      $('#scrollable-tabs').animate({
+        scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
+      }, 500);
+
+    });
+  </script>
+{% endblock %}

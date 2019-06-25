@@ -53,7 +53,6 @@ module.exports = {
     "event": path.resolve(__dirname, "js/event.js"),
     "scan_badge": path.resolve(__dirname, "js/scan_badge.js"),
     "scan_contact": path.resolve(__dirname, "js/scan_contact.js"),
-    "contact": path.resolve(__dirname, "js/contact.js"),
     "search": path.resolve(__dirname, "js/search.js"),
   },
   output: {

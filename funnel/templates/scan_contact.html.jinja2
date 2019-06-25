@@ -1,10 +1,34 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% trans %}Contacts{% endtrans %}{% endblock %}
 
-{% block headline -%}
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app tabs-navbar">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
 {% endblock %}
 
+{% block headline -%}
+{%- endblock %}
+
 {% block basecontentbox %}
+  <div class="tabs-wrapper">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="tabs" id="scrollable-tabs">
+            <p class="tabs__item tabs__item-control tabs__item-control--prev js-scroll-prev mui--text-body1 mui--text-light" aria-label="previous"><i class="material-icons tabs__item-control__icon">chevron_left</i></p>
+            <p class="tabs__item"><a href="{{ url_for('account') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Profile</a></p>
+            <p class="tabs__item"><a href="{{ url_for('contacts') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Contacts</a></p>
+            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Scan badge</p>
+            <p class="tabs__item tabs__item-control tabs__item-control--next js-scroll-next mui--text-body1 mui--text-light" aria-label="next"><i class="material-icons tabs__item-control__icon">chevron_right</i></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {% raw %}
     <div id="scan-badge-wrapper">
       <script id='scan-badge-template' type='text/ractive'>
@@ -94,6 +118,11 @@
       scanConfig.templateId = 'scan-badge-template';
 
       window.HasGeek.BadgeScanInit(scanConfig);
+
+
+      $('#scrollable-tabs').animate({
+        scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
+      }, 500);
 
     });
   </script>

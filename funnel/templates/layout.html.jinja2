@@ -70,7 +70,6 @@
       {% if not current_auth.is_anonymous -%}
         {% set site_links = [
           {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
-          {'title': 'Scan badge', 'icon': 'center_focus_strong', 'url': url_for('scan_contact'), 'name' :'contact'},
           {'title': 'Account', 'icon': 'account_circle', 'url': url_for('account'), 'name' :'account'}
           ]%}
       {%- else %}
