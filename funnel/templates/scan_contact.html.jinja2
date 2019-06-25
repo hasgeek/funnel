@@ -3,7 +3,7 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
+    <body class="mui--bg-primary hg-app tabs-navbar scanner-body">
   {%- else %}
     <body class="mui--bg-primary">
   {%- endif %}
@@ -19,8 +19,8 @@
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
             <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="previous" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
-            <p class="tabs__item"><a href="{{ url_for('account') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Profile</a></p>
-            <p class="tabs__item"><a href="{{ url_for('contacts') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Contacts</a></p>
+            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Profile</a>
+            <a href="{{ url_for('contacts') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Contacts</a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Scan badge</p>
             <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="next" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
           </div>
@@ -34,11 +34,8 @@
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper">
           <canvas id="qrreader-canvas" class="scanner-wrapper__camera"></canvas>
-          <canvas class="scanner-wrapper__badge {{#if showOverlay}}scanner-wrapper__badge--show{{/if}}" id="qrreader-overlay"></canvas>
           {{#if showOverlay}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
-          {{#if video}}
-            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
-          {{elseif error}}
+          {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
         </div>
@@ -70,7 +67,7 @@
           </div>
         </div>
         {{/if}}
-        <div class="scanned-contacts">
+        <div class="scanned-contacts mui--hidden-xs mui--hidden-sm mui--hidden-md">
           <div class="mui--clearfix">
             <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
             <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="My account" data-action="my account">My account</a>
@@ -120,4 +117,7 @@
       window.HasGeek.BadgeScanInit(scanConfig);
     });
   </script>
+{% endblock %}
+
+{% block basefooter %}
 {% endblock %}

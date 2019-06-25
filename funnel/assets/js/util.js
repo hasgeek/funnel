@@ -22,7 +22,7 @@ export const Utils = {
   collapse() {
     $('.collapsible__header').on('click', function collapseContent() {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
-      $(this).next('.collapsible__body').slideToggle();
+      $(this).siblings('.collapsible__body').slideToggle();
     });
   },
   animateScrollTo(offsetY) {
@@ -45,7 +45,7 @@ export const Utils = {
 
       $('#jquery-scroll-tabs .js-scroll-prev').on('click', function (event) {
         event.preventDefault();
-        let prevTab = $('.tabs__item--active').prev('.tabs__item').find('a').attr('href')
+        let prevTab = $('.tabs__item--active').prev('.tabs__item').attr('href')
         if(prevTab) {
           window.location.href = prevTab;
         }
@@ -53,7 +53,7 @@ export const Utils = {
 
       $('#jquery-scroll-tabs .js-scroll-next').on('click', function (event) {
         event.preventDefault();
-        let nextTab = $('.tabs__item--active').next('.tabs__item').find('a').attr('href')
+        let nextTab = $('.tabs__item--active').next('.tabs__item').attr('href')
         if(nextTab) {
           window.location.href = nextTab;
         }

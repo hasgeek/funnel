@@ -1,10 +1,16 @@
+.scanner-body {
+  height: 100vh;
+  overflow: hidden; 
+}
+
 .scanner-wrapper {
   position: relative;
   margin: auto;
   text-align: center;
 
   .scanner-wrapper__camera {
-    max-width: 100% !important;
+    width: 100vw;
+    height: 100vh;
   }
 
   .scanner-wrapper__badge {
@@ -41,11 +47,26 @@
   margin: auto;
 }
 
+@media (min-device-width: 768px)
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+}
+
 @media(min-width: 1200px) {
+  .scanner-body {
+    height: auto;
+    overflow: auto; 
+  }
   .scanner-wrapper {
     float: left;
     padding: 32px;
     text-align: left;
+    width: 60%;
+
+    .scanner-wrapper__camera {
+      width: 100%;
+      height: auto;
+    }
 
     .scanner-wrapper__badge {
       top: 32px;

@@ -19,9 +19,9 @@
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
             <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="previous" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
-            <p class="tabs__item"><a href="{{ url_for('account') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Profile</a></p>
+            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Profile</a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Contacts</p>
-            <p class="tabs__item"><a href="{{ url_for('scan_contact') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Scan badge</a></p>
+            <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Scan badge</a>
             <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="next" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
           </div>
         </div>
@@ -34,27 +34,37 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         {% for project,dates in contacts %}
           <div class="tab-content__results">
-          <p class="mui--text-title collapsible__header">{{ project.title }} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
-            {% for daterow in dates %}
-            <div class="collapsible__body mui-list--aligned ">
-              <p class="mui--text-subhead collapsible__header">{{ daterow.date|longdate }} <span class="count-chip mui--text-caption">{{ daterow.count }}</span> <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
-              <div class="collapsible__body mui-list--aligned">
-                <div class="mui--clearfix">
-                <div class="mui--pull-right">
-                  <a href="" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="CSV"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                  <a href="" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="Archive"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">archive</i> {% trans %}Archive{% endtrans %}</a>
-                </div>
+            <div class="collapsible__header mui--clearfix">
+              <p class="mui--text-title mui--pull-left">{{ project.title }}</p>
+              <div class="mui--pull-right">
+                <a href="{{ url_for('contacts_project_csv', suuid=project.suuid) }}" download title="CSV" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
+                <a href="" title="Archive" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">archive</i> {% trans %}Archive{% endtrans %}</a>
+                <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i>
               </div>
-                {% for contact in daterow.contacts.all() %}
-                  <div class="user-box">
-                    <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="{{ contact.participant.fullname }}" aria-labl="{{ contact.participant.fullname }}" />
-                    <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
-                    <p class="mui--text-body1">{{ contact.participant.email }}</p>
+            </div>
+            <div class="collapsible__body mui-list--aligned">
+              {% for daterow in dates %}
+                <div class="collapsible">
+                  <div class="collapsible__header mui--clearfix">
+                    <p class="mui--text-title mui--pull-left">{{ daterow.date.isoformat()  }} <span class="count-chip mui--text-caption">{{ daterow.count }}</span></p>
+                    <div class="mui--pull-right">
+                      <a href="{{ url_for('contacts_project_date_csv', suuid=project.suuid, datestr=daterow.date) }}" download title="CSV" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
+                      <a href="" title="Archive" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">archive</i> {% trans %}Archive{% endtrans %}</a>
+                      <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i>
+                    </div>
                   </div>
-                {%- endfor -%}
+                  <div class="collapsible__body mui-list--aligned">
+                    {% for contact in daterow.contacts.all() %}
+                      <div class="user-box">
+                        <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="{{ contact.participant.fullname }}" aria-labl="{{ contact.participant.fullname }}" />
+                        <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
+                        <p class="mui--text-body1">{{ contact.participant.email }}</p>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endfor -%}
             </div>
-            </div>
-            {%- endfor -%}
           </div>
         {%- endfor -%}
       </div>

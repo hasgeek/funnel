@@ -138,8 +138,10 @@
             </form>
           </div>
           {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
+            <div class="collapsible">
               <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
               <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
+            </div>
           {%- endfor -%}
         {%- else %}
           {%- if project.proposals_by_confirmation['confirmed'] %}

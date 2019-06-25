@@ -409,17 +409,19 @@ and (orientation: landscape) {
     margin: 0;
     text-align: center;
     cursor: pointer;
-
-    a:hover,
-    a:focus {
-      text-decoration: none;
-    }
   }
+
+  .tabs__item:hover,
+  .tabs__item:focus {
+    text-decoration: none;
+  }
+
   .tabs__item--active,
   .tabs__item--active:first-child,
   .tabs__item--active:last-child {
     border-bottom: 2px solid #856A91;
   }
+
   .tabs__item-control {
     position: fixed;
     z-index: 1000;
