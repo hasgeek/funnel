@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from itertools import groupby
 
 from sqlalchemy.ext.associationproxy import association_proxy
+
+from coaster.utils import uuid2suuid
+
 from . import db, TimestampMixin, RoleMixin
 from .user import User
 from .project import Project
@@ -13,7 +16,7 @@ __all__ = ['ContactExchange']
 
 
 # Named tuples for returning contacts grouped by project and date
-ProjectId = namedtuple('ProjectId', ['id', 'uuid', 'title', 'timezone'])
+ProjectId = namedtuple('ProjectId', ['id', 'uuid', 'suuid', 'title', 'timezone'])
 DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'])
 
 
@@ -93,11 +96,30 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             ).group_by(db.text('id'), db.text('uuid'), db.text('title'), db.text('timezone'), db.text('date')
             ).order_by(db.text('date DESC'))
 
+        # Our query result looks like this:
+        # [(id, uuid, title, timezone, date, count), ...]
+        # where (id, uuid, title, timezone) repeat for each date
+        #
+        # Transform it into this:
+        # [
+        #   (ProjectId(id, uuid, suuid, title, timezone), [
+        #     DateCountContacts(date, count, contacts),
+        #     ...  # More dates
+        #     ]
+        #   ),
+        #   ...  # More projects
+        #   ]
+
+        # We don't do it here, but this can easily be converted into a dictionary of {project: dates}:
+        # >>> OrderedDict(result)  # Preserve order with most recent projects first
+        # >>> dict(result)         # Don't preserve order
+
         groups = [(k, [
             DateCountContacts(
                 r.date, r.count, cls.contacts_for_project_and_date(user, k, r.date, archived)
                 ) for r in g
-            ]) for k, g in groupby(query, lambda r: ProjectId(r.id, r.uuid, r.title, r.timezone))]
+            ]) for k, g in groupby(query,
+                lambda r: ProjectId(r.id, r.uuid, uuid2suuid(r.uuid), r.title, r.timezone))]
 
         return groups
 
@@ -118,6 +140,21 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             # if archived == False: return only unarchived contacts
             query = query.filter(cls.archived == False)  # NOQA: E712
 
+        return query
+
+    @classmethod
+    def contacts_for_project(cls, user, project, archived=False):
+        """
+        Return contacts for a given user and project
+        """
+        query = cls.query.join(Participant).filter(
+            cls.user == user,
+            Participant.project_id == project.id,
+            )
+        if not archived:
+            # If archived == True: return everything (contacts including archived contacts)
+            # if archived == False: return only unarchived contacts
+            query = query.filter(cls.archived == False)  # NOQA: E712
         return query
 
 
