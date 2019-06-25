@@ -248,6 +248,14 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.url_id = None
         self.make_id()
 
+    @with_roles(call={'admin'})
+    def transfer_to(self, user):
+        """
+        Transfer the proposal to a new user and speaker
+        """
+        self.user = user
+        self.speaker = user
+
     @property
     def owner(self):
         return self.speaker or self.user
