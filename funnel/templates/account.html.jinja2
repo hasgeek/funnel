@@ -17,12 +17,12 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
-          <div class="tabs" id="scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="previous" href="javascript(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
+          <div class="tabs" id="jquery-scroll-tabs">
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="previous" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Profile</p>
             <p class="tabs__item"><a href="{{ url_for('contacts') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Contacts</a></p>
             <p class="tabs__item"><a href="{{ url_for('scan_contact') }}" class="mui--text-body1 mui--text-light mui--text-uppercase">Scan badge</a></p>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="next" href="javascript(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="next" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@
  
   <div class="mui-container tab-content">
     <div class="grid">
-      <div class="grid__col-xs-12 grid__col-lg-6">
+      <div class="grid__col-xs-12 grid__col-sm-6">
         <h2 class="mui--text-title">My profile</h2>
         <div class="card">
           <div class="card__header">
@@ -50,26 +50,4 @@
       </div>
     </div>
   </div>
-{% endblock %}
-
-{% block footerscripts %}
-  <script type="text/javascript">
-    $(function() {
-
-      $('.js-scroll-prev').on('click', function (event) {
-        event.preventDefault();
-        $('.tabs__item--active').prev('.tabs__item').find('a').click();
-      });
-
-      $('.js-scroll-next').on('click', function (event) {
-        event.preventDefault();
-        $('.tabs__item--active').next('.tabs__item').find('a').click();
-      });
-
-      $('#scrollable-tabs').animate({
-        scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
-      }, 500);
-
-    });
-  </script>
 {% endblock %}

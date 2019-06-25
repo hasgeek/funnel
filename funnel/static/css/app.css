@@ -1,4 +1,8 @@
 @charset "UTF-8";
+body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+}
+
 .zero-bottom-margin {
   margin-bottom: 0;
 }
@@ -245,10 +249,10 @@ html.touch .collapsible__body--disable {
   display: none;
 }
 .hg-app .header--fixed .header__nav .header__site-title .search-form .search-form__field {
-  width: 100%;
   background-color: #eff2f6;
   border: none;
   padding: 15px 30px;
+  min-width: calc(100% - 60px);
   color: #1F2D3D;
   font-size: 16px;
 }

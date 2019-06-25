@@ -24,10 +24,10 @@
           display: none;
 
           .search-form__field {
-            width: 100%;
             background-color: #eff2f6;
             border: none;
             padding: 15px 30px;
+            min-width: calc(100% - 60px);
             color: #1F2D3D;
             font-size: 16px;
           }
