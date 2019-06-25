@@ -10,7 +10,6 @@
 
   .scanner-wrapper__camera {
     width: 100vw;
-    height: 100vh;
   }
 
   .scanner-wrapper__badge {
@@ -65,7 +64,6 @@ and (orientation: landscape) {
 
     .scanner-wrapper__camera {
       width: 100%;
-      height: auto;
     }
 
     .scanner-wrapper__badge {

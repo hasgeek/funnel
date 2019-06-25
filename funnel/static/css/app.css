@@ -2091,7 +2091,6 @@ body > .proposal-box.ui-draggable {
 }
 .scanner-wrapper .scanner-wrapper__camera {
   width: 100vw;
-  height: 100vh;
 }
 .scanner-wrapper .scanner-wrapper__badge {
   position: absolute;
@@ -2140,7 +2139,6 @@ body > .proposal-box.ui-draggable {
   }
   .scanner-wrapper .scanner-wrapper__camera {
     width: 100%;
-    height: auto;
   }
   .scanner-wrapper .scanner-wrapper__badge {
     top: 32px;
