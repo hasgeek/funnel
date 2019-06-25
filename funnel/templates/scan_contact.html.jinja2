@@ -1,9 +1,17 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% trans %}Contacts{% endtrans %}{% endblock %}
 
+{% block pageheaders %}
+<style>
+  html, body {
+    overflow: hidden; 
+  }
+</style>
+{% endblock %}
+
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar scanner-body">
+    <body class="mui--bg-primary hg-app tabs-navbar">
   {%- else %}
     <body class="mui--bg-primary">
   {%- endif %}
