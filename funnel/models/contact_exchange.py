@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
+from itertools import groupby
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from . import db, TimestampMixin, RoleMixin
@@ -9,6 +10,11 @@ from .project import Project
 from .event import Participant
 
 __all__ = ['ContactExchange']
+
+
+# Named tuples for returning contacts grouped by project and date
+ProjectId = namedtuple('ProjectId', ['id', 'uuid', 'title', 'timezone'])
+DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'])
 
 
 class ContactExchange(TimestampMixin, RoleMixin, db.Model):
@@ -57,20 +63,62 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
     @classmethod
     def grouped_counts_for(cls, user, archived=False):
         """
-        Return contacts grouped by project and date
+        Return count of contacts grouped by project and date
         """
+        query = db.session.query(
+            cls.scanned_at,
+            Project.id,
+            Project.uuid,
+            Project.timezone,
+            Project.title,
+            ).filter(
+            cls.participant_id == Participant.id,
+            Participant.project_id == Project.id,
+            cls.user == user)
 
-        query = ContactExchange.query.join(Participant).join(Project).filter(ContactExchange.user == user).order_by(cls.scanned_at.desc())
         if not archived:
-            query = query.filter(ContactExchange.archived == False)  # NOQA: E712
+            # If archived == True: return everything (contacts including archived contacts)
+            # if archived == False: return only unarchived contacts
+            query = query.filter(cls.archived == False)  # NOQA: E712
 
-        results = OrderedDict()
+        query = query.from_self(
+            Project.id.label('id'),
+            Project.uuid.label('uuid'),
+            Project.title.label('title'),
+            Project.timezone.label('timezone'),
+            db.cast(
+                db.func.date_trunc('day', db.func.timezone(Project.timezone, cls.scanned_at)),
+                db.Date).label('date'),
+            db.func.count().label('count')
+            ).group_by(db.text('id'), db.text('uuid'), db.text('title'), db.text('timezone'), db.text('date')
+            ).order_by(db.text('date DESC'))
 
-        for cx in query:
-            date = cx.scanned_at.astimezone(cx.participant.project.timezone).date()
-            results.setdefault(date, OrderedDict()).setdefault(cx.participant.project, []).append(cx)
+        groups = [(k, [
+            DateCountContacts(
+                r.date, r.count, cls.contacts_for_project_and_date(user, k, r.date, archived)
+                ) for r in g
+            ]) for k, g in groupby(query, lambda r: ProjectId(r.id, r.uuid, r.title, r.timezone))]
 
-        return results
+        return groups
+
+    @classmethod
+    def contacts_for_project_and_date(cls, user, project, date, archived=False):
+        """
+        Return contacts for a given user, project and date
+        """
+        query = cls.query.join(Participant).filter(
+            cls.user == user,
+            Participant.project_id == project.id,
+            db.cast(
+                db.func.date_trunc('day', db.func.timezone(project.timezone.zone, cls.scanned_at)),
+                db.Date) == date
+            )
+        if not archived:
+            # If archived == True: return everything (contacts including archived contacts)
+            # if archived == False: return only unarchived contacts
+            query = query.filter(cls.archived == False)  # NOQA: E712
+
+        return query
 
 
 Participant.scanning_users = association_proxy('scanned_contacts', 'user')
