@@ -4,7 +4,6 @@ from flask import url_for, redirect
 from coaster.auth import current_auth
 from coaster.views import ClassView, route, render_with
 from .. import app, funnelapp, lastuser
-from ..models import Participant, Project
 
 
 @route('/account')
@@ -15,11 +14,8 @@ class AccountView(ClassView):
     @lastuser.requires_login
     @render_with('account.html.jinja2')
     def account(self):
-        # TODO: Move database query into the model
-        contacts = [c.current_access() for c in current_auth.user.scanned_contacts.join(Participant).join(Project).all()]
         return {
-            'user': current_auth.user.current_access(),
-            'contacts': contacts
+            'user': current_auth.user.current_access()
             }
 
 
