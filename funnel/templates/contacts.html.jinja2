@@ -60,7 +60,7 @@
                             <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
                             <p class="mui--text-body1">{{ contact.participant.email }}</p>
                           </div>
-                          <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact"><i class="material-icons">save_alt</i></a>
+                          <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact"><i class="material-icons  mui--align-middle">person_add</i></a>
                         </div>
                       </div>
                     {%- endfor -%}
