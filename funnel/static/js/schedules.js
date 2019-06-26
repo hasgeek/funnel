@@ -164,8 +164,8 @@ $(function() {
                 else return this.form().find('[name=' + input + ']');
             };
             popup.save = function() {
-                popup.form('start').val(events.current.obj_data.start);
-                popup.form('end').val(events.current.obj_data.end);
+                popup.form('start_at').val(events.current.obj_data.start_at);
+                popup.form('end_at').val(events.current.obj_data.end_at);
                 var data = popup.form().serializeArray();
                 $.ajax({
                     url: events.current.modal_url,

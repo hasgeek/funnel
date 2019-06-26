@@ -26,8 +26,8 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat() if session.scheduled else None,
-            'end': session.end.isoformat() if session.scheduled else None,
+            'start_at': session.start_at.isoformat() if session.scheduled else None,
+            'end_at': session.end_at.isoformat() if session.scheduled else None,
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
             'is_break': session.is_break,
@@ -59,13 +59,13 @@ def date_js(d):
 def schedule_data(project):
     data = defaultdict(lambda: defaultdict(list))
     for session in project.scheduled_sessions:
-        day = str(localize_date(session.start, to_tz=project.timezone).date())
-        slot = localize_date(session.start, to_tz=project.timezone).strftime('%H:%M')
+        day = str(localize_date(session.start_at, to_tz=project.timezone).date())
+        slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
         data[day][slot].append({
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat(),
-            'end': session.end.isoformat(),
+            'start_at': session.start_at.isoformat(),
+            'end_at': session.end_at.isoformat(),
             'url': session.url_for(_external=True),
             'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
             'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
@@ -101,8 +101,8 @@ def session_ical(session):
     event = Event()
     event.add('summary', session.title)
     event.add('uid', "/".join([session.project.name, session.url_name]) + '@' + request.host)
-    event.add('dtstart', session.start.astimezone(session.project.timezone))
-    event.add('dtend', session.end.astimezone(session.project.timezone))
+    event.add('dtstart', session.start_at.astimezone(session.project.timezone))
+    event.add('dtend', session.end_at.astimezone(session.project.timezone))
     event.add('dtstamp', utcnow().astimezone(session.project.timezone))
     event.add('created', session.created_at.astimezone(session.project.timezone))
     event.add('last-modified', session.updated_at.astimezone(session.project.timezone))
@@ -194,8 +194,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
             }
         # Set the proper range for the calendar to allow for date changes
-        first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start.asc()).first()
-        last_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.end.desc()).first()
+        first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start_at.asc()).first()
+        last_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.end_at.desc()).first()
         from_date = (first_session and first_session.start.date() < self.obj.date and first_session.start) or self.obj.date
         to_date = (last_session and last_session.start.date() > self.obj.date_upto and last_session.start) or self.obj.date_upto
         return dict(project=self.obj, proposals=proposals,
@@ -213,8 +213,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         for session in sessions:
             try:
                 s = Session.query.filter_by(project=self.obj, url_id=session['id']).one()
-                s.start = session['start']
-                s.end = session['end']
+                s.start_at = session['start_at']
+                s.end_at = session['end_at']
                 db.session.commit()
             except NoResultFound:
                 current_app.logger.error('{project} schedule update error: session = {session}'.format(project=self.obj.name, session=session))
@@ -267,23 +267,23 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     def updates(self):
         now = utcnow()
         current = Session.query.filter(
-            Session.start <= now, Session.end >= now,
+            Session.start_at <= now, Session.end_at >= now,
             Session.project == self.obj.venue.project,
             or_(Session.venue_room == room, Session.is_break == True)  # NOQA
             ).first()
         next = Session.query.filter(
-            Session.start > now,
+            Session.start_at > now,
             or_(Session.venue_room == room, Session.is_break == True),  # NOQA
             Session.project == self.obj.venue.project
-            ).order_by(Session.start).first()
+            ).order_by(Session.start_at).first()
         if current:
-            current.start = localize_date(current.start, to_tz=self.obj.venue.project.timezone)
-            current.end = localize_date(current.end, to_tz=self.obj.venue.project.timezone)
+            current.start_at = localize_date(current.start_at, to_tz=self.obj.venue.project.timezone)
+            current.end_at = localize_date(current.end_at, to_tz=self.obj.venue.project.timezone)
         nextdiff = None
         if next:
-            next.start = localize_date(next.start, to_tz=self.obj.venue.project.timezone)
-            next.end = localize_date(next.end, to_tz=self.obj.venue.project.timezone)
-            nextdiff = next.start.date() - now.date()
+            next.start_at = localize_date(next.start_at, to_tz=self.obj.venue.project.timezone)
+            next.end_at = localize_date(next.end_at, to_tz=self.obj.venue.project.timezone)
+            nextdiff = next.start_at.date() - now.date()
             nextdiff = nextdiff.total_seconds() / 86400
         return dict(room=self.obj, current=current, next=next, nextdiff=nextdiff)
 
