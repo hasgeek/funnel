@@ -110,7 +110,7 @@
                             {{/if}}
                             <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                             <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                            <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start) }}–{{ formatTime(obj.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start) }}</p>
+                            <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start_at) }}–{{ formatTime(obj.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start_at) }}</p>
                             <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                           </div>
                         {{elseif result == 'proposal'}}
