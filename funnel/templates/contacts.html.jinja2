@@ -38,7 +38,6 @@
               <p class="mui--text-title mui--pull-left">{{ project.title }}</p>
               <div class="mui--pull-right">
                 <a href="{{ url_for('contacts_project_csv', suuid=project.suuid) }}" download title="CSV" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                <a href="" title="Archive" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">archive</i> {% trans %}Archive{% endtrans %}</a>
                 <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i>
               </div>
             </div>
@@ -49,7 +48,6 @@
                     <p class="mui--text-title mui--pull-left">{{ daterow.date.isoformat()  }} <span class="count-chip mui--text-caption">{{ daterow.count }}</span></p>
                     <div class="mui--pull-right">
                       <a href="{{ url_for('contacts_project_date_csv', suuid=project.suuid, datestr=daterow.date) }}" download title="CSV" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                      <a href="" title="Archive" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">archive</i> {% trans %}Archive{% endtrans %}</a>
                       <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i>
                     </div>
                   </div>
@@ -57,8 +55,13 @@
                     {% for contact in daterow.contacts.all() %}
                       <div class="user-box">
                         <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="{{ contact.participant.fullname }}" aria-labl="{{ contact.participant.fullname }}" />
-                        <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
-                        <p class="mui--text-body1">{{ contact.participant.email }}</p>
+                        <div class="mui--clearfix">
+                          <div class=" mui--pull-left">
+                            <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
+                            <p class="mui--text-body1">{{ contact.participant.email }}</p>
+                          </div>
+                          <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact"><i class="material-icons">save_alt</i></a>
+                        </div>
                       </div>
                     {%- endfor -%}
                   </div>
@@ -70,4 +73,8 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('contact')) }}" type="text/javascript"></script>
 {% endblock %}
