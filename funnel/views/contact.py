@@ -49,7 +49,7 @@ class ContactView(ClassView):
         archived = getbool(request.args.get('archived'))
         return {'contacts': ContactExchange.grouped_counts_for(current_auth.user, archived=archived)}
 
-    def contacts_to_csv(self, contacts, filename):
+    def contacts_to_csv(self, contacts, timezone, filename):
         """
         Returns a CSV of given contacts
         """
@@ -61,7 +61,8 @@ class ContactView(ClassView):
             proxy = contact.current_access()
             participant = proxy.participant
             out.writerow([
-                proxy.scanned_at,
+                proxy.scanned_at.astimezone(timezone).replace(
+                    second=0, microsecond=0, tzinfo=None).isoformat(),  # Strip precision from timestamp
                 participant.fullname,
                 participant.email,
                 participant.phone,
@@ -87,10 +88,12 @@ class ContactView(ClassView):
         date = datetime.strptime(datestr, '%Y-%m-%d').date()
 
         contacts = ContactExchange.contacts_for_project_and_date(current_auth.user, project, date, archived)
-        return self.contacts_to_csv(contacts, filename='contacts-{project}-{date}'.format(
-            project=make_name(project.title),
-            date=date.isoformat()))
-
+        return self.contacts_to_csv(
+            contacts,
+            timezone=project.timezone,
+            filename='contacts-{project}-{date}'.format(
+                project=make_name(project.title),
+                date=date.isoformat()))
 
     @route('<suuid>.csv', endpoint='contacts_project_csv')
     @lastuser.requires_login
@@ -100,9 +103,10 @@ class ContactView(ClassView):
         project = self.get_project(suuid)
 
         contacts = ContactExchange.contacts_for_project(current_auth.user, project, archived)
-        return self.contacts_to_csv(contacts, filename='contacts-{project}'.format(
-            project=make_name(project.title)))
-
+        return self.contacts_to_csv(
+            contacts,
+            timezone=project.timezone,
+            filename='contacts-{project}'.format(project=make_name(project.title)),)
 
     @route('scan', endpoint='scan_contact')
     @lastuser.requires_login
