@@ -51,16 +51,17 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             'write': {'description', 'archived'},
             },
         'subject': {
-            'read': {'user', 'partcipant', 'scanned_at'},
+            'read': {'user', 'participant', 'scanned_at'},
             },
         }
 
     def roles_for(self, actor, anchors=()):
         roles = super(ContactExchange, self).roles_for(actor, anchors)
-        if actor == self.user:
-            roles.add('owner')
-        if actor == self.participant.user:
-            roles.add('subject')
+        if actor is not None:
+            if actor == self.user:
+                roles.add('owner')
+            if actor == self.participant.user:
+                roles.add('subject')
         return roles
 
     @classmethod
@@ -84,6 +85,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             # if archived == False: return only unarchived contacts
             query = query.filter(cls.archived == False)  # NOQA: E712
 
+        # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT columns)`
         query = query.from_self(
             Project.id.label('id'),
             Project.uuid.label('uuid'),
@@ -93,8 +95,34 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
                 db.func.date_trunc('day', db.func.timezone(Project.timezone, cls.scanned_at)),
                 db.Date).label('date'),
             db.func.count().label('count')
-            ).group_by(db.text('id'), db.text('uuid'), db.text('title'), db.text('timezone'), db.text('date')
+            ).group_by(
+                db.text('id'), db.text('uuid'), db.text('title'), db.text('timezone'), db.text('date')
             ).order_by(db.text('date DESC'))
+
+        # Issued SQL:
+        #
+        # SELECT
+        #   project_id AS id,
+        #   project_uuid AS uuid,
+        #   project_title AS title,
+        #   project_timezone AS "timezone",
+        #   date_trunc('day', timezone("timezone", contact_exchange_scanned_at))::date AS date,
+        #   count(*) AS count
+        # FROM (
+        #   SELECT
+        #     contact_exchange.scanned_at AS contact_exchange_scanned_at,
+        #     project.id AS project_id,
+        #     project.uuid AS project_uuid,
+        #     project.title AS project_title,
+        #     project.timezone AS project_timezone
+        #   FROM contact_exchange, participant, project
+        #   WHERE
+        #     contact_exchange.participant_id = participant.id
+        #     AND participant.project_id = project.id
+        #     AND contact_exchange.user_id = :user_id
+        #   ) AS anon_1
+        # GROUP BY id, uuid, title, timezone, date
+        # ORDER BY date DESC;
 
         # Our query result looks like this:
         # [(id, uuid, title, timezone, date, count), ...]
@@ -130,6 +158,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """
         query = cls.query.join(Participant).filter(
             cls.user == user,
+            # For safety always use objects instead of column values. The following expression
+            # should have been `Participant.project == project`. However, we are using `id` here
+            # because `project` may be an instance of ProjectId returned by `grouped_counts_for`
             Participant.project_id == project.id,
             db.cast(
                 db.func.date_trunc('day', db.func.timezone(project.timezone.zone, cls.scanned_at)),
@@ -149,6 +180,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """
         query = cls.query.join(Participant).filter(
             cls.user == user,
+            # See explanation for the following expression in `contacts_for_project_and_date`
             Participant.project_id == project.id,
             )
         if not archived:

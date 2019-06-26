@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 import unicodecsv
-from cStringIO import StringIO
+import six
 
 from flask import request, jsonify, make_response, current_app, url_for, redirect, Response
 from sqlalchemy.exc import IntegrityError
@@ -35,11 +35,8 @@ class ContactView(ClassView):
     current_section = 'contact'
 
     def get_project(self, suuid):
-        if suuid is not None:
-            project = Project.query.filter_by(suuid=suuid).options(db.load_only(Project.id, Project.title)).one_or_404()
-        else:
-            project = None
-        return project
+        return Project.query.filter_by(suuid=suuid).options(
+            db.load_only(Project.id, Project.uuid, Project.title)).one_or_404()
 
     @route('', endpoint='contacts')
     @lastuser.requires_login
@@ -53,7 +50,7 @@ class ContactView(ClassView):
         """
         Returns a CSV of given contacts
         """
-        outfile = StringIO()
+        outfile = six.BytesIO()
         out = unicodecsv.writer(outfile, encoding='utf-8')
         out.writerow(
             ['scanned_at', 'fullname', 'email', 'phone', 'twitter', 'job_title', 'company', 'city'])
@@ -74,7 +71,7 @@ class ContactView(ClassView):
 
         outfile.seek(0)
         return Response(
-            unicode(outfile.getvalue(), 'utf-8'),
+            six.text_type(outfile.getvalue(), 'utf-8'),
             content_type='text/csv',
             headers=[('Content-Disposition', 'attachment;filename="{filename}.csv"'.format(
                 filename=filename))])
@@ -93,7 +90,7 @@ class ContactView(ClassView):
             timezone=project.timezone,
             filename='contacts-{project}-{date}'.format(
                 project=make_name(project.title),
-                date=date.isoformat()))
+                date=date.strftime('%Y%m%d')))
 
     @route('<suuid>.csv', endpoint='contacts_project_csv')
     @lastuser.requires_login
