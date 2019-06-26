@@ -42,8 +42,19 @@ class User(UseridMixin, UuidMixin, UserBase2, db.Model):
             'read': {
                 'username', 'fullname', 'avatar',
                 }
+            },
+        'owner': {
+            'read': {
+                'email', 'phone', 'profile_url', 'scanned_contacts',
+                }
             }
         }
+
+    def roles_for(self, actor, anchors=()):
+        roles = super(User, self).roles_for(actor, anchors)
+        if actor == self:
+            roles.add('owner')
+        return roles
 
 
 class Team(UseridMixin, UuidMixin, TeamBase, db.Model):

@@ -226,3 +226,24 @@ html.touch .collapsible__body--disable {
 .mui-btn--nopadding:hover {
   background: transparent !important;
 }
+
+.count-chip {
+  color: #e05f25;
+  position: relative;
+  top: -12px;
+  font-size: 12px;
+}
+
+.user-box {
+  padding: 8px 8px 8px 50px;
+  position: relative;
+
+  .user-gravatar {
+    width: 40px;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 11px;
+    border-radius: 50%;
+  }
+}

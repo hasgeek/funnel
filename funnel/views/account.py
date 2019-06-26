@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for, redirect
+from coaster.auth import current_auth
 from coaster.views import ClassView, route, render_with
 from .. import app, funnelapp, lastuser
 
@@ -13,7 +14,9 @@ class AccountView(ClassView):
     @lastuser.requires_login
     @render_with('account.html.jinja2')
     def account(self):
-        return {}
+        return {
+            'user': current_auth.user.current_access()
+            }
 
 
 @route('/account')
