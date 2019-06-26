@@ -1,0 +1,131 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}Contacts{% endtrans %}{% endblock %}
+
+{% block pageheaders %}
+<style>
+  html, body {
+    overflow: hidden; 
+  }
+</style>
+{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app tabs-navbar">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
+
+{% block headline -%}
+{%- endblock %}
+
+{% block basecontentbox %}
+  <div class="tabs-wrapper">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="tabs" id="jquery-scroll-tabs">
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="previous" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
+            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Profile</a>
+            <a href="{{ url_for('contacts') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Contacts</a>
+            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Scan badge</p>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="next" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% raw %}
+    <div id="scan-badge-wrapper">
+      <script id='scan-badge-template' type='text/ractive'>
+        <div class="scanner-wrapper">
+          <canvas id="qrreader-canvas" class="scanner-wrapper__camera"></canvas>
+          {{#if showOverlay}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          {{#if !video && error}}
+            <p class="mui--text-danger">{{ error }}</p>
+          {{/if}}
+        </div>
+        {{#if showModal}}
+        <div id="status-msg" class="modal" tabindex="-1" role="dialog">
+          <div class="modal__header">
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><i class="material-icons">clear</i></a>
+            <h3 class="mui--text-title">Scanned contacts</h3>
+          </div>
+          <div class="modal__body">
+            {{#if scanning}}
+              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
+            {{elseif contactFound}}
+              <h3>{{ contact.fullname }}</h3>
+              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.email }}</p>
+              {{#if contact.phone }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.phone }}</p>
+              {{/if}}
+              {{#if contact.twitter }}
+                <p>{{ contact.twitter }}</p>
+              {{/if}}
+              {{#if contact.company }}
+                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.company }}</p>
+              {{/if}}
+            {{else}}
+              <h4 class="mui--text-danger">{{ errorMsg }}</h4>
+            {{/if}}
+            <a href="javascript:void(0);" on-click="closeModal(event)" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Close</a>
+          </div>
+        </div>
+        {{/if}}
+        <div class="scanned-contacts mui--hidden-xs mui--hidden-sm mui--hidden-md">
+          <div class="mui--clearfix">
+            <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
+            <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right" title="My account" data-action="my account">My account</a>
+          </div>
+          {{#each contacts:i}}
+            <div class="card mui--z2 contact-card card--small">
+              <div class="card__body mui--clearfix">
+                <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
+                <div class="mui--pull-right contact-card__details">
+                  <div class="mui--clearfix">
+                    <h3 class="mui--text-title mui--text-bold mui--pull-left">{{ contacts[i].fullname }}</h3>
+                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><i class="material-icons  mui--align-middle">person_add</i></a>
+                  </div>
+                  <div class="card__body card__body--lgtext mui--text-subhead">
+                    <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
+                    {{#if contacts[i].phone }}
+                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
+                    {{/if}}
+                    {{#if contacts[i].twitter }}
+                      <p>{{ contacts[i].twitter }}</p>
+                    {{/if}}
+                    {{#if contacts[i].company }}
+                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      </script>
+    </div>
+  {% endraw %}
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('scan_contact')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      var scanConfig = {};
+      scanConfig.getContactApiUrl = "{{ url_for('scan_connect') }}"
+
+      scanConfig.wrapperId = 'scan-badge-wrapper';
+      scanConfig.templateId = 'scan-badge-template';
+
+      window.HasGeek.BadgeScanInit(scanConfig);
+    });
+  </script>
+{% endblock %}
+
+{% block basefooter %}
+{% endblock %}

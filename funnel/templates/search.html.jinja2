@@ -5,7 +5,7 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app search-page">
+    <body class="mui--bg-primary hg-app tabs-navbar">
   {%- else %}
     <body class="mui--bg-primary">
   {%- endif %}
@@ -26,7 +26,7 @@
                   <div class="tabs" id="scrollable-tabs">
                     <p class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light" aria-label="previous" on-click="swipe(-1)"><i class="material-icons tabs__item-control__icon">chevron_left</i></p>
                     {{#each tabs}}
-                      <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count mui--text-caption">{{ count }}</span></p>
+                      <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count-chip mui--text-caption">{{ count }}</span></p>
                     {{/each}}
                     <p class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light" aria-label="next" on-click="swipe(1)"><i class="material-icons tabs__item-control__icon">chevron_right</i></p>
                   </div>
@@ -102,7 +102,7 @@
                             </div>
                           </div>
                         {{elseif result == 'session'}}
-                          <div class="search-box">
+                          <div class="user-box">
                             {{#if obj.user.avatar }}
                               <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                             {{else}}
@@ -114,7 +114,7 @@
                             <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
                           </div>
                         {{elseif result == 'proposal'}}
-                          <div class="search-box">
+                          <div class="user-box">
                             {{#if obj.user.avatar }}
                               <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                             {{else}}
@@ -128,7 +128,7 @@
                             <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
                           </div>
                         {{elseif result == 'comment'}}
-                          <div class="search-box">
+                          <div class="user-box">
                             {{#if obj.user.avatar }}
                               <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                             {{else}}
