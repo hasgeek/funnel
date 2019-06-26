@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unicodecsv
-from cStringIO import StringIO
+import six
 from flask import g, flash, redirect, Response, request, abort, current_app, render_template
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -113,13 +113,13 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def csv(self):
         proposals = Proposal.query.filter_by(project=self.obj).order_by(db.desc('created_at')).all()
-        outfile = StringIO()
+        outfile = six.BytesIO()
         out = unicodecsv.writer(outfile, encoding='utf-8')
         out.writerow(proposal_headers + ['status'])
         for proposal in proposals:
             out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
-        return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
+        return Response(six.text_type(outfile.getvalue(), 'utf-8'), content_type='text/csv',
             headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
 
     @route('edit', methods=['GET', 'POST'])
