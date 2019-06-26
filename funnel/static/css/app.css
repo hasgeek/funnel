@@ -407,6 +407,9 @@ html.touch .collapsible__body--disable {
   }
 }
 @media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
+  .hg-app .header--fixed .header__nav {
+    height: 35px;
+  }
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .header__site-title__logo {
     height: 25px;
   }
@@ -487,6 +490,11 @@ html.touch .collapsible__body--disable {
   z-index: 1000;
 }
 
+@media (min-width: 768px) {
+  .sub-navbar-container--sticky {
+    top: 50px;
+  }
+}
 .sub-navbar {
   overflow: scroll;
   display: flex;

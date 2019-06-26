@@ -241,7 +241,7 @@ and (orientation: landscape) {
 
     .header--fixed {
       .header__nav {
-
+        height: 35px;
         .header__site-title {
           .header__site-title__title {
             .header__site-title__logo {
@@ -339,6 +339,13 @@ and (orientation: landscape) {
   top: 0;
   order: 1;
   z-index: 1000;
+}
+
+
+@media (min-width: 768px) {
+  .sub-navbar-container--sticky {
+    top: 50px;
+  }
 }
 
 .sub-navbar {
