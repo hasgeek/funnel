@@ -20,4 +20,4 @@ git+https://github.com/hasgeek/Flask-FlatPages.git
 progressbar2==3.42.0
 pycountry==18.12.8
 Babel==2.7.0
-six
+six==1.12.0
