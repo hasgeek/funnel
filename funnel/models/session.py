@@ -24,8 +24,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     proposal = db.relationship(Proposal,
         backref=db.backref('session', uselist=False, cascade='all, delete-orphan'))
     speaker = db.Column(db.Unicode(200), default=None, nullable=True)
-    start = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    end = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+    end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
     venue_room_id = db.Column(None, db.ForeignKey('venue_room.id'), nullable=True)
     venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)
@@ -47,8 +47,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
         db.CheckConstraint(
-            '("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
-            'session_start_end_check'),
+            '("start_at" IS NULL AND "end_at" IS NULL) OR ("start_at" IS NOT NULL AND "end_at" IS NOT NULL)',
+            'session_start_at_end_at_check'),
         db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
         )
 
@@ -56,7 +56,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         'all': {
             'read': {
                 'title', 'project', 'speaker', 'user', 'featured',
-                'description', 'speaker_bio', 'start', 'end', 'venue_room', 'is_break',
+                'description', 'speaker_bio', 'start_at', 'end_at', 'venue_room', 'is_break',
                 'banner_image_url',
                 }
             }
@@ -70,11 +70,11 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     @hybrid_property
     def scheduled(self):
         # A session is scheduled only when both start and end fields have a value
-        return self.start is not None and self.end is not None
+        return self.start_at is not None and self.end_at is not None
 
     @scheduled.expression
     def scheduled(self):
-        return (self.start != None) & (self.end != None)  # NOQA
+        return (self.start_at != None) & (self.end_at != None)  # NOQA
 
     @classmethod
     def for_proposal(cls, proposal, create=False):
@@ -88,8 +88,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     def make_unscheduled(self):
         # Session is not deleted, but we remove start and end time,
         # so it becomes an unscheduled session.
-        self.start = None
-        self.end = None
+        self.start_at = None
+        self.end_at = None
 
 
 add_search_trigger(Session, 'search_vector')
@@ -98,13 +98,13 @@ add_search_trigger(Session, 'search_vector')
 # Project schedule column expressions
 # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
 Project.schedule_start_at = db.column_property(
-    db.select([db.func.min(Session.start)]
-        ).where(Session.start.isnot(None)).where(Session.project_id == Project.id
+    db.select([db.func.min(Session.start_at)]
+        ).where(Session.start_at.isnot(None)).where(Session.project_id == Project.id
         ).correlate_except(Session)
     )
 
 Project.schedule_end_at = db.column_property(
-    db.select([db.func.max(Session.end)]
-        ).where(Session.end.isnot(None)).where(Session.project_id == Project.id
+    db.select([db.func.max(Session.end_at)]
+        ).where(Session.end_at.isnot(None)).where(Session.project_id == Project.id
         ).correlate_except(Session)
     )

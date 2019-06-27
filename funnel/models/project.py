@@ -158,13 +158,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     all_labels = db.relationship('Label', lazy='dynamic')
 
     featured_sessions = db.relationship(
-        'Session', order_by="Session.start.asc()",
+        'Session', order_by="Session.start_at.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)')
     scheduled_sessions = db.relationship(
-        'Session', order_by="Session.start.asc()",
+        'Session', order_by="Session.start_at.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)')
     unscheduled_sessions = db.relationship(
-        'Session', order_by="Session.start.asc()",
+        'Session', order_by="Session.start_at.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
     __table_args__ = (
@@ -345,10 +345,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def calendar_weeks(self):
         session_dates = db.session.query('date', 'count').from_statement(db.text(
             '''
-            SELECT DATE_TRUNC('day', "start" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
-            FROM "session" WHERE "project_id" = :project_id AND "start" IS NOT NULL AND "end" IS NOT NULL
+            SELECT DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
+            FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
             GROUP BY date ORDER BY date;
             ''')).params(timezone=self.timezone.zone, project_id=self.id)
+
+        # FIXME: This doesn't work. This code needs to be tested in isolation
+        # session_dates = db.session.query(
+        #     db.cast(
+        #         db.func.date_trunc('day', db.func.timezone(self.timezone.zone, Session.start_at)),
+        #         db.Date).label('date'),
+        #     db.func.count().label('count')
+        #     ).filter(
+        #         Session.project == self,
+        #         Session.scheduled
+        #         ).group_by(db.text('date')).order_by(db.text('date'))
+
         weeks = defaultdict(dict)
         for result in session_dates:
             weekobj = Week.withdate(result.date)
@@ -576,3 +588,7 @@ class ProjectLocation(TimestampMixin, db.Model):
     def __repr__(self):
         return '<ProjectLocation %d %s for project %s>' % (
             self.geonameid, 'primary' if self.primary else 'secondary', self.project)
+
+
+# Tail imports
+from .session import Session

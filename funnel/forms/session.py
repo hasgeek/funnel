@@ -19,5 +19,5 @@ class SessionForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.ValidUrl(), forms.validators.Length(max=2000)])
     is_break = forms.BooleanField(__("This session is a break period"), default=False)
     featured = forms.BooleanField(__("This is a featured session"), default=False)
-    start = forms.HiddenField(__("Start Time"), validators=[forms.validators.DataRequired()])
-    end = forms.HiddenField(__("End Time"), validators=[forms.validators.DataRequired()])
+    start_at = forms.HiddenField(__("Start Time"), validators=[forms.validators.DataRequired()])
+    end_at = forms.HiddenField(__("End Time"), validators=[forms.validators.DataRequired()])

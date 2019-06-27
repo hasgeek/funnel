@@ -8,9 +8,9 @@
     {% if session.scheduled %}
       <p class="mui--text-subhead zero-bottom-margin">
         <small class="mui--text-light">at</small>
-        {{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}
+        {{ localize_date(session.start_at, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end_at, to_tz=timezone).strftime('%I:%M %p') }}
         <small class="mui--text-light">on</small>
-        {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
+        {{ localize_date(session.start_at, to_tz=timezone).strftime('%d %B, %Y') }}
       </p>
     {% else %}
       <p class="mui--text-subhead zero-bottom-margin">
