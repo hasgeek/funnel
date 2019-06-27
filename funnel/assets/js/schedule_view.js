@@ -177,18 +177,18 @@ const Schedule = {
   },
   getEventDuration() {
     this.config.scheduled.forEach((session) => {
-      session.startTime = this.Utils.getTime(session.start);
-      session.endTime = this.Utils.getTime(session.end);
-      session.eventDay = this.Utils.getEventDay(session.start, this.config.eventDayhash);
-      session.duration = this.Utils.getDuration(session.end, session.start, this.config.slotInterval);
+      session.startTime = this.Utils.getTime(session.start_at);
+      session.endTime = this.Utils.getTime(session.end_at);
+      session.eventDay = this.Utils.getEventDay(session.start_at, this.config.eventDayhash);
+      session.duration = this.Utils.getDuration(session.end_at, session.start_at, this.config.slotInterval);
       if(this.config.scheduleTable[session.eventDay]) {
         this.config.scheduleTable[session.eventDay].startTime =
           this.config.scheduleTable[session.eventDay].startTime && this.config.scheduleTable[session.eventDay].startTime
-          < new Date(session.start).getTime()
-          ? this.config.scheduleTable[session.eventDay].startTime : new Date(session.start).getTime();
+          < new Date(session.start_at).getTime()
+          ? this.config.scheduleTable[session.eventDay].startTime : new Date(session.start_at).getTime();
         this.config.scheduleTable[session.eventDay].endTime =
-          this.config.scheduleTable[session.eventDay].endTime > new Date(session.end).getTime()
-          ? this.config.scheduleTable[session.eventDay].endTime : new Date(session.end).getTime();
+          this.config.scheduleTable[session.eventDay].endTime > new Date(session.end_at).getTime()
+          ? this.config.scheduleTable[session.eventDay].endTime : new Date(session.end_at).getTime();
       }
     });
   },
