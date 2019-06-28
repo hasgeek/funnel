@@ -253,7 +253,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         """
         Transfer the proposal to a new user and speaker
         """
-        self.user = user
         self.speaker = user
 
     @property
