@@ -26,8 +26,10 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            'start': session.start_at.isoformat() if session.scheduled else None,
-            'end': session.end_at.isoformat() if session.scheduled else None,
+            'start': session.start_at.isoformat() if session.scheduled else None,  # Legacy
+            'end': session.end_at.isoformat() if session.scheduled else None,  # Legacy
+            'start_at': session.start_at.isoformat() if session.scheduled else None,
+            'end_at': session.end_at.isoformat() if session.scheduled else None,
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
             'is_break': session.is_break,
