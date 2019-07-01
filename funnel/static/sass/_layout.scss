@@ -65,13 +65,13 @@
 }
 
 .content-head--top-padding {
-  padding-top: 1em;
-  padding-bottom: 1em;
+  padding-top: 15px;
+  padding-bottom: 15px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 .page-content {
-  padding-top: 2em;
+  padding-top: 30px;
 }
 
 .page-content--top-padding {
@@ -80,7 +80,7 @@
 
 @media(min-width: 992px) {
   .page-content--top-padding {
-    padding-top: 3em;
+    padding-top: 45px;
   }
 }
 
@@ -195,7 +195,7 @@ html.touch .collapsible__body--disable {
   border-collapse: collapse;
 
   >thead>tr>th {
-    padding: 1em;
+    padding: 15px;
   }
 }
 

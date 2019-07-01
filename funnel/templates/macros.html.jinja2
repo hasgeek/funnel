@@ -11,70 +11,97 @@
   </form>
 {% endwith %}{% endmacro %}
 
-{% macro project_header(project, page_btns, current_page='project') %}
-  <div class="mui-container headline">
+{% macro project_header(project, current_page='project') %}
+  <div class="mui-container project-banner">
     <div class="grid">
-      <div class="grid__col-md-12 mui--hidden-xs mui--hidden-sm mui--hidden-md">
-        <div class="project-header">
-          {%- if project.profile.logo_url.url %}
-            <div class="profile-details">
-              <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
-              <a class="mui--text-subhead profile-details__title" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
-            </div>
-          {% endif %}
-          <div class="mui--pull-left project-details">
-            <h1 class="mui--text-display2 mui--text-bold">{{ project.title|e }}</h1>
-            <p class="mui--text-title mui--text-light">{{ project.tagline|safe }}</p>
-            {%- if not project.profile.logo_url.url %}<p class="mui--text-subhead profile-details__title">by {{ project.profile.title|e }}</p>{% endif %}
-          </div>
-        </div>
-      </div>
-      {% if project.banner_video_url.url or project.bg_image.url %}
-      <div class="grid__col-md-7 grid__col-lg-8 project-banner">
-        <div class="project-banner__box">
-          {% if project.banner_video_url.url %}
-            <div class="project-banner__box__video">
-              {{ project.banner_video_url|safe }}
-            </div>
-          {%- elif project.bg_image.url %}
-            <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-          {% endif %}
-        </div>
-      </div>
-      {% endif %}
-      <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-sm-block mui--visible-md-block xs-sm-padding">
-        <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
-        <p class="mui--text-headline">{{ project.tagline|safe }}</p>
-        <div class="profile-details">
-          {%- if project.profile.logo_url.url %}<a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>{% endif %}<a class="mui--text-subhead mui--text-dark" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
-        </div>
-      </div>
-      <div class="grid__col-xs-12{% if project.banner_video_url.url or project.bg_image.url %} grid__col-md-5 grid__col-lg-4{% else %} date-wrapper--small {% endif %} date-wrapper xs-sm-padding">
-        {%- if project.datelocation %}
-        <div>
-          <div class="date-icon">
-            <i class="material-icons mui--text-display1 mui--text-light" aria-hidden="true">date_range</i>
-          </div>
-          <div class="date-details">
-            <p class="mui--text-subhead zero-bottom-margin date-details__label">Date</p>
-            <p class="mui--text-title mui--text-light">{{ project.datelocation }}</p>
-          </div>
-        </div>
-        {%- endif %}
-        {%- if project.primary_venue %}
+      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-7 grid__col-lg-8 project-banner__box">
+        {% if project.banner_video_url.url or project.bg_image.url %}
           <div>
-            <div class="date-icon">
-              <i class="material-icons mui--text-display1 mui--text-light" aria-hidden="true">place</i>
+            {% if project.banner_video_url.url %}
+              <div class="project-banner__box__video">
+                {{ project.banner_video_url|safe }}
+              </div>
+            {%- elif project.bg_image.url %}
+              <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+            {% endif %}
+          </div>
+        {% endif %}
+        <div class="project-banner__headline">
+          <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
+          <p class="mui--text-headline">{{ project.tagline|safe }}</p>
+        </div>
+      </div>
+      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-5 grid__col-lg-4">
+        <div class="profile-details mui--hidden-md mui--hidden-lg">
+          {%- if project.profile.logo_url.url %}
+            <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
+          {% endif %}
+          <div class="profile-details__title">
+            <h3 class="mui--text-headline zero-top-margin zero-bottom-margin"><a href="{{project.profile.url_for()}}">{{ project.profile.title|e }}</a></h3>
+            <div class="mui--text-body1">{{ project.profile.description|safe }}</div>
+          </div>
+        </div>
+        {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
+          <div class="card__calendar">
+            <div class="calendar">
+              <div class="calendar__weekdays">
+                <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
+                {% for weekday in project.calendar_weeks.days %}
+                  <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+                {% endfor %}
+                 <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
+              </div>
+              <div class="calendar__weekdays">
+                {% for week in project.calendar_weeks.weeks %}
+                  <div class="calendar__weekdays__month">
+                    {% if loop.index == 1 or project.calendar_weeks.weeks[loop.index - 2] and week.month != project.calendar_weeks.weeks[loop.index - 2].month %}
+                      <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                    {% else %}
+                      <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
+                    {% endif %}
+                  </div>
+                  <div class="calendar__weekdays__dates">
+                    {% for date in week.dates %}
+                      <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
+                    {% endfor %}
+                    <p class="calendar__weekdays__date mui--text-title mui--text-bold">{{ week.year }}</p>
+                  </div>
+                {% endfor %}
+              </div>
             </div>
-            <div class="date-details">
-              <p class="mui--text-subhead zero-bottom-margin date-details__label">Venue</p>
-              <p class="mui--text-title mui--text-light">{{ project.primary_venue.title }}</p>
+          </div>
+        {% endif %}
+        <div class="project-banner__action">
+          <a href="" class="mui-btn mui-btn--raised" title="Remind me" data-action="Remind me(project)"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">access_alarm</i> Remind me</a>
+          <div class="project-banner__action__social">
+            <a class="list-group-item share-popup" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for() }}" aria-label="Tweet this"><img src="{{ url_for('static', filename='img/twitter-logo.svg') }}" class="project-banner__action__icon" alt="Tweet this" title="Tweet this"/></a>
+            <a class="list-group-item share-popup" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for() }}" aria-label="Share on facebook"><img src="{{ url_for('static', filename='img/facebook-logo.svg') }}" class="project-banner__action__icon" alt="Tweet this" title="Tweet this"/></a>
+            <a href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for() }}" arial-label="Email this"><i class="material-icons mui--text-headline mui--text-light" aria-hidden="true">email</i></a>
+          </div>
+        </div>
+        {%- if project.primary_venue %}
+          <div class="date-wrapper">
+            <div class="date-wrapper__icon">
+              <i class="material-icons mui--text-headline mui--text-light" aria-hidden="true">place</i>
+            </div>
+            <div class="date-wrapper__details">
+              <p class="mui--text-subhead mui--text-light zero-bottom-margin">{{ project.primary_venue.title }}</p>
+              <p class="mui--text-subhead mui--text-light">{{ project.primary_venue.city }}</p>
             </div>
           </div>
         {%- endif %}
-        <div class="project-btn-wrapper">
-          {# Todo: Pass list of btns to be rendered #}
-          {{ page_btns|safe }}
+      </div>
+      <div class="grid__col-sm-12 project-banner__box">
+        <div class="project-banner__headline">
+          <div class="profile-details">
+            {%- if project.profile.logo_url.url %}
+              <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
+            {% endif %}
+            <div class="profile-details__title">
+              <h3 class="mui--text-headline zero-top-margin zero-bottom-margin"><a href="{{project.profile.url_for()}}">{{ project.profile.title|e }}</a></h3>
+              <div class="mui--text-body1">{{ project.profile.description|safe }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -61,7 +61,7 @@
 }
 
 .proposal__section {
-  padding: 1em 2em 2em;
+  padding: 15px 30px 30px;
   overflow-wrap: break-word;
 }
 
@@ -71,31 +71,31 @@
 
 .proposal-status-wrapper .grid .columns,
 .proposal__section .grid .columns {
-  padding: 0 2em 0 0;
+  padding: 0 30px 0 0;
 }
 
 @media (min-width: 992px) {
   .proposal__section--left {
     float: left;
-    width: calc(70% - 2em);
-    padding-bottom: 2em;
+    width: calc(70% - 30px);
+    padding-bottom: 15px;
   }
 
   .proposal__admin-panel {
     float: right;
-    width: calc(30% - 2em);
-    margin-right: 2em;
+    width: calc(30% - 30px);
+    margin-right: 30px;
     margin-top: 30px;
   }
 
 }
 
 .proposal__section--bleed-y {
-  padding: 1em 0;
+  padding: 15px 0;
 }
 
 .proposal__section--heading {
-  margin-bottom: 1em;
+  margin-bottom: 15px;
 }
 
 .proposal-details {
@@ -247,7 +247,7 @@
 }
 
 .comment {
-  margin: 1em 0;
+  margin: 15px 0;
   
   .comment--content {
     display: inline-block;

@@ -33,8 +33,8 @@
 }
 
 .card__calendar {
-  padding: 1em;
-  margin-bottom: 1em;
+  padding: 15px;
+  margin-bottom: 15px;
 }
 
 .card__image__tagline {
@@ -101,7 +101,7 @@
   }
 
   .card__calendar {
-    padding: 1em 0;
+    padding: 15px 0;
     border-top: 1px solid rgba(132,146,166,0.3);
   }
 }
@@ -117,7 +117,7 @@
     }
     .card__body {
       flex: 0 0 calc(100% - 300px);
-      padding: 0 0 0 1em;
+      padding: 0 0 0 15px;
     }
   }
 }
@@ -126,10 +126,10 @@
   .card--upcoming,
   .card--cfp {
     .card__body {
-      padding: 0 0 0 2em;
+      padding: 0 0 0 15px;
     }
     .card__body--cfp {
-      padding: 0 0 0 1em;
+      padding: 0 0 0 15px;
     }
     .card__image-wrapper--cfp {
       height: 150px;
@@ -204,7 +204,7 @@
   .calendar__weekdays__name {
     text-align: center;
     position: relative;
-    width: calc(100%/8);
+    width: calc(100%/9);
     font-size: 18px;
     line-height: 28px;
   }
@@ -222,7 +222,7 @@
 
   .calendar__weekdays__date {
     position: relative;
-    width: calc(100%/7);
+    width: calc(100%/8);
     text-align: center;
     font-size: 14px;
     line-height: 28px;
@@ -256,12 +256,12 @@
   }
 
   .calendar__weekdays__month {
-    width: calc(100%/8);
+    width: calc(100%/9);
     word-break: keep-all;
   }
 
   .calendar__weekdays__dates {
-    width: calc(100% - 100%/8);
+    width: calc(100% - 100%/9);
     display: flex;
     flex-wrap: wrap;
   }

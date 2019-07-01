@@ -65,38 +65,8 @@
   </table>
 {%- endmacro %}
 
-{%- macro page_btns(project) %}
-  <ul class="mui-list--inline">
-    {%- if project.boxoffice_data %}
-      <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
-      </li>
-    {%- elif project.buy_tickets_url.url %}
-      <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
-      </li>
-    {%- elif project.allow_rsvp %}
-      <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
-      </li>
-    {%- endif %}
-    {%- if project.schedule_state.PUBLISHED %}
-      <li class="cta">
-        <hr class="mui-divider">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
-      </li>
-    {% endif %}
-    {% if project.cfp_state.OPEN -%}
-      <li class="cta">
-        {%- if not project.schedule_state.PUBLISHED %}<hr class="mui-divider">{% endif %}
-        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">mic</i>{% trans %}Propose a session{% endtrans %}</a>
-      </li>
-    {% endif %}
-  </ul>
-{%- endmacro %}
-
 {% block headline %}
-  {{ project_header(project, page_btns=page_btns(project), current_page='proposals') }}
+  {{ project_header(project, current_page='proposals') }}
 {% endblock %}
 
 {% block contentwrapper %}
