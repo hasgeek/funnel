@@ -10,9 +10,10 @@
       .header__site-title {
         padding: 0;
         width: 30%;
+        padding-right: 5%;
 
         .header__site-title__logo {
-          height: 30px;
+          height: 35px;
         }
 
         .search-form {
@@ -43,6 +44,7 @@
       .header__right-nav {
         width: 60%;
         padding: 0;
+        padding-left: 5%;
 
         .header__nav-list {
           justify-content: space-between;
@@ -87,6 +89,7 @@
         .header__site-title {
           width: 70%;
           margin-right: 0;
+          padding-right: 0;
 
           .header__site-title__title {
             display: flex;
@@ -120,7 +123,8 @@
         }
 
         .header__right-nav {
-          width: 250px;
+          width: 30%;
+          padding-left: 0;
 
           .header__nav-list {
             justify-content: flex-end;

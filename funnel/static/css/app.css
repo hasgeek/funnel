@@ -252,9 +252,10 @@ html.touch .collapsible__body--disable {
 .hg-app .header--fixed .header__nav .header__site-title {
   padding: 0;
   width: 30%;
+  padding-right: 5%;
 }
 .hg-app .header--fixed .header__nav .header__site-title .header__site-title__logo {
-  height: 30px;
+  height: 35px;
 }
 .hg-app .header--fixed .header__nav .header__site-title .search-form {
   position: fixed;
@@ -281,6 +282,7 @@ html.touch .collapsible__body--disable {
 .hg-app .header--fixed .header__nav .header__right-nav {
   width: 60%;
   padding: 0;
+  padding-left: 5%;
 }
 .hg-app .header--fixed .header__nav .header__right-nav .header__nav-list {
   justify-content: space-between;
@@ -312,6 +314,7 @@ html.touch .collapsible__body--disable {
   .hg-app .header--fixed .header__nav .header__site-title {
     width: 70%;
     margin-right: 0;
+    padding-right: 0;
   }
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title {
     display: flex;
@@ -339,7 +342,8 @@ html.touch .collapsible__body--disable {
     width: 67%;
   }
   .hg-app .header--fixed .header__nav .header__right-nav {
-    width: 250px;
+    width: 30%;
+    padding-left: 0;
   }
   .hg-app .header--fixed .header__nav .header__right-nav .header__nav-list {
     justify-content: flex-end;
