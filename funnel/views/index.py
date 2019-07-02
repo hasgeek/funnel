@@ -19,21 +19,27 @@ class IndexView(ClassView):
         g.profile = None
         projects = Project.all_unsorted(legacy=False)
         # TODO: Move these queries into the Project class
-        all_projects = projects.filter(db.or_(
-            Project.state.LIVE,
-            Project.state.UPCOMING
-            )).order_by(Project.date.asc()).all()
+        all_projects = projects.filter(
+            Project.state.PUBLISHED,
+            db.or_(
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING)
+            ).order_by(Project.schedule_start_at.asc()).all()
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
         featured_project = projects.filter(
+            Project.state.PUBLISHED,
             db.or_(
-                Project.state.LIVE,
-                Project.state.UPCOMING),
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING),
             Project.featured.is_(True)
             ).order_by(Project.schedule_start_at.asc()).limit(1).first()
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
-        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
+        open_cfp_projects = projects.filter(
+            Project.state.PUBLISHED,
+            Project.cfp_state.OPEN
+            ).order_by(Project.schedule_start_at.asc()).all()
 
         return {
             'all_projects': [p.current_access() for p in all_projects],

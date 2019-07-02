@@ -235,18 +235,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
 
-    state.add_conditional_state('PAST', state.PUBLISHED,
+    schedule_state.add_conditional_state('PAST', schedule_state.PUBLISHED,
         lambda project: project.schedule_end_at is not None and utcnow() >= project.schedule_end_at,
         lambda project: db.func.utcnow() >= project.schedule_end_at,
         label=('past', __("Past")))
-    state.add_conditional_state('LIVE', state.PUBLISHED,
+    schedule_state.add_conditional_state('LIVE', schedule_state.PUBLISHED,
         lambda project: (project.schedule_start_at is not None
             and project.schedule_start_at <= utcnow() < project.schedule_end_at),
         lambda project: db.and_(
             project.schedule_start_at <= db.func.utcnow(),
             db.func.utcnow() < project.schedule_end_at),
         label=('live', __("Live")))
-    state.add_conditional_state('UPCOMING', state.PUBLISHED,
+    schedule_state.add_conditional_state('UPCOMING', schedule_state.PUBLISHED,
         lambda project: project.schedule_start_at is not None and utcnow() < project.schedule_start_at,
         lambda project: db.func.utcnow() < project.schedule_start_at,
         label=('upcoming', __("Upcoming")))
