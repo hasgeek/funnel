@@ -251,8 +251,8 @@ html.touch .collapsible__body--disable {
 }
 .hg-app .header--fixed .header__nav .header__site-title {
   padding: 0;
-  width: 30%;
-  padding-right: 5%;
+  width: 47px;
+  padding-right: calc(calc(100% - 127px)/3);
 }
 .hg-app .header--fixed .header__nav .header__site-title .header__site-title__logo {
   height: 35px;
@@ -280,9 +280,9 @@ html.touch .collapsible__body--disable {
   display: inline-block;
 }
 .hg-app .header--fixed .header__nav .header__right-nav {
-  width: 60%;
+  width: 66.6%;
   padding: 0;
-  padding-left: 5%;
+  padding-left: calc(calc(calc(100% - 127px)/3)/2);
 }
 .hg-app .header--fixed .header__nav .header__right-nav .header__nav-list {
   justify-content: space-between;

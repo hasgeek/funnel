@@ -9,8 +9,8 @@
 
       .header__site-title {
         padding: 0;
-        width: 30%;
-        padding-right: 5%;
+        width: 47px;
+        padding-right: calc(calc(100% - 127px)/3);
 
         .header__site-title__logo {
           height: 35px;
@@ -42,9 +42,9 @@
       }
 
       .header__right-nav {
-        width: 60%;
+        width: 66.6%;
         padding: 0;
-        padding-left: 5%;
+        padding-left: calc(calc(calc(100% - 127px)/3)/2);
 
         .header__nav-list {
           justify-content: space-between;
