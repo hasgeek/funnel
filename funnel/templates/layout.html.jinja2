@@ -91,8 +91,6 @@
 {% endblock %}
 
 {% block contenthead %}
-  {% block banner %}
-  {% endblock %}
   {% block headline -%}
     <div class="content-head content-head--top-padding mui--bg-accent">
       <div class="mui-container">
@@ -110,19 +108,26 @@
   {%- endblock %}
 {% endblock %}
 
-{%- block baseheadline %}
-  {% block ads %}
-  {% endblock %}
-{% endblock %}
 
-{% block basecontent %}
-  <div class="page-content">
-    {% block contentwrapper %}
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        {% block content %}{% endblock %}
+{%- block basecontentbox %}
+    {%- block messages %}
+      <div class="mui-container">
+        {{ flash_messages() }}
       </div>
-    </div>
+    {% endblock %}
+    {%- block baseheadline %}{% endblock %}
+    {% block basecontent %}
+      <div class="mui-container">
+        <div class="page-content">
+          {% block contentwrapper %}
+          <div class="grid">
+            <div class="grid__col-xs-12">
+              {% block content %}{% endblock %}
+            </div>
+          </div>
+          {% endblock %}
+        </div>
+      </div>
     {% endblock %}
   </div>
 {% endblock %}

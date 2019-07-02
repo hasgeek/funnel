@@ -14,7 +14,7 @@
   {%- endif -%}
 {%- endblock %}
 
-{% block banner %}
+{% block contenthead %}
   {%- if not g.profile %}
     <div class="funnel-banner">
       <picture class="banner__img">
@@ -27,23 +27,7 @@
   {% endif %}
 {% endblock %}
 
-{% block headline -%}
-  {%- if g.profile and g.profile.description %}
-    <div class="content-head content-head--top-padding mui--bg-accent">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-xs-12">
-            {%- if g.profile %}
-              <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-  {% endif %}
-{%- endblock %}
-
-{% block basecontent %}
+{% block contentwrapper %}
   <div class="page-content {%- if not g.profile %} page-content--top-padding{% endif %}">
     {%- if config['LEGACY'] and not g.profile %}
       <div class="alert alert--warning funnel-notice">
