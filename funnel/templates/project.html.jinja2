@@ -82,7 +82,9 @@
   </ul>
 {%- endmacro %}
 
-{% block headline %}
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
   {{ project_header(project, page_btns=page_btns(project)) }}
 {% endblock %}
 
