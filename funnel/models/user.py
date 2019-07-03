@@ -45,7 +45,7 @@ class User(UseridMixin, UuidMixin, UserBase2, db.Model):
             },
         'owner': {
             'read': {
-                'email', 'phone', 'profile_url', 'scanned_contacts',
+                'email', 'phone', 'profile_url',
                 }
             }
         }
