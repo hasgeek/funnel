@@ -23,7 +23,7 @@ const Schedule = {
         pageDetails: {
           url: window.location.href,
           title: $('title').html(),
-          projectTitle: $('title').html().split(' — ')[1],
+          projectTitle: $('title').html().split(' – ')[1],
           description: $('meta[name=description]').attr('content')
         },
         getTimeStr(time) {
@@ -124,16 +124,10 @@ const Schedule = {
         });
       },
       animateWindowScrollWithHeader: function() {
-        let hash;
         this.set('headerHeight', 2 * $('.schedule__row--sticky').height());
         this.set('pathName', window.location.pathname);
-        if(window.location.pathname === this.get('pathName') && window.location.hash) {
-          hash = window.location.hash.indexOf('/') !== -1 ?
-            window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
-          Utils.animateScrollTo($(hash).offset().top - this.get('headerHeight'));
-        }
-      },
-      oncomplete() {
+        let scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
+        
         let activeSession = schedule.config.active_session;
         if(activeSession) {
           // Open session modal
@@ -143,8 +137,29 @@ const Schedule = {
           this.showSessionModal('', activeSession);
           // Scroll page to session
           Utils.animateScrollTo($("#" + activeSession.url_name_suuid).offset().top - this.get('headerHeight'));
+        } else if(window.location.pathname === this.get('pathName') && window.location.hash) {
+          let hash;
+          hash = window.location.hash.indexOf('/') !== -1 ?
+            window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
+          Utils.animateScrollTo($(hash).offset().top - this.get('headerHeight'));
+        } else if(scrollPos && scrollPos.pageTitle === this.get('pageDetails')['projectTitle']) {
+          // Scroll page to last viewed position
+          Utils.animateScrollTo(scrollPos.scrollPosY);
+        } else {
+          // Scroll page to schedule table
+          Utils.animateScrollTo($(schedule.config.divElem).offset().top);
         }
 
+        // On exiting the page, save page scroll position in session storage
+        window.onbeforeunload = function() {
+          let scrollDetails = {
+            'pageTitle': scheduleUI.get('pageDetails')['projectTitle'],
+            'scrollPosY': window.scrollY
+          };
+          window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
+        };
+      },
+      oncomplete() {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();

@@ -63,9 +63,9 @@
 			    left: 1px;
 			    right: 1px;
 			    bottom: 0;
-			    background: linear-gradient(to bottom, transparent 0%, white 80%, white 100%);
+			    background: linear-gradient(to bottom, rgba(255,255,255,0.2) 10%, #fff 90%);
 			    z-index: 3;
-			    padding: 30px 0 0;
+			    padding: 10% 0 0;
 			}
 
 			.schedule__row__column__content__title__duration {
