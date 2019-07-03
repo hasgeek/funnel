@@ -37,37 +37,21 @@
   <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png') }}" />
 {%- endblock %}
 
-{% block banner %}
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
   {%- if not profile %}
-    <div class="mui-container hg-banner">
-      <div class="grid">
-        <div class="grid__col-12">
-          <h1 class="headline">Find discussion spaces for geeks</h1>
-          <p class="mui--text-title mui--text-light">Meet like-minded people, learn new things and discover new opportunities</p>
-          <div class="mui-divider mui-divider--banner"></div>
-        </div>
+    <div class="grid hg-banner">
+      <div class="grid__col-12">
+        <h1 class="headline">Find discussion spaces for geeks</h1>
+        <p class="mui--text-title mui--text-light">Meet like-minded people, learn new things and discover new opportunities</p>
+        <div class="mui-divider mui-divider--banner"></div>
       </div>
     </div>
   {% endif %}
 {% endblock %}
 
-{% block headline -%}
-  {%- if profile %}
-  <div class="content-head content-head--top-padding mui--bg-accent">
-    <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-xs-12">
-          <h2 class="mui--text-headline">
-            {{ profile.description|safe }}
-          </h2>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-{%- endblock %}
-
-{% block basecontentbox %}
+{% block basecontent %}
   {% if featured_project or upcoming_projects|length > 0 %}
   <div class="projects-wrapper">
     <div class="mui-container">
