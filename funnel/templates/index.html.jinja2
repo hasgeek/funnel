@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
+{% block subtitle %}{% endblock %}
 
 {% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
 
@@ -76,7 +77,7 @@
         <div class="grid__col-xs-12 grid__col-md-4 grid__col-lg-5 spotlight">
           <h2 class="mui--text-title mui--text-light mui--text-uppercase">Spotlight</h2>
           <div class="grid__cell">
-            <div class="card clickable-card card--small" data-href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" role="link" aria-label="{{ featured_project.title }}">
+            <a class="card card--small clickable-card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
                   <img class="card__image js-lazyload-img" data-src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
@@ -127,12 +128,7 @@
                   <p class="mui--text-title">{{ featured_project.tagline }}</p>
                 </div>
               {% endif %}
-              <noscript>
-                <div class="card__footer">
-                  <a href="{{ featured_project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Participate</a>
-                </div>
-              </noscript>
-            </div>
+            </a>
           </div>
         </div>
         {% endif %}
@@ -210,7 +206,7 @@
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-lg-6 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">
               <div class="card card--cfp">
-                <div class="card__image-wrapper card__image-wrapper--cfp clickable-card" data-href="{{ project.url_for() }}" title="{{ project.title }}" role="link" aria-label="{{ project.title }}">
+                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
                   <div class="card__image-wrapper__overlay"></div>
                   <p class="card__image-wrapper__text"><i class="material-icons mui--pull-left mui--text-display1" aria-hidden="true">mic</i> <span class="mui--text-menu mui--pull-left">CFP <br>Now open</span></p>
                   {% if project.bg_image.url %}
@@ -224,12 +220,12 @@
                       <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
                     </div>
                   {% endif %}
-                </div>
+                </a>
                 <div class="card__body card__body--cfp">
                   <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
                   {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
                   <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
-                </div>
+                </a>
               </div>
             </li>
           {%- endfor -%}
@@ -254,17 +250,18 @@
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             <div class="grid__cell">
-              <div class="clickable-card card" data-href="{{g.profile.url_for('new_project')}}" title="New project"role="link" aria-label="Create new project">
-                <div class="card__image-wrapper">
+              <div class="card">
+                <a class="card__image-wrapper clickable-card" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project">
                   <div class="card__image--default card__image--new">
                     <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
                     <p class="card__image__tagline mui--text-display1">+</p>
                   </div>
-                </div>
-                <div class="card__title">
+                </a>
+                <a class="card__title clickable-card clickable-card--padding" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project">
                   <h4 class="mui--text-title card__title__heading mui--text-bold">Start a project</h4>
                   <p class="mui--text-caption card__title__heading">Write, collaborate and get feedback.</p>
-                </div>
+                </a>
+                <div class="mui-divider"></div>
                 <div class="card__footer">
                   <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Start project</a>
                 </div>
@@ -275,8 +272,8 @@
           {% for project in draft_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
               <div class="grid__cell">
-                <div class="clickable-card card" data-href="{{ project.url_for() }}" title="{{ project.title }}" role="link" aria-label="{{ project.title }}">
-                  <div class="card__image-wrapper">
+                <div class="card">
+                  <a class="card__image-wrapper clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
                     {% if project.bg_image.url %}
                       <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                       <noscript>
@@ -288,21 +285,19 @@
                         <p class="card__image__tagline">{{ project.title }}</p>
                       </div>
                     {% endif %}
-                  </div>
-                  <div class="card__title">
+                  </a>
+                  <a class="card__title clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
                     <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
                     <p class="mui--text-caption card__title__heading">{{ project.datelocation }}</p>
-                  </div>
+                  </a>
                   {% if project.tagline %}
-                    <div class="card__body">
+                    <a class="card__body clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
                       <p class="mui--text-body2 zero-bottom-margin">{{ project.tagline }}</p>
-                    </div>
+                    </a>
                   {% endif %}
+                  <div class="mui-divider"></div>
                   <div class="card__footer">
-                    <noscript>
-                      <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">View</a>
-                    </noscript>
-                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Publish project</a>
+                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Publish project" data-action="Publish project">Publish project</a>
                   </div>
                 </div>
               </div>
@@ -332,7 +327,7 @@
           {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
               <div class="grid__cell">
-                <div class="card clickable-card" data-href="{{ project.url_for() }}" title="{{ project.title }}" role="link" aria-label="{{ project.title }}">
+                <a class="card clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                     <noscript>
@@ -353,10 +348,7 @@
                       <p class="mui--text-body2">{{ project.tagline }}</p>
                     </div>
                   {% endif %}
-                  <noscript>
-                     <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
-                  </noscript>
-                </div>
+                </a>
               </div>
             </li>
           {%- endfor -%}

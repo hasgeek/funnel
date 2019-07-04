@@ -1,13 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import project_header, admin_panel %}
-{% block title %}
-  {%- if active_session -%}
-    {{ active_session.title }} &ndash; {{ project.title }}
-  {%- else -%}
-    {% trans %}Schedule{% endtrans %} &ndash; {{ project.title }}
-  {%- endif -%}
-{% endblock %}
-
+{% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock %}{% block subtitle %} — {{ project.title }}{% endblock %}
 
 {% block description %}
   {%- if active_session -%}
@@ -137,7 +130,8 @@
       slotInterval: 5,
       divElem: "#project-schedule-table",
       scriptTemplate: '#scheduletemplate',
-      active_session: ''
+      active_session: '',
+      projectTitle: "{{ project.title }}"
     };
   </script>
   {%- if active_session -%}

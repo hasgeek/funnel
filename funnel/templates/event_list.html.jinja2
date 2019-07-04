@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html" import renderfield %}
-{% block title %}Manage check-in{% endblock %}
+{% block title %}Manage check-in{% endblock %}{% block subtitle %} — {{ project.title }}{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>

@@ -22,8 +22,9 @@ const Schedule = {
         headerHeight: '',
         pageDetails: {
           url: window.location.href,
-          title: $('title').html(),
-          projectTitle: $('title').html().split(' – ')[1],
+          title: $('meta[name=DC\\.title]').attr('content'),
+          projectTitle: schedule.config.projectTitle,
+          talkTitle: '',
           description: $('meta[name=description]').attr('content')
         },
         getTimeStr(time) {
@@ -51,8 +52,8 @@ const Schedule = {
       },
       updateMetaTags: function(pageDetails) {
         $('title').html(pageDetails.title);
-        $('meta[name=DC\\.title]').attr('content', pageDetails.title);
-        $('meta[property=og\\:title]').attr('content', pageDetails.title);
+        $('meta[name=DC\\.title]').attr('content', pageDetails.talkTitle);
+        $('meta[property=og\\:title]').attr('content', pageDetails.talkTitle);
         $('meta[name=description]').attr('content', pageDetails.description);
         $('meta[property=og\\:description]').attr('content', pageDetails.description);
         $('link[rel=canonical]').attr('href', pageDetails.url);
@@ -88,13 +89,15 @@ const Schedule = {
         backPage = this.get('pageDetails')['url'] + '/' + sessionUuid;
         if (event) {
           pageDetails = {
-            title: this.get(event.keypath + '.talks.title') + ' – ' + this.get('pageDetails')['projectTitle'],
+            title: this.get(event.keypath + '.talks.title') + ' — ' + this.get('pageDetails')['projectTitle'],
+            talkTitle: this.get(event.keypath + '.talks.title'),
             description: this.get(event.keypath + '.talks.speaker') ? this.get(event.keypath + '.talks.title') + ' by ' + this.get(event.keypath + '.talks.speaker') : this.get(event.keypath + '.talks.title') + ", " + this.get('pageDetails')['projectTitle'],
             url: backPage
           };
         } else {
           pageDetails = {
             title: activeSession.title + ' – ' + this.get('pageDetails')['projectTitle'],
+            talkTitle: activeSession.title,
             description: activeSession.speaker ? activeSession.title + ' by ' + activeSession.speaker : activeSession.title + ", " + this.get('pageDetails')['projectTitle'],
             url: backPage
           };
