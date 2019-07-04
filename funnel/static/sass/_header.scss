@@ -169,7 +169,7 @@
     }
 
     .content-wrapper {
-      padding-top: 52px;
+      padding-top: 50px;
     }
     .no-sticky-header {
       .header--fixed {
@@ -352,6 +352,14 @@ and (orientation: landscape) {
   }
 }
 
+@media (min-device-width: 768px)
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+  .sub-navbar-container--sticky {
+    top: 35px;
+  }
+}
+
 .sub-navbar {
   overflow: scroll;
   display: flex;
@@ -463,6 +471,14 @@ and (orientation: landscape) {
     .tabs__item-control {
       display: none;
     }
+  }
+}
+
+@media (min-device-width: 768px)
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+  .tabs-wrapper {
+    top: 35px;
   }
 }
 
