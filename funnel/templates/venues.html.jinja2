@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Venues{% endtrans %} &ndash; {{ project.title }}{% endblock %}
+{% set title_suffix = project.title %}
+{% block title %}{% trans %}Venues{% endtrans %}{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>

@@ -33,23 +33,27 @@
     <div class="grid">
       <div class="grid__col-xs-12 grid__col-sm-6">
         {% for project,dates in contacts %}
-          <div class="tab-content__results">
-            <div class="collapsible__header mui--clearfix">
-              <p class="mui--text-title mui--pull-left">{{ project.title }}</p>
-              <div class="mui--pull-right">
-                <a href="{{ url_for('contacts_project_csv', suuid=project.suuid) }}" download title="CSV" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i>
-              </div>
+          <div class="tab-content__results zero-bottom-margin">
+            <div class="collapsible__header collapsible__header--smaller mui--pull-left">
+              <p class="mui--text-subhead zero-bottom-margin"><i class="material-icons mui--align-middle collapsible__icon" aria-hidden="true">keyboard_arrow_right</i><i class="material-icons mui--align-middle mui--hide collapsible__icon" aria-hidden="true">keyboard_arrow_down</i> {{ project.title }}</p>
+            </div>
+            <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
+              <button class="no-btn" data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
+              <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+                <li><a href="{{ url_for('contacts_project_csv', suuid=project.suuid) }}" download title="CSV"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a></li>
+              </ul>
             </div>
             <div class="collapsible__body mui-list--aligned">
               {% for daterow in dates %}
                 <div class="collapsible">
-                  <div class="collapsible__header mui--clearfix">
-                    <p class="mui--text-title mui--pull-left">{{ daterow.date.isoformat()  }} <span class="count-chip mui--text-caption">{{ daterow.count }}</span></p>
-                    <div class="mui--pull-right">
-                      <a href="{{ url_for('contacts_project_date_csv', suuid=project.suuid, datestr=daterow.date) }}" download title="CSV" class="mui-btn mui-btn--small mui-btn--nomargin"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
-                      <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i>
-                    </div>
+                  <div class="collapsible__header collapsible__header--smaller mui--pull-left">
+                    <p class="mui--text-subhead zero-bottom-margin"><i class="material-icons mui--align-middle collapsible__icon" aria-hidden="true">keyboard_arrow_right</i><i class="material-icons mui--align-middle mui--hide collapsible__icon" aria-hidden="true">keyboard_arrow_down</i> {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
+                  </div>
+                  <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
+                    <button class="no-btn" data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
+                    <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+                      <li><a href="{{ url_for('contacts_project_date_csv', suuid=project.suuid, datestr=daterow.date) }}" download title="CSV" ><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a></li>
+                    </ul>
                   </div>
                   <div class="collapsible__body mui-list--aligned">
                     {% for contact in daterow.contacts.all() %}
@@ -60,7 +64,7 @@
                             <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
                             <p class="mui--text-body1">{{ contact.participant.email }}</p>
                           </div>
-                          <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact"><i class="material-icons  mui--align-middle">person_add</i></a>
+                          <a class="mui--pull-right contact-download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact"><i class="material-icons mui--text-headline">person_add</i></a>
                         </div>
                       </div>
                     {%- endfor -%}

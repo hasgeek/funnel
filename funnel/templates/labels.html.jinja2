@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
-{% block title %}{% trans %}Labels{% endtrans %} &ndash; {{ project.title }}{% endblock %}
+{% block title %}{% trans %}Labels{% endtrans %}{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>

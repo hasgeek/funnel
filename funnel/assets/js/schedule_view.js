@@ -22,9 +22,10 @@ const Schedule = {
         headerHeight: '',
         pageDetails: {
           url: window.location.href,
-          title: $('title').html(),
-          projectTitle: $('title').html().split(' — ')[1],
-          description: $('meta[name=description]').attr('content')
+          title: `Schedule – ${schedule.config.projectTitle}`,
+          projectTitle: schedule.config.projectTitle,
+          pageTitle: 'Schedule',
+          description: schedule.config.pageDescription
         },
         getTimeStr(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
@@ -51,12 +52,12 @@ const Schedule = {
       },
       updateMetaTags: function(pageDetails) {
         $('title').html(pageDetails.title);
-        $('meta[name=DC\\.title]').attr('content', pageDetails.title);
-        $('meta[property=og\\:title]').attr('content', pageDetails.title);
+        $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
+        $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
         $('meta[name=description]').attr('content', pageDetails.description);
-        $('meta[property=og\\:description]').attr('content', pageDetails.description);
+        $('meta[property="og:description"]').attr('content', pageDetails.description);
         $('link[rel=canonical]').attr('href', pageDetails.url);
-        $('meta[property=og\\:url]').attr('content', pageDetails.url);
+        $('meta[property="og:url"]').attr('content', pageDetails.url);
       },
       handleBrowserHistory() {
         // On closing modal, update browser history
@@ -88,13 +89,15 @@ const Schedule = {
         backPage = this.get('pageDetails')['url'] + '/' + sessionUuid;
         if (event) {
           pageDetails = {
-            title: this.get(event.keypath + '.talks.title') + ' – ' + this.get('pageDetails')['projectTitle'],
+            title: this.get(event.keypath + '.talks.title') + ' — ' + this.get('pageDetails')['projectTitle'],
+            pageTitle: this.get(event.keypath + '.talks.title'),
             description: this.get(event.keypath + '.talks.speaker') ? this.get(event.keypath + '.talks.title') + ' by ' + this.get(event.keypath + '.talks.speaker') : this.get(event.keypath + '.talks.title') + ", " + this.get('pageDetails')['projectTitle'],
             url: backPage
           };
         } else {
           pageDetails = {
             title: activeSession.title + ' – ' + this.get('pageDetails')['projectTitle'],
+            pageTitle: activeSession.title,
             description: activeSession.speaker ? activeSession.title + ' by ' + activeSession.speaker : activeSession.title + ", " + this.get('pageDetails')['projectTitle'],
             url: backPage
           };
@@ -124,16 +127,10 @@ const Schedule = {
         });
       },
       animateWindowScrollWithHeader: function() {
-        let hash;
         this.set('headerHeight', 2 * $('.schedule__row--sticky').height());
         this.set('pathName', window.location.pathname);
-        if(window.location.pathname === this.get('pathName') && window.location.hash) {
-          hash = window.location.hash.indexOf('/') !== -1 ?
-            window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
-          Utils.animateScrollTo($(hash).offset().top - this.get('headerHeight'));
-        }
-      },
-      oncomplete() {
+        let scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
+        
         let activeSession = schedule.config.active_session;
         if(activeSession) {
           // Open session modal
@@ -143,8 +140,29 @@ const Schedule = {
           this.showSessionModal('', activeSession);
           // Scroll page to session
           Utils.animateScrollTo($("#" + activeSession.url_name_suuid).offset().top - this.get('headerHeight'));
+        } else if(window.location.pathname === this.get('pathName') && window.location.hash) {
+          let hash;
+          hash = window.location.hash.indexOf('/') !== -1 ?
+            window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
+          Utils.animateScrollTo($(hash).offset().top - this.get('headerHeight'));
+        } else if(scrollPos && scrollPos.pageTitle === this.get('pageDetails')['projectTitle']) {
+          // Scroll page to last viewed position
+          Utils.animateScrollTo(scrollPos.scrollPosY);
+        } else {
+          // Scroll page to schedule table
+          Utils.animateScrollTo($(schedule.config.divElem).offset().top);
         }
 
+        // On exiting the page, save page scroll position in session storage
+        window.onbeforeunload = function() {
+          let scrollDetails = {
+            'pageTitle': scheduleUI.get('pageDetails')['projectTitle'],
+            'scrollPosY': window.scrollY
+          };
+          window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
+        };
+      },
+      oncomplete() {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();
