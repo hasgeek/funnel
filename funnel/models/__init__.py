@@ -24,3 +24,4 @@ from .session import *
 from .user import *
 from .venue import *
 from .label import *
+from .saved import *
