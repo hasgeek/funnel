@@ -391,7 +391,7 @@ html.touch .collapsible__body--disable {
     justify-content: flex-end;
   }
   .hg-app .content-wrapper {
-    padding-top: 52px;
+    padding-top: 50px;
   }
   .hg-app .no-sticky-header .header--fixed {
     position: relative;
@@ -513,6 +513,11 @@ html.touch .collapsible__body--disable {
     top: 50px;
   }
 }
+@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
+  .sub-navbar-container--sticky {
+    top: 35px;
+  }
+}
 .sub-navbar {
   overflow: scroll;
   display: flex;
@@ -614,6 +619,11 @@ html.touch .collapsible__body--disable {
   }
   .tabs-wrapper .tabs__item-control {
     display: none;
+  }
+}
+@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
+  .tabs-wrapper {
+    top: 35px;
   }
 }
 .tab-content {
@@ -1899,13 +1909,23 @@ html.touch .collapsible__body--disable {
 .schedule .schedule__row--sticky {
   position: sticky;
   position: -webkit-sticky;
-  top: 50px;
+  top: 60px;
   order: 1;
   z-index: 5;
   border: none;
   display: flex;
 }
 
+@media (min-width: 768px) {
+  .schedule .schedule__row--sticky {
+    top: 110px;
+  }
+}
+@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
+  .schedule .schedule__row--sticky {
+    top: 95px;
+  }
+}
 @media (max-width: 992px) {
   .schedule .schedule__row {
     display: none;

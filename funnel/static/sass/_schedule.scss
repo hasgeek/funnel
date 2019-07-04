@@ -59,18 +59,18 @@
 
 			.schedule__row__column__content--overflow:before {
 				content: '';
-			    position: absolute;
-			    left: 1px;
-			    right: 1px;
-			    bottom: 0;
-			    background: linear-gradient(to bottom, rgba(255,255,255,0.2) 10%, #fff 90%);
-			    z-index: 3;
-			    padding: 10% 0 0;
+		    position: absolute;
+		    left: 1px;
+		    right: 1px;
+		    bottom: 0;
+		    background: linear-gradient(to bottom, rgba(255,255,255,0.2) 10%, #fff 90%);
+		    z-index: 3;
+		    padding: 10% 0 0;
 			}
 
 			.schedule__row__column__content__title__duration {
-	        	display: none;
-	        }
+      	display: none;
+      }
 
 		}
 
@@ -88,13 +88,13 @@
 			border-right: 1px solid rgba(132,146,166,0.3);
 		}
 
-	    .schedule__row__column--header:nth-child(2) {
-	    	border-radius: 2px 0 0 0;
-	    }
+    .schedule__row__column--header:nth-child(2) {
+    	border-radius: 2px 0 0 0;
+    }
 
-	    .schedule__row__column--header:last-child {
-	    	border-radius: 0 2px 0 0;
-	    }
+    .schedule__row__column--header:last-child {
+    	border-radius: 0 2px 0 0;
+    }
 
 		.schedule__row__column--time {
 			background-image: none;
@@ -114,7 +114,7 @@
 		}
 
 		.schedule__row__column--time--header {
-		    padding-top: 12px;
+		  padding-top: 12px;
 		}
 
 		.schedule__row__column--talks {
@@ -125,18 +125,36 @@
 
 	.schedule__row:before, 
 	.schedule__row:after {
-    	content: " ";
-    	display: table;
+  	content: " ";
+  	display: table;
 	}
 
 	.schedule__row--sticky {
 		position: sticky;
 		position: -webkit-sticky;
-    	top: 50px;
-    	order: 1;
-    	z-index: 5;
-    	border: none;
-    	display: flex;
+  	top: 60px;
+  	order: 1;
+  	z-index: 5;
+  	border: none;
+  	display: flex;
+	}
+}
+
+@media(min-width: 768px) {
+	.schedule {
+		.schedule__row--sticky {
+			top: 110px;
+		}
+	}
+}
+
+@media (min-device-width: 768px)
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+	.schedule {
+		.schedule__row--sticky {
+			top: 95px;
+		}
 	}
 }
 
@@ -145,40 +163,39 @@
 	    .schedule__row {
 	    	display: none;
 
-	    	.schedule__row__column--time {
-				display: none;
-			}
-
-			.schedule__row__column--header {
-				border-bottom: 3px solid rgba(132,146,166,0.3);
-			}
-
-			.schedule__row__column--header.js-tab-active {
-				border-bottom: 3px solid #856A91;
-			}
-
-			.schedule__row__column {
-				display: none;
-			}
-
-		    .schedule__row__column.js-active {
-				display: block;
-				height: 150px !important;
-			}
-
-			.schedule__row__column {
-
-				.schedule__row__column__content {
-					height: 150px !important;
-
-					.schedule__row__column__content__title__duration {
-			        	display: block;
-			        }
+		    .schedule__row__column--time {
+					display: none;
 				}
-			}
+
+				.schedule__row__column--header {
+					border-bottom: 3px solid rgba(132,146,166,0.3);
+				}
+
+				.schedule__row__column--header.js-tab-active {
+					border-bottom: 3px solid #856A91;
+				}
+
+				.schedule__row__column {
+					display: none;
+				}
+
+			  .schedule__row__column.js-active {
+					display: block;
+					height: 150px !important;
+				}
+
+				.schedule__row__column {
+					.schedule__row__column__content {
+						height: 150px !important;
+
+						.schedule__row__column__content__title__duration {
+			        display: block;
+			      }
+					}
+				}
 	    }
 	    
-	    .schedule__row.js-active {
+	  .schedule__row.js-active {
 			display: flex;
 			height: 150px !important;
 		}
