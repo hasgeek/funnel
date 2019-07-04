@@ -1,13 +1,7 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import project_header, admin_panel %}
-{% block title %}
-  {%- if active_session -%}
-    {{ active_session.title }} &ndash; {{ project.title }}
-  {%- else -%}
-    {% trans %}Schedule{% endtrans %} &ndash; {{ project.title }}
-  {%- endif -%}
-{% endblock %}
-
+{% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock %}
 
 {% block description %}
   {%- if active_session -%}
@@ -106,7 +100,7 @@
                                   {{/if}}
                                 </div>
                                 {{#if talks.description}}
-                                  <div class="schedule__row__column__content__decription mui--text-body1">{{{ removeImg(talks.description) }}}</div>
+                                  <div class="schedule__row__column__content__decription mui--text-body1">{{{ removeImg(talks.description.html) }}}</div>
                                 {{/if}}
                               </div>
                             {{/if}}
@@ -139,7 +133,9 @@
       slotInterval: 5,
       divElem: "#project-schedule-table",
       scriptTemplate: '#scheduletemplate',
-      active_session: ''
+      active_session: '',
+      projectTitle: "{{ project.title }}",
+      pageDescription: "{{ g.profile.description|striptags }}"
     };
   </script>
   {%- if active_session -%}

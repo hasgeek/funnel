@@ -45,11 +45,6 @@ $(() => {
     Utils.sendToGA('click', action, target);
   });
 
-  $('.clickable-card').click(function openPage(event) {
-    event.preventDefault();
-    window.location = $(this).data('href');
-  });
-
   $('.jquery-show-all').click(function showAll(event) {
     event.preventDefault();
     let projectElemClass = `.${$(this).data('projects')}`;

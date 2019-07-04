@@ -1,7 +1,8 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {% from "comments.html.jinja2" import commenttree %}
-{% block title %}{{ proposal.title }} &ndash; {{ project.title }}{% endblock %}
+{% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
     {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
@@ -10,7 +11,7 @@
   {%- endif -%}
 {% endblock %}
 
-{%- block layoutheaders %}
+{%- block pageheaders %}
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}

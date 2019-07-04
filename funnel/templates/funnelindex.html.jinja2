@@ -1,6 +1,5 @@
 {% extends "layout.html.jinja2" %}
-
-{% block title %}{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
+{% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
@@ -36,32 +35,34 @@
       <div class="grid__col-sm-12">
         <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
       </div>
-    </div>
-  {%- endif -%}
+  {% endif %}
   {% if projects %}
     <ul class="grid projects">
       {% for project in projects %}
         <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
           <div class="grid__cell">
-            <div class="card clickable-card" title="{{ project.title }}" data-href="{{ project.url_for() }}">
-              <div class="card__image-wrapper">
+            <div class="card">
+              <a class="card__image-wrapper clickable-card" title="{{ project.title }}" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
                 {% if project.bg_image.url %}
                   <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                  <noscript>
+                    <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                  </noscript>
                 {% else %}
                   <div class="card__image--default">
                     <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
                     <p class="card__image__tagline">{{ project.title }}</p>
                   </div>
                 {% endif %}
-              </div>
-              <div class="card__title">
+              </a>
+              <a class="card__title clickable-card" title="{{ project.title }}" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
                 <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
                 <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
-              </div>
+              </a>
               {% if project.tagline %}
-                <div class="card__body">
+                <a class="card__body clickable-card" title="{{ project.title }}" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
                   <p class="mui--text-body2">{{ project.tagline }}</p>
-                </div>
+                </a>
               {% endif %}
               <div class="mui-divider"></div>
               <div class="card__footer">
@@ -75,7 +76,7 @@
                 {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
                   <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
                 {%- elif project.buy_tickets_url.url %}
-                  <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                  <a href="{{ project.buy_tickets_url.url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Buy</a>
                 {% endif %}
               </div>
             </div>

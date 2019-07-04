@@ -9,7 +9,8 @@
 
       .header__site-title {
         padding: 0;
-        width: 30%;
+        width: 47px;
+        padding-right: calc(calc(100% - 127px)/3);
 
         .header__site-title__logo {
           height: 30px;
@@ -41,8 +42,9 @@
       }
 
       .header__right-nav {
-        width: 60%;
+        width: 66.67%;
         padding: 0;
+        padding-left: calc(calc(calc(100% - 127px)/3)/2);
 
         .header__nav-list {
           justify-content: space-between;
@@ -87,6 +89,7 @@
         .header__site-title {
           width: 70%;
           margin-right: 0;
+          padding-right: 0;
 
           .header__site-title__title {
             display: flex;
@@ -121,6 +124,7 @@
 
         .header__right-nav {
           width: 250px;
+          padding-left: 0;
 
           .header__nav-list {
             justify-content: flex-end;
