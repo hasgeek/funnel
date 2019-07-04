@@ -235,13 +235,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
 
-    state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.schedule_end_at is not None and project.schedule_end_at < utcnow(),
-        lambda project: project.schedule_end_at < utcnow(),
+    schedule_state.add_conditional_state('PAST', schedule_state.PUBLISHED,
+        lambda project: project.schedule_end_at is not None and utcnow() >= project.schedule_end_at,
+        lambda project: db.func.utcnow() >= project.schedule_end_at,
         label=('past', __("Past")))
-    state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.schedule_end_at is not None and project.schedule_end_at >= utcnow(),
-        lambda project: project.schedule_end_at >= utcnow(),
+    schedule_state.add_conditional_state('LIVE', schedule_state.PUBLISHED,
+        lambda project: (project.schedule_start_at is not None
+            and project.schedule_start_at <= utcnow() < project.schedule_end_at),
+        lambda project: db.and_(
+            project.schedule_start_at <= db.func.utcnow(),
+            db.func.utcnow() < project.schedule_end_at),
+        label=('live', __("Live")))
+    schedule_state.add_conditional_state('UPCOMING', schedule_state.PUBLISHED,
+        lambda project: project.schedule_start_at is not None and utcnow() < project.schedule_start_at,
+        lambda project: db.func.utcnow() < project.schedule_start_at,
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
@@ -252,24 +259,35 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('has_sessions', __("Has Sessions")))
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
         lambda project: project.instructions_html != '',
+        lambda project: db.and_(
+            project.instructions_html.isnot(None),
+            project.instructions_html != ''),
         label=('private_draft', __("Private draft")))
     cfp_state.add_conditional_state('DRAFT', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is None,
-        lambda project: project.cfp_start_at == None,  # NOQA
+        lambda project: project.cfp_start_at.is_(None),
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at > utcnow(),
-        lambda project: db.and_(project.cfp_start_at is not None, project.cfp_start_at > db.func.utcnow()),
+        lambda project: project.cfp_start_at is not None and utcnow() < project.cfp_start_at,
+        lambda project: db.and_(
+            project.cfp_start_at.isnot(None),
+            db.func.utcnow() < project.cfp_start_at),
         label=('upcoming', __("Upcoming")))
     cfp_state.add_conditional_state('OPEN', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None and project.cfp_start_at <= utcnow() and (
-            project.cfp_end_at is None or project.cfp_end_at > utcnow()),
-        lambda project: db.and_(project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow(), (
-            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow())),
+            project.cfp_end_at is None or utcnow() < project.cfp_end_at),
+        lambda project: db.and_(
+            project.cfp_start_at.isnot(None),
+            project.cfp_start_at <= db.func.utcnow(),
+            db.or_(
+                project.cfp_end_at.is_(None),
+                db.func.utcnow() < project.cfp_end_at)),
         label=('open', __("Open")))
     cfp_state.add_conditional_state('EXPIRED', cfp_state.PUBLIC,
-        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= utcnow(),
-        lambda project: db.and_(project.cfp_end_at is not None, project.cfp_end_at <= db.func.utcnow()),
+        lambda project: project.cfp_end_at is not None and utcnow() >= project.cfp_end_at,
+        lambda project: db.and_(
+            project.cfp_end_at.isnot(None),
+            db.func.utcnow() >= project.cfp_end_at),
         label=('expired', __("Expired")))
 
     @with_roles(call={'admin'})
@@ -588,7 +606,3 @@ class ProjectLocation(TimestampMixin, db.Model):
     def __repr__(self):
         return '<ProjectLocation %d %s for project %s>' % (
             self.geonameid, 'primary' if self.primary else 'secondary', self.project)
-
-
-# Tail imports
-from .session import Session

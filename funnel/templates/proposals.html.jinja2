@@ -96,7 +96,10 @@
   </ul>
 {%- endmacro %}
 
-{% block headline %}
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  {%- block flashmessages %}<div class="mui-container">{{ flash_messages() }}</div>{% endblock %}
   {{ project_header(project, page_btns=page_btns(project), current_page='proposals') }}
 {% endblock %}
 
