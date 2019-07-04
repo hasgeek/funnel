@@ -1,7 +1,8 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
-{% block title %}Setup events for check-in{% endblock %}{% block subtitle %} — {{ project.title }}{% endblock %}
+{% block title %}Setup events for check-in{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>

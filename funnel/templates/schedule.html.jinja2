@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import project_header, admin_panel %}
 {% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock %}
-{% set title_suffix = project.title %}
 
 {% block description %}
   {%- if active_session -%}

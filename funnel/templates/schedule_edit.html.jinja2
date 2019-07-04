@@ -1,8 +1,6 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% block title %}{% trans %}Schedule{% endtrans %}{% endblock %}
-{% block subtitle %}
-  &ndash; {{ project.title }}
-{% endblock %}
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />

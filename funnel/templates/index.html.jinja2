@@ -1,7 +1,5 @@
 {% extends "layout.html.jinja2" %}
-
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
-{% block subtitle %}{% endblock %}
 
 {% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
 
@@ -46,6 +44,13 @@
       <div class="grid__col-12">
         <h1 class="headline">Find discussion spaces for geeks</h1>
         <p class="mui--text-title mui--text-light">Meet like-minded people, learn new things and discover new opportunities</p>
+        <div class="mui-divider mui-divider--banner"></div>
+      </div>
+    </div>
+  {% else %}
+    <div class="grid hg-banner">
+      <div class="grid__col-12">
+        <div class="mui--text-headline">{{ profile.description.html }}</div>
         <div class="mui-divider mui-divider--banner"></div>
       </div>
     </div>
