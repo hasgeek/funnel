@@ -2,7 +2,7 @@
 {% from "baseframe/components.html.jinja2" import hgtopnav with context %}
 
 {%- block titletags %}
-  <title>{% block title %}{{ title }}{% endblock %}{% block subtitle %}{% if config['SITE_TITLE'] %} — {{ config['SITE_TITLE'] }}{% endif %}{% endblock %}</title>
+  <title>{% block title %}{{ title }}{% endblock %}{% block title_suffix %}{% if title_suffix %} – {{ title_suffix }}{% else %} – {{ config['SITE_TITLE'] }}{% endif %}{% endblock %}</title>
   <meta name="DC.title" content="{{ self.title()|e }}" />
   <meta property="og:title" content="{{ self.title()|e }}" />
   <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">

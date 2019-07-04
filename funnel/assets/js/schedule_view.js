@@ -22,10 +22,10 @@ const Schedule = {
         headerHeight: '',
         pageDetails: {
           url: window.location.href,
-          title: $('meta[name=DC\\.title]').attr('content'),
+          title: `Schedule – ${schedule.config.projectTitle}`,
           projectTitle: schedule.config.projectTitle,
-          talkTitle: '',
-          description: $('meta[name=description]').attr('content')
+          pageTitle: 'Schedule',
+          description: schedule.config.pageDescription
         },
         getTimeStr(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
@@ -52,12 +52,12 @@ const Schedule = {
       },
       updateMetaTags: function(pageDetails) {
         $('title').html(pageDetails.title);
-        $('meta[name=DC\\.title]').attr('content', pageDetails.talkTitle);
-        $('meta[property=og\\:title]').attr('content', pageDetails.talkTitle);
+        $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
+        $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
         $('meta[name=description]').attr('content', pageDetails.description);
-        $('meta[property=og\\:description]').attr('content', pageDetails.description);
+        $('meta[property="og:description"]').attr('content', pageDetails.description);
         $('link[rel=canonical]').attr('href', pageDetails.url);
-        $('meta[property=og\\:url]').attr('content', pageDetails.url);
+        $('meta[property="og:url"]').attr('content', pageDetails.url);
       },
       handleBrowserHistory() {
         // On closing modal, update browser history
@@ -90,14 +90,14 @@ const Schedule = {
         if (event) {
           pageDetails = {
             title: this.get(event.keypath + '.talks.title') + ' — ' + this.get('pageDetails')['projectTitle'],
-            talkTitle: this.get(event.keypath + '.talks.title'),
+            pageTitle: this.get(event.keypath + '.talks.title'),
             description: this.get(event.keypath + '.talks.speaker') ? this.get(event.keypath + '.talks.title') + ' by ' + this.get(event.keypath + '.talks.speaker') : this.get(event.keypath + '.talks.title') + ", " + this.get('pageDetails')['projectTitle'],
             url: backPage
           };
         } else {
           pageDetails = {
             title: activeSession.title + ' – ' + this.get('pageDetails')['projectTitle'],
-            talkTitle: activeSession.title,
+            pageTitle: activeSession.title,
             description: activeSession.speaker ? activeSession.title + ' by ' + activeSession.speaker : activeSession.title + ", " + this.get('pageDetails')['projectTitle'],
             url: backPage
           };
