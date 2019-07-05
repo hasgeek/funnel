@@ -403,13 +403,15 @@ and (orientation: landscape) {
 }
 
 .tabs-wrapper {
-  position: sticky;
-  order: 1;
-  top: 0;
-  z-index: 1000;
   background: #fff;
   box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
   width: 100%;
+}
+
+.tabs-wrapper--sticky {
+  position: sticky;
+  order: 1;
+  top: 0;
   z-index: 1000;
 }
 
@@ -468,7 +470,7 @@ and (orientation: landscape) {
   .tabs-navbar .header {
     box-shadow: none;
   }
-  .tabs-wrapper {
+  .tabs-wrapper--sticky {
     top: 50px;
 
     .tabs__item-control {
@@ -480,7 +482,7 @@ and (orientation: landscape) {
 @media (min-device-width: 768px)
 and (max-device-width: 1200px)
 and (orientation: landscape) {
-  .tabs-wrapper {
+  .tabs-wrapper--sticky {
     top: 35px;
   }
 }
