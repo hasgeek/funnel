@@ -433,12 +433,15 @@ and (orientation: landscape) {
   .tabs__item:hover,
   .tabs__item:focus {
     text-decoration: none;
+    outline: none;
   }
 
-  .tabs__item--active,
-  .tabs__item--active:first-child,
-  .tabs__item--active:last-child {
+  .tabs__item--active {
     border-bottom: 2px solid #856A91;
+  }
+
+  button.tabs__item--active {
+    background: #f2f2f2;
   }
 
   .tabs__item-control {
