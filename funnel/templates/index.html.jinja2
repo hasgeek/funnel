@@ -356,24 +356,26 @@
           </div>
         </div>
         <div class="grid projects">
-          <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
-            <thead class="mui--bg-primary-light">
-              <tr>
-                <th class="mui--text-subhead mui--text-capitalize">Date</th>
-                <th class="mui--text-subhead mui--text-capitalize">Event name</th>
-                <th class="mui--text-subhead mui--text-capitalize">Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for project in past_projects %}
+          <div class="grid__col-12 mui-table--responsive-wrapper">
+            <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
+              <thead class="mui--bg-primary-light">
                 <tr>
-                  <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td>
-                  <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
-                  <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
+                  <th class="mui--text-subhead mui--text-capitalize">Date</th>
+                  <th class="mui--text-subhead mui--text-capitalize">Event name</th>
+                  <th class="mui--text-subhead mui--text-capitalize">Location</th>
                 </tr>
-              {%- endfor -%}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {% for project in past_projects %}
+                  <tr>
+                    <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.date|longdate }}</p></td>
+                    <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
+                    <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
+                  </tr>
+                {%- endfor -%}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
