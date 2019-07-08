@@ -282,4 +282,4 @@ class SyncTicket(BaseMixin, db.Model):
 
 # Import symbols required only in functions at bottom of file to avoid
 # cyclic dependency failures.
-from .contact_exchange import ContactExchange
+from .contact_exchange import ContactExchange  # isort:skip

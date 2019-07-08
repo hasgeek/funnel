@@ -34,8 +34,8 @@ assets['schedules.js'][version] = 'js/schedules.js'
 
 # --- Import rest of the app --------------------------------------------------
 
-from . import models, forms, views  # NOQA
-from .models import db
+from . import models, forms, views  # NOQA  # isort:skip
+from .models import db  # isort:skip
 
 
 # --- Configuration------------------------------------------------------------
