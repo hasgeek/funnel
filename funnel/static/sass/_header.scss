@@ -364,12 +364,14 @@ and (orientation: landscape) {
   overflow: scroll;
   display: flex;
   align-items: center;
+  margin: 0 auto;
+  padding: 0 15px;
 
   .sub-navbar__item {
     display: inline-block;
     flex-shrink: 0;
-    padding: 1em;
-    margin: 0 0.5em;
+    padding: 15px;
+    margin: 0;
     text-decoration: none;
     border-bottom: 2px solid transparent;
     transition: border-color 1.5s ease;
