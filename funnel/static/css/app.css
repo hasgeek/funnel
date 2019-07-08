@@ -1843,7 +1843,7 @@ html.touch .collapsible__body--disable {
   width: 100%;
 }
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content p {
-  margin: 0 0 5px;
+  margin: 0;
 }
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content--calendar {
   position: absolute;
@@ -1852,6 +1852,7 @@ html.touch .collapsible__body--disable {
   z-index: 2;
   height: 100%;
   border: 0;
+  overflow: hidden;
 }
 .schedule .schedule__row .schedule__row__column .schedule__row__column__content__title__duration {
   display: none;
