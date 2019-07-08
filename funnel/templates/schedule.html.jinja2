@@ -67,7 +67,7 @@
       <div class="schedule-table-container" id="project-schedule-table">
         {% raw %}
           <script id="scheduletemplate" type="text/ractive">
-            <div class="tabs-wrapper">
+            <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
               <div class="tabs">
                 <button class="no-btn tabs__item {{#if view === 'calendar'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'calendar')">Calender view</button>
                 <button class="no-btn tabs__item {{#if view === 'agenda'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'agenda')">Agenda view</button>
@@ -100,8 +100,9 @@
                           <div class="schedule__row__column {{#if talks}}schedule__row__column--talks {{room}}{{/if}} {{#if talks && activeTab == room}}js-active{{/if}}" style="width: {{#if width && getColumnWidth('content')}}calc(100% - {{getColumnWidth('content')}}px);{{else}} 100%;{{/if}}" on-click="showSessionModal(event, '')">
                             {{#if talks}}
                               <div class="schedule__row__column__content {{#if view === 'calendar'}}schedule__row__column__content--calendar schedule__row__column__content--overflow{{/if}}" {{#if view === 'calendar'}}style="height: calc({{talks.duration}}*{{rowHeight}}px - {{rowBorder}}px);"{{/if}} id="{{talks.url_name_suuid}}">
+                                <p class="mui--text-body1 schedule__row__column__content__title__duration {{#if view === 'agenda'}}schedule__row__column__content__title__duration--show{{/if}}">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
                                 <div class="schedule__row__column__content__title">
-                                  <p class="mui--text-body1 schedule__row__column__content__title__duration {{#if view === 'agenda'}}schedule__row__column__content__title__duration--show{{/if}}">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
+                                  
                                   {{#if talks.title}}
                                     <p class="mui--text-subhead schedule__row__column__content__title__heading"><b>{{ talks.title }}</b></p>
                                   {{/if}}

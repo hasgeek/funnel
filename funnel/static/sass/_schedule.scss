@@ -19,7 +19,6 @@
 				padding: 5px 15px 0;
 				outline: 1px solid rgba(132,146,166,0.3);
 				border-bottom: 1px solid rgba(132,146,166,0.3);
-				overflow: hidden;
 
 				.schedule__row__column__content__title {
 					float: left;
@@ -38,7 +37,6 @@
 					clear: both;
   					padding-top: 15px;
   					word-break: break-all;
-  					overflow: hidden;
 
   					img {
   						width: 100%;
@@ -66,6 +64,16 @@
 
       .schedule__row__column__content__title__duration--show {
       	display: block;
+      	position: -webkit-sticky;
+			  position: sticky;
+			  top: 200px;
+			  color: #E05F26;
+			  z-index: 4;
+			  background-color: #F9FAFC;
+    		float: right;
+    		padding: 10px;
+    		border-radius: 3px;
+    		line-height: 1;
       }
 
 		}
