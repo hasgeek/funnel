@@ -1,3 +1,6 @@
+# Default tool config file. See also setup.cfg for tools that don't yet
+# support pyproject.toml.
+
 [tool.black]
 line-length = 88
 target_version = ['py27']
