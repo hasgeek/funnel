@@ -5,7 +5,7 @@
       <div class="comment--content">
         <div class="comment--header">
           <button class="js-collapse no-btn"><i class="material-icons mui--align-middle mui--text-menu">remove_circle_outline</i></button>
-          <button class="js-uncollapse action-btn action-btn--nopadding mui--hide"><i class="material-icons mui--align-middle mui--text-menu">add_circle_outline</i></button>
+          <button class="js-uncollapse no-btn mui--hide"><i class="material-icons mui--align-middle mui--text-menu">add_circle_outline</i></button>
           {% if comment.state.DELETED -%}
             <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
           {%- else -%}
