@@ -27,11 +27,12 @@ const Schedule = {
           pageTitle: 'Schedule',
           description: schedule.config.pageDescription
         },
+        view: 'calendar',
         getTimeStr(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
         getColumnWidth(columnType) {
-          if (columnType === 'header' || this.get('width') > 991) {
+          if (columnType === 'header' || this.get('width') > 767) {
             return (this.get('timeSlotWidth')/this.get('rowWidth'));
           } else {
             return 0;
@@ -49,6 +50,10 @@ const Schedule = {
           event.original.preventDefault();
           this.set('activeTab', room);
         }
+      },
+      toggleView(event, view) {
+        event.original.preventDefault();
+        this.set('view', view);
       },
       updateMetaTags: function(pageDetails) {
         $('title').html(pageDetails.title);
