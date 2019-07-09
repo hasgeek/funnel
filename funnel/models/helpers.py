@@ -22,6 +22,8 @@ RESERVED_NAMES = set([
     'client',
     'clients',
     'confirm',
+    'contact',
+    'contacts',
     'delete',
     'edit',
     'email'

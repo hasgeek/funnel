@@ -7,9 +7,9 @@ from funnel.models import Project, Session
 
 class TestProject(object):
     def test_project_state_conditional(self, test_client, test_db):
-        past_projects = Project.query.filter(Project.state.PAST).all()
+        past_projects = Project.query.filter(Project.schedule_state.PAST).all()
         assert len(past_projects) >= 0
-        upcoming_projects = Project.query.filter(Project.state.UPCOMING).all()
+        upcoming_projects = Project.query.filter(Project.schedule_state.UPCOMING).all()
         assert len(upcoming_projects) >= 0
 
     def test_project_cfp_state_conditional(self, test_client, test_db):

@@ -5,6 +5,8 @@ $(() => {
 
   Utils.collapse();
   Utils.smoothScroll();
+  Utils.scrollTabs();
+  Utils.navSearchForm();
 
   let intersectionObserverComponents = function() {
     ScrollActiveMenu.init('page-navbar', 'sub-navbar__item', 'sub-navbar__item--active');
@@ -43,30 +45,11 @@ $(() => {
     Utils.sendToGA('click', action, target);
   });
 
-  $('.clickable-card').click(function openPage(event) {
-    event.preventDefault();
-    window.location = $(this).data('href');
-  });
-
-  $('.js-show-cfp-projects').click(function showAll(event) {
+  $('.jquery-show-all').click(function showAll(event) {
     event.preventDefault();
     let projectElemClass = `.${$(this).data('projects')}`;
     $(projectElemClass).removeClass('mui--hide');
     $(this).addClass('mui--hide');
   });
 
-  $('.js-search-show').on('click', function toggleSearchForm(event) {
-    event.preventDefault();
-    $('.js-search-form').toggleClass('search-form--show');
-    $('.js-search-field').focus();
-  });
-
-  // Clicking outside close search form if open
-  $('body').on('click', function closeSearchForm(event) {
-    if($('.js-search-form').hasClass('search-form--show') && 
-        !$(event.target).is('.js-search-field') && 
-        !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
-      $('.js-search-form').removeClass('search-form--show');
-    }
-  });
 });

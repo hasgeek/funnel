@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unicodecsv
-from cStringIO import StringIO
+import six
 from flask import g, flash, redirect, Response, request, abort, current_app, render_template
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -28,8 +28,8 @@ def project_data(project):
         'title': project.title,
         'datelocation': project.datelocation,
         'timezone': project.timezone.zone,
-        'start': project.schedule_start_at.astimezone(project.timezone).date().isoformat() if project.schedule_start_at else None,
-        'end': project.schedule_end_at.astimezone(project.timezone).date().isoformat() if project.schedule_end_at else None,
+        'start_at': project.schedule_start_at.astimezone(project.timezone).date().isoformat() if project.schedule_start_at else None,
+        'end_at': project.schedule_end_at.astimezone(project.timezone).date().isoformat() if project.schedule_end_at else None,
         'status': project.state.value,
         'state': project.state.label.name,
         'url': project.url_for(_external=True),
@@ -113,13 +113,13 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def csv(self):
         proposals = Proposal.query.filter_by(project=self.obj).order_by(db.desc('created_at')).all()
-        outfile = StringIO()
+        outfile = six.BytesIO()
         out = unicodecsv.writer(outfile, encoding='utf-8')
         out.writerow(proposal_headers + ['status'])
         for proposal in proposals:
             out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
-        return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
+        return Response(six.text_type(outfile.getvalue(), 'utf-8'), content_type='text/csv',
             headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
 
     @route('edit', methods=['GET', 'POST'])

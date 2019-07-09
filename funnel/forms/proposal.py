@@ -6,7 +6,7 @@ from flask import g
 from baseframe.forms.sqlalchemy import QuerySelectField
 from ..models import Project, Profile
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalLabelsForm',
+__all__ = ['ProposalTransferForm', 'ProposalForm', 'ProposalTransitionForm', 'ProposalLabelsForm',
     'ProposalMoveForm', 'ProposalLabelsAdminForm']
 
 
@@ -55,8 +55,8 @@ def proposal_label_admin_form(project, proposal):
     return ProposalLabelAdminForm(obj=proposal.formlabels if proposal else None, meta={'csrf': False})
 
 
-class TransferProposal(forms.Form):
-    userid = forms.UserSelectField(__("Transfer to"), validators=[forms.validators.DataRequired()])
+class ProposalTransferForm(forms.Form):
+    user = forms.UserSelectField(__("Transfer to"), validators=[forms.validators.DataRequired()])
 
 
 class ProposalLabelsForm(forms.Form):

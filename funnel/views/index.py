@@ -4,7 +4,7 @@ import os.path
 from flask import g, render_template, redirect, jsonify, Response
 from coaster.views import jsonp, load_model, render_with, ClassView, route
 from .. import app, funnelapp, pages
-from ..models import Project, Proposal
+from ..models import db, Project, Proposal
 from .project import project_data
 
 
@@ -17,15 +17,30 @@ class IndexView(ClassView):
     @render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
     def home(self):
         g.profile = None
-        projects = Project.all_unsorted(legacy=False)  # NOQA
-        all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.schedule_start_at.asc()).all()
+        projects = Project.all_unsorted(legacy=False)
+        # TODO: Move these queries into the Project class
+        all_projects = projects.filter(
+            Project.state.PUBLISHED,
+            db.or_(
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING)
+            ).order_by(Project.schedule_start_at.asc()).all()
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
-        featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
-            .order_by(Project.schedule_start_at.asc()).limit(1).first()  # NOQA
+        featured_project = projects.filter(
+            Project.state.PUBLISHED,
+            db.or_(
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING),
+            Project.featured.is_(True)
+            ).order_by(Project.schedule_start_at.asc()).limit(1).first()
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
-        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.schedule_start_at.asc()).all()
+        open_cfp_projects = projects.filter(
+            Project.state.PUBLISHED,
+            Project.cfp_state.OPEN
+            ).order_by(Project.schedule_start_at.asc()).all()
+
         return {
             'all_projects': [p.current_access() for p in all_projects],
             'upcoming_projects': [p.current_access() for p in upcoming_projects],

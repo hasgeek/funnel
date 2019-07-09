@@ -5,7 +5,7 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app search-page">
+    <body class="mui--bg-primary hg-app tabs-navbar">
   {%- else %}
     <body class="mui--bg-primary">
   {%- endif %}
@@ -19,14 +19,14 @@
       <div id="search-wrapper">
         {% raw %}
         <script id='search-template' type='text/ractive'>
-          <div class="tabs-wrapper">
+          <div class="tabs-wrapper tabs-wrapper--sticky">
             <div class="mui-container">
               <div class="grid">
                 <div class="grid__col-12">
                   <div class="tabs" id="scrollable-tabs">
                     <p class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light" aria-label="previous" on-click="swipe(-1)"><i class="material-icons tabs__item-control__icon">chevron_left</i></p>
                     {{#each tabs}}
-                      <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count mui--text-caption">{{ count }}</span></p>
+                      <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count-chip mui--text-caption">{{ count }}</span></p>
                     {{/each}}
                     <p class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light" aria-label="next" on-click="swipe(1)"><i class="material-icons tabs__item-control__icon">chevron_right</i></p>
                   </div>
@@ -77,10 +77,10 @@
                                 {{/if}}
                             </div>
                             <div class="card__body">
-                              <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline">{{{ title }}}</a></h3>
+                              <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline">{{{ title_html }}}</a></h3>
                               {{#if obj.location }}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{obj.location}}</p>{{/if}}
                               <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
-                              <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                              <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                             </div>
                           </div>
                         {{elseif result == 'profile'}}
@@ -91,52 +91,52 @@
                               {{else}}
                                 <div class="card__image--default">
                                   <a href="{{ url }}" aria-label="{{ title }}"><img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/></a>
-                                  <p class="card__image__tagline mui--text-body1">{{{ title }}}</p>
+                                  <p class="card__image__tagline mui--text-body1">{{{ title_html }}}</p>
                                 </div>
                               {{/if}}
                             </div>
                             <div class="card__body">
-                              <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-hyperlink">{{{ title }}}</a></h3>
+                              <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ url }}" class="mui--text-headline mui--text-hyperlink">{{{ title_html }}}</a></h3>
                               <p class="mui--text-subhead mui--text-light zero-top-margin">{{{ obj.description.html }}}</p>
-                              <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                              <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                             </div>
                           </div>
                         {{elseif result == 'session'}}
-                          <div class="search-box">
+                          <div class="user-box">
                             {{#if obj.user.avatar }}
                               <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                             {{else}}
                               <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                             {{/if}}
-                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
+                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                             <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                            <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start) }}–{{ formatTime(obj.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start) }}</p>
-                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                            <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start_at) }}–{{ formatTime(obj.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start_at) }}</p>
+                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                           </div>
                         {{elseif result == 'proposal'}}
-                          <div class="search-box">
+                          <div class="user-box">
                             {{#if obj.user.avatar }}
                               <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                             {{else}}
                               <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
                             {{/if}}
-                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title }}}</a></h2>
+                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                             <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                             {{#if obj.session }}
-                              <p class="mui--text-body1 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start) }}–{{ formatTime(obj.session.end) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start) }}</p>
+                              <p class="mui--text-body1 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start_at) }}–{{ formatTime(obj.session.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start_at) }}</p>
                             {{/if}}
-                            <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                            <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                           </div>
                         {{elseif result == 'comment'}}
-                          <div class="search-box">
+                          <div class="user-box">
                             {{#if obj.user.avatar }}
                               <img class="user-gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                             {{else}}
                               <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
                             {{/if}}
-                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ obj.title }}}</a></h2>
+                            <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{ obj.title }}</a></h2>
                             <p class="mui--text-body1 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
-                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet }}}</p>
+                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                           </div>
                         {{/if}}
                       </div>

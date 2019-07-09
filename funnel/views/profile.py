@@ -72,15 +72,31 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         # `order_by(None)` clears any existing order defined in relationship.
         # We're using it because we want to define our own order here.
         projects = self.obj.listed_projects.order_by(None)
-        past_projects = projects.filter(Project.state.PAST).order_by(Project.schedule_start_at.desc()).all()
-        all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.schedule_start_at.asc()).all()
+        past_projects = projects.filter(
+            Project.state.PUBLISHED,
+            Project.schedule_state.PAST
+            ).order_by(Project.date.desc()).all()
+        all_projects = projects.filter(
+            Project.state.PUBLISHED,
+            db.or_(
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING)
+            ).order_by(Project.schedule_start_at.asc()).all()
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
-        featured_project = projects.filter(Project.state.UPCOMING).filter(Project.featured == True) \
-            .order_by(Project.schedule_start_at.asc()).limit(1).first()  # NOQA
+        featured_project = projects.filter(
+            Project.state.PUBLISHED,
+            db.or_(
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING),
+            Project.featured.is_(True)
+            ).order_by(Project.schedule_start_at.asc()).limit(1).first()
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
-        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.schedule_start_at.asc()).all()
+        open_cfp_projects = projects.filter(
+            Project.state.PUBLISHED,
+            Project.cfp_state.OPEN
+            ).order_by(Project.schedule_start_at.asc()).all()
         draft_projects = [proj for proj in self.obj.draft_projects if proj.current_roles.admin]
         return {
             'profile': self.obj.current_access(),

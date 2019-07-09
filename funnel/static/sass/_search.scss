@@ -1,112 +1,18 @@
-.tabs-wrapper {
-  position: sticky;
-  order: 1;
-  top: 0;
-  z-index: 1000;
-  background: #fff;
-  box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
-  width: 100%;
-  z-index: 1000;
-}
-
-.tabs {
-  display: flex;
-  width: 100%;
-  overflow: scroll;
-  align-items: center;
-
-  .tabs__item {
-    padding: 15px;
-    cursor: pointer;
-    position: relative;
-    min-width: 130px;
-    border-bottom: 2px solid transparent;
-    margin: 0;
-    text-align: center;
-    cursor: pointer;
-
-    .count {
-      color: #e05f25;
-      position: relative;
-      top: -12px;
-      font-size: 12px;
-    }
-  }
-  .tabs__item--active,
-  .tabs__item--active:first-child,
-  .tabs__item--active:last-child {
-    border-bottom: 2px solid #856A91;
-  }
-  .tabs__item-control {
-    position: fixed;
-    z-index: 1000;
-    background: #fff;
-    min-width: auto;
-    padding: 15px 5px;
-    align-self: center;
-
-    .tabs__item-control__icon {
-      vertical-align: middle;
-    }
-  }
-  .tabs__item-control--prev {
-    left: 0;
-  }
-  .tabs__item-control--next {
-    right: 0;
-  }
-}
-
-@media(min-width: 768px) {
-  .search-page .header {
-    box-shadow: none;
-  }
-  .tabs-wrapper {
-    top: 50px;
-
-    .tabs__item-control {
-      display: none;
-    }
-  }
-}
-
-.tab-content {
-  margin-top: 2em;
-
-  .tab-content__results {
-    margin-bottom: 1em;
-
-    .snippets {
-      margin-top: 8px;
-      padding: 8px 8px 8px 28px;
-      border: 1px solid rgba(132,146,166,0.3);
-      position: relative;
-    }
-    .search-icon {
-      width: 20px;
-      display: inline-block;
-      position: absolute;
-      left: 8px;
-    }
-    .search-icon:after {
-      content: '🔍';
-      opacity: 0.4;
-      position: relative;
-      top: 1px;
-    }
-  }
-}
-
-.search-box {
-  padding: 8px 8px 8px 45px;
+.snippets {
+  margin-top: 8px;
+  padding: 8px 8px 8px 28px;
+  border: 1px solid rgba(132,146,166,0.3);
   position: relative;
-
-  .user-gravatar {
-    width: 40px;
-    display: inline-block;
-    position: absolute;
-    left: 0;
-    top: 11px;
-    border-radius: 50%;
-  }
+}
+.search-icon {
+  width: 20px;
+  display: inline-block;
+  position: absolute;
+  left: 8px;
+}
+.search-icon:after {
+  content: '🔍';
+  opacity: 0.4;
+  position: relative;
+  top: 1px;
 }

@@ -101,7 +101,7 @@
       {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" title="Proposals" data-action="Proposals(navbar)">Proposals</a>
       {%- endif %}
-      {%- if project.current_roles.admin or project.schedule_state.PUBLISHED %}
+      {%- if project.schedule_state.PUBLISHED %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule</a>
       {%- endif %}
     </nav>

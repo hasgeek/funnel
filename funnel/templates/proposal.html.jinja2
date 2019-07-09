@@ -1,7 +1,8 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit %}
+{% set title_suffix = project.title %}
+{% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {% from "comments.html.jinja2" import commenttree %}
-{% block title %}{{ proposal.title }} &ndash; {{ project.title }}{% endblock %}
+{% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
     {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
@@ -10,16 +11,14 @@
   {%- endif -%}
 {% endblock %}
 
-{%- block layoutheaders %}
+{%- block pageheaders %}
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
 {% endblock %}
 
-{% block heading %}{# Inhibit display of page-level title #}{% endblock %}
-
 {% block top_title %}
-  <h1 class="mui--text-display1"><strong>{{ project.title|e }}</strong></h1>
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title|e }}</a></strong></h1>
   <p class="mui--text-headline">{{ project.tagline|safe }}</p>
   <p>
   {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
@@ -37,18 +36,20 @@
 
 {% block contentwrapper %}
 <div class="grid">
-  <div class="slider-btn-wrapper clearfix">
-    <div class="slider-btn {% if proposal.getnext() %} slider-btn--push-down {% endif %} mui--pull-left">
-      {%- if proposal.getprev() -%}
-        <p class="mui--text-title mui--text-light {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">Previous proposal</p>
-        <a href="{{ proposal.url_for('prev') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold"><i class="material-icons mui--text-light" aria-hidden="true">arrow_back</i> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">{{ proposal.getprev().title }}</span></p></a>
-      {%- endif -%}
-    </div>
-    <div class="slider-btn slider-btn--right mui--pull-right">
-      {%- if proposal.getnext() -%}
-        <p class="mui--text-title mui--text-light mui--text-right">Next proposal</p>
-        <a href="{{ proposal.url_for('next') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold mui--text-right"><span class="truncate-title">{{ proposal.getnext().title }}</span> <i class="material-icons mui--text-light" aria-hidden="true">arrow_forward</i></p></a>
-      {%- endif -%}
+  <div class="grid__col-xs-12">
+    <div class="slider-btn-wrapper clearfix">
+      <div class="slider-btn {% if proposal.getnext() %} slider-btn--push-down {% endif %} mui--pull-left">
+        {%- if proposal.getprev() -%}
+          <p class="mui--text-title mui--text-light {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">Previous proposal</p>
+          <a href="{{ proposal.url_for('prev') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold"><i class="material-icons mui--text-light" aria-hidden="true">arrow_back</i> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">{{ proposal.getprev().title }}</span></p></a>
+        {%- endif -%}
+      </div>
+      <div class="slider-btn slider-btn--right mui--pull-right">
+        {%- if proposal.getnext() -%}
+          <p class="mui--text-title mui--text-light mui--text-right">Next proposal</p>
+          <a href="{{ proposal.url_for('next') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold mui--text-right"><span class="truncate-title">{{ proposal.getnext().title }}</span> <i class="material-icons mui--text-light" aria-hidden="true">arrow_forward</i></p></a>
+        {%- endif -%}
+      </div>
     </div>
   </div>
   <div class="grid__col-xs-12 proposal-wrapper">
@@ -109,8 +110,8 @@
             {%- endfor %}
           {% endif %}
           </p>
-          {% if proposal.state.SCHEDULED %} 
-            <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">View proposal in schedule</a></p> 
+          {% if proposal.state.SCHEDULED %}
+            <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">View proposal in schedule</a></p>
           {% endif %}
         </div>
       </div>
@@ -135,6 +136,9 @@
               {% if proposal.current_roles.admin %}
                 {%- if proposal_move_form %}
                   {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
+                {%- endif %}
+                {%- if proposal_transfer_form %}
+                  {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit="Transfer", style='horiz') }}
                 {%- endif %}
                 <hr class="mui-divider">
                 <p class="mui--text-subhead">Change status of proposal</p>
@@ -270,6 +274,7 @@
 
 {% block footerscripts %}
 <script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
+{{ widgetscripts(proposal_transfer_form, script=true) }}
 <script type="text/javascript">
   $(function() {
     var proposalConfig = {};
