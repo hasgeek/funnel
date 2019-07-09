@@ -75,7 +75,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         past_projects = projects.filter(
             Project.state.PUBLISHED,
             Project.schedule_state.PAST
-            ).order_by(Project.date.desc()).all()
+            ).order_by(Project.schedule_start_at.desc()).all()
         all_projects = projects.filter(
             Project.state.PUBLISHED,
             db.or_(
