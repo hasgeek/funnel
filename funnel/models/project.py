@@ -1,27 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 
-from pytz import utc
-from babel.dates import format_date
-from isoweek import Week
-
-from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 
-from baseframe import __, get_locale
+from werkzeug.utils import cached_property
 
+from babel.dates import format_date
+from isoweek import Week
+from pytz import utc
+
+from baseframe import __, get_locale
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow, valid_username
 
 from ..util import geonameid_from_location
-from . import (BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType,
-    TSVectorType, db)
-from .user import Team, User
-from .profile import Profile
-from .commentvote import Commentset, SET_TYPE, Voteset
+from . import (
+    BaseScopedNameMixin,
+    JsonDict,
+    MarkdownColumn,
+    TimestampMixin,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+)
+from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import RESERVED_NAMES, add_search_trigger
+from .profile import Profile
+from .user import Team, User
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 

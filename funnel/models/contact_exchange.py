@@ -7,10 +7,10 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from coaster.utils import uuid2suuid
 
-from . import db, TimestampMixin, RoleMixin
-from .user import User
-from .project import Project
+from . import RoleMixin, TimestampMixin, db
 from .event import Participant
+from .project import Project
+from .user import User
 
 __all__ = ['ContactExchange']
 

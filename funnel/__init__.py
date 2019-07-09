@@ -2,17 +2,19 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-import coaster.app
+
 from flask import Flask
 from flask_flatpages import FlatPages
-from flask_migrate import Migrate
 from flask_mail import Mail
+from flask_migrate import Migrate
+from flask_rq2 import RQ
+
+import coaster.app
+from baseframe import Bundle, Version, assets, baseframe
 from flask_lastuser import Lastuser
 from flask_lastuser.sqlalchemy import UserManager
-from flask_rq2 import RQ
-from baseframe import baseframe, assets, Version, Bundle
-from ._version import __version__
 
+from ._version import __version__
 
 app = Flask(__name__, instance_relative_config=True)
 funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=True)

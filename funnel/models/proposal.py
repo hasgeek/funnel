@@ -1,20 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from werkzeug.utils import cached_property
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
+from werkzeug.utils import cached_property
+
 from baseframe import __
+from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
+from coaster.utils import LabeledEnum
 
 from ..util import geonameid_from_location
-from . import (TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn,
-    CoordinatesMixin, UrlType, TSVectorType, db)
-from .user import User
-from .project import Project
-from .commentvote import Commentset, Voteset, SET_TYPE
+from . import (
+    BaseScopedIdNameMixin,
+    CoordinatesMixin,
+    MarkdownColumn,
+    TimestampMixin,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+)
+from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import add_search_trigger
-
+from .project import Project
+from .user import User
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 

@@ -36,6 +36,6 @@ known_sqlalchemy = ["alembic", "sqlalchemy", "sqlalchemy_utils"]
 known_flask = [
   "flask", "werkzeug", "itsdangerous", "wtforms",
   "flask_flatpages", "flask_mail", "flask_migrate", "flask_rq2",
-  ]
+]
 default_section = "THIRDPARTY"
 sections = ["FUTURE", "STDLIB", "SQLALCHEMY", "FLASK", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]

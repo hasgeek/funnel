@@ -2,10 +2,10 @@
 # flake8: noqa
 
 from .comment import *
-from .proposal import *
-from .project import *
-from .venue import *
-from .session import *
-from .profile import *
-from .participant import *
 from .label import *
+from .participant import *
+from .profile import *
+from .project import *
+from .proposal import *
+from .session import *
+from .venue import *

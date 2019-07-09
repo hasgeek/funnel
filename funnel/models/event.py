@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
 import base64
-from . import db, with_roles, BaseMixin, BaseScopedNameMixin
+import os
+
+from . import BaseMixin, BaseScopedNameMixin, db, with_roles
 from .project import Project
 from .user import User
 

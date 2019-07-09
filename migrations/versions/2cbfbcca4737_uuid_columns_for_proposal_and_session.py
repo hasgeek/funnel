@@ -11,13 +11,14 @@ revision = '2cbfbcca4737'
 down_revision = 'cd8d073d7557'
 
 from uuid import uuid4
-from alembic import op
-import sqlalchemy as sa  # NOQA
-from sqlalchemy.sql import table, column
-from sqlalchemy_utils import UUIDType
-from progressbar import ProgressBar
-import progressbar.widgets
 
+import sqlalchemy as sa  # NOQA
+from alembic import op
+from sqlalchemy.sql import column, table
+from sqlalchemy_utils import UUIDType
+
+import progressbar.widgets
+from progressbar import ProgressBar
 
 proposal = table('proposal',
     column('id', sa.Integer()),

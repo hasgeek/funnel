@@ -10,10 +10,9 @@ Create Date: 2019-06-22 10:28:13.775099
 revision = 'b61a489d34a4'
 down_revision = '1829e53eba75'
 
-from alembic import op
 import sqlalchemy as sa  # NOQA
-from sqlalchemy.sql import table, column
-
+from alembic import op
+from sqlalchemy.sql import column, table
 
 contact_exchange = table('contact_exchange',
     column('created_at', sa.TIMESTAMP(timezone=True)),

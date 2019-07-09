@@ -1,5 +1,5 @@
-import sys
 import os.path
+import sys
 
 __all__ = ['application']
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import _, __
 import baseframe.forms as forms
+from baseframe import _, __
 from baseframe.forms.sqlalchemy import QuerySelectField
 
 
