@@ -23,14 +23,22 @@
   {%- endif %}
 {% endblock %}
 
+{% block contenthead %}{% endblock %}
 
-{% block headline %}
-  {{ project_header(project, current_page='schedule') }}
+{% block baseheadline %}
+  <div class=" mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--text-title mui--align-middle mui--text-dark" aria-hidden="true">arrow_back</i> {{project.title}}</a>
+    </div>
+  </div>
+  <div class="mui--hidden-xs mui--hidden-sm">
+    {{ project_header(project, current_page='schedule') }}
+  </div>
 {% endblock %}
 
 {% block contentwrapper %}
-  <div class="grid details-section">
-    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
+  <div class="grid">
+    <div class="grid__col-xs-12">
       {% if current_auth.is_authenticated and project.current_roles.admin %}
         {{ admin_panel(project, schedule_transition_form=schedule_transition_form) }}
       {%- endif %}

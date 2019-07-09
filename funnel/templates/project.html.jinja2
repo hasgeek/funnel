@@ -52,19 +52,23 @@
   {%- endif %}
 {% endblock %}
 
-{% block headline %}
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
   {{ project_header(project) }}
 {% endblock %}
 
 {% block contentwrapper %}
-  <div class="grid details-section">
-    <div class="grid__col-md-5 grid__col-lg-4">
+  <div class="grid">
+    <div class="grid__col-12">
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
         {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
       {% endif %}
     </div>
+  </div>
 
-    <div class="grid__col-md-7 grid__col-lg-8" id="about">
+  <div class="grid">
+    <div class="{% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}grid__col-sm-4{% elif project.allow_rsvp -%}grid__col-sm-6{% else %}grid__col-sm-12{% endif %}" id="about">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">About</h2>
       <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
@@ -93,7 +97,31 @@
         </ul>
       {%- endif %}
     </div>
+
+    {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+      <div class="grid__col-sm-8 mui--hidden-xs mui--hidden-sm" id="participate">
+        {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+          <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
+          <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
+        {%- endif %}
+      </div>
+    {% elif project.allow_rsvp -%}
+      <div class="grid__col-sm-6" id="participate">
+        <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
+        {%- if g.user %}
+          {{ rsvpform(project, rsvp_form) }}
+        {%- else %}
+          <p>
+            <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to rsvp">{% trans %}Login to RSVP{% endtrans %}</a>
+          </p>
+        {%- endif %}
+        {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
+          <a href="{{ project.url_for('rsvp_list') }}">See RSVP list</a>
+        {% endif %}
+      </div>
+    {%- endif %}
   </div>
+
 
   {% if project.featured_sessions  %}
   <div class="project-section" id="talks">
@@ -155,30 +183,6 @@
         {%- endif %}
         </p>
       </div>
-    </div>
-  </div>
-  {%- endif %}
-
-  {% if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
-  <div class="grid project-section" id="participate">
-    <div class="grid__col-xs-12">
-      {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
-        <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
-      {%- endif %}
-      {% if project.allow_rsvp -%}
-        <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
-        {%- if g.user %}
-          {{ rsvpform(project, rsvp_form) }}
-        {%- else %}
-          <p>
-            <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to rsvp">{% trans %}Login to RSVP{% endtrans %}</a>
-          </p>
-        {%- endif %}
-        {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
-          <a href="{{ project.url_for('rsvp_list') }}">See RSVP list</a>
-        {% endif %}
-      {%- endif %}
     </div>
   </div>
   {%- endif %}

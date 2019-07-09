@@ -18,6 +18,19 @@
   {%- endif %}
 {% endblock %}
 
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class=" mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--text-title mui--align-middle mui--text-dark" aria-hidden="true">arrow_back</i> {{project.title}}</a>
+    </div>
+  </div>
+  <div class="mui--hidden-xs mui--hidden-sm">
+    {{ project_header(project, current_page='proposals') }}
+  </div>
+{% endblock %}
+
 {%- macro proposal_list(project, proposals) %}
   <table id="proposals-table" class="proposal-list-table mui-table">
     <tbody>
@@ -66,31 +79,27 @@
   </table>
 {%- endmacro %}
 
-{% block headline %}
-  {{ project_header(project, current_page='proposals') }}
-{% endblock %}
-
 {% block contentwrapper %}
-  <div class="grid details-section">
-    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
+  <div class="grid">
+    <div class="grid__col-xs-12">
+      {% if current_auth.is_authenticated and project.current_roles.admin %}
         {{ admin_panel(project, cfp_transition_form=cfp_transition_form) }}
-      {% endif %}
+      {%- endif %}
     </div>
+  </div>
 
+  <div class="grid">
    {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
-    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="call-for-proposal">
-      <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8">
-        <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
-        {%- if project.instructions and project.instructions != "None" %}
-          <div class="project-section__instructions">{{ project.instructions }}</div>
-        {%- endif %}
-        {% if project.cfp_state.OPEN -%}
-          <p class="mui--text-left">
-            <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
-          </p>
-        {%- endif %}
-      </div>
+    <div class="grid__col-xs-12" id="call-for-proposal">
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
+      {%- if project.instructions and project.instructions != "None" %}
+        <div class="project-section__instructions">{{ project.instructions }}</div>
+      {%- endif %}
+      {% if project.cfp_state.OPEN -%}
+        <p class="mui--text-left">
+          <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
+        </p>
+      {%- endif %}
     </div>
   {%- endif %}
   </div>
