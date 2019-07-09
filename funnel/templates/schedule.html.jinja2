@@ -36,81 +36,85 @@
   </div>
 {% endblock %}
 
-{% block contentwrapper %}
-  <div class="grid">
-    <div class="grid__col-xs-12">
-      {% if current_auth.is_authenticated and project.current_roles.admin %}
-        {{ admin_panel(project, schedule_transition_form=schedule_transition_form) }}
-      {%- endif %}
-    </div>
-  </div>
+{% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          {% if current_auth.is_authenticated and project.current_roles.admin %}
+            {{ admin_panel(project, schedule_transition_form=schedule_transition_form) }}
+          {%- endif %}
+        </div>
+      </div>
 
-  <div class="grid" id="schedule">
-    <div class="grid__col-xs-12 schedule-grid">
-      <div class="schedule-table-container" id="project-schedule-table">
-        {% raw %}
-          <script id="scheduletemplate" type="text/ractive">
-            <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
-              <div class="tabs">
-                <button class="no-btn tabs__item {{#if view === 'calendar'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'calendar')">Calender view</button>
-                <button class="no-btn tabs__item {{#if view === 'agenda'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'agenda')">Agenda view</button>
-              </div>
-            </div>
-            {{#schedules:schedule}}
-              {{#schedule}}
-                <div class="schedule">
-                  <h2 class="mui--text-heading schedule__date">{{dateStr}}</h2>
-                  <div class="mui--bg-accent">
-                    <div class="schedule__row schedule__row--sticky">
-                        {{#if view === 'calendar'}}
-                          <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" style="min-width:{{timeSlotWidth}}px"><i class="material-icons mui--text-headline" style="position: relative;" aria-hidden="true">schedule</i>
-                          </p>
-                        {{/if}}
-                      {{#rooms:room, roomindex}}
-                        <div class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)"><p>{{title}}<br><small>{{venue_title}}</small></p></div>
-                      {{/}}
-                    </div>
-                    {{#sessions:session, index}}
-                      <div class="schedule__row {{#if view === 'calendar'}}schedule__row--calendar{{/if}} {{#if hasActiveRoom(sessions[session])}}js-active{{/if}} {{#if view === 'agenda' && !hasActiveRoom(sessions[session])}}schedule__row--hide{{/if}}" {{#if view === 'calendar'}}style="height: {{rowHeight}}px"{{/if}}>
-                        {{#if view === 'calendar'}}
-                          {{#if showLabel}}
-                            <a href="#t{{session}}" id="t{{session}}" class="schedule__row__column schedule__row__column--time schedule__row__column--time--pointer" style="min-width:{{timeSlotWidth}}px" on-click="disableScroll(event)">{{ getTimeStr(session) }}</a>
-                          {{else}}
-                            <p class="schedule__row__column schedule__row__column--time" style="min-width:{{timeSlotWidth}}px"></p>
-                          {{/if}}
-                        {{/if}}
-                        {{#rooms:room, roomIndex}}
-                          <div class="schedule__row__column schedule__row__column--{{rowWidth}} {{#if talks}}schedule__row__column--talks {{room}}{{/if}} {{#if talks && activeTab == room}}js-active{{/if}}" style="width: {{#if width && getColumnWidth('content')}}calc(100% - {{getColumnWidth('content')}}px);{{else}} 100%;{{/if}}" on-click="showSessionModal(event, '')">
-                            {{#if talks}}
-                              <div class="schedule__row__column__content {{#if view === 'calendar'}}schedule__row__column__content--calendar schedule__row__column__content--overflow{{/if}}" {{#if view === 'calendar'}}style="height: calc({{talks.duration}}*{{rowHeight}}px);"{{/if}} id="{{talks.url_name_suuid}}">
-                                <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
-                                <div class="schedule__row__column__content__title">
-                                  
-                                  {{#if talks.title}}
-                                    <p class="mui--text-subhead schedule__row__column__content__title__heading"><b>{{ talks.title }}</b></p>
-                                  {{/if}}
-                                  {{#if talks.speaker}}
-                                    <p class="mui--text-caption mui--text-light">{{ talks.speaker }}</p>
-                                  {{/if}}
-                                </div>
-                                {{#if talks.description}}
-                                  <div class="schedule__row__column__content__description mui--text-body1">{{{ removeImg(talks.description.html) }}}</div>
+      <div class="grid" id="schedule">
+        <div class="grid__col-xs-12 schedule-grid">
+          <div class="schedule-table-container" id="project-schedule-table">
+            {% raw %}
+              <script id="scheduletemplate" type="text/ractive">
+                <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
+                  <div class="tabs">
+                    <button class="no-btn tabs__item {{#if view === 'calendar'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'calendar')">Calender view</button>
+                    <button class="no-btn tabs__item {{#if view === 'agenda'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'agenda')">Agenda view</button>
+                  </div>
+                </div>
+                {{#schedules:schedule}}
+                  {{#schedule}}
+                    <div class="schedule">
+                      <h2 class="mui--text-heading schedule__date">{{dateStr}}</h2>
+                      <div class="mui--bg-accent">
+                        <div class="schedule__row schedule__row--sticky">
+                            {{#if view === 'calendar'}}
+                              <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" style="min-width:{{timeSlotWidth}}px"><i class="material-icons mui--text-headline" style="position: relative;" aria-hidden="true">schedule</i>
+                              </p>
+                            {{/if}}
+                          {{#rooms:room, roomindex}}
+                            <div class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)"><p>{{title}}<br><small>{{venue_title}}</small></p></div>
+                          {{/}}
+                        </div>
+                        {{#sessions:session, index}}
+                          <div class="schedule__row {{#if view === 'calendar'}}schedule__row--calendar{{/if}} {{#if hasActiveRoom(sessions[session])}}js-active{{/if}} {{#if view === 'agenda' && !hasActiveRoom(sessions[session])}}schedule__row--hide{{/if}}" {{#if view === 'calendar'}}style="height: {{rowHeight}}px"{{/if}}>
+                            {{#if view === 'calendar'}}
+                              {{#if showLabel}}
+                                <a href="#t{{session}}" id="t{{session}}" class="schedule__row__column schedule__row__column--time schedule__row__column--time--pointer" style="min-width:{{timeSlotWidth}}px" on-click="disableScroll(event)">{{ getTimeStr(session) }}</a>
+                              {{else}}
+                                <p class="schedule__row__column schedule__row__column--time" style="min-width:{{timeSlotWidth}}px"></p>
+                              {{/if}}
+                            {{/if}}
+                            {{#rooms:room, roomIndex}}
+                              <div class="schedule__row__column schedule__row__column--{{rowWidth}} {{#if talks}}schedule__row__column--talks {{room}}{{/if}} {{#if talks && activeTab == room}}js-active{{/if}}" style="width: {{#if width && getColumnWidth('content')}}calc(100% - {{getColumnWidth('content')}}px);{{else}} 100%;{{/if}}" on-click="showSessionModal(event, '')">
+                                {{#if talks}}
+                                  <div class="schedule__row__column__content {{#if view === 'calendar'}}schedule__row__column__content--calendar schedule__row__column__content--overflow{{/if}}" {{#if view === 'calendar'}}style="height: calc({{talks.duration}}*{{rowHeight}}px);"{{/if}} id="{{talks.url_name_suuid}}">
+                                    <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
+                                    <div class="schedule__row__column__content__title">
+                                      
+                                      {{#if talks.title}}
+                                        <p class="mui--text-subhead schedule__row__column__content__title__heading"><b>{{ talks.title }}</b></p>
+                                      {{/if}}
+                                      {{#if talks.speaker}}
+                                        <p class="mui--text-caption mui--text-light">{{ talks.speaker }}</p>
+                                      {{/if}}
+                                    </div>
+                                    {{#if talks.description}}
+                                      <div class="schedule__row__column__content__description mui--text-body1">{{{ removeImg(talks.description.html) }}}</div>
+                                    {{/if}}
+                                  </div>
                                 {{/if}}
                               </div>
-                            {{/if}}
+                            {{/}}
                           </div>
                         {{/}}
                       </div>
-                    {{/}}
-                  </div>
+                    </div>
+                  {{/}}
+                {{/}}
+                <div id="session-modal" class="session-modal session-modal--nopadding">
+                  {{{modalHtml}}}
                 </div>
-              {{/}}
-            {{/}}
-            <div id="session-modal" class="session-modal session-modal--nopadding">
-              {{{modalHtml}}}
-            </div>
-          </script>
-        {% endraw %}
+              </script>
+            {% endraw %}
+          </div>
+        </div>
       </div>
     </div>
   </div>

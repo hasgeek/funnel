@@ -91,6 +91,16 @@
   padding-bottom: 15px;
 }
 
+.page-content--mob-nav {
+  padding-top: 80px;
+}
+
+@media(min-width: 768px) {
+  .page-content--mob-nav {
+    padding-top: 30px;
+  }
+}
+
 .nounderline {
   text-decoration: none !important;
 }
