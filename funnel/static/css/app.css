@@ -1819,7 +1819,7 @@ html.touch .collapsible__body--disable {
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
   background-color: #fff;
-  width: calc(100% - 1px);
+  width: 100%;
   padding: 5px 15px 0;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
@@ -1833,13 +1833,13 @@ html.touch .collapsible__body--disable {
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading:hover {
   color: #4A90E2;
 }
-.schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__decription {
+.schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__description {
   clear: both;
   padding-top: 15px;
   padding-bottom: 15px;
   word-break: break-all;
 }
-.schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__decription img {
+.schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__description img {
   width: 100%;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content p {
@@ -1890,6 +1890,7 @@ html.touch .collapsible__body--disable {
   background-color: #fff;
   background-image: none !important;
   border-bottom: 2px solid rgba(132, 146, 166, 0.3);
+  width: 100% !important;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header.js-tab-active {
   border-bottom: 2px solid #856A91;
@@ -1958,9 +1959,14 @@ html.touch .collapsible__body--disable {
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
     outline: 1px solid rgba(132, 146, 166, 0.3);
+    width: calc(100% - 1px);
+    border-bottom: 0;
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title__duration {
     top: 205px;
+  }
+  .schedule-grid .schedule .schedule__row .schedule__row__column--1 .schedule__row__column__content {
+    width: 100%;
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column--time {
     display: block;
@@ -1984,7 +1990,7 @@ html.touch .collapsible__body--disable {
   }
   .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {
     outline: 1px solid rgba(132, 146, 166, 0.3);
-    border-bottom: 0 !important;
+    border: none !important;
   }
   .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--time--header {
     display: block;

@@ -32,7 +32,7 @@ const Schedule = {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
         getColumnWidth(columnType) {
-          if (columnType === 'header' || this.get('width') > 991) {
+          if (columnType === 'header' || this.get('width') > 767) {
             return (this.get('timeSlotWidth')/this.get('rowWidth'));
           } else {
             return 0;

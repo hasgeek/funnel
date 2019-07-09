@@ -15,7 +15,7 @@
       .schedule__row__column {
         .schedule__row__column__content {
           background-color: #fff;
-          width: calc(100% - 1px);
+          width: 100%;
           padding: 5px 15px 0;
           border-bottom: 1px solid rgba(132,146,166,0.3);
 
@@ -32,15 +32,15 @@
             }
           }
 
-          .schedule__row__column__content__decription {
+          .schedule__row__column__content__description {
             clear: both;
-              padding-top: 15px;
-              padding-bottom: 15px;
-              word-break: break-all;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            word-break: break-all;
 
-              img {
-                width: 100%;
-              }
+            img {
+              width: 100%;
+            }
           }
 
           p {
@@ -104,6 +104,7 @@
         background-color: #fff;
         background-image: none !important;
         border-bottom: 2px solid rgba(132,146,166,0.3);
+        width: 100% !important;
       }
 
       .schedule__row__column--header.js-tab-active {
@@ -186,10 +187,15 @@
           }
           .schedule__row__column__content {
             outline: 1px solid rgba(132,146,166,0.3);
+            width: calc(100% - 1px);
+            border-bottom: 0;
             .schedule__row__column__content__title__duration {
               top: 205px;
             }
           }
+        }
+        .schedule__row__column--1 .schedule__row__column__content {
+          width: 100%;
         }
         .schedule__row__column--time {
           display: block;
@@ -213,7 +219,7 @@
         top: 108px;
         .schedule__row__column--header {
           outline: 1px solid rgba(132,146,166,0.3);
-          border-bottom: 0 !important;
+          border: none !important;
         }
         .schedule__row__column--time--header {
           display: block;
