@@ -521,14 +521,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.all_unsorted(legacy).order_by(cls.date.desc())
+        return cls.all_unsorted(legacy).order_by(cls.schedule_start_at.desc())
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
         currently_listed_projects = cls.query.filter_by(parent_project=None).filter(cls.state.PUBLISHED)
         if legacy is not None:
             currently_listed_projects = currently_listed_projects.join(Profile).filter(Profile.legacy == legacy)
-        currently_listed_projects = currently_listed_projects.order_by(cls.date.desc())
+        currently_listed_projects = currently_listed_projects.order_by(cls.schedule_start_at.desc())
         return currently_listed_projects
 
     def roles_for(self, actor=None, anchors=()):
