@@ -1,7 +1,8 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
-{% block title %}{{ project.title }}{% endblock %}
+{% block title %}Setup events{% endblock %}
 {% block pageheaders %}
 {% endblock %}
 
@@ -57,63 +58,67 @@
       </ul>
     </div>
   </div>
-  <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='participants-table'>
-    <thead>
-      <tr class="active">
-        <th>Name</th>
-        <th data-sort-ignore="true">Tickets</th>
-        <th data-hide="phone">Email</th>
-        <th data-hide="tablet, phone">Company</th>
-        <th data-sort-ignore="true">Actions</th>
-      </tr>
-    </thead>
-    <tbody id="participants-table-content">
-      {% raw %}
-      <script id='participant-row' type='text/ractive'>
-      {{#each participants}}
-        <tr id="p-{{ pid }}">
-          <td class='js-searchable' data-th="Name">{{ fullname }}</td>
-          <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
-          <td class='js-searchable' data-th="Email">{{ email }}</td>
-          <td class='js-searchable' data-th="Company">{{ company }}</td>
-          <td class='buttongrp-column'>
-            <ul class="mui-list--unstyled">
-              <li>
-                <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
-              </li>
-              <li>
-                <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
-                  <div style="display:none;">
-                    <input id="csrf_token" name="csrf_token" value="{{ getCsrfToken() }}" type="hidden">
-                  </div>
-                  <input type="hidden" name="pid" value="{{ pid }}">
-                  {{#if checked_in}}
-                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} arial-label="Cancel Check-in">Cancel Check-in  {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i>{{/submitting}}</button>
-                  {{else}}
-                    <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} arial-label=" Check-in">Check-in {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i>{{/submitting}}</button>
+  <div class="grid">
+    <div class="grid__col-xs-12 mui-table--responsive-wrapper">
+      <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='participants-table'>
+        <thead>
+          <tr class="active">
+            <th>Name</th>
+            <th>Tickets</th>
+            <th>Email</th>
+            <th>Company</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="participants-table-content">
+          {% raw %}
+          <script id='participant-row' type='text/ractive'>
+          {{#each participants}}
+            <tr id="p-{{ pid }}">
+              <td class='js-searchable' data-th="Name">{{ fullname }}</td>
+              <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
+              <td class='js-searchable' data-th="Email">{{ email }}</td>
+              <td class='js-searchable' data-th="Company">{{ company }}</td>
+              <td class='buttongrp-column'>
+                <ul class="mui-list--unstyled">
+                  <li>
+                    <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
+                  </li>
+                  <li>
+                    <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
+                      <div style="display:none;">
+                        <input id="csrf_token" name="csrf_token" value="{{ getCsrfToken() }}" type="hidden">
+                      </div>
+                      <input type="hidden" name="pid" value="{{ pid }}">
+                      {{#if checked_in}}
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} arial-label="Cancel Check-in">Cancel Check-in  {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i>{{/submitting}}</button>
+                      {{else}}
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} arial-label=" Check-in">Check-in {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i>{{/submitting}}</button>
+                      {{/if}}
+                      {{#if submitting}}
+                        {{#if checked_in}}
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="cancel" arial-label="Cancel"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
+                        {{else}}
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="cancel" arial-label="Cancel"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
+                        {{/if}}
+                      {{/if}}
+                    </form>
+                  </li>
+                  {{#if isAdmin}}
+                  <li>
+                    <a href="{{ getEditUrl(pid) }}" class="mui--text-hyperlink" target="_blank">Edit attendee details</a>
+                  </li>
                   {{/if}}
-                  {{#if submitting}}
-                    {{#if checked_in}}
-                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="cancel" arial-label="Cancel"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
-                    {{else}}
-                      <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="cancel" arial-label="Cancel"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
-                    {{/if}}
-                  {{/if}}
-                </form>
-              </li>
-              {{#if isAdmin}}
-              <li>
-                <a href="{{ getEditUrl(pid) }}" class="mui--text-hyperlink" target="_blank">Edit attendee details</a>
-              </li>
-              {{/if}}
-            </ul>
-          </td>
-        </tr>
-      {{/each}}
-      </script>
-      {% endraw %}
-    </tbody>
-  </table>
+                </ul>
+              </td>
+            </tr>
+          {{/each}}
+          </script>
+          {% endraw %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 {% endblock %}
 
 {% block footerscripts %}

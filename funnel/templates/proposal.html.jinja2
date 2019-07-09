@@ -1,7 +1,8 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {% from "comments.html.jinja2" import commenttree %}
-{% block title %}{{ proposal.title }} &ndash; {{ project.title }}{% endblock %}
+{% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
     {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
@@ -10,7 +11,7 @@
   {%- endif -%}
 {% endblock %}
 
-{%- block layoutheaders %}
+{%- block pageheaders %}
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
@@ -35,18 +36,20 @@
 
 {% block contentwrapper %}
 <div class="grid">
-  <div class="slider-btn-wrapper clearfix">
-    <div class="slider-btn {% if proposal.getnext() %} slider-btn--push-down {% endif %} mui--pull-left">
-      {%- if proposal.getprev() -%}
-        <p class="mui--text-title mui--text-light {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">Previous proposal</p>
-        <a href="{{ proposal.url_for('prev') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold"><i class="material-icons mui--text-light" aria-hidden="true">arrow_back</i> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">{{ proposal.getprev().title }}</span></p></a>
-      {%- endif -%}
-    </div>
-    <div class="slider-btn slider-btn--right mui--pull-right">
-      {%- if proposal.getnext() -%}
-        <p class="mui--text-title mui--text-light mui--text-right">Next proposal</p>
-        <a href="{{ proposal.url_for('next') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold mui--text-right"><span class="truncate-title">{{ proposal.getnext().title }}</span> <i class="material-icons mui--text-light" aria-hidden="true">arrow_forward</i></p></a>
-      {%- endif -%}
+  <div class="grid__col-xs-12">
+    <div class="slider-btn-wrapper clearfix">
+      <div class="slider-btn {% if proposal.getnext() %} slider-btn--push-down {% endif %} mui--pull-left">
+        {%- if proposal.getprev() -%}
+          <p class="mui--text-title mui--text-light {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">Previous proposal</p>
+          <a href="{{ proposal.url_for('prev') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold"><i class="material-icons mui--text-light" aria-hidden="true">arrow_back</i> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">{{ proposal.getprev().title }}</span></p></a>
+        {%- endif -%}
+      </div>
+      <div class="slider-btn slider-btn--right mui--pull-right">
+        {%- if proposal.getnext() -%}
+          <p class="mui--text-title mui--text-light mui--text-right">Next proposal</p>
+          <a href="{{ proposal.url_for('next') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold mui--text-right"><span class="truncate-title">{{ proposal.getnext().title }}</span> <i class="material-icons mui--text-light" aria-hidden="true">arrow_forward</i></p></a>
+        {%- endif -%}
+      </div>
     </div>
   </div>
   <div class="grid__col-xs-12 proposal-wrapper">

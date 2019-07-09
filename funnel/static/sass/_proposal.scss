@@ -3,7 +3,7 @@
   border: 1px solid rgba(132, 146, 166, 0.3);
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
   padding: 0;
-  margin-bottom: 70px;
+  margin: 0 15px 70px;
   position: relative;
 }
 
@@ -61,7 +61,7 @@
 }
 
 .proposal__section {
-  padding: 15px 30px 30px;
+  padding: 15px;
   overflow-wrap: break-word;
 }
 
@@ -77,14 +77,13 @@
 @media (min-width: 992px) {
   .proposal__section--left {
     float: left;
-    width: calc(70% - 30px);
+    width: calc(70% - 15px);
     padding-bottom: 15px;
   }
 
   .proposal__admin-panel {
     float: right;
-    width: calc(30% - 30px);
-    margin-right: 30px;
+    width: calc(30% - 15px);
     margin-top: 30px;
   }
 

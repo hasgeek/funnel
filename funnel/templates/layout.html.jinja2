@@ -2,7 +2,7 @@
 {% from "baseframe/components.html.jinja2" import hgtopnav with context %}
 
 {%- block titletags %}
-  <title>{% block title %}{{ title }}{% if config['SITE_TITLE'] %} — {{ config['SITE_TITLE'] }}{% endif %}{% endblock %}</title>
+  <title>{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}</title>
   <meta name="DC.title" content="{{ self.title()|e }}" />
   <meta property="og:title" content="{{ self.title()|e }}" />
   <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
@@ -91,8 +91,6 @@
 {% endblock %}
 
 {% block contenthead %}
-  {% block banner %}
-  {% endblock %}
   {% block headline -%}
     <div class="content-head content-head--top-padding mui--bg-accent">
       <div class="mui-container">
@@ -110,19 +108,26 @@
   {%- endblock %}
 {% endblock %}
 
-{%- block baseheadline %}
-  {% block ads %}
-  {% endblock %}
-{% endblock %}
 
-{% block basecontent %}
-  <div class="page-content">
-    {% block contentwrapper %}
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        {% block content %}{% endblock %}
+{%- block basecontentbox %}
+    {%- block messages %}
+      <div class="mui-container">
+        {{ flash_messages() }}
       </div>
-    </div>
+    {% endblock %}
+    {%- block baseheadline %}{% endblock %}
+    {% block basecontent %}
+      <div class="mui-container">
+        <div class="page-content">
+          {% block contentwrapper %}
+          <div class="grid">
+            <div class="grid__col-xs-12">
+              {% block content %}{% endblock %}
+            </div>
+          </div>
+          {% endblock %}
+        </div>
+      </div>
     {% endblock %}
   </div>
 {% endblock %}
@@ -132,14 +137,16 @@
   <div class="mui-container">
     <div class="grid mui--text-body2">
       <div class="grid__col-sm-12 mui--text-center">
-        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-19 HasGeek.  All rights reserved.{% endtrans %}{% endif %}</p>
-        <p><a href="/about/" title="about">About us and site policies</a>.</p>
+        <p>
+          {% trans %}&copy; 2010-19 HasGeek and contributors{% endtrans %} &middot;
+          <a href="/about/" title="about">{% trans %}About us and site policies{% endtrans %}</a>
+        </p>
       </div>
       </div>
     </div>
   </div>
   {%- else -%}
-    <span class="no-print">{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %}Copyright &copy; 2010-19 HasGeek{% endtrans %}{% endif %}</span>
+    <span class="no-print">{% trans %}&copy; 2010-19 HasGeek and contributors{% endtrans %}</span>
   {%- endif -%}
 {% endblock %}
 

@@ -42,7 +42,7 @@
       }
 
       .header__right-nav {
-        width: 66.6%;
+        width: 66.67%;
         padding: 0;
         padding-left: calc(calc(calc(100% - 127px)/3)/2);
 
@@ -123,7 +123,7 @@
         }
 
         .header__right-nav {
-          width: 30%;
+          width: 250px;
           padding-left: 0;
 
           .header__nav-list {
@@ -169,7 +169,7 @@
     }
 
     .content-wrapper {
-      padding-top: 52px;
+      padding-top: 50px;
     }
     .no-sticky-header {
       .header--fixed {
@@ -352,16 +352,26 @@ and (orientation: landscape) {
   }
 }
 
+@media (min-device-width: 768px)
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+  .sub-navbar-container--sticky {
+    top: 35px;
+  }
+}
+
 .sub-navbar {
   overflow: scroll;
   display: flex;
   align-items: center;
+  margin: 0 auto;
+  padding: 0 15px;
 
   .sub-navbar__item {
     display: inline-block;
     flex-shrink: 0;
-    padding: 1em;
-    margin: 0 0.5em;
+    padding: 15px;
+    margin: 0;
     text-decoration: none;
     border-bottom: 2px solid transparent;
     transition: border-color 1.5s ease;
@@ -395,13 +405,15 @@ and (orientation: landscape) {
 }
 
 .tabs-wrapper {
-  position: sticky;
-  order: 1;
-  top: 0;
-  z-index: 1000;
   background: #fff;
   box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
   width: 100%;
+}
+
+.tabs-wrapper--sticky {
+  position: sticky;
+  order: 1;
+  top: 0;
   z-index: 1000;
 }
 
@@ -425,12 +437,15 @@ and (orientation: landscape) {
   .tabs__item:hover,
   .tabs__item:focus {
     text-decoration: none;
+    outline: none;
   }
 
-  .tabs__item--active,
-  .tabs__item--active:first-child,
-  .tabs__item--active:last-child {
+  .tabs__item--active {
     border-bottom: 2px solid #856A91;
+  }
+
+  button.tabs__item--active {
+    background: #f2f2f2;
   }
 
   .tabs__item-control {
@@ -457,12 +472,20 @@ and (orientation: landscape) {
   .tabs-navbar .header {
     box-shadow: none;
   }
-  .tabs-wrapper {
+  .tabs-wrapper--sticky {
     top: 50px;
 
     .tabs__item-control {
       display: none;
     }
+  }
+}
+
+@media (min-device-width: 768px)
+and (max-device-width: 1200px)
+and (orientation: landscape) {
+  .tabs-wrapper--sticky {
+    top: 35px;
   }
 }
 
