@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from flask_lastuser.sqlalchemy import TeamBase, UserBase2
-
 from sqlalchemy.ext.hybrid import hybrid_property
-
 from sqlalchemy_utils import UUIDType
 
-from coaster.utils import buid2uuid, uuid2buid
 from coaster.sqlalchemy import SqlBuidComparator
+from coaster.utils import buid2uuid, uuid2buid
+from flask_lastuser.sqlalchemy import TeamBase, UserBase2
 
 from . import UuidMixin, db
 

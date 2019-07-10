@@ -1,11 +1,16 @@
+# -*- coding: utf-8 -*-
+
 import six
-import requests
-from urlparse import urljoin
-from urlparse import urlparse
+
+from urlparse import urljoin, urlparse
+
 from flask import current_app
-from baseframe import cache
+
 import qrcode
 import qrcode.image.svg
+import requests
+
+from baseframe import cache
 
 
 @cache.memoize(timeout=86400)

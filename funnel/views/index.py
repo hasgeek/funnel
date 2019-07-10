@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-from flask import g, render_template, redirect, jsonify, Response
-from coaster.views import jsonp, load_model, render_with, ClassView, route
+
+from flask import Response, g, jsonify, redirect, render_template
+
+from coaster.views import ClassView, jsonp, load_model, render_with, route
+
 from .. import app, funnelapp, pages
-from ..models import db, Project, Proposal
+from ..models import Project, Proposal, db
 from .project import project_data
 
 
