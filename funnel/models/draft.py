@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy_utils import UUIDType
+
 from werkzeug.datastructures import MultiDict
-from . import db, JsonDict, NoIdMixin
+
+from . import JsonDict, NoIdMixin, db
 
 __all__ = ['Draft']
 

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.sql import case, exists
-from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.sql import case, exists
 
-from . import db, BaseScopedNameMixin, TSVectorType
+from . import BaseScopedNameMixin, TSVectorType, db
+from .helpers import add_search_trigger
 from .project import Project
 from .proposal import Proposal
-from .helpers import add_search_trigger
-
 
 proposal_label = db.Table(
     'proposal_label', db.Model.metadata,

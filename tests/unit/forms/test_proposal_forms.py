@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from flask import current_app
-from funnel.forms import ProposalLabelsForm, ProposalLabelsAdminForm
+
+from funnel.forms import ProposalLabelsAdminForm, ProposalLabelsForm
 from funnel.models import Proposal
 
 

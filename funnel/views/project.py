@@ -1,24 +1,50 @@
 # -*- coding: utf-8 -*-
 
-import unicodecsv
 import six
-from flask import g, flash, redirect, Response, request, abort, current_app, render_template
+
+from flask import (
+    Response,
+    abort,
+    current_app,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+)
+
+import unicodecsv
+
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool
-from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    jsonp,
+    render_with,
+    requires_permission,
+    route,
+)
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Project, Proposal, Rsvp, RSVP_STATUS
-from ..forms import (ProjectForm, RsvpForm, ProjectTransitionForm,
-    ProjectBoxofficeForm, CfpForm, ProjectScheduleTransitionForm, ProjectCfpTransitionForm)
-from ..jobs import tag_locations, import_tickets
-from .proposal import proposal_headers, proposal_data, proposal_data_flat
-from .schedule import schedule_data
-from .venue import venue_data, room_data
-from .mixins import ProjectViewMixin, ProfileViewMixin, DraftViewMixin
+from ..forms import (
+    CfpForm,
+    ProjectBoxofficeForm,
+    ProjectCfpTransitionForm,
+    ProjectForm,
+    ProjectScheduleTransitionForm,
+    ProjectTransitionForm,
+    RsvpForm,
+)
+from ..jobs import import_tickets, tag_locations
+from ..models import RSVP_STATUS, Project, Proposal, Rsvp, db
 from .decorators import legacy_redirect
+from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .proposal import proposal_data, proposal_data_flat, proposal_headers
+from .schedule import schedule_data
+from .venue import room_data, venue_data
 
 
 def project_data(project):

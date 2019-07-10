@@ -1,22 +1,36 @@
 # -*- coding: utf-8 -*-
 
+from flask import Markup, abort, escape, flash, g, redirect, request
+
 from bleach import linkify
 
-from flask import g, redirect, request, Markup, abort, flash, escape
-from coaster.utils import make_name, utcnow
-from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
-from coaster.auth import current_auth
 from baseframe import _
-from baseframe.forms import render_form, render_delete_sqla, Form
+from baseframe.forms import Form, render_delete_sqla, render_form
+from coaster.auth import current_auth
+from coaster.utils import make_name, utcnow
+from coaster.views import (
+    ModelView,
+    UrlChangeCheck,
+    UrlForView,
+    jsonp,
+    render_with,
+    requires_permission,
+    route,
+)
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Proposal, Comment
-from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
-    ProposalTransitionForm, ProposalMoveForm, ProposalTransferForm,
-    ProposalLabelsAdminForm)
-from .mixins import ProjectViewMixin, ProposalViewMixin
+from ..forms import (
+    CommentForm,
+    DeleteCommentForm,
+    ProposalForm,
+    ProposalLabelsAdminForm,
+    ProposalMoveForm,
+    ProposalTransferForm,
+    ProposalTransitionForm,
+)
+from ..models import Comment, Proposal, db
 from .decorators import legacy_redirect
-
+from .mixins import ProjectViewMixin, ProposalViewMixin
 
 proposal_headers = [
     'id',

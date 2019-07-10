@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy.exc import StatementError
+
 import pytest
 from furl import furl
-from sqlalchemy.exc import StatementError
 
 
 class TestProfile(object):

@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from flask import g, Markup, request, flash, url_for, redirect
-from coaster.views import route, requires_permission, render_with, jsonp, UrlForView, ModelView
+from flask import Markup, flash, g, redirect, request, url_for
+
 from baseframe import _
-from baseframe.forms import render_message, render_redirect, render_form
-from ..models import db, Profile, Team, Project
-from ..forms import NewProfileForm, EditProfileForm
+from baseframe.forms import render_form, render_message, render_redirect
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    jsonp,
+    render_with,
+    requires_permission,
+    route,
+)
+
 from .. import app, funnelapp, lastuser
+from ..forms import EditProfileForm, NewProfileForm
+from ..models import Profile, Project, Team, db
+from .decorators import legacy_redirect
 from .mixins import ProfileViewMixin
 from .project import project_data
-from .decorators import legacy_redirect
 
 
 # @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018

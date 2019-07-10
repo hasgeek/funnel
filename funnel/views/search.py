@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, namedtuple
-from flask import Markup, request, redirect, url_for
-import sqlalchemy.sql.expression as expression
-from coaster.utils import for_tsquery
-from coaster.views import requestargs, render_with, route, ClassView
-from baseframe import __
-from ..models import db, User, Profile, Project, Proposal, Session, Comment
-from .. import app, funnelapp
 
+import sqlalchemy.sql.expression as expression
+
+from flask import Markup, redirect, request, url_for
+
+from baseframe import __
+from coaster.utils import for_tsquery
+from coaster.views import ClassView, render_with, requestargs, route
+
+from .. import app, funnelapp
+from ..models import Comment, Profile, Project, Proposal, Session, User, db
 
 # --- Definitions -------------------------------------------------------------
 

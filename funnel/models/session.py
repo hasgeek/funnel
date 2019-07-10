@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.hybrid import hybrid_property
-from . import db, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, UrlType, TSVectorType
+
+from . import (
+    BaseScopedIdNameMixin,
+    MarkdownColumn,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+)
+from .helpers import add_search_trigger
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
-from .helpers import add_search_trigger
-
 
 __all__ = ['Session']
 

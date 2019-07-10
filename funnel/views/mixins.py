@@ -1,10 +1,25 @@
+# -*- coding: utf-8 -*-
+
 from uuid import uuid4
+
 from flask import abort, g, redirect, request
+from werkzeug.datastructures import MultiDict
+
 from baseframe import _, forms
 from coaster.utils import require_one_of
-from werkzeug.datastructures import MultiDict
-from ..models import (Draft, Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
-    Venue, VenueRoom, db)
+
+from ..models import (
+    Draft,
+    Profile,
+    Project,
+    ProjectRedirect,
+    Proposal,
+    ProposalRedirect,
+    Session,
+    Venue,
+    VenueRoom,
+    db,
+)
 
 
 class ProjectViewMixin(object):

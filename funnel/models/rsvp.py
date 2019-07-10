@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import StateManager
 from baseframe import __
-from . import db, TimestampMixin
+from coaster.sqlalchemy import StateManager
+from coaster.utils import LabeledEnum
+
+from . import TimestampMixin, db
 from .project import Project
 from .user import User
 
