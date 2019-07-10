@@ -220,7 +220,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         Only ``schedule_start_at`` format changes.
         """
         daterange = u""
-        if self.schedule_start_at and self.schedule_end_at:
+        if self.schedule_start_at is not None and self.schedule_end_at is not None:
             schedule_start_at_date = self.schedule_start_at.astimezone(self.timezone).date()
             schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
             daterange_format = u"{start_date}–{end_date} {year}"
@@ -554,17 +554,17 @@ add_search_trigger(Project, 'search_vector')
 
 
 Profile.listed_projects = db.relationship(
-        Project, lazy='dynamic',
-        primaryjoin=db.and_(
-            Profile.id == Project.profile_id, Project.parent_id == None,
-            Project.state.PUBLISHED))  # NOQA
+    Project, lazy='dynamic',
+    primaryjoin=db.and_(
+        Profile.id == Project.profile_id, Project.parent_id.is_(None),
+        Project.state.PUBLISHED))
 
 
 Profile.draft_projects = db.relationship(
-        Project, lazy='dynamic',
-        primaryjoin=db.and_(
-            Profile.id == Project.profile_id, Project.parent_id == None,
-            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)))  # NOQA
+    Project, lazy='dynamic',
+    primaryjoin=db.and_(
+        Profile.id == Project.profile_id, Project.parent_id.is_(None),
+        db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)))
 
 
 class ProjectRedirect(TimestampMixin, db.Model):

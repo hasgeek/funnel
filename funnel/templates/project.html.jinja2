@@ -12,20 +12,20 @@
   {
     "@context": "http://schema.org",
     "@type": "Event",
-    "name": "{{ project.title }}",
-    "url": "{{ project.url_for(_external=true) }}",
-    "startDate": "{{ project.schedule_start_at.isoformat() }}",
+    "name": {{ project.title|tojson }},
+    "url": {{ project.url_for(_external=true)|tojson }},
+    "startDate": {% if project.schedule_start_at %}{{ project.schedule_start_at.astimezone(project.timezone).isoformat()|tojson }}{% else %}null{% endif %},
     {% if project.primary_venue -%}
     "location": {
       "@type": "Place",
-      "name": "{{ project.primary_venue.title }}",
+      "name": {{ project.primary_venue.title|tojson }},
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "{{ project.primary_venue.address1 }}",
-        "addressLocality": "{{ project.primary_venue.city }}",
-        "addressRegion": "{{ project.primary_venue.state }}",
-        "postalCode": "{{ project.primary_venue.postcode }}",
-        "addressCountry": "{{ project.primary_venue.country }}"
+        "streetAddress": {{ project.primary_venue.address1|tojson }},
+        "addressLocality": {{ project.primary_venue.city|tojson }},
+        "addressRegion": {{ project.primary_venue.state|tojson }},
+        "postalCode": {{ project.primary_venue.postcode|tojson }},
+        "addressCountry": {{ project.primary_venue.country|tojson }}
       }
     },
     {%- endif -%}
@@ -34,11 +34,11 @@
       "{{ project.bg_image }}"
      ],
     {% endif -%}
-    "description": "{{ project.tagline|safe }}",
-    "endDate": "{{ project.schedule_end_at.isoformat() }}",
+    "description": {{ project.tagline|tojson }},
+    "endDate": {% if project.schedule_end_at %}{{ project.schedule_end_at.astimezone(project.timezone).isoformat() }}{% else %}null{% endif %},
     "offers": {
       "@type": "Offer",
-      "url": "{{ project.url_for(_external=true) }}"
+      "url": {{ project.url_for(_external=true)|tojson }}
     }
   }
   </script>
