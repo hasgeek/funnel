@@ -12,7 +12,6 @@
 {% endwith %}{% endmacro %}
 
 {% macro saveprojectform(project, form, proj_save_status) %}
-  {{proj_save_status}}
   <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ form.hidden_tag() }}
     <p class="no-jshidden">
