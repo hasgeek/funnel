@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """project location
 
 Revision ID: 9a0d8fa7da29
@@ -16,18 +18,29 @@ from coaster.sqlalchemy import JsonDict
 
 
 def upgrade():
-    op.create_table('project_location',
+    op.create_table(
+        'project_location',
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('project_id', sa.Integer(), nullable=False),
         sa.Column('geonameid', sa.Integer(), nullable=False),
         sa.Column('primary', sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(['project_id'], ['project.id'], ),
-        sa.PrimaryKeyConstraint('project_id', 'geonameid')
-        )
-    op.create_index(op.f('ix_project_location_geonameid'), 'project_location', ['geonameid'], unique=False)
-    op.add_column(u'project', sa.Column('location', sa.Unicode(length=50), nullable=True))
-    op.add_column(u'project', sa.Column('parsed_location', JsonDict(), server_default='{}', nullable=False))
+        sa.ForeignKeyConstraint(['project_id'], ['project.id']),
+        sa.PrimaryKeyConstraint('project_id', 'geonameid'),
+    )
+    op.create_index(
+        op.f('ix_project_location_geonameid'),
+        'project_location',
+        ['geonameid'],
+        unique=False,
+    )
+    op.add_column(
+        u'project', sa.Column('location', sa.Unicode(length=50), nullable=True)
+    )
+    op.add_column(
+        u'project',
+        sa.Column('parsed_location', JsonDict(), server_default='{}', nullable=False),
+    )
 
 
 def downgrade():

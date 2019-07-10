@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Contact exchange cascades
 
 Revision ID: 252f9a705901
@@ -15,24 +17,65 @@ from alembic import op
 
 
 def upgrade():
-    op.drop_constraint('contact_exchange_user_id_fkey', 'contact_exchange', type_='foreignkey')
-    op.drop_constraint('contact_exchange_project_id_fkey', 'contact_exchange', type_='foreignkey')
-    op.drop_constraint('contact_exchange_participant_id_fkey', 'contact_exchange', type_='foreignkey')
-    op.create_foreign_key('contact_exchange_user_id_fkey', 'contact_exchange',
-        'user', ['user_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key('contact_exchange_project_id_fkey', 'contact_exchange',
-        'project', ['project_id'], ['id'], ondelete='CASCADE')
-    op.create_foreign_key('contact_exchange_participant_id_fkey', 'contact_exchange',
-        'participant', ['participant_id'], ['id'], ondelete='CASCADE')
+    op.drop_constraint(
+        'contact_exchange_user_id_fkey', 'contact_exchange', type_='foreignkey'
+    )
+    op.drop_constraint(
+        'contact_exchange_project_id_fkey', 'contact_exchange', type_='foreignkey'
+    )
+    op.drop_constraint(
+        'contact_exchange_participant_id_fkey', 'contact_exchange', type_='foreignkey'
+    )
+    op.create_foreign_key(
+        'contact_exchange_user_id_fkey',
+        'contact_exchange',
+        'user',
+        ['user_id'],
+        ['id'],
+        ondelete='CASCADE',
+    )
+    op.create_foreign_key(
+        'contact_exchange_project_id_fkey',
+        'contact_exchange',
+        'project',
+        ['project_id'],
+        ['id'],
+        ondelete='CASCADE',
+    )
+    op.create_foreign_key(
+        'contact_exchange_participant_id_fkey',
+        'contact_exchange',
+        'participant',
+        ['participant_id'],
+        ['id'],
+        ondelete='CASCADE',
+    )
 
 
 def downgrade():
-    op.drop_constraint('contact_exchange_participant_id_fkey', 'contact_exchange', type_='foreignkey')
-    op.drop_constraint('contact_exchange_project_id_fkey', 'contact_exchange', type_='foreignkey')
-    op.drop_constraint('contact_exchange_user_id_fkey', 'contact_exchange', type_='foreignkey')
-    op.create_foreign_key('contact_exchange_participant_id_fkey', 'contact_exchange',
-        'participant', ['participant_id'], ['id'])
-    op.create_foreign_key('contact_exchange_project_id_fkey', 'contact_exchange',
-        'project', ['project_id'], ['id'])
-    op.create_foreign_key('contact_exchange_user_id_fkey', 'contact_exchange',
-        'user', ['user_id'], ['id'])
+    op.drop_constraint(
+        'contact_exchange_participant_id_fkey', 'contact_exchange', type_='foreignkey'
+    )
+    op.drop_constraint(
+        'contact_exchange_project_id_fkey', 'contact_exchange', type_='foreignkey'
+    )
+    op.drop_constraint(
+        'contact_exchange_user_id_fkey', 'contact_exchange', type_='foreignkey'
+    )
+    op.create_foreign_key(
+        'contact_exchange_participant_id_fkey',
+        'contact_exchange',
+        'participant',
+        ['participant_id'],
+        ['id'],
+    )
+    op.create_foreign_key(
+        'contact_exchange_project_id_fkey',
+        'contact_exchange',
+        'project',
+        ['project_id'],
+        ['id'],
+    )
+    op.create_foreign_key(
+        'contact_exchange_user_id_fkey', 'contact_exchange', 'user', ['user_id'], ['id']
+    )

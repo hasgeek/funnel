@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 SITE_TITLE = 'HasGeek App'
 #: Lastuser client id
 LASTUSER_CLIENT_ID = ''

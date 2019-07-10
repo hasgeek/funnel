@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """project datelocation drop
 
 Revision ID: 19a1f7f2a365
@@ -18,4 +20,13 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column('project', sa.Column('datelocation', sa.VARCHAR(length=50), autoincrement=False, server_default='', nullable=False))
+    op.add_column(
+        'project',
+        sa.Column(
+            'datelocation',
+            sa.VARCHAR(length=50),
+            autoincrement=False,
+            server_default='',
+            nullable=False,
+        ),
+    )

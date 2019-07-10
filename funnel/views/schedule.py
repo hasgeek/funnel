@@ -278,26 +278,26 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def updates(self):
         now = utcnow()
-        current = Session.query.filter(
+        current_session = Session.query.filter(
             Session.start_at <= now, Session.end_at >= now,
             Session.project == self.obj.venue.project,
             db.or_(Session.venue_room == room, Session.is_break == True)  # NOQA
             ).first()
-        next = Session.query.filter(
+        next_session = Session.query.filter(
             Session.start_at > now,
             db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
             Session.project == self.obj.venue.project
             ).order_by(Session.start_at).first()
-        if current:
-            current.start_at = localize_date(current.start_at, to_tz=self.obj.venue.project.timezone)
-            current.end_at = localize_date(current.end_at, to_tz=self.obj.venue.project.timezone)
+        if current_session:
+            current_session.start_at = localize_date(current_session.start_at, to_tz=self.obj.venue.project.timezone)
+            current_session.end_at = localize_date(current_session.end_at, to_tz=self.obj.venue.project.timezone)
         nextdiff = None
-        if next:
-            next.start_at = localize_date(next.start_at, to_tz=self.obj.venue.project.timezone)
-            next.end_at = localize_date(next.end_at, to_tz=self.obj.venue.project.timezone)
-            nextdiff = next.start_at.date() - now.date()
+        if next_session:
+            next_session.start_at = localize_date(next_session.start_at, to_tz=self.obj.venue.project.timezone)
+            next_session.end_at = localize_date(next_session.end_at, to_tz=self.obj.venue.project.timezone)
+            nextdiff = next_session.start_at.date() - now.date()
             nextdiff = nextdiff.total_seconds() / 86400
-        return dict(room=self.obj, current=current, next=next, nextdiff=nextdiff)
+        return dict(room=self.obj, current_session=current_session, next_session=next_session, nextdiff=nextdiff)
 
 
 @route('/<project>/schedule/<venue>/<room>', subdomain='<profile>')

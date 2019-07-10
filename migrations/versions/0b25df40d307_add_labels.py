@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add labels
 
 # Revision ID: 0b25df40d307
@@ -15,7 +17,8 @@ from alembic import op
 
 
 def upgrade():
-    op.create_table('label',
+    op.create_table(
+        'label',
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('project_id', sa.Integer(), nullable=False),
@@ -32,17 +35,20 @@ def upgrade():
         sa.ForeignKeyConstraint(['main_label_id'], ['label.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('project_id', 'name')
-        )
-    op.create_table('proposal_label',
+        sa.UniqueConstraint('project_id', 'name'),
+    )
+    op.create_table(
+        'proposal_label',
         sa.Column('proposal_id', sa.Integer(), nullable=False),
         sa.Column('label_id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(['label_id'], ['label.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ondelete='CASCADE'),
-        sa.PrimaryKeyConstraint('proposal_id', 'label_id')
-        )
-    op.create_index(op.f('ix_proposal_label_label_id'), 'proposal_label', ['label_id'], unique=False)
+        sa.PrimaryKeyConstraint('proposal_id', 'label_id'),
+    )
+    op.create_index(
+        op.f('ix_proposal_label_label_id'), 'proposal_label', ['label_id'], unique=False
+    )
 
 
 def downgrade():

@@ -125,7 +125,7 @@ class Label(BaseScopedNameMixin, db.Model):
         self._restricted = value
 
     @restricted.expression
-    def restricted(cls):
+    def restricted(cls):  # NOQA: N805
         return case([
             (cls.main_label_id != None, db.select([Label._restricted]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
         ], else_=cls._restricted)
@@ -139,7 +139,7 @@ class Label(BaseScopedNameMixin, db.Model):
         self._archived = value
 
     @archived.expression
-    def archived(cls):
+    def archived(cls):  # NOQA: N805
         return case([
             (cls._archived == True, cls._archived),  # NOQA
             (cls.main_label_id != None, db.select([Label._archived]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
@@ -150,7 +150,7 @@ class Label(BaseScopedNameMixin, db.Model):
         return bool(self.options)
 
     @has_options.expression
-    def has_options(cls):
+    def has_options(cls):  # NOQA: N805
         return exists().where(Label.main_label_id == cls.id)
 
     @property

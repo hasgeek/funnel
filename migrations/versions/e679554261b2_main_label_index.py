@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Main label index
 
 Revision ID: e679554261b2
@@ -15,7 +17,9 @@ from alembic import op
 
 
 def upgrade():
-    op.create_index(op.f('ix_label_main_label_id'), 'label', ['main_label_id'], unique=False)
+    op.create_index(
+        op.f('ix_label_main_label_id'), 'label', ['main_label_id'], unique=False
+    )
 
 
 def downgrade():

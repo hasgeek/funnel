@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """proposal instructions
 
 Revision ID: d576f55f9eba
@@ -15,8 +17,14 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('instructions_html', sa.UnicodeText(), nullable=True))
-    op.add_column('proposal_space', sa.Column('instructions_text', sa.UnicodeText(), nullable=True))
+    op.add_column(
+        'proposal_space',
+        sa.Column('instructions_html', sa.UnicodeText(), nullable=True),
+    )
+    op.add_column(
+        'proposal_space',
+        sa.Column('instructions_text', sa.UnicodeText(), nullable=True),
+    )
 
 
 def downgrade():

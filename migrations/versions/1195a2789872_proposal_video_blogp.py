@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Proposal video blogpost
 
 Revision ID: 1195a2789872
@@ -15,9 +17,15 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('proposal', sa.Column('blog_post', sa.Unicode(250), server_default=u'', nullable=False))
+    op.add_column(
+        'proposal',
+        sa.Column('blog_post', sa.Unicode(250), server_default=u'', nullable=False),
+    )
     op.alter_column('proposal', 'blog_post', server_default=None)
-    op.add_column('proposal', sa.Column('preview_video', sa.Unicode(250), server_default=u'', nullable=False))
+    op.add_column(
+        'proposal',
+        sa.Column('preview_video', sa.Unicode(250), server_default=u'', nullable=False),
+    )
     op.alter_column('proposal', 'preview_video', server_default=None)
 
 

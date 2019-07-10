@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Remove ProposalSpace.content
 
 Revision ID: 436114dffa00
@@ -21,5 +23,8 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column('proposal_space', sa.Column('content', JsonDict, server_default='{}', nullable=False))
+    op.add_column(
+        'proposal_space',
+        sa.Column('content', JsonDict, server_default='{}', nullable=False),
+    )
     op.alter_column('proposal_space', 'content', server_default=None)

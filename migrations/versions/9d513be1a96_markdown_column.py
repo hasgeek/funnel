@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Migrations for using MarkdownComposite
 
 Revision ID: 9d513be1a96

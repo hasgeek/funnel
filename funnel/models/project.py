@@ -36,7 +36,7 @@ __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
 # --- Constants ---------------------------------------------------------------
 
-class PROJECT_STATE(LabeledEnum):
+class PROJECT_STATE(LabeledEnum):  # NOQA: N801
     DRAFT = (0, 'draft', __(u"Draft"))
     PUBLISHED = (1, 'published', __(u"Published"))
     WITHDRAWN = (2, 'withdrawn', __(u"Withdrawn"))
@@ -45,7 +45,7 @@ class PROJECT_STATE(LabeledEnum):
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
-class CFP_STATE(LabeledEnum):
+class CFP_STATE(LabeledEnum):  # NOQA: N801
     NONE = (0, 'none', __(u"None"))
     PUBLIC = (1, 'public', __(u"Public"))
     CLOSED = (2, 'closed', __(u"Closed"))
@@ -53,7 +53,7 @@ class CFP_STATE(LabeledEnum):
     EXISTS = {PUBLIC, CLOSED}
 
 
-class SCHEDULE_STATE(LabeledEnum):
+class SCHEDULE_STATE(LabeledEnum):  # NOQA: N801
     DRAFT = (0, 'draft', __(u"Draft"))
     PUBLISHED = (1, 'published', __(u"Published"))
 
@@ -195,8 +195,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(Project, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROJECT)
-        self.commentset = Commentset(type=SET_TYPE.PROJECT)
+        self.voteset = Voteset(settype=SET_TYPE.PROJECT)
+        self.commentset = Commentset(settype=SET_TYPE.PROJECT)
 
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
@@ -445,10 +445,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             basequery = Proposal.query.filter(Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects]))
         else:
             basequery = Proposal.query.filter_by(project=self)
-        return dict(
-            confirmed=basequery.filter(Proposal.state.CONFIRMED).order_by(db.desc('created_at')).all(),
-            unconfirmed=basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(
-                db.desc('created_at')).all())
+        return {
+            'confirmed': basequery.filter(Proposal.state.CONFIRMED).order_by(db.desc('created_at')).all(),
+            'unconfirmed': basequery.filter(~Proposal.state.CONFIRMED, ~Proposal.state.DRAFT).order_by(
+                db.desc('created_at')).all()
+        }
 
     @cached_property
     def location_geonameid(self):
@@ -523,7 +524,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, legacy=None):
         """
         Return currently active events, sorted by date.

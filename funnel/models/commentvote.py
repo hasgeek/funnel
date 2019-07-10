@@ -13,7 +13,7 @@ __all__ = ['Voteset', 'Vote', 'Commentset', 'Comment']
 
 # --- Constants ---------------------------------------------------------------
 
-class COMMENT_STATE(LabeledEnum):
+class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     # If you add any new state, you need to add a migration to modify the check constraint
     PUBLIC = (0, 'public', __("Public"))
     SCREENED = (1, 'screened', __("Screened"))
@@ -23,7 +23,7 @@ class COMMENT_STATE(LabeledEnum):
 
 
 # What is this Voteset or Commentset attached to?
-class SET_TYPE:
+class SET_TYPE:  # NOQA: N801
     PROJECT = 0
     PROPOSAL = 2
     COMMENT = 3
@@ -33,7 +33,7 @@ class SET_TYPE:
 
 class Voteset(BaseMixin, db.Model):
     __tablename__ = 'voteset'
-    type = db.Column(db.Integer, nullable=True)
+    settype = db.Column('type', db.Integer, nullable=True)
     count = cached(db.Column(db.Integer, default=0, nullable=False))
 
     def __init__(self, **kwargs):
@@ -77,7 +77,7 @@ class Vote(BaseMixin, db.Model):
 
 class Commentset(BaseMixin, db.Model):
     __tablename__ = 'commentset'
-    type = db.Column(db.Integer, nullable=True)
+    settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
 
     def __init__(self, **kwargs):
@@ -130,7 +130,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.COMMENT)
+        self.voteset = Voteset(settype=SET_TYPE.COMMENT)
 
     @property
     def absolute_url(self):
