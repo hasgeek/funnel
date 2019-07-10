@@ -67,8 +67,8 @@
     </div>
   </div>
 
-  <div class="grid">
-    <div class="{% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}grid__col-sm-4{% elif project.allow_rsvp -%}grid__col-sm-6{% else %}grid__col-sm-12{% endif %}" id="about">
+  <div class="grid about-ticket-wrapper">
+    <div class="{% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}grid__col-sm-7{% elif project.allow_rsvp -%}grid__col-sm-6{% else %}grid__col-sm-12{% endif %}" id="about">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">About</h2>
       <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
@@ -99,7 +99,7 @@
     </div>
 
     {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-      <div class="grid__col-sm-8 mui--hidden-xs mui--hidden-sm" id="participate">
+      <div class="grid__col-sm-5 mui--hidden-xs mui--hidden-sm" id="participate">
         {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
           <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
           <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>

@@ -36,6 +36,7 @@
     align-items: center;
     justify-content: space-between;
     margin: 15px 0;
+    max-width: 300px;
 
     .project-banner__action__icon {
       height: 24px;
@@ -117,6 +118,7 @@
       margin: 0;
     }
     .project-banner__action {
+      max-width: 100%;
       .project-banner__action__social {
         justify-content: space-between;
         width: calc(100% - 200px);
@@ -141,6 +143,20 @@
         }
       }
     }
+  }
+}
+
+.about-ticket-wrapper {
+  align-items: flex-start;
+
+  #participate {
+    padding-left: 30px;
+  }
+
+  #boxoffice-widget {
+    padding-top: 0;
+    max-width: 100%;
+    margin: 0;
   }
 }
 

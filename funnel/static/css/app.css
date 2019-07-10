@@ -1263,6 +1263,7 @@ html.touch .collapsible__body--disable {
   align-items: center;
   justify-content: space-between;
   margin: 15px 0;
+  max-width: 300px;
 }
 .project-banner .project-banner__action .project-banner__action__icon {
   height: 24px;
@@ -1333,6 +1334,9 @@ html.touch .collapsible__body--disable {
     background-color: transparent;
     margin: 0;
   }
+  .project-banner .project-banner__action {
+    max-width: 100%;
+  }
   .project-banner .project-banner__action .project-banner__action__social {
     justify-content: space-between;
     width: calc(100% - 200px);
@@ -1349,6 +1353,18 @@ html.touch .collapsible__body--disable {
     display: flex;
   }
 }
+.about-ticket-wrapper {
+  align-items: flex-start;
+}
+.about-ticket-wrapper #participate {
+  padding-left: 30px;
+}
+.about-ticket-wrapper #boxoffice-widget {
+  padding-top: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
 .session-image {
   max-height: 280px;
   position: relative;
