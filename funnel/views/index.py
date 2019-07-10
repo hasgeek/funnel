@@ -8,13 +8,9 @@ from ..models import db, Project, Proposal
 from .project import project_data
 
 
-def index_jsonify(data):
-    return jsonify(projects=[d for d in [s.current_access() for s in data['projects']] if d])
-
-
 @route('/')
 class IndexView(ClassView):
-    @render_with({'text/html': 'index.html.jinja2', 'application/json': index_jsonify})
+    @render_with('index.html.jinja2', json=True)
     def home(self):
         g.profile = None
         projects = Project.all_unsorted(legacy=False)
@@ -51,7 +47,7 @@ class IndexView(ClassView):
 
 @route('/')
 class FunnelIndexView(ClassView):
-    @render_with({'text/html': 'funnelindex.html.jinja2', 'application/json': index_jsonify})
+    @render_with('funnelindex.html.jinja2', json=True)
     def home(self):
         g.profile = None
         projects = Project.fetch_sorted(legacy=True).all()  # NOQA
