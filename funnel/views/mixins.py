@@ -19,11 +19,20 @@ class ProjectViewMixin(object):
             projredir = ProjectRedirect.query.join(Profile).filter(
                 ProjectRedirect.name == project, Profile.name == profile
                 ).first_or_404()
-            proj = projredir.project
+            return projredir
         if proj.state.DELETED:
             abort(410)
-        g.profile = proj.profile
         return proj
+
+    def after_loader(self):
+        if isinstance(self.obj, ProjectRedirect):
+            if self.obj.project:
+                g.profile = self.obj.project.profile
+                return redirect(self.obj.project.url_for())
+            else:
+                abort(410)
+        g.profile = self.obj.profile
+        return super(ProjectViewMixin, self).after_loader()
 
 
 class ProfileViewMixin(object):
