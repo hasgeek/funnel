@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from flask import flash, request
-from coaster.views import route, render_with, requires_permission, UrlForView, ModelView
+
 from baseframe import _
-from baseframe.forms import render_redirect, render_form, render_delete_sqla
+from baseframe.forms import render_delete_sqla, render_form, render_redirect
+from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Venue, VenueRoom
-from ..forms.venue import VenueForm, VenueRoomForm, VenuePrimaryForm
-from .mixins import ProjectViewMixin, VenueViewMixin, VenueRoomViewMixin
+from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
+from ..models import Venue, VenueRoom, db
 from .decorators import legacy_redirect
-
+from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']

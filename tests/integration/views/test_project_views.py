@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from werkzeug.datastructures import MultiDict
-from funnel.models import Label
+
 from funnel.forms import LabelForm
+from funnel.models import Label
 
 
 class TestProjectViews(object):

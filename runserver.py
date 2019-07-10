@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import sys
+
 from funnel import app
 
 try:

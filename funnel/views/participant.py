@@ -1,18 +1,37 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, render_template, request, url_for, jsonify, make_response
 from sqlalchemy.exc import IntegrityError
-from baseframe import _
-from baseframe import forms
+
+from flask import (
+    flash,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+
+from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.views import load_models, route, requires_permission, UrlForView, ModelView
 from coaster.utils import getbool
+from coaster.views import ModelView, UrlForView, load_models, requires_permission, route
+from funnel.util import format_twitter_handle, make_qrcode, split_name
+
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, Project, Attendee, ProjectRedirect, Participant, Event, SyncTicket
 from ..forms import ParticipantForm
+from ..models import (
+    Attendee,
+    Event,
+    Participant,
+    Profile,
+    Project,
+    ProjectRedirect,
+    SyncTicket,
+    db,
+)
 from ..views.helpers import mask_email
-from funnel.util import split_name, format_twitter_handle, make_qrcode
-from .project import ProjectViewMixin
 from .decorators import legacy_redirect
+from .project import ProjectViewMixin
 
 
 def participant_badge_data(participants, project):

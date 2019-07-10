@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+
 from textwrap import dedent
-from sqlalchemy import event, DDL
-from sqlalchemy.dialects.postgresql.base import RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS
+
+from sqlalchemy import DDL, event
+from sqlalchemy.dialects.postgresql.base import (
+    RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
+)
 
 __all__ = ['RESERVED_NAMES', 'add_search_trigger']
 

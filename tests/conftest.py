@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import pytest
+
 import uuid
+
+import pytest
+
 from funnel import app
-from funnel.models import db, Profile, Project, User, Label, Proposal, Team
+from funnel.models import Label, Profile, Project, Proposal, Team, User, db
 
 
 @app.route('/usertest')

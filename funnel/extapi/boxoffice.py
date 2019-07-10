@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from urlparse import urljoin
-import requests
+
 from flask import current_app
+
+import requests
+
 from ..util import extract_twitter_handle
 
 __all__ = ['Boxoffice']

@@ -11,8 +11,9 @@ revision = '1829e53eba75'
 down_revision = '752dee4ae101'
 
 from textwrap import dedent
-from alembic import op
+
 import sqlalchemy as sa  # NOQA
+from alembic import op
 from sqlalchemy_utils import TSVectorType
 
 

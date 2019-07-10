@@ -2,9 +2,9 @@
 
 from flask_lastuser.sqlalchemy import ProfileBase
 
-from . import MarkdownColumn, UuidMixin, UrlType, TSVectorType, db
-from .user import UseridMixin, Team
+from . import MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
 from .helpers import RESERVED_NAMES, add_search_trigger
+from .user import Team, UseridMixin
 
 __all__ = ['Profile']
 

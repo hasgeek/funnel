@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import __
-import baseframe.forms as forms
 from flask import g
+
+import baseframe.forms as forms
+from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import Project, Profile
+
+from ..models import Profile, Project
 
 __all__ = ['ProposalTransferForm', 'ProposalForm', 'ProposalTransitionForm', 'ProposalLabelsForm',
     'ProposalMoveForm', 'ProposalLabelsAdminForm']

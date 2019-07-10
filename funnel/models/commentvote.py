@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import cached, StateManager
 from baseframe import _, __
+from coaster.sqlalchemy import StateManager, cached
+from coaster.utils import LabeledEnum
 
-from . import db, BaseMixin, MarkdownColumn, UuidMixin, TSVectorType
-from .user import User
+from . import BaseMixin, MarkdownColumn, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
-
+from .user import User
 
 __all__ = ['Voteset', 'Vote', 'Commentset', 'Comment']
 

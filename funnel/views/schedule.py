@@ -2,23 +2,33 @@
 
 from collections import defaultdict
 from datetime import datetime, timedelta
-from icalendar import Calendar, Event, Alarm
-from sqlalchemy import or_
-from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
-from flask import json, jsonify, request, Response, current_app
+from sqlalchemy.orm.exc import NoResultFound
+
+from flask import Response, current_app, json, jsonify, request
+
+from icalendar import Alarm, Calendar, Event
 
 from coaster.utils import utcnow
-from coaster.views import requestargs, jsonp, cors, route, render_with, requires_permission, UrlForView, ModelView
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    cors,
+    jsonp,
+    render_with,
+    requestargs,
+    requires_permission,
+    route,
+)
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Session, Proposal
-from ..forms import (ProjectScheduleTransitionForm)
-from .mixins import ProjectViewMixin, VenueRoomViewMixin
-from .helpers import localize_date
-from .venue import room_data
+from ..forms import ProjectScheduleTransitionForm
+from ..models import Proposal, Session, db
 from .decorators import legacy_redirect
+from .helpers import localize_date
+from .mixins import ProjectViewMixin, VenueRoomViewMixin
+from .venue import room_data
 
 
 def session_data(session, with_modal_url=False, with_delete_url=False):
@@ -271,11 +281,11 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         current = Session.query.filter(
             Session.start_at <= now, Session.end_at >= now,
             Session.project == self.obj.venue.project,
-            or_(Session.venue_room == room, Session.is_break == True)  # NOQA
+            db.or_(Session.venue_room == room, Session.is_break == True)  # NOQA
             ).first()
         next = Session.query.filter(
             Session.start_at > now,
-            or_(Session.venue_room == room, Session.is_break == True),  # NOQA
+            db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
             Session.project == self.obj.venue.project
             ).order_by(Session.start_at).first()
         if current:

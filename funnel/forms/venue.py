@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import gettext
+
 import pycountry
-from baseframe import __, get_locale
+
 import baseframe.forms as forms
+from baseframe import __, get_locale
 from baseframe.forms.sqlalchemy import QuerySelectField
+
 from .project import valid_color_re
 
 __all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
