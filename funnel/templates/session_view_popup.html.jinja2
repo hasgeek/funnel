@@ -8,9 +8,9 @@
     {% if session.scheduled %}
       <p class="mui--text-subhead zero-bottom-margin">
         <small class="mui--text-light">at</small>
-        {{ localize_date(session.start, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end, to_tz=timezone).strftime('%I:%M %p') }}
+        {{ localize_date(session.start_at, to_tz=timezone).strftime('%I:%M %p') }} - {{ localize_date(session.end_at, to_tz=timezone).strftime('%I:%M %p') }}
         <small class="mui--text-light">on</small>
-        {{ localize_date(session.start, to_tz=timezone).strftime('%d %B, %Y') }}
+        {{ localize_date(session.start_at, to_tz=timezone).strftime('%d %B, %Y') }}
       </p>
     {% else %}
       <p class="mui--text-subhead zero-bottom-margin">
@@ -26,22 +26,6 @@
   </div>
 </div>
 <div class="modal__body">
-  {% if session.proposal %}
-    <div class="proposal-status-wrapper">
-      <div class="grid">
-        {% if session.proposal.section %}
-        <div class="col-auto columns">
-          <p class="mui--text-body2 mui--text-light zero-bottom-margin">Section</p>
-          <p class="mui--text-title">{{ session.proposal.section.title }}</p>
-        </div>
-        {% endif %}
-        <div class="col-auto columns">
-          <p class="mui--text-body2 mui--text-light zero-bottom-margin">Technical Level</p>
-          <p class="mui--text-title">{{ session.proposal.technical_level }}</p>
-        </div>
-      </div>
-    </div>
-  {% endif %}
   <div class="section">
     {% if session.description_html %}
       <h3 class="mui--text-title"><strong>{% trans %}Description{% endtrans %}</strong></h3>

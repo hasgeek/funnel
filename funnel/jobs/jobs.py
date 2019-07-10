@@ -1,10 +1,14 @@
-import requests
-from urlparse import urljoin
+# -*- coding: utf-8 -*-
+
 from collections import defaultdict
-from funnel import app, funnelapp, rq
-from ..models import (db, TicketClient, Project, ProjectLocation)
-from ..extapi.explara import ExplaraAPI
+from urlparse import urljoin
+
+import requests
+
+from .. import app, funnelapp, rq
 from ..extapi.boxoffice import Boxoffice
+from ..extapi.explara import ExplaraAPI
+from ..models import Project, ProjectLocation, TicketClient, db
 
 
 @rq.job('funnel')

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import db, BaseMixin
+from . import BaseMixin, db
 from .proposal import Proposal
 
 __all__ = ['FEEDBACK_AUTH_TYPE', 'ProposalFeedback']

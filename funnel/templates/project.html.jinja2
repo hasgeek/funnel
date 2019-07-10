@@ -4,7 +4,7 @@
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
 
-{%- block layoutheaders %}
+{%- block pageheaders %}
   {% assets "css_leaflet" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
@@ -44,13 +44,19 @@
   </script>
 {% endblock %}
 
-{% block bodytag %}<body class="mui--bg-primary no-sticky-header">{% endblock %}
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
 
 {%- macro page_btns(project) %}
   <ul class="mui-list--inline">
     {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}
       <li class="cta">
-        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary js-smooth-scroll js-samepage" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle">local_play</i>{% trans %}Participate{% endtrans %}</a>
+        <a href="#participate" class="mui-btn mui-btn--raised mui-btn--primary js-smooth-scroll js-samepage" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
       </li>
     {%- elif project.buy_tickets_url.url %}
       <li class="cta">
@@ -64,31 +70,33 @@
     {%- if project.schedule_state.PUBLISHED %}
       <li class="cta">
         <hr class="mui-divider">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
+        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
       </li>
     {% endif %}
     {% if project.cfp_state.OPEN -%}
       <li class="cta">
         {%- if not project.schedule_state.PUBLISHED %}<hr class="mui-divider">{% endif %}
-        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle">mic</i>{% trans %}Propose a session{% endtrans %}</a>
+        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">mic</i>{% trans %}Propose a session{% endtrans %}</a>
       </li>
     {% endif %}
   </ul>
 {%- endmacro %}
 
-{% block headline %}
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
   {{ project_header(project, page_btns=page_btns(project)) }}
 {% endblock %}
 
 {% block contentwrapper %}
   <div class="grid details-section">
-    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
+    <div class="grid__col-md-5 grid__col-lg-4">
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
         {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
       {% endif %}
     </div>
 
-    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="about">
+    <div class="grid__col-md-7 grid__col-lg-8" id="about">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">About</h2>
       <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
@@ -97,7 +105,7 @@
         <ul class="grid">
           {% for subproject in project.subprojects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
-              <div data-href="{{ subproject.url_for() }}" class="clickable-card">
+              <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" title="{{ subproject.title }}">
                 <div class="card">
                   <div class="card__header">
                     <div class="card__header__title">
@@ -108,13 +116,10 @@
                   {% if subproject.tagline %}
                     <div class="card__body">
                       <p>{{ subproject.tagline }}</p>
-                      <noscript>
-                        <a href="{{ subproject.url_for() }}" class="mui-btn mui-btn--small mui-btn--accent" title="View" data-action="View(subproject talk card)">View</a>
-                      </noscript>
                     </div>
                   {% endif %}
                 </div>
-              </div>
+              </a>
             </li>
           {%- endfor -%}
         </ul>
@@ -133,36 +138,43 @@
       {% for session in project.featured_sessions %}
         <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
           <div class="grid__cell">
-            {% if session.proposal %}<div data-href="{{ session.proposal.url_for() }}" class="clickable-card" title="{{ session.title }}">{%- endif %}
-              <div class="card">
+            <div class="card" title="{{ session.title }}">
+              <div class="card session-card">
                 {% if session.banner_image_url.url %}
-                  <div class="card__header session-card">
-                    <img class="card__image session-card__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
+                  {% if session.proposal %}
+                    <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                  {% else %}
+                    <div class="card__header session-card__header">
+                  {% endif %}
+                    <img class="card__image session-card__header__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
                     {% if session.speaker %}
-                      <h4 class="mui--text-title mui--text-bold card__title__heading session-card__title">{{ session.speaker }}</h4>
+                      <h4 class="mui--text-title mui--text-bold card__title__heading session-card__header__title">{{ session.speaker }}</h4>
                     {% endif %}
-                  </div>
+                  {% if session.proposal %}</a>{% else %}</div>{% endif %}
                 {% else %}
-                  <div class="card__header">
+                  {% if session.proposal %}
+                    <a class="card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                  {% else %}
+                    <div class="card__header">
+                  {% endif %}
                     <div class="card__header__title">
                       <h3 class="mui--text-title card__title__heading mui--text-bold">{{ session.title }}</h3>
                       {% if session.speaker %}
                         <h4 class="mui--text-subhead card__title__heading">by {{ session.speaker }}</h4>
                       {% endif %}
                     </div>
-                  </div>
+                  {% if session.proposal %}</a>{% else %}</div>{% endif %}
                 {% endif %}
-                <div class="card__body mui--text-body2">
+                {% if session.proposal %}
+                  <a class="card__body mui--text-body2 clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                {% else %}
+                  <div class="card__body mui--text-body2">
+                {% endif %}
                   <h3 class="mui--text-title card__title__heading  mui--text-bold">{{ session.title }}</h3>
                   <div class="mui--text-body1 mui--text-light truncate">{{ session.description|safe }}</div>
-                  <noscript>
-                    {% if session.proposal %}
-                      <a href="{{ session.proposal.url_for() }}" class="mui-btn mui-btn--small mui-btn--accent" title="View talk" data-action="View talk(project talk card)">View</a>
-                    {%- endif %}
-                  </noscript>
-                </div>
+                {% if session.proposal %}</a>{% else %}</div>{% endif %}
               </div>
-            {% if session.proposal %}</div>{%- endif %}
+            </div>
           </div>
         </li>
       {%- endfor -%}
@@ -217,7 +229,15 @@
   <div class="grid project-section" id="venue">
     <div class="grid__col-xs-12">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">Venue</h2>
-      <p class="mui--text-body1">{{ project.primary_venue.title }}<br>{{ project.primary_venue.address1 }}<br>{{ project.primary_venue.address2 }}<br>{{ project.primary_venue.city }} {{ project.primary_venue.postcode }}<br>{{ project.primary_venue.state }}<br>{{ project.primary_venue.country }}</p>
+      <div class="mui--text-body1">
+        <p class="zero-bottom-margin">{{ project.primary_venue.title }}</p>
+        <p class="zero-bottom-margin">{{ project.primary_venue.address1 }}</p>
+        <p class="zero-bottom-margin">{{ project.primary_venue.address2 }}</p>
+        <p class="zero-bottom-margin">{{ project.primary_venue.city }}{% if project.primary_venue.city and  project.primary_venue.postcode %} - {{ project.primary_venue.postcode }}{%- endif %}</p>
+        {%- if project.primary_venue.state and project.primary_venue.country -%}
+          <p class="zero-bottom-margin">{{ project.primary_venue.state }}, {{ project.primary_venue.country }}</p>
+        {%- endif %}
+      </div>
       {%- if project.primary_venue.latitude and project.primary_venue.longitude  -%}
         <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>Loading...</h2></div>
       {%- endif %}

@@ -2,17 +2,19 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-import coaster.app
+
 from flask import Flask
 from flask_flatpages import FlatPages
-from flask_migrate import Migrate
 from flask_mail import Mail
+from flask_migrate import Migrate
+from flask_rq2 import RQ
+
+import coaster.app
+from baseframe import Bundle, Version, assets, baseframe
 from flask_lastuser import Lastuser
 from flask_lastuser.sqlalchemy import UserManager
-from flask_rq2 import RQ
-from baseframe import baseframe, assets, Version, Bundle
-from ._version import __version__
 
+from ._version import __version__
 
 app = Flask(__name__, instance_relative_config=True)
 funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=True)
@@ -34,8 +36,8 @@ assets['schedules.js'][version] = 'js/schedules.js'
 
 # --- Import rest of the app --------------------------------------------------
 
-from . import models, forms, views  # NOQA
-from .models import db
+from . import models, forms, views  # NOQA  # isort:skip
+from .models import db  # isort:skip
 
 
 # --- Configuration------------------------------------------------------------
@@ -70,6 +72,10 @@ rq.init_app(funnelapp)
 
 baseframe.init_app(app, requires=['funnel'], ext_requires=[
     'pygments', 'toastr', 'baseframe-mui'], theme='mui')
+baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
+    'pygments', 'toastr', 'baseframe-mui'], theme='mui')
+
+# Register JS and CSS assets on both apps
 app.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js', 'jquery.ui.sortable.touch.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -110,9 +116,6 @@ app.assets.register('js_sortable',
     Bundle(assets.require('!jquery.js', 'jquery.ui.js', 'jquery.ui.sortable.touch.js'),
         output='js/sortable.packed.js', filters='uglipyjs'))
 
-
-baseframe.init_app(funnelapp, requires=['funnel'], ext_requires=[
-    'pygments', 'toastr', 'baseframe-mui'], theme='mui')
 funnelapp.assets.register('js_fullcalendar',
     Bundle(assets.require('!jquery.js', 'jquery.fullcalendar.js', 'spectrum.js', 'jquery.ui.sortable.touch.js'),
         output='js/fullcalendar.packed.js', filters='uglipyjs'))
@@ -159,3 +162,7 @@ funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
     view_func=funnelapp.send_static_file, subdomain=None)
 funnelapp.add_url_rule('/static/<path:filename>', endpoint='static',
     view_func=funnelapp.send_static_file, subdomain='<subdomain>')
+
+# Database model loading (from Funnel or extensions) is complete.
+# Configure database mappers now, before the process is forked for workers.
+db.configure_mappers()

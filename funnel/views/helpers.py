@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from coaster.gfm import markdown
 from datetime import datetime
-from flask_mail import Message
-from funnel import app, funnelapp
-from pytz import timezone as pytz_timezone, utc
 from urlparse import urljoin
-from .. import mail
+
+from flask import request
+from flask_mail import Message
+
+from pytz import timezone as pytz_timezone
+from pytz import utc
+
+from coaster.gfm import markdown
+
+from .. import app, funnelapp, mail
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
@@ -23,7 +28,9 @@ def localize_date(date, from_tz=utc, to_tz=utc):
             from_tz = pytz_timezone(from_tz)
         if isinstance(to_tz, basestring):
             to_tz = pytz_timezone(to_tz)
-        return from_tz.localize(date).astimezone(to_tz).replace(tzinfo=None)
+        if date.tzinfo is None:
+            date = from_tz.localize(date)
+        return date.astimezone(to_tz)
     return date
 
 
@@ -53,3 +60,14 @@ def mask_email(email):
         return u'{e}***'.format(e=email[:-3])
     username, domain = email.split('@')
     return u'{u}***@{d}'.format(u=username[:-3], d=domain)
+
+
+def clear_old_session(response):
+    for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
+        if cookie_name in request.cookies:
+            for domain in domains:
+                response.set_cookie(cookie_name, '', expires=0, httponly=True, domain=domain)
+    return response
+
+
+app.after_request(clear_old_session)

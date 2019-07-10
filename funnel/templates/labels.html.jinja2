@@ -1,9 +1,10 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
-{% block title %}{% trans %}Labels{% endtrans %} &ndash; {{ project.title }}{% endblock %}
+{% block title %}{% trans %}Labels{% endtrans %}{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
   <p class="mui--text-headline">Manage labels</p>
 {% endblock %}
 
@@ -12,7 +13,7 @@
   <div class="grid__col-xs-12">
     <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}" title="New label">
       <div class="card__body mui--text-center">
-        <a class="mui--text-headline mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><i class="material-icons mui--align-middle mui--text-display1">add</i> Create new label</a>
+        <a class="mui--text-headline mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><i class="material-icons mui--align-middle mui--text-display1" aria-hidden="true">add</i> Create new label</a>
       </div>
     </div>
   </div>
@@ -20,8 +21,8 @@
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
       {{ form.hidden_tag() }}
       {%- for label in labels %}
-        <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"">
-          <i class="material-icons mui--text-body1 mui--text-light label-box__icon">drag_indicator</i>
+        <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+          <i class="material-icons mui--text-body1 mui--text-light label-box__icon" aria-hidden="true">drag_indicator</i>
           <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
@@ -36,16 +37,16 @@
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
           <div class="label-box__icon-wrapper">
-            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">edit</i></a>
+            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}" aria-label="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
             {% if label.has_proposals %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">archive</i></a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}" aria-label="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" aria-hidden="true">archive</i></a>
             {% else %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light">delete</i></a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}" aria-label="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
             {% endif %}
           </div>
         </div>
       {%- endfor %}
-      <div class="mui-form form-actions clearfix">
+      <div class="mui-form form-actions mui--clearfix">
         <div>
           <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">Save</button>
           <span class="loading mui--hide"></span>

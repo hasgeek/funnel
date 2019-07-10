@@ -1,6 +1,5 @@
 {% extends "layout.html.jinja2" %}
-
-{% block title %}{% if g.profile %}{{ g.profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
+{% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
@@ -14,102 +13,84 @@
   {%- endif -%}
 {%- endblock %}
 
-{% block banner %}
+{% block contenthead %}
   {%- if not g.profile %}
-    <div class="banner">
+    <div class="funnel-banner">
       <picture class="banner__img">
         <source media="(max-width: 992px)" srcset="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
         <source srcset="{{ url_for('static', filename='img/banner-desktop.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
         <img src="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
       </picture>
-      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Funnel</span> is a space <br class="mui--visible-lg-block mui--visible-xl-block">for proposals and <br class="block mui--visible-lg-block mui--visible-xl-block">voting on events</h1>
+      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Talkfunnel</span> hosts <br class="mui--visible-lg-block mui--visible-xl-block">proposal submissions <br class="block mui--visible-lg-block mui--visible-xl-block">and reviews for events</h1>
     </div>
   {% endif %}
 {% endblock %}
 
-{% block headline -%}
-  {%- if g.profile and g.profile.description %}
-    <div class="content-head content-head--top-padding mui--bg-accent">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-xs-12">
-            {%- if g.profile %}
-              <h1 class="mui--text-headline">{{ g.profile.description }}</h1>
-            {% endif %}
-          </div>
-        </div>
-      </div>
+{% block contentwrapper %}
+  {%- if config['LEGACY'] and not g.profile %}
+    <div class="alert alert--warning funnel-notice">
+      <p class="alert__text"><i class="material-icons alert__icon mui--text-body1">warning</i> {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use <a href="https://hasgeek.com" class="funnel-notice-txt">HasGeek</a>.{% endtrans %}</p>
     </div>
-  {% endif %}
-  {%- if not config['LEGACY'] and g.profile and current_auth.permissions.new_project -%}
-    <div class="mui-container floating-btn-wrapper">
-      <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--fab mui-btn--primary create-floating-btn" title="Create new project">+</a>
-    </div>
-  {% endif %}
-{%- endblock %}
-
-{% block basecontent %}
-  <div class="page-content {%- if not g.profile %} page-content--top-padding{% endif %}">
-    {%- if not g.profile %}
-      <div class="grid">
-        <div class="grid__col-sm-12">
-          <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
-        </div>
-      </div>
-    {% endif %}
-    {% if projects %}
-      <ul class="grid projects">
-        {% for project in projects %}
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-            <div class="grid__cell">
-              <div class="card clickable-card" title="{{ project.title }}" data-href="{{ project.url_for() }}">
-                <div class="card__image-wrapper">
-                  {% if project.bg_image.url %}
-                    <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-                  {% else %}
-                    <div class="card__image--default">
-                      <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
-                      <p class="card__image__tagline">{{ project.title }}</p>
-                    </div>
-                  {% endif %}
-                </div>
-                <div class="card__title">
-                  <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
-                  <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
-                </div>
-                {% if project.tagline %}
-                  <div class="card__body">
-                    <p class="mui--text-body2">{{ project.tagline }}</p>
-                  </div>
-                {% endif %}
-                <div class="mui-divider"></div>
-                <div class="card__footer">
-                  {% if project.cfp_state.OPEN -%}
-                    <a href="{{ project.url_for('new_proposal') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="Propose a session" data-action="Propose a session(index page card)">Propose a session</a>
-                  {%- elif project.schedule_state.PUBLISHED -%}
-                    <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View schedule" data-action="Schedule(index page card)">Schedule</a>
-                  {%- elif project.cfp_state.HAS_PROPOSALS -%}
-                    <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View proposals" data-action="View proposals(index page card)">Proposals</a>
-                  {%- endif %}
-                  {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
-                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
-                  {%- elif project.buy_tickets_url.url %}
-                    <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </li>
-        {%- endfor -%}
-      </ul>
-    {% else %}
     <div class="grid">
       <div class="grid__col-sm-12">
-        <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
-          {% if current_auth.permissions.new_project %}<a href="{{ g.profile.url_for('new_project') }}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
-        </p>
+        <h1 class="mui--text-headline">{{ config['WELCOME_MESSAGE'] }}</h1>
       </div>
+  {% endif %}
+  {% if projects %}
+    <ul class="grid projects">
+      {% for project in projects %}
+        <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+          <div class="grid__cell">
+            <div class="card">
+              <a class="card__image-wrapper clickable-card" title="{{ project.title }}" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+                {% if project.bg_image.url %}
+                  <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                  <noscript>
+                    <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                  </noscript>
+                {% else %}
+                  <div class="card__image--default">
+                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                    <p class="card__image__tagline">{{ project.title }}</p>
+                  </div>
+                {% endif %}
+              </a>
+              <a class="card__title clickable-card" title="{{ project.title }}" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+                <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
+                <h4 class="mui--text-caption card__title__heading">{{ project.datelocation }}</h4>
+              </a>
+              {% if project.tagline %}
+                <a class="card__body clickable-card" title="{{ project.title }}" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+                  <p class="mui--text-body2">{{ project.tagline }}</p>
+                </a>
+              {% endif %}
+              <div class="mui-divider"></div>
+              <div class="card__footer">
+                {% if project.cfp_state.OPEN -%}
+                  <a href="{{ project.url_for('new_proposal') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="Propose a session" data-action="Propose a session(index page card)">Propose a session</a>
+                {%- elif project.schedule_state.PUBLISHED -%}
+                  <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View schedule" data-action="Schedule(index page card)">Schedule</a>
+                {%- elif project.cfp_state.HAS_PROPOSALS -%}
+                  <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" title="View proposals" data-action="View proposals(index page card)">Proposals</a>
+                {%- endif %}
+                {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
+                  <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Participate</a>
+                {%- elif project.buy_tickets_url.url %}
+                  <a href="{{ project.buy_tickets_url.url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Buy</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {% else %}
+  <div class="grid">
+    <div class="grid__col-sm-12">
+      <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
+        {% if current_auth.permissions.new_project %}<a href="{{ g.profile.url_for('new_project') }}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
+      </p>
     </div>
-    {% endif %}
   </div>
+  {% endif %}
 {% endblock %}

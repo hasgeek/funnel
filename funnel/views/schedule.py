@@ -1,24 +1,34 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from pytz import utc
 from datetime import datetime, timedelta
-from icalendar import Calendar, Event, Alarm
-from sqlalchemy import or_
-from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
-from flask import json, jsonify, request, Response, current_app
+from sqlalchemy.orm.exc import NoResultFound
 
-from coaster.views import requestargs, jsonp, cors, route, render_with, requires_permission, UrlForView, ModelView
+from flask import Response, current_app, json, jsonify, request
+
+from icalendar import Alarm, Calendar, Event
+
+from coaster.utils import utcnow
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    cors,
+    jsonp,
+    render_with,
+    requestargs,
+    requires_permission,
+    route,
+)
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Session
-from ..forms import (ProjectScheduleTransitionForm)
-from .mixins import ProjectViewMixin, VenueRoomViewMixin
-from .helpers import localize_date
-from .venue import room_data
+from ..forms import ProjectScheduleTransitionForm
+from ..models import Session, db
 from .decorators import legacy_redirect
+from .helpers import localize_date
+from .mixins import ProjectViewMixin, VenueRoomViewMixin
+from .venue import room_data
 
 
 def session_data(session, with_modal_url=False, with_delete_url=False):
@@ -26,8 +36,10 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat() + 'Z' if session.scheduled else None,
-            'end': session.end.isoformat() + 'Z' if session.scheduled else None,
+            'start': session.start_at.isoformat() if session.scheduled else None,  # Legacy
+            'end': session.end_at.isoformat() if session.scheduled else None,  # Legacy
+            'start_at': session.start_at.isoformat() if session.scheduled else None,
+            'end_at': session.end_at.isoformat() if session.scheduled else None,
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
             'is_break': session.is_break,
@@ -59,13 +71,13 @@ def date_js(d):
 def schedule_data(project):
     data = defaultdict(lambda: defaultdict(list))
     for session in project.scheduled_sessions:
-        day = str(localize_date(session.start, to_tz=project.timezone).date())
-        slot = localize_date(session.start, to_tz=project.timezone).strftime('%H:%M')
+        day = str(localize_date(session.start_at, to_tz=project.timezone).date())
+        slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
         data[day][slot].append({
             'id': session.url_id,
             'title': session.title,
-            'start': session.start.isoformat() + 'Z',
-            'end': session.end.isoformat() + 'Z',
+            'start_at': session.start_at.isoformat(),
+            'end_at': session.end_at.isoformat(),
             'url': session.url_for(_external=True),
             'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
             'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
@@ -78,9 +90,6 @@ def schedule_data(project):
             'description': session.description,
             'speaker_bio': session.speaker_bio,
             'speaker_bio_text': session.speaker_bio_text,
-            'section_name': session.proposal.section.name if session.proposal and session.proposal.section else None,
-            'section_title': session.proposal.section.title if session.proposal and session.proposal.section else None,
-            'technical_level': session.proposal.technical_level if session.proposal and session.proposal.section else None,
             })
     schedule = []
     for day in sorted(data):
@@ -104,11 +113,11 @@ def session_ical(session):
     event = Event()
     event.add('summary', session.title)
     event.add('uid', "/".join([session.project.name, session.url_name]) + '@' + request.host)
-    event.add('dtstart', utc.localize(session.start).astimezone(session.project.timezone))
-    event.add('dtend', utc.localize(session.end).astimezone(session.project.timezone))
-    event.add('dtstamp', utc.localize(datetime.now()).astimezone(session.project.timezone))
-    event.add('created', utc.localize(session.created_at).astimezone(session.project.timezone))
-    event.add('last-modified', utc.localize(session.updated_at).astimezone(session.project.timezone))
+    event.add('dtstart', session.start_at.astimezone(session.project.timezone))
+    event.add('dtend', session.end_at.astimezone(session.project.timezone))
+    event.add('dtstamp', utcnow().astimezone(session.project.timezone))
+    event.add('created', session.created_at.astimezone(session.project.timezone))
+    event.add('last-modified', session.updated_at.astimezone(session.project.timezone))
     if session.venue_room:
         location = [session.venue_room.title + " - " + session.venue_room.venue.title]
         if session.venue_room.venue.city:
@@ -124,8 +133,8 @@ def session_ical(session):
         event.add('description', session.description_text)
     if session.proposal:
         event.add('url', session.url_for(_external=True))
-        if session.proposal.section:
-            event.add('categories', [session.proposal.section.title])
+        if session.proposal.labels:
+            event.add('categories', [l.title for l in session.proposal.labels])
     alarm = Alarm()
     alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')
@@ -197,10 +206,10 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
             }
         # Set the proper range for the calendar to allow for date changes
-        first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start.asc()).first()
-        last_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.end.desc()).first()
-        from_date = (first_session and first_session.start.date() < self.obj.date and first_session.start) or self.obj.date
-        to_date = (last_session and last_session.start.date() > self.obj.date_upto and last_session.start) or self.obj.date_upto
+        first_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.start_at.asc()).first()
+        last_session = Session.query.filter(Session.scheduled, Session.project == self.obj).order_by(Session.end_at.desc()).first()
+        from_date = (first_session and first_session.start_at.date() < self.obj.date and first_session.start_at) or self.obj.date
+        to_date = (last_session and last_session.start_at.date() > self.obj.date_upto and last_session.start_at) or self.obj.date_upto
         return dict(project=self.obj, proposals=proposals,
             from_date=date_js(from_date), to_date=date_js(to_date),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
@@ -216,8 +225,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         for session in sessions:
             try:
                 s = Session.query.filter_by(project=self.obj, url_id=session['id']).one()
-                s.start = session['start']
-                s.end = session['end']
+                s.start_at = session['start_at']
+                s.end_at = session['end_at']
                 db.session.commit()
             except NoResultFound:
                 current_app.logger.error('{project} schedule update error: session = {session}'.format(project=self.obj.name, session=session))
@@ -268,27 +277,26 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @render_with('room_updates.html.jinja2')
     @requires_permission('view')
     def updates(self):
-        now = datetime.utcnow()
+        now = utcnow()
         current = Session.query.filter(
-            Session.start <= now, Session.end >= now,
+            Session.start_at <= now, Session.end_at >= now,
             Session.project == self.obj.venue.project,
-            or_(Session.venue_room == room, Session.is_break == True)  # NOQA
+            db.or_(Session.venue_room == room, Session.is_break == True)  # NOQA
             ).first()
         next = Session.query.filter(
-            Session.start > now,
-            or_(Session.venue_room == room, Session.is_break == True),  # NOQA
+            Session.start_at > now,
+            db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
             Session.project == self.obj.venue.project
-            ).order_by(Session.start).first()
+            ).order_by(Session.start_at).first()
         if current:
-            current.start = localize_date(current.start, to_tz=self.obj.venue.project.timezone)
-            current.end = localize_date(current.end, to_tz=self.obj.venue.project.timezone)
+            current.start_at = localize_date(current.start_at, to_tz=self.obj.venue.project.timezone)
+            current.end_at = localize_date(current.end_at, to_tz=self.obj.venue.project.timezone)
         nextdiff = None
         if next:
-            next.start = localize_date(next.start, to_tz=self.obj.venue.project.timezone)
-            next.end = localize_date(next.end, to_tz=self.obj.venue.project.timezone)
-            nextdiff = next.start.date() - now.date()
+            next.start_at = localize_date(next.start_at, to_tz=self.obj.venue.project.timezone)
+            next.end_at = localize_date(next.end_at, to_tz=self.obj.venue.project.timezone)
+            nextdiff = next.start_at.date() - now.date()
             nextdiff = nextdiff.total_seconds() / 86400
-        print current, next
         return dict(room=self.obj, current=current, next=next, nextdiff=nextdiff)
 
 

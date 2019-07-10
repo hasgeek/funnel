@@ -3,6 +3,11 @@
 {% block pageheaders %}
 {% endblock %}
 
+{% block top_title %}
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
+  <p class="mui--text-body1"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in"><i class="material-icons mui--text-body2 mui--align-bottom" aria-hidden="true">keyboard_backspace</i> {% trans %}Back to setup events{% endtrans %}</a></p>
+{% endblock %}
+
 {% block contentwrapper %}
   <div class="grid">
     <div class="grid__col-xs-6">
@@ -21,7 +26,7 @@
         </div>
       </form>
     </div>
-    <div class="grid__col-xs-12">
+    <div class="grid__col-xs-12 mui-table--responsive-wrapper">
       <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
         <thead>
           <tr>
@@ -33,9 +38,9 @@
         <tbody>
           {%- for p in participants %}
             <tr id="p-{{ p.id }}">
-              <td class='js-searchable'>{{ p.fullname }}</td>
-              <td class='js-searchable'>{{ p.email }}</td>
-              <td class='js-searchable'>{{ p.company }}</td>
+              <td class='js-searchable' data-th="Name">{{ p.fullname }}</td>
+              <td class='js-searchable' data-th="Email">{{ p.email }}</td>
+              <td class='js-searchable' data-th="Company">{{ p.company }}</td>
             </tr>
           {%- endfor %}
         </tbody>

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from coaster.utils import utcnow
 from funnel.models import Project
 
 
 class TestProject(object):
     def test_project_state_conditional(self, test_client, test_db):
-        past_projects = Project.query.filter(Project.state.PAST).all()
+        past_projects = Project.query.filter(Project.schedule_state.PAST).all()
         assert len(past_projects) >= 0
-        upcoming_projects = Project.query.filter(Project.state.UPCOMING).all()
+        upcoming_projects = Project.query.filter(Project.schedule_state.UPCOMING).all()
         assert len(upcoming_projects) >= 0
 
     def test_project_cfp_state_conditional(self, test_client, test_db):
@@ -38,7 +38,7 @@ class TestProject(object):
         assert new_project.cfp_state.DRAFT
         assert new_project in new_profile.draft_projects
 
-        new_project.cfp_start_at = datetime.utcnow()
+        new_project.cfp_start_at = utcnow()
         test_db.session.commit()
 
         assert new_project.cfp_start_at is not None

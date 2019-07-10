@@ -5,6 +5,11 @@
 {% block pageheaders %}
 {% endblock %}
 
+{% block top_title %}
+  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
+  <p class="mui--text-body1"><a href="{{ project.url_for('events') }}" title="Setup events for check-in"><i class="material-icons mui--text-body2 mui--align-bottom" aria-hidden="true">keyboard_backspace</i> {% trans %}Back to setup events{% endtrans %}</a></p>
+{% endblock %}
+
 {% block content %}
   <div class="grid" id="scan-badge-wrapper">
     {% raw %}
@@ -26,12 +31,12 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><i class="material-icons">clear</i></a>
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)" aria-label="Close modal"><i class="material-icons" aria-hidden="true">clear</i></a>
             <h3 class="mui--text-title">Check in status</h3>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
+              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i></h4>
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
               <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>

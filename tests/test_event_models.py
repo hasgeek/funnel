@@ -1,10 +1,27 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+
 from coaster.utils import buid
 from funnel import app
-from funnel.models import (db, Profile, Project, Event, User, SyncTicket, Participant, TicketClient, TicketType)
-from .event_models_fixtures import event_ticket_types, ticket_list, ticket_list2, ticket_list3
+from funnel.models import (
+    Event,
+    Participant,
+    Profile,
+    Project,
+    SyncTicket,
+    TicketClient,
+    TicketType,
+    User,
+    db,
+)
+
+from .event_models_fixtures import (
+    event_ticket_types,
+    ticket_list,
+    ticket_list2,
+    ticket_list3,
+)
 
 
 def bulk_upsert(project, event_list):

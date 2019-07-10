@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from flask import g, Markup, request, flash, url_for, redirect
-from coaster.views import route, requires_permission, render_with, jsonp, UrlForView, ModelView
+from flask import Markup, flash, g, redirect, request, url_for
+
 from baseframe import _
-from baseframe.forms import render_message, render_redirect, render_form
-from ..models import db, Profile, Team, Project
-from ..forms import NewProfileForm, EditProfileForm
+from baseframe.forms import render_form, render_message, render_redirect
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    jsonp,
+    render_with,
+    requires_permission,
+    route,
+)
+
 from .. import app, funnelapp, lastuser
+from ..forms import EditProfileForm, NewProfileForm
+from ..models import Profile, Project, Team, db
+from .decorators import legacy_redirect
 from .mixins import ProfileViewMixin
 from .project import project_data
-from .decorators import legacy_redirect
 
 
 # @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018
@@ -66,21 +75,47 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('index.html.jinja2')
+    @render_with('index.html.jinja2', json=True)
     @requires_permission('view')
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.
         # We're using it because we want to define our own order here.
         projects = self.obj.listed_projects.order_by(None)
-        past_projects = projects.filter(Project.state.PAST).order_by(Project.date.desc()).all()
-        all_projects = projects.filter(Project.state.UPCOMING).order_by(Project.date.asc()).all()
+        past_projects = projects.filter(
+            Project.state.PUBLISHED,
+            Project.schedule_state.PAST
+            ).order_by(Project.date.desc()).all()
+        all_projects = projects.filter(
+            Project.state.PUBLISHED,
+            db.or_(
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING)
+            ).order_by(Project.schedule_start_at.asc()).all()
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
-        open_cfp_projects = projects.filter(Project.cfp_state.OPEN).order_by(Project.date.asc()).all()
+        featured_project = projects.filter(
+            Project.state.PUBLISHED,
+            db.or_(
+                Project.schedule_state.LIVE,
+                Project.schedule_state.UPCOMING),
+            Project.featured.is_(True)
+            ).order_by(Project.schedule_start_at.asc()).limit(1).first()
+        if featured_project in upcoming_projects:
+            upcoming_projects.remove(featured_project)
+        open_cfp_projects = projects.filter(
+            Project.state.PUBLISHED,
+            Project.cfp_state.OPEN
+            ).order_by(Project.schedule_start_at.asc()).all()
         draft_projects = [proj for proj in self.obj.draft_projects if proj.current_roles.admin]
-        return {'profile': self.obj, 'projects': projects, 'past_projects': past_projects,
-            'all_projects': all_projects, 'upcoming_projects': upcoming_projects,
-            'open_cfp_projects': open_cfp_projects, 'draft_projects': draft_projects}
+        return {
+            'profile': self.obj.current_access(),
+            'past_projects': [p.current_access() for p in past_projects],
+            'all_projects': [p.current_access() for p in all_projects],
+            'upcoming_projects': [p.current_access() for p in upcoming_projects],
+            'open_cfp_projects': [p.current_access() for p in open_cfp_projects],
+            'draft_projects': [p.current_access() for p in draft_projects],
+            'featured_project': featured_project.current_access() if featured_project else None
+            }
 
     @route('json')
     @render_with(json=True)

@@ -10,11 +10,11 @@ Create Date: 2018-11-12 13:54:09.987761
 revision = '488077138ee4'
 down_revision = '2cbfbcca4737'
 
-from alembic import op
 import sqlalchemy as sa  # NOQA
-from sqlalchemy.schema import Sequence, CreateSequence, DropSequence
-from coaster.sqlalchemy import JsonDict
+from alembic import op
+from sqlalchemy.schema import CreateSequence, DropSequence, Sequence
 
+from coaster.sqlalchemy import JsonDict
 
 tables_with_name_column = [
     'event', 'profile', 'proposal', 'proposal_space', 'proposal_space_section',

@@ -1,6 +1,7 @@
-from alembic import op
 import sqlalchemy as sa  # NOQA
-from sqlalchemy.sql import table, column
+from alembic import op
+from sqlalchemy.sql import column, table
+
 from coaster.sqlalchemy import JsonDict
 
 """add labels to proposal space

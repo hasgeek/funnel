@@ -1,10 +1,25 @@
+# -*- coding: utf-8 -*-
+
 from uuid import uuid4
+
 from flask import abort, g, redirect, request
+from werkzeug.datastructures import MultiDict
+
 from baseframe import _, forms
 from coaster.utils import require_one_of
-from werkzeug.datastructures import MultiDict
-from ..models import (Draft, Project, Profile, ProjectRedirect, Proposal, ProposalRedirect, Session,
-    Venue, VenueRoom, Section, db)
+
+from ..models import (
+    Draft,
+    Profile,
+    Project,
+    ProjectRedirect,
+    Proposal,
+    ProposalRedirect,
+    Session,
+    Venue,
+    VenueRoom,
+    db,
+)
 
 
 class ProjectViewMixin(object):
@@ -19,11 +34,20 @@ class ProjectViewMixin(object):
             projredir = ProjectRedirect.query.join(Profile).filter(
                 ProjectRedirect.name == project, Profile.name == profile
                 ).first_or_404()
-            proj = projredir.project
+            return projredir
         if proj.state.DELETED:
             abort(410)
-        g.profile = proj.profile
         return proj
+
+    def after_loader(self):
+        if isinstance(self.obj, ProjectRedirect):
+            if self.obj.project:
+                g.profile = self.obj.project.profile
+                return redirect(self.obj.project.url_for())
+            else:
+                abort(410)
+        g.profile = self.obj.profile
+        return super(ProjectViewMixin, self).after_loader()
 
 
 class ProfileViewMixin(object):
@@ -112,19 +136,6 @@ class VenueRoomViewMixin(object):
             ).first_or_404()
         g.profile = room.venue.project.profile
         return room
-
-
-class SectionViewMixin(object):
-    model = Section
-    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'section': 'name'}
-
-    def loader(self, profile, project, section):
-        section = self.model.query.join(Project).join(Profile).filter(
-            Project.name == project, Profile.name == profile,
-            Section.name == section
-            ).first_or_404()
-        g.profile = section.project.profile
-        return section
 
 
 class DraftViewMixin(object):
