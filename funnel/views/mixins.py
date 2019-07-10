@@ -32,7 +32,7 @@ class ProjectViewMixin(object):
             else:
                 abort(410)
         g.profile = self.obj.profile
-        super(ProjectViewMixin, self).after_loader()
+        return super(ProjectViewMixin, self).after_loader()
 
 
 class ProfileViewMixin(object):
