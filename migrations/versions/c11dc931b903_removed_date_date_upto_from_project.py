@@ -10,10 +10,9 @@ Create Date: 2019-06-08 10:58:13.772112
 revision = 'c11dc931b903'
 down_revision = '56ba15eff9ad'
 
-from alembic import op
 import sqlalchemy as sa  # NOQA
-from sqlalchemy.sql import table, column
-
+from alembic import op
+from sqlalchemy.sql import column, table
 
 project = table('project',
     column('id', sa.Integer()),

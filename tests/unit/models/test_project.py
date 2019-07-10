@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+
 from coaster.utils import utcnow
 from funnel.models import Project, Session
 
@@ -130,5 +131,3 @@ class TestProject(object):
             start_year=new_session_a.start_at.strftime("%Y"), end_year=new_session_b.end_at.strftime("%Y"),
             location=new_project.location
             )
-
-
