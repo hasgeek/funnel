@@ -1,18 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import _
-from flask import request, render_template, jsonify, abort
-from coaster.utils import utcnow
-from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs
-from coaster.sqlalchemy import failsafe_add
+from flask import abort, flash, jsonify, redirect, render_template, request
 
-from .helpers import localize_date
+from baseframe import _, forms
+from coaster.auth import current_auth
+from coaster.sqlalchemy import failsafe_add
+from coaster.utils import utcnow
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    render_with,
+    requestargs,
+    requires_permission,
+    route,
+)
+
 from .. import app, funnelapp, lastuser
-from ..models import db, ProposalFeedback, Session, FEEDBACK_AUTH_TYPE
-from ..forms import SessionForm
-from .mixins import ProjectViewMixin, SessionViewMixin
+from ..forms import SessionForm, SessionSaveForm
+from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
 from .decorators import legacy_redirect
-from .schedule import session_data, session_list_data, date_js
+from .helpers import localize_date
+from .mixins import ProjectViewMixin, SessionViewMixin
+from .schedule import date_js, session_data, session_list_data
 
 
 def rooms_list(project):
@@ -147,6 +156,40 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             db.session.add(feedback)
             db.session.commit()
             return "Saved\n", 201
+
+    @route('save', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('view')
+    def save(self):
+        form = SessionSaveForm()
+        if form.validate_on_submit():
+            session_save = SavedSession.query.filter_by(user=current_auth.user, session=self.obj).first()
+            if session_save is None:
+                session_save = SavedSession(user=current_auth.user, session=self.obj)
+                form.populate_obj(session_save)
+                db.session.commit()
+                flash(_(u"The session has been saved"), category='success')
+            else:
+                flash(_(u"You have already saved this session"), category='error')
+        else:
+            flash(_(u"Cannot save this session: {}".format(", ".join(form.errors))), category='error')
+        return redirect(self.obj.url_for(), code=303)
+
+    @route('unsave', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('view')
+    def unsave(self):
+        form = forms.Form()
+        if form.validate_on_submit():
+            session_save = SavedSession.query.filter_by(user=current_auth.user, session=self.obj).first()
+            if session_save is not None:
+                db.session.delete(session_save)
+                flash(_(u"You are no longer subscribed to this session"), category='success')
+            else:
+                flash(_(u"Invalid session"), category='error')
+        else:
+            flash(_(u"Cannot unsubscribe from this session: {}".format(", ".join(form.errors))), category='error')
+        return redirect(self.obj.url_for(), code=303)
 
 
 @route('/<project>/schedule/<session>', subdomain='<profile>')

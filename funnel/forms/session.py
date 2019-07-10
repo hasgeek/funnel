@@ -21,3 +21,7 @@ class SessionForm(forms.Form):
     featured = forms.BooleanField(__("This is a featured session"), default=False)
     start_at = forms.HiddenField(__("Start Time"), validators=[forms.validators.DataRequired()])
     end_at = forms.HiddenField(__("End Time"), validators=[forms.validators.DataRequired()])
+
+
+class SessionSaveForm(forms.Form):
+    description = forms.StringField(__("Notes"))

@@ -13,7 +13,7 @@ from coaster.utils import utcnow
 from coaster.views import requestargs, jsonp, cors, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Session
+from ..models import db, Session, Proposal
 from ..forms import (ProjectScheduleTransitionForm)
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 from .helpers import localize_date
@@ -192,7 +192,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'unscheduled': [{
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
-                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.state.SCHEDULED],
+                } for proposal in self.obj.proposals_all.filter(Proposal.state.CONFIRMED).order_by(Proposal.title) if not proposal.state.SCHEDULED],
             'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
             }
         # Set the proper range for the calendar to allow for date changes

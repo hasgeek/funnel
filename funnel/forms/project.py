@@ -13,7 +13,7 @@ from ..models import RSVP_STATUS, Project
 
 __all__ = [
     'EventForm', 'ProjectForm', 'CfpForm', 'ProjectTransitionForm', 'RsvpForm',
-    'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm',
+    'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm', 'ProjectSaveForm',
     'ProjectScheduleTransitionForm', 'ProjectCfpTransitionForm'
     ]
 
@@ -144,6 +144,10 @@ class ProjectCfpTransitionForm(forms.Form):
 
     def set_queries(self):
         self.cfp_transition.choices = self.edit_obj.cfp_state.transitions().items()
+
+
+class ProjectSaveForm(forms.Form):
+    description = forms.StringField(__("Notes"))
 
 
 class RsvpForm(forms.Form):

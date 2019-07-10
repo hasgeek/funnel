@@ -3,15 +3,15 @@
 import unicodecsv
 import six
 from flask import g, flash, redirect, Response, request, abort, current_app, render_template
-from baseframe import _, forms
+from baseframe import _
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Project, Proposal, Rsvp, RSVP_STATUS
-from ..forms import (ProjectForm, RsvpForm, ProjectTransitionForm,
+from ..models import db, Project, Proposal, Rsvp, SavedProject, RSVP_STATUS
+from ..forms import (ProjectForm, RsvpForm, ProjectTransitionForm, ProjectSaveForm,
     ProjectBoxofficeForm, CfpForm, ProjectScheduleTransitionForm, ProjectCfpTransitionForm)
 from ..jobs import tag_locations, import_tickets
 from .proposal import proposal_headers, proposal_data, proposal_data_flat
@@ -264,6 +264,39 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('edit_project')
     def rsvp_list(self):
         return dict(project=self.obj, statuses=RSVP_STATUS)
+
+    @route('save', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('view')
+    def save(self):
+        form = ProjectSaveForm()
+        if form.validate_on_submit():
+            proj_save = SavedProject.query.filter_by(user=current_auth.user, project=self.obj).first()
+            if proj_save is None:
+                proj_save = SavedProject(user=current_auth.user, project=self.obj)
+                form.populate_obj(proj_save)
+                db.session.commit()
+                flash(_(u"The project has been saved"), category='success')
+            else:
+                flash(_(u"You have already saved this project"), category='error')
+        else:
+            flash(_(u"Cannot save this project: {}".format(", ".join(form.errors))), category='error')
+        return redirect(self.obj.url_for(), code=303)
+
+    @route('unsave', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('view')
+    def unsave(self):
+        form = forms.Form()
+        if form.validate_on_submit():
+            proj_save = SavedProject.query.filter_by(user=current_auth.user, project=self.obj).first()
+            if proj_save is not None:
+                db.session.delete(proj_save)
+                flash(_(u"You are no longer subscribed to this project"), category='success')
+        else:
+            flash(_(u"Cannot unsubscribe from this project: {}".format(", ".join(form.errors))), category='error')
+        return redirect(self.obj.url_for(), code=303)
+
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
