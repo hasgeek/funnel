@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from flask_lastuser.sqlalchemy import TeamBase, UserBase2
-
 from sqlalchemy.ext.hybrid import hybrid_property
-
 from sqlalchemy_utils import UUIDType
 
-from coaster.utils import buid2uuid, uuid2buid
 from coaster.sqlalchemy import SqlBuidComparator
+from coaster.utils import buid2uuid, uuid2buid
+from flask_lastuser.sqlalchemy import TeamBase, UserBase2
 
 from . import UuidMixin, db
 
@@ -36,6 +34,25 @@ class UseridMixin(object):
 
 class User(UseridMixin, UuidMixin, UserBase2, db.Model):
     __tablename__ = 'user'
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'username', 'fullname', 'avatar',
+                }
+            },
+        'owner': {
+            'read': {
+                'email', 'phone', 'profile_url',
+                }
+            }
+        }
+
+    def roles_for(self, actor, anchors=()):
+        roles = super(User, self).roles_for(actor, anchors)
+        if actor == self:
+            roles.add('owner')
+        return roles
 
 
 class Team(UseridMixin, UuidMixin, TeamBase, db.Model):

@@ -1,23 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from collections import OrderedDict, defaultdict
 
-from werkzeug.utils import cached_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
+
+from werkzeug.utils import cached_property
+
+from babel.dates import format_date
+from isoweek import Week
 from pytz import utc
 
-from baseframe import __
-
+from baseframe import __, get_locale
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, utcnow, valid_username
 
 from ..util import geonameid_from_location
-from . import BaseScopedNameMixin, JsonDict, MarkdownColumn, TimestampMixin, UuidMixin, UrlType, db
-from .user import Team, User
+from . import (
+    BaseScopedNameMixin,
+    JsonDict,
+    MarkdownColumn,
+    TimestampMixin,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+)
+from .commentvote import SET_TYPE, Commentset, Voteset
+from .helpers import RESERVED_NAMES, add_search_trigger
 from .profile import Profile
-from .commentvote import Commentset, SET_TYPE, Voteset
-from .helper import RESERVED_NAMES
+from .user import Team, User
 
 __all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
 
@@ -94,8 +106,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         nullable=False)
     schedule_state = StateManager('_schedule_state', SCHEDULE_STATE, doc="Schedule state")
 
-    cfp_start_at = db.Column(db.DateTime, nullable=True)
-    cfp_end_at = db.Column(db.DateTime, nullable=True)
+    cfp_start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     # Columns for mobile
     bg_image = db.Column(UrlType, nullable=True)
@@ -127,8 +139,24 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     parent_id = db.Column(None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True)
     parent_project = db.relationship('Project', remote_side='Project.id', backref='subprojects')
-    inherit_sections = db.Column(db.Boolean, default=True, nullable=False)
-    part_labels = db.Column('labels', JsonDict, nullable=False, server_default='{}')
+
+    #: Featured project flag. This can only be set by website editors, not
+    #: project editors or profile admins.
+    featured = db.Column(db.Boolean, default=False, nullable=False)
+
+    search_vector = db.deferred(db.Column(
+        TSVectorType(
+            'name', 'title', 'description_text', 'instructions_text', 'location',
+            weights={
+                'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
+                'location': 'C'
+                },
+            regconfig='english',
+            hltext=lambda: db.func.concat_ws(
+                ' / ', Project.title, Project.location,
+                Project.description_html, Project.instructions_html),
+            ),
+        nullable=False))
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
@@ -138,29 +166,40 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     all_labels = db.relationship('Label', lazy='dynamic')
 
     featured_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start_at.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)')
     scheduled_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start_at.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)')
     unscheduled_sessions = db.relationship(
-        'Session',
+        'Session', order_by="Session.start_at.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)')
 
-    #: Redirect URLs from Funnel to Talkfunnel
-    legacy_name = db.Column(db.Unicode(250), nullable=True, unique=True)
-
-    __table_args__ = (db.UniqueConstraint('profile_id', 'name'),)
+    __table_args__ = (
+        db.UniqueConstraint('profile_id', 'name'),
+        db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
-                '_state', 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
-                'location'
+                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
+                'location', 'calendar_weeks'
                 },
+            'call': {
+                'url_for',
+                }
             }
         }
+
+    def __init__(self, **kwargs):
+        super(Project, self).__init__(**kwargs)
+        self.voteset = Voteset(type=SET_TYPE.PROJECT)
+        self.commentset = Commentset(type=SET_TYPE.PROJECT)
+
+    def __repr__(self):
+        return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
     @cached_property
     def datelocation(self):
@@ -204,19 +243,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             year=self.date.year)
         return datelocation if not self.location else u', '.join([datelocation, self.location])
 
-    def __init__(self, **kwargs):
-        super(Project, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROJECT)
-        self.commentset = Commentset(type=SET_TYPE.PROJECT)
-
-    def __repr__(self):
-        return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
-
-    state.add_conditional_state('PAST', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto < datetime.now().date(),
+    schedule_state.add_conditional_state('PAST', schedule_state.PUBLISHED,
+        lambda project: project.schedule_end_at is not None and utcnow() >= project.schedule_end_at,
+        lambda project: db.func.utcnow() >= project.schedule_end_at,
         label=('past', __("Past")))
-    state.add_conditional_state('UPCOMING', state.PUBLISHED,
-        lambda project: project.date_upto is not None and project.date_upto >= datetime.now().date(),
+    schedule_state.add_conditional_state('LIVE', schedule_state.PUBLISHED,
+        lambda project: (project.schedule_start_at is not None
+            and project.schedule_start_at <= utcnow() < project.schedule_end_at),
+        lambda project: db.and_(
+            project.schedule_start_at <= db.func.utcnow(),
+            db.func.utcnow() < project.schedule_end_at),
+        label=('live', __("Live")))
+    schedule_state.add_conditional_state('UPCOMING', schedule_state.PUBLISHED,
+        lambda project: project.schedule_start_at is not None and utcnow() < project.schedule_start_at,
+        lambda project: db.func.utcnow() < project.schedule_start_at,
         label=('upcoming', __("Upcoming")))
 
     cfp_state.add_conditional_state('HAS_PROPOSALS', cfp_state.EXISTS,
@@ -226,26 +266,36 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lambda project: db.session.query(project.sessions.exists()).scalar(),
         label=('has_sessions', __("Has Sessions")))
     cfp_state.add_conditional_state('PRIVATE_DRAFT', cfp_state.NONE,
-        lambda project: project.instructions.html != '',
-        lambda project: project.__table__.c.instructions_html != '',
+        lambda project: project.instructions_html != '',
+        lambda project: db.and_(
+            project.instructions_html.isnot(None),
+            project.instructions_html != ''),
         label=('private_draft', __("Private draft")))
     cfp_state.add_conditional_state('DRAFT', cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is None,
-        lambda project: project.__table__.c.cfp_start_at == None,  # NOQA
+        lambda project: project.cfp_start_at.is_(None),
         label=('draft', __("Draft")))
     cfp_state.add_conditional_state('UPCOMING', cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at > datetime.utcnow(),
-        lambda project: db.and_(project.cfp_start_at is not None, project.cfp_start_at > db.func.utcnow()),
+        lambda project: project.cfp_start_at is not None and utcnow() < project.cfp_start_at,
+        lambda project: db.and_(
+            project.cfp_start_at.isnot(None),
+            db.func.utcnow() < project.cfp_start_at),
         label=('upcoming', __("Upcoming")))
     cfp_state.add_conditional_state('OPEN', cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= datetime.utcnow() and (
-            project.cfp_end_at is None or project.cfp_end_at > datetime.utcnow()),
-        lambda project: db.and_(project.cfp_start_at is not None and project.cfp_start_at <= db.func.utcnow(), (
-            project.cfp_end_at is None or project.cfp_end_at > db.func.utcnow())),
+        lambda project: project.cfp_start_at is not None and project.cfp_start_at <= utcnow() and (
+            project.cfp_end_at is None or utcnow() < project.cfp_end_at),
+        lambda project: db.and_(
+            project.cfp_start_at.isnot(None),
+            project.cfp_start_at <= db.func.utcnow(),
+            db.or_(
+                project.cfp_end_at.is_(None),
+                db.func.utcnow() < project.cfp_end_at)),
         label=('open', __("Open")))
     cfp_state.add_conditional_state('EXPIRED', cfp_state.PUBLIC,
-        lambda project: project.cfp_end_at is not None and project.cfp_end_at <= datetime.utcnow(),
-        lambda project: db.and_(project.cfp_end_at is not None, project.cfp_end_at <= db.func.utcnow()),
+        lambda project: project.cfp_end_at is not None and utcnow() >= project.cfp_end_at,
+        lambda project: db.and_(
+            project.cfp_end_at.isnot(None),
+            db.func.utcnow() >= project.cfp_end_at),
         label=('expired', __("Expired")))
 
     @with_roles(call={'admin'})
@@ -305,7 +355,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @db.validates('name')
     def _validate_name(self, key, value):
         value = unicode(value).strip() if value is not None else None
-        if not value:
+        if not value or not valid_username(value):
             raise ValueError(value)
 
         if value != self.name and self.name is not None and self.profile is not None:
@@ -316,6 +366,52 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             else:
                 redirect.project = self
         return value
+
+    @cached_property
+    def calendar_weeks(self):
+        session_dates = db.session.query('date', 'count').from_statement(db.text(
+            '''
+            SELECT DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
+            FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
+            GROUP BY date ORDER BY date;
+            ''')).params(timezone=self.timezone.zone, project_id=self.id)
+
+        # FIXME: This doesn't work. This code needs to be tested in isolation
+        # session_dates = db.session.query(
+        #     db.cast(
+        #         db.func.date_trunc('day', db.func.timezone(self.timezone.zone, Session.start_at)),
+        #         db.Date).label('date'),
+        #     db.func.count().label('count')
+        #     ).filter(
+        #         Session.project == self,
+        #         Session.scheduled
+        #         ).group_by(db.text('date')).order_by(db.text('date'))
+
+        weeks = defaultdict(dict)
+        for result in session_dates:
+            weekobj = Week.withdate(result.date)
+            if weekobj.week not in weeks:
+                weeks[weekobj.week]['year'] = weekobj.year
+                # Order is important, and we need dict to count easily
+                weeks[weekobj.week]['dates'] = OrderedDict()
+            for wdate in weekobj.days():
+                weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
+                if result.date.date() == wdate:
+                    weeks[weekobj.week]['dates'][wdate.day] += result.count
+                    if 'month' not in weeks[weekobj.week]:
+                        weeks[weekobj.week]['month'] = format_date(wdate, 'MMM', locale=get_locale())
+
+        # Extract sorted weeks as a list
+        weeks_list = [v for k, v in sorted(weeks.items())]
+
+        for week in weeks_list:
+            # Convering to JSON messes up dictionary key order even though we used OrderedDict.
+            # This turns the OrderedDict into a list of tuples and JSON preserves that order.
+            week['dates'] = week['dates'].items()
+
+        return {
+            'locale': get_locale(), 'weeks': weeks_list,
+            'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
 
     @property
     def rooms(self):
@@ -358,40 +454,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def location_geonameid(self):
         return geonameid_from_location(self.location) if self.location else set()
 
-    @property
-    def proposal_part_a(self):
-        return self.part_labels.get('proposal', {}).get('part_a', {})
-
-    @property
-    def proposal_part_b(self):
-        return self.part_labels.get('proposal', {}).get('part_b', {})
-
-    def set_labels(self, value=None):
-        """
-        Sets 'labels' with the provided JSON, else with a default configuration
-        for fields with customizable labels.
-
-        Currently, the 'part_a' and 'part_b' fields in 'Proposal'
-        are allowed to be customized per project.
-        """
-        if value and isinstance(value, dict):
-            self.part_labels = value
-        else:
-            self.part_labels = {
-                "proposal": {
-                    "part_a": {
-                        "title": "Abstract",
-                        "hint": "Give us a brief description of your talk, key takeaways for the audience and the"
-                        " intended audience."
-                        },
-                    "part_b": {
-                        "title": "Outline",
-                        "hint": "Give us a break-up of your talk either in the form of draft slides, mind-map or"
-                        " text description."
-                        }
-                    }
-                }
-
     def permissions(self, user, inherited=None):
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
@@ -405,10 +467,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'view_contactinfo',
                     'edit_project',
                     'delete-project',
-                    'view-section',
-                    'new-section',
-                    'edit-section',
-                    'delete-section',
                     'confirm-proposal',
                     'view-venue',
                     'new-venue',
@@ -499,6 +557,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             roles.update(crew_membership.offered_roles())
 
         return roles
+
+
+add_search_trigger(Project, 'search_vector')
 
 
 Profile.listed_projects = db.relationship(

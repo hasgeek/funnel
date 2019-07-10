@@ -10,8 +10,8 @@ Create Date: 2019-02-20 16:25:30.611549
 revision = 'e3bf172763bc'
 down_revision = '94ce3a9b7a3a'
 
-from alembic import op
 import sqlalchemy as sa  # NOQA
+from alembic import op
 from sqlalchemy_utils import TimezoneType
 
 

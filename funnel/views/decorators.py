@@ -1,6 +1,8 @@
 from functools import wraps
-from flask import g, redirect, current_app, request
-from funnel import app, funnelapp
+
+from flask import current_app, g, redirect, request
+
+from .. import app, funnelapp
 
 
 def legacy_redirect(f):

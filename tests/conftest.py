@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import pytest
+
 import uuid
+
+import pytest
+
 from funnel import app
-from funnel.models import db, Profile, Project, User, Label, Proposal, Team
+from funnel.models import Label, Profile, Project, Proposal, Team, User, db
 
 
 @app.route('/usertest')
@@ -176,7 +179,7 @@ def new_label(test_db, new_project):
 def new_proposal(test_db, new_user, new_project):
     proposal = Proposal(
         user=new_user, speaker=new_user, project=new_project,
-        title=u"Test Proposal", description=u"Test proposal description",
+        title=u"Test Proposal", outline=u"Test proposal description",
         location=u"Bangalore"
         )
     test_db.session.add(proposal)

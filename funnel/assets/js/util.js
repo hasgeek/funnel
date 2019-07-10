@@ -22,7 +22,7 @@ export const Utils = {
   collapse() {
     $('.collapsible__header').on('click', function collapseContent() {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
-      $(this).next('.collapsible__body').slideToggle();
+      $(this).siblings('.collapsible__body').slideToggle();
     });
   },
   animateScrollTo(offsetY) {
@@ -34,6 +34,46 @@ export const Utils = {
     $('a.js-smooth-scroll').on('click', function clickHandler(event) {
       event.preventDefault();
       Utils.animateScrollTo($(this.hash).offset().top);
+    });
+  },
+  scrollTabs() {
+    if(document.getElementById('jquery-scroll-tabs')) {
+      // Horizontal scroll to active tab
+      $('#jquery-scroll-tabs').animate({
+        scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
+      }, 500);
+
+      $('#jquery-scroll-tabs .js-scroll-prev').on('click', function (event) {
+        event.preventDefault();
+        let prevTab = $('.tabs__item--active').prev('.tabs__item').attr('href')
+        if(prevTab) {
+          window.location.href = prevTab;
+        }
+      });
+
+      $('#jquery-scroll-tabs .js-scroll-next').on('click', function (event) {
+        event.preventDefault();
+        let nextTab = $('.tabs__item--active').next('.tabs__item').attr('href')
+        if(nextTab) {
+          window.location.href = nextTab;
+        }
+      });
+    }
+  },
+  navSearchForm() {
+    $('.js-search-show').on('click', function toggleSearchForm(event) {
+      event.preventDefault();
+      $('.js-search-form').toggleClass('search-form--show');
+      $('.js-search-field').focus();
+    });
+
+    // Clicking outside close search form if open
+    $('body').on('click', function closeSearchForm(event) {
+      if($('.js-search-form').hasClass('search-form--show') && 
+          !$(event.target).is('.js-search-field') && 
+          !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
+        $('.js-search-form').removeClass('search-form--show');
+      }
     });
   },
   sendToGA(category, action, label, value = '') {

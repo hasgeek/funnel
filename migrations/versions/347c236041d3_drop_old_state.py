@@ -9,9 +9,9 @@ Create Date: 2019-03-06 16:34:55.226219
 revision = '347c236041d3'
 down_revision = '4b80fb451c8e'
 
-from alembic import op
 import sqlalchemy as sa  # NOQA
-from sqlalchemy.sql import table, column
+from alembic import op
+from sqlalchemy.sql import column, table
 
 
 class OLD_STATE:

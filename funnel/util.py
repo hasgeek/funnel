@@ -1,11 +1,16 @@
-from StringIO import StringIO
-import requests
-from urlparse import urljoin
-from urlparse import urlparse
+# -*- coding: utf-8 -*-
+
+import six
+
+from urlparse import urljoin, urlparse
+
 from flask import current_app
-from baseframe import cache
+
 import qrcode
 import qrcode.image.svg
+import requests
+
+from baseframe import cache
 
 
 @cache.memoize(timeout=86400)
@@ -79,7 +84,7 @@ def make_qrcode(data):
     Makes a QR code in-memory and returns the raw svg
     """
     factory = qrcode.image.svg.SvgPathImage
-    stream = StringIO()
+    stream = six.BytesIO()
     img = qrcode.make(data, image_factory=factory)
     img.save(stream)
     qrcode_svg = stream.getvalue()

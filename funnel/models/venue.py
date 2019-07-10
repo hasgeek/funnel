@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.orderinglist import ordering_list
-from coaster.sqlalchemy import add_primary_relationship
-from . import db, BaseScopedNameMixin, MarkdownColumn, CoordinatesMixin, UuidMixin
-from .project import Project
 
+from coaster.sqlalchemy import add_primary_relationship
+
+from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db
+from .project import Project
 
 __all__ = ['Venue', 'VenueRoom']
 

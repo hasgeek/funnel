@@ -1,16 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin, UrlType
-from .user import User
-from .project import Project
-from .section import Section
-from .commentvote import Commentset, Voteset, SET_TYPE
-from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
-from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
+
 from werkzeug.utils import cached_property
+
+from baseframe import __
+from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
+from coaster.utils import LabeledEnum
+
 from ..util import geonameid_from_location
+from . import (
+    BaseScopedIdNameMixin,
+    CoordinatesMixin,
+    MarkdownColumn,
+    TimestampMixin,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+)
+from .commentvote import SET_TYPE, Commentset, Voteset
+from .helpers import add_search_trigger
+from .project import Project
+from .user import User
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
@@ -70,15 +82,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
     parent = db.synonym('project')
 
-    section_id = db.Column(None, db.ForeignKey('section.id'), nullable=True)
-    section = db.relationship(Section, primaryjoin=section_id == Section.id,
-        backref="proposals")
-    objective = MarkdownColumn('objective', nullable=True)
-    part_a = db.synonym('objective')
-    session_type = db.Column(db.Unicode(40), nullable=True)
-    technical_level = db.Column(db.Unicode(40), nullable=True)
-    description = MarkdownColumn('description', nullable=True)
-    part_b = db.synonym('description')
+    abstract = MarkdownColumn('abstract', nullable=True)
+    outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(UrlType, nullable=True)
     preview_video = db.Column(UrlType, default=u'', nullable=True)
@@ -94,22 +99,44 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False, lazy='joined',
-        cascade='all, delete-orphan', single_parent=True)
+        cascade='all, delete-orphan', single_parent=True,
+        backref=db.backref('proposal', uselist=False))
 
-    edited_at = db.Column(db.DateTime, nullable=True)
+    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    # Additional form data
-    data = db.Column(JsonDict, nullable=False, server_default='{}')
+    search_vector = db.deferred(db.Column(
+        TSVectorType(
+            'title', 'abstract_text', 'outline_text', 'requirements_text', 'slides',
+            'preview_video', 'links', 'bio_text',
+            weights={
+                'title': 'A',
+                'abstract_text': 'B',
+                'outline_text': 'B',
+                'requirements_text': 'B',
+                'slides': 'B',
+                'preview_video': 'C',
+                'links': 'B',
+                'bio_text': 'B',
+                },
+            regconfig='english',
+            hltext=lambda: db.func.concat_ws(' / ', Proposal.title, Proposal.abstract_html,
+                Proposal.outline_html, Proposal.requirements_html,
+                Proposal.links, Proposal.bio_html),
+            ),
+        nullable=False))
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'url_id'),
+        db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
             'read': {
-                'title', 'speaker', 'speaking', 'bio', 'section', 'objective', 'session_type',
-                'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
-                'latitude', 'longitude', 'coordinates'
+                'title', 'user', 'speaker', 'speaking', 'bio', 'abstract',
+                'outline', 'requirements', 'slides', 'preview_video', 'links', 'location',
+                'latitude', 'longitude', 'coordinates', 'session', 'project',
                 },
             'call': {
                 'url_for'
@@ -229,6 +256,13 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.url_id = None
         self.make_id()
 
+    @with_roles(call={'admin'})
+    def transfer_to(self, user):
+        """
+        Transfer the proposal to a new user and speaker
+        """
+        self.speaker = user
+
     @property
     def owner(self):
         return self.speaker or self.user
@@ -301,6 +335,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if self.state.DRAFT and 'reader' in roles:
             roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
+
+
+add_search_trigger(Proposal, 'search_vector')
 
 
 class ProposalRedirect(TimestampMixin, db.Model):

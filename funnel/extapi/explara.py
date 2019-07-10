@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
+
 from ..util import extract_twitter_handle
 
 __all__ = ['ExplaraAPI']

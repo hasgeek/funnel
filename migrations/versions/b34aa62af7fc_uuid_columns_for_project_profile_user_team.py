@@ -11,12 +11,15 @@ revision = 'b34aa62af7fc'
 down_revision = '19a1f7f2a365'
 
 from uuid import uuid4
-from alembic import op
+
 import sqlalchemy as sa  # NOQA
+from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
-from progressbar import ProgressBar
+
 import progressbar.widgets
+from progressbar import ProgressBar
+
 from coaster.utils import buid2uuid, uuid2buid
 
 project = table('project',

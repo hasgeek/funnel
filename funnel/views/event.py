@@ -1,17 +1,37 @@
 # -*- coding: utf-8 -*-
-from flask import redirect, render_template, url_for, flash, jsonify
-from coaster.views import load_models, route, render_with, requires_permission, UrlForView, ModelView
-from coaster.utils import getbool
+
 from sqlalchemy.exc import IntegrityError
-from .. import app, funnelapp, lastuser
-from ..models import (db, Profile, Project, ProjectRedirect, Participant, Event, TicketType, TicketClient, SyncTicket)
-from baseframe import forms
-from baseframe import _
+
+from flask import flash, jsonify, redirect, render_template, url_for
+
+from baseframe import _, forms
 from baseframe.forms import render_form
-from ..forms import EventForm, TicketTypeForm, ParticipantBadgeForm, TicketClientForm
+from coaster.utils import getbool
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    load_models,
+    render_with,
+    requires_permission,
+    route,
+)
+
+from .. import app, funnelapp, lastuser
+from ..forms import EventForm, ParticipantBadgeForm, TicketClientForm, TicketTypeForm
 from ..jobs import import_tickets
-from .project import ProjectViewMixin
+from ..models import (
+    Event,
+    Participant,
+    Profile,
+    Project,
+    ProjectRedirect,
+    SyncTicket,
+    TicketClient,
+    TicketType,
+    db,
+)
 from .decorators import legacy_redirect
+from .project import ProjectViewMixin
 
 
 @route('/<profile>/<project>/events')

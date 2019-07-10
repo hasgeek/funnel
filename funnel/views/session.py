@@ -1,18 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-from baseframe import _
-from flask import request, render_template, jsonify, abort
-from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs
-from coaster.sqlalchemy import failsafe_add
+from flask import abort, jsonify, render_template, request
 
-from .helpers import localize_date
+from baseframe import _
+from coaster.sqlalchemy import failsafe_add
+from coaster.utils import utcnow
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    render_with,
+    requestargs,
+    requires_permission,
+    route,
+)
+
 from .. import app, funnelapp, lastuser
-from ..models import db, ProposalFeedback, Session, FEEDBACK_AUTH_TYPE
 from ..forms import SessionForm
-from .mixins import ProjectViewMixin, SessionViewMixin
+from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, Session, db
 from .decorators import legacy_redirect
-from .schedule import session_data, session_list_data, date_js
+from .helpers import localize_date
+from .mixins import ProjectViewMixin, SessionViewMixin
+from .schedule import date_js, session_data, session_list_data
 
 
 def rooms_list(project):
@@ -30,7 +38,7 @@ def session_form(project, proposal=None, session=None):
     else:
         form = SessionForm()
         if proposal:
-            form.description.data = proposal.description
+            form.description.data = proposal.outline
             form.speaker_bio.data = proposal.bio
             form.speaker.data = proposal.owner.fullname
             form.title.data = proposal.title
@@ -92,7 +100,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
         return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
             from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),
             sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
-            timezone=self.obj.project.timezone.utcoffset(datetime.utcnow()).total_seconds(),
+            # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
+            timezone=utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
             venues=[venue.current_access() for venue in self.obj.project.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
 

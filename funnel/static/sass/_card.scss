@@ -1,21 +1,31 @@
-.clickable-card {
+.clickable-card,
+.card-wrapper {
   color: #1F2D3D;
   display: block;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .clickable-card:focus,
 .clickable-card:hover,
-.clickable-card:active {
+.clickable-card:active,
+.card-wrapper:focus,
+.card-wrapper:hover,
+.card-wrapper:active {
   color: #1F2D3D;
   outline: none;
   text-decoration: none;
 }
 
+.clickable-card .card__title__heading {
+  margin: 0 auto;
+  padding: 4px 0;
+}
+
 .card__image-wrapper {
   min-height: 126px;
   position: relative;
-  margin-bottom: 8px;
+  padding-bottom: 8px;
 }
 
 .card__image-wrapper img {
@@ -25,6 +35,11 @@
 .card__image--default {
   background-color: #F6EDE3;
   min-height: 125px;
+}
+
+.card__calendar {
+  padding: 1em;
+  margin-bottom: 1em;
 }
 
 .card__image__tagline {
@@ -43,41 +58,86 @@
   }
 }
 
-.card--upcoming {
-  display: block;
-  cursor: default;
-  width: 100%;
+.card--upcoming,
+.card--cfp {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  background: transparent;
 
-  .card__title__heading {
-    font-weight : 400;
-    font-size: 24px;
-    line-height: 32px;
+  .card__image__tagline {
+    font-size: inherit;
+  }
+
+  .card__image-wrapper,
+  .card__image--default {
+    flex: 0 0 100%;
+    min-height: auto;
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    a {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .card__image-wrapper--cfp {
+    .card__image-wrapper__overlay {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1;
+      background-image: linear-gradient(to bottom, rgba(67, 89, 111, 0.5), #202d3c);
+    }
+    .card__image-wrapper__text {
+      position: absolute;
+      z-index: 2;
+      color: #fff;
+      bottom: 0;
+    }
+  }
+
+  .card__body {
+    flex: 0 0 100%;
+  }
+
+  .card__calendar {
+    padding: 1em 0;
+    border-top: 1px solid rgba(132,146,166,0.3);
   }
 }
 
-@media(min-width: 1200px) {
-  .card--upcoming {
-    display: flex;
+@media (min-width: 768px) {
+  .card--upcoming,
+  .card--cfp {
     box-shadow: none;
-
-    .card__title__heading {
-      font-weight : 400;
-      font-size: 34px;
-      line-height: 40px;
-    }
 
     .card__image-wrapper,
     .card__image--default {
-      width: 530px;
+      flex: 0 0 300px;
     }
-
-    .card__image-wrapper a {
-      display: block;
-      width: 530px;
-    }
-
     .card__body {
-      padding: 1em 2em;
+      flex: 0 0 calc(100% - 300px);
+      padding: 0 0 0 1em;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .card--upcoming,
+  .card--cfp {
+    .card__body {
+      padding: 0 0 0 2em;
+    }
+    .card__body--cfp {
+      padding: 0 0 0 1em;
+    }
+    .card__image-wrapper--cfp {
+      height: 150px;
     }
   }
 }
@@ -114,6 +174,132 @@
 
 .card--small {
   max-width: 400px;
-  margin-top: 10px;
 }
 
+.session-card {
+  .session-card__header {
+    padding: 0;
+    display: flex;
+    background: none;
+    border-bottom: 1px solid rgba(132,146,166,0.3);
+
+    .session-card__header__image {
+      width: 30%;
+      height: 100%;
+    }
+
+    .session-card__header__title {
+      width: 70%;
+      padding-left: 15px;
+      justify-content: center;
+      align-self: center;
+    }
+  } 
+}
+
+.calendar {
+  width: 100%;
+
+  .calendar__weekdays {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .calendar__weekdays__name {
+    text-align: center;
+    position: relative;
+    width: calc(100%/8);
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .calendar__weekdays__name--weekday {
+    font-variant: all-small-caps;
+  }
+
+  .calendar__weekdays__name--month {
+    font-size: 18px;
+    line-height: 28px;
+    font-variant: all-small-caps;
+    width: 100%;
+  }
+
+  .calendar__weekdays__date {
+    position: relative;
+    width: calc(100%/7);
+    text-align: center;
+    font-size: 14px;
+    line-height: 28px;
+
+    .calendar__weekdays__date__text {
+      position: relative;
+      z-index: 2;
+    }
+  }
+
+  .calendar__weekdays__date--active:after {
+    content: '';
+    font-weight: bold;
+    border-radius: 50%;
+    background-color: #b2d6ff;
+    background-color: Highlight;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    z-index: 1
+  }
+
+  .calendar__weekdays__date--active .calendar__weekdays__date__text {
+    color: #1F2D3D;
+    color: HighlightText;
+  }
+
+  .calendar__weekdays__month {
+    width: calc(100%/8);
+    word-break: keep-all;
+  }
+
+  .calendar__weekdays__dates {
+    width: calc(100% - 100%/8);
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+}
+
+.contact-card {
+  position: relative;
+
+  .contact-card__details {
+    width: 100%;
+
+    .contact-card__details__download-btn {
+      position: absolute;
+      top: 0;
+      right: 0; 
+    }
+  }
+}
+
+
+@media(min-width: 1200px) {
+  .contact-card {
+    position: relative;
+
+    .contact-card__details {
+      width: calc(100% - 80px);
+
+      .contact-card__details__download-btn {
+        position: relative;
+        top: 0;
+        right: 0; 
+      }
+    }
+  } 
+}

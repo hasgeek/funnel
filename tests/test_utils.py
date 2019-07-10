@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 from flask import current_app
-from funnel.util import (extract_twitter_handle, geonameid_from_location,
-    split_name, format_twitter_handle)
+
+from funnel.util import (
+    extract_twitter_handle,
+    format_twitter_handle,
+    geonameid_from_location,
+    split_name,
+)
 
 
 class TestUtils(object):

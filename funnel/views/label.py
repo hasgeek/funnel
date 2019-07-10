@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, g, request
+from flask import flash, g, redirect, request
 from werkzeug.datastructures import MultiDict
-from coaster.views import render_with, requires_permission, route, UrlForView, ModelView
+
 from baseframe import _, forms
+from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
 from .. import app, funnelapp, lastuser
-from ..models import Label, db, Project, Profile
 from ..forms import LabelForm, LabelOptionForm
-from .mixins import ProjectViewMixin
+from ..models import Label, Profile, Project, db
 from .decorators import legacy_redirect
+from .mixins import ProjectViewMixin
 
 
 @route('/<profile>/<project>/labels')
