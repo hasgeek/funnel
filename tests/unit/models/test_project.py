@@ -66,7 +66,7 @@ class TestProject(object):
             name=u"test-session-a", title=u"Test Session A",
             project=new_project, description=u"Test description",
             speaker_bio=u"Test speaker bio", is_break=False, featured=False,
-            start=start_time_a, end=end_time_a
+            start_at=start_time_a, end_at=end_time_a
             )
         start_time_b = start_time_a + timedelta(days=2)
         end_time_b = end_time_a + timedelta(days=2)
@@ -74,7 +74,7 @@ class TestProject(object):
             name=u"test-session-b", title=u"Test Session B",
             project=new_project, description=u"Test description",
             speaker_bio=u"Test speaker bio", is_break=False, featured=False,
-            start=start_time_b, end=end_time_b
+            start_at=start_time_b, end_at=end_time_b
             )
         test_db.session.add(new_session_a)
         test_db.session.add(new_session_b)
@@ -83,8 +83,8 @@ class TestProject(object):
         # now project.schedule_start_at will be the first session's start date
         # and project.schedule_end_at will be the last session's end date
         assert new_project.sessions.count() == 2
-        assert new_project.schedule_start_at.date() == new_session_a.start.date()
-        assert new_project.schedule_end_at.date() == new_session_b.end.date()
+        assert new_project.schedule_start_at.date() == new_session_a.start_at.date()
+        assert new_project.schedule_end_at.date() == new_session_b.end_at.date()
 
         # both session dates are in same month, hence the format below.
         assert new_project.datelocation == u"{start_at}–{end_at} {month} {year}, {location}".format(
@@ -93,41 +93,41 @@ class TestProject(object):
             )
 
         # The sessions are in different months
-        new_session_a.start = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_a.end = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_b.start = datetime(2019, 7, 1, 12, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_b.end = datetime(2019, 7, 1, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.start_at = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.end_at = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.start_at = datetime(2019, 7, 1, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.end_at = datetime(2019, 7, 1, 14, 15, 0).replace(tzinfo=new_project.timezone)
         test_db.session.commit()
 
         assert new_project.datelocation == u"{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
-            start_date=new_session_a.start.strftime("%d"), start_month=new_session_a.start.strftime("%b"),
-            end_date=new_session_b.end.strftime("%d"), end_month=new_session_b.end.strftime("%b"),
-            year=new_session_b.end.year, location=new_project.location
+            start_date=new_session_a.start_at.strftime("%d"), start_month=new_session_a.start_at.strftime("%b"),
+            end_date=new_session_b.end_at.strftime("%d"), end_month=new_session_b.end_at.strftime("%b"),
+            year=new_session_b.end_at.year, location=new_project.location
             )
 
         # Both sessions are on same day
-        new_session_a.start = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_a.end = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_b.start = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_b.end = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.start_at = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.end_at = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.start_at = datetime(2019, 6, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.end_at = datetime(2019, 6, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
         test_db.session.commit()
 
         assert new_project.datelocation == u"{start_date} {end_month} {year}, {location}".format(
-            start_date=new_session_a.start.strftime("%d"), end_month=new_session_b.end.strftime("%b"),
-            year=new_session_b.end.year, location=new_project.location
+            start_date=new_session_a.start_at.strftime("%d"), end_month=new_session_b.end_at.strftime("%b"),
+            year=new_session_b.end_at.year, location=new_project.location
             )
 
         # The sessions are in different years
-        new_session_a.start = datetime(2018, 12, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_a.end = datetime(2018, 12, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_b.start = datetime(2019, 1, 1, 12, 15, 0).replace(tzinfo=new_project.timezone)
-        new_session_b.end = datetime(2019, 1, 1, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.start_at = datetime(2018, 12, 28, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_a.end_at = datetime(2018, 12, 28, 14, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.start_at = datetime(2019, 1, 1, 12, 15, 0).replace(tzinfo=new_project.timezone)
+        new_session_b.end_at = datetime(2019, 1, 1, 14, 15, 0).replace(tzinfo=new_project.timezone)
         test_db.session.commit()
 
         assert new_project.datelocation == u"{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
-            start_date=new_session_a.start.strftime("%d"), start_month=new_session_a.start.strftime("%b"),
-            end_date=new_session_b.end.strftime("%d"), end_month=new_session_b.end.strftime("%b"),
-            start_year=new_session_a.start.strftime("%Y"), end_year=new_session_b.end.strftime("%Y"),
+            start_date=new_session_a.start_at.strftime("%d"), start_month=new_session_a.start_at.strftime("%b"),
+            end_date=new_session_b.end_at.strftime("%d"), end_month=new_session_b.end_at.strftime("%b"),
+            start_year=new_session_a.start_at.strftime("%Y"), end_year=new_session_b.end_at.strftime("%Y"),
             location=new_project.location
             )
 
