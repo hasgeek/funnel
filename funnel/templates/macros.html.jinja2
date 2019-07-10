@@ -25,7 +25,7 @@
   </form>
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, current_page='project') %}
+{% macro project_header(project, project_save_form, proj_save_status, current_page='project') %}
   <div class="mui-container project-banner">
     <div class="grid">
       <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-7 grid__col-lg-8 project-banner__box">
@@ -86,7 +86,6 @@
           </div>
         {% endif %}
         <div class="project-banner__action">
-          {{proj_save_status}}
           {%- if g.user %}
             {{ saveprojectform(project, project_save_form, proj_save_status) }}
           {%- else %}
