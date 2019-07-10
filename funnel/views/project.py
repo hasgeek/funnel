@@ -84,9 +84,13 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
+        project_save_form = ProjectSaveForm()
+        proj_save_status = SavedProject.query.filter_by(user=current_auth.user, project=self.obj).first()
         return {'project': self.obj,
             'rsvp_form': rsvp_form, 'transition_form': transition_form,
-            'schedule_transition_form': schedule_transition_form}
+            'schedule_transition_form': schedule_transition_form,
+            'project_save_form': project_save_form,
+            'proj_save_status': proj_save_status}
 
     @route('proposals')
     @render_with('proposals.html.jinja2')
@@ -247,6 +251,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def rsvp(self):
         form = RsvpForm()
+        print form.data
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, g.user, create=True)
             form.populate_obj(rsvp)
@@ -266,6 +271,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return dict(project=self.obj, statuses=RSVP_STATUS)
 
     @route('save', methods=['POST'])
+    @render_with('save_project.html.jinja2')
     @lastuser.requires_login
     @requires_permission('view')
     def save(self):
@@ -276,9 +282,16 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 proj_save = SavedProject(user=current_auth.user, project=self.obj)
                 form.populate_obj(proj_save)
                 db.session.commit()
-                flash(_(u"The project has been saved"), category='success')
+                if request.is_xhr:
+                    return dict(project=self.obj, proj_save_status=proj_save, project_save_form=form)
+                else:
+                    flash(_(u"The project has been saved"), category='success')
+                    return redirect(self.obj.url_for(), code=303)
+            elif request.is_xhr:
+                return dict(project=self.obj, proj_save_status=proj_save, project_save_form=form)
             else:
                 flash(_(u"You have already saved this project"), category='error')
+                return redirect(self.obj.url_for(), code=303)
         else:
             flash(_(u"Cannot save this project: {}".format(", ".join(form.errors))), category='error')
         return redirect(self.obj.url_for(), code=303)

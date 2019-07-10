@@ -90,3 +90,27 @@
     </div>
   </div>
 {% endblock %}
+
+{% block footerscripts %}
+  {% if project.allow_rsvp -%}
+    {{ ajaxform('rsvp-form', request, force=true) }}
+  {%- endif %}
+  <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var projectConfig = {};
+      {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+        projectConfig.ticketing = {
+          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+          widgetElem: "#boxoffice-widget",
+          org: {{ project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ project.title|tojson }}
+        };
+      {%- endif %}
+
+      window.HasGeek.ProjectInit(projectConfig);
+
+    });
+  </script>
+{% endblock %}
