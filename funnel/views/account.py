@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for, redirect
+from flask import redirect, url_for
+
 from coaster.auth import current_auth
-from coaster.views import ClassView, route, render_with
+from coaster.views import ClassView, render_with, route
+
 from .. import app, funnelapp, lastuser
 
 

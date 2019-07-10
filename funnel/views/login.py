@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import g, flash, redirect, render_template
-from coaster.views import get_next_url
+from flask import flash, g, redirect, render_template
+
 from baseframe import _
+from coaster.views import get_next_url
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile
+from ..models import Profile, db
 
 
 @app.route('/login')

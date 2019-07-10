@@ -10,9 +10,9 @@ Create Date: 2014-01-28 00:09:39.231864
 revision = '3c47ba103724'
 down_revision = '6f98e24760d'
 
-from alembic import op
 import sqlalchemy as sa  # NOQA
-from sqlalchemy.sql import table, column
+from alembic import op
+from sqlalchemy.sql import column, table
 
 
 # The PROPOSALSTATUS class as it was when this migration was created

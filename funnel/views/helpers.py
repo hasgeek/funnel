@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from flask import request
-from coaster.gfm import markdown
 from datetime import datetime
-from flask_mail import Message
-from funnel import app, funnelapp
-from pytz import timezone as pytz_timezone, utc
 from urlparse import urljoin
-from .. import mail
+
+from flask import request
+from flask_mail import Message
+
+from pytz import timezone as pytz_timezone
+from pytz import utc
+
+from coaster.gfm import markdown
+
+from .. import app, funnelapp, mail
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):

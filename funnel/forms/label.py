@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import __
 import baseframe.forms as forms
+from baseframe import __
 
 __all__ = ['LabelForm', 'LabelOptionForm']
 

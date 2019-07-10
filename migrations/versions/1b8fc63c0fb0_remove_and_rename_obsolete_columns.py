@@ -11,10 +11,10 @@ revision = '1b8fc63c0fb0'
 down_revision = 'ea20c403b240'
 
 import json
-from alembic import op
-import sqlalchemy as sa  # NOQA
-from sqlalchemy.dialects import postgresql
 
+import sqlalchemy as sa  # NOQA
+from alembic import op
+from sqlalchemy.dialects import postgresql
 
 default_part_labels = {
     "proposal": {

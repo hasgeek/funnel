@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import re
-from wtforms.widgets import CheckboxInput, ListWidget
-from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 
-from coaster.utils import sorted_timezones
-from baseframe import __
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
+from wtforms.widgets import CheckboxInput, ListWidget
+
 import baseframe.forms as forms
+from baseframe import __
 from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
+from coaster.utils import sorted_timezones
 
 from ..models import RSVP_STATUS, Project
 
