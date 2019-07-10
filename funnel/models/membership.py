@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from coaster.sqlalchemy import immutable
 
 from . import BaseMixin, UuidMixin, db
-from .user import User
 from .profile import Profile
 from .project import Project
+from .user import User
 
 __all__ = ['ProfileAdminMembership', 'ProjectCrewMembership']
 
