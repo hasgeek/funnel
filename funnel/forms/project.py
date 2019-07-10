@@ -147,6 +147,10 @@ class ProjectCfpTransitionForm(forms.Form):
 
 
 class ProjectSaveForm(forms.Form):
+    save = forms.BooleanField(
+        __("Save this project?"),
+        validators=[forms.validators.InputRequired()],
+    )
     description = forms.StringField(__("Notes"))
 
 

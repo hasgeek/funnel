@@ -11,21 +11,21 @@
   </form>
 {% endwith %}{% endmacro %}
 
-{% macro saveprojectform(project, form, proj_save_status) %}
+{% macro saveprojectform(project, form, project_currently_saved) %}
   <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ form.hidden_tag() }}
     <p class="no-jshidden">
-      {% if not proj_save_status %}
-        <button type="submit" name="status" value="S" class="mui-btn mui-btn--raised" data-action="Save {{project.title}}" id=""><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">access_alarm</i> Remind me</button>
+      {% if not project_currently_saved %}
+        <button type="submit" name="save" value="true" class="mui-btn mui-btn--raised" data-action="Save {{project.title}}" id=""><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">access_alarm</i> Remind me</button>
       {% else %}
-        <button type="submit" name="status" value="U" class="mui-btn mui-btn--raised" data-action="Unsave {{project.title}}"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">favorite</i> Saved</button>
+        <button type="submit" name="save" value="false" class="mui-btn mui-btn--raised" data-action="Unsave {{project.title}}"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">favorite</i> Saved</button>
       {% endif %}
       &nbsp;<span class="loading mui--hide"><i class="material-icons mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i></span>
     </p>
   </form>
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, proj_save_status, current_page='project') %}
+{% macro project_header(project, project_save_form, project_currently_saved, current_page='project') %}
   <div class="mui-container project-banner">
     <div class="grid">
       <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-7 grid__col-lg-8 project-banner__box">
@@ -86,8 +86,8 @@
           </div>
         {% endif %}
         <div class="project-banner__action">
-          {%- if g.user %}
-            {{ saveprojectform(project, project_save_form, proj_save_status) }}
+          {%- if current_auth.user %}
+            {{ saveprojectform(project, project_save_form, project_currently_saved) }}
           {%- else %}
             <p>
               <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to rsvp">{% trans %}Login to favourite this event{% endtrans %}</a>

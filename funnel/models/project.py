@@ -541,6 +541,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
 
+    def is_saved_by(self, user):
+        return self.saved_by.filter_by(user=user).first() is not None
+
 
 add_search_trigger(Project, 'search_vector')
 

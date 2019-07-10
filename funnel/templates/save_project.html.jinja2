@@ -1,4 +1,4 @@
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
 {% from "macros.html.jinja2" import saveprojectform %}
-{{ saveprojectform(project, project_save_form, proj_save_status) }}
+{{ saveprojectform(project, project_save_form, project_currently_saved) }}
 {{ ajaxform('save-form', request) }}
