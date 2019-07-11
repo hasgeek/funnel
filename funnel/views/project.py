@@ -124,7 +124,11 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        return {'project': self.obj, 'cfp_transition_form': cfp_transition_form}
+        project_save_form = ProjectSaveForm()
+        project_currently_saved = self.obj.is_saved_by(current_auth.user)
+        return {'project': self.obj, 'cfp_transition_form': cfp_transition_form,
+            'project_save_form': project_save_form,
+            'project_currently_saved': project_currently_saved}
 
     @route('json')
     @render_with(json=True)

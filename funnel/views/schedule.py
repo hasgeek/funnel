@@ -10,6 +10,7 @@ from flask import Response, current_app, json, jsonify, request
 
 from icalendar import Alarm, Calendar, Event
 
+from coaster.auth import current_auth
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -23,7 +24,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp, lastuser
-from ..forms import ProjectScheduleTransitionForm
+from ..forms import ProjectScheduleTransitionForm, ProjectSaveForm
 from ..models import Proposal, Session, db
 from .decorators import legacy_redirect
 from .helpers import localize_date
@@ -156,13 +157,17 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
+        project_save_form = ProjectSaveForm()
+        project_currently_saved = self.obj.is_saved_by(current_auth.user)
         return dict(project=self.obj,
             from_date=date_js(self.obj.date), to_date=date_js(self.obj.date_upto),
             sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
             timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             venues=[venue.current_access() for venue in self.obj.venues],
             rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]),
-            schedule_transition_form=schedule_transition_form)
+            schedule_transition_form=schedule_transition_form,
+            project_save_form=project_save_form,
+            project_currently_saved=project_currently_saved)
 
     @route('subscribe')
     @render_with('schedule_subscribe.html.jinja2')

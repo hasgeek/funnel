@@ -199,6 +199,28 @@ export const LazyloadImg = {
   },
 };
 
+export const SaveProject = function({formId, postUrl, config={}}) {
+  const onSuccess = function() {
+    $('#' + formId).find('button').css('display', 'inline-block').prop('disabled', false).toggleClass('mui--hide');
+  };
+
+  const onError = function(response) {
+    var errorMsg = '';
+    if (response.readyState === 4) {
+      if (response.status === 500) {
+        errorMsg ='Internal Server Error. Please reload and try again.';
+      } else {
+        errorMsg = JSON.parse(response.responseText).error_description;
+      }
+    } else {
+      errorMsg = 'Unable to connect. Please reload and try again.';
+    }
+    window.toastr.error(errorMsg);
+  };
+
+  window.Baseframe.Forms.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
+};
+
 export const TableSearch = function (tableId) {
   // a little library that takes a table id
   // and provides a method to search the table's rows for a given query.

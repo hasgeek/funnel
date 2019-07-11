@@ -1,4 +1,4 @@
-import { Utils } from './util';
+import { Utils, SaveProject } from './util';
 import L from "leaflet";
 
 const TicketWidget = {
@@ -112,13 +112,17 @@ const EmbedMap = {
 };
 
 $(() => {
-  window.HasGeek.ProjectInit = function ({ticketing='', venue= ''}) {
+  window.HasGeek.ProjectInit = function ({ticketing='', venue= '', saveProjectConfig=''}) {
     if (ticketing) {
       TicketWidget.init(ticketing);
     }
 
     if (venue) {
       EmbedMap.init(venue);
+    }
+
+    if (saveProjectConfig) {
+      SaveProject(saveProjectConfig);
     }
   };
 });

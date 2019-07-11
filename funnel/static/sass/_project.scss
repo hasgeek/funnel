@@ -33,9 +33,9 @@
   }
   .project-banner__action {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
-    margin: 15px 0;
+    margin: 15px 0 0;
     max-width: 300px;
 
     .project-banner__action__icon {
@@ -48,6 +48,15 @@
       width: 110px;
       display: flex;
       align-items: center;
+    }
+
+    .project-banner__action__button {
+      display: inline-block;
+      width: 165px;
+    }
+
+    .mui-btn+.mui-btn {
+      margin-left: 0;
     }
   }
 
@@ -66,7 +75,7 @@
 
   .date-wrapper {
     display: flex;
-    margin: 15px -15px;
+    margin: 0 -15px;
     padding: 15px;
 
     .date-wrapper__icon {
@@ -151,12 +160,53 @@
 
   #participate {
     padding-left: 30px;
+    position: sticky;
+    top: 65px;
   }
 
   #boxoffice-widget {
     padding-top: 0;
     max-width: 100%;
     margin: 0;
+
+    .category-heading {
+      font-size: 25px;
+      width: 100%;
+    }
+
+    .category-heading:after {
+      border: none;
+    }
+
+    .ticket-details {
+      margin: 0;
+      width: 100%;
+    }
+
+    .ticket-price-qty {
+      float: left;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .price-details-wrapper,
+    .ticket-total,
+    .proceed-button-wrapper {
+      float: left;
+    }
+
+    .item-amount,
+    .valid-upto {
+      text-align: left;
+    }
+
+    .checkout-confirmation {
+      padding: 0;
+    }
+
+    .fa {
+      display: none;
+    }
   }
 }
 

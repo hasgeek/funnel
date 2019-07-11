@@ -1,4 +1,4 @@
-import {Utils} from './util';
+import { Utils, SaveProject } from './util';
 import Ractive from "ractive";
 
 const Schedule = {
@@ -270,7 +270,11 @@ const Schedule = {
 };
 
 $(() => {
-  window.HasGeek.ScheduleInit = function (config) {
+  window.HasGeek.ScheduleInit = function (config, saveProjectConfig) {
     Schedule.init(config);
+
+    if (saveProjectConfig) {
+      SaveProject(saveProjectConfig);
+    }
   };
 });

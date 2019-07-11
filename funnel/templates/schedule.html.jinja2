@@ -32,7 +32,7 @@
     </div>
   </div>
   <div class="mui--hidden-xs mui--hidden-sm">
-    {{ project_header(project, current_page='schedule') }}
+    {{ project_header(project, project_save_form, project_currently_saved, current_page='schedule') }}
   </div>
 {% endblock %}
 
@@ -54,8 +54,8 @@
               <script id="scheduletemplate" type="text/ractive">
                 <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
                   <div class="tabs">
-                    <button class="no-btn tabs__item {{#if view === 'calendar'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'calendar')">Calender view</button>
-                    <button class="no-btn tabs__item {{#if view === 'agenda'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'agenda')">Agenda view</button>
+                    <button class="mui-btn--nostyle tabs__item {{#if view === 'calendar'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'calendar')">Calender view</button>
+                    <button class="mui-btn--nostyle tabs__item {{#if view === 'agenda'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'agenda')">Agenda view</button>
                   </div>
                 </div>
                 {{#schedules:schedule}}
@@ -143,7 +143,13 @@
   {%- endif %}
   <script type="text/javascript">
     $(document).ready( function() {
-      window.HasGeek.ScheduleInit(scheduleConfig);
+
+      saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
+
+      window.HasGeek.ScheduleInit(scheduleConfig, saveProjectConfig);
     });
   </script>
 {% endblock %}

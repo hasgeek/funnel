@@ -20,12 +20,8 @@
   padding-right: 15px;
 }
 
-.no-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
+.grid-no-left-padding {
+  margin-left: -15px;
 }
 
 .separator {
@@ -694,7 +690,7 @@ html.touch .collapsible__body--disable {
   margin: 15px 0 0;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .hg-banner {
     text-align: center;
   }
@@ -752,20 +748,18 @@ html.touch .collapsible__body--disable {
     padding-left: 30px;
   }
 }
-@media (min-width: 1200px) {
+@media (min-width: 768px) and (max-width: 991px) {
   .spotlight {
-    position: relative;
+    margin-bottom: 15px;
   }
-
-  .spotlight:after {
-    content: '';
-    border-left: 1px solid rgba(132, 146, 166, 0.3);
-    height: 100px;
-    position: absolute;
-    right: 0;
-    top: 35%;
+  .spotlight spotlight__headline {
+    text-align: center;
   }
-
+  .spotlight .spotlight__card {
+    margin: auto;
+  }
+}
+@media (min-width: 1200px) {
   .upcoming {
     padding-left: 45px;
   }
@@ -1260,9 +1254,9 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-banner__action {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  margin: 15px 0;
+  margin: 15px 0 0;
   max-width: 300px;
 }
 .project-banner .project-banner__action .project-banner__action__icon {
@@ -1274,6 +1268,13 @@ html.touch .collapsible__body--disable {
   width: 110px;
   display: flex;
   align-items: center;
+}
+.project-banner .project-banner__action .project-banner__action__button {
+  display: inline-block;
+  width: 165px;
+}
+.project-banner .project-banner__action .mui-btn + .mui-btn {
+  margin-left: 0;
 }
 .project-banner .profile-details {
   display: flex;
@@ -1288,7 +1289,7 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .date-wrapper {
   display: flex;
-  margin: 15px -15px;
+  margin: 0 -15px;
   padding: 15px;
 }
 .project-banner .date-wrapper .date-wrapper__icon {
@@ -1358,11 +1359,44 @@ html.touch .collapsible__body--disable {
 }
 .about-ticket-wrapper #participate {
   padding-left: 30px;
+  position: sticky;
+  top: 65px;
 }
 .about-ticket-wrapper #boxoffice-widget {
   padding-top: 0;
   max-width: 100%;
   margin: 0;
+}
+.about-ticket-wrapper #boxoffice-widget .category-heading {
+  font-size: 25px;
+  width: 100%;
+}
+.about-ticket-wrapper #boxoffice-widget .category-heading:after {
+  border: none;
+}
+.about-ticket-wrapper #boxoffice-widget .ticket-details {
+  margin: 0;
+  width: 100%;
+}
+.about-ticket-wrapper #boxoffice-widget .ticket-price-qty {
+  float: left;
+  width: 100%;
+  margin-top: 15px;
+}
+.about-ticket-wrapper #boxoffice-widget .price-details-wrapper,
+.about-ticket-wrapper #boxoffice-widget .ticket-total,
+.about-ticket-wrapper #boxoffice-widget .proceed-button-wrapper {
+  float: left;
+}
+.about-ticket-wrapper #boxoffice-widget .item-amount,
+.about-ticket-wrapper #boxoffice-widget .valid-upto {
+  text-align: left;
+}
+.about-ticket-wrapper #boxoffice-widget .checkout-confirmation {
+  padding: 0;
+}
+.about-ticket-wrapper #boxoffice-widget .fa {
+  display: none;
 }
 
 .session-image {

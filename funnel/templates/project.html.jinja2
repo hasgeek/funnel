@@ -68,7 +68,7 @@
   </div>
 
   <div class="grid about-ticket-wrapper">
-    <div class="{% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}grid__col-sm-7{% elif project.allow_rsvp -%}grid__col-sm-6{% else %}grid__col-sm-12{% endif %}" id="about">
+    <div class="{% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}grid__col-sm-6 grid__col-md-7 {% elif project.allow_rsvp -%}grid__col-sm-6{% else %}grid__col-sm-12{% endif %}" id="about">
       <h2 class="mui--text-display1 mui--text-left project-section__headline">About</h2>
       <div class="project-section__description">{{ project.description|safe }}</div>
       {%- if project.subprojects %}
@@ -96,10 +96,61 @@
           {%- endfor -%}
         </ul>
       {%- endif %}
+      {% if project.featured_sessions  %}
+        <div class="project-section" id="talks">
+          <h2 class="mui--text-display1 mui--text-left project-section__headline">Talks</h2>
+          <ul class="grid grid-no-left-padding">
+            {% for session in project.featured_sessions %}
+              <li class="grid__col-xs-12 grid__col-md-6">
+                <div class="grid__cell">
+                  <div class="card" title="{{ session.title }}">
+                    <div class="card session-card">
+                      {% if session.banner_image_url.url %}
+                        {% if session.proposal %}
+                          <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                        {% else %}
+                          <div class="card__header session-card__header">
+                        {% endif %}
+                          <img class="card__image session-card__header__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
+                          {% if session.speaker %}
+                            <h4 class="mui--text-title mui--text-bold card__title__heading session-card__header__title">{{ session.speaker }}</h4>
+                          {% endif %}
+                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
+                      {% else %}
+                        {% if session.proposal %}
+                          <a class="card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                        {% else %}
+                          <div class="card__header">
+                        {% endif %}
+                          <div class="card__header__title">
+                            <h3 class="mui--text-title card__title__heading mui--text-bold">{{ session.title }}</h3>
+                            {% if session.speaker %}
+                              <h4 class="mui--text-subhead card__title__heading">by {{ session.speaker }}</h4>
+                            {% endif %}
+                          </div>
+                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
+                      {% endif %}
+                      {% if session.proposal %}
+                        <a class="card__body mui--text-body2 clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                      {% else %}
+                        <div class="card__body mui--text-body2">
+                      {% endif %}
+                        <h3 class="mui--text-title card__title__heading  mui--text-bold">{{ session.title }}</h3>
+                        <div class="mui--text-body1 mui--text-light truncate">{{ session.description|safe }}</div>
+                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+          {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(page)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
+        </div>
+        {%- endif %}
     </div>
 
     {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-      <div class="grid__col-sm-5 mui--hidden-xs mui--hidden-sm" id="participate">
+      <div class="grid__col-sm-6 grid__col-md-5 mui--hidden-xs mui--hidden-sm project-participate" id="participate">
         {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
           <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
           <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
@@ -121,71 +172,6 @@
       </div>
     {%- endif %}
   </div>
-
-
-  {% if project.featured_sessions  %}
-  <div class="project-section" id="talks">
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        <h2 class="mui--text-display1 mui--text-left project-section__headline">Talks</h2>
-      </div>
-    </div>
-    <ul class="grid">
-      {% for session in project.featured_sessions %}
-        <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-          <div class="grid__cell">
-            <div class="card" title="{{ session.title }}">
-              <div class="card session-card">
-                {% if session.banner_image_url.url %}
-                  {% if session.proposal %}
-                    <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
-                  {% else %}
-                    <div class="card__header session-card__header">
-                  {% endif %}
-                    <img class="card__image session-card__header__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
-                    {% if session.speaker %}
-                      <h4 class="mui--text-title mui--text-bold card__title__heading session-card__header__title">{{ session.speaker }}</h4>
-                    {% endif %}
-                  {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                {% else %}
-                  {% if session.proposal %}
-                    <a class="card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
-                  {% else %}
-                    <div class="card__header">
-                  {% endif %}
-                    <div class="card__header__title">
-                      <h3 class="mui--text-title card__title__heading mui--text-bold">{{ session.title }}</h3>
-                      {% if session.speaker %}
-                        <h4 class="mui--text-subhead card__title__heading">by {{ session.speaker }}</h4>
-                      {% endif %}
-                    </div>
-                  {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                {% endif %}
-                {% if session.proposal %}
-                  <a class="card__body mui--text-body2 clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
-                {% else %}
-                  <div class="card__body mui--text-body2">
-                {% endif %}
-                  <h3 class="mui--text-title card__title__heading  mui--text-bold">{{ session.title }}</h3>
-                  <div class="mui--text-body1 mui--text-light truncate">{{ session.description|safe }}</div>
-                {% if session.proposal %}</a>{% else %}</div>{% endif %}
-              </div>
-            </div>
-          </div>
-        </li>
-      {%- endfor -%}
-    </ul>
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        <p class="mui--text-left">
-        {%- if project.schedule_state.PUBLISHED %}
-          <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(page)">{% trans %}View Schedule{% endtrans %}</a>
-        {%- endif %}
-        </p>
-      </div>
-    </div>
-  </div>
-  {%- endif %}
 
   {% if project.hasjob_embed_url.url -%}
   <div class="grid project-section" id="related-jobs">
@@ -222,7 +208,6 @@
   {% if project.allow_rsvp -%}
     {{ ajaxform('rsvp-form', request, force=true) }}
   {%- endif %}
-  {{ ajaxform('save-form', request, force=true) }}
   {% assets "js_jquerysuccinct" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
@@ -230,15 +215,21 @@
   <script type="text/javascript">
     $(function() {
       var projectConfig = {};
-      {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        projectConfig.ticketing = {
-          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
-          widgetElem: "#boxoffice-widget",
-          org: {{ project.boxoffice_data.org|tojson }},
-          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ project.title|tojson }}
-        };
-      {%- endif %}
+
+      var ticketingInit = function() {
+        {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+          if($('#participate').css('display') !== 'none') {
+            projectConfig.ticketing = {
+              boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+              widgetElem: "#boxoffice-widget",
+              org: {{ project.boxoffice_data.org|tojson }},
+              itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
+              itemCollectionTitle: {{ project.title|tojson }}
+            };
+          }
+          return projectConfig.ticketing;
+        {%- endif %}
+      };
 
       {%- if project.primary_venue.latitude and project.primary_venue.longitude -%}
         projectConfig.venue = {
@@ -247,6 +238,21 @@
           longitude: {{ project.primary_venue.longitude|tojson }}
         };
       {%- endif %}
+
+      projectConfig.saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
+
+      ticketingInit();
+
+      $(window).resize(() => {
+        if(!projectConfig.ticketing) {
+          var config = {}
+          config.ticketing = ticketingInit();
+          window.HasGeek.ProjectInit(config);
+        }
+      });
 
       window.HasGeek.ProjectInit(projectConfig);
 

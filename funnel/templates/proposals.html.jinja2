@@ -27,7 +27,7 @@
     </div>
   </div>
   <div class="mui--hidden-xs mui--hidden-sm">
-    {{ project_header(project, current_page='proposals') }}
+    {{ project_header(project, project_save_form, project_currently_saved, current_page='proposals') }}
   </div>
 {% endblock %}
 
@@ -152,6 +152,11 @@
         tableId: 'proposals-table',
         inputId: 'search'
       };
+
+      proposalsConfig.saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
 
       window.HasGeek.ProposalsInit(proposalsConfig);
     });

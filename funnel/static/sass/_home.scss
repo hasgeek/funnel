@@ -29,7 +29,7 @@
   }
 }
 
-@media(min-width: 992px) {
+@media(min-width: 768px) {
   .hg-banner {
     text-align: center;
 
@@ -98,19 +98,20 @@
   }
 }
 
-@media(min-width: 1200px) {
+@media(min-width: 768px) and (max-width: 991px) {
   .spotlight {
-    position: relative;
-  }
+    margin-bottom: 15px;
 
-   .spotlight:after {
-    content: '';
-    border-left: 1px solid rgba(132,146,166,0.3);
-    height: 100px;
-    position: absolute;
-    right: 0;
-    top: 35%;
-  } 
+    spotlight__headline {
+      text-align: center;
+    }
+    .spotlight__card {
+      margin: auto;
+    }
+  }
+}
+
+@media(min-width: 1200px) {
   .upcoming {
     padding-left: 45px;
   }

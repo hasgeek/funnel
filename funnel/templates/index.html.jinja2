@@ -64,9 +64,9 @@
       <div class="grid">
         {% if featured_project %}
         <div class="grid__col-xs-12 grid__col-md-4 grid__col-lg-5 spotlight">
-          <h2 class="mui--text-title mui--text-light mui--text-uppercase">Spotlight</h2>
+          <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">Spotlight</h2>
           <div class="grid__cell">
-            <a class="card card--small clickable-card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
+            <a class="card card--small clickable-card spotlight__card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
                   <img class="card__image js-lazyload-img" data-src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
