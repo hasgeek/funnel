@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-from flask import g, redirect, flash, abort, jsonify, request, render_template
+
+from flask import abort, flash, g, jsonify, redirect, render_template, request
+
+from baseframe import _, forms
 from coaster.auth import current_auth
 from coaster.utils import require_one_of, utcnow
-from coaster.views import jsonp, route, requires_permission, UrlForView, ModelView
-from baseframe import _, forms
+from coaster.views import ModelView, UrlForView, jsonp, requires_permission, route
 
 from .. import app, funnelapp, lastuser
 from ..forms import CommentForm, DeleteCommentForm
-from ..models import db, Comment, Proposal, Project, Profile
+from ..models import Comment, Profile, Project, Proposal, db
 from .decorators import legacy_redirect
 from .helpers import send_mail
 from .mixins import ProposalViewMixin
-
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
 

@@ -11,11 +11,11 @@ revision = 'a9cb0e1c52ed'
 down_revision = 'e417a13e136d'
 
 from uuid import uuid4
-from alembic import op
-import sqlalchemy as sa  # NOQA
-from sqlalchemy.sql import table, column
-from sqlalchemy_utils import UUIDType
 
+import sqlalchemy as sa  # NOQA
+from alembic import op
+from sqlalchemy.sql import column, table
+from sqlalchemy_utils import UUIDType
 
 venue_room = table('venue_room',
     column('id', sa.Integer()),

@@ -1,22 +1,36 @@
 # -*- coding: utf-8 -*-
 
+from flask import Markup, abort, escape, flash, g, redirect, request, render_template
+
 from bleach import linkify
 
-from flask import g, redirect, request, Markup, abort, flash, escape, render_template
-from coaster.utils import make_name, utcnow
-from coaster.views import ModelView, UrlChangeCheck, UrlForView, jsonp, render_with, requires_permission, route
-from coaster.auth import current_auth
 from baseframe import _
-from baseframe.forms import render_form, render_delete_sqla, Form
+from baseframe.forms import Form, render_delete_sqla, render_form
+from coaster.auth import current_auth
+from coaster.utils import make_name, utcnow
+from coaster.views import (
+    ModelView,
+    UrlChangeCheck,
+    UrlForView,
+    jsonp,
+    render_with,
+    requires_permission,
+    route,
+)
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Proposal, Comment
-from ..forms import (ProposalForm, CommentForm, DeleteCommentForm,
-    ProposalTransitionForm, ProposalMoveForm,
-    ProposalLabelsAdminForm)
-from .mixins import ProjectViewMixin, ProposalViewMixin
+from ..forms import (
+    CommentForm,
+    DeleteCommentForm,
+    ProposalForm,
+    ProposalLabelsAdminForm,
+    ProposalMoveForm,
+    ProposalTransferForm,
+    ProposalTransitionForm,
+)
+from ..models import Comment, Proposal, db
 from .decorators import legacy_redirect
-
+from .mixins import ProjectViewMixin, ProposalViewMixin
 
 proposal_headers = [
     'id',
@@ -157,6 +171,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         links = [Markup(linkify(unicode(escape(l)))) for l in self.obj.links.replace('\r\n', '\n').split('\n') if l]
 
         transition_form = ProposalTransitionForm(obj=self.obj)
+        proposal_transfer_form = ProposalTransferForm()
 
         proposal_move_form = None
         if 'move_to' in self.obj.current_access():
@@ -167,7 +182,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return dict(project=self.obj.project, proposal=self.obj,
             comments=comments, commentform=commentform, delcommentform=delcommentform,
             links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
-            csrf_form=Form(),
+            csrf_form=Form(), proposal_transfer_form=proposal_transfer_form,
             proposal_label_admin_form=proposal_label_admin_form)
 
     @route('json')
@@ -250,9 +265,23 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             if target_project != self.obj.project:
                 self.obj.current_access().move_to(target_project)
                 db.session.commit()
-            flash(_("This proposal has been moved to {project}.".format(project=target_project.title)))
+            flash(_("This proposal has been moved to {project}.".format(project=target_project.title)), 'success')
         else:
-            flash(_("Please choose the project you want to move this proposal to."))
+            flash(_("Please choose the project you want to move this proposal to."), 'error')
+        return redirect(self.obj.url_for(), 303)
+
+    @route('transfer', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('move-proposal')
+    def transfer_to(self):
+        proposal_transfer_form = ProposalTransferForm()
+        if proposal_transfer_form.validate_on_submit():
+            target_user = proposal_transfer_form.user.data
+            self.obj.current_access().transfer_to(target_user)
+            db.session.commit()
+            flash(_("This proposal has been transfered."), 'success')
+        else:
+            flash(_("Please choose the user you want to transfer this proposal to."), 'error')
         return redirect(self.obj.url_for(), 303)
 
     @route('schedule', methods=['GET', 'POST'])

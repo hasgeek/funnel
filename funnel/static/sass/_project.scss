@@ -8,22 +8,29 @@
     margin-right: 15px;
   }
   .profile-details__title {
-    word-break: break-all;
+    word-break: keep-all;
   }
 }
 
 @media (min-width: 992px) {
-  .desktop-head {
-    margin-top: 30px;
-  }
   .profile-details {
     display: block;
     float: left;
     max-width: 15%;
     margin-right: 20px;
+
+    .profile-details__title {
+      display: block;
+    }
   }
   .project-details {
     max-width: calc(100% - 15% - 20px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .project-header {
+    margin-top: 20px;
   }
 }
 
@@ -69,14 +76,13 @@
 
 @media (max-width: 991px) {
   .headline {
-    max-width: none;
     padding: 0;
   }
   .project-banner {
     padding: 0;
   }
   .xs-sm-padding {
-    padding: 0 2em;
+    padding: 0 15px;
   }
 }
 
@@ -188,23 +194,4 @@
   position: relative;
   outline: none;
   margin-bottom: 2em;
-}
-
-.project-section .session-card {
-  padding: 0;
-  display: flex;
-  background: none;
-  border-bottom: 1px solid rgba(132,146,166,0.3);
-
-  .session-card__image {
-    width: 30%;
-    height: 100%;
-  }
-
-  .session-card__title {
-    width: 70%;
-    padding-left: 15px;
-    justify-content: center;
-    align-self: center;
-  }
 }

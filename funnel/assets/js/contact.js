@@ -1,11 +1,9 @@
-var vCardsJS = require('vcards-js');
+import vCardsJS from "vcards-js";
 
 $(() => {
   window.HasGeek.downloadVcard = function (element, fullname, email, phone, company) {
     let vCard = vCardsJS();
-    let lastName;
-    [vCard.firstName, ...lastName] = fullname.split(' ');
-    vCard.lastName = lastName.join(' ');
+    vCard.firstName = fullname;
     vCard.email = email;
     vCard.cellPhone = phone;    
     vCard.organization = company;
@@ -13,4 +11,3 @@ $(() => {
     element.setAttribute('download', `${vCard.firstName}.vcf`);
   };
 });
-

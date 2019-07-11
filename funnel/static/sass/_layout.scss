@@ -1,14 +1,22 @@
 .zero-bottom-margin {
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
 }
 
 .zero-top-margin {
-  margin-top: 0;
+  margin-top: !important;
 }
 
 .mui-btn--nomargin {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-top: !important;
+  margin-bottom: !important;
+}
+
+.no-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
 }
 
 .separator {
@@ -65,27 +73,18 @@
 }
 
 .content-head--top-padding {
-  padding-top: 1em;
-  padding-bottom: 1em;
+  padding-top: 15px;
+  padding-bottom: 15px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 .page-content {
-  padding-top: 2em;
-}
-
-@media(min-width: 992px) {
-  .page-content--top-padding {
-    padding-top: 3em;
-  }
+  padding-top: 30px;
+  padding-bottom: 15px;
 }
 
 .nounderline {
   text-decoration: none !important;
-}
-
-#qrreader-canvas {
- max-width: 100%;
 }
 
 .badge {
@@ -103,10 +102,6 @@
 .select2-inline {
   display: inline-block;
   margin-right: 5px;
-}
-
-#qrreader-canvas {
-  max-width: 100%;
 }
 
 .spinner {
@@ -131,8 +126,22 @@
   cursor: pointer;
 }
 
+.collapsible__header--smaller {
+  width: calc(100% - 45px);
+  padding: 10px;
+  margin: 0 0 10px;
+}
+
+.collapsible__dropdown {
+  margin: 0;
+  margin-right: 1px;
+  padding: 10px 10px 4px;
+  background: #EFF2F7;
+}
+
 .collapsible__body {
   display: none;
+  clear: both;
 }
 
 html.touch .collapsible__icon--disable {
@@ -199,7 +208,7 @@ html.touch .collapsible__body--disable {
   border-collapse: collapse;
 
   >thead>tr>th {
-    padding: 1em;
+    padding: 15px;
   }
 }
 
@@ -231,8 +240,23 @@ html.touch .collapsible__body--disable {
   background: transparent !important;
 }
 
-//Talkfunnel
-.funnel-notice .alert__text{
-  font-size: 24px;
-  line-height: 32px;
+.count-chip {
+  color: #e05f25;
+  position: relative;
+  top: -12px;
+  font-size: 12px;
+}
+
+.user-box {
+  padding: 8px 8px 8px 50px;
+  position: relative;
+
+  .user-gravatar {
+    width: 40px;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 11px;
+    border-radius: 50%;
+  }
 }

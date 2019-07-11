@@ -2,6 +2,7 @@
 
 import json
 from werkzeug.datastructures import MultiDict
+
 from funnel.models import Label
 from funnel.forms import ProposalLabelsAdminForm
 

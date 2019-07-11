@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
 import base64
-from sqlalchemy.sql import text
-from . import db, BaseMixin, BaseScopedNameMixin
+import os
+
+from . import BaseMixin, BaseScopedNameMixin, db, with_roles
 from .project import Project
 from .user import User
 
@@ -96,19 +96,26 @@ class Participant(BaseMixin, db.Model):
     """
     __tablename__ = 'participant'
 
-    fullname = db.Column(db.Unicode(80), nullable=False)
+    fullname = with_roles(db.Column(db.Unicode(80), nullable=False),
+        read={'concierge', 'subject', 'scanner'})
     #: Unvalidated email address
-    email = db.Column(db.Unicode(254), nullable=False)
+    email = with_roles(db.Column(db.Unicode(254), nullable=False),
+        read={'concierge', 'subject', 'scanner'})
     #: Unvalidated phone number
-    phone = db.Column(db.Unicode(80), nullable=True)
+    phone = with_roles(db.Column(db.Unicode(80), nullable=True),
+        read={'concierge', 'subject', 'scanner'})
     #: Unvalidated Twitter id
-    twitter = db.Column(db.Unicode(80), nullable=True)
+    twitter = with_roles(db.Column(db.Unicode(80), nullable=True),
+        read={'concierge', 'subject', 'scanner'})
     #: Job title
-    job_title = db.Column(db.Unicode(80), nullable=True)
+    job_title = with_roles(db.Column(db.Unicode(80), nullable=True),
+        read={'concierge', 'subject', 'scanner'})
     #: Company
-    company = db.Column(db.Unicode(80), nullable=True)
+    company = with_roles(db.Column(db.Unicode(80), nullable=True),
+        read={'concierge', 'subject', 'scanner'})
     #: Participant's city
-    city = db.Column(db.Unicode(80), nullable=True)
+    city = with_roles(db.Column(db.Unicode(80), nullable=True),
+        read={'concierge', 'subject', 'scanner'})
     # public key
     puk = db.Column(db.Unicode(44), nullable=False, default=make_public_key, unique=True)
     key = db.Column(db.Unicode(44), nullable=False, default=make_private_key, unique=True)
@@ -116,10 +123,20 @@ class Participant(BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship(User, backref=db.backref('participants', cascade='all, delete-orphan'))
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(Project,
-        backref=db.backref('participants', cascade='all, delete-orphan'))
+    project = with_roles(
+        db.relationship(Project, backref=db.backref('participants', cascade='all, delete-orphan')),
+        read={'concierge', 'subject', 'scanner'})
 
     __table_args__ = (db.UniqueConstraint('project_id', 'email'),)
+
+    def roles_for(self, actor, anchors=()):
+        roles = super(Participant, self).roles_for(actor, anchors)
+        if actor is not None and actor == self.user:
+            roles.add('subject')
+        cx = ContactExchange.query.get((actor.id, self.id))
+        if cx is not None:
+            roles.add('scanner')
+        return roles
 
     @classmethod
     def get(cls, current_project, current_email):
@@ -150,7 +167,7 @@ class Participant(BaseMixin, db.Model):
         """
         Returns participant details along with their associated ticket types as a comma-separated string.
         """
-        participant_list = db.session.query('id', 'fullname', 'email', 'company', 'twitter', 'puk', 'key', 'checked_in', 'badge_printed', 'ticket_type_titles').from_statement(text('''
+        participant_list = db.session.query('id', 'fullname', 'email', 'company', 'twitter', 'puk', 'key', 'checked_in', 'badge_printed', 'ticket_type_titles').from_statement(db.text('''
             SELECT distinct(participant.id), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
             (SELECT string_agg(title, ',') FROM sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
             FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
@@ -262,3 +279,8 @@ class SyncTicket(BaseMixin, db.Model):
             db.session.add(ticket)
 
         return ticket
+
+
+# Import symbols required only in functions at bottom of file to avoid
+# cyclic dependency failures.
+from .contact_exchange import ContactExchange  # isort:skip

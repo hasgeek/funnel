@@ -1,18 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import _
-from flask import request, render_template, jsonify, abort
-from coaster.utils import utcnow
-from coaster.views import route, render_with, requires_permission, UrlForView, ModelView, requestargs
-from coaster.sqlalchemy import failsafe_add
+from flask import abort, jsonify, render_template, request
 
-from .helpers import localize_date
+from baseframe import _
+from coaster.sqlalchemy import failsafe_add
+from coaster.utils import utcnow
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    render_with,
+    requestargs,
+    requires_permission,
+    route,
+)
+
 from .. import app, funnelapp, lastuser
-from ..models import db, ProposalFeedback, Session, FEEDBACK_AUTH_TYPE
 from ..forms import SessionForm
-from .mixins import ProjectViewMixin, SessionViewMixin
+from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, Session, db
 from .decorators import legacy_redirect
-from .schedule import session_data, session_list_data, date_js
+from .helpers import localize_date
+from .mixins import ProjectViewMixin, SessionViewMixin
+from .schedule import date_js, session_data, session_list_data
 
 
 def rooms_list(project):

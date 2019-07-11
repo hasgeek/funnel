@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.sql import case, exists
-from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.sql import case, exists
 
-from . import db, BaseScopedNameMixin
+from . import BaseScopedNameMixin, TSVectorType, db
+from .helpers import add_search_trigger
 from .project import Project
 from .proposal import Proposal
-
 
 proposal_label = db.Table(
     'proposal_label', db.Model.metadata,
@@ -70,15 +70,27 @@ class Label(BaseScopedNameMixin, db.Model):
     #: although all the previous records will stay in database.
     _archived = db.Column('archived', db.Boolean, nullable=False, default=False)
 
+    search_vector = db.deferred(db.Column(
+        TSVectorType(
+            'name', 'title', 'description',
+            weights={'name': 'A', 'title': 'A', 'description': 'B'},
+            regconfig='english',
+            hltext=lambda: db.func.concat_ws(' / ', Label.title, Label.description),
+            ),
+        nullable=False))
+
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'name'),
+        db.Index('ix_label_search_vector', 'search_vector', postgresql_using='gin'),
+        )
 
     __roles__ = {
         'all': {
             'read': {
-                'name', 'title', 'project_id', 'project', 'seq',
+                'name', 'title', 'project', 'seq',
                 'restricted', 'required', 'archived'
                 }
             }
@@ -225,6 +237,9 @@ class Label(BaseScopedNameMixin, db.Model):
                     proposal.labels.remove(opt)
         if self in proposal.labels:
             proposal.labels.remove(self)
+
+
+add_search_trigger(Label, 'search_vector')
 
 
 class ProposalLabelProxyWrapper(object):

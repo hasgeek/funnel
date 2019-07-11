@@ -1,24 +1,50 @@
 # -*- coding: utf-8 -*-
 
+import six
+
+from flask import (
+    Response,
+    abort,
+    current_app,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+)
+
 import unicodecsv
-from cStringIO import StringIO
-from flask import g, flash, redirect, Response, request, abort, current_app, render_template
+
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool
-from coaster.views import jsonp, route, render_with, requires_permission, UrlForView, ModelView
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    jsonp,
+    render_with,
+    requires_permission,
+    route,
+)
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Project, Proposal, Rsvp, RSVP_STATUS
-from ..forms import (ProjectForm, RsvpForm, ProjectTransitionForm,
-    ProjectBoxofficeForm, CfpForm, ProjectScheduleTransitionForm, ProjectCfpTransitionForm)
-from ..jobs import tag_locations, import_tickets
-from .proposal import proposal_headers, proposal_data, proposal_data_flat
-from .schedule import schedule_data
-from .venue import venue_data, room_data
-from .mixins import ProjectViewMixin, ProfileViewMixin, DraftViewMixin
+from ..forms import (
+    CfpForm,
+    ProjectBoxofficeForm,
+    ProjectCfpTransitionForm,
+    ProjectForm,
+    ProjectScheduleTransitionForm,
+    ProjectTransitionForm,
+    RsvpForm,
+)
+from ..jobs import import_tickets, tag_locations
+from ..models import RSVP_STATUS, Project, Proposal, Rsvp, db
 from .decorators import legacy_redirect
+from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .proposal import proposal_data, proposal_data_flat, proposal_headers
+from .schedule import schedule_data
+from .venue import room_data, venue_data
 
 
 def project_data(project):
@@ -28,8 +54,8 @@ def project_data(project):
         'title': project.title,
         'datelocation': project.datelocation,
         'timezone': project.timezone.zone,
-        'start': project.date.isoformat() if project.date else None,
-        'end': project.date_upto.isoformat() if project.date_upto else None,
+        'start_at': project.date.isoformat() if project.date else None,
+        'end_at': project.date_upto.isoformat() if project.date_upto else None,
         'status': project.state.value,
         'state': project.state.label.name,
         'url': project.url_for(_external=True),
@@ -38,6 +64,7 @@ def project_data(project):
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'bg_color': project.bg_color,
         'explore_url': project.explore_url.url if project.explore_url is not None else "",
+        'calendar_weeks': project.calendar_weeks
         }
 
 
@@ -112,13 +139,13 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def csv(self):
         proposals = Proposal.query.filter_by(project=self.obj).order_by(db.desc('created_at')).all()
-        outfile = StringIO()
+        outfile = six.BytesIO()
         out = unicodecsv.writer(outfile, encoding='utf-8')
         out.writerow(proposal_headers + ['status'])
         for proposal in proposals:
             out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
-        return Response(unicode(outfile.getvalue(), 'utf-8'), content_type='text/csv',
+        return Response(six.text_type(outfile.getvalue(), 'utf-8'), content_type='text/csv',
             headers=[('Content-Disposition', 'attachment;filename="{project}.csv"'.format(project=self.obj.name))])
 
     @route('edit', methods=['GET', 'POST'])

@@ -10,14 +10,15 @@ Create Date: 2018-12-07 20:21:02.169857
 revision = '69c2ced88981'
 down_revision = 'b34aa62af7fc'
 
-from alembic import op
 import sqlalchemy as sa  # NOQA
+from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
-from progressbar import ProgressBar
-import progressbar.widgets
-from coaster.utils import buid2uuid, uuid2buid
 
+import progressbar.widgets
+from progressbar import ProgressBar
+
+from coaster.utils import buid2uuid, uuid2buid
 
 team = table('team',
     column('id', sa.Integer()),

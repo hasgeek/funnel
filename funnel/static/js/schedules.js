@@ -44,7 +44,6 @@ $(function() {
             container: $('#settings'),
             color_form: $('#room_colors'),
             onColorChange: function(color) {
-                console.log('this', this, color);
                 ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
                 calendar.render();
             },
@@ -164,8 +163,8 @@ $(function() {
                 else return this.form().find('[name=' + input + ']');
             };
             popup.save = function() {
-                popup.form('start').val(events.current.obj_data.start);
-                popup.form('end').val(events.current.obj_data.end);
+                popup.form('start_at').val(events.current.obj_data.start_at);
+                popup.form('end_at').val(events.current.obj_data.end_at);
                 var data = popup.form().serializeArray();
                 $.ajax({
                     url: events.current.modal_url,
@@ -532,8 +531,8 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    this.current.obj_data.end = events.from_project_timezone(this.current.end).toISOString();
-                    this.current.obj_data.start = events.from_project_timezone(this.current.start).toISOString();
+                    this.current.obj_data.end_at = events.from_project_timezone(this.current.end).toISOString();
+                    this.current.obj_data.start_at = events.from_project_timezone(this.current.start).toISOString();
                 }
             },
             height: function(ht) {
@@ -622,8 +621,8 @@ $(function() {
 
         for(i in scheduled) {
             scheduled[i] = {
-                start: new Date(scheduled[i].start),
-                end: new Date(scheduled[i].end),
+                start: new Date(scheduled[i].start_at),
+                end: new Date(scheduled[i].end_at),
                 modal_url: scheduled[i].modal_url,
                 title: scheduled[i].title,
                 speaker: scheduled[i].speaker,

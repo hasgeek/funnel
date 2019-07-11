@@ -15,7 +15,7 @@
 	{% if current %}
 		<div id="current-title">{{ current.title }} —{{ current.speaker }}</div>
 		<div id="current" class="details">
-			<div class="time">{{ current.start.strftime('%I:%M %p') }} - {{ current.end.strftime('%I:%M %p') }}</div>
+			<div class="time">{{ current.start_at.strftime('%I:%M %p') }} - {{ current.end_at.strftime('%I:%M %p') }}</div>
 			<div class="title">{{ current.title }}</div>
 			{% if current.speaker %}
 				<div class="speaker">{{ current.speaker }}</div>
@@ -30,8 +30,8 @@
 			<div class="timetitle">
 				<div class="time">
 					{% if nextdiff >= 1 and nextdiff < 2 %}{% trans %}Tomorrow {% endtrans %}{% endif %}
-					{% if nextdiff >= 2 %}next.start.strftime('%d %B, %Y'){% endif %}
-					{{ next.start.strftime('%I:%M %p') }} - {{ next.end.strftime('%I:%M %p') }}
+					{% if nextdiff >= 2 %}next.start_at.strftime('%d %B, %Y'){% endif %}
+					{{ next.start_at.strftime('%I:%M %p') }} - {{ next.end_at.strftime('%I:%M %p') }}
 				</div>
 				<div class="title">{{ next.title }}</div>
 			</div>
