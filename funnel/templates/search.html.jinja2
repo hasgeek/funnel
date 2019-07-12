@@ -122,9 +122,9 @@
                             {{/if}}
                             <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                             <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                            {{#if obj.session }}
+                            {{#if obj.session}}{{#if obj.session.start_at}}
                               <p class="mui--text-body1 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start_at) }}–{{ formatTime(obj.session.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start_at) }}</p>
-                            {{/if}}
+                            {{/if}}{{/if}}
                             <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                           </div>
                         {{elseif result == 'comment'}}
