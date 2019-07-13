@@ -328,8 +328,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
         if self.owner == actor:
-            roles.add('speaker')
-            roles.add('proposer')
+            roles.update({'owner', 'speaker', 'proposer'})
         if self.user == actor:
             roles.add('creator')
         roles.update(self.project.roles_for(actor, anchors))
