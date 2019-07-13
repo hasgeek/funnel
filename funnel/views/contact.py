@@ -131,8 +131,8 @@ class ContactView(ClassView):
             return make_response(jsonify(status='error',
                 message=u"Attendee details not found"), 404)
         project = participant.project
-        if project.date_upto:
-            if midnight_to_utc(project.date_upto + timedelta(days=1), project.timezone) < utcnow():
+        if project.schedule_end_at:
+            if midnight_to_utc(project.schedule_end_at + timedelta(days=1), project.timezone) < utcnow():
                 return make_response(jsonify(status='error',
                     message=_(u"This project has concluded")), 403)
 
