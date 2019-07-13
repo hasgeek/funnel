@@ -142,4 +142,4 @@ class ProposalMoveForm(forms.Form):
         team_ids = [t.id for t in g.user.teams]
         self.target.query = Project.query.join(Project.profile).filter(
             (Project.admin_team_id.in_(team_ids)) | (Profile.admin_team_id.in_(team_ids))
-            ).order_by(Project.date.desc())
+            ).order_by(Project.schedule_start_at.desc())
