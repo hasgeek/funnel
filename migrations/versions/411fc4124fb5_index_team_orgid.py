@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Index Team.orgid
 
 Revision ID: 411fc4124fb5

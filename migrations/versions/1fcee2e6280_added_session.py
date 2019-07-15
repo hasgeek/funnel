@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Added session
 
 Revision ID: 1fcee2e6280
@@ -15,7 +17,8 @@ from alembic import op
 
 
 def upgrade():
-    op.create_table('session',
+    op.create_table(
+        'session',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -32,13 +35,15 @@ def upgrade():
         sa.Column('url_id', sa.Integer(), nullable=False),
         sa.Column('name', sa.Unicode(length=250), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
-        sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.ForeignKeyConstraint(['venue_room_id'], ['venue_room.id'], ),
+        sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id']),
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.ForeignKeyConstraint(['venue_room_id'], ['venue_room.id']),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('proposal_space_id', 'url_id')
-        )
-    op.add_column('venue_room', sa.Column('bgcolor', sa.Unicode(length=6), nullable=True))
+        sa.UniqueConstraint('proposal_space_id', 'url_id'),
+    )
+    op.add_column(
+        'venue_room', sa.Column('bgcolor', sa.Unicode(length=6), nullable=True)
+    )
 
 
 def downgrade():

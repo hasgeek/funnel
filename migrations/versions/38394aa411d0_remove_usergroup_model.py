@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Remove UserGroup model
 
 Revision ID: 38394aa411d0
@@ -21,21 +23,35 @@ def upgrade():
 
 
 def downgrade():
-    op.create_table('user_group',
+    op.create_table(
+        'user_group',
         sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),
-        sa.Column('created_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False),
-        sa.Column('updated_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False),
+        sa.Column(
+            'created_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
+        ),
+        sa.Column(
+            'updated_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
+        ),
         sa.Column('project_id', sa.INTEGER(), autoincrement=False, nullable=False),
         sa.Column('name', sa.VARCHAR(length=250), autoincrement=False, nullable=False),
         sa.Column('title', sa.VARCHAR(length=250), autoincrement=False, nullable=False),
         sa.CheckConstraint(u"(name)::text <> ''::text", name=u'user_group_name_check'),
-        sa.ForeignKeyConstraint(['project_id'], [u'project.id'], name=u'user_group_project_id_fkey'),
+        sa.ForeignKeyConstraint(
+            ['project_id'], [u'project.id'], name=u'user_group_project_id_fkey'
+        ),
         sa.PrimaryKeyConstraint('id', name=u'user_group_pkey'),
-        sa.UniqueConstraint('project_id', 'name', name=u'user_group_project_id_name_key')
-        )
-    op.create_table('group_members',
+        sa.UniqueConstraint(
+            'project_id', 'name', name=u'user_group_project_id_name_key'
+        ),
+    )
+    op.create_table(
+        'group_members',
         sa.Column('group_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column('user_id', sa.INTEGER(), autoincrement=False, nullable=True),
-        sa.ForeignKeyConstraint(['group_id'], [u'user_group.id'], name=u'group_members_group_id_fkey'),
-        sa.ForeignKeyConstraint(['user_id'], [u'user.id'], name=u'group_members_user_id_fkey')
-        )
+        sa.ForeignKeyConstraint(
+            ['group_id'], [u'user_group.id'], name=u'group_members_group_id_fkey'
+        ),
+        sa.ForeignKeyConstraint(
+            ['user_id'], [u'user.id'], name=u'group_members_user_id_fkey'
+        ),
+    )

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Use timezone type
 
 Revision ID: e3bf172763bc
@@ -17,9 +19,17 @@ from sqlalchemy_utils import TimezoneType
 
 def upgrade():
     op.alter_column(
-        'project', 'timezone', existing_type=sa.Unicode(40), type_=TimezoneType(backend='pytz'))
+        'project',
+        'timezone',
+        existing_type=sa.Unicode(40),
+        type_=TimezoneType(backend='pytz'),
+    )
 
 
 def downgrade():
     op.alter_column(
-        'project', 'timezone', existing_type=TimezoneType(backend='pytz'), type_=sa.Unicode(40))
+        'project',
+        'timezone',
+        existing_type=TimezoneType(backend='pytz'),
+        type_=sa.Unicode(40),
+    )

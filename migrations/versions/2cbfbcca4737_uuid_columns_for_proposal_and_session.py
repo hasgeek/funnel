@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """UUID columns for Proposal and Session
 
 Revision ID: 2cbfbcca4737
@@ -20,51 +22,57 @@ from sqlalchemy_utils import UUIDType
 import progressbar.widgets
 from progressbar import ProgressBar
 
-proposal = table('proposal',
-    column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
-    )
+proposal = table(
+    'proposal', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
+)
 
-session = table('session',
-    column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
-    )
+session = table(
+    'session', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
+)
 
 
 def get_progressbar(label, maxval):
-    return ProgressBar(maxval=maxval,
+    return ProgressBar(
+        maxval=maxval,
         widgets=[
-            label, ': ',
-            progressbar.widgets.Percentage(), ' ',
-            progressbar.widgets.Bar(), ' ',
-            progressbar.widgets.ETA(), ' '
-            ])
+            label,
+            ': ',
+            progressbar.widgets.Percentage(),
+            ' ',
+            progressbar.widgets.Bar(),
+            ' ',
+            progressbar.widgets.ETA(),
+            ' ',
+        ],
+    )
 
 
 def upgrade():
     conn = op.get_bind()
 
     op.add_column('proposal', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(
-        sa.select([sa.func.count('*')]).select_from(proposal))
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(sa.select([proposal.c.id]))
     for counter, item in enumerate(items):
-        conn.execute(sa.update(proposal).where(proposal.c.id == item.id).values(uuid=uuid4()))
+        conn.execute(
+            sa.update(proposal).where(proposal.c.id == item.id).values(uuid=uuid4())
+        )
         progress.update(counter)
     progress.finish()
     op.alter_column('proposal', 'uuid', nullable=False)
     op.create_unique_constraint('proposal_uuid_key', 'proposal', ['uuid'])
 
     op.add_column('session', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(
-        sa.select([sa.func.count('*')]).select_from(session))
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(session))
     progress = get_progressbar("Sessions", count)
     progress.start()
     items = conn.execute(sa.select([session.c.id]))
     for counter, item in enumerate(items):
-        conn.execute(sa.update(session).where(session.c.id == item.id).values(uuid=uuid4()))
+        conn.execute(
+            sa.update(session).where(session.c.id == item.id).values(uuid=uuid4())
+        )
         progress.update(counter)
     progress.finish()
     op.alter_column('session', 'uuid', nullable=False)

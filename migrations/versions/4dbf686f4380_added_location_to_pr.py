@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Added location to proposal
 
 Revision ID: 4dbf686f4380
@@ -15,7 +17,15 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('proposal', sa.Column('location', sa.Unicode(length=80), server_default=sa.text(u"''"), nullable=False))
+    op.add_column(
+        'proposal',
+        sa.Column(
+            'location',
+            sa.Unicode(length=80),
+            server_default=sa.text(u"''"),
+            nullable=False,
+        ),
+    )
     op.alter_column('proposal', 'location', server_default=None)
 
 

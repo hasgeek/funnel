@@ -172,11 +172,19 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         proposal_label_admin_form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
 
-        return dict(project=self.obj.project, proposal=self.obj,
-            comments=comments, commentform=commentform, delcommentform=delcommentform,
-            links=links, transition_form=transition_form, proposal_move_form=proposal_move_form,
-            csrf_form=Form(), proposal_transfer_form=proposal_transfer_form,
-            proposal_label_admin_form=proposal_label_admin_form)
+        return {
+            'project': self.obj.project,
+            'proposal': self.obj,
+            'comments': comments,
+            'commentform': commentform,
+            'delcommentform': delcommentform,
+            'links': links,
+            'transition_form': transition_form,
+            'proposal_move_form': proposal_move_form,
+            'csrf_form': Form(),
+            'proposal_transfer_form': proposal_transfer_form,
+            'proposal_label_admin_form': proposal_label_admin_form
+        }
 
     @route('json')
     @requires_permission('view')
@@ -228,12 +236,12 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('next')
+    @route('next')  # NOQA: A003
     @requires_permission('view')
     def next(self):
-        next = self.obj.getnext()
-        if next:
-            return redirect(next.url_for())
+        nextobj = self.obj.getnext()
+        if nextobj:
+            return redirect(nextobj.url_for())
         else:
             flash(_("You were at the last proposal"), 'info')
             return redirect(self.obj.project.url_for())
@@ -241,9 +249,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('prev')
     @requires_permission('view')
     def prev(self):
-        prev = self.obj.getprev()
-        if prev:
-            return redirect(prev.url_for())
+        prevobj = self.obj.getprev()
+        if prevobj:
+            return redirect(prevobj.url_for())
         else:
             flash(_("You were at the first proposal"), 'info')
             return redirect(self.obj.project.url_for())

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Team org UUID
 
 Revision ID: 69c2ced88981
@@ -20,35 +22,44 @@ from progressbar import ProgressBar
 
 from coaster.utils import buid2uuid, uuid2buid
 
-team = table('team',
+team = table(
+    'team',
     column('id', sa.Integer()),
     column('orgid', sa.String(22)),
     column('org_uuid', UUIDType(binary=False)),
-    )
+)
 
 
 def get_progressbar(label, maxval):
     return ProgressBar(
         maxval=maxval,
         widgets=[
-            label, ': ',
-            progressbar.widgets.Percentage(), ' ',
-            progressbar.widgets.Bar(), ' ',
-            progressbar.widgets.ETA(), ' '
-            ])
+            label,
+            ': ',
+            progressbar.widgets.Percentage(),
+            ' ',
+            progressbar.widgets.Bar(),
+            ' ',
+            progressbar.widgets.ETA(),
+            ' ',
+        ],
+    )
 
 
 def upgrade():
     conn = op.get_bind()
 
     op.add_column('team', sa.Column('org_uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(
-        sa.select([sa.func.count('*')]).select_from(team))
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
     items = conn.execute(sa.select([team.c.id, team.c.orgid]))
     for counter, item in enumerate(items):
-        conn.execute(sa.update(team).where(team.c.id == item.id).values(org_uuid=buid2uuid(item.orgid)))
+        conn.execute(
+            sa.update(team)
+            .where(team.c.id == item.id)
+            .values(org_uuid=buid2uuid(item.orgid))
+        )
         progress.update(counter)
     progress.finish()
     op.alter_column('team', 'org_uuid', nullable=False)
@@ -60,14 +71,19 @@ def upgrade():
 def downgrade():
     conn = op.get_bind()
 
-    op.add_column('team', sa.Column('orgid', sa.String(22), autoincrement=False, nullable=True))
-    count = conn.scalar(
-        sa.select([sa.func.count('*')]).select_from(team))
+    op.add_column(
+        'team', sa.Column('orgid', sa.String(22), autoincrement=False, nullable=True)
+    )
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
     items = conn.execute(sa.select([team.c.id, team.c.org_uuid]))
     for counter, item in enumerate(items):
-        conn.execute(sa.update(team).where(team.c.id == item.id).values(orgid=uuid2buid(item.org_uuid)))
+        conn.execute(
+            sa.update(team)
+            .where(team.c.id == item.id)
+            .values(orgid=uuid2buid(item.org_uuid))
+        )
         progress.update(counter)
     progress.finish()
     op.alter_column('team', 'orgid', nullable=False)

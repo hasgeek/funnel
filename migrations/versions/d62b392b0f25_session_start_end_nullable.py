@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """session's start end fields are nullable
 
 Revision ID: d62b392b0f25
@@ -16,13 +18,24 @@ from sqlalchemy.dialects import postgresql
 
 
 def upgrade():
-    op.alter_column('session', 'end', existing_type=postgresql.TIMESTAMP(), nullable=True)
-    op.alter_column('session', 'start', existing_type=postgresql.TIMESTAMP(), nullable=True)
-    op.create_check_constraint(u'session_start_end_check', 'session',
-        u'("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)')
+    op.alter_column(
+        'session', 'end', existing_type=postgresql.TIMESTAMP(), nullable=True
+    )
+    op.alter_column(
+        'session', 'start', existing_type=postgresql.TIMESTAMP(), nullable=True
+    )
+    op.create_check_constraint(
+        u'session_start_end_check',
+        'session',
+        u'("start" IS NULL AND "end" IS NULL) OR ("start" IS NOT NULL AND "end" IS NOT NULL)',
+    )
 
 
 def downgrade():
     op.drop_constraint(u'session_start_end_check', 'session')
-    op.alter_column('session', 'start', existing_type=postgresql.TIMESTAMP(), nullable=False)
-    op.alter_column('session', 'end', existing_type=postgresql.TIMESTAMP(), nullable=False)
+    op.alter_column(
+        'session', 'start', existing_type=postgresql.TIMESTAMP(), nullable=False
+    )
+    op.alter_column(
+        'session', 'end', existing_type=postgresql.TIMESTAMP(), nullable=False
+    )

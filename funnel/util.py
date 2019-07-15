@@ -16,8 +16,8 @@ from baseframe import cache
 @cache.memoize(timeout=86400)
 def geonameid_from_location(text):
     """
-    Accepts a string, checks hascore if there's a location embedded
-    in the string, and returns a set of matched geonameids.
+    Convert location string into a set of matching geonameids.
+
     Eg: "Bangalore" -> {1277333}
 
     Returns an empty set if the request timed out, or if the Hascore config
@@ -37,7 +37,7 @@ def geonameid_from_location(text):
 
 def extract_twitter_handle(handle):
     """
-    Extracts a twitter handle from a user input.
+    Extract a twitter handle from a user input.
 
     Usage::
 
@@ -68,8 +68,8 @@ def format_twitter_handle(handle):
 
 def split_name(fullname):
     """
-    Splits a given fullname into two parts
-    a first name, and a concanetated last name.
+    Split a given fullname into a first name and remaining names.
+
     Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
     """
     if not fullname:
@@ -80,9 +80,7 @@ def split_name(fullname):
 
 # TODO: Added tests for this
 def make_qrcode(data):
-    """
-    Makes a QR code in-memory and returns the raw svg
-    """
+    """Make a QR code in-memory and return the raw svg"""
     factory = qrcode.image.svg.SvgPathImage
     stream = six.BytesIO()
     img = qrcode.make(data, image_factory=factory)

@@ -43,7 +43,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('checkin_event')
     def events(self):
-        return dict(project=self.obj, profile=self.obj.profile, events=self.obj.events)
+        return {'project': self.obj, 'profile': self.obj.profile, 'events': self.obj.events}
 
     @route('json')
     @lastuser.requires_login

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Remove blogpost column
 
 Revision ID: 50a8f43b4e5f
@@ -21,5 +23,13 @@ def upgrade():
 
 def downgrade():
     with op.batch_alter_table('proposal', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('blog_post', sa.VARCHAR(length=250), autoincrement=False, nullable=False, server_default="''"))
+        batch_op.add_column(
+            sa.Column(
+                'blog_post',
+                sa.VARCHAR(length=250),
+                autoincrement=False,
+                nullable=False,
+                server_default="''",
+            )
+        )
         batch_op.alter_column('blog_post', server_default=None)

@@ -13,9 +13,11 @@ def strip_or_empty(val):
 
 class ExplaraAPI(object):
     """
-    An interface that enables data retrieval from Explara.
+    Interface that enables data retrieval from Explara.
+
     Reference : https://developers.explara.com/api-document
     """
+
     def __init__(self, access_token):
         self.access_token = access_token
         self.headers = {'Authorization': u'Bearer ' + self.access_token}
@@ -26,8 +28,9 @@ class ExplaraAPI(object):
 
     def get_orders(self, explara_eventid):
         """
-        Gets the entire dump of orders for a given eventid in batches of 50,
-        owing to the restriction imposed by Explara's API.
+        Get the entire dump of orders for a given eventid in batches.
+
+        Batches are of size 50, owing to the restriction imposed by Explara's API.
         Explara does not make any assurances w.r.t the order; hence no order is assumed and
         the entire dump is retrieved.
         """

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Legacy profile flag
 
 Revision ID: 2441cb4f44d4
@@ -15,8 +17,15 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('profile', sa.Column('legacy', sa.Boolean(), nullable=False,
-        server_default=sa.sql.expression.true()))
+    op.add_column(
+        'profile',
+        sa.Column(
+            'legacy',
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.sql.expression.true(),
+        ),
+    )
     op.alter_column('profile', 'legacy', server_default=None)
 
 

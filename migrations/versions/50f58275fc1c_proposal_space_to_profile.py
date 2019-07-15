@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Proposal space to profile
 
 Revision ID: 50f58275fc1c
@@ -14,8 +16,16 @@ from alembic import op
 
 
 def upgrade():
-    op.create_foreign_key('proposal_space_profile_id_fkey', 'proposal_space', 'profile', ['profile_id'], ['id'])
+    op.create_foreign_key(
+        'proposal_space_profile_id_fkey',
+        'proposal_space',
+        'profile',
+        ['profile_id'],
+        ['id'],
+    )
 
 
 def downgrade():
-    op.drop_constraint('proposal_space_profile_id_fkey', 'proposal_space', type_='foreignkey')
+    op.drop_constraint(
+        'proposal_space_profile_id_fkey', 'proposal_space', type_='foreignkey'
+    )

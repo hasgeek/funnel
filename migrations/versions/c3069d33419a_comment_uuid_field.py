@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """comment uuid field
 
 Revision ID: c3069d33419a
@@ -19,20 +21,25 @@ from sqlalchemy_utils import UUIDType
 import progressbar.widgets
 from progressbar import ProgressBar
 
-comment = table('comment',
-    column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
-    )
+comment = table(
+    'comment', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
+)
 
 
 def get_progressbar(label, maxval):
-    return ProgressBar(maxval=maxval,
+    return ProgressBar(
+        maxval=maxval,
         widgets=[
-            label, ': ',
-            progressbar.widgets.Percentage(), ' ',
-            progressbar.widgets.Bar(), ' ',
-            progressbar.widgets.ETA(), ' '
-            ])
+            label,
+            ': ',
+            progressbar.widgets.Percentage(),
+            ' ',
+            progressbar.widgets.Bar(),
+            ' ',
+            progressbar.widgets.ETA(),
+            ' ',
+        ],
+    )
 
 
 def upgrade():
@@ -40,13 +47,14 @@ def upgrade():
 
     op.add_column('comment', sa.Column('uuid', UUIDType(binary=False), nullable=True))
 
-    count = conn.scalar(
-        sa.select([sa.func.count('*')]).select_from(comment))
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(comment))
     progress = get_progressbar("Comments", count)
     progress.start()
     items = conn.execute(sa.select([comment.c.id]))
     for counter, item in enumerate(items):
-        conn.execute(sa.update(comment).where(comment.c.id == item.id).values(uuid=uuid4()))
+        conn.execute(
+            sa.update(comment).where(comment.c.id == item.id).values(uuid=uuid4())
+        )
         progress.update(counter)
     progress.finish()
     op.alter_column('comment', 'uuid', nullable=False)
