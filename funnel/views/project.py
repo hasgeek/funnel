@@ -315,9 +315,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     return {'status': 'success'}
                 else:
                     return {
-                        'status': 'error', 'error_identifier': 'project_save_exists',
+                        'status': 'error',
+                        'error_identifier': 'project_save_exists',
                         'error_description': _("You have already saved this project")
-                        }, 400
+                    }, 400
             else:
                 if proj_save is not None:
                     db.session.delete(proj_save)
@@ -325,14 +326,16 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     return {'status': 'success'}
                 else:
                     return {
-                        'status': 'error', 'error_identifier': 'project_save_invalid',
+                        'status': 'error',
+                        'error_identifier': 'project_save_invalid',
                         'error_description': _("You have not saved this project yet")
-                        }, 400
+                    }, 400
         else:
             return {
-                'status': 'error', 'error_identifier': 'project_save_form_invalid',
+                'status': 'error',
+                'error_identifier': 'project_save_form_invalid',
                 'error_description': _("Something went wrong, please reload and try again")
-                }, 400
+            }, 400
         return redirect(self.obj.url_for(), code=303)
 
     @route('admin', methods=['GET', 'POST'])
