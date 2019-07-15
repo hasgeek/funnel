@@ -26,7 +26,7 @@ class UseridMixin(object):
         self.uuid = buid2uuid(value)
 
     @userid.comparator
-    def userid(cls):
+    def userid(cls):  # NOQA: N805
         return SqlBuidComparator(cls.uuid)
 
 
@@ -75,7 +75,7 @@ class Team(UseridMixin, UuidMixin, TeamBase, db.Model):
         self.org_uuid = buid2uuid(value)
 
     @orgid.comparator
-    def orgid(cls):
+    def orgid(cls):  # NOQA: N805
         return SqlBuidComparator(cls.org_uuid)
 
     def __repr__(self):

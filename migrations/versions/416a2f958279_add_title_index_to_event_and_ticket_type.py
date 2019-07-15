@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add title index to event and ticket type
 
 Revision ID: 416a2f958279
@@ -14,10 +16,18 @@ from alembic import op
 
 
 def upgrade():
-    op.create_unique_constraint(u'event_proposal_space_id_title_key', 'event', ['proposal_space_id', 'title'])
-    op.create_unique_constraint(u'ticket_type_proposal_space_id_title_key', 'ticket_type', ['proposal_space_id', 'title'])
+    op.create_unique_constraint(
+        u'event_proposal_space_id_title_key', 'event', ['proposal_space_id', 'title']
+    )
+    op.create_unique_constraint(
+        u'ticket_type_proposal_space_id_title_key',
+        'ticket_type',
+        ['proposal_space_id', 'title'],
+    )
 
 
 def downgrade():
-    op.drop_constraint(u'ticket_type_proposal_space_id_title_key', 'ticket_type', type_='unique')
+    op.drop_constraint(
+        u'ticket_type_proposal_space_id_title_key', 'ticket_type', type_='unique'
+    )
     op.drop_constraint(u'event_proposal_space_id_title_key', 'event', type_='unique')

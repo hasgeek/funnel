@@ -12,9 +12,8 @@ __all__ = ['Boxoffice']
 
 
 class Boxoffice(object):
-    """
-    An interface that enables data retrieval from Boxoffice.
-    """
+    """Interface that enables data retrieval from Boxoffice."""
+
     def __init__(self, access_token, base_url=None):
         self.access_token = access_token
         if not base_url:

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Remove unused proposal.data
 
 Revision ID: 752dee4ae101
@@ -21,9 +23,13 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column('proposal', sa.Column(
-        'data',
-        JsonDict(),
-        server_default=sa.text("'{}'"),
-        autoincrement=False,
-        nullable=False))
+    op.add_column(
+        'proposal',
+        sa.Column(
+            'data',
+            JsonDict(),
+            server_default=sa.text("'{}'"),
+            autoincrement=False,
+            nullable=False,
+        ),
+    )

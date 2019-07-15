@@ -12,7 +12,7 @@ from sqlalchemy.dialects.postgresql.base import (
 __all__ = ['RESERVED_NAMES', 'add_search_trigger']
 
 
-RESERVED_NAMES = set([
+RESERVED_NAMES = {
     '_baseframe',
     'admin',
     'api',
@@ -78,7 +78,7 @@ RESERVED_NAMES = set([
     'workshop',
     'workshops',
     'www',
-    ])
+}
 
 
 def pgquote(identifier):

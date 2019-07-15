@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Event timezone
 
 Revision ID: 55097480a655
@@ -15,7 +17,12 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('timezone', sa.Unicode(length=40), nullable=False, server_default=u'UTC'))
+    op.add_column(
+        'proposal_space',
+        sa.Column(
+            'timezone', sa.Unicode(length=40), nullable=False, server_default=u'UTC'
+        ),
+    )
     op.alter_column('proposal_space', 'timezone', server_default=None)
 
 

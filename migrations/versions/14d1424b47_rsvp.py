@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """RSVP
 
 Revision ID: 14d1424b47
@@ -15,17 +17,26 @@ from alembic import op
 
 
 def upgrade():
-    op.create_table('rsvp',
+    op.create_table(
+        'rsvp',
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
-        sa.Column('status', sa.CHAR(length=1), sa.CheckConstraint("status IN ('Y', 'N', 'M', 'A')"), nullable=False),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.PrimaryKeyConstraint('proposal_space_id', 'user_id')
-        )
-    op.add_column('proposal_space', sa.Column('allow_rsvp', sa.Boolean(), nullable=False, server_default='0'))
+        sa.Column(
+            'status',
+            sa.CHAR(length=1),
+            sa.CheckConstraint("status IN ('Y', 'N', 'M', 'A')"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.PrimaryKeyConstraint('proposal_space_id', 'user_id'),
+    )
+    op.add_column(
+        'proposal_space',
+        sa.Column('allow_rsvp', sa.Boolean(), nullable=False, server_default='0'),
+    )
     op.alter_column('proposal_space', 'allow_rsvp', server_default=None)
 
 

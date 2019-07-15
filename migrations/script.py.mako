@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """${message}
 
 Revision ID: ${up_revision}

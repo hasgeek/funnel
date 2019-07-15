@@ -31,7 +31,7 @@ _marker = object()
 
 # --- Constants ------------------------------------------------------------------
 
-class PROPOSAL_STATE(LabeledEnum):
+class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
     # Draft-state for future use, so people can save their proposals and submit only when ready
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __("Draft"))
@@ -151,8 +151,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROPOSAL)
-        self.commentset = Commentset(type=SET_TYPE.PROPOSAL)
+        self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
+        self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
 
     def __repr__(self):
         return u'<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
@@ -365,7 +365,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
         return unicode(self.url_id)
 
     @url_id_name.comparator
-    def url_id_name(cls):
+    def url_id_name(cls):  # NOQA: N805
         return SqlSplitIdComparator(cls.url_id, splitindex=0)
 
     url_name = url_id_name  # Legacy name

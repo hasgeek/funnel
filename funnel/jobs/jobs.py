@@ -44,8 +44,8 @@ def tag_locations(project_id):
                     if geoname:
                         geonames[geoname['geonameid']]['geonameid'] = geoname['geonameid']
                         geonames[geoname['geonameid']]['primary'] = geonames[geoname['geonameid']].get('primary', True)
-                        for type, related in geoname.get('related', {}).items():
-                            if type in ['admin2', 'admin1', 'country', 'continent']:
+                        for gtype, related in geoname.get('related', {}).items():
+                            if gtype in ['admin2', 'admin1', 'country', 'continent']:
                                 geonames[related['geonameid']]['geonameid'] = related['geonameid']
                                 geonames[related['geonameid']]['primary'] = False
 

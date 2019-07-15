@@ -61,10 +61,15 @@ def session_form(project, proposal=None, session=None):
             session.parent = project
             session = failsafe_add(db.session, session, project_id=project.id, url_id=session.url_id)
         db.session.commit()
-        data = dict(
-            id=session.url_id, title=session.title, room_scoped_name=session.venue_room.scoped_name if session.venue_room else None,
-            is_break=session.is_break, modal_url=session.url_for('edit'), delete_url=session.url_for('delete'),
-            proposal_id=session.proposal_id)
+        data = {
+            'id': session.url_id,
+            'title': session.title,
+            'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
+            'is_break': session.is_break,
+            'modal_url': session.url_for('edit'),
+            'delete_url': session.url_for('delete'),
+            'proposal_id': session.proposal_id  # FIXME: Switch to UUID
+        }
         return jsonify(status=True, data=data)
     return jsonify(
         status=False,
@@ -110,7 +115,11 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @render_with('session_view_popup.html.jinja2')
     @requires_permission('view')
     def view_popup(self):
-        return dict(session=self.obj, timezone=self.obj.project.timezone.zone, localize_date=localize_date)
+        return {
+            'session': self.obj,
+            'timezone': self.obj.project.timezone.zone,
+            'localize_date': localize_date
+        }
 
     @route('editsession', methods=['GET', 'POST'])
     @lastuser.requires_login

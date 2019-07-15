@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ProposalSpace explore URL
 
 Revision ID: 523c53593e3c
@@ -15,7 +17,10 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('explore_url', sa.Unicode(length=250), nullable=True))
+    op.add_column(
+        'proposal_space',
+        sa.Column('explore_url', sa.Unicode(length=250), nullable=True),
+    )
 
 
 def downgrade():

@@ -31,7 +31,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
                     lbl.seq = idx
                     db.session.commit()
             flash(_("Your changes have been saved"), category='success')
-        return dict(project=self.obj, labels=self.obj.labels, form=form)
+        return {'project': self.obj, 'labels': self.obj.labels, 'form': form}
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -66,7 +66,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
                 if not subform.validate():
                     flash(_("Error with a label option: {}").format(subform.errors.pop()), category='error')
-                    return dict(title="Add label", form=form, project=self.obj)
+                    return {'title': "Add label", 'form': form, 'project': self.obj}
                 else:
                     subl = Label(project=self.obj)
                     subform.populate_obj(subl)
@@ -76,7 +76,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
             db.session.commit()
             return redirect(self.obj.url_for('labels'), code=303)
-        return dict(title="Add label", form=form, emptysubform=emptysubform, project=self.obj)
+        return {'title': "Add label", 'form': form, 'emptysubform': emptysubform, 'project': self.obj}
 
 
 @route('/<project>/labels', subdomain='<profile>')
@@ -143,7 +143,7 @@ class LabelView(UrlForView, ModelView):
 
                     if not subform.validate():
                         flash(_("Error with a label option: {}").format(subform.errors.pop()), category='error')
-                        return dict(title="Edit label", form=form, project=self.obj.project)
+                        return {'title': "Edit label", 'form': form, 'project': self.obj.project}
                     else:
                         subl = Label(project=self.obj.project)
                         subform.populate_obj(subl)
@@ -158,7 +158,7 @@ class LabelView(UrlForView, ModelView):
             flash(_("Label has been edited"), category='success')
 
             return redirect(self.obj.project.url_for('labels'), code=303)
-        return dict(title="Edit label", form=form, subforms=subforms, emptysubform=emptysubform, project=self.obj.project)
+        return {'title': "Edit label", 'form': form, 'subforms': subforms, 'emptysubform': emptysubform, 'project': self.obj.project}
 
     @route('archive', methods=['POST'])
     @lastuser.requires_login

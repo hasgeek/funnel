@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add_badge_template_to_event
 
 Revision ID: 90cc904ece17
@@ -15,7 +17,9 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('event', sa.Column('badge_template', sa.Unicode(length=250), nullable=True))
+    op.add_column(
+        'event', sa.Column('badge_template', sa.Unicode(length=250), nullable=True)
+    )
 
 
 def downgrade():
