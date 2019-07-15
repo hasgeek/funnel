@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 SECRET_KEY = 'testkey'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3000'

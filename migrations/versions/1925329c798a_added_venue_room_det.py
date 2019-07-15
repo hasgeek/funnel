@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Added venue, room details
 
 Revision ID: 1925329c798a
@@ -15,7 +17,8 @@ from alembic import op
 
 
 def upgrade():
-    op.create_table('venue',
+    op.create_table(
+        'venue',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -32,11 +35,12 @@ def upgrade():
         sa.Column('longitude', sa.Numeric(precision=8, scale=5), nullable=True),
         sa.Column('name', sa.Unicode(length=250), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
         sa.UniqueConstraint('proposal_space_id', 'name'),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('venue_room',
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'venue_room',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -45,10 +49,10 @@ def upgrade():
         sa.Column('description_html', sa.UnicodeText(), nullable=False),
         sa.Column('name', sa.Unicode(length=250), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
-        sa.ForeignKeyConstraint(['venue_id'], ['venue.id'], ),
+        sa.ForeignKeyConstraint(['venue_id'], ['venue.id']),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('venue_id', 'name')
-        )
+        sa.UniqueConstraint('venue_id', 'name'),
+    )
 
 
 def downgrade():

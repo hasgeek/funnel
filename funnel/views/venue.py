@@ -55,7 +55,11 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('view')
     def venues(self):
-        return dict(project=self.obj, venues=self.obj.venues, primary_venue_form=VenuePrimaryForm(parent=self.obj))
+        return {
+            'project': self.obj,
+            'venues': self.obj.venues,
+            'primary_venue_form': VenuePrimaryForm(parent=self.obj)
+        }
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login

@@ -6,17 +6,15 @@ from baseframe.forms.sqlalchemy import QuerySelectField
 
 
 class NewProfileForm(forms.Form):
-    """
-    Create a new profile.
-    """
+    """Create a new profile."""
+
     profile = forms.RadioField(__("Organization"), validators=[forms.validators.DataRequired("Select an organization")],
         description=__(u"Select the organization you’d like to create a Talkfunnel for"))
 
 
 class EditProfileForm(forms.Form):
-    """
-    Edit a profile.
-    """
+    """Edit a profile."""
+
     description = forms.MarkdownField(__("Welcome message"),
         validators=[forms.validators.DataRequired(_(u"Please write a message for the landing page"))],
         description=__("This welcome message will be shown on the landing page."))

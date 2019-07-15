@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """logo url banner url hasjob embed
 
 Revision ID: 70ffbc1bcf88
@@ -16,11 +18,22 @@ from coaster.sqlalchemy import JsonDict
 
 
 def upgrade():
-    op.add_column('profile', sa.Column('logo_url', sa.Unicode(length=2000), nullable=True))
-    op.add_column('project', sa.Column('banner_video_url', sa.Unicode(length=2000), nullable=True))
-    op.add_column('project', sa.Column('boxoffice_data', JsonDict(), server_default='{}', nullable=False))
-    op.add_column('project', sa.Column('hasjob_embed_limit', sa.Integer(), nullable=True))
-    op.add_column('project', sa.Column('hasjob_embed_url', sa.Unicode(length=2000), nullable=True))
+    op.add_column(
+        'profile', sa.Column('logo_url', sa.Unicode(length=2000), nullable=True)
+    )
+    op.add_column(
+        'project', sa.Column('banner_video_url', sa.Unicode(length=2000), nullable=True)
+    )
+    op.add_column(
+        'project',
+        sa.Column('boxoffice_data', JsonDict(), server_default='{}', nullable=False),
+    )
+    op.add_column(
+        'project', sa.Column('hasjob_embed_limit', sa.Integer(), nullable=True)
+    )
+    op.add_column(
+        'project', sa.Column('hasjob_embed_url', sa.Unicode(length=2000), nullable=True)
+    )
 
 
 def downgrade():

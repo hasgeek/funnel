@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add_checkin_team_to_proposal_space
 
 Revision ID: 71f961809275
@@ -15,7 +17,12 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('checkin_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True))
+    op.add_column(
+        'proposal_space',
+        sa.Column(
+            'checkin_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True
+        ),
+    )
 
 
 def downgrade():

@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from coaster.manage import init_manager
 from funnel import app, funnelapp, models

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Proposal location and additional data
 
 Revision ID: 39af75387b10
@@ -17,7 +19,9 @@ from coaster.sqlalchemy import JsonDict
 
 
 def upgrade():
-    op.add_column('proposal', sa.Column('data', JsonDict(), server_default='{}', nullable=False))
+    op.add_column(
+        'proposal', sa.Column('data', JsonDict(), server_default='{}', nullable=False)
+    )
     op.add_column('proposal', sa.Column('latitude', sa.Numeric(), nullable=True))
     op.add_column('proposal', sa.Column('longitude', sa.Numeric(), nullable=True))
 

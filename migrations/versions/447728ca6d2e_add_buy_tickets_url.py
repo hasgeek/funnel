@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """empty message
 
 Revision ID: 447728ca6d2e
@@ -15,7 +17,10 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('buy_tickets_url', sa.Unicode(length=250), nullable=True))
+    op.add_column(
+        'proposal_space',
+        sa.Column('buy_tickets_url', sa.Unicode(length=250), nullable=True),
+    )
 
 
 def downgrade():

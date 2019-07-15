@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Admin and review teams
 
 Revision ID: 55b1ef63bee
@@ -15,9 +17,24 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('profile', sa.Column('admin_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True))
-    op.add_column('proposal_space', sa.Column('admin_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True))
-    op.add_column('proposal_space', sa.Column('review_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True))
+    op.add_column(
+        'profile',
+        sa.Column(
+            'admin_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True
+        ),
+    )
+    op.add_column(
+        'proposal_space',
+        sa.Column(
+            'admin_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True
+        ),
+    )
+    op.add_column(
+        'proposal_space',
+        sa.Column(
+            'review_team_id', sa.Integer(), sa.ForeignKey('team.id'), nullable=True
+        ),
+    )
 
 
 def downgrade():

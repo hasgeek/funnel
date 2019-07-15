@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Featured project flag
 
 Revision ID: ea20c403b240
@@ -15,8 +17,15 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('project', sa.Column('featured', sa.Boolean(),
-        nullable=False, server_default=sa.sql.expression.false()))
+    op.add_column(
+        'project',
+        sa.Column(
+            'featured',
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.sql.expression.false(),
+        ),
+    )
     op.alter_column('project', 'featured', server_default=None)
 
 
