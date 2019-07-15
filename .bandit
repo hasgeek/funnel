@@ -1,6 +1,0 @@
-[bandit]
-exclude_dirs:
-  - funnel
-  - migrations
-  - instance
-  - tests
