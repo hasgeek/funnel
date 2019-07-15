@@ -21,14 +21,12 @@
 {% block contenthead %}{% endblock %}
 
 {% block baseheadline %}
-  <div class=" mui--hidden-md mui--hidden-lg mui--hidden-xl">
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
       <a href="{{ project.url_for() }}" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--text-title mui--align-middle mui--text-dark" aria-hidden="true">arrow_back</i> {{project.title}}</a>
     </div>
   </div>
-  <div class="mui--hidden-xs mui--hidden-sm">
-    {{ project_header(project, project_save_form, project_currently_saved, current_page='proposals') }}
-  </div>
+  {{ project_header(project, project_save_form, project_currently_saved, class='mui--hidden-xs mui--hidden-sm', current_page='proposals') }}
 {% endblock %}
 
 {%- macro proposal_list(project, proposals) %}
