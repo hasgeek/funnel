@@ -1359,8 +1359,6 @@ html.touch .collapsible__body--disable {
 }
 .about-ticket-wrapper #participate {
   padding-left: 30px;
-  position: sticky;
-  top: 65px;
 }
 .about-ticket-wrapper #boxoffice-widget {
   padding-top: 0;
@@ -2065,6 +2063,11 @@ html.touch .collapsible__body--disable {
     display: none;
   }
 }
+@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
+  .schedule .schedule__row--sticky {
+    top: 95px;
+  }
+}
 .calendar-wrapper {
   position: relative;
 }
@@ -2078,11 +2081,7 @@ html.touch .collapsible__body--disable {
   margin: auto;
   font-size: 22px;
 }
-@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
-  .schedule .schedule__row--sticky {
-    top: 95px;
-  }
-}
+
 .session-modal--nopadding {
   padding: 0;
 }
