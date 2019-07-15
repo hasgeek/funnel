@@ -182,17 +182,17 @@
     display: flex;
     background: none;
     border-bottom: 1px solid rgba(132,146,166,0.3);
+    align-items: center;
 
     .session-card__header__image {
-      width: 30%;
-      height: 100%;
+      width: 110px;
+      height: 110px;
+      padding: 10px;
+      border-radius: 50%;
     }
 
     .session-card__header__title {
-      width: 70%;
-      padding-left: 15px;
-      justify-content: center;
-      align-self: center;
+      padding: 10px;
     }
   } 
 }
