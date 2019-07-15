@@ -109,7 +109,7 @@
                     {% else %}
                       <div class="card__header session-card__header">
                     {% endif %}
-                      <img class="card__image session-card__header__image" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/>
+                      <p class="session-card__header__img-wrapper"><img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/></p>
                       <div class="card__title__heading session-card__header__title">
                         {% if session.speaker %}<h4 class="mui--text-title mui--text-bold">{{ session.speaker }}</h4>{% endif %}
                         {% if session.speaker_bio %}<div class="mui--text-body1 js-speaker-bio">{{ session.speaker_bio }}</div>{% endif %}

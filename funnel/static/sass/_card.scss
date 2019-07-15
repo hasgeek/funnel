@@ -185,11 +185,16 @@
     align-items: center;
     padding: 10px;
 
-    .session-card__header__image {
+    .session-card__header__img-wrapper {
+      margin: 0;
       width: 80px;
       height: 80px;
-      padding: 0 10px 0 0;
       border-radius: 50%;
+      overflow: hidden;
+
+      .session-card__header__img-wrapper__img {
+        height: 100%;
+      }
     }
 
     .session-card__header__title {

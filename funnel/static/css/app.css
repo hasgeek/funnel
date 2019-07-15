@@ -1123,11 +1123,15 @@ html.touch .collapsible__body--disable {
   align-items: center;
   padding: 10px;
 }
-.session-card .session-card__header .session-card__header__image {
+.session-card .session-card__header .session-card__header__img-wrapper {
+  margin: 0;
   width: 80px;
   height: 80px;
-  padding: 0 10px 0 0;
   border-radius: 50%;
+  overflow: hidden;
+}
+.session-card .session-card__header .session-card__header__img-wrapper .session-card__header__img-wrapper__img {
+  height: 100%;
 }
 .session-card .session-card__header .session-card__header__title {
   padding: 0;
