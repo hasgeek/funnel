@@ -1395,6 +1395,7 @@ html.touch .collapsible__body--disable {
 }
 .about-ticket-wrapper #boxoffice-widget .fa {
   display: none;
+  padding: 0 !important;
 }
 
 .session-image {
