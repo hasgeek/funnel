@@ -157,7 +157,7 @@
         {%- endif %}
       </div>
     {% elif project.allow_rsvp -%}
-      <div class="grid__col-sm-6" id="participate">
+      <div class="grid__col-sm-6 mui--hidden-xs mui--hidden-sm" id="participate">
         <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
         {%- if g.user %}
           {{ rsvpform(project, rsvp_form) }}
