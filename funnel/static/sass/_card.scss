@@ -191,9 +191,10 @@
       height: 80px;
       border-radius: 50%;
       overflow: hidden;
+      object-fit: cover;
 
       .session-card__header__img-wrapper__img {
-        height: 100%;
+        max-width: 100%;
       }
     }
 

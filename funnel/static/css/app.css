@@ -1129,9 +1129,10 @@ html.touch .collapsible__body--disable {
   height: 80px;
   border-radius: 50%;
   overflow: hidden;
+  object-fit: cover;
 }
 .session-card .session-card__header .session-card__header__img-wrapper .session-card__header__img-wrapper__img {
-  height: 100%;
+  max-width: 100%;
 }
 .session-card .session-card__header .session-card__header__title {
   padding: 0;
