@@ -651,6 +651,25 @@ $(function() {
 
     }();
 
-    settings.init();
-    calendar.init(scheduled);
+    function scheduleWidgetInit() {
+        $('#calendar').html('');
+        settings.init();
+        calendar.init(scheduled);
+    }
+
+    $('#select-date').on('change', function() {
+        var selectedDate =  new Date($('#select-date').val());
+        from_date = selectedDate.getTime()
+        to_date = selectedDate.setDate(selectedDate.getDate() + 2);
+        scheduleWidgetInit();
+    });
+
+    (function () {
+        // On the datepicker, set the current date if from_date is not available
+        var startDate = from_date ? new Date(from_date) : new Date();
+        document.getElementById("select-date").value = startDate.getFullYear() + '-' + ('0' + (startDate.getMonth() + 1)).slice(-2) + '-' + ('0' + startDate.getDate()).slice(-2);
+        $('#select-date').trigger("change");
+    })();
+
+
 });

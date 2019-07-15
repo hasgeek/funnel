@@ -20,7 +20,7 @@ def venue_data(venue):
     return {
         'name': venue.name,
         'title': venue.title,
-        'description': venue.description.html,
+        'description': venue.description.html,  # FIXME: Needs to be description_html
         'address1': venue.address1,
         'address2': venue.address2,
         'city': venue.city,
@@ -38,7 +38,7 @@ def room_data(room):
     return {
         'name': room.scoped_name,
         'title': room.title,
-        'description': room.description.html,
+        'description': room.description.html,  # FIXME: Needs to be description_html
         'venue': room.venue.name,
         'bgcolor': room.bgcolor,
         'url': None,

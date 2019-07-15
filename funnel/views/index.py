@@ -11,10 +11,6 @@ from ..models import Project, Proposal, db
 from .project import project_data
 
 
-def index_jsonify(data):
-    return jsonify(projects=[d for d in [s.current_access() for s in data['projects']] if d])
-
-
 @route('/')
 class IndexView(ClassView):
     @render_with('index.html.jinja2', json=True)

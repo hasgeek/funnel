@@ -55,7 +55,7 @@
   <div class="grid__col-xs-12 proposal-wrapper">
 
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
-      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.user == g.user %}<a href="{{ proposal.url_for('edit') }}#field-title" title="{% trans %}Edit{% endtrans %}" aria-label="Edit proposal"><i class="material-icons mui--text-title mui--align-middle mui--text-link" aria-hidden="true">edit</i></a>{% endif %}</h1>
+      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" title="{% trans %}Edit{% endtrans %}" aria-label="Edit proposal"><i class="material-icons mui--text-title mui--align-middle mui--text-link" aria-hidden="true">edit</i></a>{% endif %}</h1>
       <p>
         {% trans %}Submitted by{% endtrans%}
         {%- if proposal.speaker %}
@@ -84,7 +84,7 @@
                 <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-title">Preview video</a>
               </p>
             </div>
-          {%- elif proposal.user == g.user %}
+          {%- elif proposal.current_roles.owner %}
             <div class="proposal-video proposal-video--novideo">
               <p class="proposal-video__banner mui--bg-warning mui--text-body1">Your proposal doesn't have a preview video!</p>
               <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-preview_video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
@@ -120,13 +120,13 @@
     <section class="proposal__section--border">
 
       <div class="proposal__admin-panel sticky-admin-panel">
-        {%- if proposal.user == g.user or proposal.current_roles.admin %}
+        {%- if proposal.current_roles.owner or proposal.current_roles.admin %}
           <div class="card">
             <div class="card__header">
               <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
             </div>
             <div class="card__body">
-              {%- if proposal.user == g.user %}
+              {%- if proposal.current_roles.owner %}
                 <ul class="mui-list--aligned">
                   <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></li>
                   <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
@@ -174,41 +174,41 @@
 
       <div class="proposal__section proposal__section--left">
         <div class="proposal-content">
-          <h3 class="mui--text-headline mui--text-bold">{% trans %}Abstract{% endtrans %} {% if proposal.user == g.user %}<a href="{{ proposal.url_for('edit') }}#field-abstract" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+          <h3 class="mui--text-headline mui--text-bold">{% trans %}Abstract{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-abstract" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
           <div class="mui--text-subhead">{{ proposal.abstract }}</div>
 
-          <h3 class="mui--text-headline mui--text-bold">{% trans %}Outline{% endtrans %} {% if proposal.user == g.user %}<a href="{{ proposal.url_for('edit') }}#field-outline" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+          <h3 class="mui--text-headline mui--text-bold">{% trans %}Outline{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-outline" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
           <div class="mui--text-subhead">{{ proposal.outline }}</div>
 
           {% if proposal.requirements.text -%}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} {% if proposal.user == g.user %}<a href="{{ proposal.url_for('edit') }}#field-requirements" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %} </h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-requirements" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %} </h3>
             <div class="mui--text-subhead">{{ proposal.requirements }}</div>
-          {%- elif proposal.user == g.user %}
+          {%- elif proposal.current_roles.owner %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-requirements" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a></h3>
             <p><i>This section is empty.</i></p>
           {%- endif %}
 
           {% if proposal.bio.text -%}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Speaker bio{% endtrans %} {% if proposal.user == g.user %}<a href="{{ proposal.url_for('edit') }}#field-bio" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Speaker bio{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-bio" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
             <div class="mui--text-subhead">{{ proposal.bio }}</div>
           {%- endif %}
 
           {% if proposal.links %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} {% if proposal.user == g.user %}<a href="{{ proposal.url_for('edit') }}#field-links" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-links" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
             <ul class="links-list">
               {% for link in links -%}
                 <li class="mui--text-subhead">{{ link }}</li>
               {% endfor %}
             </ul>
-          {%- elif proposal.user == g.user %}
+          {%- elif proposal.current_roles.owner %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-links" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a></h3>
             <p><i>This section is empty.</i></p>
           {% endif %}
 
           {% if proposal.slides.url %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} {% if proposal.user == g.user %}<a href="{{ proposal.url_for('edit') }}#field-slides" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-slides" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
-          {%- elif proposal.user == g.user %}
+          {%- elif proposal.current_roles.owner %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-slides" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a></h3>
             <p><i>This section is empty.</i></p>
           {% endif %}

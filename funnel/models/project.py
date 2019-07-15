@@ -78,9 +78,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     location = db.Column(db.Unicode(50), default=u'', nullable=True)
     parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
 
-    date = db.Column(db.Date, nullable=True)
-    date_upto = db.Column(db.Date, nullable=True)
-
     website = db.Column(UrlType, nullable=True)
     timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
 
@@ -183,9 +180,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id', 'name', 'title', 'datelocation', 'timezone', 'date', 'date_upto', 'url_json',
-                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url',
-                'location', 'calendar_weeks'
+                'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
+                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks'
                 },
             'call': {
                 'url_for',
@@ -201,7 +197,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def __repr__(self):
         return '<Project %s/%s "%s">' % (self.profile.name if self.profile else "(none)", self.name, self.title)
 
-    @cached_property
+    @property
     def datelocation(self):
         """
         Returns a date + location string for the event, the format depends on project dates
@@ -218,30 +214,34 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         If multi-day event across years
         > 30 Dec 2018–02 Jan 2019, Bangalore
 
-        ``datelocation_format`` always keeps ``date_upto`` format as ``–DD Mmm YYYY``.
-        Depending on the scenario mentioned below, format for ``date`` changes. Above examples
+        ``datelocation_format`` always keeps ``schedule_end_at`` format as ``–DD Mmm YYYY``.
+        Depending on the scenario mentioned below, format for ``schedule_start_at`` changes. Above examples
         demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
-        Only ``date`` format changes.
+        Only ``schedule_start_at`` format changes.
         """
-        datelocation_format = u"{date}–{date_upto} {year}"
-        if self.date == self.date_upto:
-            # if both dates are same, in case of single day project
-            strf_date = ""
-            datelocation_format = u"{date_upto} {year}"
-        elif self.date.month == self.date_upto.month:
-            # If multi-day event in same month
-            strf_date = "%d"
-        elif self.date.month != self.date_upto.month:
-            # If multi-day event across months
-            strf_date = "%d %b"
-        elif self.date.year != self.date_upto.year:
-            # if the start date and end dates are in different years,
-            strf_date = "%d %b %Y"
-        datelocation = datelocation_format.format(
-            date=self.date.strftime(strf_date),
-            date_upto=self.date_upto.strftime("%d %b"),
-            year=self.date.year)
-        return datelocation if not self.location else u', '.join([datelocation, self.location])
+        daterange = u""
+        if self.schedule_start_at is not None and self.schedule_end_at is not None:
+            schedule_start_at_date = self.schedule_start_at.astimezone(self.timezone).date()
+            schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
+            daterange_format = u"{start_date}–{end_date} {year}"
+            if schedule_start_at_date == schedule_end_at_date:
+                # if both dates are same, in case of single day project
+                strf_date = ""
+                daterange_format = u"{end_date} {year}"
+            elif schedule_start_at_date.year != schedule_end_at_date.year:
+                # if the start date and end dates are in different years,
+                strf_date = "%d %b %Y"
+            elif schedule_start_at_date.month != schedule_end_at_date.month:
+                # If multi-day event across months
+                strf_date = "%d %b"
+            elif schedule_start_at_date.month == schedule_end_at_date.month:
+                # If multi-day event in same month
+                strf_date = "%d"
+            daterange = daterange_format.format(
+                start_date=schedule_start_at_date.strftime(strf_date),
+                end_date=schedule_end_at_date.strftime("%d %b"),
+                year=schedule_end_at_date.year)
+        return u', '.join(filter(None, [daterange, self.location]))
 
     schedule_state.add_conditional_state('PAST', schedule_state.PUBLISHED,
         lambda project: project.schedule_end_at is not None and utcnow() >= project.schedule_end_at,
@@ -528,14 +528,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         Return currently active events, sorted by date.
         """
-        return cls.all_unsorted(legacy).order_by(cls.date.desc())
+        return cls.all_unsorted(legacy).order_by(cls.schedule_start_at.desc())
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
         currently_listed_projects = cls.query.filter_by(parent_project=None).filter(cls.state.PUBLISHED)
         if legacy is not None:
             currently_listed_projects = currently_listed_projects.join(Profile).filter(Profile.legacy == legacy)
-        currently_listed_projects = currently_listed_projects.order_by(cls.date.desc())
+        currently_listed_projects = currently_listed_projects.order_by(cls.schedule_start_at.desc())
         return currently_listed_projects
 
     def roles_for(self, actor=None, anchors=()):
@@ -557,19 +557,17 @@ add_search_trigger(Project, 'search_vector')
 
 
 Profile.listed_projects = db.relationship(
-        Project, lazy='dynamic',
-        primaryjoin=db.and_(
-            Profile.id == Project.profile_id, Project.parent_id == None,
-            Project.state.PUBLISHED),
-        order_by=Project.date.desc())  # NOQA
+    Project, lazy='dynamic',
+    primaryjoin=db.and_(
+        Profile.id == Project.profile_id, Project.parent_id.is_(None),
+        Project.state.PUBLISHED))
 
 
 Profile.draft_projects = db.relationship(
-        Project, lazy='dynamic',
-        primaryjoin=db.and_(
-            Profile.id == Project.profile_id, Project.parent_id == None,
-            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)),
-        order_by=Project.date.desc())  # NOQA
+    Project, lazy='dynamic',
+    primaryjoin=db.and_(
+        Profile.id == Project.profile_id, Project.parent_id.is_(None),
+        db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT)))
 
 
 class ProjectRedirect(TimestampMixin, db.Model):

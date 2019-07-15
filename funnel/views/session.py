@@ -99,7 +99,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
         return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
-            from_date=date_js(self.obj.project.date), to_date=date_js(self.obj.project.date_upto),
+            from_date=date_js(self.obj.project.schedule_start_at), to_date=date_js(self.obj.project.schedule_end_at),
             sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
             timezone=utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
