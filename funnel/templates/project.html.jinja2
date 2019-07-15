@@ -35,7 +35,7 @@
      ],
     {% endif -%}
     "description": {{ project.tagline|tojson }},
-    "endDate": {% if project.schedule_end_at %}{{ project.schedule_end_at.astimezone(project.timezone).isoformat() }}{% else %}null{% endif %},
+    "endDate": {% if project.schedule_end_at %}{{ project.schedule_end_at.astimezone(project.timezone).isoformat()|tojson }}{% else %}null{% endif %},
     "offers": {
       "@type": "Offer",
       "url": {{ project.url_for(_external=true)|tojson }}
