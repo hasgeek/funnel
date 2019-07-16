@@ -16,7 +16,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp, lastuser
-from ..forms import SessionForm, SessionSaveForm
+from ..forms import SessionForm, SessionSaveForm, ProjectSaveForm
 from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
 from .decorators import legacy_redirect
 from .helpers import localize_date
@@ -103,13 +103,17 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
+        project_save_form = ProjectSaveForm()
+        project_currently_saved = self.obj.project.is_saved_by(current_auth.user)
         return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
             from_date=date_js(self.obj.project.schedule_start_at), to_date=date_js(self.obj.project.schedule_end_at),
             sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
             timezone=utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
             venues=[venue.current_access() for venue in self.obj.project.venues],
-            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
+            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]),
+            project_save_form=project_save_form,
+            project_currently_saved=project_currently_saved)
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
