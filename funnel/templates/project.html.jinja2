@@ -111,8 +111,8 @@
                     {% endif %}
                       <p class="session-card__header__img-wrapper"><img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/></p>
                       <div class="card__title__heading session-card__header__title">
-                        {% if session.speaker %}<h4 class="mui--text-title mui--text-bold zero-bottom-margin">{{ session.speaker }}</h4>{% endif %}
-                        {% if session.speaker_bio %}<div class="mui--text-body1 js-speaker-bio">{{ session.speaker_bio }}</div>{% endif %}
+                        {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
+                        <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
                       </div>
                     {% if session.proposal %}</a>{% else %}</div>{% endif %}
                   {% else %}
@@ -130,12 +130,11 @@
                     {% if session.proposal %}</a>{% else %}</div>{% endif %}
                   {% endif %}
                   {% if session.proposal %}
-                    <a class="card__body mui--text-body2 clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                    <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
                   {% else %}
-                    <div class="card__body mui--text-body2">
+                    <div class="card__body">
                   {% endif %}
-                    <h3 class="mui--text-title card__title__heading  mui--text-bold">{{ session.title }}</h3>
-                    <div class="mui--text-body1 mui--text-light truncate">{{ session.description }}</div>
+                    <div class="mui--text-body1 mui--text-light truncate">{{ session.description|striptags }}</div>
                   {% if session.proposal %}</a>{% else %}</div>{% endif %}
                 </div>
               </li>
@@ -255,10 +254,6 @@
 
       $('.truncate').succinct({
         size: 150
-      });
-
-      $('.js-speaker-bio').succinct({
-        size: 30
       });
 
     });
