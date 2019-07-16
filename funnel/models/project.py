@@ -555,7 +555,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return roles
 
     def is_saved_by(self, user):
-        return user is not None and self.saved_by.filter_by(user=user).notempty()
+        return user is not None and self.saved_by.filter_by(user=user).first() is not None
 
 
 add_search_trigger(Project, 'search_vector')
