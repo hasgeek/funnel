@@ -34,10 +34,10 @@ from ..forms import (
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
-    ProjectSaveForm,
     ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpForm,
+    SavedProjectForm,
 )
 from ..jobs import import_tickets, tag_locations
 from ..models import RSVP_STATUS, Project, Proposal, Rsvp, SavedProject, db
@@ -66,7 +66,7 @@ def project_data(project):
         'bg_color': project.bg_color,
         'explore_url': project.explore_url.url if project.explore_url is not None else "",
         'calendar_weeks': project.calendar_weeks
-        }
+    }
 
 
 @route('/<profile>')
@@ -111,7 +111,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        project_save_form = ProjectSaveForm()
+        project_save_form = SavedProjectForm()
         project_currently_saved = self.obj.is_saved_by(current_auth.user)
         return {'project': self.obj,
             'rsvp_form': rsvp_form, 'transition_form': transition_form,
@@ -124,7 +124,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = ProjectSaveForm()
+        project_save_form = SavedProjectForm()
         project_currently_saved = self.obj.is_saved_by(current_auth.user)
         return {'project': self.obj, 'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
@@ -142,7 +142,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'rooms': [room_data(room) for room in self.obj.rooms],
             'proposals': [proposal_data(proposal) for proposal in proposals],
             'schedule': schedule_data(self.obj),
-            })
+        })
 
     @route('csv')
     @requires_permission('view')
@@ -280,7 +280,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def rsvp(self):
         form = RsvpForm()
-        print form.data
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, g.user, create=True)
             form.populate_obj(rsvp)
@@ -304,7 +303,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('view')
     def save(self):
-        form = ProjectSaveForm()
+        form = SavedProjectForm()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(user=current_auth.user, project=self.obj).first()
             if form.save.data:
@@ -312,28 +311,28 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     proj_save = SavedProject(user=current_auth.user, project=self.obj)
                     form.populate_obj(proj_save)
                     db.session.commit()
-                    return {'status': 'success'}
+                    return {'status': 'ok'}
                 else:
                     return {
                         'status': 'error',
-                        'error_identifier': 'project_save_exists',
+                        'error': 'project_save_exists',
                         'error_description': _("You have already saved this project")
-                    }, 400
+                    }
             else:
                 if proj_save is not None:
                     db.session.delete(proj_save)
                     db.session.commit()
-                    return {'status': 'success'}
+                    return {'status': 'ok'}
                 else:
                     return {
                         'status': 'error',
-                        'error_identifier': 'project_save_invalid',
+                        'error': 'project_save_invalid',
                         'error_description': _("You have not saved this project yet")
-                    }, 400
+                    }
         else:
             return {
                 'status': 'error',
-                'error_identifier': 'project_save_form_invalid',
+                'error': 'project_save_form_invalid',
                 'error_description': _("Something went wrong, please reload and try again")
             }, 400
         return redirect(self.obj.url_for(), code=303)

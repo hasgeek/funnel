@@ -14,16 +14,16 @@ from ..models import RSVP_STATUS, Project
 
 __all__ = [
     'EventForm', 'ProjectForm', 'CfpForm', 'ProjectTransitionForm', 'RsvpForm',
-    'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm', 'ProjectSaveForm',
+    'TicketClientForm', 'TicketTypeForm', 'ProjectBoxofficeForm', 'SavedProjectForm',
     'ProjectScheduleTransitionForm', 'ProjectCfpTransitionForm'
-    ]
+]
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {
     "org": "hasgeek",
     "item_collection_id": ""
-    }
+}
 
 
 class ProjectForm(forms.Form):
@@ -37,11 +37,14 @@ class ProjectForm(forms.Form):
     tagline = forms.StringField(__("Tagline"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         filters=[forms.filters.strip()], description=__("This is displayed on the card on the homepage"))
-    website = forms.URLField(__("Website"),
+    website = forms.URLField(
+        __("Website"),
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
-            forms.validators.ValidUrl()])
+            forms.validators.ValidUrl()
+        ]
+    )
     description = forms.MarkdownField(__("Project description"), validators=[forms.validators.DataRequired()],
         description=__("About the project"))
     timezone = forms.SelectField(__("Timezone"),
@@ -53,12 +56,15 @@ class ProjectForm(forms.Form):
         description=__("RGB color for the project. Enter without the '#'. E.g. CCCCCC."),
         validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
         default=u"CCCCCC")
-    explore_url = forms.URLField(__("Explore tab URL"),
+    explore_url = forms.URLField(
+        __("Explore tab URL"),
         description=__(u"Page containing the explore tab’s contents, for the mobile app"),
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
-            forms.validators.ValidUrl()])
+            forms.validators.ValidUrl()
+        ]
+    )
     parent_project = QuerySelectField(__(u"Parent project"), get_label='title', allow_blank=True, blank_text=__(u"None"))
 
     admin_team = QuerySelectField(u"Admin team", validators=[forms.validators.DataRequired(__(u"Please select a team"))],
@@ -97,11 +103,13 @@ class CfpForm(forms.Form):
     cfp_start_at = forms.DateTimeField(__("Submissions open at"),
         validators=[forms.validators.Optional()],
         naive=False)
-    cfp_end_at = forms.DateTimeField(__("Submissions close at"),
+    cfp_end_at = forms.DateTimeField(
+        __("Submissions close at"),
         validators=[
             forms.validators.AllowedIf('cfp_start_at', message=__("This requires open time for submissions to be specified")),
             forms.validators.RequiredIf('cfp_start_at'), forms.validators.Optional(),
-            forms.validators.GreaterThanEqualTo('cfp_start_at', __("Submissions cannot close before they open"))],
+            forms.validators.GreaterThanEqualTo('cfp_start_at', __("Submissions cannot close before they open"))
+        ],
         naive=False)
 
 
@@ -126,12 +134,12 @@ class ProjectCfpTransitionForm(forms.Form):
         self.cfp_transition.choices = self.edit_obj.cfp_state.transitions().items()
 
 
-class ProjectSaveForm(forms.Form):
+class SavedProjectForm(forms.Form):
     save = forms.BooleanField(
         __("Save this project?"),
         validators=[forms.validators.InputRequired()],
     )
-    description = forms.StringField(__("Notes"))
+    description = forms.StringField(__("Note to self"))
 
 
 class RsvpForm(forms.Form):

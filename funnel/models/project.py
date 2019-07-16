@@ -66,8 +66,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
-        User, primaryjoin=user_id == User.id,
-        backref=db.backref('projects', cascade='all, delete-orphan'))
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('projects', cascade='all, delete-orphan')
+    )
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
     profile = db.relationship('Profile', backref=db.backref('projects', cascade='all, delete-orphan', lazy='dynamic'))
     parent = db.synonym('profile')
@@ -147,13 +149,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             weights={
                 'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
                 'location': 'C'
-                },
+            },
             regconfig='english',
             hltext=lambda: db.func.concat_ws(
                 ' / ', Project.title, Project.location,
-                Project.description_html, Project.instructions_html),
+                Project.description_html, Project.instructions_html
             ),
-        nullable=False))
+        ),
+        nullable=False)
+    )
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
@@ -175,19 +179,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
         db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
-        )
+    )
 
     __roles__ = {
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
                 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks'
-                },
+            },
             'call': {
                 'url_for',
-                }
             }
         }
+    }
 
     def __init__(self, **kwargs):
         super(Project, self).__init__(**kwargs)
@@ -431,12 +435,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.subprojects:
             basequery = Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-                )
+            )
         else:
             basequery = Proposal.query.filter_by(project=self)
         return Proposal.state.group(
             basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
-            )
+        )
 
     @property
     def proposals_by_confirmation(self):
@@ -490,7 +494,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant',
-                    ])
+                ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
                     'view_contactinfo',
@@ -507,11 +511,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant'
-                    ])
+                ])
             if self.checkin_team and user in self.checkin_team.users:
                 perms.update([
                     'checkin_event'
-                    ])
+                ])
         return perms
 
     @classmethod
@@ -551,7 +555,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return roles
 
     def is_saved_by(self, user):
-        return self.saved_by.filter_by(user=user).first() is not None
+        return user is not None and self.saved_by.filter_by(user=user).notempty()
 
 
 add_search_trigger(Project, 'search_vector')

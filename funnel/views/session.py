@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from flask import abort, flash, jsonify, redirect, render_template, request
+from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, forms
+from baseframe import _
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import utcnow
@@ -16,7 +16,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp, lastuser
-from ..forms import SessionForm, SessionSaveForm, ProjectSaveForm
+from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
 from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
 from .decorators import legacy_redirect
 from .helpers import localize_date
@@ -103,17 +103,21 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
-        project_save_form = ProjectSaveForm()
+        project_save_form = SavedProjectForm()
         project_currently_saved = self.obj.project.is_saved_by(current_auth.user)
-        return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
-            from_date=date_js(self.obj.project.schedule_start_at), to_date=date_js(self.obj.project.schedule_end_at),
-            sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
+        return {
+            'project': self.obj.project,
+            'active_session': session_data(self.obj, with_modal_url='view_popup'),
+            'from_date': date_js(self.obj.project.schedule_start_at),
+            'to_date': date_js(self.obj.project.schedule_end_at),
+            'sessions': session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
-            timezone=utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
-            venues=[venue.current_access() for venue in self.obj.project.venues],
-            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]),
-            project_save_form=project_save_form,
-            project_currently_saved=project_currently_saved)
+            'timezone': utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
+            'venues': [venue.current_access() for venue in self.obj.project.venues],
+            'rooms': {room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor} for room in self.obj.project.rooms},
+            'project_save_form': project_save_form,
+            'project_currently_saved': project_currently_saved
+        }
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
@@ -175,7 +179,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('view')
     def save(self):
-        form = SessionSaveForm()
+        form = SavedSessionForm()
         if form.validate_on_submit():
             session_save = SavedSession.query.filter_by(user=current_auth.user, session=self.obj).first()
             if form.save.data:
@@ -183,28 +187,28 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                     session_save = SavedSession(user=current_auth.user, session=self.obj)
                     form.populate_obj(session_save)
                     db.session.commit()
-                    return {'status': 'success'}
+                    return {'status': 'ok'}
                 else:
                     return {
                         'status': 'error',
-                        'error_identifier': 'session_save_exists',
+                        'error': 'session_save_exists',
                         'error_description': _("You have already saved this session")
-                    }, 400
+                    }
             else:
                 if session_save is not None:
                     db.session.delete(session_save)
                     db.session.commit()
-                    return {'status': 'success'}
+                    return {'status': 'ok'}
                 else:
                     return {
                         'status': 'error',
-                        'error_identifier': 'session_save_invalid',
+                        'error': 'session_save_invalid',
                         'error_description': _("You have not saved this session yet")
-                    }, 400
+                    }
         else:
             return {
                 'status': 'error',
-                'error_identifier': 'session_save_form_invalid',
+                'error': 'session_save_form_invalid',
                 'error_description': _("Something went wrong, please reload and try again")
             }, 400
         return redirect(self.obj.url_for(), code=303)
