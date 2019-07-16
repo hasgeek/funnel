@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Team model
 
 Revision ID: 140c9b68d65b
@@ -15,7 +17,8 @@ from alembic import op
 
 
 def upgrade():
-    op.create_table('team',
+    op.create_table(
+        'team',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -24,22 +27,28 @@ def upgrade():
         sa.Column('owners', sa.Boolean(), nullable=False),
         sa.Column('orgid', sa.String(length=22), nullable=False),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('userid')
-        )
-    op.create_table('users_teams',
+        sa.UniqueConstraint('userid'),
+    )
+    op.create_table(
+        'users_teams',
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('team_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['team_id'], ['team.id'], ),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.PrimaryKeyConstraint('user_id', 'team_id')
-        )
+        sa.ForeignKeyConstraint(['team_id'], ['team.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.PrimaryKeyConstraint('user_id', 'team_id'),
+    )
     op.drop_column('user', 'description')
 
 
 def downgrade():
-    op.add_column('user', sa.Column('description', sa.TEXT(), nullable=False, server_default=sa.text(u"''")))
+    op.add_column(
+        'user',
+        sa.Column(
+            'description', sa.TEXT(), nullable=False, server_default=sa.text(u"''")
+        ),
+    )
     op.alter_column('user', 'description', server_default=None)
 
     op.drop_table('users_teams')

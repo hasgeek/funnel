@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """venue uuid field
 
 Revision ID: eec2fad0f3e9
@@ -19,28 +21,32 @@ from sqlalchemy_utils import UUIDType
 import progressbar.widgets
 from progressbar import ProgressBar
 
-venue = table('venue',
-    column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
-    )
+venue = table(
+    'venue', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
+)
 
 
 def get_progressbar(label, maxval):
-    return ProgressBar(maxval=maxval,
+    return ProgressBar(
+        maxval=maxval,
         widgets=[
-            label, ': ',
-            progressbar.widgets.Percentage(), ' ',
-            progressbar.widgets.Bar(), ' ',
-            progressbar.widgets.ETA(), ' '
-            ])
+            label,
+            ': ',
+            progressbar.widgets.Percentage(),
+            ' ',
+            progressbar.widgets.Bar(),
+            ' ',
+            progressbar.widgets.ETA(),
+            ' ',
+        ],
+    )
 
 
 def upgrade():
     conn = op.get_bind()
 
     op.add_column('venue', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(
-        sa.select([sa.func.count('*')]).select_from(venue))
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(venue))
     progress = get_progressbar("Venues", count)
     progress.start()
     items = conn.execute(sa.select([venue.c.id]))

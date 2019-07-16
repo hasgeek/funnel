@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add inherit sections to proposal space
 
 Revision ID: 3b189f2e5c56
@@ -15,7 +17,12 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column(u'proposal_space', sa.Column('inherit_sections', sa.Boolean(), nullable=False, server_default='True'))
+    op.add_column(
+        u'proposal_space',
+        sa.Column(
+            'inherit_sections', sa.Boolean(), nullable=False, server_default='True'
+        ),
+    )
 
 
 def downgrade():

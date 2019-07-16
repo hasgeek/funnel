@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Label.name check constraint
 
 Revision ID: 034863dbaac2

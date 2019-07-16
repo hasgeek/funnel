@@ -1120,16 +1120,22 @@ html.touch .collapsible__body--disable {
   display: flex;
   background: none;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  align-items: center;
+  padding: 10px;
 }
-.session-card .session-card__header .session-card__header__image {
-  width: 30%;
-  height: 100%;
+.session-card .session-card__header .session-card__header__img-wrapper {
+  margin: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  object-fit: cover;
+}
+.session-card .session-card__header .session-card__header__img-wrapper .session-card__header__img-wrapper__img {
+  max-width: 100%;
 }
 .session-card .session-card__header .session-card__header__title {
-  width: 70%;
-  padding-left: 15px;
-  justify-content: center;
-  align-self: center;
+  padding: 0;
 }
 
 .calendar {
@@ -1360,40 +1366,45 @@ html.touch .collapsible__body--disable {
 .about-ticket-wrapper #participate {
   padding-left: 30px;
 }
-.about-ticket-wrapper #boxoffice-widget {
+
+#boxoffice-widget {
   padding-top: 0;
   max-width: 100%;
   margin: 0;
 }
-.about-ticket-wrapper #boxoffice-widget .category-heading {
-  font-size: 25px;
-  width: 100%;
+#boxoffice-widget .ticket-booking {
+  border-bottom: 1px solid #ccc;
 }
-.about-ticket-wrapper #boxoffice-widget .category-heading:after {
-  border: none;
+#boxoffice-widget .ticket-booking:last-child {
+  border-bottom: none;
 }
-.about-ticket-wrapper #boxoffice-widget .ticket-details {
+#boxoffice-widget .ticket-details {
   margin: 0;
   width: 100%;
 }
-.about-ticket-wrapper #boxoffice-widget .ticket-price-qty {
+#boxoffice-widget .ticket-price-qty {
   float: left;
   width: 100%;
-  margin-top: 15px;
+  margin-top: 30px;
 }
-.about-ticket-wrapper #boxoffice-widget .price-details-wrapper,
-.about-ticket-wrapper #boxoffice-widget .ticket-total,
-.about-ticket-wrapper #boxoffice-widget .proceed-button-wrapper {
+#boxoffice-widget .ticket-description .few-ticket {
+  left: 0;
+  top: -21px;
+}
+#boxoffice-widget .price-details-wrapper,
+#boxoffice-widget .ticket-total,
+#boxoffice-widget .proceed-button-wrapper {
   float: left;
 }
-.about-ticket-wrapper #boxoffice-widget .item-amount,
-.about-ticket-wrapper #boxoffice-widget .valid-upto {
+#boxoffice-widget .item-amount,
+#boxoffice-widget .valid-upto,
+#boxoffice-widget .discount {
   text-align: left;
 }
-.about-ticket-wrapper #boxoffice-widget .checkout-confirmation {
+#boxoffice-widget .checkout-confirmation {
   padding: 0;
 }
-.about-ticket-wrapper #boxoffice-widget .fa {
+#boxoffice-widget .fa {
   display: none;
   padding: 0 !important;
 }
@@ -2065,8 +2076,8 @@ html.touch .collapsible__body--disable {
   }
 }
 @media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
-  .schedule .schedule__row--sticky {
-    top: 95px;
+  .schedule-grid .schedule .schedule__row--sticky {
+    top: 93px;
   }
 }
 .calendar-wrapper {

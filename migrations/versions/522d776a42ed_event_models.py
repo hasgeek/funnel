@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """event_models
 
 Revision ID: 522d776a42ed
@@ -14,25 +16,28 @@ from alembic import op
 
 
 def upgrade():
-    op.create_table('ticket_type',
+    op.create_table(
+        'ticket_type',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('name', sa.Unicode(length=80), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('event',
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'event',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('name', sa.Unicode(length=80), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('participant',
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'participant',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -48,25 +53,27 @@ def upgrade():
         sa.Column('badge_printed', sa.Boolean(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=True),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('key'),
         sa.UniqueConstraint('proposal_space_id', 'email'),
-        sa.UniqueConstraint('puk')
-        )
-    op.create_table('attendee',
+        sa.UniqueConstraint('puk'),
+    )
+    op.create_table(
+        'attendee',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('participant_id', sa.Integer(), nullable=False),
         sa.Column('event_id', sa.Integer(), nullable=False),
         sa.Column('checked_in', sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(['event_id'], ['event.id'], ),
-        sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('sync_ticket',
+        sa.ForeignKeyConstraint(['event_id'], ['event.id']),
+        sa.ForeignKeyConstraint(['participant_id'], ['participant.id']),
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'sync_ticket',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -75,20 +82,21 @@ def upgrade():
         sa.Column('ticket_type_id', sa.Integer(), nullable=False),
         sa.Column('participant_id', sa.Integer(), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id'], ),
+        sa.ForeignKeyConstraint(['participant_id'], ['participant.id']),
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id']),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('proposal_space_id', 'ticket_no')
-        )
-    op.create_table('event_ticket_type',
+        sa.UniqueConstraint('proposal_space_id', 'ticket_no'),
+    )
+    op.create_table(
+        'event_ticket_type',
         sa.Column('event_id', sa.Integer(), nullable=False),
         sa.Column('ticket_type_id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(['event_id'], ['event.id'], ),
-        sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id'], ),
-        sa.PrimaryKeyConstraint('event_id', 'ticket_type_id')
-        )
+        sa.ForeignKeyConstraint(['event_id'], ['event.id']),
+        sa.ForeignKeyConstraint(['ticket_type_id'], ['ticket_type.id']),
+        sa.PrimaryKeyConstraint('event_id', 'ticket_type_id'),
+    )
 
 
 def downgrade():

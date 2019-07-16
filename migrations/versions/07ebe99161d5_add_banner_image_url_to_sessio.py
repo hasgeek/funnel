@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add banner_image_url field to session
 
 Revision ID: 07ebe99161d5
@@ -15,7 +17,9 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('session', sa.Column('banner_image_url', sa.Unicode(length=2000), nullable=True))
+    op.add_column(
+        'session', sa.Column('banner_image_url', sa.Unicode(length=2000), nullable=True)
+    )
 
 
 def downgrade():

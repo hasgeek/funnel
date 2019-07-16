@@ -286,7 +286,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             form.populate_obj(rsvp)
             db.session.commit()
             if request.is_xhr:
-                return dict(project=self.obj, rsvp=rsvp, rsvp_form=form)
+                return {'project': self.obj, 'rsvp': rsvp, 'rsvp_form': form}
             else:
                 return redirect(self.obj.url_for(), code=303)
         else:
@@ -297,7 +297,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('edit_project')
     def rsvp_list(self):
-        return dict(project=self.obj, statuses=RSVP_STATUS)
+        return {'project': self.obj, 'statuses': RSVP_STATUS}
 
     @route('save', methods=['POST'])
     @render_with(json=True)
@@ -350,7 +350,12 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     import_tickets.queue(ticket_client.id)
             flash(_(u"Importing tickets from vendors...Refresh the page in about 30 seconds..."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
-        return dict(profile=self.obj.profile, project=self.obj, events=self.obj.events, csrf_form=csrf_form)
+        return {
+            'profile': self.obj.profile,
+            'project': self.obj,
+            'events': self.obj.events,
+            'csrf_form': csrf_form
+        }
 
 
 @route('/<project>/', subdomain='<profile>')

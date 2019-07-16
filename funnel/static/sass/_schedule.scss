@@ -242,9 +242,11 @@
 @media (min-device-width: 768px)
 and (max-device-width: 1200px)
 and (orientation: landscape) {
-  .schedule {
-    .schedule__row--sticky {
-      top: 95px;
+  .schedule-grid {
+    .schedule {
+      .schedule__row--sticky {
+        top: 93px;
+      }
     }
   }
 }

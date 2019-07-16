@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """session speaker
 
 Revision ID: 6f98e24760d
@@ -15,7 +17,9 @@ from alembic import op
 
 
 def upgrade():
-    op.add_column('session', sa.Column('speaker', sa.Unicode(length=200), nullable=True))
+    op.add_column(
+        'session', sa.Column('speaker', sa.Unicode(length=200), nullable=True)
+    )
 
 
 def downgrade():

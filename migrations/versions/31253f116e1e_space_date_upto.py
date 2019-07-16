@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """space date upto
 
 Revision ID: 31253f116e1e

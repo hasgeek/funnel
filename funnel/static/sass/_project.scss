@@ -161,51 +161,56 @@
   #participate {
     padding-left: 30px;
   }
+}
 
-  #boxoffice-widget {
-    padding-top: 0;
-    max-width: 100%;
+#boxoffice-widget {
+  padding-top: 0;
+  max-width: 100%;
+  margin: 0;
+
+  .ticket-booking {
+    border-bottom: 1px solid #ccc;
+  }
+
+  .ticket-booking:last-child {
+    border-bottom: none;
+  }
+
+  .ticket-details {
     margin: 0;
+    width: 100%;
+  }
 
-    .category-heading {
-      font-size: 25px;
-      width: 100%;
-    }
+  .ticket-price-qty {
+    float: left;
+    width: 100%;
+    margin-top: 30px;
+  }
 
-    .category-heading:after {
-      border: none;
-    }
+  .ticket-description .few-ticket {
+    left: 0;
+    top: -21px
+  }
 
-    .ticket-details {
-      margin: 0;
-      width: 100%;
-    }
+  .price-details-wrapper,
+  .ticket-total,
+  .proceed-button-wrapper {
+    float: left;
+  }
 
-    .ticket-price-qty {
-      float: left;
-      width: 100%;
-      margin-top: 15px;
-    }
+  .item-amount,
+  .valid-upto,
+  .discount {
+    text-align: left;
+  }
 
-    .price-details-wrapper,
-    .ticket-total,
-    .proceed-button-wrapper {
-      float: left;
-    }
+  .checkout-confirmation {
+    padding: 0;
+  }
 
-    .item-amount,
-    .valid-upto {
-      text-align: left;
-    }
-
-    .checkout-confirmation {
-      padding: 0;
-    }
-
-    .fa {
-      display: none;
-      padding: 0 !important;
-    }
+  .fa {
+    display: none;
+    padding: 0 !important;
   }
 }
 
