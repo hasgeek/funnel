@@ -2000,6 +2000,11 @@ html.touch .collapsible__body--disable {
     display: none;
   }
 }
+@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
+  .schedule-grid .schedule .schedule__row--sticky {
+    top: 93px;
+  }
+}
 .calendar-wrapper {
   position: relative;
 }
@@ -2013,11 +2018,7 @@ html.touch .collapsible__body--disable {
   margin: auto;
   font-size: 22px;
 }
-@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
-  .schedule .schedule__row--sticky {
-    top: 95px;
-  }
-}
+
 .session-modal--nopadding {
   padding: 0;
 }
