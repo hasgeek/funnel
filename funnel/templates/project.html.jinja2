@@ -134,8 +134,6 @@
                   {% else %}
                     <div class="card__body">
                   {% endif %}
-                    <h3 class="mui--text-title card__title__heading  mui--text-bold">{{ session.title }}</h3>
-                    <div class="mui--text-body1 mui--text-light truncate">{{ session.description }}</div>
                     <div class="mui--text-body1 mui--text-light truncate">{{ session.description|striptags }}</div>
                   {% if session.proposal %}</a>{% else %}</div>{% endif %}
                 </div>
@@ -256,10 +254,6 @@
 
       $('.truncate').succinct({
         size: 150
-      });
-
-      $('.js-speaker-bio').succinct({
-        size: 30
       });
 
     });
