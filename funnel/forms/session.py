@@ -24,4 +24,8 @@ class SessionForm(forms.Form):
 
 
 class SessionSaveForm(forms.Form):
+    save = forms.BooleanField(
+        __("Save this session?"),
+        validators=[forms.validators.InputRequired()],
+    )
     description = forms.StringField(__("Notes"))

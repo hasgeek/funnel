@@ -171,37 +171,42 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             return "Saved\n", 201
 
     @route('save', methods=['POST'])
+    @render_with(json=True)
     @lastuser.requires_login
     @requires_permission('view')
     def save(self):
         form = SessionSaveForm()
         if form.validate_on_submit():
             session_save = SavedSession.query.filter_by(user=current_auth.user, session=self.obj).first()
-            if session_save is None:
-                session_save = SavedSession(user=current_auth.user, session=self.obj)
-                form.populate_obj(session_save)
-                db.session.commit()
-                flash(_(u"The session has been saved"), category='success')
+            if form.save.data:
+                if session_save is None:
+                    session_save = SavedSession(user=current_auth.user, session=self.obj)
+                    form.populate_obj(session_save)
+                    db.session.commit()
+                    return {'status': 'success'}
+                else:
+                    return {
+                        'status': 'error',
+                        'error_identifier': 'session_save_exists',
+                        'error_description': _("You have already saved this session")
+                    }, 400
             else:
-                flash(_(u"You have already saved this session"), category='error')
+                if session_save is not None:
+                    db.session.delete(session_save)
+                    db.session.commit()
+                    return {'status': 'success'}
+                else:
+                    return {
+                        'status': 'error',
+                        'error_identifier': 'session_save_invalid',
+                        'error_description': _("You have not saved this session yet")
+                    }, 400
         else:
-            flash(_(u"Cannot save this session: {}".format(", ".join(form.errors))), category='error')
-        return redirect(self.obj.url_for(), code=303)
-
-    @route('unsave', methods=['POST'])
-    @lastuser.requires_login
-    @requires_permission('view')
-    def unsave(self):
-        form = forms.Form()
-        if form.validate_on_submit():
-            session_save = SavedSession.query.filter_by(user=current_auth.user, session=self.obj).first()
-            if session_save is not None:
-                db.session.delete(session_save)
-                flash(_(u"You are no longer subscribed to this session"), category='success')
-            else:
-                flash(_(u"Invalid session"), category='error')
-        else:
-            flash(_(u"Cannot unsubscribe from this session: {}".format(", ".join(form.errors))), category='error')
+            return {
+                'status': 'error',
+                'error_identifier': 'session_save_form_invalid',
+                'error_description': _("Something went wrong, please reload and try again")
+            }, 400
         return redirect(self.obj.url_for(), code=303)
 
 
