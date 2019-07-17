@@ -378,7 +378,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             SELECT DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
             FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
             GROUP BY date ORDER BY date;
-            ''')).params(timezone=self.timezone.zone, project_id=self.id)
+            ''')).params(timezone=self.timezone.zone, project_id=self.id).all()
 
         # FIXME: This doesn't work. This code needs to be tested in isolation
         # session_dates = db.session.query(
@@ -391,17 +391,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         #         Session.scheduled
         #         ).group_by(db.text('date')).order_by(db.text('date'))
 
+        # if the project is within 2 weeks, send current week as well
+        now = utcnow()
+        if 0 < (self.schedule_start_at - now).days < 14:
+            session_dates.insert(0, (now, 0))
+
         weeks = defaultdict(dict)
-        for result in session_dates:
-            weekobj = Week.withdate(result.date)
+        for project_date, session_count in session_dates:
+            weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
                 weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
-                if result.date.date() == wdate:
-                    weeks[weekobj.week]['dates'][wdate.day] += result.count
+                if project_date.date() == wdate:
+                    weeks[weekobj.week]['dates'][wdate.day] += session_count
                     if 'month' not in weeks[weekobj.week]:
                         weeks[weekobj.week]['month'] = format_date(wdate, 'MMM', locale=get_locale())
 
