@@ -1,14 +1,21 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
+{% block description %}{% if profile %}{{ profile.description.html }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
 
 {%- block pageheaders %}
+<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
 <script type="application/ld+json">
-  {  "@context" : "http://schema.org",
+  {  
+    "@context" : "http://schema.org",
      "@type" : "WebSite",
      "name" : "{{ config['SITE_TITLE'] }}",
      "url" : "{{ url_for('index', _external=true) }}"
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ url_for('index', _external=true) }}?search={query}",
+      "query-input": "required name=query"
+    }
   }
 </script>
 <script type="application/ld+json">
