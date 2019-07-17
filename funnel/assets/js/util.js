@@ -120,6 +120,23 @@ export const ScrollActiveMenu = {
 
     this.activeNavItem = '';
     this.activateSwipe();
+
+    let observer = new IntersectionObserver(
+        entries => {
+        entries.forEach(entry => {
+          if(!entry.isIntersecting && entry.intersectionRatio > 0.9) {
+            $('#ticket-btn').addClass('sub-navbar__item--fixed');
+          } else if(entry.isIntersecting && entry.intersectionRatio === 1) {
+            $('#ticket-btn').removeClass('sub-navbar__item--fixed');
+          }
+        });
+      },
+      {
+        rootMargin: '0px',
+        threshold: 1
+      },
+    );
+    observer.observe(document.getElementById('page-navbar'));
   },
   handleObserver(entries) {
     entries.forEach(entry => {
