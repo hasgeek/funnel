@@ -83,25 +83,27 @@
                   <div class="card__calendar mui--clearfix mui--bg-accent">
                     <div class="calendar">
                       <div class="calendar__weekdays">
-                        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"</p>
+                        <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                        <div class="calendar__weekdays__name__wrapper">
                         {% for weekday in featured_project.calendar_weeks.days %}
                           <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
                         {% endfor %}
+                        </div>
                       </div>
                       <div class="calendar__weekdays">
                         {% for week in featured_project.calendar_weeks.weeks|sort(attribute='year') %}
                           <div class="calendar__weekdays__month">
                             {% if loop.index == 1 or featured_project.calendar_weeks.weeks[loop.index - 2] and week.month != featured_project.calendar_weeks.weeks[loop.index - 2].month %}
-                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
                             {% else %}
-                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
                             {% endif %}
                           </div>
                           <div class="calendar__weekdays__dates">
                             {% for date in week.dates %}
-                              <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
+                              <p class="calendar__weekdays__dates__date {% if date[1] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[0] }}</span></p>
                             {% endfor %}
-                            <p class="calendar__weekdays__date calendar__weekdays__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                           </div>
                         {% endfor %}
                       </div>
@@ -149,25 +151,27 @@
                   <div class="card__calendar">
                     <div class="calendar">
                       <div class="calendar__weekdays">
-                        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-                        {% for weekday in project.calendar_weeks.days %}
-                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
-                        {% endfor %}
+                        <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                        <div class="calendar__weekdays__name__wrapper">
+                          {% for weekday in project.calendar_weeks.days %}
+                            <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+                          {% endfor %}
+                        </div>
                       </div>
                       <div class="calendar__weekdays">
                         {% for week in project.calendar_weeks.weeks %}
                           <div class="calendar__weekdays__month">
                             {% if loop.index == 1 or project.calendar_weeks.weeks[loop.index - 2] and week.month != project.calendar_weeks.weeks[loop.index - 2].month %}
-                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
                             {% else %}
-                              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
                             {% endif %}
                           </div>
                           <div class="calendar__weekdays__dates">
                             {% for date in week.dates %}
-                              <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
+                              <p class="calendar__weekdays__dates__date {% if date[1] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[0] }}</span></p>
                             {% endfor %}
-                            <p class="calendar__weekdays__date calendar__weekdays__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                           </div>
                         {% endfor %}
                       </div>

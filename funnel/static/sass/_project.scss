@@ -31,12 +31,12 @@
     margin-right: -15px;
     margin-left: -15px;
     padding: 0 15px;
+    margin-bottom: 0;
   }
   .project-banner__action {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin: 15px 0 0;
     max-width: 300px;
 
     .project-banner__action__icon {
@@ -63,10 +63,9 @@
 
   .profile-details {
     display: flex;
-    margin: 15px 0;
 
     .profile-details__logo {
-      height: 55px;
+      height: 45px;
       margin-right: 15px;
     }
     .profile-details__title {
@@ -123,13 +122,20 @@
       }
     }
 
+    .profile-details {
+      margin: 0 0 15px;
+    }
+
     .card__calendar {
       background-color: transparent;
-      margin: 0;
+      margin: 0 0 15px;
       padding: 0;
     }
+    
     .project-banner__action {
       max-width: 100%;
+      margin: 0 0 15px;
+
       .project-banner__action__social {
         justify-content: space-between;
         width: calc(100% - 200px);

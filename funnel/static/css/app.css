@@ -734,10 +734,6 @@ html.touch .collapsible__body--disable {
   color: #f0a40c;
 }
 
-.spotlight .card__calendar {
-  padding: 15px 15px 15px 0px;
-}
-
 @media (min-width: 992px) {
   .funnel-banner {
     border-bottom: 2px solid rgba(132, 146, 166, 0.3);
@@ -773,9 +769,6 @@ html.touch .collapsible__body--disable {
   }
   .spotlight .spotlight__card {
     margin: auto;
-  }
-  .spotlight .card__calendar {
-    padding: 15px 15px 15px 0px;
   }
 }
 @media (min-width: 1200px) {
@@ -1170,32 +1163,48 @@ html.touch .collapsible__body--disable {
 .calendar .calendar__weekdays__name {
   text-align: center;
   position: relative;
-  width: calc(100%/9);
   font-size: 18px;
   line-height: 1.5;
+  font-variant: all-small-caps;
+}
+.calendar .calendar__weekdays__name--first {
+  width: 10%;
+}
+.calendar .calendar__weekdays__name__wrapper {
+  display: flex;
+  width: 90%;
 }
 .calendar .calendar__weekdays__name--weekday {
-  font-variant: all-small-caps;
+  width: calc(100%/8);
 }
-.calendar .calendar__weekdays__name--month {
-  font-size: 18px;
-  line-height: 1.5;
+.calendar .calendar__weekdays__month {
+  width: 10%;
+  word-break: keep-all;
+}
+.calendar .calendar__weekdays__month__name {
+  font-size: 20px;
+  line-height: 23px;
   font-variant: all-small-caps;
   width: 100%;
-  top: -1px;
+  text-align: left;
 }
-.calendar .calendar__weekdays__date {
+.calendar .calendar__weekdays__dates {
+  width: 90%;
+  display: flex;
+  flex-wrap: wrap;
+}
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date {
   position: relative;
   width: calc(100%/8);
   text-align: center;
   font-size: 14px;
   line-height: 28px;
 }
-.calendar .calendar__weekdays__date .calendar__weekdays__date__text {
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date .calendar__weekdays__dates__date__text {
   position: relative;
   z-index: 2;
 }
-.calendar .calendar__weekdays__date--active:after {
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active:after {
   content: '';
   font-weight: bold;
   border-radius: 50%;
@@ -1211,21 +1220,12 @@ html.touch .collapsible__body--disable {
   margin: auto;
   z-index: 1;
 }
-.calendar .calendar__weekdays__date--active .calendar__weekdays__date__text {
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active .calendar__weekdays__dates__date__text {
   color: #1F2D3D;
   color: HighlightText;
 }
-.calendar .calendar__weekdays__date--year {
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--year {
   text-align: right;
-}
-.calendar .calendar__weekdays__month {
-  width: calc(100%/9);
-  word-break: keep-all;
-}
-.calendar .calendar__weekdays__dates {
-  width: calc(100% - 100%/9);
-  display: flex;
-  flex-wrap: wrap;
 }
 
 .contact-card {
@@ -1283,12 +1283,12 @@ html.touch .collapsible__body--disable {
   margin-right: -15px;
   margin-left: -15px;
   padding: 0 15px;
+  margin-bottom: 0;
 }
 .project-banner .project-banner__action {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin: 15px 0 0;
   max-width: 300px;
 }
 .project-banner .project-banner__action .project-banner__action__icon {
@@ -1310,10 +1310,9 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .profile-details {
   display: flex;
-  margin: 15px 0;
 }
 .project-banner .profile-details .profile-details__logo {
-  height: 55px;
+  height: 45px;
   margin-right: 15px;
 }
 .project-banner .profile-details .profile-details__title {
@@ -1363,13 +1362,17 @@ html.touch .collapsible__body--disable {
     margin-top: 15px;
     padding: 0;
   }
+  .project-banner .profile-details {
+    margin: 0 0 15px;
+  }
   .project-banner .card__calendar {
     background-color: transparent;
-    margin: 0;
+    margin: 0 0 15px;
     padding: 0;
   }
   .project-banner .project-banner__action {
     max-width: 100%;
+    margin: 0 0 15px;
   }
   .project-banner .project-banner__action .project-banner__action__social {
     justify-content: space-between;
