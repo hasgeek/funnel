@@ -35,7 +35,7 @@
      ],
     {% endif -%}
     "description": {{ project.tagline|tojson }},
-    "endDate": {% if project.schedule_end_at %}{{ project.schedule_end_at.astimezone(project.timezone).isoformat() }}{% else %}null{% endif %},
+    "endDate": {% if project.schedule_end_at %}{{ project.schedule_end_at.astimezone(project.timezone).isoformat()|tojson }}{% else %}null{% endif %},
     "offers": {
       "@type": "Offer",
       "url": {{ project.url_for(_external=true)|tojson }}
@@ -144,7 +144,7 @@
           </ul>
           {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(page)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
         </div>
-        {%- endif %}
+      {%- endif %}
     </div>
 
     {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
