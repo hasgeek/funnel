@@ -82,9 +82,14 @@
                 </div>
               </div>
               <div class="calendar__weekdays">
-                {% for week in project.calendar_weeks.weeks %}
+                {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
+                  {% if loop.index == 1 %}
+                    {% set month = '' -%}
+                  {% else %}
+                    {% set month = project.calendar_weeks.weeks[loop.index-1].month -%}
+                  {% endif %}
                   <div class="calendar__weekdays__month">
-                    {% if loop.index == 1 or project.calendar_weeks.weeks[loop.index - 2] and week.month != project.calendar_weeks.weeks[loop.index - 2].month %}
+                    {% if month != week.month %}
                       <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
                     {% else %}
                       <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
@@ -94,7 +99,14 @@
                     {% for date in week.dates %}
                       <p class="calendar__weekdays__dates__date {% if date[1] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[0] }}</span></p>
                     {% endfor %}
-                    <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                    {% if loop.index == 1 %}
+                      {% set year = '' -%}
+                    {% else %}
+                      {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
+                    {% endif %}
+                    {% if month != week.month %}
+                      <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                    {% endif %}
                   </div>
                 {% endfor %}
               </div>
