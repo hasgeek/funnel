@@ -84,7 +84,7 @@
         </div>
       </div>
       <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-5">
-        <div class="profile-details mui--hidden-md mui--hidden-lg mui--hidden-xl">
+        <div class="profile-details">
           {%- if project.profile.logo_url.url %}
             <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
           {% endif %}
@@ -122,19 +122,6 @@
             </div>
           </div>
         {%- endif %}
-      </div>
-      <div class="grid__col-sm-12 project-banner__box mui--hidden-xs mui--hidden-sm">
-        <div class="project-banner__headline">
-          <div class="profile-details">
-            {%- if project.profile.logo_url.url %}
-              <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
-            {% endif %}
-            <div class="profile-details__title">
-              <h3 class="mui--text-headline zero-top-margin zero-bottom-margin"><a href="{{project.profile.url_for()}}">{{ project.profile.title|e }}</a></h3>
-              <div class="mui--text-body1">{{ project.profile.description|safe }}</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
