@@ -66,6 +66,12 @@
   }
 }
 
+.spotlight {
+  .card__calendar {
+    padding: 15px 15px 15px 0px;
+  }
+}
+
 @media (min-width: 992px) {
   .funnel-banner {
     border-bottom: 2px solid rgba(132,146,166,0.3);
@@ -107,6 +113,9 @@
     }
     .spotlight__card {
       margin: auto;
+    }
+    .card__calendar {
+      padding: 15px 15px 15px 0px;
     }
   }
 }

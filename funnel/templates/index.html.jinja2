@@ -101,7 +101,7 @@
                             {% for date in week.dates %}
                               <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
                             {% endfor %}
-                            <p class="calendar__weekdays__date mui--text-title mui--text-bold">{{ week.year }}</p>
+                            <p class="calendar__weekdays__date calendar__weekdays__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                           </div>
                         {% endfor %}
                       </div>
@@ -167,7 +167,7 @@
                             {% for date in week.dates %}
                               <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
                             {% endfor %}
-                            <p class="calendar__weekdays__date mui--text-title mui--text-bold">{{ week.year }}</p>
+                            <p class="calendar__weekdays__date calendar__weekdays__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                           </div>
                         {% endfor %}
                       </div>

@@ -30,6 +30,7 @@
     background-color: #F9FAFC;
     margin-right: -15px;
     margin-left: -15px;
+    padding: 0 15px;
   }
   .project-banner__action {
     display: flex;
@@ -125,6 +126,7 @@
     .card__calendar {
       background-color: transparent;
       margin: 0;
+      padding: 0;
     }
     .project-banner__action {
       max-width: 100%;

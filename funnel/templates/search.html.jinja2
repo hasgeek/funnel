@@ -70,6 +70,7 @@
                                           {{#week.dates}}{{# { date: . } }}
                                             <p class="calendar__weekdays__date {{#if date[1] > 0 }}calendar__weekdays__date--active mui--text-dark {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
                                           {{/}}{{/date}}
+                                           <p class="calendar__weekdays__date calendar__weekdays__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                                         </div>
                                       {{/}}{{/week}}
                                     </div>
