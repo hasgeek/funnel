@@ -32,10 +32,41 @@
   </form>
 {% endmacro %}
 
+{% macro calendar(project) %}
+  <div class="card__calendar">
+    <div class="calendar">
+      <div class="calendar__weekdays">
+        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
+        {% for weekday in project.calendar_weeks.days %}
+          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+        {% endfor %}
+         <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
+      </div>
+      <div class="calendar__weekdays">
+        {% for week in project.calendar_weeks.weeks %}
+          <div class="calendar__weekdays__month">
+            {% if loop.index == 1 or project.calendar_weeks.weeks[loop.index - 2] and week.month != project.calendar_weeks.weeks[loop.index - 2].month %}
+              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+            {% else %}
+              <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
+            {% endif %}
+          </div>
+          <div class="calendar__weekdays__dates">
+            {% for date in week.dates %}
+              <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
+            {% endfor %}
+            <p class="calendar__weekdays__date calendar__weekdays__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
 {% macro project_header(project, project_save_form, project_currently_saved, class='', current_page='project') %}
   <div class="mui-container project-banner  {% if class %}{{ class }}{% endif %}">
     <div class="grid">
-      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-7 grid__col-lg-8 project-banner__box">
+      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-7 project-banner__box">
         {% if project.banner_video_url.url or project.bg_image.url %}
           <div>
             {% if project.banner_video_url.url %}
@@ -52,7 +83,7 @@
           <p class="mui--text-headline">{{ project.tagline|safe }}</p>
         </div>
       </div>
-      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-5 grid__col-lg-4">
+      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-5">
         <div class="profile-details mui--hidden-md mui--hidden-lg mui--hidden-xl">
           {%- if project.profile.logo_url.url %}
             <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
@@ -63,33 +94,8 @@
           </div>
         </div>
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
-          <div class="card__calendar">
-            <div class="calendar">
-              <div class="calendar__weekdays">
-                <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-                {% for weekday in project.calendar_weeks.days %}
-                  <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
-                {% endfor %}
-                 <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-              </div>
-              <div class="calendar__weekdays">
-                {% for week in project.calendar_weeks.weeks %}
-                  <div class="calendar__weekdays__month">
-                    {% if loop.index == 1 or project.calendar_weeks.weeks[loop.index - 2] and week.month != project.calendar_weeks.weeks[loop.index - 2].month %}
-                      <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
-                    {% else %}
-                      <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold"> </p>
-                    {% endif %}
-                  </div>
-                  <div class="calendar__weekdays__dates">
-                    {% for date in week.dates %}
-                      <p class="calendar__weekdays__date {% if date[1] > 0 %}calendar__weekdays__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
-                    {% endfor %}
-                    <p class="calendar__weekdays__date calendar__weekdays__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
+          <div class="mui--hidden-xs mui--hidden-sm">
+            {{ calendar(project) }}
           </div>
         {% endif %}
         <div class="project-banner__action">
@@ -100,6 +106,11 @@
             <a href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" arial-label="Email this" title="Email this"><i class="material-icons mui--text-headline mui--text-light" aria-hidden="true">email</i></a>
           </div>
         </div>
+        {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
+          <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+            {{ calendar(project) }}
+          </div>
+        {% endif %}
         {%- if project.primary_venue %}
           <div class="date-wrapper">
             <div class="date-wrapper__icon">
