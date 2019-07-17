@@ -79,6 +79,14 @@
   }
 }
 
+@media(max-width: 767px) {
+  .hg-app.no-sticky-header {
+    .header--fixed {
+      display: none
+    }
+  }
+}
+
 @media (min-width: 768px) {
   .hg-app {
     .header--fixed {
@@ -171,16 +179,7 @@
     .content-wrapper {
       padding-top: 50px;
     }
-    .no-sticky-header {
-      .header--fixed {
-        position: relative;
-      }
-      .content-wrapper {
-        padding-top: 0;
-      }
-    }
   }
-
 }
 
 @media (min-width: 1200px) {
@@ -452,6 +451,11 @@ and (orientation: landscape) {
   width: 100%;
   background-color: #fff;
   z-index: 1000;
+
+  .mobile-nav__prev {
+    padding: 15px;
+    margin: -15px -5px -15px -15px;
+  }
 }
 
 .tabs-wrapper {

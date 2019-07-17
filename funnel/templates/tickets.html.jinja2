@@ -54,7 +54,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--text-title mui--align-middle mui--text-dark" aria-hidden="true">arrow_back</i> {{project.title}}</a>
+      <a href="{{ project.url_for() }}" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Tickets</span>
     </div>
   </div>
 {% endblock %}
@@ -66,7 +66,6 @@
         <div class="grid__col-12" id="participate">
     	    {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
             {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-              <h2 class="mui--text-display1 mui--text-left zero-bottom-margin">Tickets</h2>
               <h3 class="mui--text-headline zero-top-margin mui--hidden-xs mui--hidden-sm"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h3>
               <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
             {%- endif %}
