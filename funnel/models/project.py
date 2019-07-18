@@ -419,8 +419,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             week['dates'] = week['dates'].items()
 
         return {
-            'locale': get_locale(), 'weeks': weeks_list, 'today': now.date().isoformat(),
-            'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
+            'locale': get_locale(),
+            'weeks': weeks_list,
+            'today': now.date().isoformat(),
+            'days': [
+                format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()
+            ]
+        }
 
     @property
     def rooms(self):
