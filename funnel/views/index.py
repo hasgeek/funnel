@@ -119,4 +119,4 @@ def manifest():
 
 @app.route('/opensearch.xml')
 def opensearch():
-    return render_template('opensearch.xml')
+    return render_template('opensearch.xml.jinja2')

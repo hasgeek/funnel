@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{% if profile %}{{ profile.description.html }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
+{% block description %}{% if profile %}{{ profile.description.html }}{% else %}HasGeek creates discussion spaces for geeks. Meet like-minded people, learn new things and discover new opportunities.{% endif %}{% endblock %}
 
 {%- block pageheaders %}
 <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
@@ -13,7 +13,7 @@
      "url" : "{{ url_for('index', _external=true) }}"
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "{{ url_for('index', _external=true) }}?search={query}",
+      "target": "/search?q={query}",
       "query-input": "required name=query"
     }
   }
