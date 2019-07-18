@@ -404,9 +404,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
-                weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
+                weeks[weekobj.week]['dates'].setdefault(wdate.isoformat(), 0)
                 if project_date.date() == wdate:
-                    weeks[weekobj.week]['dates'][wdate.day] += session_count
+                    weeks[weekobj.week]['dates'][wdate.isoformat()] += session_count
                     if 'month' not in weeks[weekobj.week]:
                         weeks[weekobj.week]['month'] = format_date(wdate, 'MMM', locale=get_locale())
 
