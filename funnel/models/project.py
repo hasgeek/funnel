@@ -392,7 +392,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         #         ).group_by(db.text('date')).order_by(db.text('date'))
 
         # if the project is within 2 weeks, send current week as well
-        now = utcnow()
+        now = utcnow().astimezone(self.timezone)
         if 0 < (self.schedule_start_at - now).days < 14:
             session_dates.insert(0, (now, 0))
 
@@ -419,7 +419,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             week['dates'] = week['dates'].items()
 
         return {
-            'locale': get_locale(), 'weeks': weeks_list,
+            'locale': get_locale(), 'weeks': weeks_list, 'today': now.date().isoformat(),
             'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
 
     @property
