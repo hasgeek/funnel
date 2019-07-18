@@ -1397,44 +1397,44 @@ html.touch .collapsible__body--disable {
   padding-left: 30px;
 }
 
-#boxoffice-widget {
+#participate #boxoffice-widget {
   padding-top: 0;
   max-width: 100%;
   margin: 0;
 }
-#boxoffice-widget .ticket-booking {
+#participate #boxoffice-widget .ticket-booking {
   border-bottom: 1px solid #ccc;
 }
-#boxoffice-widget .ticket-booking:last-child {
+#participate #boxoffice-widget .ticket-booking:last-child {
   border-bottom: none;
 }
-#boxoffice-widget .ticket-details {
+#participate #boxoffice-widget .ticket-details {
   margin: 0;
   width: 100%;
 }
-#boxoffice-widget .ticket-price-qty {
+#participate #boxoffice-widget .ticket-price-qty {
   float: left;
   width: 100%;
   margin-top: 30px;
 }
-#boxoffice-widget .ticket-description .few-ticket {
+#participate #boxoffice-widget .ticket-description .few-ticket {
   left: 0;
   top: -21px;
 }
-#boxoffice-widget .price-details-wrapper,
-#boxoffice-widget .ticket-total,
-#boxoffice-widget .proceed-button-wrapper {
+#participate #boxoffice-widget .price-details-wrapper,
+#participate #boxoffice-widget .ticket-total,
+#participate #boxoffice-widget .proceed-button-wrapper {
   float: left;
 }
-#boxoffice-widget .item-amount,
-#boxoffice-widget .valid-upto,
-#boxoffice-widget .discount {
+#participate #boxoffice-widget .item-amount,
+#participate #boxoffice-widget .valid-upto,
+#participate #boxoffice-widget .discount {
   text-align: left;
 }
-#boxoffice-widget .checkout-confirmation {
+#participate #boxoffice-widget .checkout-confirmation {
   padding: 0;
 }
-#boxoffice-widget .fa {
+#participate #boxoffice-widget .fa {
   display: none;
   padding: 0 !important;
 }
