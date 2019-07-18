@@ -97,14 +97,14 @@
                   </div>
                   <div class="calendar__weekdays__dates">
                     {% for date in week.dates %}
-                      <p class="calendar__weekdays__dates__date {% if date[1] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% else %} mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[0] }}</span></p>
+                      <p class="calendar__weekdays__dates__date {% if date[1] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date[0] == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[0][-2:] }}</span></p>
                     {% endfor %}
                     {% if loop.index == 1 %}
                       {% set year = '' -%}
                     {% else %}
                       {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
                     {% endif %}
-                    {% if month != week.month %}
+                    {% if year != year.month %}
                       <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                     {% endif %}
                   </div>

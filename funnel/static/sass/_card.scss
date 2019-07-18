@@ -267,7 +267,8 @@
       }
     }
 
-    .calendar__weekdays__dates__date--active:after {
+    .calendar__weekdays__dates__date--active:after,
+    .calendar__weekdays__dates__date--today:after {
       content: '';
       font-weight: bold;
       border-radius: 50%;
@@ -282,6 +283,11 @@
       right: 0;
       margin: auto;
       z-index: 1
+    }
+
+    .calendar__weekdays__dates__date--today:after {
+      background-color: transparent ;
+      border: 1px solid #C0CCDA;
     }
 
     .calendar__weekdays__dates__date--active .calendar__weekdays__dates__date__text {

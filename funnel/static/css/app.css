@@ -1204,7 +1204,8 @@ html.touch .collapsible__body--disable {
   position: relative;
   z-index: 2;
 }
-.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active:after {
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active:after,
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--today:after {
   content: '';
   font-weight: bold;
   border-radius: 50%;
@@ -1219,6 +1220,10 @@ html.touch .collapsible__body--disable {
   right: 0;
   margin: auto;
   z-index: 1;
+}
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--today:after {
+  background-color: transparent;
+  border: 1px solid #C0CCDA;
 }
 .calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active .calendar__weekdays__dates__date__text {
   color: #1F2D3D;
