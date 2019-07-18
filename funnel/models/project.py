@@ -393,7 +393,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         # if the project is within 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
-        if self.schedule_start_at and 0 < (self.schedule_start_at - now).days < 14:
+        if self.schedule_start_at is not None and 0 < (self.schedule_start_at - now).days < 14:
             session_dates.insert(0, (now, 0))
 
         weeks = defaultdict(dict)
