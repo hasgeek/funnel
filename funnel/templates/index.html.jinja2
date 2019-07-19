@@ -124,8 +124,8 @@
                 {% endif %}
               </div>
               <div class="card__title">
-                <h3 class="mui--text-display1 card__title__heading">{{ featured_project.title }}</h3>
-                {% if featured_project.primary_venue %}<p class="mui--text-body1 card__title__heading"><i class="material-icons mui--text-body1 mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
+                <h3 class="mui--text-display1 zero-top-margin zero-bottom-margin">{{ featured_project.title }}</h3>
+                {% if featured_project.primary_venue %}<p class="mui--text-body1 zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
               </div>
               {% if featured_project.tagline %}
                 <div class="card__body">
@@ -157,7 +157,7 @@
               </div>
               <div class="card__body">
                 <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-headline mui--text-dark">{{ project.title }}</a></h3>
-                {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-caption mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                 <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
                 {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                   <div class="card__calendar">
@@ -402,8 +402,8 @@
                   </div>
                 {% endif %}
                   <div class="card__title">
-                    <h3 class="mui--text-display1 card__title__heading">{{ project.title }}</h3>
-                    {% if project.primary_venue %}<p class="mui--text-body1 card__title__heading"><i class="material-icons mui--text-body1 mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                    <h3 class="mui--text-display1 zero-top-margin zero-bottom-margin">{{ project.title }}</h3>
+                    {% if project.primary_venue %}<p class="mui--text-body1 zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                   </div>
                   {% if project.tagline %}
                     <div class="card__body">
