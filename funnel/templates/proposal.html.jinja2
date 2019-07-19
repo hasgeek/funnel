@@ -238,8 +238,6 @@
           <div class="mui--hide">
             <input type="hidden" name="form.id" value="newcomment"/>
             {{ commentform.hidden_tag() }}
-            {{ commentform.parent_id() }}
-            {{ commentform.comment_edit_id() }}
           </div>
           {{ renderfield(commentform.message, nolabel=true) }}
           <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
