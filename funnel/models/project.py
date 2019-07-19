@@ -185,7 +185,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
-                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks'
+                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks',
+                'primary_venue'
             },
             'call': {
                 'url_for',
