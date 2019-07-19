@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}Talkfunnel hosts proposal submissions and reviews for events.{% endif %}{% endblock %}
+{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{% trans %}Talkfunnel hosts proposal submissions and reviews for events.{% endtrans %}{% endif %}{% endblock %}
 
 {%- block image_src %}
   {%- if config['LEGACY'] -%}
@@ -21,7 +21,7 @@
         <source srcset="{{ url_for('static', filename='img/banner-desktop.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
         <img src="{{ url_for('static', filename='img/banner-mobile.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="banner__img">
       </picture>
-      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">Talkfunnel</span> hosts <br class="mui--visible-lg-block mui--visible-xl-block">proposal submissions <br class="block mui--visible-lg-block mui--visible-xl-block">and reviews for events</h1>
+      <h1 class="banner__headline mui-container"><span class="banner__headline-txt">{% trans %}Talkfunnel{% endtrans %}</span> {% trans %}hosts{% endtrans %} <br class="mui--visible-lg-block mui--visible-xl-block">{% trans %}proposal submissions {% endtrans %}<br class="block mui--visible-lg-block mui--visible-xl-block">{% trans %}and reviews for events{% endtrans %}</h1>
     </div>
   {% endif %}
 {% endblock %}
