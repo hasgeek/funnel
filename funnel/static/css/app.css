@@ -244,6 +244,10 @@ html.touch .collapsible__body--disable {
   border-radius: 50%;
 }
 
+.mui-btn--nostyle {
+  background: none;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -1738,7 +1742,7 @@ html.touch .collapsible__body--disable {
 }
 
 .comment {
-  margin: 15px 0;
+  margin: 15px 0 0;
 }
 .comment .comment--content {
   display: inline-block;
