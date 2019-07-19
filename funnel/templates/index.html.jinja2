@@ -125,7 +125,7 @@
               </div>
               <div class="card__title">
                 <h3 class="mui--text-display1 card__title__heading">{{ featured_project.title }}</h3>
-                {% if featured_project.primary_venue %}<p class="mui--text-body1 card__title__heading"><i class="material-icons mui--text-body1 mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}</p>{% endif %}
+                {% if featured_project.primary_venue %}<p class="mui--text-body1 card__title__heading"><i class="material-icons mui--text-body1 mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
               </div>
               {% if featured_project.tagline %}
                 <div class="card__body">
