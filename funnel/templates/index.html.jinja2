@@ -6,14 +6,14 @@
 {%- block pageheaders %}
 <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
 <script type="application/ld+json">
-  {  
+  {
     "@context" : "http://schema.org",
      "@type" : "WebSite",
      "name" : "{{ config['SITE_TITLE'] }}",
      "url" : "{{ url_for('index', _external=true) }}"
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "/search?q={query}",
+      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
       "query-input": "required name=query"
     }
   }
