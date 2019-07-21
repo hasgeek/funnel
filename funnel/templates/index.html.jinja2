@@ -1,14 +1,21 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{{ config['WELCOME_MESSAGE'] }}{% endblock %}
+{% block description %}{% if profile %}{{ profile.description.html }}{% else %}{% trans %}HasGeek creates discussion spaces for geeks. Meet like-minded people, learn new things and discover new opportunities.{% endtrans %}{% endif %}{% endblock %}
 
 {%- block pageheaders %}
+<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
 <script type="application/ld+json">
-  {  "@context" : "http://schema.org",
+  {
+    "@context" : "http://schema.org",
      "@type" : "WebSite",
      "name" : "{{ config['SITE_TITLE'] }}",
      "url" : "{{ url_for('index', _external=true) }}"
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+      "query-input": "required name=query"
+    }
   }
 </script>
 <script type="application/ld+json">
@@ -42,8 +49,8 @@
   {%- if not profile %}
     <div class="grid hg-banner">
       <div class="grid__col-12">
-        <h1 class="headline">Discussion spaces for geeks</h1>
-        <p class="mui--text-title mui--text-light">Meet like-minded people, learn new things and discover new opportunities</p>
+        <h1 class="headline">{% trans %}Discussion spaces for geeks{% endtrans %}</h1>
+        <p class="mui--text-title mui--text-light">{% trans %}Meet like-minded people, learn new things and discover new opportunities{% endtrans %}</p>
         <div class="mui-divider mui-divider--banner"></div>
       </div>
     </div>
