@@ -70,7 +70,7 @@
                                         </div>
                                         <div class="calendar__weekdays__dates">
                                           {{#week.dates}}{{# { date: . } }}
-                                            <p class="calendar__weekdays__dates__date {{#if date[2] > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif date[0] == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__dates__date__text">{{ dateString(date[0]) }}</span></p>
+                                            <p class="calendar__weekdays__dates__date {{#if date[2] > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif date[0] == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
                                           {{/}}{{/date}}
                                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                                         </div>
