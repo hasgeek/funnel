@@ -76,6 +76,7 @@ const badgeScan = {
         this.set('timerId', '');
       },
       verifyQRDecode(qrcode) {
+        console.log('verifyQRDecode', qrcode, Date.now());
         if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
           this.stopRenderFrameLoop();
           this.checkinAttendee(qrcode.data);
@@ -103,8 +104,8 @@ const badgeScan = {
         if (event)  {
           event.original.preventDefault();
         }
-        let video = document.createElement("video");
-        let canvasElement = document.getElementById("qrreader-canvas");
+        let video = document.getElementById('qrreader');
+        let canvasElement = document.createElement('canvas');
         let canvas = canvasElement.getContext("2d");
 
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => {

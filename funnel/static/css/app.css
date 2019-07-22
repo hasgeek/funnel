@@ -2197,20 +2197,6 @@ body > .proposal-box.ui-draggable {
 .scanner-wrapper .scanner-wrapper__camera {
   max-width: 100% !important;
 }
-.scanner-wrapper .scanner-wrapper__badge {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  display: block;
-  z-index: 1000;
-  visibility: hidden;
-  max-width: 100% !important;
-}
-.scanner-wrapper .scanner-wrapper__badge--show {
-  visibility: visible;
-}
 .scanner-wrapper .scanner-wrapper__badge--icon {
   position: absolute;
   top: 35%;
@@ -2237,11 +2223,11 @@ body > .proposal-box.ui-draggable {
     text-align: left;
     width: auto;
   }
-  .scanner-wrapper .scanner-wrapper__badge {
-    top: 32px;
-    left: 32px;
-    right: auto;
-    margin: 0;
+
+  .scanner-wrapper--center {
+    float: none;
+    margin: auto;
+    text-align: center;
   }
 
   .scanned-contacts {
