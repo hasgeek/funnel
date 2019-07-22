@@ -118,6 +118,10 @@ class SessionViewMixin(object):
         g.profile = self.obj.project.profile
         super(SessionViewMixin, self).after_loader()
 
+    @property
+    def project_currently_saved(self):
+        return self.obj.project.is_saved_by(current_auth.user)
+
 
 class VenueViewMixin(object):
     model = Venue
