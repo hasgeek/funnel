@@ -6,6 +6,7 @@ from flask import abort, g, redirect, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
+from coaster.auth import current_auth
 from coaster.utils import require_one_of
 
 from ..models import (
@@ -48,6 +49,10 @@ class ProjectViewMixin(object):
                 abort(410)
         g.profile = self.obj.profile
         return super(ProjectViewMixin, self).after_loader()
+
+    @property
+    def project_currently_saved(self):
+        return self.obj.is_saved_by(current_auth.user)
 
 
 class ProfileViewMixin(object):
