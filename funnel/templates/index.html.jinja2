@@ -374,7 +374,7 @@
                           {% if loop.index == 1 %}
                             {% set month = '' -%}
                           {% else %}
-                            {% set month = featured_project.calendar_weeks.weeks[loop.index-1].month -%}
+                            {% set month = project.calendar_weeks.weeks[loop.index-1].month -%}
                           {% endif %}
                           <div class="calendar__weekdays__month">
                             {% if month != week.month %}
