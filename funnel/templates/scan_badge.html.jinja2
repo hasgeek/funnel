@@ -5,27 +5,25 @@
 {% block pageheaders %}
 {% endblock %}
 
-{% block top_title %}
-  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
-  <p class="mui--text-body1"><a href="{{ project.url_for('events') }}" title="Setup events for check-in"><i class="material-icons mui--text-body2 mui--align-bottom" aria-hidden="true">keyboard_backspace</i> {% trans %}Back to setup events{% endtrans %}</a></p>
-{% endblock %}
+{% block headline -%}
+{%- endblock %}
 
-{% block content %}
-  <div class="grid" id="scan-badge-wrapper">
+{% block basecontentbox %}
+  <div id="scan-badge-wrapper">
     {% raw %}
       <script id='scan-badge-template' type='text/ractive'>
-        <div class="grid__col-xs-12 grid__col-lg-4">
-          <h3 class="mui--text-title">{{ eventTitle }}</h3>
-          {{#if video}}
-            <h4 class="mui--text-subhead">Please scan your badge to check-in</h4>
-            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
-          {{elseif error}}
+        <div class="scanner-wrapper">
+          <canvas id="qrreader-canvas" class="scanner-wrapper__camera"></canvas>
+          {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
-        </div>
-
-        <div class="grid__col-xs-12 grid__col-lg-8">
-          <canvas id="qrreader-canvas"></canvas>
+          <h3 class="mui--text-title">{{ eventTitle }}</h3>
+          {{#if timerId}}
+            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="stopRenderFrameLoop(event)">Stop scanning</button></p>
+          {{else}}
+            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="startRenderFrameLoop(event)">Start scanning</button></p>
+          {{/if}}
         </div>
 
         {{#if showModal}}

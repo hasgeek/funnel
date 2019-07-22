@@ -11,16 +11,20 @@ const badgeScan = {
         projectTitle: projectTitle,
         eventTitle: eventTitle,
         video: {},
+        canvas: '',
+        canvasElement: '',
         error: 'Unable to access video. Please make sure you have a camera enabled',
         attendeeName: '',
         attendeeFound: false,
         scanning: true,
         showModal: false,
+        timerId: ''
       },
       closeModal(event) {
-        event.original.preventDefault();
+        if (event) event.original.preventDefault();
         $.modal.close();
         this.set('showModal', false);
+        this.startRenderFrameLoop();
       },
       checkinAttendee(qrcode) {
         this.set({
@@ -52,39 +56,65 @@ const badgeScan = {
               'scanning': false,
               'attendeeFound': false
             });
+          },
+          complete() {
+            window.setTimeout(function() {
+              badgeScanComponent.closeModal();
+            }, 10000);
           }
         });
       },
+      startRenderFrameLoop(event) {
+        if (event) event.original.preventDefault();
+        let timerId;
+        timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
+        this.set('timerId', timerId);
+      },
+      stopRenderFrameLoop(event) {
+        if (event) event.original.preventDefault();
+        window.cancelAnimationFrame(badgeScanComponent.get('timerId'));
+        this.set('timerId', '');
+      },
+      verifyQRDecode(qrcode) {
+        if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
+          this.stopRenderFrameLoop();
+          this.checkinAttendee(qrcode.data);
+        } else {
+          this.startRenderFrameLoop();
+        }
+      },
       renderFrame() {
-        let canvasElement = document.getElementById("qrreader-canvas");
-        let canvas = canvasElement.getContext("2d");
+        let canvasElement = this.get('canvasElement');
+        let canvas = this.get('canvas');
+        let video = this.get('video');
 
-        if (this.get('video').readyState === this.get('video').HAVE_ENOUGH_DATA) {
-          canvasElement.height = this.get('video').videoHeight;
-          canvasElement.width = this.get('video').videoWidth;
-          canvas.drawImage(this.get('video'), 0, 0, canvasElement.width, canvasElement.height);
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvasElement.height = video.videoHeight;
+          canvasElement.width = video.videoWidth;
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
           let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
           let qrcode = jsQR(imageData.data, imageData.width, imageData.height);
-
-          if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
-            this.checkinAttendee(qrcode.data);
-          }
+          this.verifyQRDecode(qrcode);
+        } else {
+          this.startRenderFrameLoop();
         }
-        window.requestAnimationFrame(badgeScanComponent.renderFrame);
       },
       setupVideo(event) {
         if (event)  {
           event.original.preventDefault();
         }
         let video = document.createElement("video");
+        let canvasElement = document.getElementById("qrreader-canvas");
+        let canvas = canvasElement.getContext("2d");
 
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => {
           this.set('video', video);
           this.get('video').srcObject = stream;
           this.get('video').setAttribute("playsinline", true);
           this.get('video').play();
-
-          window.requestAnimationFrame(this.renderFrame);
+          this.set('canvasElement', canvasElement);
+          this.set('canvas', canvas);
+          this.startRenderFrameLoop();
         });
       },
       oncomplete() {
