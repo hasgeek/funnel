@@ -374,12 +374,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @cached_property
     def calendar_weeks(self):
-        session_dates = db.session.query('date', 'count').from_statement(db.text(
+        session_dates = list(db.session.query('date', 'count').from_statement(db.text(
             '''
             SELECT DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
             FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
             GROUP BY date ORDER BY date;
-            ''')).params(timezone=self.timezone.zone, project_id=self.id).all()
+            ''')).params(timezone=self.timezone.zone, project_id=self.id))
 
         # FIXME: This doesn't work. This code needs to be tested in isolation
         # session_dates = db.session.query(
