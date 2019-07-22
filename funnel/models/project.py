@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, defaultdict
+from datetime import timedelta
 
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
@@ -392,10 +393,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         #         Session.scheduled
         #         ).group_by(db.text('date')).order_by(db.text('date'))
 
-        # if the project is within 2 weeks, send current week as well
+        # if the project's week is within next 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
-        if self.schedule_start_at is not None and 0 < (self.schedule_start_at - now).days < 14:
-            session_dates.insert(0, (now, 0))
+
+        if self.schedule_start_at is not None:
+            current_week = Week.withdate(now)
+            schedule_start_week = Week.withdate(self.schedule_start_at)
+
+            if schedule_start_week > current_week and (schedule_start_week - current_week) <= 2:
+                if (schedule_start_week - current_week) == 2:
+                    session_dates.insert(0, (now + timedelta(days=7), 0))
+                session_dates.insert(0, (now, 0))
 
         weeks = defaultdict(dict)
         for project_date, session_count in session_dates:
