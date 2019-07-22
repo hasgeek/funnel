@@ -57,8 +57,7 @@
 {% block contenthead %}{% endblock %}
 
 {% block baseheadline %}
-  {{ project_header(project, project_save_form, 
-    project_currently_saved=current_view.project_currently_saved) }}
+  {{ project_header(project, project_save_form) }}
 {% endblock %}
 
 {% block contentwrapper %}

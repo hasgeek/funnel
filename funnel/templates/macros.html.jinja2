@@ -11,7 +11,7 @@
   </form>
 {% endwith %}{% endmacro %}
 
-{% macro saveprojectform(project, form, project_currently_saved) %}
+{% macro saveprojectform(project, form) %}
   <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ form.hidden_tag() }}
     <p class="no-jshidden">
@@ -19,20 +19,20 @@
         <a class="mui-btn mui-btn--raised"  href="{{ url_for('login') }}" data-action="Login to save project"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">access_alarm</i> Remind me</a>
       {%- else %}
         <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn mui-btn--raised project-banner__action__button js-save-button {% if project_currently_saved %}mui--hide{% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
+        <button type="submit" value="true" class="mui-btn mui-btn--raised project-banner__action__button js-save-button {% if current_view.project_currently_saved %}mui--hide{% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
           {% if project.schedule_state.UPCOMING %}
             <i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">access_alarm</i> Remind me
           {% else %}
             <i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">favorite_border</i> Save
           {% endif %}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--raised project-banner__action__button js-save-button {% if not project_currently_saved %}mui--hide{% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">favorite</i> Saved</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--raised project-banner__action__button js-save-button {% if not current_view.project_currently_saved %}mui--hide{% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">favorite</i> Saved</button>
       {%- endif %}
     </p>
   </form>
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, project_currently_saved, class='', current_page='project') %}
+{% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-7 project-banner__box">
@@ -63,7 +63,7 @@
           </div>
         </div>
         <div class="project-banner__action">
-          {{ saveprojectform(project, project_save_form, project_currently_saved) }}
+          {{ saveprojectform(project, project_save_form) }}
           <div class="project-banner__action__social">
             <a class="list-group-item share-popup" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="Tweet this"><img src="{{ url_for('static', filename='img/twitter-logo.svg') }}" class="project-banner__action__icon" alt="Tweet this" title="Tweet this"/></a>
             <a class="list-group-item share-popup" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="Share on facebook"><img src="{{ url_for('static', filename='img/facebook-logo.svg') }}" class="project-banner__action__icon" alt="Share on facebook" title="Share on facebook"/></a>
