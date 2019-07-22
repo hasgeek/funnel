@@ -56,20 +56,23 @@
                                 <div class="card__calendar">
                                   <div class="calendar">
                                     <div class="calendar__weekdays">
-                                      <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-                                      {{#each obj.calendar_weeks.days }}
-                                        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ . }}</p>
-                                      {{/each}}
+                                      <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                                      <div class="calendar__weekdays__name__wrapper">
+                                        {{#each obj.calendar_weeks.days }}
+                                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ . }}</p>
+                                        {{/each}}
+                                      </div>
                                     </div>
                                     <div class="calendar__weekdays">
                                       {{#obj.calendar_weeks.weeks}}{{# { week: . } }}
                                         <div class="calendar__weekdays__month">
-                                          <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                                          <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
                                         </div>
                                         <div class="calendar__weekdays__dates">
                                           {{#week.dates}}{{# { date: . } }}
-                                            <p class="calendar__weekdays__date {{#if date[1] > 0 }}calendar__weekdays__date--active mui--text-dark {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
+                                            <p class="calendar__weekdays__dates__date {{#if date[2] > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif date[0] == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
                                           {{/}}{{/date}}
+                                           <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                                         </div>
                                       {{/}}{{/week}}
                                     </div>

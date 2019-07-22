@@ -11,105 +11,149 @@
   </form>
 {% endwith %}{% endmacro %}
 
-{% macro project_header(project, page_btns, current_page='project') %}
-  <div class="mui-container headline">
+{% macro saveprojectform(project, form) %}
+  <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
+    {{ form.hidden_tag() }}
+    <p class="no-jshidden">
+      {%- if not current_auth.user %}
+        <a class="mui-btn mui-btn--raised"  href="{{ url_for('login') }}" data-action="Login to save project"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">access_alarm</i> Remind me</a>
+      {%- else %}
+        <input type="hidden" name="save" value="">
+        <button type="submit" value="true" class="mui-btn mui-btn--raised project-banner__action__button js-save-button {% if current_view.project_currently_saved %}mui--hide{% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
+          {% if project.schedule_state.UPCOMING %}
+            <i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">access_alarm</i> Remind me
+          {% else %}
+            <i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">favorite_border</i> Save
+          {% endif %}
+        </button>
+        <button type="submit" value="false" class="mui-btn mui-btn--raised project-banner__action__button js-save-button {% if not current_view.project_currently_saved %}mui--hide{% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value"><i class="material-icons mui--text-light mui--align-middle" aria-hidden="true">favorite</i> Saved</button>
+      {%- endif %}
+    </p>
+  </form>
+{% endmacro %}
+
+{% macro project_header(project, project_save_form, class='', current_page='project') %}
+  <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
-      <div class="grid__col-md-12 mui--hidden-xs mui--hidden-sm mui--hidden-md">
-        <div class="project-header">
-          {%- if project.profile.logo_url.url %}
-            <div class="profile-details">
-              <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
-              <a class="mui--text-subhead profile-details__title" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
-            </div>
-          {% endif %}
-          <div class="mui--pull-left project-details">
-            <h1 class="mui--text-display2 mui--text-bold">{{ project.title|e }}</h1>
-            <p class="mui--text-title mui--text-light">{{ project.tagline|safe }}</p>
-            {%- if not project.profile.logo_url.url %}<p class="mui--text-subhead profile-details__title">by {{ project.profile.title|e }}</p>{% endif %}
-          </div>
-        </div>
-      </div>
-      {% if project.banner_video_url.url or project.bg_image.url %}
-      <div class="grid__col-md-7 grid__col-lg-8 project-banner">
-        <div class="project-banner__box">
-          {% if project.banner_video_url.url %}
-            <div class="project-banner__box__video">
-              {{ project.banner_video_url|safe }}
-            </div>
-          {%- elif project.bg_image.url %}
-            <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-          {% endif %}
-        </div>
-      </div>
-      {% endif %}
-      <div class="grid__col-xs-12 mui--visible-xs-block mui--visible-sm-block mui--visible-md-block xs-sm-padding">
-        <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
-        <p class="mui--text-headline">{{ project.tagline|safe }}</p>
-        <div class="profile-details">
-          {%- if project.profile.logo_url.url %}<a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>{% endif %}<a class="mui--text-subhead mui--text-dark" href="{{project.profile.url_for()}}">by {{ project.profile.title|e }}</a>
-        </div>
-      </div>
-      <div class="grid__col-xs-12{% if project.banner_video_url.url or project.bg_image.url %} grid__col-md-5 grid__col-lg-4{% else %} date-wrapper--small {% endif %} date-wrapper xs-sm-padding">
-        {%- if project.datelocation %}
-        <div>
-          <div class="date-icon">
-            <i class="material-icons mui--text-display1 mui--text-light" aria-hidden="true">date_range</i>
-          </div>
-          <div class="date-details">
-            <p class="mui--text-subhead zero-bottom-margin date-details__label">Date</p>
-            <p class="mui--text-title mui--text-light">{{ project.datelocation }}</p>
-          </div>
-        </div>
-        {%- endif %}
-        {%- if project.primary_venue %}
+      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-7 project-banner__box">
+        {% if project.banner_video_url.url or project.bg_image.url %}
           <div>
-            <div class="date-icon">
-              <i class="material-icons mui--text-display1 mui--text-light" aria-hidden="true">place</i>
+            {% if project.banner_video_url.url %}
+              <div class="project-banner__box__video">
+                {{ project.banner_video_url|safe }}
+              </div>
+            {%- elif project.bg_image.url %}
+              <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+            {% endif %}
+          </div>
+        {% endif %}
+        <div class="project-banner__headline">
+          <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
+          <p class="mui--text-headline">{{ project.tagline|safe }}</p>
+        </div>
+      </div>
+      <div class="grid__col-md-12 grid__col-sm-6 grid__col-md-5">
+        <div class="profile-details">
+          {%- if project.profile.logo_url.url %}
+            <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
+          {% endif %}
+          <div class="profile-details__title">
+            <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{project.profile.url_for()}}">{{ project.profile.title|e }}</a></h3>
+            <div class="mui--text-body1 mui--text-light">{{ project.profile.description|safe }}</div>
+          </div>
+        </div>
+        <div class="project-banner__action">
+          {{ saveprojectform(project, project_save_form) }}
+          <div class="project-banner__action__social">
+            <a class="list-group-item share-popup" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="Tweet this"><img src="{{ url_for('static', filename='img/twitter-logo.svg') }}" class="project-banner__action__icon" alt="Tweet this" title="Tweet this"/></a>
+            <a class="list-group-item share-popup" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="Share on facebook"><img src="{{ url_for('static', filename='img/facebook-logo.svg') }}" class="project-banner__action__icon" alt="Share on facebook" title="Share on facebook"/></a>
+            <a href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" arial-label="Email this" title="Email this"><i class="material-icons mui--text-headline mui--text-light" aria-hidden="true">email</i></a>
+          </div>
+        </div>
+        {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
+          <div class="card__calendar">
+            <div class="calendar">
+              <div class="calendar__weekdays">
+                <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                <div class="calendar__weekdays__name__wrapper">
+                  {% for weekday in project.calendar_weeks.days %}
+                    <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="calendar__weekdays">
+                {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
+                  {% if loop.index == 1 %}
+                    {% set month = '' -%}
+                  {% else %}
+                    {% set month = project.calendar_weeks.weeks[loop.index-1].month -%}
+                  {% endif %}
+                  <div class="calendar__weekdays__month">
+                    {% if month != week.month %}
+                      <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
+                    {% else %}
+                      <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
+                    {% endif %}
+                  </div>
+                  <div class="calendar__weekdays__dates">
+                    {% for date in week.dates %}
+                      <p class="calendar__weekdays__dates__date {% if date[2] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date[0] == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
+                    {% endfor %}
+                    {% if loop.index == 1 %}
+                      {% set year = '' -%}
+                    {% else %}
+                      {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
+                    {% endif %}
+                    {% if year != year.month %}
+                      <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
             </div>
-            <div class="date-details">
-              <p class="mui--text-subhead zero-bottom-margin date-details__label">Venue</p>
-              <p class="mui--text-title mui--text-light">{{ project.primary_venue.title }}</p>
+          </div>
+        {% endif %}
+        {%- if project.primary_venue %}
+          <div class="date-wrapper">
+            <div class="date-wrapper__details">
+              <p class="mui--text-light zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-light" aria-hidden="true">place</i> <span class="mui--text-title">{{ project.primary_venue.title }}</span>, <span class="mui--text-title">{{ project.primary_venue.city }}</span></p>
             </div>
           </div>
         {%- endif %}
-        <div class="project-btn-wrapper">
-          {# Todo: Pass list of btns to be rendered #}
-          {{ page_btns|safe }}
-        </div>
       </div>
     </div>
   </div>
-  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent">
+  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" title="About" data-action="About(navbar)">About</a>
-      {%- if project.featured_sessions %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)">Talks</a>
-      {%- endif %}
+      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" title="About" data-action="About(navbar)">About <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate" title="Participate" data-action="Participate(navbar)">Participate</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.url_for('tickets') }}" title="Tickets" data-action="Tickets(navbar)" id="ticket-btn">Tickets <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- elif project.buy_tickets_url.url %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.buy_tickets_url }}" title="Participate" data-action="Participate(navbar)">Participate</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Tickets(navbar)" id="ticket-btn">Tickets <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- elif project.allow_rsvp %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#participate" title="Participate" data-action="Participate(navbar)">Participate</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.url_for('tickets') }}" title="Participate" data-action="Participate(navbar)" id="ticket-btn">Participate <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
+      {%- endif %}
+      {%- if project.featured_sessions %}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)">Talks <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
       {%- if project.hasjob_embed_url.url -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" title="Jobs" data-action="Jobs(navbar)">Jobs</a>
-      {%- endif %}
-      {%- if project.primary_venue -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">Venue</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" title="Jobs" data-action="Jobs(navbar)">Jobs <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
       {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" title="Proposals" data-action="Proposals(navbar)">Proposals</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" title="Proposals" data-action="Proposals(navbar)">Proposals <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
       {%- if project.schedule_state.PUBLISHED %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">Schedule <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
+      {%- endif %}
+      {%- if project.primary_venue -%}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">Venue <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
     </nav>
   </div>
 {% endmacro %}
 
 {% macro admin_panel(project, transition_form=none, schedule_transition_form=none, cfp_transition_form=none) %}
-  <div class="sticky-admin-panel">
+  <div>
     <div class="card">
       <div class="card__header">
         <h3 class="mui--text-title mui--text-uppercase mui--text-bold">{% trans %}Admin panel{% endtrans %}</h3>
@@ -117,7 +161,7 @@
       <div class="card__body">
         {%- if project.current_roles.admin %}
           {%- if transition_form %}
-            <div>
+            <div class="mui--d-inlineblock right-padding">
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
               <p class="mui--text-subhead">{{ project.state.label.title }}</p>
               <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
@@ -129,10 +173,9 @@
                 </p>
               </form>
             </div>
-            <hr class="mui-divider">
           {%- endif %}
           {%- if schedule_transition_form %}
-            <div>
+            <div class="mui--d-inlineblock right-padding">
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">{% trans %}Schedule status{% endtrans %}</p>
               <p class="mui--text-subhead">{{ project.schedule_state.label.title }}</p>
               <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
@@ -144,10 +187,9 @@
                 </p>
               </form>
             </div>
-            <hr class="mui-divider">
           {%- endif %}
           {%- if cfp_transition_form %}
-            <div>
+            <div class="mui--d-inlineblock right-padding">
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">{% trans %}CfP status{% endtrans %}</p>
               <p class="mui--text-subhead">{{ project.cfp_state.label.title }}</p>
               <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
@@ -159,10 +201,10 @@
                 </p>
               </form>
             </div>
-            <hr class="mui-divider">
           {%- endif %}
+          <hr class="mui-divider">
           <div>
-            <ol class="mui-list--aligned">
+            <ul class="mui-list--inline list-item-rgborder">
               <li>
                 <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
               </li>
@@ -190,7 +232,7 @@
               <li>
                 <a href="{{ project.url_for('events') }}" title="Scan badges to check-in">{% trans %}Scan badges to check-in{% endtrans %}</a>
               </li>
-            </ol>
+            </ul>
           </div>
           <hr class="mui-divider">
           <div>

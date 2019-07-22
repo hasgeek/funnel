@@ -1,9 +1,9 @@
 .projects-wrapper {
-	padding: 2em 0;
+	padding: 30px 0;
 }
 
 .projects {
-	padding-top: 1em;
+	padding-top: 15px;
 }
 
 .chip--new {
@@ -14,7 +14,7 @@
 }
 
 .hg-banner {
-  padding-top: 2em;
+  padding-top: 30px;
 
   .headline {
     font-size: 32px;
@@ -25,11 +25,11 @@
     height: 4px;
     background-color: #dda32a;
     width: 20%;
-    margin: 1em 0 0;
+    margin: 15px 0 0;
   }
 }
 
-@media(min-width: 992px) {
+@media(min-width: 768px) {
   .hg-banner {
     text-align: center;
 
@@ -38,7 +38,7 @@
       line-height: 58px;
     }
     .mui-divider--banner {
-      margin: 1em auto 0;
+      margin: 15px auto 0;
     }
   }
 }
@@ -94,25 +94,26 @@
 
 @media(min-width: 992px) {
   .upcoming {
-    padding-left: 2em;
+    padding-left: 30px;
+  }
+}
+
+@media(min-width: 768px) and (max-width: 991px) {
+  .spotlight {
+    margin-bottom: 15px;
+
+    spotlight__headline {
+      text-align: center;
+    }
+    .spotlight__card {
+      margin: auto;
+    }
   }
 }
 
 @media(min-width: 1200px) {
-  .spotlight {
-    position: relative;
-  }
-
-   .spotlight:after {
-    content: '';
-    border-left: 1px solid rgba(132,146,166,0.3);
-    height: 100px;
-    position: absolute;
-    right: 0;
-    top: 35%;
-  } 
   .upcoming {
-    padding-left: 3em;
+    padding-left: 45px;
   }
 }
 

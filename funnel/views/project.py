@@ -37,9 +37,10 @@ from ..forms import (
     ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpForm,
+    SavedProjectForm,
 )
 from ..jobs import import_tickets, tag_locations
-from ..models import RSVP_STATUS, Project, Proposal, Rsvp, db
+from ..models import RSVP_STATUS, Project, Proposal, Rsvp, SavedProject, db
 from .decorators import legacy_redirect
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
@@ -65,7 +66,7 @@ def project_data(project):
         'bg_color': project.bg_color,
         'explore_url': project.explore_url.url if project.explore_url is not None else "",
         'calendar_weeks': project.calendar_weeks
-        }
+    }
 
 
 @route('/<profile>')
@@ -110,16 +111,20 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
+        project_save_form = SavedProjectForm()
         return {'project': self.obj,
             'rsvp_form': rsvp_form, 'transition_form': transition_form,
-            'schedule_transition_form': schedule_transition_form}
+            'schedule_transition_form': schedule_transition_form,
+            'project_save_form': project_save_form}
 
     @route('proposals')
     @render_with('proposals.html.jinja2')
     @requires_permission('view')
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        return {'project': self.obj, 'cfp_transition_form': cfp_transition_form}
+        project_save_form = SavedProjectForm()
+        return {'project': self.obj, 'cfp_transition_form': cfp_transition_form,
+            'project_save_form': project_save_form}
 
     @route('json')
     @render_with(json=True)
@@ -133,7 +138,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'rooms': [room_data(room) for room in self.obj.rooms],
             'proposals': [proposal_data(proposal) for proposal in proposals],
             'schedule': schedule_data(self.obj),
-            })
+        })
 
     @route('csv')
     @requires_permission('view')
@@ -194,8 +199,16 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+            return redirect(self.obj.url_for('view_proposals'), code=303)
         return render_template('project_cfp.html.jinja2', form=form, project=self.obj)
+
+    @route('tickets', methods=['GET'])
+    @render_with('tickets.html.jinja2')
+    @requires_permission('view')
+    def tickets(self):
+        rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
+        return {'project': self.obj,
+            'rsvp_form': rsvp_form}
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -280,6 +293,32 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_permission('edit_project')
     def rsvp_list(self):
         return {'project': self.obj, 'statuses': RSVP_STATUS}
+
+    @route('save', methods=['POST'])
+    @render_with(json=True)
+    @lastuser.requires_login
+    @requires_permission('view')
+    def save(self):
+        form = SavedProjectForm()
+        if form.validate_on_submit():
+            proj_save = SavedProject.query.filter_by(user=current_auth.user, project=self.obj).first()
+            if form.save.data:
+                if proj_save is None:
+                    proj_save = SavedProject(user=current_auth.user, project=self.obj)
+                    form.populate_obj(proj_save)
+                    db.session.commit()
+            else:
+                if proj_save is not None:
+                    db.session.delete(proj_save)
+                    db.session.commit()
+            return {'status': 'ok'}
+        else:
+            return {
+                'status': 'error',
+                'error': 'project_save_form_invalid',
+                'error_description': _("Something went wrong, please reload and try again")
+            }, 400
+        return redirect(self.obj.url_for(), code=303)
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
