@@ -413,9 +413,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
-                weeks[weekobj.week]['dates'].setdefault(wdate.isoformat(), 0)
+                weeks[weekobj.week]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
-                    weeks[weekobj.week]['dates'][wdate.isoformat()] += session_count
+                    weeks[weekobj.week]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekobj.week]:
                         weeks[weekobj.week]['month'] = format_date(wdate, 'MMM', locale=get_locale())
 
@@ -425,7 +425,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         for week in weeks_list:
             # Convering to JSON messes up dictionary key order even though we used OrderedDict.
             # This turns the OrderedDict into a list of tuples and JSON preserves that order.
-            week['dates'] = week['dates'].items()
+            week['dates'] = [(date.isoformat(), format_date(date, 'd', get_locale()), count) for date, count in week['dates'].items()]
 
         return {
             'locale': get_locale(),
