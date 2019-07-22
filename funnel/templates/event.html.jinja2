@@ -81,9 +81,11 @@
               <td class='js-searchable' data-th="Company">{{ company }}</td>
               <td class='buttongrp-column'>
                 <ul class="mui-list--unstyled">
+                  {{#if isAdmin}}
                   <li>
                     <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
                   </li>
+                  {{/if}}
                   <li>
                     <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
                       <div style="display:none;">

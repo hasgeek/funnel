@@ -158,7 +158,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
-        project_currently_saved = self.obj.is_saved_by(current_auth.user)
         return {
             'project': self.obj,
             'from_date': date_js(self.obj.schedule_start_at),
@@ -173,8 +172,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 } for room in self.obj.rooms
             },
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
-            'project_currently_saved': project_currently_saved
+            'project_save_form': project_save_form
         }
 
     @route('subscribe')

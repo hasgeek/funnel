@@ -104,7 +104,6 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
         project_save_form = SavedProjectForm()
-        project_currently_saved = self.obj.project.is_saved_by(current_auth.user)
         return {
             'project': self.obj.project,
             'active_session': session_data(self.obj, with_modal_url='view_popup'),
@@ -116,7 +115,6 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             'venues': [venue.current_access() for venue in self.obj.project.venues],
             'rooms': {room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor} for room in self.obj.project.rooms},
             'project_save_form': project_save_form,
-            'project_currently_saved': project_currently_saved
         }
 
     @route('viewsession-popup')

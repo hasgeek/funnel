@@ -112,12 +112,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
-        project_currently_saved = self.obj.is_saved_by(current_auth.user)
         return {'project': self.obj,
             'rsvp_form': rsvp_form, 'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
-            'project_currently_saved': project_currently_saved}
+            'project_save_form': project_save_form}
 
     @route('proposals')
     @render_with('proposals.html.jinja2')
@@ -125,10 +123,8 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
-        project_currently_saved = self.obj.is_saved_by(current_auth.user)
         return {'project': self.obj, 'cfp_transition_form': cfp_transition_form,
-            'project_save_form': project_save_form,
-            'project_currently_saved': project_currently_saved}
+            'project_save_form': project_save_form}
 
     @route('json')
     @render_with(json=True)
