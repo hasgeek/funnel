@@ -187,24 +187,11 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                     session_save = SavedSession(user=current_auth.user, session=self.obj)
                     form.populate_obj(session_save)
                     db.session.commit()
-                    return {'status': 'ok'}
-                else:
-                    return {
-                        'status': 'error',
-                        'error': 'session_save_exists',
-                        'error_description': _("You have already saved this session")
-                    }
             else:
                 if session_save is not None:
                     db.session.delete(session_save)
                     db.session.commit()
-                    return {'status': 'ok'}
-                else:
-                    return {
-                        'status': 'error',
-                        'error': 'session_save_invalid',
-                        'error_description': _("You have not saved this session yet")
-                    }
+            return {'status': 'ok'}
         else:
             return {
                 'status': 'error',

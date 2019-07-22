@@ -311,24 +311,11 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     proj_save = SavedProject(user=current_auth.user, project=self.obj)
                     form.populate_obj(proj_save)
                     db.session.commit()
-                    return {'status': 'ok'}
-                else:
-                    return {
-                        'status': 'error',
-                        'error': 'project_save_exists',
-                        'error_description': _("You have already saved this project")
-                    }
             else:
                 if proj_save is not None:
                     db.session.delete(proj_save)
                     db.session.commit()
-                    return {'status': 'ok'}
-                else:
-                    return {
-                        'status': 'error',
-                        'error': 'project_save_invalid',
-                        'error_description': _("You have not saved this project yet")
-                    }
+            return {'status': 'ok'}
         else:
             return {
                 'status': 'error',
