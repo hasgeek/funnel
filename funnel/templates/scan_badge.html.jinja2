@@ -19,11 +19,8 @@
           {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
-          <h3 class="mui--text-title">{{ eventTitle }}</h3>
-          {{#if timerId}}
-            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="stopRenderFrameLoop(event)">Stop scanning</button></p>
-          {{else}}
-            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="startRenderFrameLoop(event)">Start scanning</button></p>
+          {{#if video}}
+            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="switchCamera(event)">Switch camera</button></p>
           {{/if}}
         </div>
 

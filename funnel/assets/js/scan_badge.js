@@ -18,7 +18,8 @@ const badgeScan = {
         attendeeFound: false,
         scanning: true,
         showModal: false,
-        timerId: ''
+        timerId: '',
+        facingMode: true,
       },
       closeModal(event) {
         if (event) event.original.preventDefault();
@@ -65,18 +66,17 @@ const badgeScan = {
         });
       },
       startRenderFrameLoop(event) {
-        if (event) event.original.preventDefault();
+        if(event) event.original.preventDefault();
         let timerId;
-        timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
+        timerId = window.requestAnimationFrame(this.renderFrame);
         this.set('timerId', timerId);
       },
       stopRenderFrameLoop(event) {
-        if (event) event.original.preventDefault();
-        window.cancelAnimationFrame(badgeScanComponent.get('timerId'));
+        if(event) event.original.preventDefault();
+        window.cancelAnimationFrame(this.get('timerId'));
         this.set('timerId', '');
       },
       verifyQRDecode(qrcode) {
-        console.log('verifyQRDecode', qrcode, Date.now());
         if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
           this.stopRenderFrameLoop();
           this.checkinAttendee(qrcode.data);
@@ -100,15 +100,13 @@ const badgeScan = {
           this.startRenderFrameLoop();
         }
       },
-      setupVideo(event) {
-        if (event)  {
-          event.original.preventDefault();
-        }
+      setupVideo() {
         let video = document.getElementById('qrreader');
         let canvasElement = document.createElement('canvas');
         let canvas = canvasElement.getContext("2d");
+        let faceMode = this.get('facingMode') ? 'user' : 'environment';
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" || { exact: "user" } } }).then((stream) => {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: faceMode }}).then((stream) => {
           this.set('video', video);
           this.get('video').srcObject = stream;
           this.get('video').setAttribute("playsinline", true);
@@ -118,8 +116,15 @@ const badgeScan = {
           this.startRenderFrameLoop();
         });
       },
+      switchCamera(event) {
+        event.original.preventDefault();
+        this.stopRenderFrameLoop();
+        this.set('facingMode', !this.get('facingMode'));
+        console.log(this.get('facingMode'));
+        this.setupVideo();
+      },
       oncomplete() {
-        this.setupVideo('');
+        this.setupVideo();
         this.renderFrame = this.renderFrame.bind(this);
       }
     });
