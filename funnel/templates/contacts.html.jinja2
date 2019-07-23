@@ -38,7 +38,7 @@
               <p class="mui--text-subhead zero-bottom-margin"><i class="material-icons mui--align-middle collapsible__icon" aria-hidden="true">keyboard_arrow_right</i><i class="material-icons mui--align-middle mui--hide collapsible__icon" aria-hidden="true">keyboard_arrow_down</i> {{ project.title }}</p>
             </div>
             <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
-              <button class="no-btn" data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
+              <button class="mui-btn--nostyle " data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                 <li><a href="{{ url_for('contacts_project_csv', suuid=project.suuid) }}" download title="CSV"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a></li>
               </ul>
@@ -50,7 +50,7 @@
                     <p class="mui--text-subhead zero-bottom-margin"><i class="material-icons mui--align-middle collapsible__icon" aria-hidden="true">keyboard_arrow_right</i><i class="material-icons mui--align-middle mui--hide collapsible__icon" aria-hidden="true">keyboard_arrow_down</i> {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
                   </div>
                   <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
-                    <button class="no-btn" data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
+                    <button class="mui-btn--nostyle" data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
                     <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                       <li><a href="{{ url_for('contacts_project_date_csv', suuid=project.suuid, datestr=daterow.date) }}" download title="CSV" ><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a></li>
                     </ul>

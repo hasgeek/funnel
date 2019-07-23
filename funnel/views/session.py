@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from flask import abort, jsonify, render_template, request
+from flask import abort, jsonify, redirect, render_template, request
 
 from baseframe import _
+from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import utcnow
 from coaster.views import (
@@ -15,8 +16,8 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp, lastuser
-from ..forms import SessionForm
-from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, Session, db
+from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
+from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
 from .decorators import legacy_redirect
 from .helpers import localize_date
 from .mixins import ProjectViewMixin, SessionViewMixin
@@ -102,13 +103,19 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
-        return dict(project=self.obj.project, active_session=session_data(self.obj, with_modal_url='view_popup'),
-            from_date=date_js(self.obj.project.schedule_start_at), to_date=date_js(self.obj.project.schedule_end_at),
-            sessions=session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
+        project_save_form = SavedProjectForm()
+        return {
+            'project': self.obj.project,
+            'active_session': session_data(self.obj, with_modal_url='view_popup'),
+            'from_date': date_js(self.obj.project.schedule_start_at),
+            'to_date': date_js(self.obj.project.schedule_end_at),
+            'sessions': session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
-            timezone=utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
-            venues=[venue.current_access() for venue in self.obj.project.venues],
-            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.project.rooms]))
+            'timezone': utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
+            'venues': [venue.current_access() for venue in self.obj.project.venues],
+            'rooms': {room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor} for room in self.obj.project.rooms},
+            'project_save_form': project_save_form,
+        }
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
@@ -164,6 +171,32 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             db.session.add(feedback)
             db.session.commit()
             return "Saved\n", 201
+
+    @route('save', methods=['POST'])
+    @render_with(json=True)
+    @lastuser.requires_login
+    @requires_permission('view')
+    def save(self):
+        form = SavedSessionForm()
+        if form.validate_on_submit():
+            session_save = SavedSession.query.filter_by(user=current_auth.user, session=self.obj).first()
+            if form.save.data:
+                if session_save is None:
+                    session_save = SavedSession(user=current_auth.user, session=self.obj)
+                    form.populate_obj(session_save)
+                    db.session.commit()
+            else:
+                if session_save is not None:
+                    db.session.delete(session_save)
+                    db.session.commit()
+            return {'status': 'ok'}
+        else:
+            return {
+                'status': 'error',
+                'error': 'session_save_form_invalid',
+                'error_description': _("Something went wrong, please reload and try again")
+            }, 400
+        return redirect(self.obj.url_for(), code=303)
 
 
 @route('/<project>/schedule/<session>', subdomain='<profile>')

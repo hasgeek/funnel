@@ -1,141 +1,231 @@
-.profile-details {
-  display: flex;
-  align-items: center;
-  margin: 15px 0;
-
-  .profile-details__logo {
-    height: 55px;
-    margin-right: 15px;
-  }
-  .profile-details__title {
-    word-break: keep-all;
-  }
-}
-
-@media (min-width: 992px) {
-  .profile-details {
-    display: block;
-    float: left;
-    max-width: 15%;
-    margin-right: 20px;
-
-    .profile-details__title {
-      display: block;
-    }
-  }
-  .project-details {
-    max-width: calc(100% - 15% - 20px);
-  }
-}
-
-@media (min-width: 1200px) {
-  .project-header {
-    margin-top: 20px;
-  }
-}
-
-.section-bottom-border {
-  border-bottom: 2px solid rgba(132, 146, 166, 0.3);
-}
-
-.project-section {
-  padding-top: 45px;
-}
-
-.details-section,
-.project-section {
-  overflow-wrap: break-word;
-}
-
-.project-section pre,
-.details-section pre {
-  white-space: pre-wrap;
-}
-
 .project-banner {
-  padding: 15px 1em;
+  .project-banner__box {
+    padding: 0;
 
-  .project-banner__box__video {
-    padding-bottom: 56%;
-    position: relative;
+    .project-banner__box__video {
+      padding-bottom: 56%;
+      position: relative;
 
-    iframe {
-      position: absolute;
+      iframe {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        display: block;
+      }
+    }
+    .project-banner__box__image {
       width: 100%;
-      height: 100%;
-      left: 0;
-      top: 0;
       display: block;
     }
+    .project-banner__headline {
+      padding: 0 15px;
+    }
   }
-  .project-banner__box__image {
-    width: 100%;
-    display: block;
-  }
-}
-
-@media (max-width: 991px) {
-  .headline {
+  .card__calendar {
     padding: 0;
-  }
-  .project-banner {
-    padding: 0;
-  }
-  .xs-sm-padding {
+    border-bottom: 1px solid rgba(132,146,166,0.3);
+    border-top: 1px solid rgba(132,146,166,0.3);
+    background-color: #F9FAFC;
+    margin-right: -15px;
+    margin-left: -15px;
     padding: 0 15px;
+    margin-bottom: 0;
+  }
+  .project-banner__action {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+
+    .project-banner__action__icon {
+      height: 24px;
+      vertical-align: middle;
+    }
+
+    .project-banner__action__social {
+      justify-content: space-between;
+      width: 110px;
+      display: flex;
+      align-items: center;
+    }
+
+    .project-banner__action__button {
+      display: inline-block;
+      width: 165px;
+    }
+
+    .mui-btn+.mui-btn {
+      margin-left: 0;
+    }
+  }
+
+  .profile-details {
+    display: flex;
+
+    .profile-details__logo {
+      height: 45px;
+      margin-right: 15px;
+    }
+    .profile-details__title {
+      word-break: keep-all;
+    }
+  }
+
+  .date-wrapper {
+    display: flex;
+    margin: 0 -15px;
+    padding: 15px;
+
+    .date-wrapper__icon {
+      border-radius: 50%;
+      border: 1px solid #79818B;
+      min-width: 32px;
+      height: 32px;
+      text-align: center;
+      margin-right: 15px;
+    }
+    .date-wrapper__details {
+      word-break: keep-all;
+    }
   }
 }
 
-.date-wrapper {
-  margin: 10px 0;
+@media(min-width: 544px) {
+  .project-banner {
+    .project-banner__action {
+      max-width: 300px;
+    }
+  }
 }
 
-.date-icon,
-.date-details {
-  float: left;
+@media(min-width: 768px) {
+  .project-banner {
+    margin-top: 30px;
+
+    .project-banner__box {
+      padding: 0 15px;
+
+      .project-banner__box__video {
+        padding-bottom: 56%;
+        position: relative;
+
+        iframe {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          left: 0;
+          top: 0;
+          display: block;
+        }
+      }
+      .project-banner__box__image {
+        width: 100%;
+        display: block;
+      }
+      .project-banner__headline {
+        margin-top: 15px;
+        padding: 0;
+      }
+    }
+
+    .profile-details {
+      margin: 0 0 15px;
+    }
+
+    .card__calendar {
+      background-color: transparent;
+      margin: 0 0 15px;
+      padding: 0;
+    }
+
+    .project-banner__action {
+      max-width: 100%;
+      margin: 0 0 15px;
+
+      .project-banner__action__social {
+        justify-content: space-between;
+        width: 150px;
+        display: flex;
+        align-items: center;
+      }
+    }
+
+    .date-wrapper {
+      border: 0;
+    }
+  }
 }
 
-.date-details {
-  margin: 5px 0 0 15px;
-  width: calc(100% - 47px);
+@media (min-width: 768px) and (max-width: 1199px) {
+  .project-banner {
+    .project-banner__box {
+      .project-banner__headline {
+        .profile-details {
+          display: block;
+          display: flex;
+        }
+      }
+    }
+  }
 }
 
-.date-details__label {
-  text-transform: uppercase;
+.about-ticket-wrapper {
+  align-items: flex-start;
+
+  #participate {
+    padding-left: 30px;
+  }
 }
 
-.project-btn-wrapper {
-  position: relative;
-  margin: 10px 0 0;
-  text-align: left;
-  .cta {
-    display: block;
+#participate #boxoffice-widget {
+  padding-top: 0;
+  max-width: 100%;
+  margin: 0;
+
+  .ticket-booking {
+    border-bottom: 1px solid #ccc;
+  }
+
+  .ticket-booking:last-child {
+    border-bottom: none;
+  }
+
+  .ticket-details {
+    margin: 0;
+    width: 100%;
+  }
+
+  .ticket-price-qty {
+    float: left;
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  .ticket-description .few-ticket {
+    left: 0;
+    top: -21px
+  }
+
+  .price-details-wrapper,
+  .ticket-total,
+  .proceed-button-wrapper {
+    float: left;
+  }
+
+  .item-amount,
+  .valid-upto,
+  .discount {
+    text-align: left;
+  }
+
+  .checkout-confirmation {
     padding: 0;
-
-    .mui-btn {
-      display: block;
-    }
   }
-}
 
-@media(min-width: 468px) {
-  .project-btn-wrapper {
-    min-width: 340px;
-    width: 31%;
-  }
-}
-
-@media(min-width: 1200px) {
-  .project-btn-wrapper {
-    .cta {
-      display: block;
-    }
-  }
-}
-
-@media(min-width: 992px) {
-  .details-section {
-    flex-direction: row-reverse;
+  .fa {
+    display: none;
+    padding: 0 !important;
   }
 }
 
@@ -166,6 +256,10 @@
   font-weight: bold;
 }
 
+.project-section__description {
+  word-break: break-all;
+}
+
 .project-section__description h1,
 .project-section__description h2,
 .project-section__description h3,
@@ -193,5 +287,5 @@
   margin-top: 15px;
   position: relative;
   outline: none;
-  margin-bottom: 2em;
+  margin-bottom: 30px;
 }

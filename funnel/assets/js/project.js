@@ -1,4 +1,4 @@
-import { Utils, TableSearch } from './util';
+import { Utils, SaveProject } from './util';
 import L from "leaflet";
 
 const TicketWidget = {
@@ -112,7 +112,7 @@ const EmbedMap = {
 };
 
 $(() => {
-  window.HasGeek.ProjectInit = function ({ticketing='', venue= '', search=''}) {
+  window.HasGeek.ProjectInit = function ({ticketing='', venue= '', saveProjectConfig=''}) {
     if (ticketing) {
       TicketWidget.init(ticketing);
     }
@@ -121,18 +121,8 @@ $(() => {
       EmbedMap.init(venue);
     }
 
-    if (search) {
-      let tableSearch = new TableSearch(search.tableId);
-      let inputId = `#${search.inputId}`;
-      let tableRow = `#${search.tableId} tbody tr`;
-      $(inputId).keyup(function keyup() {
-        if ($('.collapsible__body').css('display') === 'none') {
-          $('.collapsible__header').click();
-        }
-        $(tableRow).addClass('mui--hide');
-        let hits = tableSearch.searchRows($(this).val());
-        $(hits.join(',')).removeClass('mui--hide');
-      });
+    if (saveProjectConfig) {
+      SaveProject(saveProjectConfig);
     }
   };
 });

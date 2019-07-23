@@ -21,6 +21,9 @@ const Search = {
           let d = new Date(date);
           return d.toLocaleDateString('default', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
         },
+        dateString: function(date) {
+          return date.substr(-2);
+        },
       },
       getQueryString(paramName) {
         const urlParams = new URLSearchParams(window.location.search);

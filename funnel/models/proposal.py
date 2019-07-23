@@ -173,7 +173,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return value
 
     # State transitions
-    state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session is not None and proposal.session.scheduled, label=('scheduled', __("Confirmed & Scheduled")))
+    state.add_conditional_state('SCHEDULED', state.CONFIRMED,
+        lambda proposal: proposal.session is not None and proposal.session.scheduled,
+        label=('scheduled', __("Confirmed & Scheduled")))
 
     @with_roles(call={'speaker', 'proposer'})
     @state.transition(state.AWAITING_DETAILS, state.DRAFT, title=__("Draft"), message=__("This proposal has been withdrawn"), type='danger')

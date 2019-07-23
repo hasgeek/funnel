@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, defaultdict
+from datetime import timedelta
 
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
@@ -66,8 +67,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
-        User, primaryjoin=user_id == User.id,
-        backref=db.backref('projects', cascade='all, delete-orphan'))
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('projects', cascade='all, delete-orphan')
+    )
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
     profile = db.relationship('Profile', backref=db.backref('projects', cascade='all, delete-orphan', lazy='dynamic'))
     parent = db.synonym('profile')
@@ -147,13 +150,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             weights={
                 'name': 'A', 'title': 'A', 'description_text': 'B', 'instructions_text': 'B',
                 'location': 'C'
-                },
+            },
             regconfig='english',
             hltext=lambda: db.func.concat_ws(
                 ' / ', Project.title, Project.location,
-                Project.description_html, Project.instructions_html),
+                Project.description_html, Project.instructions_html
             ),
-        nullable=False))
+        ),
+        nullable=False)
+    )
 
     venues = db.relationship('Venue', cascade='all, delete-orphan',
         order_by='Venue.seq', collection_class=ordering_list('seq', count_from=1))
@@ -175,19 +180,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
         db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
-        )
+    )
 
     __roles__ = {
         'all': {
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
-                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks'
-                },
+                'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks',
+                'primary_venue'
+            },
             'call': {
                 'url_for',
-                }
             }
         }
+    }
 
     def __init__(self, **kwargs):
         super(Project, self).__init__(**kwargs)
@@ -369,12 +375,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @cached_property
     def calendar_weeks(self):
-        session_dates = db.session.query('date', 'count').from_statement(db.text(
+        session_dates = list(db.session.query('date', 'count').from_statement(db.text(
             '''
             SELECT DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
             FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
             GROUP BY date ORDER BY date;
-            ''')).params(timezone=self.timezone.zone, project_id=self.id)
+            ''')).params(timezone=self.timezone.zone, project_id=self.id))
 
         # FIXME: This doesn't work. This code needs to be tested in isolation
         # session_dates = db.session.query(
@@ -387,17 +393,29 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         #         Session.scheduled
         #         ).group_by(db.text('date')).order_by(db.text('date'))
 
+        # if the project's week is within next 2 weeks, send current week as well
+        now = utcnow().astimezone(self.timezone)
+
+        if self.schedule_start_at is not None:
+            current_week = Week.withdate(now)
+            schedule_start_week = Week.withdate(self.schedule_start_at)
+
+            if schedule_start_week > current_week and (schedule_start_week - current_week) <= 2:
+                if (schedule_start_week - current_week) == 2:
+                    session_dates.insert(0, (now + timedelta(days=7), 0))
+                session_dates.insert(0, (now, 0))
+
         weeks = defaultdict(dict)
-        for result in session_dates:
-            weekobj = Week.withdate(result.date)
+        for project_date, session_count in session_dates:
+            weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
-                weeks[weekobj.week]['dates'].setdefault(wdate.day, 0)
-                if result.date.date() == wdate:
-                    weeks[weekobj.week]['dates'][wdate.day] += result.count
+                weeks[weekobj.week]['dates'].setdefault(wdate, 0)
+                if project_date.date() == wdate:
+                    weeks[weekobj.week]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekobj.week]:
                         weeks[weekobj.week]['month'] = format_date(wdate, 'MMM', locale=get_locale())
 
@@ -407,11 +425,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         for week in weeks_list:
             # Convering to JSON messes up dictionary key order even though we used OrderedDict.
             # This turns the OrderedDict into a list of tuples and JSON preserves that order.
-            week['dates'] = week['dates'].items()
+            week['dates'] = [(date.isoformat(), format_date(date, 'd', get_locale()), count) for date, count in week['dates'].items()]
 
         return {
-            'locale': get_locale(), 'weeks': weeks_list,
-            'days': [format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()]}
+            'locale': get_locale(),
+            'weeks': weeks_list,
+            'today': now.date().isoformat(),
+            'days': [
+                format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()
+            ]
+        }
 
     @property
     def rooms(self):
@@ -431,12 +454,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.subprojects:
             basequery = Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-                )
+            )
         else:
             basequery = Proposal.query.filter_by(project=self)
         return Proposal.state.group(
             basequery.filter(~Proposal.state.DRAFT).order_by(db.desc('created_at'))
-            )
+        )
 
     @property
     def proposals_by_confirmation(self):
@@ -490,7 +513,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant',
-                    ])
+                ])
             if self.review_team and user in self.review_team.users:
                 perms.update([
                     'view_contactinfo',
@@ -507,11 +530,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'edit-participant',
                     'view-participant',
                     'new-participant'
-                    ])
+                ])
             if self.checkin_team and user in self.checkin_team.users:
                 perms.update([
                     'checkin_event'
-                    ])
+                ])
         return perms
 
     @classmethod
@@ -549,6 +572,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             roles.add('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.update(self.profile.roles_for(actor, anchors))
         return roles
+
+    def is_saved_by(self, user):
+        return user is not None and self.saved_by.filter_by(user=user).first() is not None
 
 
 add_search_trigger(Project, 'search_vector')
