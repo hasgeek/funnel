@@ -186,7 +186,7 @@ html.touch .collapsible__body--disable {
 }
 
 .attendee-table td {
-  word-break: break-all;
+  word-break: break-word;
   min-width: 100px;
 }
 
@@ -1489,7 +1489,7 @@ html.touch .collapsible__body--disable {
 }
 
 .project-section__description {
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .project-section__description h1,
