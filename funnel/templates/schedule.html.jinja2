@@ -16,7 +16,7 @@
 {% endblock %}
 
 {%- block pageheaders %}
-  {% if project.schedule_start_at %}
+  {%- if project.schedule_start_at %}
     <script type="application/ld+json">
     {
       "@context": "http://schema.org",
@@ -51,7 +51,7 @@
       }
     }
     </script>
-  {% endif -%}
+  {%- endif -%}
 {% endblock %}
 
 {% block bodytag %}

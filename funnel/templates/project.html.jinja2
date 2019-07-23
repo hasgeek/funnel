@@ -8,7 +8,7 @@
   {% assets "css_leaflet" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
-  {% if project.schedule_start_at %}
+  {%- if project.schedule_start_at %}
     <script type="application/ld+json">
     {
       "@context": "http://schema.org",
@@ -43,7 +43,7 @@
       }
     }
     </script>
-  {% endif -%}
+  {%- endif -%}
 {% endblock %}
 
 {% block bodytag %}
