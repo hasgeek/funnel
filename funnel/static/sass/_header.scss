@@ -85,6 +85,11 @@
       display: none
     }
   }
+  .hg-app.no-sticky-header {
+    .footer {
+      display: none;
+    }
+  }
 }
 
 @media (min-width: 768px) {
@@ -346,8 +351,9 @@ and (orientation: landscape) {
   .sub-navbar__item--fixed {
     position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
-    width: 100%;
     border-bottom: none;
     box-shadow: 0 1px 3px rgba(158,158,158,0.12), 0 1px 2px rgba(158,158,158,0.24)
   }
@@ -364,6 +370,11 @@ and (orientation: landscape) {
   .sub-navbar__item:active,
   .sub-navbar__item--active {
     border-bottom: 1px solid #856A91;
+  }
+
+  .sub-navbar__item--primarybg {
+    background-color: #E05F26;
+    color: #fff;
   }
 }
 

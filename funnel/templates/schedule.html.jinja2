@@ -108,7 +108,7 @@
                               </p>
                             {{/if}}
                           {{#rooms:room, roomindex}}
-                            <div class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)"><p>{{title}}<br><small>{{venue_title}}</small></p></div>
+                            <p class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)">{{title}}</p>
                           {{/}}
                         </div>
                         {{#sessions:session, index}}

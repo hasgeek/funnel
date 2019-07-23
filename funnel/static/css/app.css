@@ -317,6 +317,10 @@ html.touch .collapsible__body--disable {
   .hg-app.no-sticky-header .header--fixed {
     display: none;
   }
+
+  .hg-app.no-sticky-header .footer {
+    display: none;
+  }
 }
 @media (min-width: 768px) {
   .hg-app .header--fixed {
@@ -500,8 +504,9 @@ html.touch .collapsible__body--disable {
 .sub-navbar .sub-navbar__item--fixed {
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
-  width: 100%;
   border-bottom: none;
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
 }
@@ -515,6 +520,10 @@ html.touch .collapsible__body--disable {
 .sub-navbar .sub-navbar__item:active,
 .sub-navbar .sub-navbar__item--active {
   border-bottom: 1px solid #856A91;
+}
+.sub-navbar .sub-navbar__item--primarybg {
+  background-color: #E05F26;
+  color: #fff;
 }
 
 @media (min-width: 768px) {
@@ -1298,7 +1307,6 @@ html.touch .collapsible__body--disable {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  max-width: 300px;
 }
 .project-banner .project-banner__action .project-banner__action__icon {
   height: 24px;
@@ -1344,6 +1352,11 @@ html.touch .collapsible__body--disable {
   word-break: keep-all;
 }
 
+@media (min-width: 544px) {
+  .project-banner .project-banner__action {
+    max-width: 300px;
+  }
+}
 @media (min-width: 768px) {
   .project-banner {
     margin-top: 30px;
@@ -1385,7 +1398,7 @@ html.touch .collapsible__body--disable {
   }
   .project-banner .project-banner__action .project-banner__action__social {
     justify-content: space-between;
-    width: calc(100% - 200px);
+    width: 150px;
     display: flex;
     align-items: center;
   }
@@ -1473,6 +1486,10 @@ html.touch .collapsible__body--disable {
 
 .project-section__headline {
   font-weight: bold;
+}
+
+.project-section__description {
+  word-break: break-all;
 }
 
 .project-section__description h1,
@@ -1989,18 +2006,22 @@ html.touch .collapsible__body--disable {
   display: flex;
   position: sticky;
   position: -webkit-sticky;
-  top: 58px;
+  top: 62px;
   order: 1;
   z-index: 5;
   border: none;
   display: flex;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {
-  display: block !important;
-  padding: 15px 10px;
+  display: flex !important;
+  padding: 0 5px;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
   background-color: #fff;
   background-image: none !important;
   border-bottom: 2px solid rgba(132, 146, 166, 0.3);
+  min-height: 50px;
   width: 100% !important;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header.js-tab-active {
@@ -2100,6 +2121,7 @@ html.touch .collapsible__body--disable {
     top: 108px;
   }
   .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {
+    padding: 15px 10px;
     outline: 1px solid rgba(132, 146, 166, 0.3);
     border: none !important;
   }
