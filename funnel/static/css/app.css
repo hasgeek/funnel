@@ -490,6 +490,17 @@ html.touch .collapsible__body--disable {
   top: -6px;
 }
 
+@media (max-width: 1199px) {
+  .no-header .header {
+    display: none;
+  }
+  .no-header .content-wrapper {
+    padding-top: 0;
+  }
+  .no-header .footer {
+    display: none;
+  }
+}
 .sub-navbar .sub-navbar__item {
   display: block;
   padding: 15px;

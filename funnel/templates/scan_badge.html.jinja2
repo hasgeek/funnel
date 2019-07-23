@@ -6,6 +6,14 @@
 {% block pageheaders %}
 {% endblock %}
 
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-header">
+  {%- else %}
+    <body class="mui--bg-primary no-header">
+  {%- endif %}
+{% endblock %}
+
 {% block headline -%}
 {%- endblock %}
 

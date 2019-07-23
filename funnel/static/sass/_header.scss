@@ -335,6 +335,20 @@ and (orientation: landscape) {
   top: -6px;
 }
 
+@media(max-width: 1199px) {
+ .no-header {
+    .header {
+      display: none;
+    }
+    .content-wrapper {
+      padding-top: 0;
+    }
+    .footer {
+      display: none;
+    }
+  } 
+}
+
 .sub-navbar {
   .sub-navbar__item {
     display: block;
