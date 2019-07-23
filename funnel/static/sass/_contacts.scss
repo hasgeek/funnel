@@ -10,7 +10,8 @@
   text-align: center;
 
   .scanner-wrapper__camera {
-    max-width: 100%!important;
+    width: 100vh;
+    max-width: 100% !important;
   }
   .scanner-wrapper__badge--icon {
     position: absolute;

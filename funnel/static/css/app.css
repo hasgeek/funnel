@@ -2328,6 +2328,7 @@ body > .proposal-box.ui-draggable {
   text-align: center;
 }
 .scanner-wrapper .scanner-wrapper__camera {
+  width: 100vh;
   max-width: 100% !important;
 }
 .scanner-wrapper .scanner-wrapper__badge--icon {
