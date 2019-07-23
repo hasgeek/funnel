@@ -119,7 +119,6 @@ export const ScrollActiveMenu = {
     });
 
     this.activeNavItem = '';
-    this.activateSwipe();
 
     let observer = new IntersectionObserver(
         entries => {
@@ -154,39 +153,6 @@ export const ScrollActiveMenu = {
     $(`#${this.navId}`).animate({
       scrollLeft: activeNavItem.offsetLeft,
     }, 500);
-  },
-  activateSwipe() {
-    let start = {};
-    let end = {};
-    document.body.addEventListener('touchstart', (e) => {
-      start.x = e.changedTouches[0].clientX;
-      start.y = e.changedTouches[0].clientY;
-    });
-
-    document.body.addEventListener('touchend', (e) => {
-      end.y = e.changedTouches[0].clientY;
-      end.x = e.changedTouches[0].clientX;
-
-      let xDiff = end.x - start.x;
-      let yDiff = end.y - start.y;
-
-      if (Math.abs(xDiff) > Math.abs(yDiff)) {
-        if (xDiff > 0 && start.x <= 80) {
-          let prevEl = this.activeNavItem.previousElementSibling;
-          if(prevEl && prevEl.classList.contains(this.navItemsClassName)) {
-            prevEl.click();
-            this.setActiveNavItem(prevEl);
-          }
-        }
-        else {
-          let nextEl = this.activeNavItem.nextElementSibling;
-          if(nextEl&& nextEl.classList.contains(this.navItemsClassName)) {
-            nextEl.click();
-            this.setActiveNavItem(nextEl);
-          }
-        }
-      }
-    });
   },
 };
 
