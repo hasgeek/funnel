@@ -108,7 +108,7 @@ const badgeScan = {
         let canvasElement = document.createElement('canvas');
         let canvas = canvasElement.getContext("2d");
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" || { exact: "user" } } }).then((stream) => {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" || { exact: "user" } } }).then((stream) => {
           this.set('video', video);
           this.get('video').srcObject = stream;
           this.get('video').setAttribute("playsinline", true);
