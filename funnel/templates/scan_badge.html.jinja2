@@ -29,8 +29,9 @@
           {{/if}}
           {{#if video}}
           <div>
-            <div class="mui-select mui--d-inlineblock">
+            <div class="mui-select camera-dropdown">
               <select value='{{selectedCamera}}' class="mui--d-inlineblock">
+                <option>Select camera</option>
                 {{#cameras}}
                   <option value='{{value}}'>{{label}}</option>
                 {{/cameras}}

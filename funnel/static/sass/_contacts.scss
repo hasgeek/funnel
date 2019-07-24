@@ -51,3 +51,11 @@
     padding: 32px;
   }
 }
+
+.camera-dropdown {
+  display: inline-block;
+
+  .mui-select__menu {
+    display: block !important;
+  }
+}

@@ -2382,6 +2382,13 @@ body > .proposal-box.ui-draggable {
     padding: 32px;
   }
 }
+.camera-dropdown {
+  display: inline-block;
+}
+.camera-dropdown .mui-select__menu {
+  display: block !important;
+}
+
 .footer {
   padding-bottom: 50px;
   margin-top: 0;
