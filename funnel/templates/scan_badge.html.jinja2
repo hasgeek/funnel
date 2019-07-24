@@ -22,13 +22,22 @@
     {% raw %}
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper scanner-wrapper--center">
-          <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay muted></video>
+          <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
           {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
           {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
           {{#if video}}
+          <div>
+            <div class="mui-select mui--d-inlineblock">
+              <select value='{{selectedCamera}}' class="mui--d-inlineblock">
+                {{#cameras}}
+                  <option value='{{value}}'>{{label}}</option>
+                {{/cameras}}
+              </select>
+            </div>
             <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="switchCamera(event)">Switch camera</button></p>
+          </div>
           {{/if}}
         </div>
 

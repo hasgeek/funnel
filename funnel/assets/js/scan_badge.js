@@ -20,6 +20,8 @@ const badgeScan = {
         showModal: false,
         timerId: '',
         facingMode: true,
+        cameras: [],
+        selectedCamera: '',
       },
       closeModal(event) {
         if (event) event.original.preventDefault();
@@ -73,7 +75,8 @@ const badgeScan = {
       },
       stopRenderFrameLoop(event) {
         if(event) event.original.preventDefault();
-        window.cancelAnimationFrame(this.get('timerId'));
+        let timerId = this.get('timerId');
+        if(timerId) window.cancelAnimationFrame(timerId);
         this.set('timerId', '');
       },
       verifyQRDecode(qrcode) {
@@ -100,11 +103,25 @@ const badgeScan = {
           this.startRenderFrameLoop();
         }
       },
+      stopVideo() {
+        let stream = this.get('video').srcObject;
+        if (typeof stream !== 'undefined') {
+          stream.getTracks().forEach(track => {
+            track.stop();
+          });
+        }
+      },
       setupVideo() {
         let video = document.getElementById('qrreader');
         let canvasElement = document.createElement('canvas');
         let canvas = canvasElement.getContext("2d");
-        let constraints = { video: { facingMode: (badgeScanComponent.get('facingMode') ? "user" : "environment") } };
+        let videoConstraints = {};
+        if (this.get('selectedCamera') === '') {
+          videoConstraints.facingMode = 'environment';
+        } else {
+          videoConstraints.deviceId = { exact: this.get('selectedCamera') };
+        }
+        let constraints = { video: videoConstraints, audio: false };
         console.log('constraints', constraints);
 
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
@@ -119,11 +136,20 @@ const badgeScan = {
       switchCamera(event) {
         event.original.preventDefault();
         this.stopRenderFrameLoop();
-        this.set('facingMode', !this.get('facingMode'));
+        this.stopVideo();
         this.setupVideo();
       },
+      getCameras(mediaDevices) {
+        let count = 0;
+        mediaDevices.forEach(mediaDevice => {
+          if (mediaDevice.kind === 'videoinput') {
+            badgeScanComponent.push('cameras', {'value': mediaDevice.deviceId, 'label': mediaDevice.label || `Camera ${count+1}`});
+          }
+        });
+        badgeScanComponent.setupVideo();
+      },
       oncomplete() {
-        this.setupVideo();
+        navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getCameras);
         this.renderFrame = this.renderFrame.bind(this);
       }
     });
