@@ -447,7 +447,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         current_sessions = (
             self.sessions
             .filter(Session.scheduled)
-            .filter(db.or_(Session.start_at < now, Session.start_at <= now + timedelta(minutes=15)))
+            .filter(Session.start_at <= now + timedelta(minutes=15))
             .filter(Session.end_at > now)
             .order_by(Session.start_at.asc())
         )
