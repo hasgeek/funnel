@@ -91,7 +91,7 @@ def schedule_data(project):
             'speaker_bio': session.speaker_bio,
             'speaker_bio_text': session.speaker_bio_text,
         })
-    schedule = {'days': []}
+    schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
         for slot in sorted(data[day]):
@@ -99,18 +99,8 @@ def schedule_data(project):
                 'slot': slot,
                 'sessions': data[day][slot]
             })
-        schedule['days'].append(daydata)
+        schedule.append(daydata)
 
-    now = utcnow().astimezone(project.timezone)
-    current_sessions = (
-        Session.query
-        .filter(Session.project == project)
-        .filter(Session.scheduled)
-        .filter(db.or_(Session.start_at < now, Session.start_at < now + timedelta(minutes=15)))
-        .filter(Session.end_at > now)
-        .order_by(Session.start_at.asc())
-    )
-    schedule['current_sessions'] = [session_data(session) for session in current_sessions]
     return schedule
 
 

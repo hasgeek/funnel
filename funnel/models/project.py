@@ -187,7 +187,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
                 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks',
-                'primary_venue'
+                'primary_venue', 'current_sessions'
             },
             'call': {
                 'url_for',
@@ -435,6 +435,23 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 format_date(day, 'EEEEE', locale=get_locale()) for day in Week.thisweek().days()
             ]
         }
+
+    @property
+    def current_sessions(self):
+        from ..models import Session
+        now = utcnow().astimezone(self.timezone)
+
+        if self.schedule_start_at is None or self.schedule_start_at > now + timedelta(minutes=15):
+            return
+
+        current_sessions = (
+            self.sessions
+            .filter(Session.scheduled)
+            .filter(db.or_(Session.start_at < now, Session.start_at <= now + timedelta(minutes=15)))
+            .filter(Session.end_at > now)
+            .order_by(Session.start_at.asc())
+        )
+        return [session.current_access() for session in current_sessions]
 
     @property
     def rooms(self):
