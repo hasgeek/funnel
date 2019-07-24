@@ -36,7 +36,7 @@
             clear: both;
             padding-top: 15px;
             padding-bottom: 15px;
-            word-break: break-all;
+            word-break: break-word;
 
             img {
               width: 100%;
@@ -94,9 +94,10 @@
       position: -webkit-sticky;
       top: 62px;
       order: 1;
-      z-index: 5;
+      z-index: 10001;
       border: none;
       display: flex;
+      box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
 
       .schedule__row__column--header {
         display: flex !important;

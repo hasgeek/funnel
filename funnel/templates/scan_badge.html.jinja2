@@ -1,31 +1,45 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html" import renderfield %}
-{% block title %}{{ project.title }}{% endblock %}
+{% block title %}{{ event.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
 
-{% block top_title %}
-  <h1 class="mui--text-display1">{{ project.title|e }}</h1>
-  <p class="mui--text-body1"><a href="{{ project.url_for('events') }}" title="Setup events for check-in"><i class="material-icons mui--text-body2 mui--align-bottom" aria-hidden="true">keyboard_backspace</i> {% trans %}Back to setup events{% endtrans %}</a></p>
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-header">
+  {%- else %}
+    <body class="mui--bg-primary no-header">
+  {%- endif %}
 {% endblock %}
 
-{% block content %}
-  <div class="grid" id="scan-badge-wrapper">
+{% block headline -%}
+{%- endblock %}
+
+{% block basecontentbox %}
+  <div id="scan-badge-wrapper">
     {% raw %}
       <script id='scan-badge-template' type='text/ractive'>
-        <div class="grid__col-xs-12 grid__col-lg-4">
-          <h3 class="mui--text-title">{{ eventTitle }}</h3>
-          {{#if video}}
-            <h4 class="mui--text-subhead">Please scan your badge to check-in</h4>
-            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
-          {{elseif error}}
+        <div class="scanner-wrapper scanner-wrapper--center">
+          <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
+          {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
-        </div>
-
-        <div class="grid__col-xs-12 grid__col-lg-8">
-          <canvas id="qrreader-canvas"></canvas>
+          {{#if video}}
+          <div>
+            <div class="mui-select camera-dropdown">
+              <select value='{{selectedCamera}}' class="mui--d-inlineblock">
+                <option value=''>Select camera</option>
+                {{#cameras}}
+                  <option value='{{value}}'>{{label}}</option>
+                {{/cameras}}
+              </select>
+            </div>
+            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="switchCamera(event)">Switch camera</button></p>
+          </div>
+          {{/if}}
         </div>
 
         {{#if showModal}}

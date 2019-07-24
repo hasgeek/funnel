@@ -41,8 +41,8 @@
     <div id="scan-badge-wrapper">
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper">
-          <canvas id="qrreader-canvas" class="scanner-wrapper__camera"></canvas>
-          {{#if showOverlay}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          <video id="qrreader" class="scanner-wrapper__camera"></video>
+          {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
           {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
@@ -51,13 +51,12 @@
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
             <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><i class="material-icons">clear</i></a>
-            <h3 class="mui--text-title">Scanned contacts</h3>
           </div>
           <div class="modal__body">
             {{#if scanning}}
               <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
             {{elseif contactFound}}
-              <h3>{{ contact.fullname }}</h3>
+              <h3 class="mui--text-title mui--text-bold">{{ contact.fullname }}</h3>
               <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.email }}</p>
               {{#if contact.phone }}
                 <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.phone }}</p>
@@ -68,6 +67,7 @@
               {{#if contact.company }}
                 <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.company }}</p>
               {{/if}}
+              <p class="mui--text-body1"><i>This contact has been added to contacts tab in the account page</i></p>
             {{else}}
               <h4 class="mui--text-danger">{{ errorMsg }}</h4>
             {{/if}}
@@ -86,20 +86,20 @@
                 <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
                 <div class="mui--pull-right contact-card__details">
                   <div class="mui--clearfix">
-                    <h3 class="mui--text-title mui--text-bold mui--pull-left">{{ contacts[i].fullname }}</h3>
+                    <div class="mui--pull-left">
+                      <h3 class="mui--text-title mui--text-bold">{{ contacts[i].fullname }}</h3>
+                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
+                      {{#if contacts[i].phone }}
+                        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
+                      {{/if}}
+                      {{#if contacts[i].twitter }}
+                        <p>{{ contacts[i].twitter }}</p>
+                      {{/if}}
+                      {{#if contacts[i].company }}
+                        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
+                      {{/if}}
+                    </div>
                     <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><i class="material-icons  mui--align-middle">person_add</i></a>
-                  </div>
-                  <div class="card__body card__body--lgtext mui--text-subhead">
-                    <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
-                    {{#if contacts[i].phone }}
-                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
-                    {{/if}}
-                    {{#if contacts[i].twitter }}
-                      <p>{{ contacts[i].twitter }}</p>
-                    {{/if}}
-                    {{#if contacts[i].company }}
-                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
-                    {{/if}}
                   </div>
                 </div>
               </div>

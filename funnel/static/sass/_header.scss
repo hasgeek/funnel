@@ -335,6 +335,20 @@ and (orientation: landscape) {
   top: -6px;
 }
 
+@media(max-width: 1199px) {
+ .no-header {
+    .header {
+      display: none;
+    }
+    .content-wrapper {
+      padding-top: 0;
+    }
+    .footer {
+      display: none;
+    }
+  } 
+}
+
 .sub-navbar {
   .sub-navbar__item {
     display: block;
@@ -518,7 +532,7 @@ and (orientation: landscape) {
     z-index: 1000;
     background: #fff;
     min-width: auto;
-    padding: 15px 5px;
+    padding: 15px 5px 14px;
     align-self: center;
 
     .tabs__item-control__icon {
