@@ -490,6 +490,17 @@ html.touch .collapsible__body--disable {
   top: -6px;
 }
 
+@media (max-width: 1199px) {
+  .no-header .header {
+    display: none;
+  }
+  .no-header .content-wrapper {
+    padding-top: 0;
+  }
+  .no-header .footer {
+    display: none;
+  }
+}
 .sub-navbar .sub-navbar__item {
   display: block;
   padding: 15px;
@@ -649,7 +660,7 @@ html.touch .collapsible__body--disable {
   z-index: 1000;
   background: #fff;
   min-width: auto;
-  padding: 15px 5px;
+  padding: 15px 5px 14px;
   align-self: center;
 }
 .tabs .tabs__item-control .tabs__item-control__icon {
@@ -1965,7 +1976,7 @@ html.touch .collapsible__body--disable {
   clear: both;
   padding-top: 15px;
   padding-bottom: 15px;
-  word-break: break-all;
+  word-break: break-word;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__description img {
   width: 100%;
@@ -2008,9 +2019,10 @@ html.touch .collapsible__body--disable {
   position: -webkit-sticky;
   top: 62px;
   order: 1;
-  z-index: 5;
+  z-index: 10001;
   border: none;
   display: flex;
+  box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {
   display: flex !important;
@@ -2328,21 +2340,8 @@ body > .proposal-box.ui-draggable {
   text-align: center;
 }
 .scanner-wrapper .scanner-wrapper__camera {
+  width: 100vh;
   max-width: 100% !important;
-}
-.scanner-wrapper .scanner-wrapper__badge {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  display: block;
-  z-index: 1000;
-  visibility: hidden;
-  max-width: 100% !important;
-}
-.scanner-wrapper .scanner-wrapper__badge--show {
-  visibility: visible;
 }
 .scanner-wrapper .scanner-wrapper__badge--icon {
   position: absolute;
@@ -2370,11 +2369,11 @@ body > .proposal-box.ui-draggable {
     text-align: left;
     width: auto;
   }
-  .scanner-wrapper .scanner-wrapper__badge {
-    top: 32px;
-    left: 32px;
-    right: auto;
-    margin: 0;
+
+  .scanner-wrapper--center {
+    float: none;
+    margin: auto;
+    text-align: center;
   }
 
   .scanned-contacts {
@@ -2383,6 +2382,13 @@ body > .proposal-box.ui-draggable {
     padding: 32px;
   }
 }
+.camera-dropdown {
+  display: inline-block;
+}
+.camera-dropdown .mui-select__menu {
+  display: block !important;
+}
+
 .footer {
   padding-bottom: 50px;
   margin-top: 0;
