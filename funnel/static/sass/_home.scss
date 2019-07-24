@@ -127,9 +127,6 @@
 }
 
 .spotlight-schedule-card {
-  height: 531px;
-  overflow: scroll;
-
   .tabs-wrapper--sticky {
     top: 0;
   }
@@ -137,12 +134,11 @@
   .current-schedule__session {
     padding: 15px 15px 0;
     height: 100%;
-    display: none;
 
     .current-schedule__session__duration {
       position: -webkit-sticky;
       position: sticky;
-      top: 75px;
+      top: 40px;
       color: #E05F26;
       z-index: 4;
       background-color: #F9FAFC;
@@ -157,8 +153,18 @@
       margin: 15px 0 0;
     }
   }
-  .current-schedule__session--active {
-    display: block;
+}
+
+@media(max-width: 767px) {
+  .spotlight-schedule-card {
+    height: auto !important;
+  }
+}
+
+@media(min-width: 768px) {
+  .spotlight-schedule-card {
+    height: 531px;
+    overflow: scroll;
   }
 }
 

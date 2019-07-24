@@ -511,6 +511,7 @@ and (orientation: landscape) {
     margin: 0;
     text-align: center;
     cursor: pointer;
+    flex: 0 0 auto;
   }
 
   .tabs__item--width {
