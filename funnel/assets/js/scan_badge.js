@@ -116,6 +116,7 @@ const badgeScan = {
         let canvasElement = document.createElement('canvas');
         let canvas = canvasElement.getContext("2d");
         let videoConstraints = {};
+        console.log('selectedCamera', this.get('selectedCamera'))
         if (this.get('selectedCamera') === '') {
           videoConstraints.facingMode = 'environment';
         } else {
@@ -131,6 +132,7 @@ const badgeScan = {
           this.set('canvasElement', canvasElement);
           this.set('canvas', canvas);
           this.startRenderFrameLoop();
+          navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getCameras);
         });
       },
       switchCamera(event) {
@@ -142,14 +144,15 @@ const badgeScan = {
       getCameras(mediaDevices) {
         let count = 0;
         mediaDevices.forEach(mediaDevice => {
+          console.log('mediaDevice', mediaDevice);
           if (mediaDevice.kind === 'videoinput') {
+            console.log('mediadevice', mediaDevice.deviceId, mediaDevice.label);
             badgeScanComponent.push('cameras', {'value': mediaDevice.deviceId, 'label': mediaDevice.label || `Camera ${count+1}`});
           }
         });
-        badgeScanComponent.setupVideo();
       },
       oncomplete() {
-        navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getCameras);
+        this.setupVideo();
         this.renderFrame = this.renderFrame.bind(this);
       }
     });
