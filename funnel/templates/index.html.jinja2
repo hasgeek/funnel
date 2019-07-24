@@ -70,16 +70,13 @@
     <div class="mui-container">
       <div class="grid">
         {% if featured_project %}
-        <div class="grid__col-xs-12 grid__col-md-4 grid__col-lg-5 spotlight">
+        <div class="grid__col-xs-12 {% if featured_project.current_sessions %}grid__col-sm-6{% endif %} grid__col-md-4 grid__col-lg-5 spotlight">
           <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">Spotlight</h2>
           <div class="grid__cell">
-            <a class="card card--small clickable-card spotlight__card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
+            <a class="card clickable-card spotlight__card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
-                  <img class="card__image js-lazyload-img" data-src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
-                  <noscript>
-                    <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
-                  </noscript>
+                  <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
                 {% else %}
                   <div class="card__image--default">
                     <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
@@ -113,7 +110,7 @@
                           </div>
                           <div class="calendar__weekdays__dates">
                             {% for date in week.dates %}
-                              <p class="calendar__weekdays__dates__date {% if date[2] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date[0] == featured_project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
+                              <p class="calendar__weekdays__dates__date {% if date[0] == featured_project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %} {% if date[2] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
                             {% endfor %}
                             {% if loop.index == 1 %}
                               {% set year = '' -%}
@@ -143,8 +140,33 @@
           </div>
         </div>
         {% endif %}
+        {% if featured_project.current_sessions.sessions %}
+          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-7">
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">Right now at {{featured_project.title}}</h2>
+            <div class="card spotlight-schedule-card js-schedule-card">
+            <div class="tabs-wrapper tabs-wrapper--sticky mui--bg-primary">
+              <div class="tabs" id="scrollable-tabs">
+                {% for room in featured_project.current_sessions.rooms %}
+                  <a class="tabs__item tabs__item--width {% if featured_project.current_sessions.sessions[0].venue_room.id == room.id %}tabs__item--active{% endif %} js-room mui--text-body1 mui--text-light mui--text-uppercase" data-room="{{room.id}}">{{room.title}}</a>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="current-schedule">
+              {% for session in featured_project.current_sessions.sessions %}
+                <div class="current-schedule__session {% if featured_project.current_sessions.sessions[0].venue_room.id == session.venue_room.id %}current-schedule__session--active{% endif %} js-schedule-session" data-room="{{session.venue_room.id}}">
+                  <p class="mui--text-body1 current-schedule__session__duration">{{ session.start_at.strftime('%H-%M') }}–{{ session.end_at.strftime('%H-%M') }}</p>
+                  <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</p>
+                  <p class="mui--text-body1">{{ session.speaker }}</p>
+                  <div class="mui--text-body1">{{ session.description.html }}</div>
+                  <hr calss="current-schedule__session__separator">
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          </div>
+        {% endif %}
         {% if upcoming_projects|length > 0 %}
-        <div class="grid__col-xs-12 grid__col-md-8 grid__col-lg-7 upcoming">
+        <div class="grid__col-xs-12 {% if not featured_project.current_sessions.sessions %}grid__col-md-8 grid__col-lg-7 upcoming{% endif %}">
           <h2 class="mui--text-title mui--text-light mui--text-uppercase">Upcoming</h2>
           <ul class="mui-list--unstyled" role="list">
           {% for project in upcoming_projects %}
@@ -461,4 +483,26 @@
     </div>
   {% endif %}
 
+{% endblock %}
+
+{% block footerscripts %}
+  <script type="text/javascript">
+    $(function() {
+      // Set the spotlight calendar to the height of card
+      $(window).on('load', function() {
+        if($('.js-schedule-card')) {
+          $('.js-schedule-card').height($('.spotlight__card').height());
+        }
+      });
+
+      // Spotlight schedule tabs
+      $('.js-room').click(function() {
+        $('.js-room').removeClass('tabs__item--active');
+        $(this).addClass('tabs__item--active');
+        $('.js-schedule-session').removeClass('current-schedule__session--active');
+        var room = $(this).data('room');
+        $(".js-schedule-session[data-room='" + room + "']").addClass('current-schedule__session--active');
+      })
+    });
+  </script>
 {% endblock %}

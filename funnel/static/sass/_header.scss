@@ -499,6 +499,10 @@ and (orientation: landscape) {
     cursor: pointer;
   }
 
+  .tabs__item--width {
+    min-width: auto;
+  }
+
   .tabs__item:hover,
   .tabs__item:focus {
     text-decoration: none;
