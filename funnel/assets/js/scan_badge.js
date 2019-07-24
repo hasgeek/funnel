@@ -107,7 +107,7 @@ const badgeScan = {
         let faceMode = this.get('facingMode') ? 'environment' : 'user';
         console.log('faceMode', faceMode);
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: faceMode || { exact: faceMode } }}).then((stream) => {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: faceMode }}).then((stream) => {
           this.set('video', video);
           this.get('video').srcObject = stream;
           this.get('video').play();

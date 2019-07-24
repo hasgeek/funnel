@@ -22,7 +22,7 @@
     {% raw %}
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper scanner-wrapper--center">
-          <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay muted"></video>
+          <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay muted></video>
           {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
           {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
