@@ -104,10 +104,10 @@ const badgeScan = {
         let video = document.getElementById('qrreader');
         let canvasElement = document.createElement('canvas');
         let canvas = canvasElement.getContext("2d");
-        let faceMode = this.get('facingMode') ? 'environment' : 'user';
-        console.log('faceMode', faceMode);
+        let constraints = { video: { facingMode: (badgeScanComponent.get('facingMode') ? "user" : "environment") } };
+        console.log('constraints', constraints);
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode:  {exact: faceMode} }}).then((stream) => {
+        navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
           this.set('video', video);
           this.get('video').srcObject = stream;
           this.get('video').play();
