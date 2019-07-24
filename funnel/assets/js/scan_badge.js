@@ -104,12 +104,12 @@ const badgeScan = {
         let video = document.getElementById('qrreader');
         let canvasElement = document.createElement('canvas');
         let canvas = canvasElement.getContext("2d");
-        let faceMode = this.get('facingMode') ? 'user' : 'environment';
+        let faceMode = this.get('facingMode') ? 'environment' : 'user';
+        console.log('faceMode', faceMode);
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: faceMode }}).then((stream) => {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: faceMode || { exact: faceMode } }}).then((stream) => {
           this.set('video', video);
           this.get('video').srcObject = stream;
-          this.get('video').setAttribute("playsinline", true);
           this.get('video').play();
           this.set('canvasElement', canvasElement);
           this.set('canvas', canvas);
@@ -120,7 +120,6 @@ const badgeScan = {
         event.original.preventDefault();
         this.stopRenderFrameLoop();
         this.set('facingMode', !this.get('facingMode'));
-        console.log(this.get('facingMode'));
         this.setupVideo();
       },
       oncomplete() {

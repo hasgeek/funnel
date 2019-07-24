@@ -660,7 +660,7 @@ html.touch .collapsible__body--disable {
   z-index: 1000;
   background: #fff;
   min-width: auto;
-  padding: 15px 5px;
+  padding: 15px 5px 14px;
   align-self: center;
 }
 .tabs .tabs__item-control .tabs__item-control__icon {
@@ -1976,7 +1976,7 @@ html.touch .collapsible__body--disable {
   clear: both;
   padding-top: 15px;
   padding-bottom: 15px;
-  word-break: break-all;
+  word-break: break-word;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__description img {
   width: 100%;
@@ -2019,9 +2019,10 @@ html.touch .collapsible__body--disable {
   position: -webkit-sticky;
   top: 62px;
   order: 1;
-  z-index: 5;
+  z-index: 10001;
   border: none;
   display: flex;
+  box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {
   display: flex !important;
