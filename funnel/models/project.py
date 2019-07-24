@@ -451,7 +451,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             .filter(Session.end_at > now)
             .order_by(Session.start_at.asc())
         )
-        return [session.current_access() for session in current_sessions]
+
+        return {
+            'sessions': [session.current_access() for session in current_sessions],
+            'rooms': [room.current_access() for room in self.rooms]
+        }
 
     @property
     def rooms(self):
