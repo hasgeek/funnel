@@ -132,7 +132,7 @@ const badgeScan = {
           this.set('canvasElement', canvasElement);
           this.set('canvas', canvas);
           this.startRenderFrameLoop();
-          navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getCameras);
+          if(this.get('cameras').length === 0) navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getDeviceCameras);
         });
       },
       switchCamera(event) {
@@ -141,7 +141,7 @@ const badgeScan = {
         this.stopVideo();
         this.setupVideo();
       },
-      getCameras(mediaDevices) {
+      getDeviceCameras(mediaDevices) {
         let count = 0;
         mediaDevices.forEach(mediaDevice => {
           console.log('mediaDevice', mediaDevice);
