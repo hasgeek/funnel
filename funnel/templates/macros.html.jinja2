@@ -70,6 +70,9 @@
             <a href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" arial-label="Email this" title="Email this"><i class="material-icons mui--text-headline mui--text-light" aria-hidden="true">email</i></a>
           </div>
         </div>
+        {% if project.cfp_state.OPEN -%}
+          <p><a class="mui-btn mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a></p>
+        {%- endif %}
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
           <div class="card__calendar">
             <div class="calendar">
