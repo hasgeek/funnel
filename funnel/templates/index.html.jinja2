@@ -65,12 +65,12 @@
 {% endblock %}
 
 {% block basecontent %}
-  {% if featured_project or upcoming_projects|length > 0 %}
+  {% if featured_project or upcoming_projects|length > 0 %}{% with current_sessions = featured_project.current_sessions() %}
   <div class="projects-wrapper">
     <div class="mui-container">
       <div class="grid">
         {% if featured_project %}
-        <div class="grid__col-xs-12 {% if featured_project.current_sessions %}grid__col-sm-6{% endif %} grid__col-md-4 grid__col-lg-5 spotlight">
+        <div class="grid__col-xs-12 {% if current_sessions %}grid__col-sm-6{% endif %} grid__col-md-4 grid__col-lg-5 spotlight">
           <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">Spotlight</h2>
           <div class="grid__cell">
             <a class="card clickable-card spotlight__card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
@@ -140,12 +140,12 @@
           </div>
         </div>
         {% endif %}
-        {% if featured_project.current_sessions.sessions %}
+        {% if current_sessions.sessions %}
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-8 grid__col-lg-7">
             <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">Right now at {{featured_project.title}}</h2>
             <div class="card spotlight-schedule-card js-schedule-card">
               <div class="current-schedule">
-                {% for session in featured_project.current_sessions.sessions %}
+                {% for session in current_sessions.sessions %}
                   <div class="current-schedule__session">
                     <p class="mui--text-body1 current-schedule__session__duration">{{ session.start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}–{{ session.end_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
                     <p class="mui--text-title mui--text-bold zero-bottom-margin">{{ session.title }}</p>
@@ -160,7 +160,7 @@
           </div>
         {% endif %}
         {% if upcoming_projects|length > 0 %}
-        <div class="grid__col-xs-12 {% if not featured_project.current_sessions.sessions %}grid__col-md-8 grid__col-lg-7 upcoming{% endif %}">
+        <div class="grid__col-xs-12 {% if not current_sessions.sessions %}grid__col-md-8 grid__col-lg-7 upcoming{% endif %}">
           <h2 class="mui--text-title mui--text-light mui--text-uppercase">Upcoming</h2>
           <ul class="mui-list--unstyled" role="list">
           {% for project in upcoming_projects %}
@@ -234,7 +234,7 @@
       </div>
     </div>
   </div>
-  {% endif %}
+  {% endwith %}{% endif %}
 
   {% if open_cfp_projects %}
     <div class="projects-wrapper mui--bg-accent">

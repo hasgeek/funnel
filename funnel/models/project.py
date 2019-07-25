@@ -187,10 +187,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'id', 'name', 'title', 'datelocation', 'timezone', 'schedule_start_at', 'schedule_end_at', 'url_json',
                 'website', 'bg_image', 'bg_color', 'explore_url', 'tagline', 'absolute_url', 'location', 'calendar_weeks',
-                'primary_venue', 'current_sessions'
+                'primary_venue',
             },
             'call': {
-                'url_for',
+                'url_for', 'current_sessions',
             }
         }
     }
@@ -436,18 +436,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             ]
         }
 
-    @property
     def current_sessions(self):
-        from ..models import Session
         now = utcnow().astimezone(self.timezone)
 
-        if self.schedule_start_at is None or self.schedule_start_at > now + timedelta(minutes=15):
+        if self.schedule_start_at is None or self.schedule_start_at > now + timedelta(minutes=30):
             return
 
         current_sessions = (
             self.sessions
             .filter(Session.scheduled)
-            .filter(Session.start_at <= now + timedelta(minutes=15))
+            .filter(Session.start_at <= now + timedelta(minutes=30))
             .filter(Session.end_at > now)
             .order_by(Session.start_at.asc())
         )
@@ -660,3 +658,7 @@ class ProjectLocation(TimestampMixin, db.Model):
     def __repr__(self):
         return '<ProjectLocation %d %s for project %s>' % (
             self.geonameid, 'primary' if self.primary else 'secondary', self.project)
+
+
+# Tail imports
+from .session import Session  # isort:skip
