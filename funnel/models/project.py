@@ -444,10 +444,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         current_sessions = (
             self.sessions
+            .join(VenueRoom)
             .filter(Session.scheduled)
             .filter(Session.start_at <= now + timedelta(minutes=30))
             .filter(Session.end_at > now)
-            .order_by(Session.start_at.asc())
+            .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
         )
 
         return {
@@ -661,4 +662,4 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 
 # Tail imports
-from .session import Session  # isort:skip
+from .session import Session, VenueRoom  # isort:skip
