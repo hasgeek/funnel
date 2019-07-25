@@ -662,4 +662,5 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 
 # Tail imports
-from .session import Session, VenueRoom  # isort:skip
+from .session import Session  # isort:skip
+from .venue import VenueRoom  # isort:skip
