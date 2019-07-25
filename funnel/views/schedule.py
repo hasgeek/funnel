@@ -23,8 +23,8 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp, lastuser
-from ..forms import ProjectScheduleTransitionForm
-from ..models import Session, db
+from ..forms import ProjectScheduleTransitionForm, SavedProjectForm
+from ..models import Proposal, Session, db
 from .decorators import legacy_redirect
 from .helpers import localize_date
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
@@ -48,14 +48,14 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
             'proposal_id': session.proposal_id,
             'speaker_bio': session.speaker_bio,
             'description': session.description,
-            }.items()
+        }.items()
         + dict({
             'modal_url': session.url_for(with_modal_url)
-            } if with_modal_url else {}).items()
+        } if with_modal_url else {}).items()
         + dict({
             'delete_url': session.url_for('delete')
-            } if with_delete_url else {}).items()
-        )
+        } if with_delete_url else {}).items()
+    )
 
 
 def session_list_data(sessions, with_modal_url=False, with_delete_url=False):
@@ -90,7 +90,7 @@ def schedule_data(project):
             'description': session.description,
             'speaker_bio': session.speaker_bio,
             'speaker_bio_text': session.speaker_bio_text,
-            })
+        })
     schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
@@ -98,8 +98,9 @@ def schedule_data(project):
             daydata['slots'].append({
                 'slot': slot,
                 'sessions': data[day][slot]
-                })
+            })
         schedule.append(daydata)
+
     return schedule
 
 
@@ -156,20 +157,29 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        return dict(project=self.obj,
-            from_date=date_js(self.obj.schedule_start_at),
-            to_date=date_js(self.obj.schedule_end_at),
-            sessions=session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
-            timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
-            venues=[venue.current_access() for venue in self.obj.venues],
-            rooms=dict([(room.scoped_name, {'title': room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]),
-            schedule_transition_form=schedule_transition_form)
+        project_save_form = SavedProjectForm()
+        return {
+            'project': self.obj,
+            'from_date': date_js(self.obj.schedule_start_at),
+            'to_date': date_js(self.obj.schedule_end_at),
+            'sessions': session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
+            'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'venues': [venue.current_access() for venue in self.obj.venues],
+            'rooms': {
+                room.scoped_name: {
+                    'title': room.title,
+                    'bgcolor': room.bgcolor
+                } for room in self.obj.rooms
+            },
+            'schedule_transition_form': schedule_transition_form,
+            'project_save_form': project_save_form
+        }
 
     @route('subscribe')
     @render_with('schedule_subscribe.html.jinja2')
     @requires_permission('view')
     def subscribe_schedule(self):
-        return dict(project=self.obj, venues=self.obj.venues, rooms=self.obj.rooms)
+        return {'project': self.obj, 'venues': self.obj.venues, 'rooms': self.obj.rooms}
 
     @route('json')
     @cors('*')
@@ -203,14 +213,24 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'unscheduled': [{
                 'title': proposal.title,
                 'modal_url': proposal.url_for('schedule')
-                } for proposal in self.obj.proposals_all if proposal.state.CONFIRMED and not proposal.state.SCHEDULED],
+            } for proposal in self.obj.proposals_all.filter(Proposal.state.CONFIRMED).order_by(Proposal.title) if not proposal.state.SCHEDULED],
             'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
+        }
+        return {
+            'project': self.obj,
+            'proposals': proposals,
+            'from_date': date_js(self.obj.schedule_start_at),
+            'to_date': date_js(self.obj.schedule_end_at),
+            'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'venues': [venue.current_access() for venue in self.obj.venues],
+            'rooms': {
+                room.scoped_name: {
+                    'title': room.title,
+                    'vtitle': room.venue.title + " - " + room.title,
+                    'bgcolor': room.bgcolor
+                } for room in self.obj.rooms
             }
-        return dict(project=self.obj, proposals=proposals,
-            from_date=date_js(self.obj.schedule_start_at), to_date=date_js(self.obj.schedule_end_at),
-            timezone=self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
-            venues=[venue.current_access() for venue in self.obj.venues],
-            rooms=dict([(room.scoped_name, {'title': room.title, 'vtitle': room.venue.title + " - " + room.title, 'bgcolor': room.bgcolor}) for room in self.obj.rooms]))
+        }
 
     @route('update', methods=['POST'])
     @render_with('schedule_edit.html.jinja2')
@@ -225,7 +245,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 s.end_at = session['end_at']
                 db.session.commit()
             except NoResultFound:
-                current_app.logger.error('{project} schedule update error: session = {session}'.format(project=self.obj.name, session=session))
+                current_app.logger.error('%s schedule update error: session = %s', project=self.obj.name, session=session)
         return jsonify(status=True)
 
 
@@ -250,13 +270,13 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             room=self.obj.title,
             venue=self.obj.venue.title,
             event=self.obj.venue.project.title,
-            ))
+        ))
         cal.add('version', "2.0")
         cal.add('summary', "Schedule for room {room} at {venue} for {event}".format(
             room=self.obj.title,
             venue=self.obj.venue.title,
             event=self.obj.venue.project.title,
-            ))
+        ))
         # Last updated time for calendar needs to be set. Cannot figure out how.
         # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
         # cal.add('last-modified', latest_session[0])
@@ -264,7 +284,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             room=self.obj.title,
             venue=self.obj.venue.title,
             event=self.obj.venue.project.title,
-            ))
+        ))
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
         return Response(cal.to_ical(), mimetype='text/calendar')
@@ -278,12 +298,12 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             Session.start_at <= now, Session.end_at >= now,
             Session.project == self.obj.venue.project,
             db.or_(Session.venue_room == room, Session.is_break == True)  # NOQA
-            ).first()
+        ).first()
         next_session = Session.query.filter(
             Session.start_at > now,
             db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
             Session.project == self.obj.venue.project
-            ).order_by(Session.start_at).first()
+        ).order_by(Session.start_at).first()
         if current_session:
             current_session.start_at = localize_date(current_session.start_at, to_tz=self.obj.venue.project.timezone)
             current_session.end_at = localize_date(current_session.end_at, to_tz=self.obj.venue.project.timezone)
@@ -293,7 +313,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             next_session.end_at = localize_date(next_session.end_at, to_tz=self.obj.venue.project.timezone)
             nextdiff = next_session.start_at.date() - now.date()
             nextdiff = nextdiff.total_seconds() / 86400
-        return dict(room=self.obj, current_session=current_session, next_session=next_session, nextdiff=nextdiff)
+        return {'room': self.obj, 'current_session': current_session, 'next_session': next_session, 'nextdiff': nextdiff}
 
 
 @route('/<project>/schedule/<venue>/<room>', subdomain='<profile>')

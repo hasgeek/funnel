@@ -81,9 +81,11 @@
               <td class='js-searchable' data-th="Company">{{ company }}</td>
               <td class='buttongrp-column'>
                 <ul class="mui-list--unstyled">
+                  {{#if isAdmin}}
                   <li>
                     <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
                   </li>
+                  {{/if}}
                   <li>
                     <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ pid }}">
                       <div style="display:none;">
@@ -91,9 +93,9 @@
                       </div>
                       <input type="hidden" name="pid" value="{{ pid }}">
                       {{#if checked_in}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} arial-label="Cancel Check-in">Cancel Check-in  {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i>{{/submitting}}</button>
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} arial-label="Cancel Check-in">Cancel Check-in  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                       {{else}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} arial-label=" Check-in">Check-in {{#submitting}}<i class="material-icons mui--text-title mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i>{{/submitting}}</button>
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} arial-label=" Check-in">Check-in {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                       {{/if}}
                       {{#if submitting}}
                         {{#if checked_in}}

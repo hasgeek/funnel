@@ -1,4 +1,4 @@
-import {Utils} from './util';
+import { Utils, SaveProject } from './util';
 import Ractive from "ractive";
 
 const Schedule = {
@@ -32,8 +32,12 @@ const Schedule = {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
         getColumnWidth(columnType) {
-          if (columnType === 'header' || this.get('width') > 767) {
-            return (this.get('timeSlotWidth')/this.get('rowWidth'));
+          if (columnType === 'header' || this.get('width') > 767 ) {
+            if (this.get('view') === 'calendar') {
+              return (this.get('timeSlotWidth')/this.get('rowWidth'));
+            } else {
+              return 0;
+            }
           } else {
             return 0;
           }
@@ -270,7 +274,11 @@ const Schedule = {
 };
 
 $(() => {
-  window.HasGeek.ScheduleInit = function (config) {
+  window.HasGeek.ScheduleInit = function (config, saveProjectConfig) {
     Schedule.init(config);
+
+    if (saveProjectConfig) {
+      SaveProject(saveProjectConfig);
+    }
   };
 });

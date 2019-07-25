@@ -119,7 +119,23 @@ export const ScrollActiveMenu = {
     });
 
     this.activeNavItem = '';
-    this.activateSwipe();
+
+    let observer = new IntersectionObserver(
+        entries => {
+        entries.forEach(entry => {
+          if(!entry.isIntersecting && entry.intersectionRatio > 0.9) {
+            $('#ticket-btn').addClass('sub-navbar__item--fixed');
+          } else if(entry.isIntersecting && entry.intersectionRatio === 1) {
+            $('#ticket-btn').removeClass('sub-navbar__item--fixed');
+          }
+        });
+      },
+      {
+        rootMargin: '0px',
+        threshold: 1
+      },
+    );
+    observer.observe(document.getElementById('page-navbar'));
   },
   handleObserver(entries) {
     entries.forEach(entry => {
@@ -137,39 +153,6 @@ export const ScrollActiveMenu = {
     $(`#${this.navId}`).animate({
       scrollLeft: activeNavItem.offsetLeft,
     }, 500);
-  },
-  activateSwipe() {
-    let start = {};
-    let end = {};
-    document.body.addEventListener('touchstart', (e) => {
-      start.x = e.changedTouches[0].clientX;
-      start.y = e.changedTouches[0].clientY;
-    });
-
-    document.body.addEventListener('touchend', (e) => {
-      end.y = e.changedTouches[0].clientY;
-      end.x = e.changedTouches[0].clientX;
-
-      let xDiff = end.x - start.x;
-      let yDiff = end.y - start.y;
-
-      if (Math.abs(xDiff) > Math.abs(yDiff)) {
-        if (xDiff > 0 && start.x <= 80) {
-          let prevEl = this.activeNavItem.previousElementSibling;
-          if(prevEl && prevEl.classList.contains(this.navItemsClassName)) {
-            prevEl.click();
-            this.setActiveNavItem(prevEl);
-          }
-        }
-        else {
-          let nextEl = this.activeNavItem.nextElementSibling;
-          if(nextEl&& nextEl.classList.contains(this.navItemsClassName)) {
-            nextEl.click();
-            this.setActiveNavItem(nextEl);
-          }
-        }
-      }
-    });
   },
 };
 
@@ -197,6 +180,28 @@ export const LazyloadImg = {
       }
     });
   },
+};
+
+export const SaveProject = function({formId, postUrl, config={}}) {
+  const onSuccess = function() {
+    $('#' + formId).find('button').css('display', 'inline-block').prop('disabled', false).toggleClass('mui--hide');
+  };
+
+  const onError = function(response) {
+    var errorMsg = '';
+    if (response.readyState === 4) {
+      if (response.status === 500) {
+        errorMsg ='Internal Server Error. Please reload and try again.';
+      } else {
+        errorMsg = JSON.parse(response.responseText).error_description;
+      }
+    } else {
+      errorMsg = 'Unable to connect. Please reload and try again.';
+    }
+    window.toastr.error(errorMsg);
+  };
+
+  window.Baseframe.Forms.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
 };
 
 export const TableSearch = function (tableId) {

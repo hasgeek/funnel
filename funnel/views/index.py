@@ -115,3 +115,8 @@ def sw():
 @app.route('/manifest.json', methods=['GET'])
 def manifest():
     return Response(render_template('manifest.json.jinja2'), mimetype='application/json')
+
+
+@app.route('/opensearch.xml')
+def opensearch():
+    return render_template('opensearch.xml.jinja2')
