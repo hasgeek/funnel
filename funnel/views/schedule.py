@@ -10,7 +10,6 @@ from flask import Response, current_app, json, jsonify, request
 
 from icalendar import Alarm, Calendar, Event
 
-from coaster.auth import current_auth
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -101,6 +100,7 @@ def schedule_data(project):
                 'sessions': data[day][slot]
             })
         schedule.append(daydata)
+
     return schedule
 
 

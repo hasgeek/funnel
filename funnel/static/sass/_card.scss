@@ -286,8 +286,9 @@
     }
 
     .calendar__weekdays__dates__date--today:after {
-      background-color: transparent ;
-      border: 1px solid #C0CCDA;
+      color: #1F2D3D;
+      color: HighlightText;
+      border: 1px solid #79818B;
     }
 
     .calendar__weekdays__dates__date--active .calendar__weekdays__dates__date__text {

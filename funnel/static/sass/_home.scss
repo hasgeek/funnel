@@ -125,3 +125,46 @@
     color: #F0A40C;
   }
 }
+
+.spotlight-schedule-card {
+  .tabs-wrapper--sticky {
+    top: 0;
+  }
+
+  .current-schedule__session {
+    padding: 15px 15px 0;
+    height: 100%;
+
+    .current-schedule__session__duration {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 40px;
+      color: #E05F26;
+      z-index: 4;
+      background-color: #F9FAFC;
+      float: right;
+      padding: 10px;
+      border-radius: 3px;
+      line-height: 1;
+      overflow-y: auto;
+    }
+
+    .current-schedule__session__separator {
+      margin: 15px 0 0;
+    }
+  }
+}
+
+@media(max-width: 767px) {
+  .spotlight-schedule-card {
+    height: auto !important;
+  }
+}
+
+@media(min-width: 768px) {
+  .spotlight-schedule-card {
+    height: 531px;
+    overflow: scroll;
+  }
+}
+
