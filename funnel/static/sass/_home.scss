@@ -134,6 +134,7 @@
   .current-schedule__session {
     padding: 15px 15px 0;
     height: 100%;
+    border-bottom: 1px solid rgba(132,146,166,0.3);
 
     .current-schedule__session__duration {
       position: -webkit-sticky;
@@ -148,10 +149,9 @@
       line-height: 1;
       overflow-y: auto;
     }
-
-    .current-schedule__session__separator {
-      margin: 15px 0 0;
-    }
+  }
+  .current-schedule__session:last-child {
+    border-bottom: none;
   }
 }
 
