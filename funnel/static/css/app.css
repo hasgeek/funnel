@@ -643,6 +643,10 @@ html.touch .collapsible__body--disable {
   margin: 0;
   text-align: center;
   cursor: pointer;
+  flex: 0 0 auto;
+}
+.tabs .tabs__item--width {
+  min-width: auto;
 }
 .tabs .tabs__item:hover,
 .tabs .tabs__item:focus {
@@ -808,6 +812,41 @@ html.touch .collapsible__body--disable {
   color: #F0A40C;
 }
 
+.spotlight-schedule-card .tabs-wrapper--sticky {
+  top: 0;
+}
+.spotlight-schedule-card .current-schedule__session {
+  padding: 15px 15px 0;
+  height: 100%;
+}
+.spotlight-schedule-card .current-schedule__session .current-schedule__session__duration {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 40px;
+  color: #E05F26;
+  z-index: 4;
+  background-color: #F9FAFC;
+  float: right;
+  padding: 10px;
+  border-radius: 3px;
+  line-height: 1;
+  overflow-y: auto;
+}
+.spotlight-schedule-card .current-schedule__session .current-schedule__session__separator {
+  margin: 15px 0 0;
+}
+
+@media (max-width: 767px) {
+  .spotlight-schedule-card {
+    height: auto !important;
+  }
+}
+@media (min-width: 768px) {
+  .spotlight-schedule-card {
+    height: 531px;
+    overflow: scroll;
+  }
+}
 .cfp-action-btn {
   padding: 10px 0;
   cursor: pointer;
@@ -1246,8 +1285,9 @@ html.touch .collapsible__body--disable {
   z-index: 1;
 }
 .calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--today:after {
-  background-color: transparent;
-  border: 1px solid #C0CCDA;
+  color: #1F2D3D;
+  color: HighlightText;
+  border: 1px solid #79818B;
 }
 .calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active .calendar__weekdays__dates__date__text {
   color: #1F2D3D;
