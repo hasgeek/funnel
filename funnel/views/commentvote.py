@@ -90,7 +90,6 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
             else:
                 comment = Comment(user=current_auth.user, commentset=self.obj.commentset,
                     message=commentform.message.data)
-                # other_commenters = [c.user.email for c in self.obj.commentset.comments.filter(Comment.state.PUBLIC)]
                 if commentform.parent_id.data:
                     parent = Comment.query.filter_by(suuid=commentform.parent_id.data).first_or_404()
                     if parent.user.email:  # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
