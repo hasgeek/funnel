@@ -818,6 +818,7 @@ html.touch .collapsible__body--disable {
 .spotlight-schedule-card .current-schedule__session {
   padding: 15px 15px 0;
   height: 100%;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 .spotlight-schedule-card .current-schedule__session .current-schedule__session__duration {
   position: -webkit-sticky;
@@ -832,8 +833,8 @@ html.touch .collapsible__body--disable {
   line-height: 1;
   overflow-y: auto;
 }
-.spotlight-schedule-card .current-schedule__session .current-schedule__session__separator {
-  margin: 15px 0 0;
+.spotlight-schedule-card .current-schedule__session:last-child {
+  border-bottom: none;
 }
 
 @media (max-width: 767px) {
@@ -1272,8 +1273,6 @@ html.touch .collapsible__body--disable {
   content: '';
   font-weight: bold;
   border-radius: 50%;
-  background-color: #b2d6ff;
-  background-color: Highlight;
   width: 24px;
   height: 24px;
   text-align: center;
@@ -1288,6 +1287,10 @@ html.touch .collapsible__body--disable {
   color: #1F2D3D;
   color: HighlightText;
   border: 1px solid #79818B;
+}
+.calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active:after {
+  background-color: #b2d6ff;
+  background-color: Highlight;
 }
 .calendar .calendar__weekdays__dates .calendar__weekdays__dates__date--active .calendar__weekdays__dates__date__text {
   color: #1F2D3D;

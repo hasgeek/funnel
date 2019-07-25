@@ -272,8 +272,6 @@
       content: '';
       font-weight: bold;
       border-radius: 50%;
-      background-color: #b2d6ff;
-      background-color: Highlight;
       width: 24px;
       height: 24px;
       text-align: center;
@@ -289,6 +287,11 @@
       color: #1F2D3D;
       color: HighlightText;
       border: 1px solid #79818B;
+    }
+
+    .calendar__weekdays__dates__date--active:after {
+      background-color: #b2d6ff;
+      background-color: Highlight;
     }
 
     .calendar__weekdays__dates__date--active .calendar__weekdays__dates__date__text {

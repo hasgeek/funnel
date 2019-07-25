@@ -148,11 +148,10 @@
                 {% for session in current_sessions.sessions %}
                   <div class="current-schedule__session">
                     <p class="mui--text-body1 current-schedule__session__duration">{{ session.start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}–{{ session.end_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
-                    <p class="mui--text-title mui--text-bold zero-bottom-margin">{{ session.title }}</p>
+                    <a class="mui--text-title mui--text-bold zero-bottom-margin" href="{{ session.url_for() }}">{{ session.title }}</a>
                     <p class="mui--text-body1 zero-bottom-margin">{{ session.speaker }}</p>
                     <p class="mui--text-subhead mui--text-bold">{{ session.venue_room.title }}</p>
                     <div class="mui--text-body1 mui--hidden-xs mui--hidden-sm">{{ session.description.html }}</div>
-                    <hr calss="current-schedule__session__separator">
                   </div>
                 {% endfor %}
               </div>
