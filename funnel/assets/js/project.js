@@ -53,12 +53,35 @@ const TicketWidget = {
       });
     }, false);
 
+    this.initTicketModal();
     this.trackBoxofficeEvents();
   },
   trackBoxofficeEvents() {
     $(document).on('boxofficeTicketingEvents', (event, userAction, label, value) => {
       Utils.sendToGA('ticketing', userAction, label, value);
     });
+  },
+  initTicketModal() {
+    $('#tickets, #close-ticket-widget').click(event => {
+      event.preventDefault();
+      this.toggleTicketModal();
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('code') && $(window).width() < 768) {
+      this.toggleTicketModal();
+    }
+
+    $(window).resize(() => {
+      if ($(window).width() > 767 && $('.about__participate').hasClass('about__participate--modal')) {
+        this.toggleTicketModal();
+      }
+    });
+  },
+  toggleTicketModal() {
+    $('.header').toggleClass('header--fixed');
+    $('.about__participate').toggleClass('about__participate--modal');
+    $('.about__participate').fadeToggle();
   },
 };
 
@@ -124,5 +147,9 @@ $(() => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }
+
+    $('.truncate').succinct({
+      size: 150
+    });
   };
 });

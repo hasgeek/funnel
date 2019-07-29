@@ -202,14 +202,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for('view_proposals'), code=303)
         return render_template('project_cfp.html.jinja2', form=form, project=self.obj)
 
-    @route('tickets', methods=['GET'])
-    @render_with('tickets.html.jinja2')
-    @requires_permission('view')
-    def tickets(self):
-        rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
-        return {'project': self.obj,
-            'rsvp_form': rsvp_form}
-
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('edit_project')

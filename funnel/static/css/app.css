@@ -24,6 +24,10 @@
   margin-left: -15px;
 }
 
+.grid-no-right-padding {
+  margin-right: -15px;
+}
+
 .separator {
   padding: 0 5px;
 }
@@ -512,6 +516,9 @@ html.touch .collapsible__body--disable {
   min-height: 0;
   background-color: #F9FAFC;
 }
+.sub-navbar .sub-navbar__item--wrapper {
+  height: 56px;
+}
 .sub-navbar .sub-navbar__item--fixed {
   position: fixed;
   top: 0;
@@ -606,6 +613,7 @@ html.touch .collapsible__body--disable {
   padding: 15px;
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   background-color: #fff;
   z-index: 1000;
@@ -1192,7 +1200,6 @@ html.touch .collapsible__body--disable {
 }
 
 .session-card .session-card__header {
-  padding: 0;
   display: flex;
   background: none;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
@@ -1214,6 +1221,9 @@ html.touch .collapsible__body--disable {
 .session-card .session-card__header .session-card__header__title {
   padding: 0;
   margin: 0 0 0 10px;
+}
+.session-card .session-card__header--bck {
+  background: #EFF2F7;
 }
 
 .calendar {
@@ -1466,104 +1476,154 @@ html.touch .collapsible__body--disable {
     display: flex;
   }
 }
-.about-ticket-wrapper {
-  align-items: flex-start;
+.about {
+  padding: 0 15px;
+  word-break: break-word;
 }
-.about-ticket-wrapper #participate {
-  padding-left: 30px;
+.about .about__details__description h1,
+.about .about__details__description h2,
+.about .about__details__description h3,
+.about .about__details__description h4,
+.about .about__details__description h5 {
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 32px;
+}
+.about img {
+  width: 100%;
+}
+.about .about__details__featured {
+  display: block;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+.about .about__participate__back-nav {
+  display: none;
+}
+.about .about__participate {
+  display: none;
+}
+.about .about__participate--modal {
+  position: fixed;
+  top: 0;
+  background: #fff;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  z-index: 100001;
+  bottom: 0;
+  height: 100%;
+  overflow: auto;
+}
+.about .about__participate--modal .about__participate__back-nav {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .about .about__participate {
+    display: block !important;
+    position: relative;
+    width: calc(50% - 15px);
+    float: right;
+    padding: 0;
+    margin-left: 15px;
+    margin-bottom: 15px;
+  }
+  .about .about__details {
+    float: none;
+  }
+  .about .about__details__featured {
+    margin: 0 -15px;
+  }
+  .about .about__details__featured .about__details__featured__cards {
+    float: left;
+    width: calc(50% - 30px);
+    padding: 0 15px;
+  }
+  .about .about__details__featured .about__details__featured__cards .session-card {
+    overflow: hidden;
+    height: 220px;
+  }
+}
+@media (min-width: 992px) {
+  .about .about__participate {
+    width: calc(40% - 30px);
+  }
+  .about .about__details__featured .about__details__featured__cards {
+    width: calc(33.3% - 30px);
+    padding: 0 15px;
+  }
+  .about .about__details__featured .about__details__featured__cards .session-card {
+    overflow: hidden;
+    height: 280px;
+  }
+  .about .about__details__featured .about__details__featured__cards--float {
+    width: calc(30% - 30px);
+    padding: 0 15px;
+  }
+}
+@media (min-width: 1200px) {
+  .about .about__details__featured .about__details__featured__cards {
+    width: calc(33.3% - 30px);
+    padding: 0 15px;
+  }
+  .about .about__details__featured .about__details__featured__cards .session-card {
+    overflow: hidden;
+    height: 250px;
+  }
+  .about .about__details__featured .about__details__featured__cards--float {
+    width: calc(31.3% - 30px);
+    padding: 0 15px;
+  }
+}
+.about #boxoffice-widget {
+  padding-top: 0;
+  max-width: 100%;
+  margin: 0;
+}
+.about #boxoffice-widget .ticket-booking {
+  border-bottom: 1px solid #ccc;
+}
+.about #boxoffice-widget .ticket-booking:last-child {
+  border-bottom: none;
+}
+.about #boxoffice-widget .ticket-details {
+  margin: 0;
+  width: 100%;
+}
+.about #boxoffice-widget .ticket-price-qty {
+  float: left;
+  width: 100%;
+  margin-top: 30px;
+}
+.about #boxoffice-widget .ticket-description .few-ticket {
+  left: 0;
+  top: -21px;
+}
+.about #boxoffice-widget .price-details-wrapper,
+.about #boxoffice-widget .ticket-total,
+.about #boxoffice-widget .proceed-button-wrapper {
+  float: left;
+}
+.about #boxoffice-widget .item-amount,
+.about #boxoffice-widget .valid-upto,
+.about #boxoffice-widget .discount {
+  text-align: left;
+}
+.about #boxoffice-widget .checkout-confirmation {
+  padding: 0;
+}
+.about #boxoffice-widget .fa {
+  display: none;
+  padding: 0 !important;
 }
 
 #participate #boxoffice-widget {
   padding-top: 0;
   max-width: 100%;
   margin: 0;
-}
-#participate #boxoffice-widget .ticket-booking {
-  border-bottom: 1px solid #ccc;
-}
-#participate #boxoffice-widget .ticket-booking:last-child {
-  border-bottom: none;
-}
-#participate #boxoffice-widget .ticket-details {
-  margin: 0;
-  width: 100%;
-}
-#participate #boxoffice-widget .ticket-price-qty {
-  float: left;
-  width: 100%;
-  margin-top: 30px;
-}
-#participate #boxoffice-widget .ticket-description .few-ticket {
-  left: 0;
-  top: -21px;
-}
-#participate #boxoffice-widget .price-details-wrapper,
-#participate #boxoffice-widget .ticket-total,
-#participate #boxoffice-widget .proceed-button-wrapper {
-  float: left;
-}
-#participate #boxoffice-widget .item-amount,
-#participate #boxoffice-widget .valid-upto,
-#participate #boxoffice-widget .discount {
-  text-align: left;
-}
-#participate #boxoffice-widget .checkout-confirmation {
-  padding: 0;
-}
-#participate #boxoffice-widget .fa {
-  display: none;
-  padding: 0 !important;
-}
-
-.session-image {
-  max-height: 280px;
-  position: relative;
-  overflow: hidden;
-}
-
-.session-content {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.project-section #boxoffice-widget {
-  padding-top: 0;
-  width: 100%;
-  max-width: none;
-}
-
-.project-section #boxoffice-widget .ticket-title {
-  color: inherit;
-}
-
-.project-section__headline {
-  font-weight: bold;
-}
-
-.project-section__description {
-  word-break: break-word;
-}
-
-.project-section__description h1,
-.project-section__description h2,
-.project-section__description h3,
-.project-section__description h4,
-.project-section__description h5,
-.project-section__instructions h1,
-.project-section__instructions h2,
-.project-section__instructions h3,
-.project-section__instructions h4,
-.project-section__instructions h5 {
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 32px;
-}
-
-.project-section__description img,
-.project-section__instructions img {
-  width: 100%;
 }
 
 .project-section__map {

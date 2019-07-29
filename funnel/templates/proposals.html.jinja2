@@ -86,10 +86,10 @@
 
       <div class="grid">
        {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
-        <div class="grid__col-xs-12" id="call-for-proposal">
-          <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
+        <div class="grid__col-xs-12 about__details" id="call-for-proposal">
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold">Call for proposals</h2>
           {%- if project.instructions and project.instructions != "None" %}
-            <div class="project-section__instructions">{{ project.instructions }}</div>
+            <div class="about__details__description">{{ project.instructions }}</div>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <p class="mui--text-left">

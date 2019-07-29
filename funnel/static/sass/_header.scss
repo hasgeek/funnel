@@ -362,6 +362,10 @@ and (orientation: landscape) {
     background-color: #F9FAFC;
   }
 
+  .sub-navbar__item--wrapper {
+    height: 56px;
+  }
+
   .sub-navbar__item--fixed {
     position: fixed;
     top: 0;
@@ -473,6 +477,7 @@ and (orientation: landscape) {
   padding: 15px;
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   background-color: #fff;
   z-index: 1000;
