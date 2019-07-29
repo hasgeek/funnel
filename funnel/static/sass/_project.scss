@@ -227,10 +227,10 @@
     .about__participate {
       display: block !important;
       position: relative;
-      width: calc(50% - 15px);
+      width: calc(50% - 30px);
       float: right;
       padding: 0;
-      margin-left: 15px;
+      margin-left: 30px;
       margin-bottom: 15px;
     }
     .about__details {
@@ -241,14 +241,9 @@
       margin: 0 -15px;
 
       .about__details__featured__cards {
-        float: left;
-        width: calc(50% - 30px);
+        display: inline-block;
+        width: calc(50% - 32px);
         padding: 0 15px;
-
-        .session-card {
-          overflow: hidden;
-          height: 220px
-        }
       }
     }
   }
@@ -264,15 +259,10 @@
       .about__details__featured__cards {
         width: calc(33.3% - 30px);
         padding: 0 15px;
-
-        .session-card {
-          overflow: hidden;
-          height: 280px
-        }
       }
 
       .about__details__featured__cards--float {
-        width: calc(30% - 30px);
+        width: calc(31% - 30px);
         padding: 0 15px;
       }
     }
@@ -285,11 +275,6 @@
       .about__details__featured__cards {
         width: calc(33.3% - 30px);
         padding: 0 15px;
-
-        .session-card {
-          overflow: hidden;
-          height: 250px
-        }
       }
 
       .about__details__featured__cards--float {

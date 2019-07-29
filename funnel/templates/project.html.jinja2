@@ -162,13 +162,15 @@
                         </div>
                       {% if session.proposal %}</a>{% else %}</div>{% endif %}
                     {% endif %}
-                    {% if session.proposal %}
-                      <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
-                    {% else %}
-                      <div class="card__body">
+                    {% if session.description %}
+                      {% if session.proposal %}
+                        <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                      {% else %}
+                        <div class="card__body">
+                      {% endif %}
+                        <div class="mui--text-body1 mui--text-light truncate">{{ session.description|striptags }}</div>
+                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
                     {% endif %}
-                      <div class="mui--text-body1 mui--text-light truncate">{{ session.description|striptags }}</div>
-                    {% if session.proposal %}</a>{% else %}</div>{% endif %}
                   </div>
                 </li>
               {% endif %}

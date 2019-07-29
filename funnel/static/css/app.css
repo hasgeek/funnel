@@ -1525,10 +1525,10 @@ html.touch .collapsible__body--disable {
   .about .about__participate {
     display: block !important;
     position: relative;
-    width: calc(50% - 15px);
+    width: calc(50% - 30px);
     float: right;
     padding: 0;
-    margin-left: 15px;
+    margin-left: 30px;
     margin-bottom: 15px;
   }
   .about .about__details {
@@ -1538,13 +1538,9 @@ html.touch .collapsible__body--disable {
     margin: 0 -15px;
   }
   .about .about__details__featured .about__details__featured__cards {
-    float: left;
-    width: calc(50% - 30px);
+    display: inline-block;
+    width: calc(50% - 32px);
     padding: 0 15px;
-  }
-  .about .about__details__featured .about__details__featured__cards .session-card {
-    overflow: hidden;
-    height: 220px;
   }
 }
 @media (min-width: 992px) {
@@ -1555,12 +1551,8 @@ html.touch .collapsible__body--disable {
     width: calc(33.3% - 30px);
     padding: 0 15px;
   }
-  .about .about__details__featured .about__details__featured__cards .session-card {
-    overflow: hidden;
-    height: 280px;
-  }
   .about .about__details__featured .about__details__featured__cards--float {
-    width: calc(30% - 30px);
+    width: calc(31% - 30px);
     padding: 0 15px;
   }
 }
@@ -1568,10 +1560,6 @@ html.touch .collapsible__body--disable {
   .about .about__details__featured .about__details__featured__cards {
     width: calc(33.3% - 30px);
     padding: 0 15px;
-  }
-  .about .about__details__featured .about__details__featured__cards .session-card {
-    overflow: hidden;
-    height: 250px;
   }
   .about .about__details__featured .about__details__featured__cards--float {
     width: calc(31.3% - 30px);
