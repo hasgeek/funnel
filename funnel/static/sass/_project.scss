@@ -244,6 +244,7 @@
         display: inline-block;
         width: calc(50% - 32px);
         padding: 0 15px;
+        vertical-align: top;
       }
     }
   }
@@ -278,7 +279,7 @@
       }
 
       .about__details__featured__cards--float {
-        width: calc(31.3% - 30px);
+        width: calc(30% - 30px);
         padding: 0 15px;
       }
     }

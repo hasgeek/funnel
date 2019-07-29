@@ -1541,6 +1541,7 @@ html.touch .collapsible__body--disable {
     display: inline-block;
     width: calc(50% - 32px);
     padding: 0 15px;
+    vertical-align: top;
   }
 }
 @media (min-width: 992px) {
@@ -1562,7 +1563,7 @@ html.touch .collapsible__body--disable {
     padding: 0 15px;
   }
   .about .about__details__featured .about__details__featured__cards--float {
-    width: calc(31.3% - 30px);
+    width: calc(30% - 30px);
     padding: 0 15px;
   }
 }
