@@ -2207,40 +2207,34 @@ html.touch .collapsible__body--disable {
   font-size: 22px;
 }
 
-.session-modal--nopadding {
-  padding: 0;
-}
-.session-modal--nopadding .modal__header, .session-modal--nopadding .modal__body {
-  padding: 15px;
-}
-
 .session-modal {
   max-width: 98%;
-  top: 60px;
+  width: 98%;
+  vertical-align: top;
 }
 
 .session-modal--nopadding {
   padding: 0;
 }
-
 .session-modal--nopadding .modal__header {
   padding: 15px 15px 5px;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
-
 .session-modal--nopadding .modal__body {
   padding: 15px;
 }
-
-.session-modal--nopadding .modal__header {
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-}
-
-.session-modal__title {
+.session-modal--nopadding .session-modal__title {
   margin-top: 15px;
   margin-bottom: 0;
   font-weight: bold;
 }
 
+@media (min-width: 1200px) {
+  .session-modal {
+    width: 90%;
+    vertical-align: middle;
+  }
+}
 .room__title,
 .subscibe-title {
   border: 0;
