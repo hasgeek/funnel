@@ -194,6 +194,10 @@
     margin: 0;
     list-style: none;
     width: 100%;
+
+    .about__details__featured__cards {
+      padding: 0 15px;
+    }
   }
 
   .about__participate__back-nav {
@@ -238,13 +242,12 @@
     }
 
     .about__details__featured {
-      margin: 0 -15px;
-
       .about__details__featured__cards {
         display: inline-block;
         width: calc(50% - 32px);
         padding: 0 15px;
         vertical-align: top;
+        margin: 0 -2px;
       }
     }
   }
@@ -261,11 +264,6 @@
         width: calc(33.3% - 30px);
         padding: 0 15px;
       }
-
-      .about__details__featured__cards--float {
-        width: calc(31% - 30px);
-        padding: 0 15px;
-      }
     }
   }
 }
@@ -275,11 +273,6 @@
     .about__details__featured {
       .about__details__featured__cards {
         width: calc(33.3% - 30px);
-        padding: 0 15px;
-      }
-
-      .about__details__featured__cards--float {
-        width: calc(30% - 30px);
         padding: 0 15px;
       }
     }
@@ -335,12 +328,6 @@
     display: none;
     padding: 0 !important;
   }
-}
-
-#participate #boxoffice-widget {
-  padding-top: 0;
-  max-width: 100%;
-  margin: 0;
 }
 
 .project-section__map {

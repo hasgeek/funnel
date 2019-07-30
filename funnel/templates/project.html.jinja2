@@ -78,14 +78,14 @@
           </div>
         </div>
         {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-          <div id="participate">
+          <div id="tickets">
             {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
               <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
               <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
             {%- endif %}
           </div>
         {% elif project.allow_rsvp -%}
-          <div id="participate">
+          <div id="tickets">
             <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
             {%- if g.user %}
               {{ rsvpform(project, rsvp_form) }}
@@ -133,49 +133,51 @@
       {% if project.featured_sessions  %}
         <div id="talks" class="mui--clearfix">
           <h2 class="mui--text-display1 mui--text-left mui--text-bold">Talks</h2>
-          <ul class="about__details__featured mui--clearfix">
-            {% for session in project.featured_sessions %}
-              {% if session.scheduled %}
-                <li class="about__details__featured__cards {% if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp-%} about__details__featured__cards--float {%- endif %}">
-                  <div class="card session-card">
-                    {% if session.banner_image_url.url %}
-                      {% if session.proposal %}
-                        <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+          <div class="grid-no-left-padding grid-no-right-padding">
+            <ul class="about__details__featured mui--clearfix">
+              {% for session in project.featured_sessions %}
+                {% if session.scheduled %}
+                  <li class="about__details__featured__cards">
+                    <div class="card session-card">
+                      {% if session.banner_image_url.url %}
+                        {% if session.proposal %}
+                          <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                        {% else %}
+                          <div class="card__header session-card__header">
+                        {% endif %}
+                          <p class="session-card__header__img-wrapper"><img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/></p>
+                          <div class="card__title__heading session-card__header__title">
+                            {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
+                            <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
+                          </div>
+                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
                       {% else %}
-                        <div class="card__header session-card__header">
+                        {% if session.proposal %}
+                          <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                        {% else %}
+                          <div class="card__header">
+                        {% endif %}
+                          <div class="card__title__heading session-card__header__title">
+                            {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
+                            <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
+                          </div>
+                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
                       {% endif %}
-                        <p class="session-card__header__img-wrapper"><img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" alt="{{ session.title }}"/></p>
-                        <div class="card__title__heading session-card__header__title">
-                          {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
-                          <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
-                        </div>
-                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                    {% else %}
-                      {% if session.proposal %}
-                        <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
-                      {% else %}
-                        <div class="card__header">
+                      {% if session.description %}
+                        {% if session.proposal %}
+                          <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                        {% else %}
+                          <div class="card__body">
+                        {% endif %}
+                          <div class="mui--text-body1 mui--text-light truncate">{{ session.description|striptags }}</div>
+                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
                       {% endif %}
-                        <div class="card__title__heading session-card__header__title">
-                          {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
-                          <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
-                        </div>
-                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                    {% endif %}
-                    {% if session.description %}
-                      {% if session.proposal %}
-                        <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
-                      {% else %}
-                        <div class="card__body">
-                      {% endif %}
-                        <div class="mui--text-body1 mui--text-light truncate">{{ session.description|striptags }}</div>
-                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                    {% endif %}
-                  </div>
-                </li>
-              {% endif %}
-            {%- endfor -%}
-          </ul>
+                    </div>
+                  </li>
+                {% endif %}
+              {%- endfor -%}
+            </ul>
+          </div>
           {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(page)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
         </div>
       {%- endif %}
