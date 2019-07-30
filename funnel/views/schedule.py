@@ -70,6 +70,7 @@ def date_js(d):
 
 def schedule_data(project):
     data = defaultdict(lambda: defaultdict(list))
+    start_end_datetime = defaultdict(dict)
     for session in project.scheduled_sessions:
         day = str(localize_date(session.start_at, to_tz=project.timezone).date())
         slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
@@ -91,9 +92,13 @@ def schedule_data(project):
             'speaker_bio': session.speaker_bio,
             'speaker_bio_text': session.speaker_bio_text,
         })
+        if 'start_at' not in start_end_datetime[day]:
+            start_end_datetime[day]['start_at'] = session.start_at.isoformat()
+        start_end_datetime[day]['end_at'] = session.end_at.isoformat()
     schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
+        daydata.update(start_end_datetime[day])
         for slot in sorted(data[day]):
             daydata['slots'].append({
                 'slot': slot,
