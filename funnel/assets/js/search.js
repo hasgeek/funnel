@@ -26,7 +26,7 @@ const Search = {
         },
       },
       getQueryString(paramName) {
-        const urlParams = new URLSearchParams(window.location.search);
+        const urlParams = new URLSearchParams(window.location.href.split('?')[1]);
         if (urlParams.has(paramName)) {
           return urlParams.get(paramName)
         }

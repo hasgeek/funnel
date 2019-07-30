@@ -534,11 +534,6 @@ html.touch .collapsible__body--disable {
 .sub-navbar .mui-btn {
   margin: 0 0.5em;
 }
-.sub-navbar .sub-navbar__item:hover,
-.sub-navbar .sub-navbar__item:active,
-.sub-navbar .sub-navbar__item--active {
-  border-bottom: 1px solid #856A91;
-}
 .sub-navbar .sub-navbar__item--primarybg {
   background-color: #E05F26;
   color: #fff;
@@ -1588,6 +1583,10 @@ html.touch .collapsible__body--disable {
 .about #boxoffice-widget .ticket-total,
 .about #boxoffice-widget .proceed-button-wrapper {
   float: left;
+}
+.about #boxoffice-widget .ticket-total {
+  margin-left: -10px;
+  margin-right: -10px;
 }
 .about #boxoffice-widget .item-amount,
 .about #boxoffice-widget .valid-upto,

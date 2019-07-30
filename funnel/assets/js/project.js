@@ -72,12 +72,7 @@ const TicketWidget = {
       this.hideTicketModal();
     });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('code') && $(window).width() < 768) {
-      this.openTicketModal();
-    }
-
-    if (window.location.hash === '#tickets') {
+    if (window.location.hash.indexOf('#tickets') > -1) {
       if ($(window).width() < 768) {
         this.openTicketModal();
       } else {
@@ -102,7 +97,7 @@ const TicketWidget = {
   openTicketModal() {
     let url = window.location.href;
     if (url.indexOf('#tickets') < 0) {
-      url = `${window.location.href}#tickets`;
+      url = `${window.location.pathname}#tickets${window.location.search}`;
     }
     window.history.pushState({openModal: true}, '', url);
     $('.header').removeClass('header--fixed');

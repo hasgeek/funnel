@@ -384,12 +384,6 @@ and (orientation: landscape) {
     margin: 0 0.5em;
   }
 
-  .sub-navbar__item:hover,
-  .sub-navbar__item:active,
-  .sub-navbar__item--active {
-    border-bottom: 1px solid #856A91;
-  }
-
   .sub-navbar__item--primarybg {
     background-color: #E05F26;
     color: #fff;
