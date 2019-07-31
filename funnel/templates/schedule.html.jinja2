@@ -162,6 +162,7 @@
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('schedule_view')) }}" type="text/javascript"></script>
   <script type="text/javascript">
+    var start = performance.now();
     var scheduleConfig = {
       fromDate: {{ from_date|tojson }},
       toDate: {{ to_date|tojson }},
@@ -189,6 +190,8 @@
       }
 
       window.HasGeek.ScheduleInit(scheduleConfig, saveProjectConfig);
+      var end = performance.now();
+      console.log("schedule js took " + (end - start) + " milliseconds.");
     });
   </script>
 {% endblock %}

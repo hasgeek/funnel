@@ -236,6 +236,9 @@ const Schedule = {
     return;
   },
   init(config) {
+    var t0 = performance.now();
+    var t1;
+    
     this.config = config;
     this.config.rooms = {};
     this.config.venues.forEach((venue) => {
@@ -244,11 +247,33 @@ const Schedule = {
         this.config.rooms[room.scoped_name].venue_title = venue.title;
       });
     });
+    t1 = performance.now();
+    console.log("Call to add rooms to config took " + (t1 - t0) + " milliseconds.");
+
+    t0 = performance.now();
     this.getEventDays();
+    t1 = performance.now();
+    console.log("Call to getEventDays took " + (t1 - t0) + " milliseconds.");
+
+    t0 = performance.now();
     this.getEventDuration();
+        t1 = performance.now();
+    console.log("Call to getEventDuration took " + (t1 - t0) + " milliseconds.");
+    
+    t0 = performance.now();
     this.createScheduleTable();
+        t1 = performance.now();
+    console.log("Call to createScheduleTable took " + (t1 - t0) + " milliseconds.");
+    
+    t0 = performance.now();
     this.addSessionToSchedule();
+        t1 = performance.now();
+    console.log("Call to addSessionToSchedule took " + (t1 - t0) + " milliseconds.");
+    
+    t0 = performance.now();
     this.renderScheduleTable();
+        t1 = performance.now();
+    console.log("Call to renderScheduleTable took " + (t1 - t0) + " milliseconds.");
   },
   Utils: {
     getEventDay(eventDate, eventDayshash) {
