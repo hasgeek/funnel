@@ -176,6 +176,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                     'bgcolor': room.bgcolor
                 } for room in self.obj.rooms
             },
+            'schedule': schedule_data(self.obj),
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form
         }

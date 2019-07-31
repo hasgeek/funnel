@@ -166,7 +166,8 @@
     var scheduleConfig = {
       fromDate: {{ from_date|tojson }},
       toDate: {{ to_date|tojson }},
-      scheduled: {{ sessions|tojson }},
+      sessions: {{ sessions|tojson }},
+      schedule: {{ schedule|tojson }},
       venues: {{ venues|tojson }},
       slotInterval: 5,
       divElem: "#project-schedule-table",

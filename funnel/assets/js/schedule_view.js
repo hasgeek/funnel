@@ -10,7 +10,7 @@ const Schedule = {
       el: schedule.config.divElem,
       template: schedule.config.scriptTemplate,
       data: {
-        schedules: schedule.config.scheduleTable,
+        schedules: schedule.config.schedule,
         rowWidth: Object.keys(schedule.config.rooms).length,
         rowHeight: '30',
         timeSlotWidth: '75',
@@ -178,67 +178,44 @@ const Schedule = {
       }
     });
   },
-  addSessionToSchedule() {
-    this.config.scheduled.forEach((session) => {
+  addSessionToSlots() {
+    this.config.sessions.forEach((session) => {
       if(!session.room_scoped_name) {
         [session.room_scoped_name] = Object.keys(this.config.rooms);
       }
-      if(this.config.scheduleTable[session.eventDay]) {
-        this.config.scheduleTable[session.eventDay]['sessions'][session.startTime].showLabel = true;
-        this.config.scheduleTable[session.eventDay]['sessions'][session.startTime]
+      session.startTime = this.Utils.getTime(session.start_at);
+      session.endTime = this.Utils.getTime(session.end_at);
+      session.eventDay = this.Utils.getEventDay(session.start_at, this.config.eventDayhashes);
+      session.duration = this.Utils.getDuration(session.end_at, session.start_at, this.config.slotInterval);
+      if(this.config.schedule[session.eventDay]) {
+        this.config.schedule[session.eventDay]['sessions'][session.startTime].showLabel = true;
+        this.config.schedule[session.eventDay]['sessions'][session.startTime]
           .rooms[session.room_scoped_name].talks = session;
       }
     });
   },
-  createScheduleTable() {
-    Object.keys(this.config.scheduleTable).forEach((eventDay) => {
+  createSlots() {
+    this.config.eventDayhashes = {};
+    this.config.schedule.forEach((day, index) => {
+      day.dateStr = this.Utils.getDateString(day.date);
+      day.startTime = this.Utils.getTime(day.start_at);
+      day.endTime = this.Utils.getTime(day.end_at);
+      day.rooms = JSON.parse(JSON.stringify(this.config.rooms));
+      this.config.eventDayhashes[this.Utils.getEventDate(day.date)] = index;
       let slots = {};
-      let sessionSlots = this.config.scheduleTable[eventDay].startTime;
-      while(sessionSlots < this.config.scheduleTable[eventDay].endTime) {
+      let sessionSlots = day.startTime;
+      while(sessionSlots < day.endTime) {
         slots[sessionSlots] = {showLabel: false, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
         sessionSlots = new Date(sessionSlots);
         sessionSlots = sessionSlots.setMinutes(sessionSlots.getMinutes() + this.config.slotInterval);
       };
-      this.config.scheduleTable[eventDay].sessions = JSON.parse(JSON.stringify(slots));
+      day.sessions = JSON.parse(JSON.stringify(slots));
     });
-  },
-  getEventDuration() {
-    this.config.scheduled.forEach((session) => {
-      session.startTime = this.Utils.getTime(session.start_at);
-      session.endTime = this.Utils.getTime(session.end_at);
-      session.eventDay = this.Utils.getEventDay(session.start_at, this.config.eventDayhash);
-      session.duration = this.Utils.getDuration(session.end_at, session.start_at, this.config.slotInterval);
-      if(this.config.scheduleTable[session.eventDay]) {
-        this.config.scheduleTable[session.eventDay].startTime =
-          this.config.scheduleTable[session.eventDay].startTime && this.config.scheduleTable[session.eventDay].startTime
-          < new Date(session.start_at).getTime()
-          ? this.config.scheduleTable[session.eventDay].startTime : new Date(session.start_at).getTime();
-        this.config.scheduleTable[session.eventDay].endTime =
-          this.config.scheduleTable[session.eventDay].endTime > new Date(session.end_at).getTime()
-          ? this.config.scheduleTable[session.eventDay].endTime : new Date(session.end_at).getTime();
-      }
-    });
-  },
-  getEventDays() {
-    let difference = (new Date(this.config.toDate) - new Date(this.config.fromDate))/ (1000 * 3600 * 24);
-    this.config.eventDayhash = {};
-    let eventDays = {}, seq = 0, nextDay = new Date(this.config.fromDate), day;
-    while(seq <= difference) {
-      day = nextDay.getDate();
-      this.config.eventDayhash[day] = seq;
-      eventDays[seq] = {dateStr: this.Utils.getDateString(nextDay), talks: {},
-      startTime: 0, endTime: 0, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
-      seq += 1;
-      nextDay.setDate(nextDay.getDate() + 1);
-    };
-    // To create a copy and not a reference
-    this.config.scheduleTable = JSON.parse(JSON.stringify(eventDays));
-    return;
   },
   init(config) {
     var t0 = performance.now();
     var t1;
-    
+
     this.config = config;
     this.config.rooms = {};
     this.config.venues.forEach((venue) => {
@@ -251,28 +228,18 @@ const Schedule = {
     console.log("Call to add rooms to config took " + (t1 - t0) + " milliseconds.");
 
     t0 = performance.now();
-    this.getEventDays();
+    this.createSlots();
     t1 = performance.now();
-    console.log("Call to getEventDays took " + (t1 - t0) + " milliseconds.");
+    console.log("Call to createSlots took " + (t1 - t0) + " milliseconds.");
 
     t0 = performance.now();
-    this.getEventDuration();
-        t1 = performance.now();
-    console.log("Call to getEventDuration took " + (t1 - t0) + " milliseconds.");
-    
-    t0 = performance.now();
-    this.createScheduleTable();
-        t1 = performance.now();
-    console.log("Call to createScheduleTable took " + (t1 - t0) + " milliseconds.");
-    
-    t0 = performance.now();
-    this.addSessionToSchedule();
-        t1 = performance.now();
-    console.log("Call to addSessionToSchedule took " + (t1 - t0) + " milliseconds.");
+    this.addSessionToSlots();
+    t1 = performance.now();
+    console.log("Call to addSessionToScheduleTb took " + (t1 - t0) + " milliseconds.");
     
     t0 = performance.now();
     this.renderScheduleTable();
-        t1 = performance.now();
+    t1 = performance.now();
     console.log("Call to renderScheduleTable took " + (t1 - t0) + " milliseconds.");
   },
   Utils: {
