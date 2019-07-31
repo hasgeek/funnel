@@ -124,9 +124,9 @@ export const ScrollActiveMenu = {
         entries => {
         entries.forEach(entry => {
           if(!entry.isIntersecting && entry.intersectionRatio > 0.8 && entry.boundingClientRect.y < 0) {
-            $('#tickets').addClass('sub-navbar__item--fixed');
+            $('#ticket-btn').addClass('sub-navbar__item--fixed');
           } else if(entry.isIntersecting && entry.intersectionRatio === 1) {
-            $('#tickets').removeClass('sub-navbar__item--fixed');
+            $('#ticket-btn').removeClass('sub-navbar__item--fixed');
           }
         });
       },
