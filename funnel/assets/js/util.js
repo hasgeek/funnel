@@ -123,7 +123,7 @@ export const ScrollActiveMenu = {
     let observer = new IntersectionObserver(
         entries => {
         entries.forEach(entry => {
-          if(!entry.isIntersecting && entry.intersectionRatio > 0.8 && entry.boundingClientRect.y < 0) {
+          if(!entry.isIntersecting && entry.intersectionRatio > 0.5 && entry.boundingClientRect.y < 0) {
             $('#ticket-btn').addClass('sub-navbar__item--fixed');
           } else if(entry.isIntersecting && entry.intersectionRatio === 1) {
             $('#ticket-btn').removeClass('sub-navbar__item--fixed');
