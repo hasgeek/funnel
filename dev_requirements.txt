@@ -2,7 +2,7 @@ isort==4.3.21
 toml==0.10.0
 flake8==3.7.8
 flake8-assertive
-flake8-blind-except
+flake8-blind-except==0.1.1
 flake8-builtins
 flake8-coding
 flake8-comprehensions
