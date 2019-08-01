@@ -19,7 +19,7 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title|e }}</a></strong></h1>
-  <p class="mui--text-headline">{{ project.tagline|safe }}</p>
+  <p class="mui--text-headline">{{ project.tagline }}</p>
   <p>
   {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
     <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#participate" title="Participate" data-action="Participate(header-proposalpage)">Participate</a>

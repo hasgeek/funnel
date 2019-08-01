@@ -74,7 +74,7 @@
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">
-            <a href="javascript(0)" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline" id="close-ticket-widget"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Tickets</span>
+            <a href="{{ project.url_for() }}" aria-label="Close" class="mui--text-dark mui--text-headline" id="close-ticket-widget"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Tickets</span>
           </div>
         </div>
         {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
@@ -104,7 +104,7 @@
 
     <div class="about__details" id="about">
       <h2 class="mui--text-display1 mui--text-left about__details__headline">About</h2>
-      <div class="about__details__description">{{ project.description|safe }}</div>
+      <div class="about__details__description">{{ project.description.html }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
         <h2 class="mui--text-display1 mui--text-left mui--text-bold">Related events</h2>

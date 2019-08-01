@@ -95,18 +95,13 @@ const TicketWidget = {
     });
   },
   openTicketModal() {
-    let url = window.location.href;
-    if (url.indexOf('#tickets') < 0) {
-      url = `${window.location.pathname}#tickets${window.location.search}`;
-    }
-    window.history.pushState({openModal: true}, '', url);
+    window.history.pushState({openModal: true}, '', '#tickets');
     $('.header').removeClass('header--fixed');
     $('.about__participate').addClass('about__participate--modal');
     $('.about__participate').fadeIn();
   },
   hideTicketModal() {
-    let url = window.location.href.replace('#tickets', '');
-    window.history.pushState('', '', url);
+    window.history.pushState('', '', window.location.pathname + window.location.search);
     $('.header').addClass('header--fixed');
     $('.about__participate').removeClass('about__participate--modal');
     $('.about__participate').fadeOut();
