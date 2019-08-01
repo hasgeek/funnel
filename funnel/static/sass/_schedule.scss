@@ -261,15 +261,15 @@ and (orientation: landscape) {
   position: relative;
 
   .datepicker-wrapper {
-      position: absolute;
-      width: 100%;
-      top: -18px;
+    position: absolute;
+    width: 100%;
+    top: -18px;
 
-      input {
-        width: auto;
-        margin: auto;
-        font-size: 22px;
-      }
+    input {
+      width: auto;
+      margin: auto;
+      font-size: 22px;
+    }
   }
 }
 
