@@ -1,4 +1,4 @@
-isort
+isort==4.3.21
 toml
 flake8
 flake8-assertive
