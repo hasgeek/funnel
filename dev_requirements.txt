@@ -10,5 +10,5 @@ flake8-isort==2.7.0
 flake8-logging-format==0.6.0
 flake8-mutable==1.2.0
 flake8-print==3.1.0
-pep8-naming
+pep8-naming==0.8.2
 pre-commit
