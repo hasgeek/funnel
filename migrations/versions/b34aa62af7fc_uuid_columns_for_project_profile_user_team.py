@@ -14,13 +14,13 @@ down_revision = '19a1f7f2a365'
 
 from uuid import uuid4
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
+import sqlalchemy as sa  # NOQA
 
-import progressbar.widgets
 from progressbar import ProgressBar
+import progressbar.widgets
 
 from coaster.utils import buid2uuid, uuid2buid
 

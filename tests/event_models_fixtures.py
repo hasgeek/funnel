@@ -5,7 +5,7 @@ from funnel.util import extract_twitter_handle
 event_ticket_types = [
     {'title': u'SpaceCon', 'ticket_types': [u'Conference', u'Combo']},
     {'title': u'SpaceCon workshop', 'ticket_types': [u'Workshop', u'Combo']},
-    ]
+]
 
 ticket_list = [
     {
@@ -19,8 +19,8 @@ ticket_list = [
         'ticket_no': u't{id}'.format(id=unicode(1)),
         'ticket_type': u'Combo',
         'order_no': u'o{id}'.format(id=unicode(1)),
-        'status': u'confirmed'
-        },
+        'status': u'confirmed',
+    },
     {
         'fullname': u'participant{id}'.format(id=unicode(2)),
         'email': u'participant{id}@gmail.com'.format(id=unicode(2)),
@@ -33,7 +33,7 @@ ticket_list = [
         'ticket_type': u'Workshop',
         'order_no': u'o{id}'.format(id=unicode(2)),
         'status': u'confirmed',
-        },
+    },
     {
         'fullname': u'participant{id}'.format(id=unicode(3)),
         'email': u'participant{id}@gmail.com'.format(id=unicode(3)),
@@ -45,8 +45,9 @@ ticket_list = [
         'ticket_no': u't{id}'.format(id=unicode(3)),
         'ticket_type': u'Conference',
         'order_no': u'o{id}'.format(id=unicode(3)),
-        'status': u'confirmed'
-        }]
+        'status': u'confirmed',
+    },
+]
 
 ticket_list2 = [
     {
@@ -60,8 +61,8 @@ ticket_list2 = [
         'ticket_no': u't{id}'.format(id=unicode(1)),
         'ticket_type': u'Combo',
         'order_no': u'o{id}'.format(id=unicode(1)),
-        'status': u'confirmed'
-        },
+        'status': u'confirmed',
+    },
     {
         'fullname': u'participant{id}'.format(id=unicode(2)),
         'email': u'participant{id}@gmail.com'.format(id=unicode(2)),
@@ -73,8 +74,8 @@ ticket_list2 = [
         'ticket_no': u't{id}'.format(id=unicode(2)),
         'ticket_type': u'Workshop',
         'order_no': u'o{id}'.format(id=unicode(2)),
-        'status': u'cancelled'
-        },
+        'status': u'cancelled',
+    },
     {
         'fullname': u'participant{id}'.format(id=unicode(3)),
         'email': u'participant{id}@gmail.com'.format(id=unicode(3)),
@@ -86,8 +87,9 @@ ticket_list2 = [
         'ticket_no': u't{id}'.format(id=unicode(3)),
         'ticket_type': u'Conference',
         'order_no': u'o{id}'.format(id=unicode(3)),
-        'status': u'confirmed'
-        }]
+        'status': u'confirmed',
+    },
+]
 
 ticket_list3 = [
     {
@@ -101,8 +103,8 @@ ticket_list3 = [
         'ticket_no': u't{id}'.format(id=unicode(1)),
         'ticket_type': u'Combo',
         'order_no': u'o{id}'.format(id=unicode(1)),
-        'status': u'confirmed'
-        },
+        'status': u'confirmed',
+    },
     {
         'fullname': u'participant{id}'.format(id=unicode(2)),
         'email': u'participant{id}@gmail.com'.format(id=unicode(2)),
@@ -114,8 +116,8 @@ ticket_list3 = [
         'ticket_no': u't{id}'.format(id=unicode(2)),
         'ticket_type': u'Workshop',
         'order_no': u'o{id}'.format(id=unicode(2)),
-        'status': u'cancelled'
-        },
+        'status': u'cancelled',
+    },
     {
         'fullname': u'participant{id}'.format(id=unicode(4)),
         'email': u'participant{id}@gmail.com'.format(id=unicode(4)),
@@ -127,5 +129,6 @@ ticket_list3 = [
         'ticket_no': u't{id}'.format(id=unicode(3)),
         'ticket_type': u'Conference',
         'order_no': u'o{id}'.format(id=unicode(3)),
-        'status': u'confirmed'
-        }]
+        'status': u'confirmed',
+    },
+]

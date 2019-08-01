@@ -15,5 +15,5 @@ ASSET_MANIFEST_PATH = "static/build/manifest.json"
 SESSION_COOKIE_NAME = 'root_session'
 DELETE_COOKIES = {
     'session': (None, '.hasgeekapp.local'),
-    'root_session': ('.hasgeekapp.local',)
-    }
+    'root_session': ('.hasgeekapp.local',),
+}

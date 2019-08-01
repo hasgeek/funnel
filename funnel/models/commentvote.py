@@ -13,13 +13,18 @@ __all__ = ['Voteset', 'Vote', 'Commentset', 'Comment']
 
 # --- Constants ---------------------------------------------------------------
 
+
 class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     # If you add any new state, you need to add a migration to modify the check constraint
     PUBLIC = (0, 'public', __("Public"))
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
     SPAM = (3, 'spam', __("Spam"))
-    DELETED = (4, 'deleted', __("Deleted"))  # For when there are children to be preserved
+    DELETED = (
+        4,
+        'deleted',
+        __("Deleted"),
+    )  # For when there are children to be preserved
 
 
 # What is this Voteset or Commentset attached to?
@@ -30,6 +35,7 @@ class SET_TYPE:  # NOQA: N801
 
 
 # --- Models ------------------------------------------------------------------
+
 
 class Voteset(BaseMixin, db.Model):
     __tablename__ = 'voteset'
@@ -65,11 +71,17 @@ class Voteset(BaseMixin, db.Model):
 class Vote(BaseMixin, db.Model):
     __tablename__ = 'vote'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('votes', lazy='dynamic', cascade="all, delete-orphan"))
+    user = db.relationship(
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('votes', lazy='dynamic', cascade="all, delete-orphan"),
+    )
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(Voteset, primaryjoin=voteset_id == Voteset.id,
-        backref=db.backref('votes', cascade="all, delete-orphan"))
+    voteset = db.relationship(
+        Voteset,
+        primaryjoin=voteset_id == Voteset.id,
+        backref=db.backref('votes', cascade="all, delete-orphan"),
+    )
     votedown = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (db.UniqueConstraint("user_id", "voteset_id"), {})
@@ -89,19 +101,32 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('comments', lazy='dynamic', cascade="all, delete-orphan"))
+    user = db.relationship(
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('comments', lazy='dynamic', cascade="all, delete-orphan"),
+    )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(Commentset, primaryjoin=commentset_id == Commentset.id,
-        backref=db.backref('comments', cascade="all, delete-orphan"))
+    commentset = db.relationship(
+        Commentset,
+        primaryjoin=commentset_id == Commentset.id,
+        backref=db.backref('comments', cascade="all, delete-orphan"),
+    )
 
     parent_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
-    children = db.relationship("Comment", backref=db.backref("parent", remote_side="Comment.id"))
+    children = db.relationship(
+        "Comment", backref=db.backref("parent", remote_side="Comment.id")
+    )
 
     message = MarkdownColumn('message', nullable=False)
 
-    _state = db.Column('state', db.Integer, StateManager.check_constraint('state', COMMENT_STATE),
-        default=COMMENT_STATE.PUBLIC, nullable=False)
+    _state = db.Column(
+        'state',
+        db.Integer,
+        StateManager.check_constraint('state', COMMENT_STATE),
+        default=COMMENT_STATE.PUBLIC,
+        nullable=False,
+    )
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment.")
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
@@ -111,22 +136,32 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'absolute_url', 'created_at', 'edited_at', 'user', 'title', 'message'}
+            'read': {
+                'absolute_url',
+                'created_at',
+                'edited_at',
+                'user',
+                'title',
+                'message',
             }
         }
+    }
 
-    search_vector = db.deferred(db.Column(
-        TSVectorType(
-            'message_text',
-            weights={'message_text': 'A'},
-            regconfig='english',
-            hltext=lambda: Comment.message_html,
+    search_vector = db.deferred(
+        db.Column(
+            TSVectorType(
+                'message_text',
+                weights={'message_text': 'A'},
+                regconfig='english',
+                hltext=lambda: Comment.message_html,
             ),
-        nullable=False))
+            nullable=False,
+        )
+    )
 
     __table_args__ = (
         db.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
-        )
+    )
 
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
@@ -142,8 +177,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         obj = self.commentset.proposal
         if obj:
             return _("{user} commented on {obj}").format(
-                user=self.user.pickername,
-                obj=self.commentset.proposal.title)
+                user=self.user.pickername, obj=self.commentset.proposal.title
+            )
         else:
             return _("{user} commented").format(user=self.user.pickername)
 
@@ -174,10 +209,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         if user is not None:
             perms.add('vote_comment')
             if user == self.user:
-                perms.update([
-                    'edit_comment',
-                    'delete_comment'
-                    ])
+                perms.update(['edit_comment', 'delete_comment'])
         return perms
 
 

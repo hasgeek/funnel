@@ -24,8 +24,12 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     postcode = db.Column(db.Unicode(20), default=u'', nullable=False)
     country = db.Column(db.Unicode(2), default=u'', nullable=False)
 
-    rooms = db.relationship('VenueRoom', cascade='all, delete-orphan',
-            order_by='VenueRoom.seq', collection_class=ordering_list('seq', count_from=1))
+    rooms = db.relationship(
+        'VenueRoom',
+        cascade='all, delete-orphan',
+        order_by='VenueRoom.seq',
+        collection_class=ordering_list('seq', count_from=1),
+    )
 
     seq = db.Column(db.Integer, nullable=False)
 
@@ -34,15 +38,31 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id', 'name', 'title', 'description', 'address1', 'address2', 'city', 'state',
-                'postcode', 'country', 'project_details', 'room_list', 'seq', 'suuid'
-                },
-            },
+                'id',
+                'name',
+                'title',
+                'description',
+                'address1',
+                'address2',
+                'city',
+                'state',
+                'postcode',
+                'country',
+                'project_details',
+                'room_list',
+                'seq',
+                'suuid',
+            }
         }
+    }
 
     @property
     def project_details(self):
-        return {'name': self.project.name, 'title': self.project.title, 'suuid': self.project.suuid}
+        return {
+            'name': self.project.name,
+            'title': self.project.title,
+            'suuid': self.project.suuid,
+        }
 
     @property
     def room_list(self):
@@ -60,23 +80,36 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
 
     seq = db.Column(db.Integer, nullable=False)
 
-    scheduled_sessions = db.relationship("Session",
-        primaryjoin='and_(Session.venue_room_id == VenueRoom.id, Session.scheduled)')
+    scheduled_sessions = db.relationship(
+        "Session",
+        primaryjoin='and_(Session.venue_room_id == VenueRoom.id, Session.scheduled)',
+    )
 
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
 
     __roles__ = {
         'all': {
             'read': {
-                'id', 'name', 'title', 'description', 'bgcolor', 'seq', 'venue_details',
-                'scoped_name', 'suuid'
-                },
-            },
+                'id',
+                'name',
+                'title',
+                'description',
+                'bgcolor',
+                'seq',
+                'venue_details',
+                'scoped_name',
+                'suuid',
+            }
         }
+    }
 
     @property
     def venue_details(self):
-        return {'name': self.venue.name, 'title': self.venue.title, 'suuid': self.venue.suuid}
+        return {
+            'name': self.venue.name,
+            'title': self.venue.title,
+            'suuid': self.venue.suuid,
+        }
 
     @property
     def scoped_name(self):
