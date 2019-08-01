@@ -3,7 +3,7 @@ toml==0.10.0
 flake8==3.7.8
 flake8-assertive
 flake8-blind-except==0.1.1
-flake8-builtins
+flake8-builtins==1.4.1
 flake8-coding
 flake8-comprehensions
 flake8-isort
