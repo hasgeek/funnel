@@ -93,9 +93,9 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                 if commentform.parent_id.data:
                     parent = Comment.query.filter_by(suuid=commentform.parent_id.data).first_or_404()
                     if parent.user.email:  # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
-                        if parent.user == self.obj.speaker:  # check if parent comment is by the proposal owner
+                        if parent.user == self.obj.owner:  # check if parent comment is by the proposal owner
                             if not parent.user == current_auth.user:  # check if parent comment is by the curernt user
-                                send_mail_info.append({'to': self.obj.speaker.email or self.obj.email,
+                                send_mail_info.append({'to': self.obj.owner.email or self.obj.email,
                                     'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
                                     'template': 'proposal_comment_reply_email.md'})
                         else:  # send mail to parent comment owner & proposal owner
@@ -103,16 +103,16 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                 send_mail_info.append({'to': parent.user.email,
                                     'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
                                     'template': 'proposal_comment_to_proposer_email.md'})
-                            if not self.obj.speaker == current_auth.user:
-                                send_mail_info.append({'to': self.obj.speaker.email or self.obj.email,
+                            if not self.obj.owner == current_auth.user:
+                                send_mail_info.append({'to': self.obj.owner.email or self.obj.email,
                                     'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
                                     'template': 'proposal_comment_email.md'})
 
                     if parent and parent.commentset == self.obj.commentset:
                         comment.parent = parent
                 else:  # for top level comment
-                    if not self.obj.speaker == current_auth.user:
-                        send_mail_info.append({'to': self.obj.speaker.email or self.obj.email,
+                    if not self.obj.owner == current_auth.user:
+                        send_mail_info.append({'to': self.obj.owner.email or self.obj.email,
                             'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
                             'template': 'proposal_comment_email.md'})
                 self.obj.commentset.count += 1
@@ -126,6 +126,8 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     # Sender is set to None to prevent revealing email.
                     send_mail(sender=None, body=email_body, **item)
         else:
+            # FIXME: ValidationError here. But we cannot return the error as
+            # it redirects to the proposal page, where the comment form is.
             flash(_("Something went wrong, please try again"), category='error')
         # Redirect despite this being the same page because HTTP 303 is required to not break
         # the browser Back button
