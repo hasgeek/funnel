@@ -16,11 +16,10 @@
         .schedule__row__column__content {
           background-color: #fff;
           width: 100%;
-          padding: 5px 15px 0;
+          padding: 5px 15px;
           border-bottom: 1px solid rgba(132,146,166,0.3);
 
           .schedule__row__column__content__title {
-            float: left;
             width: calc(100% - 24px);
 
             .schedule__row__column__content__title__heading {
@@ -94,7 +93,7 @@
       position: -webkit-sticky;
       top: 62px;
       order: 1;
-      z-index: 10001;
+      z-index: 100;
       border: none;
       display: flex;
       box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
@@ -140,7 +139,7 @@
       .schedule__row__column {
         display: none;
         .schedule__row__column__content {
-          height: auto !important;
+          min-height: 50px;
         }
       }
     }
@@ -193,6 +192,7 @@
           .schedule__row__column__content {
             outline: 1px solid rgba(132,146,166,0.3);
             width: calc(100% - 1px);
+            height: 100%;
             border-bottom: 0;
             .schedule__row__column__content__title__duration {
               top: 205px;
@@ -218,6 +218,7 @@
         }
         .schedule__row__column--time--pointer {
           cursor: pointer;
+          height: 100%;
         }
       }
       .schedule__row--sticky {

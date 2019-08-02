@@ -21,7 +21,7 @@ from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session
 from .decorators import legacy_redirect
 from .helpers import localize_date
 from .mixins import ProjectViewMixin, SessionViewMixin
-from .schedule import date_js, session_data, session_list_data
+from .schedule import date_js, session_data, schedule_data, session_list_data
 
 
 def rooms_list(project):
@@ -110,6 +110,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             'from_date': date_js(self.obj.project.schedule_start_at),
             'to_date': date_js(self.obj.project.schedule_end_at),
             'sessions': session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
+            'schedule': schedule_data(self.obj.project),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
             'timezone': utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
             'venues': [venue.current_access() for venue in self.obj.project.venues],

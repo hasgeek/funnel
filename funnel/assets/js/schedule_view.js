@@ -1,12 +1,11 @@
 import { Utils, SaveProject } from './util';
-import Ractive from "ractive";
+import Vue from 'vue/dist/vue.min';
 
 const Schedule = {
   renderScheduleTable() {
-    Ractive.DEBUG = false;
     let schedule = this;
 
-    let scheduleUI = new Ractive({
+    let scheduleUI = new Vue({
       el: schedule.config.divElem,
       template: schedule.config.scriptTemplate,
       data: {
@@ -27,14 +26,26 @@ const Schedule = {
           pageTitle: 'Schedule',
           description: schedule.config.pageDescription
         },
-        view: 'calendar',
+        view: 'agenda',
+        activeSession: ''
+      },
+      methods: {
+        toggleTab(room) {
+          if(this.width < 992) {
+            this.activeTab = room;
+          }
+        },
+        toggleView(event, view) {
+          event.preventDefault();
+          this.view = view;
+        },
         getTimeStr(time) {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
         getColumnWidth(columnType) {
-          if (columnType === 'header' || this.get('width') > 767 ) {
-            if (this.get('view') === 'calendar') {
-              return (this.get('timeSlotWidth')/this.get('rowWidth'));
+          if (columnType === 'header' || this.width > 767 ) {
+            if (this.view === 'calendar') {
+              return (this.timeSlotWidth/this.rowWidth);
             } else {
               return 0;
             }
@@ -42,136 +53,126 @@ const Schedule = {
             return 0;
           }
         },
+        getColumnHeight(duration, rowHeight) {
+          return duration * rowHeight;
+        },
         hasActiveRoom(session) {
-          return Object.prototype.hasOwnProperty.call(session.rooms[this.get('activeTab')], 'talks');
+          return Object.prototype.hasOwnProperty.call(session.rooms[this.activeTab], 'talk');
         },
         removeImg(descriptionHtml) {
-          return descriptionHtml.replace(/<img[^>]*>/g,"");
-        }
-      },
-      toggleTab(event, room) {
-        if(this.get('width') < 992) {
-          event.original.preventDefault();
-          this.set('activeTab', room);
-        }
-      },
-      toggleView(event, view) {
-        event.original.preventDefault();
-        this.set('view', view);
-      },
-      updateMetaTags: function(pageDetails) {
-        $('title').html(pageDetails.title);
-        $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
-        $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
-        $('meta[name=description]').attr('content', pageDetails.description);
-        $('meta[property="og:description"]').attr('content', pageDetails.description);
-        $('link[rel=canonical]').attr('href', pageDetails.url);
-        $('meta[property="og:url"]').attr('content', pageDetails.url);
-      },
-      handleBrowserHistory() {
-        // On closing modal, update browser history
-        $("#session-modal").on($.modal.CLOSE, () => {
-          this.set('modalHtml', '');
-          window.history.pushState('', '', this.get('pageDetails')['url']);
-          this.updateMetaTags(this.get('pageDetails'));
-        });
-        // Event listener for back key press since opening modal update browser history
-        $(window).on('popstate', () => {
-          if(this.get('modalHtml')) {
-            $.modal.close();
-          } else if(window.history.state) {
-            // Open the modal with previous session viewed
-            this.openModal(window.history.state.html, window.history.state.backPage, window.history.state.pageDetails);
-          }
-        });
-      },
-      openModal: function(sessionHtml, backPage, pageDetails) {
-        this.set('modalHtml', sessionHtml);
-        $("#session-modal").modal('show');
-        window.history.pushState({html: sessionHtml, backpage: backPage, pageDetails: pageDetails}, '', backPage);
-        this.updateMetaTags(pageDetails);
-      },
-      showSessionModal: function(event, activeSession) {
-        let sessionModalUrl, sessionUuid, backPage, pageDetails;
-        sessionModalUrl = event ? this.get(event.keypath + '.talks.modal_url') : activeSession.modal_url;
-        sessionUuid = event ? this.get(event.keypath + '.talks.url_name_suuid') : activeSession.url_name_suuid;
-        backPage = this.get('pageDetails')['url'] + '/' + sessionUuid;
-        if (event) {
-          pageDetails = {
-            title: this.get(event.keypath + '.talks.title') + ' — ' + this.get('pageDetails')['projectTitle'],
-            pageTitle: this.get(event.keypath + '.talks.title'),
-            description: this.get(event.keypath + '.talks.speaker') ? this.get(event.keypath + '.talks.title') + ' by ' + this.get(event.keypath + '.talks.speaker') : this.get(event.keypath + '.talks.title') + ", " + this.get('pageDetails')['projectTitle'],
-            url: backPage
-          };
-        } else {
-          pageDetails = {
-            title: activeSession.title + ' – ' + this.get('pageDetails')['projectTitle'],
-            pageTitle: activeSession.title,
-            description: activeSession.speaker ? activeSession.title + ' by ' + activeSession.speaker : activeSession.title + ", " + this.get('pageDetails')['projectTitle'],
-            url: backPage
-          };
-        }
-        if(sessionModalUrl) {
-          $.ajax({
-            url: sessionModalUrl,
-            type: 'GET',
-            success: (sessionHtml) => {
-              this.openModal(sessionHtml, backPage, pageDetails);
-            },
-            error() {
-              window.toastr.error('There was a problem in contacting the server. Please try again later.');
+          return descriptionHtml.replace(/<img[^>]*>/g,"").substring(0, 200).concat('..');
+        },
+        updateMetaTags: function(pageDetails) {
+          $('title').html(pageDetails.title);
+          $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
+          $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
+          $('meta[name=description]').attr('content', pageDetails.description);
+          $('meta[property="og:description"]').attr('content', pageDetails.description);
+          $('link[rel=canonical]').attr('href', pageDetails.url);
+          $('meta[property="og:url"]').attr('content', pageDetails.url);
+        },
+        handleBrowserHistory() {
+          // On closing modal, update browser history
+          $("#session-modal").on($.modal.CLOSE, () => {
+            this.modalHtml = '';
+            window.history.pushState('', '', this.pageDetails['url']);
+            this.updateMetaTags(this.pageDetails);
+          });
+          // Event listener for back key press since opening modal update browser history
+          $(window).on('popstate', () => {
+            if(this.modalHtml) {
+              $.modal.close();
+            } else if(window.history.state) {
+              // Open the modal with previous session viewed
+              this.openModal(window.history.state.html, window.history.state.backPage, window.history.state.pageDetails);
             }
           });
-        }
-      },
-      disableScroll(event) {
-        event.original.preventDefault();
-        window.location.hash = event.node.id;
-        Utils.animateScrollTo($(window.location.hash).offset().top - this.get('headerHeight'));
-      },
-      handleBrowserResize() {
-        $(window).resize(() => {
-          scheduleUI.set('width', $(window).width());
-          scheduleUI.set('height', $(window).height());
-        });
-      },
-      animateWindowScrollWithHeader: function() {
-        this.set('headerHeight', 2 * $('.schedule__row--sticky').height());
-        this.set('pathName', window.location.pathname);
-        let scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
-        
-        let activeSession = schedule.config.active_session;
-        if(activeSession) {
-          // Open session modal
-          var paths = window.location.href.split('/');
-          paths.pop()
-          this.set('pageDetails.url', paths.join('/'));
-          this.showSessionModal('', activeSession);
-          // Scroll page to session
-          Utils.animateScrollTo($("#" + activeSession.url_name_suuid).offset().top - this.get('headerHeight'));
-        } else if(window.location.pathname === this.get('pathName') && window.location.hash) {
-          let hash;
-          hash = window.location.hash.indexOf('/') !== -1 ?
-            window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
-          Utils.animateScrollTo($(hash).offset().top - this.get('headerHeight'));
-        } else if(scrollPos && scrollPos.pageTitle === this.get('pageDetails')['projectTitle']) {
-          // Scroll page to last viewed position
-          Utils.animateScrollTo(scrollPos.scrollPosY);
-        } else {
-          // Scroll page to schedule table
-          Utils.animateScrollTo($(schedule.config.divElem).offset().top);
-        }
-
-        // On exiting the page, save page scroll position in session storage
-        window.onbeforeunload = function() {
-          let scrollDetails = {
-            'pageTitle': scheduleUI.get('pageDetails')['projectTitle'],
-            'scrollPosY': window.scrollY
+        },
+        openModal: function(sessionHtml, backPage, pageDetails) {
+          console.log('openModal', sessionHtml, backPage, pageDetails);
+          this.modalHtml = sessionHtml;
+          $("#session-modal").modal('show');
+          window.history.pushState({html: sessionHtml, backpage: backPage, pageDetails: pageDetails}, '', backPage);
+          this.updateMetaTags(pageDetails);
+        },
+        showSessionModal: function(activeSession) {
+          let backPage, pageDetails;
+          backPage = this.pageDetails['url'] + '/' + activeSession.url_name_suuid;
+          pageDetails = {
+            title: `${activeSession.title} — ${this.pageDetails['projectTitle']}`,
+            pageTitle: activeSession.title,
+            description: activeSession.speaker ? `${activeSession.title} by ${activeSession.speaker}` : `${activeSession.title}, ${this.pageDetails['projectTitle']}`,
+            url: backPage
           };
-          window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
-        };
+          if(activeSession.modal_url) {
+            $.ajax({
+              url: activeSession.modal_url,
+              type: 'GET',
+              success: (sessionHtml) => {
+                this.openModal(sessionHtml, backPage, pageDetails);
+              },
+              error() {
+                window.toastr.error('There was a problem in contacting the server. Please try again later.');
+              }
+            });
+          }
+        },
+        disableScroll(event, id) {
+          event.preventDefault();
+          Utils.animateScrollTo($('#' + id).offset().top - this.headerHeight);
+        },
+        handleBrowserResize() {
+          $(window).resize(() => {
+            scheduleUI.width = $(window).width();
+            scheduleUI.height = $(window).height();
+
+            if(scheduleUI.width < 768) {
+              scheduleUI.view = 'agenda';
+            }
+          });
+        },
+        animateWindowScrollWithHeader: function() {
+          this.headerHeight =  2 * $('.schedule__row--sticky').height();
+          this.pathName = window.location.pathname;
+          let scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
+          
+          let activeSession = schedule.config.active_session;
+          if(activeSession) {
+            // Open session modal
+            var paths = window.location.href.split('/');
+            paths.pop()
+            this.pageDetails.url = paths.join('/');
+            this.showSessionModal(activeSession);
+            // Scroll page to session
+            console.log($("#" + activeSession.url_name_suuid))
+            Utils.animateScrollTo($("#" + activeSession.url_name_suuid).offset().top - this.headerHeight);
+          } else if(window.location.pathname === this.pathName && window.location.hash) {
+            let hash;
+            hash = window.location.hash.indexOf('/') !== -1 ?
+              window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
+            console.log('hash', hash);
+            Utils.animateScrollTo($(hash).offset().top - this.headerHeight);
+          } else if(scrollPos && scrollPos.pageTitle === this.pageDetails['projectTitle']) {
+            // Scroll page to last viewed position
+            console.log('scrollPosY', scrollPos.scrollPosY);
+            Utils.animateScrollTo(scrollPos.scrollPosY);
+          } else {
+            // Scroll page to schedule table
+            console.log('divElem', $(schedule.config.parentContainer));
+            Utils.animateScrollTo($(schedule.config.parentContainer).offset().top);
+          }
+
+          // On exiting the page, save page scroll position in session storage
+          window.onbeforeunload = function() {
+            let scrollDetails = {
+              'pageTitle': scheduleUI.pageDetails['projectTitle'],
+              'scrollPosY': window.scrollY
+            };
+            window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
+          };
+        },
       },
-      oncomplete() {
+      mounted() {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();
@@ -190,9 +191,10 @@ const Schedule = {
       if(this.config.schedule[session.eventDay]) {
         this.config.schedule[session.eventDay]['sessions'][session.startTime].showLabel = true;
         this.config.schedule[session.eventDay]['sessions'][session.startTime]
-          .rooms[session.room_scoped_name].talks = session;
+          .rooms[session.room_scoped_name].talk = session;
       }
     });
+    console.log('addSessionToSchedule', JSON.parse(JSON.stringify(this.config.schedule)));
   },
   createSlots() {
     this.config.eventDayhashes = {};
@@ -215,7 +217,6 @@ const Schedule = {
   init(config) {
     var t0 = performance.now();
     var t1;
-
     this.config = config;
     this.config.rooms = {};
     this.config.venues.forEach((venue) => {
@@ -227,20 +228,24 @@ const Schedule = {
     t1 = performance.now();
     console.log("Call to add rooms to config took " + (t1 - t0) + " milliseconds.");
 
-    t0 = performance.now();
-    this.createSlots();
-    t1 = performance.now();
-    console.log("Call to createSlots took " + (t1 - t0) + " milliseconds.");
+    if(Object.keys(this.config.rooms).length) {
+      t0 = performance.now();
+      this.createSlots();
+      t1 = performance.now();
+      console.log("Call to createSlots took " + (t1 - t0) + " milliseconds.");
 
-    t0 = performance.now();
-    this.addSessionToSlots();
-    t1 = performance.now();
-    console.log("Call to addSessionToScheduleTb took " + (t1 - t0) + " milliseconds.");
-    
-    t0 = performance.now();
-    this.renderScheduleTable();
-    t1 = performance.now();
-    console.log("Call to renderScheduleTable took " + (t1 - t0) + " milliseconds.");
+      t0 = performance.now();
+      this.addSessionToSlots();
+      t1 = performance.now();
+      console.log("Call to addSessionToScheduleTb took " + (t1 - t0) + " milliseconds.");
+
+      t0 = performance.now();
+      this.renderScheduleTable();
+      t1 = performance.now();
+      console.log("Call to renderScheduleTable took " + (t1 - t0) + " milliseconds.");
+    }
+
+    return;
   },
   Utils: {
     getEventDay(eventDate, eventDayshash) {
