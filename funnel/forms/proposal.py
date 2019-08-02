@@ -32,9 +32,11 @@ def proposal_label_form(project, proposal):
                 forms.RadioField(
                     label.form_label_text,
                     description=label.description,
-                    validators=[forms.validators.DataRequired(__("Please select one"))]
-                    if label.required
-                    else [],
+                    validators=(
+                        [forms.validators.DataRequired(__("Please select one"))]
+                        if label.required
+                        else []
+                    ),
                     choices=[
                         (option.name, option.title)
                         for option in label.options
@@ -75,9 +77,11 @@ def proposal_label_admin_form(project, proposal):
                 field_type(
                     label.form_label_text,
                     description=label.description,
-                    validators=[forms.validators.DataRequired(__("Please select one"))]
-                    if label.required
-                    else [],
+                    validators=(
+                        [forms.validators.DataRequired(__("Please select one"))]
+                        if label.required
+                        else []
+                    ),
                     **form_kwargs
                 ),
             )
