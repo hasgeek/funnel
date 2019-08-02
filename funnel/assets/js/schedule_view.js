@@ -5,29 +5,30 @@ const Schedule = {
   renderScheduleTable() {
     let schedule = this;
 
-    let scheduleUI = new Vue({
-      el: schedule.config.divElem,
+    let scheduleUI = Vue.component('schedule', {
       template: schedule.config.scriptTemplate,
-      data: {
-        schedules: schedule.config.schedule,
-        rowWidth: Object.keys(schedule.config.rooms).length,
-        rowHeight: '30',
-        timeSlotWidth: '75',
-        rowBorder: '1',
-        activeTab: Object.keys(schedule.config.rooms)[0],
-        width: $(window).width(),
-        height: $(window).height(),
-        modalHtml: '',
-        headerHeight: '',
-        pageDetails: {
-          url: window.location.href,
-          title: `Schedule – ${schedule.config.projectTitle}`,
-          projectTitle: schedule.config.projectTitle,
-          pageTitle: 'Schedule',
-          description: schedule.config.pageDescription
-        },
-        view: 'agenda',
-        activeSession: ''
+      data: function () {
+        return {
+          schedules: schedule.config.schedule,
+          rowWidth: Object.keys(schedule.config.rooms).length,
+          rowHeight: '30',
+          timeSlotWidth: '75',
+          rowBorder: '1',
+          activeTab: Object.keys(schedule.config.rooms)[0],
+          width: $(window).width(),
+          height: $(window).height(),
+          modalHtml: '',
+          headerHeight: '',
+          pageDetails: {
+            url: window.location.href,
+            title: `Schedule – ${schedule.config.projectTitle}`,
+            projectTitle: schedule.config.projectTitle,
+            pageTitle: 'Schedule',
+            description: schedule.config.pageDescription
+          },
+          view: 'agenda',
+          activeSession: ''
+        }
       },
       methods: {
         toggleTab(room) {
@@ -176,8 +177,18 @@ const Schedule = {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();
+      },
+    });
+
+    let scheduleApp = new Vue({
+      components: {
+        scheduleUI
+      },
+      render: function(createElement) {
+        return createElement(scheduleUI);
       }
     });
+    scheduleApp.$mount(schedule.config.divElem);
   },
   addSessionToSlots() {
     this.config.sessions.forEach((session) => {
