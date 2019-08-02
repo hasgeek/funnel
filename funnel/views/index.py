@@ -50,9 +50,9 @@ class IndexView(ClassView):
             'all_projects': [p.current_access() for p in all_projects],
             'upcoming_projects': [p.current_access() for p in upcoming_projects],
             'open_cfp_projects': [p.current_access() for p in open_cfp_projects],
-            'featured_project': featured_project.current_access()
-            if featured_project
-            else None,
+            'featured_project': (
+                featured_project.current_access() if featured_project else None
+            ),
         }
 
 

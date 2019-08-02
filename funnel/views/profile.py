@@ -142,9 +142,9 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             'upcoming_projects': [p.current_access() for p in upcoming_projects],
             'open_cfp_projects': [p.current_access() for p in open_cfp_projects],
             'draft_projects': [p.current_access() for p in draft_projects],
-            'featured_project': featured_project.current_access()
-            if featured_project
-            else None,
+            'featured_project': (
+                featured_project.current_access() if featured_project else None
+            ),
         }
 
     @route('json')

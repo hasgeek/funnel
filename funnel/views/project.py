@@ -55,16 +55,16 @@ def project_data(project):
         'title': project.title,
         'datelocation': project.datelocation,
         'timezone': project.timezone.zone,
-        'start_at': project.schedule_start_at.astimezone(project.timezone)
-        .date()
-        .isoformat()
-        if project.schedule_start_at
-        else None,
-        'end_at': project.schedule_end_at.astimezone(project.timezone)
-        .date()
-        .isoformat()
-        if project.schedule_end_at
-        else None,
+        'start_at': (
+            project.schedule_start_at.astimezone(project.timezone).date().isoformat()
+            if project.schedule_start_at
+            else None
+        ),
+        'end_at': (
+            project.schedule_end_at.astimezone(project.timezone).date().isoformat()
+            if project.schedule_end_at
+            else None
+        ),
         'status': project.state.value,
         'state': project.state.label.name,
         'url': project.url_for(_external=True),
@@ -72,9 +72,9 @@ def project_data(project):
         'json_url': project.url_for('json', _external=True),
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'bg_color': project.bg_color,
-        'explore_url': project.explore_url.url
-        if project.explore_url is not None
-        else "",
+        'explore_url': (
+            project.explore_url.url if project.explore_url is not None else ""
+        ),
         'calendar_weeks': project.calendar_weeks,
     }
 

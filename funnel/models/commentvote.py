@@ -20,11 +20,8 @@ class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
     SPAM = (3, 'spam', __("Spam"))
-    DELETED = (
-        4,
-        'deleted',
-        __("Deleted"),
-    )  # For when there are children to be preserved
+    # Deleted state for when there are children to be preserved
+    DELETED = (4, 'deleted', __("Deleted"))
 
 
 # What is this Voteset or Commentset attached to?

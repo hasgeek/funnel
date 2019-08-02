@@ -70,9 +70,9 @@ def session_form(project, proposal=None, session=None):
         data = {
             'id': session.url_id,
             'title': session.title,
-            'room_scoped_name': session.venue_room.scoped_name
-            if session.venue_room
-            else None,
+            'room_scoped_name': (
+                session.venue_room.scoped_name if session.venue_room else None
+            ),
             'is_break': session.is_break,
             'modal_url': session.url_for('edit'),
             'delete_url': session.url_for('delete'),
@@ -124,10 +124,12 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 self.obj.project.scheduled_sessions, with_modal_url='view_popup'
             ),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
-            'timezone': utcnow()
-            .astimezone(self.obj.project.timezone)
-            .utcoffset()
-            .total_seconds(),
+            'timezone': (
+                utcnow()
+                .astimezone(self.obj.project.timezone)
+                .utcoffset()
+                .total_seconds()
+            ),
             'venues': [venue.current_access() for venue in self.obj.project.venues],
             'rooms': {
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
