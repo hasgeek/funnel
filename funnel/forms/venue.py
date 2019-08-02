@@ -10,7 +10,7 @@ import baseframe.forms as forms
 
 from .project import valid_color_re
 
-__all__ = ['VenueForm', 'VenueRoomForm', 'VenuePrimaryForm']
+__all__ = ['VenueForm', 'VenuePrimaryForm', 'VenueRoomForm']
 
 
 class VenueForm(forms.Form):

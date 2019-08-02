@@ -8,7 +8,7 @@ from . import BaseMixin, MarkdownColumn, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
 from .user import User
 
-__all__ = ['Voteset', 'Vote', 'Commentset', 'Comment']
+__all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
 
 
 # --- Constants ---------------------------------------------------------------

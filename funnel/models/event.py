@@ -8,12 +8,12 @@ from .project import Project
 from .user import User
 
 __all__ = [
-    'Event',
-    'TicketType',
-    'Participant',
     'Attendee',
+    'Event',
+    'Participant',
     'SyncTicket',
     'TicketClient',
+    'TicketType',
 ]
 
 

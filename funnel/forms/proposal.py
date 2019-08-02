@@ -9,12 +9,12 @@ import baseframe.forms as forms
 from ..models import Profile, Project
 
 __all__ = [
-    'ProposalTransferForm',
     'ProposalForm',
-    'ProposalTransitionForm',
+    'ProposalLabelsAdminForm',
     'ProposalLabelsForm',
     'ProposalMoveForm',
-    'ProposalLabelsAdminForm',
+    'ProposalTransferForm',
+    'ProposalTransitionForm',
 ]
 
 

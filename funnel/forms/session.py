@@ -4,7 +4,7 @@ from baseframe import __
 from coaster.utils import nullint
 import baseframe.forms as forms
 
-__all__ = ['SessionForm', 'SavedSessionForm']
+__all__ = ['SavedSessionForm', 'SessionForm']
 
 
 class SessionForm(forms.Form):

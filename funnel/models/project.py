@@ -32,7 +32,7 @@ from .helpers import RESERVED_NAMES, add_search_trigger
 from .profile import Profile
 from .user import Team, User
 
-__all__ = ['Project', 'ProjectRedirect', 'ProjectLocation']
+__all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 # --- Constants ---------------------------------------------------------------

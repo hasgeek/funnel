@@ -6,7 +6,7 @@ from wtforms.widgets import CheckboxInput, ListWidget
 from baseframe import __
 import baseframe.forms as forms
 
-__all__ = ['ParticipantForm', 'ParticipantBadgeForm']
+__all__ = ['ParticipantBadgeForm', 'ParticipantForm']
 
 
 class ParticipantForm(forms.Form):

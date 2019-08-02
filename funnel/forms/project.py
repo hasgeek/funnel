@@ -13,17 +13,17 @@ import baseframe.forms as forms
 from ..models import RSVP_STATUS, Project
 
 __all__ = [
-    'EventForm',
-    'ProjectForm',
     'CfpForm',
+    'EventForm',
+    'ProjectBoxofficeForm',
+    'ProjectCfpTransitionForm',
+    'ProjectForm',
+    'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
     'RsvpForm',
+    'SavedProjectForm',
     'TicketClientForm',
     'TicketTypeForm',
-    'ProjectBoxofficeForm',
-    'SavedProjectForm',
-    'ProjectScheduleTransitionForm',
-    'ProjectCfpTransitionForm',
 ]
 
 valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
