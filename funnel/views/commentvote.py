@@ -77,7 +77,9 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         if commentform.validate_on_submit():
             send_mail_info = []
             if commentform.comment_edit_id.data:
-                comment = Comment.query.filter_by(suuid=commentform.comment_edit_id.data).first_or_404()
+                comment = Comment.query.filter_by(
+                    suuid=commentform.comment_edit_id.data
+                ).first_or_404()
                 if comment:
                     if comment.current_permissions.edit_comment:
                         comment.message = commentform.message.data
@@ -88,40 +90,84 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                 else:
                     flash(_("No such comment"), 'error')
             else:
-                comment = Comment(user=current_auth.user, commentset=self.obj.commentset,
-                    message=commentform.message.data)
+                comment = Comment(
+                    user=current_auth.user,
+                    commentset=self.obj.commentset,
+                    message=commentform.message.data,
+                )
                 if commentform.parent_id.data:
-                    parent = Comment.query.filter_by(suuid=commentform.parent_id.data).first_or_404()
-                    if parent.user.email:  # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
-                        if parent.user == self.obj.owner:  # check if parent comment is by the proposal owner
-                            if not parent.user == current_auth.user:  # check if parent comment is by the curernt user
-                                send_mail_info.append({'to': self.obj.owner.email or self.obj.email,
-                                    'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                                    'template': 'proposal_comment_reply_email.md'})
+                    parent = Comment.query.filter_by(
+                        suuid=commentform.parent_id.data
+                    ).first_or_404()
+                    if (
+                        parent.user.email
+                    ):  # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
+                        if (
+                            parent.user == self.obj.owner
+                        ):  # check if parent comment is by the proposal owner
+                            if (
+                                not parent.user == current_auth.user
+                            ):  # check if parent comment is by the curernt user
+                                send_mail_info.append(
+                                    {
+                                        'to': self.obj.owner.email or self.obj.email,
+                                        'subject': u"[New Comment] {project}: {proposal}".format(
+                                            project=self.obj.project.title,
+                                            proposal=self.obj.title,
+                                        ),
+                                        'template': 'proposal_comment_reply_email.md',
+                                    }
+                                )
                         else:  # send mail to parent comment owner & proposal owner
                             if not parent.user == current_auth.user:
-                                send_mail_info.append({'to': parent.user.email,
-                                    'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                                    'template': 'proposal_comment_to_proposer_email.md'})
+                                send_mail_info.append(
+                                    {
+                                        'to': parent.user.email,
+                                        'subject': u"[New Comment] {project}: {proposal}".format(
+                                            project=self.obj.project.title,
+                                            proposal=self.obj.title,
+                                        ),
+                                        'template': 'proposal_comment_to_proposer_email.md',
+                                    }
+                                )
                             if not self.obj.owner == current_auth.user:
-                                send_mail_info.append({'to': self.obj.owner.email or self.obj.email,
-                                    'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                                    'template': 'proposal_comment_email.md'})
+                                send_mail_info.append(
+                                    {
+                                        'to': self.obj.owner.email or self.obj.email,
+                                        'subject': u"[New Comment] {project}: {proposal}".format(
+                                            project=self.obj.project.title,
+                                            proposal=self.obj.title,
+                                        ),
+                                        'template': 'proposal_comment_email.md',
+                                    }
+                                )
 
                     if parent and parent.commentset == self.obj.commentset:
                         comment.parent = parent
                 else:  # for top level comment
                     if not self.obj.owner == current_auth.user:
-                        send_mail_info.append({'to': self.obj.owner.email or self.obj.email,
-                            'subject': u"[New Comment] {project}: {proposal}".format(project=self.obj.project.title, proposal=self.obj.title),
-                            'template': 'proposal_comment_email.md'})
+                        send_mail_info.append(
+                            {
+                                'to': self.obj.owner.email or self.obj.email,
+                                'subject': u"[New Comment] {project}: {proposal}".format(
+                                    project=self.obj.project.title,
+                                    proposal=self.obj.title,
+                                ),
+                                'template': 'proposal_comment_email.md',
+                            }
+                        )
                 self.obj.commentset.count += 1
                 comment.voteset.vote(current_auth.user)  # Vote for your own comment
                 db.session.add(comment)
                 flash(_("Your comment has been posted"), 'info')
             db.session.commit()
             for item in send_mail_info:
-                email_body = render_template(item.pop('template'), proposal=self.obj, comment=comment, link=to_redirect)
+                email_body = render_template(
+                    item.pop('template'),
+                    proposal=self.obj,
+                    comment=comment,
+                    link=to_redirect,
+                )
                 if item.get('to'):
                     # Sender is set to None to prevent revealing email.
                     send_mail(sender=None, body=email_body, **item)
@@ -145,25 +191,44 @@ FunnelProposalVoteView.init_app(funnelapp)
 
 class ProposalCommentViewMixin(object):
     model = Proposal
-    route_model_map = {'profile': 'project.profile.name',
-        'project': 'project.name', 'suuid': '**comment.suuid',
+    route_model_map = {
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'suuid': '**comment.suuid',
         'url_name_suuid': 'url_name_suuid',
-        'url_id_name': 'url_id_name'}
+        'url_id_name': 'url_id_name',
+    }
 
     def loader(self, profile, project, suuid, url_name_suuid=None, url_id_name=None):
         require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
         if url_name_suuid:
-            proposal = Proposal.query.join(Project, Profile).filter(
-                Profile.name == profile, Project.name == project, Proposal.url_name_suuid == url_name_suuid
-            ).first_or_404()
+            proposal = (
+                Proposal.query.join(Project, Profile)
+                .filter(
+                    Profile.name == profile,
+                    Project.name == project,
+                    Proposal.url_name_suuid == url_name_suuid,
+                )
+                .first_or_404()
+            )
         else:
-            proposal = Proposal.query.join(Project, Profile).filter(
-                Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
-            ).first_or_404()
+            proposal = (
+                Proposal.query.join(Project, Profile)
+                .filter(
+                    Profile.name == profile,
+                    Project.name == project,
+                    Proposal.url_name == url_id_name,
+                )
+                .first_or_404()
+            )
 
-        comment = Comment.query.join(
-            Proposal, Comment.commentset_id == Proposal.commentset_id
-        ).filter(Comment.suuid == suuid, Proposal.id == proposal.id).first_or_404()
+        comment = (
+            Comment.query.join(
+                Proposal, Comment.commentset_id == Proposal.commentset_id
+            )
+            .filter(Comment.suuid == suuid, Proposal.id == proposal.id)
+            .first_or_404()
+        )
 
         return ProposalComment(proposal, comment)
 
