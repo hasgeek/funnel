@@ -11,9 +11,9 @@ Create Date: 2019-02-06 20:48:34.700795
 revision = '94ce3a9b7a3a'
 down_revision = 'a9cb0e1c52ed'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy_utils.types.uuid import UUIDType
+import sqlalchemy as sa  # NOQA
 
 from coaster.sqlalchemy.columns import JsonDict
 

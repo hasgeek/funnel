@@ -14,10 +14,10 @@ down_revision = 'e417a13e136d'
 
 from uuid import uuid4
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
+import sqlalchemy as sa  # NOQA
 
 venue_room = table(
     'venue_room', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))

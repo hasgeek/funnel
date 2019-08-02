@@ -10,9 +10,9 @@ We are unfortunately unable to take appointments for any product or service youâ
 
 We host an Open House almost every Friday (the exception being when we are all travelling or hosting an event out of office). Drop in on Fridays 5 PM onwards:
 
-> HasGeek House  
-> \#2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage  
-> Bangalore - 560 008, KA, India  
+> HasGeek House
+> \#2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage
+> Bangalore - 560 008, KA, India
 > Ph: +91 7676 33 2020
 
 This is also where you send us any parcels. Unexpected goodies are always nice.

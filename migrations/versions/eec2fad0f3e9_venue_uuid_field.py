@@ -13,13 +13,13 @@ down_revision = 'ae68621248af'
 
 from uuid import uuid4
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
+import sqlalchemy as sa  # NOQA
 
-import progressbar.widgets
 from progressbar import ProgressBar
+import progressbar.widgets
 
 venue = table(
     'venue', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))

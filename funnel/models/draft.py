@@ -11,6 +11,7 @@ __all__ = ['Draft']
 
 class Draft(NoIdMixin, db.Model):
     """Store for autosaved, unvalidated drafts on behalf of other models"""
+
     __tablename__ = 'draft'
 
     table = db.Column(db.UnicodeText, primary_key=True)

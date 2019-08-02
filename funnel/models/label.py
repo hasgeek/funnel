@@ -10,18 +10,36 @@ from .project import Project
 from .proposal import Proposal
 
 proposal_label = db.Table(
-    'proposal_label', db.Model.metadata,
-    db.Column('proposal_id', None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False, primary_key=True),
-    db.Column('label_id', None, db.ForeignKey('label.id', ondelete='CASCADE'), nullable=False, primary_key=True, index=True),
-    db.Column('created_at', db.TIMESTAMP(timezone=True), default=db.func.utcnow())
-    )
+    'proposal_label',
+    db.Model.metadata,
+    db.Column(
+        'proposal_id',
+        None,
+        db.ForeignKey('proposal.id', ondelete='CASCADE'),
+        nullable=False,
+        primary_key=True,
+    ),
+    db.Column(
+        'label_id',
+        None,
+        db.ForeignKey('label.id', ondelete='CASCADE'),
+        nullable=False,
+        primary_key=True,
+        index=True,
+    ),
+    db.Column('created_at', db.TIMESTAMP(timezone=True), default=db.func.utcnow()),
+)
 
 
 class Label(BaseScopedNameMixin, db.Model):
     __tablename__ = 'label'
 
-    project_id = db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
-    project = db.relationship(Project)  # Backref is defined in the Project model with an ordering list
+    project_id = db.Column(
+        None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+    )
+    project = db.relationship(
+        Project
+    )  # Backref is defined in the Project model with an ordering list
     # `parent` is required for :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
     parent = db.synonym('project')
 
@@ -32,15 +50,16 @@ class Label(BaseScopedNameMixin, db.Model):
         None,
         db.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
-        nullable=True
-        )
+        nullable=True,
+    )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
     options = db.relationship(
         'Label',
         backref=db.backref('main_label', remote_side='Label.id'),
-        order_by='Label.seq', passive_deletes=True,
-        collection_class=ordering_list('seq', count_from=1)
-        )
+        order_by='Label.seq',
+        passive_deletes=True,
+        collection_class=ordering_list('seq', count_from=1),
+    )
 
     # TODO: Add sqlalchemy validator for `main_label` to ensure the parent's project matches.
     # Ideally add a SQL post-update trigger as well (code is in coaster's add_primary_relationship)
@@ -70,14 +89,19 @@ class Label(BaseScopedNameMixin, db.Model):
     #: although all the previous records will stay in database.
     _archived = db.Column('archived', db.Boolean, nullable=False, default=False)
 
-    search_vector = db.deferred(db.Column(
-        TSVectorType(
-            'name', 'title', 'description',
-            weights={'name': 'A', 'title': 'A', 'description': 'B'},
-            regconfig='english',
-            hltext=lambda: db.func.concat_ws(' / ', Label.title, Label.description),
+    search_vector = db.deferred(
+        db.Column(
+            TSVectorType(
+                'name',
+                'title',
+                'description',
+                weights={'name': 'A', 'title': 'A', 'description': 'B'},
+                regconfig='english',
+                hltext=lambda: db.func.concat_ws(' / ', Label.title, Label.description),
             ),
-        nullable=False))
+            nullable=False,
+        )
+    )
 
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
@@ -85,16 +109,21 @@ class Label(BaseScopedNameMixin, db.Model):
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
         db.Index('ix_label_search_vector', 'search_vector', postgresql_using='gin'),
-        )
+    )
 
     __roles__ = {
         'all': {
             'read': {
-                'name', 'title', 'project', 'seq',
-                'restricted', 'required', 'archived'
-                }
+                'name',
+                'title',
+                'project',
+                'seq',
+                'restricted',
+                'required',
+                'archived',
             }
         }
+    }
 
     @property
     def title_for_name(self):
@@ -105,7 +134,11 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @property
     def form_label_text(self):
-        return self.icon_emoji + " " + self.title if self.icon_emoji is not None else self.title
+        return (
+            self.icon_emoji + " " + self.title
+            if self.icon_emoji is not None
+            else self.title
+        )
 
     @property
     def has_proposals(self):
@@ -126,13 +159,23 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @restricted.expression
     def restricted(cls):  # NOQA: N805
-        return case([
-            (cls.main_label_id != None, db.select([Label._restricted]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
-        ], else_=cls._restricted)
+        return case(
+            [
+                (
+                    cls.main_label_id != None,
+                    db.select([Label._restricted])
+                    .where(Label.id == cls.main_label_id)
+                    .as_scalar(),
+                )  # NOQA
+            ],
+            else_=cls._restricted,
+        )
 
     @hybrid_property
     def archived(self):
-        return self._archived or (self.main_label._archived if self.main_label else False)
+        return self._archived or (
+            self.main_label._archived if self.main_label else False
+        )
 
     @archived.setter
     def archived(self, value):
@@ -140,10 +183,18 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @archived.expression
     def archived(cls):  # NOQA: N805
-        return case([
-            (cls._archived == True, cls._archived),  # NOQA
-            (cls.main_label_id != None, db.select([Label._archived]).where(Label.id == cls.main_label_id).as_scalar())  # NOQA
-        ], else_=cls._archived)
+        return case(
+            [
+                (cls._archived == True, cls._archived),  # NOQA
+                (
+                    cls.main_label_id != None,
+                    db.select([Label._archived])
+                    .where(Label.id == cls.main_label_id)
+                    .as_scalar(),
+                ),  # NOQA
+            ],
+            else_=cls._archived,
+        )
 
     @hybrid_property
     def has_options(self):
@@ -200,7 +251,9 @@ class Label(BaseScopedNameMixin, db.Model):
             return
 
         if self.main_label is not None:
-            existing_labels = set(self.main_label.options).intersection(set(proposal.labels))
+            existing_labels = set(self.main_label.options).intersection(
+                set(proposal.labels)
+            )
             if existing_labels:
                 # the parent label is in radio mode and one of it's labels are
                 # already assigned to this proposal. We need to
@@ -234,7 +287,7 @@ class ProposalLabelProxyWrapper(object):
 
         label = Label.query.filter(
             Label.name == name, Label.project == self._obj.project
-            ).one_or_none()
+        ).one_or_none()
         if not label:
             raise AttributeError
 
@@ -248,7 +301,9 @@ class ProposalLabelProxyWrapper(object):
 
     def __setattr__(self, name, value):
         label = Label.query.filter(
-            Label.name == name, Label.project == self._obj.project, Label._archived == False
+            Label.name == name,
+            Label.project == self._obj.project,
+            Label._archived == False,
         ).one_or_none()  # NOQA
         if not label:
             raise AttributeError
@@ -264,16 +319,18 @@ class ProposalLabelProxyWrapper(object):
                 raise ValueError("This label can only be set to True or False")
         else:
             option_label = Label.query.filter_by(
-                main_label=label,
-                _archived=False,
-                name=value).one_or_none()
+                main_label=label, _archived=False, name=value
+            ).one_or_none()
             if not option_label:
                 raise ValueError("Invalid option for this label")
 
             # Scan for conflicting labels and remove them. Iterate over a copy
             # to allow mutation of the source list during iteration
             for existing_label in list(self._obj.labels):
-                if existing_label != option_label and existing_label.main_label == option_label.main_label:
+                if (
+                    existing_label != option_label
+                    and existing_label.main_label == option_label.main_label
+                ):
                     self._obj.labels.remove(existing_label)
 
             if option_label not in self._obj.labels:
