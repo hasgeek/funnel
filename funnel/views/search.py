@@ -22,29 +22,53 @@ pg_delimiter = u' … '
 
 # TODO: extend SearchModel to include profile_query_factory and project_query_factory
 # for scoped search
-SearchModel = namedtuple('SearchModel', ['label', 'model', 'has_title', 'query_factory'])
+SearchModel = namedtuple(
+    'SearchModel', ['label', 'model', 'has_title', 'query_factory']
+)
 
 # The order here is preserved into the tabs shown in UI
-search_types = OrderedDict([
-    ('project', SearchModel(
-        __("Projects"), Project, True,
-        lambda: Project.all_unsorted())),
-    ('profile', SearchModel(
-        __("Profiles"), Profile, True,
-        lambda: Profile.query)),
-    ('session', SearchModel(
-        __("Sessions"), Session, True,
-        lambda: Session.query.join(Proposal).join(User, Proposal.speaker))),  # FIXME: undefer userinfo
-    ('proposal', SearchModel(
-        __("Proposals"), Proposal, True,
-        lambda: Proposal.query.join(User, Proposal.speaker).options(db.undefer('user.userinfo')))),
-    ('comment', SearchModel(
-        __("Comments"), Comment, False,
-        lambda: Comment.query.join(User).options(db.undefer('user.userinfo')))),
-    ])
+search_types = OrderedDict(
+    [
+        (
+            'project',
+            SearchModel(__("Projects"), Project, True, lambda: Project.all_unsorted()),
+        ),
+        ('profile', SearchModel(__("Profiles"), Profile, True, lambda: Profile.query)),
+        (
+            'session',
+            SearchModel(
+                __("Sessions"),
+                Session,
+                True,
+                lambda: Session.query.join(Proposal).join(User, Proposal.speaker),
+            ),
+        ),  # FIXME: undefer userinfo
+        (
+            'proposal',
+            SearchModel(
+                __("Proposals"),
+                Proposal,
+                True,
+                lambda: Proposal.query.join(User, Proposal.speaker).options(
+                    db.undefer('user.userinfo')
+                ),
+            ),
+        ),
+        (
+            'comment',
+            SearchModel(
+                __("Comments"),
+                Comment,
+                False,
+                lambda: Comment.query.join(User).options(db.undefer('user.userinfo')),
+            ),
+        ),
+    ]
+)
 
 
 # --- Utilities ---------------------------------------------------------------
+
 
 def escape_quotes(text):
     """PostgreSQL strips tags for us, but to be completely safe we need to escape quotes"""
@@ -56,12 +80,17 @@ def escape_quotes(text):
 # @cache.memoize(timeout=300)
 def search_counts(squery):
     """Return counts of search results"""
-    return [{
-        'type': k,
-        'label': v.label,
-        'count': v.query_factory().options(db.load_only(v.model.id)).filter(
-            v.model.search_vector.match(squery)).count()}
-        for k, v in search_types.items()]
+    return [
+        {
+            'type': k,
+            'label': v.label,
+            'count': v.query_factory()
+            .options(db.load_only(v.model.id))
+            .filter(v.model.search_vector.match(squery))
+            .count(),
+        }
+        for k, v in search_types.items()
+    ]
 
 
 # @cache.memoize(timeout=300)
@@ -74,9 +103,14 @@ def search_results(squery, stype, page=1, per_page=20):
     # Construct a basic query, sorted by matching column priority followed by date.
     # TODO: Pick the right query factory depending on requested scoping.
     # TODO: Pick a better date column than "created_at".
-    query = st.query_factory().filter(
-        st.model.search_vector.match(squery)).order_by(
-            db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)), st.model.created_at.desc())
+    query = (
+        st.query_factory()
+        .filter(st.model.search_vector.match(squery))
+        .order_by(
+            db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
+            st.model.created_at.desc(),
+        )
+    )
 
     # Show rich summary by including the item's title with search terms highlighted
     # (only if the item has a title)
@@ -85,9 +119,10 @@ def search_results(squery, stype, page=1, per_page=20):
             regconfig,
             st.model.title,
             db.func.to_tsquery(squery),
-            'HighlightAll=TRUE, StartSel="%s", StopSel="%s"' % (pg_startsel, pg_stopsel),
-            type_=db.UnicodeText
-            )
+            'HighlightAll=TRUE, StartSel="%s", StopSel="%s"'
+            % (pg_startsel, pg_stopsel),
+            type_=db.UnicodeText,
+        )
     else:
         title_column = expression.null()
 
@@ -95,7 +130,8 @@ def search_results(squery, stype, page=1, per_page=20):
         hltext = st.model.search_vector.type.options['hltext']()
     else:
         hltext = db.func.concat_ws(
-            ' / ', *(getattr(st.model, c) for c in st.model.search_vector.type.columns))
+            ' / ', *(getattr(st.model, c) for c in st.model.search_vector.type.columns)
+        )
 
     # Also show a snippet of the item's text with search terms highlighted
     # Because we are searching against raw Markdown instead of rendered HTML,
@@ -107,8 +143,8 @@ def search_results(squery, stype, page=1, per_page=20):
         'MaxFragments=2, FragmentDelimiter="%s", '
         'MinWords=5, MaxWords=20, '
         'StartSel="%s", StopSel="%s"' % (pg_delimiter, pg_startsel, pg_stopsel),
-        type_=db.UnicodeText
-        )
+        type_=db.UnicodeText,
+    )
 
     # Add the two additional columns to the query and paginate results
     query = query.add_columns(title_column, snippet_column)
@@ -116,13 +152,16 @@ def search_results(squery, stype, page=1, per_page=20):
 
     # Return a page of results
     return {
-        'items': [{
-            'title': item.title if st.has_title else None,
-            'title_html': escape_quotes(title) if title is not None else None,
-            'url': item.absolute_url,
-            'snippet_html': escape_quotes(snippet),
-            'obj': item.current_access(),
-            } for item, title, snippet in pagination.items],
+        'items': [
+            {
+                'title': item.title if st.has_title else None,
+                'title_html': escape_quotes(title) if title is not None else None,
+                'url': item.absolute_url,
+                'snippet_html': escape_quotes(snippet),
+                'obj': item.current_access(),
+            }
+            for item, title, snippet in pagination.items
+        ],
         'has_next': pagination.has_next,
         'has_prev': pagination.has_prev,
         'page': pagination.page,
@@ -131,7 +170,7 @@ def search_results(squery, stype, page=1, per_page=20):
         'next_num': pagination.next_num,
         'prev_num': pagination.prev_num,
         'count': pagination.total,
-        }
+    }
 
 
 # --- Views -------------------------------------------------------------------
@@ -141,20 +180,19 @@ class SearchView(ClassView):
     @requestargs('q', ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
         squery = for_tsquery(q or '')
-        stype = request.args.get('type')  # Can't use requestargs as it doesn't support name changes
+        stype = request.args.get(
+            'type'
+        )  # Can't use requestargs as it doesn't support name changes
         if not squery:
             return redirect(url_for('index'))
         if stype is None or stype not in search_types:
-            return {
-                'type': None,
-                'counts': search_counts(squery)
-                }
+            return {'type': None, 'counts': search_counts(squery)}
         else:
             return {
                 'type': stype,
                 'counts': search_counts(squery),
-                'results': search_results(squery, stype, page=page, per_page=per_page)
-                }
+                'results': search_results(squery, stype, page=page, per_page=per_page),
+            }
 
 
 SearchView.init_app(app)

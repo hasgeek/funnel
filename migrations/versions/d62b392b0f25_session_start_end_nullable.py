@@ -12,9 +12,9 @@ Create Date: 2018-11-22 00:40:37.530856
 revision = 'd62b392b0f25'
 down_revision = '07ebe99161d5'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.dialects import postgresql
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

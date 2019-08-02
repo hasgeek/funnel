@@ -2,17 +2,17 @@
 
 from flask import g
 
-import baseframe.forms as forms
 from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
+import baseframe.forms as forms
 
 from ..models import Profile, Project
 
 __all__ = [
     'ProposalForm',
+    'ProposalLabelsAdminForm',
     'ProposalLabelsForm',
     'ProposalMoveForm',
-    'ProposalLabelsAdminForm',
     'ProposalTransferForm',
     'ProposalTransitionForm',
 ]
