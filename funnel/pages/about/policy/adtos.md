@@ -2,7 +2,7 @@ title: Sponsorship and advertising terms of service
 
 Please see our [terms of service](terms) policy for important definitions used here.
 
-HasGeek makes physical and online space available for advertisers to showcase their products, APIs, services and job opportunities, for a fee. Specific terms for such opportunities will apply and will be set forth separately (in an email, ordering facility, written agreement, etc). The advertising order will be considered fulfilled once the Advertiser’s collateral has been displayed or serviced for a pre-specified period of time. 
+HasGeek makes physical and online space available for advertisers to showcase their products, APIs, services and job opportunities, for a fee. Specific terms for such opportunities will apply and will be set forth separately (in an email, ordering facility, written agreement, etc). The advertising order will be considered fulfilled once the Advertiser’s collateral has been displayed or serviced for a pre-specified period of time.
 
 Advertisers may cancel their order through User’s account if online cancellation functionality is available, or, if not available, with prior written notice to HasGeek, including without limitation electronic mail.  The cancellation of any advertising may be subject to this document, the sponsorship and advertising terms of service, or HasGeek’s ability to re-schedule reserved inventory or cancel ads already in production. Cancelled ads may be published despite cancellation if cancellation of those ads occurs after any applicable commitment date as set forth in advance by HasGeek, in which case Advertiser must pay for those ads.
 

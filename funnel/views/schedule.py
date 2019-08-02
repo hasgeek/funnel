@@ -36,12 +36,15 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            'start': session.start_at.isoformat() if session.scheduled else None,  # Legacy
-            'end': session.end_at.isoformat() if session.scheduled else None,  # Legacy
+            # `start` and `end` are legacy
+            'start': session.start_at.isoformat() if session.scheduled else None,
+            'end': session.end_at.isoformat() if session.scheduled else None,
             'start_at': session.start_at.isoformat() if session.scheduled else None,
             'end_at': session.end_at.isoformat() if session.scheduled else None,
             'speaker': session.speaker if session.speaker else None,
-            'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
+            'room_scoped_name': (
+                session.venue_room.scoped_name if session.venue_room else None
+            ),
             'is_break': session.is_break,
             'url_name_suuid': session.url_name_suuid,
             'url_name': session.url_name,
@@ -49,17 +52,19 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
             'speaker_bio': session.speaker_bio,
             'description': session.description,
         }.items()
-        + dict({
-            'modal_url': session.url_for(with_modal_url)
-        } if with_modal_url else {}).items()
-        + dict({
-            'delete_url': session.url_for('delete')
-        } if with_delete_url else {}).items()
+        + dict(
+            {'modal_url': session.url_for(with_modal_url)} if with_modal_url else {}
+        ).items()
+        + dict(
+            {'delete_url': session.url_for('delete')} if with_delete_url else {}
+        ).items()
     )
 
 
 def session_list_data(sessions, with_modal_url=False, with_delete_url=False):
-    return [session_data(session, with_modal_url, with_delete_url) for session in sessions]
+    return [
+        session_data(session, with_modal_url, with_delete_url) for session in sessions
+    ]
 
 
 def date_js(d):
@@ -73,32 +78,43 @@ def schedule_data(project):
     for session in project.scheduled_sessions:
         day = str(localize_date(session.start_at, to_tz=project.timezone).date())
         slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
-        data[day][slot].append({
-            'id': session.url_id,
-            'title': session.title,
-            'start_at': session.start_at.isoformat(),
-            'end_at': session.end_at.isoformat(),
-            'url': session.url_for(_external=True),
-            'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
-            'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
-            'proposal': session.proposal.suuid if session.proposal else None,
-            'feedback_url': session.url_for('feedback', _external=True) if session.proposal else None,
-            'speaker': session.speaker,
-            'room': session.venue_room.scoped_name if session.venue_room else None,
-            'is_break': session.is_break,
-            'description_text': session.description_text,
-            'description': session.description,
-            'speaker_bio': session.speaker_bio,
-            'speaker_bio_text': session.speaker_bio_text,
-        })
+        data[day][slot].append(
+            {
+                'id': session.url_id,
+                'title': session.title,
+                'start_at': session.start_at.isoformat(),
+                'end_at': session.end_at.isoformat(),
+                'url': session.url_for(_external=True),
+                'json_url': (
+                    session.proposal.url_for('json', _external=True)
+                    if session.proposal
+                    else None
+                ),
+                'proposal_url': (
+                    session.proposal.url_for(_external=True)
+                    if session.proposal
+                    else None
+                ),
+                'proposal': session.proposal.suuid if session.proposal else None,
+                'feedback_url': (
+                    session.url_for('feedback', _external=True)
+                    if session.proposal
+                    else None
+                ),
+                'speaker': session.speaker,
+                'room': session.venue_room.scoped_name if session.venue_room else None,
+                'is_break': session.is_break,
+                'description_text': session.description_text,
+                'description': session.description,
+                'speaker_bio': session.speaker_bio,
+                'speaker_bio_text': session.speaker_bio_text,
+            }
+        )
     schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
         for slot in sorted(data[day]):
-            daydata['slots'].append({
-                'slot': slot,
-                'sessions': data[day][slot]
-            })
+            daydata['slots'].append({'slot': slot, 'sessions': data[day][slot]})
         schedule.append(daydata)
 
     return schedule
@@ -113,7 +129,9 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    event.add('uid', "/".join([session.project.name, session.url_name]) + '@' + request.host)
+    event.add(
+        'uid', "/".join([session.project.name, session.url_name]) + '@' + request.host
+    )
     event.add('dtstart', session.start_at.astimezone(session.project.timezone))
     event.add('dtend', session.end_at.astimezone(session.project.timezone))
     event.add('dtstamp', utcnow().astimezone(session.project.timezone))
@@ -129,7 +147,10 @@ def session_ical(session):
             location.append(session.venue_room.venue.country)
         event.add('location', "\n".join(location))
         if session.venue_room.venue.latitude and session.venue_room.venue.longitude:
-            event.add('geo', (session.venue_room.venue.latitude, session.venue_room.venue.longitude))
+            event.add(
+                'geo',
+                (session.venue_room.venue.latitude, session.venue_room.venue.longitude),
+            )
     if session.description_text:
         event.add('description', session.description_text)
     if session.proposal:
@@ -162,17 +183,17 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'from_date': date_js(self.obj.schedule_start_at),
             'to_date': date_js(self.obj.schedule_end_at),
-            'sessions': session_list_data(self.obj.scheduled_sessions, with_modal_url='view_popup'),
+            'sessions': session_list_data(
+                self.obj.scheduled_sessions, with_modal_url='view_popup'
+            ),
             'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             'venues': [venue.current_access() for venue in self.obj.venues],
             'rooms': {
-                room.scoped_name: {
-                    'title': room.title,
-                    'bgcolor': room.bgcolor
-                } for room in self.obj.rooms
+                room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
+                for room in self.obj.rooms
             },
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form
+            'project_save_form': project_save_form,
         }
 
     @route('subscribe')
@@ -185,15 +206,22 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @cors('*')
     @requires_permission('view')
     def schedule_json(self):
-        return jsonp(schedule=schedule_data(self.obj),
+        return jsonp(
+            schedule=schedule_data(self.obj),
             venues=[venue.current_access() for venue in self.obj.venues],
-            rooms=[room_data(room) for room in self.obj.rooms])
+            rooms=[room_data(room) for room in self.obj.rooms],
+        )
 
     @route('ical')
     @requires_permission('view')
     def schedule_ical(self):
         cal = Calendar()
-        cal.add('prodid', "-//Schedule for {event}//funnel.hasgeek.com//".format(event=self.obj.title))
+        cal.add(
+            'prodid',
+            "-//Schedule for {event}//funnel.hasgeek.com//".format(
+                event=self.obj.title
+            ),
+        )
         cal.add('version', "2.0")
         cal.add('summary', "Schedule for {event}".format(event=self.obj.title))
         # FIXME: Last updated time for calendar needs to be set. Cannot figure out how.
@@ -210,11 +238,16 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('edit-schedule')
     def edit_schedule(self):
         proposals = {
-            'unscheduled': [{
-                'title': proposal.title,
-                'modal_url': proposal.url_for('schedule')
-            } for proposal in self.obj.proposals_all.filter(Proposal.state.CONFIRMED).order_by(Proposal.title) if not proposal.state.SCHEDULED],
-            'scheduled': session_list_data(self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True)
+            'unscheduled': [
+                {'title': proposal.title, 'modal_url': proposal.url_for('schedule')}
+                for proposal in self.obj.proposals_all.filter(
+                    Proposal.state.CONFIRMED
+                ).order_by(Proposal.title)
+                if not proposal.state.SCHEDULED
+            ],
+            'scheduled': session_list_data(
+                self.obj.scheduled_sessions, with_modal_url='edit', with_delete_url=True
+            ),
         }
         return {
             'project': self.obj,
@@ -227,9 +260,10 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 room.scoped_name: {
                     'title': room.title,
                     'vtitle': room.venue.title + " - " + room.title,
-                    'bgcolor': room.bgcolor
-                } for room in self.obj.rooms
-            }
+                    'bgcolor': room.bgcolor,
+                }
+                for room in self.obj.rooms
+            },
         }
 
     @route('update', methods=['POST'])
@@ -240,12 +274,18 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     def update_schedule(self, sessions):
         for session in sessions:
             try:
-                s = Session.query.filter_by(project=self.obj, url_id=session['id']).one()
+                s = Session.query.filter_by(
+                    project=self.obj, url_id=session['id']
+                ).one()
                 s.start_at = session['start_at']
                 s.end_at = session['end_at']
                 db.session.commit()
             except NoResultFound:
-                current_app.logger.error('%s schedule update error: session = %s', project=self.obj.name, session=session)
+                current_app.logger.error(
+                    '%s schedule update error: session = %s',
+                    project=self.obj.name,
+                    session=session,
+                )
         return jsonify(status=True)
 
 
@@ -266,25 +306,34 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_room_ical(self):
         cal = Calendar()
-        cal.add('prodid', "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
-            room=self.obj.title,
-            venue=self.obj.venue.title,
-            event=self.obj.venue.project.title,
-        ))
+        cal.add(
+            'prodid',
+            "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
+                room=self.obj.title,
+                venue=self.obj.venue.title,
+                event=self.obj.venue.project.title,
+            ),
+        )
         cal.add('version', "2.0")
-        cal.add('summary', "Schedule for room {room} at {venue} for {event}".format(
-            room=self.obj.title,
-            venue=self.obj.venue.title,
-            event=self.obj.venue.project.title,
-        ))
+        cal.add(
+            'summary',
+            "Schedule for room {room} at {venue} for {event}".format(
+                room=self.obj.title,
+                venue=self.obj.venue.title,
+                event=self.obj.venue.project.title,
+            ),
+        )
         # Last updated time for calendar needs to be set. Cannot figure out how.
         # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
         # cal.add('last-modified', latest_session[0])
-        cal.add('x-wr-calname', "{event} - {room} @ {venue}".format(
-            room=self.obj.title,
-            venue=self.obj.venue.title,
-            event=self.obj.venue.project.title,
-        ))
+        cal.add(
+            'x-wr-calname',
+            "{event} - {room} @ {venue}".format(
+                room=self.obj.title,
+                venue=self.obj.venue.title,
+                event=self.obj.venue.project.title,
+            ),
+        )
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
         return Response(cal.to_ical(), mimetype='text/calendar')
@@ -295,25 +344,43 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     def updates(self):
         now = utcnow()
         current_session = Session.query.filter(
-            Session.start_at <= now, Session.end_at >= now,
+            Session.start_at <= now,
+            Session.end_at >= now,
             Session.project == self.obj.venue.project,
-            db.or_(Session.venue_room == room, Session.is_break == True)  # NOQA
-        ).first()
-        next_session = Session.query.filter(
-            Session.start_at > now,
             db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
-            Session.project == self.obj.venue.project
-        ).order_by(Session.start_at).first()
+        ).first()
+        next_session = (
+            Session.query.filter(
+                Session.start_at > now,
+                db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
+                Session.project == self.obj.venue.project,
+            )
+            .order_by(Session.start_at)
+            .first()
+        )
         if current_session:
-            current_session.start_at = localize_date(current_session.start_at, to_tz=self.obj.venue.project.timezone)
-            current_session.end_at = localize_date(current_session.end_at, to_tz=self.obj.venue.project.timezone)
+            current_session.start_at = localize_date(
+                current_session.start_at, to_tz=self.obj.venue.project.timezone
+            )
+            current_session.end_at = localize_date(
+                current_session.end_at, to_tz=self.obj.venue.project.timezone
+            )
         nextdiff = None
         if next_session:
-            next_session.start_at = localize_date(next_session.start_at, to_tz=self.obj.venue.project.timezone)
-            next_session.end_at = localize_date(next_session.end_at, to_tz=self.obj.venue.project.timezone)
+            next_session.start_at = localize_date(
+                next_session.start_at, to_tz=self.obj.venue.project.timezone
+            )
+            next_session.end_at = localize_date(
+                next_session.end_at, to_tz=self.obj.venue.project.timezone
+            )
             nextdiff = next_session.start_at.date() - now.date()
             nextdiff = nextdiff.total_seconds() / 86400
-        return {'room': self.obj, 'current_session': current_session, 'next_session': next_session, 'nextdiff': nextdiff}
+        return {
+            'room': self.obj,
+            'current_session': current_session,
+            'next_session': next_session,
+            'nextdiff': nextdiff,
+        }
 
 
 @route('/<project>/schedule/<venue>/<room>', subdomain='<profile>')

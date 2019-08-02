@@ -48,7 +48,7 @@ The natural person, legal person, public administration or any other body, assoc
 
 A cookie is a small file which asks permission to be placed on the your computer’s hard drive. Once you agree (your browser may be configured to automatically agree on your behalf), the file is added. Cookies allow web applications to respond to you as an individual. The Service can tailor its operations to your needs, likes and dislikes by gathering and remembering information about your preferences.
 
-## Information collection 
+## Information collection
 
 We operate multiple websites and services. When using these websites and services, your browser, computer or phone automatically submits information about itself, and about what you would like to access from our websites. We collect some of this information to help improve our services, including but not limited to the Browsing and Usage Data.
 
@@ -109,7 +109,7 @@ We use cookies to log traffic on our website, that is, to identify which pages a
 
 __Third-party analytics__
 
-We use analytics tools and other third party technologies, such as Google Analytics, to collect non-personal information in the form of various usage metrics when the User uses our services. These tools and technologies collect and analyse certain types of information, including cookies, IP addresses, device and software identifiers, referring and exit URLs, onsite behavior and usage information, feature use metrics and statistics, usage and purchase history, MAC Address, mobile unique device ID, and other similar information. The third party analytics companies who collect information on our services and other online products and/or services may combine the information collected with other information they have independently collected from other websites and/or other online or mobile products and services relating to User’s activities across their network of websites as well as online and/or mobile products and services. Many of these companies collect and use information under their own privacy policies. 
+We use analytics tools and other third party technologies, such as Google Analytics, to collect non-personal information in the form of various usage metrics when the User uses our services. These tools and technologies collect and analyse certain types of information, including cookies, IP addresses, device and software identifiers, referring and exit URLs, onsite behavior and usage information, feature use metrics and statistics, usage and purchase history, MAC Address, mobile unique device ID, and other similar information. The third party analytics companies who collect information on our services and other online products and/or services may combine the information collected with other information they have independently collected from other websites and/or other online or mobile products and services relating to User’s activities across their network of websites as well as online and/or mobile products and services. Many of these companies collect and use information under their own privacy policies.
 
 The User may opt out of Google Analytics by visiting the [Google Analytics opt-out page](https://tools.google.com/dlpage/gaoptout) or by using an ad blocker.
 

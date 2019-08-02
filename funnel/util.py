@@ -28,7 +28,11 @@ def geonameid_from_location(text):
         url = urljoin(current_app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
         try:
             response = requests.get(url, params={'q': text}, timeout=2.0).json()
-            geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]
+            geonameids = [
+                field['geoname']['geonameid']
+                for field in response['result']
+                if 'geoname' in field
+            ]
             return set(geonameids)
         except requests.exceptions.Timeout:
             pass
@@ -54,12 +58,16 @@ def extract_twitter_handle(handle):
         return None
 
     parsed_handle = urlparse(handle)
-    if ((parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
-            or (not parsed_handle.netloc and len(handle) > 16)
-            or (not parsed_handle.path)):
+    if (
+        (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
+        or (not parsed_handle.netloc and len(handle) > 16)
+        or (not parsed_handle.path)
+    ):
         return None
 
-    return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace('@', '')
+    return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace(
+        '@', ''
+    )
 
 
 def format_twitter_handle(handle):

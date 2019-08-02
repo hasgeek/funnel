@@ -48,8 +48,8 @@ proposal_headers = [
     'votes',
     'comments',
     'submitted',
-    'confirmed'
-    ]
+    'confirmed',
+]
 
 
 def proposal_data(proposal):
@@ -68,9 +68,18 @@ def proposal_data(proposal):
             ('fullname', proposal.owner.fullname),
             ('proposer', proposal.user.pickername),
             ('speaker', proposal.speaker.pickername if proposal.speaker else None),
-            ('objective', proposal.abstract.html),  # TODO: Remove this, name has changed
-            ('description', proposal.outline.html),  # TODO: Remove this, name has changed
-            ('requirements', proposal.requirements.html),  # TODO: Remove this, name has changed
+            (
+                'objective',
+                proposal.abstract.html,
+            ),  # TODO: Remove this, name has changed
+            (
+                'description',
+                proposal.outline.html,
+            ),  # TODO: Remove this, name has changed
+            (
+                'requirements',
+                proposal.requirements.html,
+            ),  # TODO: Remove this, name has changed
             ('abstract_text', proposal.abstract.text),
             ('abstract_html', proposal.abstract.html),
             ('outline_text', proposal.outline.text),
@@ -85,16 +94,20 @@ def proposal_data(proposal):
             ('comments', proposal.commentset.count),
             ('submitted', proposal.created_at.isoformat()),
             ('confirmed', bool(proposal.state.CONFIRMED)),
+        ]
+        + (
+            [
+                ('email', proposal.email),
+                ('phone', proposal.phone),
+                ('location', proposal.location),
+                ('votes_count', proposal.votes_count()),
+                ('status', proposal.state.value),
+                ('state', proposal.state.label.name),
             ]
-        + ([
-            ('email', proposal.email),
-            ('phone', proposal.phone),
-            ('location', proposal.location),
-            ('votes_count', proposal.votes_count()),
-            ('status', proposal.state.value),
-            ('state', proposal.state.label.name),
-            ] if current_auth.permissions.view_contactinfo else [])
+            if current_auth.permissions.view_contactinfo
+            else []
         )
+    )
 
 
 def proposal_data_flat(proposal):
@@ -124,10 +137,16 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             db.session.commit()
             flash(_("Your new session has been saved"), 'info')
             return redirect(proposal.url_for(), code=303)
-        return render_form(form=form, title=_("Submit a session proposal"),
+        return render_form(
+            form=form,
+            title=_("Submit a session proposal"),
             submit=_("Submit proposal"),
             message=Markup(
-                _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
+                _(
+                    'This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'
+                )
+            ),
+        )
 
 
 @route('/<profile>/<project>')
@@ -135,7 +154,9 @@ class ProjectProposalView(BaseProjectProposalView):
     pass
 
 
-ProjectProposalView.add_route_for('new_proposal', 'proposals/new', methods=['GET', 'POST'])
+ProjectProposalView.add_route_for(
+    'new_proposal', 'proposals/new', methods=['GET', 'POST']
+)
 ProjectProposalView.init_app(app)
 
 
@@ -156,12 +177,21 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('proposal.html.jinja2')
     @requires_permission('view')
     def view(self):
-        comments = sorted(Comment.query.filter_by(commentset=self.obj.commentset, parent=None).order_by('created_at').all(),
-            key=lambda c: c.voteset.count, reverse=True)
+        comments = sorted(
+            Comment.query.filter_by(commentset=self.obj.commentset, parent=None)
+            .order_by('created_at')
+            .all(),
+            key=lambda c: c.voteset.count,
+            reverse=True,
+        )
         commentform = CommentForm(model=Comment)
         delcommentform = DeleteCommentForm()
 
-        links = [Markup(linkify(unicode(escape(l)))) for l in self.obj.links.replace('\r\n', '\n').split('\n') if l]
+        links = [
+            Markup(linkify(unicode(escape(l))))
+            for l in self.obj.links.replace('\r\n', '\n').split('\n')
+            if l
+        ]
 
         transition_form = ProposalTransitionForm(obj=self.obj)
         proposal_transfer_form = ProposalTransferForm()
@@ -170,7 +200,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if 'move_to' in self.obj.current_access():
             proposal_move_form = ProposalMoveForm()
 
-        proposal_label_admin_form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
+        proposal_label_admin_form = ProposalLabelsAdminForm(
+            model=Proposal, obj=self.obj, parent=self.obj.project
+        )
 
         return {
             'project': self.obj.project,
@@ -183,7 +215,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'proposal_move_form': proposal_move_form,
             'csrf_form': Form(),
             'proposal_transfer_form': proposal_transfer_form,
-            'proposal_label_admin_form': proposal_label_admin_form
+            'proposal_label_admin_form': proposal_label_admin_form,
         }
 
     @route('json')
@@ -205,29 +237,46 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
-        return render_form(form=form, title=_("Edit session proposal"), submit=_("Update proposal"),
+        return render_form(
+            form=form,
+            title=_("Edit session proposal"),
+            submit=_("Update proposal"),
             message=Markup(
-                _('This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.')))
+                _(
+                    'This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'
+                )
+            ),
+        )
 
     @route('delete', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('delete-proposal')
     def delete(self):
-        return render_delete_sqla(self.obj, db, title=_(u"Confirm delete"),
-            message=_(u"Do you really wish to delete your proposal ‘{title}’? "
-                    u"This will remove all votes and comments as well. This operation "
-                    u"is permanent and cannot be undone.").format(title=self.obj.title),
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete your proposal ‘{title}’? "
+                u"This will remove all votes and comments as well. This operation "
+                u"is permanent and cannot be undone."
+            ).format(title=self.obj.title),
             success=_("Your proposal has been deleted"),
             next=self.obj.project.url_for(),
-            cancel_url=self.obj.url_for())
+            cancel_url=self.obj.url_for(),
+        )
 
     @route('transition', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('confirm-proposal')
     def transition(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
-        if transition_form.validate_on_submit():  # check if the provided transition is valid
-            transition = getattr(self.obj.current_access(), transition_form.transition.data)
+        if (
+            transition_form.validate_on_submit()
+        ):  # check if the provided transition is valid
+            transition = getattr(
+                self.obj.current_access(), transition_form.transition.data
+            )
             transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
@@ -266,9 +315,19 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             if target_project != self.obj.project:
                 self.obj.current_access().move_to(target_project)
                 db.session.commit()
-            flash(_("This proposal has been moved to {project}.".format(project=target_project.title)), 'success')
+            flash(
+                _(
+                    "This proposal has been moved to {project}.".format(
+                        project=target_project.title
+                    )
+                ),
+                'success',
+            )
         else:
-            flash(_("Please choose the project you want to move this proposal to."), 'error')
+            flash(
+                _("Please choose the project you want to move this proposal to."),
+                'error',
+            )
         return redirect(self.obj.url_for(), 303)
 
     @route('transfer', methods=['POST'])
@@ -282,7 +341,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             flash(_("This proposal has been transfered."), 'success')
         else:
-            flash(_("Please choose the user you want to transfer this proposal to."), 'error')
+            flash(
+                _("Please choose the user you want to transfer this proposal to."),
+                'error',
+            )
         return redirect(self.obj.url_for(), 303)
 
     @route('schedule', methods=['GET', 'POST'])
@@ -290,13 +352,16 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_permission('new-session')
     def schedule(self):
         from .session import session_form
+
         return session_form(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('admin')
     def edit_labels(self):
-        form = ProposalLabelsAdminForm(model=Proposal, obj=self.obj, parent=self.obj.project)
+        form = ProposalLabelsAdminForm(
+            model=Proposal, obj=self.obj, parent=self.obj.project
+        )
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -304,8 +369,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return redirect(self.obj.url_for(), 303)
         else:
             flash(_("Labels could not be saved for this proposal."), 'error')
-            return render_form(form, submit=_("Save changes"),
-                title=_("Edit labels for '{}'").format(self.obj.title))
+            return render_form(
+                form,
+                submit=_("Save changes"),
+                title=_("Edit labels for '{}'").format(self.obj.title),
+            )
 
 
 @route('/<project>/<url_id_name>', subdomain='<profile>')

@@ -20,24 +20,44 @@ class TestProjectViews(object):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
-            resp_post = c.post(new_project.url_for('new_label'), data=MultiDict({
-                'title': u"Label V1", 'icon_emoji': u"👍",
-                'required': False, 'restricted': False
-                }), follow_redirects=True)
+            resp_post = c.post(
+                new_project.url_for('new_label'),
+                data=MultiDict(
+                    {
+                        'title': u"Label V1",
+                        'icon_emoji': u"👍",
+                        'required': False,
+                        'restricted': False,
+                    }
+                ),
+                follow_redirects=True,
+            )
             assert u"Manage labels" in resp_post.data.decode('utf-8')
-            label_v1 = Label.query.filter_by(title=u"Label V1", icon_emoji=u"👍", project=new_project).first()
+            label_v1 = Label.query.filter_by(
+                title=u"Label V1", icon_emoji=u"👍", project=new_project
+            ).first()
             assert label_v1 is not None
 
     def test_new_label_with_option(self, test_client, new_user, new_project):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
-            resp_post = c.post(new_project.url_for('new_label'), data=MultiDict({
-                'title': [u"Label V2", "Option V21", "Option V22"], 'icon_emoji': [u"👍", "", ""],
-                'required': False, 'restricted': False
-                }), follow_redirects=True)
+            resp_post = c.post(
+                new_project.url_for('new_label'),
+                data=MultiDict(
+                    {
+                        'title': [u"Label V2", "Option V21", "Option V22"],
+                        'icon_emoji': [u"👍", "", ""],
+                        'required': False,
+                        'restricted': False,
+                    }
+                ),
+                follow_redirects=True,
+            )
             assert u"Manage labels" in resp_post.data.decode('utf-8')
-            label_v2 = Label.query.filter_by(title=u"Label V2", icon_emoji=u"👍", project=new_project).first()
+            label_v2 = Label.query.filter_by(
+                title=u"Label V2", icon_emoji=u"👍", project=new_project
+            ).first()
             assert label_v2 is not None
             assert label_v2.has_options
             assert len(label_v2.options) == 2

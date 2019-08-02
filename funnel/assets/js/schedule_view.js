@@ -139,7 +139,7 @@ const Schedule = {
         this.set('headerHeight', 2 * $('.schedule__row--sticky').height());
         this.set('pathName', window.location.pathname);
         let scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
-        
+
         let activeSession = schedule.config.active_session;
         if(activeSession) {
           // Open session modal
