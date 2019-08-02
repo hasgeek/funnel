@@ -52,4 +52,3 @@ workbox.routing.setCatchHandler(({event}) => {
       return Response.error();
   }
 });
-

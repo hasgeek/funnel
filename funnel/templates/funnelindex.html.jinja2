@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{{ config['WELCOME_MESSAGE'] }}{% endif %}{% endblock %}
+{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{% trans %}Talkfunnel hosts proposal submissions and reviews for events.{% endtrans %}{% endif %}{% endblock %}
 
 {%- block image_src %}
   {%- if config['LEGACY'] -%}

@@ -24,22 +24,35 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
     """
     Model to track who scanned whose badge, at which event.
     """
+
     __tablename__ = 'contact_exchange'
     #: User who scanned this contact
-    user_id = db.Column(None, db.ForeignKey('user.id', ondelete='CASCADE'),
-        primary_key=True)
-    user = db.relationship(User,
-        backref=db.backref('scanned_contacts',
+    user_id = db.Column(
+        None, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
+    )
+    user = db.relationship(
+        User,
+        backref=db.backref(
+            'scanned_contacts',
             lazy='dynamic',
             order_by='ContactExchange.scanned_at.desc()',
-            passive_deletes=True))
+            passive_deletes=True,
+        ),
+    )
     #: Participant whose contact was scanned
-    participant_id = db.Column(None, db.ForeignKey('participant.id', ondelete='CASCADE'),
-        primary_key=True, index=True)
-    participant = db.relationship(Participant,
-        backref=db.backref('scanned_contacts', passive_deletes=True))
+    participant_id = db.Column(
+        None,
+        db.ForeignKey('participant.id', ondelete='CASCADE'),
+        primary_key=True,
+        index=True,
+    )
+    participant = db.relationship(
+        Participant, backref=db.backref('scanned_contacts', passive_deletes=True)
+    )
     #: Datetime at which the scan happened
-    scanned_at = db.Column(db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow())
+    scanned_at = db.Column(
+        db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+    )
     #: Note recorded by the user (plain text)
     description = db.Column(db.UnicodeText, nullable=False, default=u'')
     #: Archived flag
@@ -49,11 +62,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         'owner': {
             'read': {'user', 'participant', 'scanned_at', 'description', 'archived'},
             'write': {'description', 'archived'},
-            },
-        'subject': {
-            'read': {'user', 'participant', 'scanned_at'},
-            },
-        }
+        },
+        'subject': {'read': {'user', 'participant', 'scanned_at'}},
+    }
 
     def roles_for(self, actor, anchors=()):
         roles = super(ContactExchange, self).roles_for(actor, anchors)
@@ -70,15 +81,12 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         Return count of contacts grouped by project and date
         """
         query = db.session.query(
-            cls.scanned_at,
-            Project.id,
-            Project.uuid,
-            Project.timezone,
-            Project.title,
-            ).filter(
+            cls.scanned_at, Project.id, Project.uuid, Project.timezone, Project.title
+        ).filter(
             cls.participant_id == Participant.id,
             Participant.project_id == Project.id,
-            cls.user == user)
+            cls.user == user,
+        )
 
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
@@ -86,18 +94,29 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             query = query.filter(cls.archived == False)  # NOQA: E712
 
         # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT columns)`
-        query = query.from_self(
-            Project.id.label('id'),
-            Project.uuid.label('uuid'),
-            Project.title.label('title'),
-            Project.timezone.label('timezone'),
-            db.cast(
-                db.func.date_trunc('day', db.func.timezone(Project.timezone, cls.scanned_at)),
-                db.Date).label('date'),
-            db.func.count().label('count')
-            ).group_by(
-                db.text('id'), db.text('uuid'), db.text('title'), db.text('timezone'), db.text('date')
-            ).order_by(db.text('date DESC'))
+        query = (
+            query.from_self(
+                Project.id.label('id'),
+                Project.uuid.label('uuid'),
+                Project.title.label('title'),
+                Project.timezone.label('timezone'),
+                db.cast(
+                    db.func.date_trunc(
+                        'day', db.func.timezone(Project.timezone, cls.scanned_at)
+                    ),
+                    db.Date,
+                ).label('date'),
+                db.func.count().label('count'),
+            )
+            .group_by(
+                db.text('id'),
+                db.text('uuid'),
+                db.text('title'),
+                db.text('timezone'),
+                db.text('date'),
+            )
+            .order_by(db.text('date DESC'))
+        )
 
         # Issued SQL:
         #
@@ -142,12 +161,25 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         # >>> OrderedDict(result)  # Preserve order with most recent projects first
         # >>> dict(result)         # Don't preserve order
 
-        groups = [(k, [
-            DateCountContacts(
-                r.date, r.count, cls.contacts_for_project_and_date(user, k, r.date, archived)
-                ) for r in g
-            ]) for k, g in groupby(query,
-                lambda r: ProjectId(r.id, r.uuid, uuid2suuid(r.uuid), r.title, r.timezone))]
+        groups = [
+            (
+                k,
+                [
+                    DateCountContacts(
+                        r.date,
+                        r.count,
+                        cls.contacts_for_project_and_date(user, k, r.date, archived),
+                    )
+                    for r in g
+                ],
+            )
+            for k, g in groupby(
+                query,
+                lambda r: ProjectId(
+                    r.id, r.uuid, uuid2suuid(r.uuid), r.title, r.timezone
+                ),
+            )
+        ]
 
         return groups
 
@@ -163,9 +195,13 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             # because `project` may be an instance of ProjectId returned by `grouped_counts_for`
             Participant.project_id == project.id,
             db.cast(
-                db.func.date_trunc('day', db.func.timezone(project.timezone.zone, cls.scanned_at)),
-                db.Date) == date
+                db.func.date_trunc(
+                    'day', db.func.timezone(project.timezone.zone, cls.scanned_at)
+                ),
+                db.Date,
             )
+            == date,
+        )
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
             # if archived == False: return only unarchived contacts
@@ -182,7 +218,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             cls.user == user,
             # See explanation for the following expression in `contacts_for_project_and_date`
             Participant.project_id == project.id,
-            )
+        )
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
             # if archived == False: return only unarchived contacts

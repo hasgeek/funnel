@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>HasGeek</ShortName>
+  <Description>Search HasGeek for projects, proposals and more</Description>
+  <Url type="text/html" method="get"
+       template="{{ url_for('SearchView_search', _external=true) }}?q={searchTerms}"/>
+  <Developer>HasGeek</Developer>
+  <Language>en-us</Language>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <InputEncoding>UTF-8</InputEncoding>
+</OpenSearchDescription>

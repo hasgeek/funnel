@@ -31,7 +31,8 @@ _marker = object()
 
 # --- Constants ------------------------------------------------------------------
 
-class PROPOSAL_STATE(LabeledEnum):
+
+class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
     # Draft-state for future use, so people can save their proposals and submit only when ready
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __("Draft"))
@@ -46,16 +47,48 @@ class PROPOSAL_STATE(LabeledEnum):
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
     SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
-    SHORTLISTED_FOR_REHEARSAL = (9, 'shortlisted_for_rehearsal', __("Shortlisted for rehearsal"))
+    SHORTLISTED_FOR_REHEARSAL = (
+        9,
+        'shortlisted_for_rehearsal',
+        __("Shortlisted for rehearsal"),
+    )
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
     # Groups
-    CONFIRMABLE = {WAITLISTED, UNDER_EVALUATION, SHORTLISTED, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
-    REJECTABLE = {WAITLISTED, UNDER_EVALUATION, SHORTLISTED, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
+    CONFIRMABLE = {
+        WAITLISTED,
+        UNDER_EVALUATION,
+        SHORTLISTED,
+        SHORTLISTED_FOR_REHEARSAL,
+        REHEARSAL,
+    }
+    REJECTABLE = {
+        WAITLISTED,
+        UNDER_EVALUATION,
+        SHORTLISTED,
+        SHORTLISTED_FOR_REHEARSAL,
+        REHEARSAL,
+    }
     WAITLISTABLE = {CONFIRMED, UNDER_EVALUATION}
     EVALUATEABLE = {SUBMITTED, AWAITING_DETAILS}
-    DELETABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
-    CANCELLABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
+    DELETABLE = {
+        DRAFT,
+        SUBMITTED,
+        CONFIRMED,
+        WAITLISTED,
+        REJECTED,
+        AWAITING_DETAILS,
+        UNDER_EVALUATION,
+    }
+    CANCELLABLE = {
+        DRAFT,
+        SUBMITTED,
+        CONFIRMED,
+        WAITLISTED,
+        REJECTED,
+        AWAITING_DETAILS,
+        UNDER_EVALUATION,
+    }
     UNDO_TO_SUBMITTED = {AWAITING_DETAILS, UNDER_EVALUATION, REJECTED}
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
 
@@ -67,19 +100,29 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('proposals', cascade="all, delete-orphan"))
+    user = db.relationship(
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('proposals', cascade="all, delete-orphan"),
+    )
 
     speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    speaker = db.relationship(User, primaryjoin=speaker_id == User.id, lazy='joined',
-        backref=db.backref('speaker_at', cascade="all"))
+    speaker = db.relationship(
+        User,
+        primaryjoin=speaker_id == User.id,
+        lazy='joined',
+        backref=db.backref('speaker_at', cascade="all"),
+    )
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
     bio = MarkdownColumn('bio', nullable=True)
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(Project, primaryjoin=project_id == Project.id,
-        backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
+    project = db.relationship(
+        Project,
+        primaryjoin=project_id == Project.id,
+        backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'),
+    )
     parent = db.synonym('project')
 
     abstract = MarkdownColumn('abstract', nullable=True)
@@ -89,74 +132,113 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     preview_video = db.Column(UrlType, default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
-    _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROPOSAL_STATE),
-        default=PROPOSAL_STATE.SUBMITTED, nullable=False)
+    _state = db.Column(
+        'state',
+        db.Integer,
+        StateManager.check_constraint('state', PROPOSAL_STATE),
+        default=PROPOSAL_STATE.SUBMITTED,
+        nullable=False,
+    )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(Voteset, uselist=False, lazy='joined',
-        cascade='all, delete-orphan', single_parent=True)
+    voteset = db.relationship(
+        Voteset,
+        uselist=False,
+        lazy='joined',
+        cascade='all, delete-orphan',
+        single_parent=True,
+    )
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(Commentset, uselist=False, lazy='joined',
-        cascade='all, delete-orphan', single_parent=True,
-        backref=db.backref('proposal', uselist=False))
+    commentset = db.relationship(
+        Commentset,
+        uselist=False,
+        lazy='joined',
+        cascade='all, delete-orphan',
+        single_parent=True,
+        backref=db.backref('proposal', uselist=False),
+    )
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    search_vector = db.deferred(db.Column(
-        TSVectorType(
-            'title', 'abstract_text', 'outline_text', 'requirements_text', 'slides',
-            'preview_video', 'links', 'bio_text',
-            weights={
-                'title': 'A',
-                'abstract_text': 'B',
-                'outline_text': 'B',
-                'requirements_text': 'B',
-                'slides': 'B',
-                'preview_video': 'C',
-                'links': 'B',
-                'bio_text': 'B',
+    search_vector = db.deferred(
+        db.Column(
+            TSVectorType(
+                'title',
+                'abstract_text',
+                'outline_text',
+                'requirements_text',
+                'slides',
+                'preview_video',
+                'links',
+                'bio_text',
+                weights={
+                    'title': 'A',
+                    'abstract_text': 'B',
+                    'outline_text': 'B',
+                    'requirements_text': 'B',
+                    'slides': 'B',
+                    'preview_video': 'C',
+                    'links': 'B',
+                    'bio_text': 'B',
                 },
-            regconfig='english',
-            hltext=lambda: db.func.concat_ws(' / ', Proposal.title, Proposal.abstract_html,
-                Proposal.outline_html, Proposal.requirements_html,
-                Proposal.links, Proposal.bio_html),
+                regconfig='english',
+                hltext=lambda: db.func.concat_ws(
+                    ' / ',
+                    Proposal.title,
+                    Proposal.abstract_html,
+                    Proposal.outline_html,
+                    Proposal.requirements_html,
+                    Proposal.links,
+                    Proposal.bio_html,
+                ),
             ),
-        nullable=False))
+            nullable=False,
+        )
+    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
         db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
-        )
+    )
 
     __roles__ = {
         'all': {
             'read': {
-                'title', 'user', 'speaker', 'speaking', 'bio', 'abstract',
-                'outline', 'requirements', 'slides', 'preview_video', 'links', 'location',
-                'latitude', 'longitude', 'coordinates', 'session', 'project',
-                },
-            'call': {
-                'url_for'
-                }
+                'title',
+                'user',
+                'speaker',
+                'speaking',
+                'bio',
+                'abstract',
+                'outline',
+                'requirements',
+                'slides',
+                'preview_video',
+                'links',
+                'location',
+                'latitude',
+                'longitude',
+                'coordinates',
+                'session',
+                'project',
             },
-        'reviewer': {
-            'read': {
-                'email', 'phone'
-                }
-            }
-        }
+            'call': {'url_for'},
+        },
+        'reviewer': {'read': {'email', 'phone'}},
+    }
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROPOSAL)
-        self.commentset = Commentset(type=SET_TYPE.PROPOSAL)
+        self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
+        self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
 
     def __repr__(self):
         return u'<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
-            proposal=self.title, project=self.project.title, user=self.owner.fullname)
+            proposal=self.title, project=self.project.title, user=self.owner.fullname
+        )
 
     @db.validates('project')
     def _validate_project(self, key, value):
@@ -166,67 +248,140 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if value != self.project and self.project is not None:
             redirect = ProposalRedirect.query.get((self.project_id, self.url_id))
             if redirect is None:
-                redirect = ProposalRedirect(project=self.project, url_id=self.url_id, proposal=self)
+                redirect = ProposalRedirect(
+                    project=self.project, url_id=self.url_id, proposal=self
+                )
                 db.session.add(redirect)
             else:
                 redirect.proposal = self
         return value
 
     # State transitions
-    state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session is not None and proposal.session.scheduled, label=('scheduled', __("Confirmed & Scheduled")))
+    state.add_conditional_state(
+        'SCHEDULED',
+        state.CONFIRMED,
+        lambda proposal: proposal.session is not None and proposal.session.scheduled,
+        label=('scheduled', __("Confirmed & Scheduled")),
+    )
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title=__("Draft"), message=__("This proposal has been withdrawn"), type='danger')
+    @state.transition(
+        state.AWAITING_DETAILS,
+        state.DRAFT,
+        title=__("Draft"),
+        message=__("This proposal has been withdrawn"),
+        type='danger',
+    )
     def withdraw(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.DRAFT, state.SUBMITTED, title=__("Submit"), message=__("This proposal has been submitted"), type='success')
+    @state.transition(
+        state.DRAFT,
+        state.SUBMITTED,
+        title=__("Submit"),
+        message=__("This proposal has been submitted"),
+        type='success',
+    )
     def submit(self):
         pass
 
     @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.UNDO_TO_SUBMITTED, state.SUBMITTED, title=__("Send Back to Submitted"), message=__("This proposal has been submitted"), type='danger')
+    @state.transition(
+        state.UNDO_TO_SUBMITTED,
+        state.SUBMITTED,
+        title=__("Send Back to Submitted"),
+        message=__("This proposal has been submitted"),
+        type='danger',
+    )
     def undo_to_submitted(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMABLE, state.CONFIRMED, title=__("Confirm"), message=__("This proposal has been confirmed"), type='success')
+    @state.transition(
+        state.CONFIRMABLE,
+        state.CONFIRMED,
+        title=__("Confirm"),
+        message=__("This proposal has been confirmed"),
+        type='success',
+    )
     def confirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMED, state.SUBMITTED, title=__("Unconfirm"), message=__("This proposal is no longer confirmed"), type='danger')
+    @state.transition(
+        state.CONFIRMED,
+        state.SUBMITTED,
+        title=__("Unconfirm"),
+        message=__("This proposal is no longer confirmed"),
+        type='danger',
+    )
     def unconfirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title=__("Waitlist"), message=__("This proposal has been waitlisted"), type='primary')
+    @state.transition(
+        state.WAITLISTABLE,
+        state.WAITLISTED,
+        title=__("Waitlist"),
+        message=__("This proposal has been waitlisted"),
+        type='primary',
+    )
     def waitlist(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.REJECTABLE, state.REJECTED, title=__("Reject"), message=__("This proposal has been rejected"), type='danger')
+    @state.transition(
+        state.REJECTABLE,
+        state.REJECTED,
+        title=__("Reject"),
+        message=__("This proposal has been rejected"),
+        type='danger',
+    )
     def reject(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.CANCELLABLE, state.CANCELLED, title=__("Cancel"), message=__("This proposal has been cancelled"), type='danger')
+    @state.transition(
+        state.CANCELLABLE,
+        state.CANCELLED,
+        title=__("Cancel"),
+        message=__("This proposal has been cancelled"),
+        type='danger',
+    )
     def cancel(self):
         pass
 
     @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title=__("Awaiting details"), message=__("Awaiting details for this proposal"), type='primary')
+    @state.transition(
+        state.SUBMITTED,
+        state.AWAITING_DETAILS,
+        title=__("Awaiting details"),
+        message=__("Awaiting details for this proposal"),
+        type='primary',
+    )
     def awaiting_details(self):
         pass
 
     @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title=__("Under evaluation"), message=__("This proposal has been put under evaluation"), type='success')
+    @state.transition(
+        state.EVALUATEABLE,
+        state.UNDER_EVALUATION,
+        title=__("Under evaluation"),
+        message=__("This proposal has been put under evaluation"),
+        type='success',
+    )
     def under_evaluation(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.DELETABLE, state.DELETED, title=__("Delete"), message=__("This proposal has been deleted"), type='danger')
+    @state.transition(
+        state.DELETABLE,
+        state.DELETED,
+        title=__("Delete"),
+        message=__("This proposal has been deleted"),
+        type='danger',
+    )
     def delete(self):
         pass
 
@@ -293,14 +448,24 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
 
     def getnext(self):
-        return Proposal.query.filter(Proposal.project == self.project).filter(
-            Proposal.id != self.id).filter(Proposal._state == self.state.value).filter(
-                Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
+        return (
+            Proposal.query.filter(Proposal.project == self.project)
+            .filter(Proposal.id != self.id)
+            .filter(Proposal._state == self.state.value)
+            .filter(Proposal.created_at < self.created_at)
+            .order_by(db.desc('created_at'))
+            .first()
+        )
 
     def getprev(self):
-        return Proposal.query.filter(Proposal.project == self.project).filter(
-            Proposal.id != self.id).filter(Proposal._state == self.state.value).filter(
-                Proposal.created_at > self.created_at).order_by('created_at').first()
+        return (
+            Proposal.query.filter(Proposal.project == self.project)
+            .filter(Proposal.id != self.id)
+            .filter(Proposal._state == self.state.value)
+            .filter(Proposal.created_at > self.created_at)
+            .order_by('created_at')
+            .first()
+        )
 
     def votes_count(self):
         return len(self.voteset.votes)
@@ -308,32 +473,32 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
-            perms.update([
-                'vote_proposal',
-                'new_comment',
-                'vote_comment',
-                ])
+            perms.update(['vote_proposal', 'new_comment', 'vote_comment'])
             if user == self.owner:
-                perms.update([
-                    'view-proposal',
-                    'edit_proposal',
-                    'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
-                    'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
-                    'transfer-proposal',
-                    ])
+                perms.update(
+                    [
+                        'view-proposal',
+                        'edit_proposal',
+                        'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
+                        'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
+                        'transfer-proposal',
+                    ]
+                )
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
         return perms
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
-        if self.speaker and self.speaker == actor:
-            roles.add('speaker')
-        if self.user and self.user == actor:
-            roles.add('proposer')
+        if self.owner == actor:
+            roles.update({'owner', 'speaker', 'proposer'})
+        if self.user == actor:
+            roles.add('creator')
         roles.update(self.project.roles_for(actor, anchors))
         if self.state.DRAFT and 'reader' in roles:
-            roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
+            roles.remove(
+                'reader'
+            )  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
 
 
@@ -343,13 +508,20 @@ add_search_trigger(Proposal, 'search_vector')
 class ProposalRedirect(TimestampMixin, db.Model):
     __tablename__ = 'proposal_redirect'
 
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False, primary_key=True)
-    project = db.relationship(Project, primaryjoin=project_id == Project.id,
-        backref=db.backref('proposal_redirects', cascade="all, delete-orphan"))
+    project_id = db.Column(
+        None, db.ForeignKey('project.id'), nullable=False, primary_key=True
+    )
+    project = db.relationship(
+        Project,
+        primaryjoin=project_id == Project.id,
+        backref=db.backref('proposal_redirects', cascade="all, delete-orphan"),
+    )
     parent = db.synonym('project')
     url_id = db.Column(db.Integer, nullable=False, primary_key=True)
 
-    proposal_id = db.Column(None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True)
+    proposal_id = db.Column(
+        None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True
+    )
     proposal = db.relationship(Proposal, backref='redirects')
 
     @hybrid_property
@@ -363,24 +535,27 @@ class ProposalRedirect(TimestampMixin, db.Model):
         return unicode(self.url_id)
 
     @url_id_name.comparator
-    def url_id_name(cls):
+    def url_id_name(cls):  # NOQA: N805
         return SqlSplitIdComparator(cls.url_id, splitindex=0)
 
     url_name = url_id_name  # Legacy name
 
     def __repr__(self):
         return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
-            self.project.profile.name, self.project.name, self.url_id,
+            self.project.profile.name,
+            self.project.name,
+            self.url_id,
             self.proposal.project.profile.name if self.proposal else "(none)",
             self.proposal.project.name if self.proposal else "(none)",
-            self.proposal.url_id if self.proposal else "(none)")
+            self.proposal.url_id if self.proposal else "(none)",
+        )
 
     def redirect_view_args(self):
         if self.proposal:
             return {
                 'profile': self.proposal.project.profile.name,
                 'project': self.proposal.project.name,
-                'proposal': self.proposal.url_name
-                }
+                'proposal': self.proposal.url_name,
+            }
         else:
             return {}

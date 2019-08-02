@@ -3,8 +3,8 @@ import jsQR from "jsqr";
 import vCardsJS from "vcards-js";
 
 const badgeScan = {
-  init({getContactApiUrl, wrapperId, templateId, scannerOverlay}) {
-    
+  init({getContactApiUrl, wrapperId, templateId}) {
+
     let badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -17,13 +17,12 @@ const badgeScan = {
         showModal: false,
         errorMsg: '',
         contacts: [],
-        scannerOverlay: scannerOverlay,
-        showOverlay: false,
       },
       closeModal(event) {
         event.original.preventDefault();
         $.modal.close();
         this.set('showModal', false);
+        this.startRenderFrameLoop();
       },
       downloadContact(event) {
         let contact = badgeScanComponent.get(event.keypath);
@@ -32,7 +31,7 @@ const badgeScan = {
         [vCard.firstName, ...lastName] = contact.fullname.split(' ');
         vCard.lastName = lastName.join(' ');
         vCard.email = contact.email;
-        vCard.cellPhone = contact.phone;    
+        vCard.cellPhone = contact.phone;
         vCard.organization = contact.company;
         event.node.setAttribute('href', 'data:text/x-vcard;charset=utf-8,' + encodeURIComponent(vCard.getFormattedString()));
         event.node.setAttribute('download', `${vCard.firstName}.vcf`);
@@ -61,8 +60,8 @@ const badgeScan = {
               'contactFound': true,
               'contact': response.contact,
             });
-            if(!badgeScanComponent.get('contacts').some(contact => 
-              contact.fullname === response.contact.fullname && 
+            if(!badgeScanComponent.get('contacts').some(contact =>
+              contact.fullname === response.contact.fullname &&
               contact.email === response.contact.email)) {
               badgeScanComponent.push('contacts', response.contact);
             }
@@ -86,37 +85,55 @@ const badgeScan = {
           }
         });
       },
+      startRenderFrameLoop() {
+        let timerId;
+        timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
+        this.set('timerId', timerId);
+      },
+      stopRenderFrameLoop() {
+        window.cancelAnimationFrame(badgeScanComponent.get('timerId'));
+        this.set('timerId', '');
+      },
+      verifyQRDecode(qrcode) {
+        if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
+          this.stopRenderFrameLoop();
+          this.getContact(qrcode.data);
+        } else {
+          this.startRenderFrameLoop();
+        }
+      },
       renderFrame() {
-        let canvasElement = document.getElementById("qrreader-canvas");
-        let canvas = canvasElement.getContext("2d");
+        let canvasElement = this.get('canvasElement');
+        let canvas = this.get('canvas');
+        let video = this.get('video');
 
-        if (this.get('video').readyState === this.get('video').HAVE_ENOUGH_DATA) {
-          canvasElement.height = this.get('video').videoHeight;
-          canvasElement.width = this.get('video').videoWidth;
-          canvas.drawImage(this.get('video'), 0, 0, canvasElement.width, canvasElement.height);
-          this.set('showOverlay', true);
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvasElement.height = video.videoHeight;
+          canvasElement.width = video.videoWidth;
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
           let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
           let qrcode = jsQR(imageData.data, imageData.width, imageData.height);
-
-          if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
-            this.getContact(qrcode.data);
-          }
+          this.verifyQRDecode(qrcode);
+        } else {
+          this.startRenderFrameLoop();
         }
-        window.requestAnimationFrame(badgeScanComponent.renderFrame);
       },
       setupVideo(event) {
         if (event)  {
           event.original.preventDefault();
         }
-        let video = document.createElement("video");
+        let video = document.getElementById('qrreader');
+        let canvasElement = document.createElement('canvas');
+        let canvas = canvasElement.getContext("2d");
 
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => {
           this.set('video', video);
           this.get('video').srcObject = stream;
           this.get('video').setAttribute("playsinline", true);
           this.get('video').play();
-
-          window.requestAnimationFrame(this.renderFrame);
+          this.set('canvasElement', canvasElement);
+          this.set('canvas', canvas);
+          this.startRenderFrameLoop();
         });
       },
       oncomplete() {

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Space content
 
 Revision ID: 577689971aa0
@@ -10,14 +12,17 @@ Create Date: 2014-03-02 23:32:16.343014
 revision = '577689971aa0'
 down_revision = '1195a2789872'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 from coaster.sqlalchemy import JsonDict
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('content', JsonDict, server_default='{}', nullable=False))
+    op.add_column(
+        'proposal_space',
+        sa.Column('content', JsonDict, server_default='{}', nullable=False),
+    )
     op.alter_column('proposal_space', 'content', server_default=None)
 
 

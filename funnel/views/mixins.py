@@ -6,6 +6,7 @@ from flask import abort, g, redirect, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
+from coaster.auth import current_auth
 from coaster.utils import require_one_of
 
 from ..models import (
@@ -27,13 +28,17 @@ class ProjectViewMixin(object):
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
 
     def loader(self, profile, project, session=None):
-        proj = self.model.query.join(Profile).filter(
-            Project.name == project, Profile.name == profile
-            ).first()
+        proj = (
+            self.model.query.join(Profile)
+            .filter(Project.name == project, Profile.name == profile)
+            .first()
+        )
         if proj is None:
-            projredir = ProjectRedirect.query.join(Profile).filter(
-                ProjectRedirect.name == project, Profile.name == profile
-                ).first_or_404()
+            projredir = (
+                ProjectRedirect.query.join(Profile)
+                .filter(ProjectRedirect.name == project, Profile.name == profile)
+                .first_or_404()
+            )
             return projredir
         if proj.state.DELETED:
             abort(410)
@@ -49,6 +54,10 @@ class ProjectViewMixin(object):
         g.profile = self.obj.profile
         return super(ProjectViewMixin, self).after_loader()
 
+    @property
+    def project_currently_saved(self):
+        return self.obj.is_saved_by(current_auth.user)
+
 
 class ProfileViewMixin(object):
     model = Profile
@@ -63,24 +72,41 @@ class ProfileViewMixin(object):
 class ProposalViewMixin(object):
     model = Proposal
     route_model_map = {
-        'profile': 'project.profile.name', 'project': 'project.name',
-        'url_name_suuid': 'url_name_suuid', 'url_id_name': 'url_id_name'}
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'url_name_suuid': 'url_name_suuid',
+        'url_id_name': 'url_id_name',
+    }
 
     def loader(self, profile, project, url_name_suuid=None, url_id_name=None):
         require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
         if url_name_suuid:
-            proposal = self.model.query.join(Project, Profile).filter(
-                Proposal.url_name_suuid == url_name_suuid
-                ).first_or_404()
+            proposal = (
+                self.model.query.join(Project, Profile)
+                .filter(Proposal.url_name_suuid == url_name_suuid)
+                .first_or_404()
+            )
         else:
-            proposal = self.model.query.join(Project, Profile).filter(
-                Profile.name == profile, Project.name == project, Proposal.url_name == url_id_name
-                ).first()
+            proposal = (
+                self.model.query.join(Project, Profile)
+                .filter(
+                    Profile.name == profile,
+                    Project.name == project,
+                    Proposal.url_name == url_id_name,
+                )
+                .first()
+            )
             if proposal is None:
                 if request.method == 'GET':
-                    redirect = ProposalRedirect.query.join(Project, Profile).filter(
-                        Profile.name == profile, Project.name == project, ProposalRedirect.url_name == url_id_name
-                        ).first_or_404()
+                    redirect = (
+                        ProposalRedirect.query.join(Project, Profile)
+                        .filter(
+                            Profile.name == profile,
+                            Project.name == project,
+                            ProposalRedirect.url_name == url_id_name,
+                        )
+                        .first_or_404()
+                    )
                     return redirect
                 else:
                     abort(404)
@@ -101,39 +127,73 @@ class ProposalViewMixin(object):
 
 class SessionViewMixin(object):
     model = Session
-    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'session': 'url_name_suuid'}
+    route_model_map = {
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'session': 'url_name_suuid',
+    }
 
     def loader(self, profile, project, session):
-        session = self.model.query.join(Project, Profile).filter(
-            Profile.name == profile, Project.name == project, Session.url_name_suuid == session
-            ).first_or_404()
+        session = (
+            self.model.query.join(Project, Profile)
+            .filter(
+                Profile.name == profile,
+                Project.name == project,
+                Session.url_name_suuid == session,
+            )
+            .first_or_404()
+        )
         return session
 
     def after_loader(self):
         g.profile = self.obj.project.profile
         super(SessionViewMixin, self).after_loader()
 
+    @property
+    def project_currently_saved(self):
+        return self.obj.project.is_saved_by(current_auth.user)
+
 
 class VenueViewMixin(object):
     model = Venue
-    route_model_map = {'profile': 'project.profile.name', 'project': 'project.name', 'venue': 'name'}
+    route_model_map = {
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'venue': 'name',
+    }
 
     def loader(self, profile, project, venue):
-        venue = self.model.query.join(Project, Profile).filter(
-            Profile.name == profile, Project.name == project, Venue.name == venue
-            ).first_or_404()
+        venue = (
+            self.model.query.join(Project, Profile)
+            .filter(
+                Profile.name == profile, Project.name == project, Venue.name == venue
+            )
+            .first_or_404()
+        )
         g.profile = venue.project.profile
         return venue
 
 
 class VenueRoomViewMixin(object):
     model = VenueRoom
-    route_model_map = {'profile': 'venue.project.profile.name', 'project': 'venue.project.name', 'venue': 'venue.name', 'room': 'name'}
+    route_model_map = {
+        'profile': 'venue.project.profile.name',
+        'project': 'venue.project.name',
+        'venue': 'venue.name',
+        'room': 'name',
+    }
 
     def loader(self, profile, project, venue, room):
-        room = self.model.query.join(Venue, Project, Profile).filter(
-            Profile.name == profile, Project.name == project, Venue.name == venue, VenueRoom.name == room
-            ).first_or_404()
+        room = (
+            self.model.query.join(Venue, Project, Profile)
+            .filter(
+                Profile.name == profile,
+                Project.name == project,
+                Venue.name == venue,
+                VenueRoom.name == room,
+            )
+            .first_or_404()
+        )
         g.profile = room.venue.project.profile
         return room
 
@@ -174,7 +234,14 @@ class DraftViewMixin(object):
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
             # as form.autosave is true, the form should have `form.revision` field even if it's empty
-            return {'status': 'error', 'error_identifier': 'form_missing_revision_field', 'error_description': _("Form must contain a revision ID.")}, 400
+            return (
+                {
+                    'status': 'error',
+                    'error': 'form_missing_revision_field',
+                    'error_description': _("Form must contain a revision ID."),
+                },
+                400,
+            )
 
         # CSRF check
         if forms.Form().validate_on_submit():
@@ -186,11 +253,26 @@ class DraftViewMixin(object):
             draft = self.get_draft(obj)
 
             if draft is not None:
-                if client_revision is None or (client_revision is not None and str(draft.revision) != client_revision):
+                if client_revision is None or (
+                    client_revision is not None
+                    and str(draft.revision) != client_revision
+                ):
                     # draft exists, but the form did not send a revision ID,
                     # OR revision ID sent by client does not match the last revision ID
-                    return {'status': 'error', 'error_identifier': 'missing_or_invalid_revision', 'error_description': _("There have been changes to this draft since you last edited it. Please reload.")}, 400
-                elif client_revision is not None and str(draft.revision) == client_revision:
+                    return (
+                        {
+                            'status': 'error',
+                            'error': 'missing_or_invalid_revision',
+                            'error_description': _(
+                                "There have been changes to this draft since you last edited it. Please reload."
+                            ),
+                        },
+                        400,
+                    )
+                elif (
+                    client_revision is not None
+                    and str(draft.revision) == client_revision
+                ):
                     # revision ID sent my client matches, save updated draft data and update revision ID
                     existing = draft.formdata
                     for key in incoming_data.keys():
@@ -201,15 +283,33 @@ class DraftViewMixin(object):
             elif draft is None and client_revision:
                 # The form contains a revision ID but no draft exists.
                 # Somebody is making autosave requests with an invalid draft ID.
-                return {'status': 'error', 'error_identifier': 'invalid_or_expired_revision', 'error_description': _("Invalid revision ID or the existing changes have been submitted already. Please reload.")}, 400
+                return (
+                    {
+                        'status': 'error',
+                        'error': 'invalid_or_expired_revision',
+                        'error_description': _(
+                            "Invalid revision ID or the existing changes have been submitted already. Please reload."
+                        ),
+                    },
+                    400,
+                )
             else:
                 # no draft exists, create one
                 draft = Draft(
-                    table=Project.__tablename__, table_row_id=obj.uuid,
-                    formdata=incoming_data, revision=uuid4()
-                    )
+                    table=Project.__tablename__,
+                    table_row_id=obj.uuid,
+                    formdata=incoming_data,
+                    revision=uuid4(),
+                )
             db.session.add(draft)
             db.session.commit()
             return {'revision': draft.revision}
         else:
-            return {'status': 'error', 'error_identifier': 'invalid_csrf', 'error_description': _("Invalid CSRF token")}, 400
+            return (
+                {
+                    'status': 'error',
+                    'error': 'invalid_csrf',
+                    'error_description': _("Invalid CSRF token"),
+                },
+                400,
+            )

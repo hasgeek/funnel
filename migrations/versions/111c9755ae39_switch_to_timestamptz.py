@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Switch to timestamptz
 
 Revision ID: 111c9755ae39
@@ -10,8 +12,8 @@ Create Date: 2019-05-09 19:01:53.976390
 revision = '111c9755ae39'
 down_revision = 'e679554261b2'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 migrate_table_columns = [
     ('attendee', 'created_at'),
@@ -80,20 +82,24 @@ migrate_table_columns = [
     ('vote', 'updated_at'),
     ('voteset', 'created_at'),
     ('voteset', 'updated_at'),
-    ]
+]
 
 
 def upgrade():
     for table, column in migrate_table_columns:
-        op.execute(sa.DDL(
-            'ALTER TABLE "%(table)s" ALTER COLUMN "%(column)s" TYPE TIMESTAMP WITH TIME ZONE USING "%(column)s" AT TIME ZONE \'UTC\'',
-            context={'table': table, 'column': column}
-            ))
+        op.execute(
+            sa.DDL(
+                'ALTER TABLE "%(table)s" ALTER COLUMN "%(column)s" TYPE TIMESTAMP WITH TIME ZONE USING "%(column)s" AT TIME ZONE \'UTC\'',
+                context={'table': table, 'column': column},
+            )
+        )
 
 
 def downgrade():
     for table, column in reversed(migrate_table_columns):
-        op.execute(sa.DDL(
-            'ALTER TABLE "%(table)s" ALTER COLUMN "%(column)s" TYPE TIMESTAMP WITHOUT TIME ZONE',
-            context={'table': table, 'column': column}
-            ))
+        op.execute(
+            sa.DDL(
+                'ALTER TABLE "%(table)s" ALTER COLUMN "%(column)s" TYPE TIMESTAMP WITHOUT TIME ZONE',
+                context={'table': table, 'column': column},
+            )
+        )

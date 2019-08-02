@@ -6,7 +6,9 @@ from funnel.models import Label
 
 
 class TestLabelViews(object):
-    def test_manage_labels_view(self, test_client, test_db, new_project, new_user, new_label, new_main_label):
+    def test_manage_labels_view(
+        self, test_client, test_db, new_project, new_user, new_label, new_main_label
+    ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
@@ -15,7 +17,9 @@ class TestLabelViews(object):
             assert new_label.title in resp.data.decode('utf-8')
             assert new_main_label.title in resp.data.decode('utf-8')
 
-    def test_labels_order_view(self, test_client, test_db, new_project, new_user, new_label, new_main_label):
+    def test_labels_order_view(
+        self, test_client, test_db, new_project, new_user, new_label, new_main_label
+    ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
@@ -24,9 +28,11 @@ class TestLabelViews(object):
 
             # we'll send the label names in reverse order and that should
             # reorder them in the project
-            resp = c.post(new_project.url_for('labels'), data=MultiDict({
-                'name': [new_main_label.name, new_label.name]
-                }), follow_redirects=True)
+            resp = c.post(
+                new_project.url_for('labels'),
+                data=MultiDict({'name': [new_main_label.name, new_label.name]}),
+                follow_redirects=True,
+            )
 
             # make sure the page loaded properly
             assert u"Manage labels" in resp.data.decode('utf-8')
@@ -41,12 +47,20 @@ class TestLabelViews(object):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
-            resp = c.post(new_project.url_for('new_label'), data=MultiDict({
-                'title': ["New Main Label", "New Option A", "New Option B"],
-                'icon_emoji': [u"💯", u"", u""],
-                }), follow_redirects=True)
+            resp = c.post(
+                new_project.url_for('new_label'),
+                data=MultiDict(
+                    {
+                        'title': ["New Main Label", "New Option A", "New Option B"],
+                        'icon_emoji': [u"💯", u"", u""],
+                    }
+                ),
+                follow_redirects=True,
+            )
 
-            mlabel = Label.query.filter_by(project=new_project, title=u"New Main Label").first()
+            mlabel = Label.query.filter_by(
+                project=new_project, title=u"New Main Label"
+            ).first()
             assert mlabel is not None
             assert mlabel.icon == u"💯"
             assert mlabel.has_options
@@ -63,7 +77,9 @@ class TestLabelViews(object):
             assert u"Manage labels" in resp.data.decode('utf-8')
             assert mlabel.title in resp.data.decode('utf-8')
 
-    def test_edit_option_label_view(self, test_client, test_db, new_project, new_user, new_main_label):
+    def test_edit_option_label_view(
+        self, test_client, test_db, new_project, new_user, new_main_label
+    ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
@@ -72,7 +88,9 @@ class TestLabelViews(object):
             assert u"Manage labels" in resp.data.decode('utf-8')
             assert u"Only main labels can be edited" in resp.data.decode('utf-8')
 
-    def test_edit_main_label_view(self, test_client, test_db, new_project, new_user, new_main_label):
+    def test_edit_main_label_view(
+        self, test_client, test_db, new_project, new_user, new_main_label
+    ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
@@ -88,11 +106,21 @@ class TestLabelViews(object):
             assert label_a2.title == u"Label A2"
             assert label_a2.name == u"label-a2"
 
-            resp = c.post(new_main_label.url_for('edit'), data=MultiDict({
-                'name': ["parent-label-a", "label-a1", "label-a2"],
-                'title': ["Parent Label A Edited", "Label A1 Edited", "Label A2 Edited"],
-                'icon_emoji': [u"🔟", u"👍", u"❌"]
-                }), follow_redirects=True)
+            resp = c.post(
+                new_main_label.url_for('edit'),
+                data=MultiDict(
+                    {
+                        'name': ["parent-label-a", "label-a1", "label-a2"],
+                        'title': [
+                            "Parent Label A Edited",
+                            "Label A1 Edited",
+                            "Label A2 Edited",
+                        ],
+                        'icon_emoji': [u"🔟", u"👍", u"❌"],
+                    }
+                ),
+                follow_redirects=True,
+            )
             assert u"Manage labels" in resp.data.decode('utf-8')
             assert u"Label has been edited" in resp.data.decode('utf-8')
 
@@ -126,6 +154,7 @@ class TestLabelDeleteView(object):
     If we delete it in any other test classes, it'll mess with other
     tests in those classes.
     """
+
     def test_main_label_delete(self, test_client, test_db, new_user, new_label):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
@@ -160,7 +189,9 @@ class TestLabelDeleteView(object):
 
 
 class TestOptionedLabelDeleteView(object):
-    def test_optioned_label_delete(self, test_client, test_db, new_user, new_main_label):
+    def test_optioned_label_delete(
+        self, test_client, test_db, new_user, new_main_label
+    ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:

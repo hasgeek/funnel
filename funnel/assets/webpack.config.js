@@ -25,7 +25,7 @@ ManifestPlugin.prototype.apply = function(compiler) {
        console.log('parsed_stats.assets[key]', parsed_stats.assets[key]);
       if(typeof(parsed_stats.assets[key]) == "object") {
         for(var index in parsed_stats.assets[key]) {
-          if(parsed_stats.assets[key][index].indexOf('.js') !== -1 && 
+          if(parsed_stats.assets[key][index].indexOf('.js') !== -1 &&
             parsed_stats.assets[key][index].indexOf('.map') == -1) {
             parsed_stats.assets[key] = parsed_stats.assets[key][index];
           }
