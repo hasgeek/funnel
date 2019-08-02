@@ -40,14 +40,18 @@ def participant_badge_data(participants, project):
     for participant in participants:
         first_name, last_name = split_name(participant.fullname)
         ticket = SyncTicket.query.filter_by(participant=participant).first()
-        badges.append({
-            'first_name': first_name,
-            'last_name': last_name,
-            'twitter': format_twitter_handle(participant.twitter),
-            'company': participant.company,
-            'qrcode_content': make_qrcode(u"{puk}{key}".format(puk=participant.puk, key=participant.key)),
-            'order_no': ticket.order_no if ticket else ''
-            })
+        badges.append(
+            {
+                'first_name': first_name,
+                'last_name': last_name,
+                'twitter': format_twitter_handle(participant.twitter),
+                'company': participant.company,
+                'qrcode_content': make_qrcode(
+                    u"{puk}{key}".format(puk=participant.puk, key=participant.key)
+                ),
+                'order_no': ticket.order_no if ticket else '',
+            }
+        )
     return badges
 
 
@@ -64,7 +68,7 @@ def participant_data(participant, project_id, full=False):
             'phone': participant.phone,
             'project_id': project_id,
             'space_id': project_id,  # FIXME: Remove when the native app switches over
-            }
+        }
     else:
         return {
             '_id': participant.id,
@@ -74,7 +78,7 @@ def participant_data(participant, project_id, full=False):
             'company': participant.company,
             'project_id': project_id,
             'space_id': project_id,  # FIXME: Remove when the native app switches over
-            }
+        }
 
 
 def participant_checkin_data(participant, project, event):
@@ -85,8 +89,8 @@ def participant_checkin_data(participant, project, event):
         'email': mask_email(participant.email),
         'badge_printed': participant.badge_printed,
         'checked_in': participant.checked_in,
-        'ticket_type_titles': participant.ticket_type_titles
-        }
+        'ticket_type_titles': participant.ticket_type_titles,
+    }
 
 
 @route('/<profile>/<project>/participants')
@@ -97,7 +101,12 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('view')
     def participants_json(self):
-        return jsonify(participants=[participant_data(participant, self.obj.id) for participant in self.obj.participants])
+        return jsonify(
+            participants=[
+                participant_data(participant, self.obj.id)
+                for participant in self.obj.participants
+            ]
+        )
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -115,7 +124,9 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.rollback()
                 flash(_(u"This participant already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
-        return render_form(form=form, title=_(u"New Participant"), submit=_(u"Add Participant"))
+        return render_form(
+            form=form, title=_(u"New Participant"), submit=_(u"Add Participant")
+        )
 
 
 @route('/<project>/participants', subdomain='<profile>')
@@ -127,14 +138,21 @@ ProjectParticipantView.init_app(app)
 FunnelProjectParticipantView.init_app(funnelapp)
 
 
-@app.route('/<profile>/<project>/participant/<participant_id>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/participant/<participant_id>/edit', methods=['GET', 'POST'], subdomain='<profile>')
+@app.route(
+    '/<profile>/<project>/participant/<participant_id>/edit', methods=['GET', 'POST']
+)
+@funnelapp.route(
+    '/<project>/participant/<participant_id>/edit',
+    methods=['GET', 'POST'],
+    subdomain='<profile>',
+)
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='edit-participant')
+    permission='edit-participant',
+)
 def participant_edit(profile, project, participant):
     form = ParticipantForm(obj=participant, model=Participant)
     form.events.query = project.events
@@ -143,7 +161,9 @@ def participant_edit(profile, project, participant):
         db.session.commit()
         flash(_(u"Your changes have been saved"), 'info')
         return redirect(project.url_for('admin'), code=303)
-    return render_form(form=form, title=_(u"Edit Participant"), submit=_(u"Save changes"))
+    return render_form(
+        form=form, title=_(u"Edit Participant"), submit=_(u"Save changes")
+    )
 
 
 @app.route('/<profile>/<project>/participant/<participant_id>/badge')
@@ -153,20 +173,27 @@ def participant_edit(profile, project, participant):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Participant, {'id': 'participant_id'}, 'participant'),
-    permission='checkin_event')
+    permission='checkin_event',
+)
 def participant_badge(profile, project, participant):
-    return render_template('badge.html.jinja2',
-        badges=participant_badge_data([participant], project))
+    return render_template(
+        'badge.html.jinja2', badges=participant_badge_data([participant], project)
+    )
 
 
 @app.route('/<profile>/<project>/event/<name>/participants/checkin', methods=['POST'])
-@funnelapp.route('/<project>/event/<name>/participants/checkin', methods=['POST'], subdomain='<profile>')
+@funnelapp.route(
+    '/<project>/event/<name>/participants/checkin',
+    methods=['POST'],
+    subdomain='<profile>',
+)
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='checkin_event')
+    permission='checkin_event',
+)
 def event_checkin(profile, project, event):
     form = forms.Form()
     if form.validate_on_submit():
@@ -177,24 +204,40 @@ def event_checkin(profile, project, event):
             attendee.checked_in = checked_in
         db.session.commit()
         if request.is_xhr:
-            return jsonify(status=True, participant_ids=participant_ids, checked_in=checked_in)
-    return redirect(url_for('event', profile=project.profile.name, project=project.name, name=event.name), code=303)
+            return jsonify(
+                status=True, participant_ids=participant_ids, checked_in=checked_in
+            )
+    return redirect(
+        url_for(
+            'event', profile=project.profile.name, project=project.name, name=event.name
+        ),
+        code=303,
+    )
 
 
-@app.route('/<profile>/<project>/event/<name>/participant/<puk>/checkin', methods=['POST'])
-@funnelapp.route('/<project>/event/<name>/participant/<puk>/checkin', methods=['POST'], subdomain='<profile>')
+@app.route(
+    '/<profile>/<project>/event/<name>/participant/<puk>/checkin', methods=['POST']
+)
+@funnelapp.route(
+    '/<project>/event/<name>/participant/<puk>/checkin',
+    methods=['POST'],
+    subdomain='<profile>',
+)
 @lastuser.requires_login
 @load_models(
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
     (Participant, {'puk': 'puk'}, 'participant'),
-    permission='checkin_event')
+    permission='checkin_event',
+)
 def checkin_puk(profile, project, event, participant):
     checked_in = getbool(request.form.get('checkin'))
     attendee = Attendee.get(event, participant.id)
     if not attendee:
-        return make_response(jsonify(error='not_found', error_description="Attendee not found"), 404)
+        return make_response(
+            jsonify(error='not_found', error_description="Attendee not found"), 404
+        )
     attendee.checked_in = checked_in
     db.session.commit()
     return jsonify(attendee={'fullname': participant.fullname})
@@ -207,7 +250,8 @@ def checkin_puk(profile, project, event, participant):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='checkin_event')
+    permission='checkin_event',
+)
 def event_participants_json(profile, project, event):
     checkin_count = 0
     participants = []
@@ -216,7 +260,11 @@ def event_participants_json(profile, project, event):
         if participant.checked_in:
             checkin_count += 1
 
-    return jsonify(participants=participants, total_participants=len(participants), total_checkedin=checkin_count)
+    return jsonify(
+        participants=participants,
+        total_participants=len(participants),
+        total_checkedin=checkin_count,
+    )
 
 
 @app.route('/<profile>/<project>/event/<name>/badges')
@@ -226,9 +274,18 @@ def event_participants_json(profile, project, event):
     (Profile, {'name': 'profile'}, 'g.profile'),
     ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
     (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    permission='checkin_event')
+    permission='checkin_event',
+)
 def event_badges(profile, project, event):
     badge_printed = True if request.args.get('badge_printed') == 't' else False
-    participants = Participant.query.join(Attendee).filter(Attendee.event_id == event.id).filter(Participant.badge_printed == badge_printed).all()
-    return render_template('badge.html.jinja2', badge_template=event.badge_template,
-        badges=participant_badge_data(participants, project))
+    participants = (
+        Participant.query.join(Attendee)
+        .filter(Attendee.event_id == event.id)
+        .filter(Participant.badge_printed == badge_printed)
+        .all()
+    )
+    return render_template(
+        'badge.html.jinja2',
+        badge_template=event.badge_template,
+        badges=participant_badge_data(participants, project),
+    )

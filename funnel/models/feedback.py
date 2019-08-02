@@ -8,12 +8,14 @@ __all__ = ['FEEDBACK_AUTH_TYPE', 'ProposalFeedback']
 
 # --- Constants ---------------------------------------------------------------
 
+
 class FEEDBACK_AUTH_TYPE:  # NOQA
     NOAUTH = 0
     HGAUTH = 1
 
 
 # --- Models ------------------------------------------------------------------
+
 
 class ProposalFeedback(BaseMixin, db.Model):
     __tablename__ = 'proposal_feedback'
@@ -35,4 +37,6 @@ class ProposalFeedback(BaseMixin, db.Model):
     #: Feedback on the presentation of the proposal
     presentation = db.Column(db.Integer, nullable=True)
 
-    __table_args__ = (db.UniqueConstraint('proposal_id', 'auth_type', 'id_type', 'userid'),)
+    __table_args__ = (
+        db.UniqueConstraint('proposal_id', 'auth_type', 'id_type', 'userid'),
+    )

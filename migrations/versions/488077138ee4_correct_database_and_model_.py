@@ -12,9 +12,9 @@ Create Date: 2018-11-12 13:54:09.987761
 revision = '488077138ee4'
 down_revision = '2cbfbcca4737'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.schema import CreateSequence, DropSequence, Sequence
+import sqlalchemy as sa  # NOQA
 
 from coaster.sqlalchemy import JsonDict
 

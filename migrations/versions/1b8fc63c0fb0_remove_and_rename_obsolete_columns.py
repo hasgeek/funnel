@@ -14,9 +14,9 @@ down_revision = 'ea20c403b240'
 
 import json
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.dialects import postgresql
+import sqlalchemy as sa  # NOQA
 
 default_part_labels = {
     "proposal": {

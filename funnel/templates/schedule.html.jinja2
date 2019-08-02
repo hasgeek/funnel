@@ -71,7 +71,7 @@
     </div>
   </div>
   {{ project_header(project, project_save_form,
-    class='mui--hidden-xs mui--hidden-sm', 
+    class='mui--hidden-xs mui--hidden-sm',
     current_page='schedule') }}
 {% endblock %}
 
@@ -126,7 +126,7 @@
                                   <div class="schedule__row__column__content {{#if view === 'calendar'}}schedule__row__column__content--calendar schedule__row__column__content--overflow{{/if}}" {{#if view === 'calendar'}}style="height: calc({{talks.duration}}*{{rowHeight}}px);"{{/if}} id="{{talks.url_name_suuid}}">
                                     <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
                                     <div class="schedule__row__column__content__title">
-                                      
+
                                       {{#if talks.title}}
                                         <p class="mui--text-subhead schedule__row__column__content__title__heading"><b>{{ talks.title }}</b></p>
                                       {{/if}}

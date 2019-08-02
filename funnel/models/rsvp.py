@@ -24,14 +24,25 @@ class RSVP_STATUS(LabeledEnum):  # NOQA: N801
 
 class Rsvp(TimestampMixin, db.Model):
     __tablename__ = 'rsvp'
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False, primary_key=True)
-    project = db.relationship(Project,
-        backref=db.backref('rsvps', cascade='all, delete-orphan', lazy='dynamic'))
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, primary_key=True)
+    project_id = db.Column(
+        None, db.ForeignKey('project.id'), nullable=False, primary_key=True
+    )
+    project = db.relationship(
+        Project,
+        backref=db.backref('rsvps', cascade='all, delete-orphan', lazy='dynamic'),
+    )
+    user_id = db.Column(
+        None, db.ForeignKey('user.id'), nullable=False, primary_key=True
+    )
     user = db.relationship(User)
 
-    _state = db.Column('state', db.CHAR(1), StateManager.check_constraint('state', RSVP_STATUS),
-        default=RSVP_STATUS.A, nullable=False)
+    _state = db.Column(
+        'state',
+        db.CHAR(1),
+        StateManager.check_constraint('state', RSVP_STATUS),
+        default=RSVP_STATUS.A,
+        nullable=False,
+    )
     state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
 
     @classmethod
@@ -53,8 +64,12 @@ def _project_rsvps_with(self, status):
 
 
 def _project_rsvp_counts(self):
-    return dict(db.session.query(Rsvp._state, db.func.count(Rsvp._state)).filter(
-        Rsvp.project == self).group_by(Rsvp._state).all())
+    return dict(
+        db.session.query(Rsvp._state, db.func.count(Rsvp._state))
+        .filter(Rsvp.project == self)
+        .group_by(Rsvp._state)
+        .all()
+    )
 
 
 Project.rsvp_for = _project_rsvp_for

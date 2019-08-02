@@ -39,8 +39,14 @@ class ExplaraAPI(object):
         from_record = 0
         to_record = 50
         while not completed:
-            payload = {'eventId': explara_eventid, 'fromRecord': from_record, 'toRecord': to_record}
-            attendee_response = requests.post(self.url_for('attendee-list'), headers=self.headers, data=payload).json()
+            payload = {
+                'eventId': explara_eventid,
+                'fromRecord': from_record,
+                'toRecord': to_record,
+            }
+            attendee_response = requests.post(
+                self.url_for('attendee-list'), headers=self.headers, data=payload
+            ).json()
             if not attendee_response.get('attendee'):
                 completed = True
             elif isinstance(attendee_response.get('attendee'), list):
@@ -66,17 +72,23 @@ class ExplaraAPI(object):
                     status = unicode(attendee.get('status'))
                 # we sometimes get an empty array for details
                 details = attendee.get('details') or {}
-                tickets.append({
-                    'fullname': strip_or_empty(attendee.get('name')),
-                    'email': strip_or_empty(attendee.get('email')),
-                    'phone': strip_or_empty(details.get('Phone') or order.get('phoneNo')),
-                    'twitter': extract_twitter_handle(strip_or_empty(details.get('Twitter handle'))),
-                    'job_title': strip_or_empty(details.get('Job title')),
-                    'company': strip_or_empty(details.get('Company name')),
-                    'city': strip_or_empty(order.get('city')),
-                    'ticket_no': strip_or_empty(attendee.get('ticketNo')),
-                    'ticket_type': strip_or_empty(attendee.get('ticketName')),
-                    'order_no': strip_or_empty(order.get('orderNo')),
-                    'status': status
-                    })
+                tickets.append(
+                    {
+                        'fullname': strip_or_empty(attendee.get('name')),
+                        'email': strip_or_empty(attendee.get('email')),
+                        'phone': strip_or_empty(
+                            details.get('Phone') or order.get('phoneNo')
+                        ),
+                        'twitter': extract_twitter_handle(
+                            strip_or_empty(details.get('Twitter handle'))
+                        ),
+                        'job_title': strip_or_empty(details.get('Job title')),
+                        'company': strip_or_empty(details.get('Company name')),
+                        'city': strip_or_empty(order.get('city')),
+                        'ticket_no': strip_or_empty(attendee.get('ticketNo')),
+                        'ticket_type': strip_or_empty(attendee.get('ticketName')),
+                        'order_no': strip_or_empty(order.get('orderNo')),
+                        'status': status,
+                    }
+                )
         return tickets

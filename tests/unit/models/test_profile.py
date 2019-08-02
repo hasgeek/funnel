@@ -2,8 +2,8 @@
 
 from sqlalchemy.exc import StatementError
 
-import pytest
 from furl import furl
+import pytest
 
 
 class TestProfile(object):
