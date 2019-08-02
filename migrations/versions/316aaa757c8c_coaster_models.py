@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """coaster_models
 
 Revision ID: 316aaa757c8c
@@ -10,9 +12,9 @@ Create Date: 2013-10-02 17:57:54.584815
 revision = '316aaa757c8c'
 down_revision = '9d513be1a96'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.dialects import postgresql
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
@@ -21,16 +23,27 @@ def upgrade():
 
 
 def downgrade():
-    op.create_table(u'tag',
-        sa.Column(u'id', sa.INTEGER(), server_default="nextval('tag_id_seq'::regclass)", nullable=False),
-        sa.Column(u'created_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False),
-        sa.Column(u'updated_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False),
+    op.create_table(
+        u'tag',
+        sa.Column(
+            u'id',
+            sa.INTEGER(),
+            server_default="nextval('tag_id_seq'::regclass)",
+            nullable=False,
+        ),
+        sa.Column(
+            u'created_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
+        ),
+        sa.Column(
+            u'updated_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
+        ),
         sa.Column(u'name', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
         sa.Column(u'title', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
-        sa.PrimaryKeyConstraint(u'id', name=u'tag_pkey')
-        )
-    op.create_table(u'proposal_tags',
+        sa.PrimaryKeyConstraint(u'id', name=u'tag_pkey'),
+    )
+    op.create_table(
+        u'proposal_tags',
         sa.Column(u'tag_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column(u'proposal_id', sa.INTEGER(), autoincrement=False, nullable=True),
-        sa.PrimaryKeyConstraint()
-        )
+        sa.PrimaryKeyConstraint(),
+    )

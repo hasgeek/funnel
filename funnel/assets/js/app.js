@@ -9,7 +9,9 @@ $(() => {
   Utils.navSearchForm();
 
   let intersectionObserverComponents = function() {
-    ScrollActiveMenu.init('page-navbar', 'sub-navbar__item', 'sub-navbar__item--active');
+    if(document.querySelector('#page-navbar')) {
+      ScrollActiveMenu.init('page-navbar', 'sub-navbar__item', 'sub-navbar__item--active');
+    }
     LazyloadImg.init('js-lazyload-img');
   };
 

@@ -80,7 +80,7 @@ body.room_updates {background: #000000; color: #FFF;}
 	background: #222;
 	color: #AAA;
 	font-size: 1.5em;
-	text-align: left;	
+	text-align: left;
 }
 
 #room_updates #current+#next.details * {

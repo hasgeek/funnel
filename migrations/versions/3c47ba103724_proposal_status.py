@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Proposal.status
 
 Revision ID: 3c47ba103724
@@ -10,9 +12,9 @@ Create Date: 2014-01-28 00:09:39.231864
 revision = '3c47ba103724'
 down_revision = '6f98e24760d'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy.sql import column, table
+import sqlalchemy as sa  # NOQA
 
 
 # The PROPOSALSTATUS class as it was when this migration was created
@@ -29,20 +31,35 @@ class PROPOSALSTATUS:  # NOQA
 
 def upgrade():
     connection = op.get_bind()
-    proposal = table('proposal',
-        column(u'confirmed', sa.BOOLEAN()),
-        column(u'status', sa.Integer))
-    connection.execute(proposal.update().where(proposal.c.confirmed == True).values({proposal.c.status: PROPOSALSTATUS.CONFIRMED}))  # NOQA
-    connection.execute(proposal.update().where(proposal.c.confirmed == False).values({proposal.c.status: PROPOSALSTATUS.SUBMITTED}))  # NOQA
+    proposal = table(
+        'proposal', column(u'confirmed', sa.BOOLEAN()), column(u'status', sa.Integer)
+    )
+    connection.execute(
+        proposal.update()
+        .where(proposal.c.confirmed == True)
+        .values({proposal.c.status: PROPOSALSTATUS.CONFIRMED})
+    )  # NOQA
+    connection.execute(
+        proposal.update()
+        .where(proposal.c.confirmed == False)
+        .values({proposal.c.status: PROPOSALSTATUS.SUBMITTED})
+    )  # NOQA
     op.drop_column('proposal', u'confirmed')
 
 
 def downgrade():
     connection = op.get_bind()
-    proposal = table('proposal',
-        column(u'confirmed', sa.BOOLEAN()),
-        column(u'status', sa.Integer))
-    op.add_column('proposal', sa.Column(u'confirmed', sa.BOOLEAN(), server_default="False", nullable=False))
-    connection.execute(proposal.update().where(proposal.c.status == PROPOSALSTATUS.CONFIRMED).values({proposal.c.confirmed: True}))
+    proposal = table(
+        'proposal', column(u'confirmed', sa.BOOLEAN()), column(u'status', sa.Integer)
+    )
+    op.add_column(
+        'proposal',
+        sa.Column(u'confirmed', sa.BOOLEAN(), server_default="False", nullable=False),
+    )
+    connection.execute(
+        proposal.update()
+        .where(proposal.c.status == PROPOSALSTATUS.CONFIRMED)
+        .values({proposal.c.confirmed: True})
+    )
     connection.execute(proposal.update().values({proposal.c.status: 0}))
     op.alter_column('proposal', u'confirmed', server_default=None)

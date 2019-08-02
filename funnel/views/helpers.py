@@ -66,7 +66,9 @@ def clear_old_session(response):
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
         if cookie_name in request.cookies:
             for domain in domains:
-                response.set_cookie(cookie_name, '', expires=0, httponly=True, domain=domain)
+                response.set_cookie(
+                    cookie_name, '', expires=0, httponly=True, domain=domain
+                )
     return response
 
 

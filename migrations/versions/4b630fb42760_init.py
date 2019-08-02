@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """init
 
 Revision ID: 4b630fb42760
@@ -10,20 +12,22 @@ Create Date: 2013-08-26 18:05:24.589828
 revision = '4b630fb42760'
 down_revision = None
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.create_table('votespace',
+    op.create_table(
+        'votespace',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('type', sa.Integer(), nullable=True),
         sa.Column('count', sa.Integer(), nullable=False),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('tag',
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'tag',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -31,17 +35,19 @@ def upgrade():
         sa.Column('title', sa.Unicode(length=80), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name'),
-        sa.UniqueConstraint('title')
-        )
-    op.create_table('commentspace',
+        sa.UniqueConstraint('title'),
+    )
+    op.create_table(
+        'commentspace',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('type', sa.Integer(), nullable=True),
         sa.Column('count', sa.Integer(), nullable=False),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('user',
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'user',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -58,21 +64,23 @@ def upgrade():
         sa.UniqueConstraint('email'),
         sa.UniqueConstraint('lastuser_token'),
         sa.UniqueConstraint('userid'),
-        sa.UniqueConstraint('username')
-        )
-    op.create_table('vote',
+        sa.UniqueConstraint('username'),
+    )
+    op.create_table(
+        'vote',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('votespace_id', sa.Integer(), nullable=False),
         sa.Column('votedown', sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.ForeignKeyConstraint(['votespace_id'], ['votespace.id'], ),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['votespace_id'], ['votespace.id']),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('user_id', 'votespace_id')
-        )
-    op.create_table('comment',
+        sa.UniqueConstraint('user_id', 'votespace_id'),
+    )
+    op.create_table(
+        'comment',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -84,13 +92,14 @@ def upgrade():
         sa.Column('status', sa.Integer(), nullable=False),
         sa.Column('votes_id', sa.Integer(), nullable=False),
         sa.Column('edited_at', sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(['commentspace_id'], ['commentspace.id'], ),
-        sa.ForeignKeyConstraint(['parent_id'], ['comment.id'], ),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('proposal_space',
+        sa.ForeignKeyConstraint(['commentspace_id'], ['commentspace.id']),
+        sa.ForeignKeyConstraint(['parent_id'], ['comment.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id']),
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'proposal_space',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -106,23 +115,25 @@ def upgrade():
         sa.Column('status', sa.Integer(), nullable=False),
         sa.Column('votes_id', sa.Integer(), nullable=False),
         sa.Column('comments_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['comments_id'], ['commentspace.id'], ),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
+        sa.ForeignKeyConstraint(['comments_id'], ['commentspace.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id']),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('name')
-        )
-    op.create_table('user_group',
+        sa.UniqueConstraint('name'),
+    )
+    op.create_table(
+        'user_group',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('name', sa.Unicode(length=250), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
         sa.Column('proposal_space_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('proposal_space_section',
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'proposal_space_section',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -133,20 +144,22 @@ def upgrade():
         sa.Column('public', sa.Boolean(), nullable=False),
         sa.Column('votes_id', sa.Integer(), nullable=False),
         sa.Column('comments_id', sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(['comments_id'], ['commentspace.id'], ),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
+        sa.ForeignKeyConstraint(['comments_id'], ['commentspace.id']),
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id']),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('proposal_space_id', 'name')
-        )
-    op.create_table('group_members',
+        sa.UniqueConstraint('proposal_space_id', 'name'),
+    )
+    op.create_table(
+        'group_members',
         sa.Column('group_id', sa.Integer(), nullable=True),
         sa.Column('user_id', sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(['group_id'], ['user_group.id'], ),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.PrimaryKeyConstraint()
-        )
-    op.create_table('proposal',
+        sa.ForeignKeyConstraint(['group_id'], ['user_group.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.PrimaryKeyConstraint(),
+    )
+    op.create_table(
+        'proposal',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -175,21 +188,22 @@ def upgrade():
         sa.Column('votes_id', sa.Integer(), nullable=False),
         sa.Column('comments_id', sa.Integer(), nullable=False),
         sa.Column('edited_at', sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(['comments_id'], ['commentspace.id'], ),
-        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id'], ),
-        sa.ForeignKeyConstraint(['section_id'], ['proposal_space_section.id'], ),
-        sa.ForeignKeyConstraint(['speaker_id'], ['user.id'], ),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id'], ),
-        sa.PrimaryKeyConstraint('id')
-        )
-    op.create_table('proposal_tags',
+        sa.ForeignKeyConstraint(['comments_id'], ['commentspace.id']),
+        sa.ForeignKeyConstraint(['proposal_space_id'], ['proposal_space.id']),
+        sa.ForeignKeyConstraint(['section_id'], ['proposal_space_section.id']),
+        sa.ForeignKeyConstraint(['speaker_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['votes_id'], ['votespace.id']),
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_table(
+        'proposal_tags',
         sa.Column('tag_id', sa.Integer(), nullable=True),
         sa.Column('proposal_id', sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ),
-        sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], ),
-        sa.PrimaryKeyConstraint()
-        )
+        sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id']),
+        sa.ForeignKeyConstraint(['tag_id'], ['tag.id']),
+        sa.PrimaryKeyConstraint(),
+    )
 
 
 def downgrade():

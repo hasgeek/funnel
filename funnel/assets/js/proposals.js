@@ -1,7 +1,7 @@
-import { TableSearch } from './util';
+import { SaveProject, TableSearch } from './util';
 
 $(() => {
-  window.HasGeek.ProposalsInit = function ({search=''}) {
+  window.HasGeek.ProposalsInit = function ({search='', saveProjectConfig=''}) {
 
     if (search) {
       let tableSearch = new TableSearch(search.tableId);
@@ -16,6 +16,10 @@ $(() => {
         let hits = tableSearch.searchRows($(this).val());
         $(hits.join(',')).removeClass('mui--hide');
       });
+    }
+
+    if (saveProjectConfig) {
+      SaveProject(saveProjectConfig);
     }
   };
 });

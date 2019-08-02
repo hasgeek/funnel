@@ -4,18 +4,25 @@
 {% block title %}Proposals{% endblock %}
 {% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
-{%- block pageheaders %}
-  {% assets "css_leaflet" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
-{% endblock %}
-
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
     <body class="mui--bg-primary hg-app no-sticky-header">
   {%- else %}
     <body class="mui--bg-primary no-sticky-header">
   {%- endif %}
+{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Proposals</span>
+    </div>
+  </div>
+  {{ project_header(project, project_save_form,
+    class='mui--hidden-xs mui--hidden-sm',
+    current_page='proposals') }}
 {% endblock %}
 
 {%- macro proposal_list(project, proposals) %}
@@ -66,101 +73,68 @@
   </table>
 {%- endmacro %}
 
-{%- macro page_btns(project) %}
-  <ul class="mui-list--inline">
-    {%- if project.boxoffice_data %}
-      <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
-      </li>
-    {%- elif project.buy_tickets_url.url %}
-      <li class="cta">
-        <a href="{{ project.buy_tickets_url }}" class="mui-btn mui-btn--raised mui-btn--primary" target="_blank" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
-      </li>
-    {%- elif project.allow_rsvp %}
-      <li class="cta">
-        <a href="{{ project.url_for() }}#participate" class="mui-btn mui-btn--raised mui-btn--primary" title="Participate" data-action="Participate(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">local_play</i>{% trans %}Participate{% endtrans %}</a>
-      </li>
-    {%- endif %}
-    {%- if project.schedule_state.PUBLISHED %}
-      <li class="cta">
-        <hr class="mui-divider">
-        <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--flat mui--text-left" title="View Schedule" data-action="View Schedule(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">schedule</i>{% trans %}View Schedule{% endtrans %}</a>
-      </li>
-    {% endif %}
-    {% if project.cfp_state.OPEN -%}
-      <li class="cta">
-        {%- if not project.schedule_state.PUBLISHED %}<hr class="mui-divider">{% endif %}
-        <a class="mui-btn mui-btn--flat mui--text-left" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">mic</i>{% trans %}Propose a session{% endtrans %}</a>
-      </li>
-    {% endif %}
-  </ul>
-{%- endmacro %}
-
-{% block contenthead %}{% endblock %}
-
-{% block baseheadline %}
-  {%- block flashmessages %}<div class="mui-container">{{ flash_messages() }}</div>{% endblock %}
-  {{ project_header(project, page_btns=page_btns(project), current_page='proposals') }}
-{% endblock %}
-
-{% block contentwrapper %}
-  <div class="grid details-section">
-    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
-        {{ admin_panel(project, cfp_transition_form=cfp_transition_form) }}
-      {% endif %}
-    </div>
-
-   {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
-    <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8" id="call-for-proposal">
-      <div class="grid__col-xs-12 grid__col-md-7 grid__col-lg-8">
-        <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
-        {%- if project.instructions and project.instructions != "None" %}
-          <div class="project-section__instructions">{{ project.instructions }}</div>
-        {%- endif %}
-        {% if project.cfp_state.OPEN -%}
-          <p class="mui--text-left">
-            <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
-          </p>
-        {%- endif %}
+{% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          {% if current_auth.is_authenticated and project.current_roles.admin %}
+            {{ admin_panel(project, cfp_transition_form=cfp_transition_form) }}
+          {%- endif %}
+        </div>
       </div>
-    </div>
-  {%- endif %}
-  </div>
+
+      <div class="grid">
+       {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
+        <div class="grid__col-xs-12" id="call-for-proposal">
+          <h2 class="mui--text-display1 mui--text-left project-section__headline">Call for proposals</h2>
+          {%- if project.instructions and project.instructions != "None" %}
+            <div class="project-section__instructions">{{ project.instructions }}</div>
+          {%- endif %}
+          {% if project.cfp_state.OPEN -%}
+            <p class="mui--text-left">
+              <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
+            </p>
+          {%- endif %}
+        </div>
+      {%- endif %}
+      </div>
 
 
-  {% if project.cfp_state.HAS_PROPOSALS -%}
-  <div class="grid project-section" id="proposals">
-    <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
-        {%- if current_auth.permissions.view_status %}
-          <div>
-            <form class="mui-form mui--pull-left search-proposal-form mui--z1">
-              <div class="mui-textfield">
-                <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search" />
+      {% if project.cfp_state.HAS_PROPOSALS -%}
+      <div class="grid project-section" id="proposals">
+        <div class="grid__col-xs-12">
+          <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
+            {%- if current_auth.permissions.view_status %}
+              <div>
+                <form class="mui-form mui--pull-left search-proposal-form mui--z1">
+                  <div class="mui-textfield">
+                    <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search" />
+                  </div>
+                </form>
               </div>
-            </form>
+              {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
+                <div class="collapsible">
+                  <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
+                  <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
+                </div>
+              {%- endfor -%}
+            {%- else %}
+              {%- if project.proposals_by_confirmation['confirmed'] %}
+                <h3 class="mui--text-subhead proposal-list-header">{% trans %}Confirmed sessions{% endtrans %}</h3>
+                {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
+              {%- endif %}
+              {%- if project.proposals_by_confirmation['unconfirmed'] %}
+                {%- if project.proposals_by_confirmation['confirmed'] %}<h3 class="mui--text-subhead proposal-list-header">{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
+                {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
+              {%- endif %}
+            {%- endif %}
           </div>
-          {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
-            <div class="collapsible">
-              <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
-              <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
-            </div>
-          {%- endfor -%}
-        {%- else %}
-          {%- if project.proposals_by_confirmation['confirmed'] %}
-            <h3 class="mui--text-subhead proposal-list-header">{% trans %}Confirmed sessions{% endtrans %}</h3>
-            {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
-          {%- endif %}
-          {%- if project.proposals_by_confirmation['unconfirmed'] %}
-            {%- if project.proposals_by_confirmation['confirmed'] %}<h3 class="mui--text-subhead proposal-list-header">{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
-            {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
-          {%- endif %}
-        {%- endif %}
+        </div>
       </div>
+      {%- endif %}
     </div>
   </div>
-  {%- endif %}
 {% endblock %}
 
 {% block footerscripts %}
@@ -172,6 +146,11 @@
         tableId: 'proposals-table',
         inputId: 'search'
       };
+
+      proposalsConfig.saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
 
       window.HasGeek.ProposalsInit(proposalsConfig);
     });

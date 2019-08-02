@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Event timezone
 
 Revision ID: 55097480a655
@@ -10,12 +12,17 @@ Create Date: 2013-11-09 15:53:48.318340
 revision = '55097480a655'
 down_revision = '3a6b2ab00e3e'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('timezone', sa.Unicode(length=40), nullable=False, server_default=u'UTC'))
+    op.add_column(
+        'proposal_space',
+        sa.Column(
+            'timezone', sa.Unicode(length=40), nullable=False, server_default=u'UTC'
+        ),
+    )
     op.alter_column('proposal_space', 'timezone', server_default=None)
 
 

@@ -56,20 +56,23 @@
                                 <div class="card__calendar">
                                   <div class="calendar">
                                     <div class="calendar__weekdays">
-                                      <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light"></p>
-                                      {{#each obj.calendar_weeks.days }}
-                                        <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ . }}</p>
-                                      {{/each}}
+                                      <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                                      <div class="calendar__weekdays__name__wrapper">
+                                        {{#each obj.calendar_weeks.days }}
+                                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ . }}</p>
+                                        {{/each}}
+                                      </div>
                                     </div>
                                     <div class="calendar__weekdays">
                                       {{#obj.calendar_weeks.weeks}}{{# { week: . } }}
                                         <div class="calendar__weekdays__month">
-                                          <p class="calendar__weekdays__name calendar__weekdays__name--month mui--text-title mui--text-bold">{{ week.month }}</p>
+                                          <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
                                         </div>
                                         <div class="calendar__weekdays__dates">
                                           {{#week.dates}}{{# { date: . } }}
-                                            <p class="calendar__weekdays__date {{#if date[1] > 0 }}calendar__weekdays__date--active mui--text-dark {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__date__text">{{ date[0] }}</span></p>
+                                            <p class="calendar__weekdays__dates__date {{#if date[2] > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif date[0] == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
                                           {{/}}{{/date}}
+                                           <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                                         </div>
                                       {{/}}{{/week}}
                                     </div>
@@ -122,9 +125,9 @@
                             {{/if}}
                             <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                             <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                            {{#if obj.session }}
+                            {{#if obj.session}}{{#if obj.session.start_at}}
                               <p class="mui--text-body1 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start_at) }}–{{ formatTime(obj.session.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start_at) }}</p>
-                            {{/if}}
+                            {{/if}}{{/if}}
                             <p class="mui--text-body1 mui--text-light snippets"><span class="search-icon"></span>{{{ snippet_html }}}</p>
                           </div>
                         {{elseif result == 'comment'}}

@@ -20,7 +20,7 @@ def venue_data(venue):
     return {
         'name': venue.name,
         'title': venue.title,
-        'description': venue.description.html,
+        'description': venue.description.html,  # FIXME: Needs to be description_html
         'address1': venue.address1,
         'address2': venue.address2,
         'city': venue.city,
@@ -31,19 +31,19 @@ def venue_data(venue):
         'longitude': venue.longitude,
         'url': None,
         'json_url': None,
-        }
+    }
 
 
 def room_data(room):
     return {
         'name': room.scoped_name,
         'title': room.title,
-        'description': room.description.html,
+        'description': room.description.html,  # FIXME: Needs to be description_html
         'venue': room.venue.name,
         'bgcolor': room.bgcolor,
         'url': None,
         'json_url': None,
-        }
+    }
 
 
 @route('/<profile>/<project>/venues')
@@ -55,7 +55,11 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('view')
     def venues(self):
-        return dict(project=self.obj, venues=self.obj.venues, primary_venue_form=VenuePrimaryForm(parent=self.obj))
+        return {
+            'project': self.obj,
+            'venues': self.obj.venues,
+            'primary_venue_form': VenuePrimaryForm(parent=self.obj),
+        }
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -72,7 +76,13 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             db.session.commit()
             flash(_(u"You have added a new venue to the event"), 'success')
             return render_redirect(self.obj.url_for('venues'), code=303)
-        return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=self.obj.url_for('venues'), ajax=False)
+        return render_form(
+            form=form,
+            title=_("New venue"),
+            submit=_("Create"),
+            cancel_url=self.obj.url_for('venues'),
+            ajax=False,
+        )
 
     @route('update_venue_settings', methods=['POST'])
     @render_with(json=True)
@@ -87,7 +97,9 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
                 venue.seq = request.json[venue_suuid]['seq']
                 db.session.add(venue)
                 for room in request.json[venue_suuid]['rooms']:
-                    room_obj = VenueRoom.query.filter_by(suuid=room['suuid'], venue=venue).first()
+                    room_obj = VenueRoom.query.filter_by(
+                        suuid=room['suuid'], venue=venue
+                    ).first()
                     if room_obj is not None:
                         room_obj.bgcolor = room['color'].lstrip('#')
                         room_obj.seq = room['seq']
@@ -140,7 +152,13 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             db.session.commit()
             flash(_(u"Saved changes to this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
-        return render_form(form=form, title=_("Edit venue"), submit=_("Save"), cancel_url=self.obj.project.url_for('venues'), ajax=False)
+        return render_form(
+            form=form,
+            title=_("Edit venue"),
+            submit=_("Save"),
+            cancel_url=self.obj.project.url_for('venues'),
+            ajax=False,
+        )
 
     @route('delete', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -149,10 +167,18 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         if self.obj == self.obj.project.primary_venue:
             flash(_(u"You can not delete the primary venue"), 'danger')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
-        return render_delete_sqla(self.obj, db, title=u"Confirm delete",
-            message=_(u"Delete venue “{title}”? This cannot be undone".format(title=self.obj.title)),
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=u"Confirm delete",
+            message=_(
+                u"Delete venue “{title}”? This cannot be undone".format(
+                    title=self.obj.title
+                )
+            ),
             success=_(u"You have deleted venue “{title}”".format(title=self.obj.title)),
-            next=self.obj.project.url_for('venues'))
+            next=self.obj.project.url_for('venues'),
+        )
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -167,7 +193,13 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             db.session.commit()
             flash(_(u"You have added a room at this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
-        return render_form(form=form, title=_("New room"), submit=_("Create"), cancel_url=self.obj.project.url_for('venues'), ajax=False)
+        return render_form(
+            form=form,
+            title=_("New room"),
+            submit=_("Create"),
+            cancel_url=self.obj.project.url_for('venues'),
+            ajax=False,
+        )
 
 
 @route('/<project>/venues/<venue>', subdomain='<profile>')
@@ -194,16 +226,30 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             db.session.commit()
             flash(_(u"Saved changes to this room"), 'success')
             return render_redirect(self.obj.venue.project.url_for('venues'), code=303)
-        return render_form(form=form, title=_("Edit room"), submit=_("Save"), cancel_url=self.obj.venue.project.url_for('venues'), ajax=False)
+        return render_form(
+            form=form,
+            title=_("Edit room"),
+            submit=_("Save"),
+            cancel_url=self.obj.venue.project.url_for('venues'),
+            ajax=False,
+        )
 
     @route('delete', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('delete-venue')
     def delete(self):
-        return render_delete_sqla(self.obj, db, title=u"Confirm delete",
-            message=_(u"Delete room “{title}”? This cannot be undone".format(title=self.obj.title)),
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=u"Confirm delete",
+            message=_(
+                u"Delete room “{title}”? This cannot be undone".format(
+                    title=self.obj.title
+                )
+            ),
             success=_(u"You have deleted room “{title}”".format(title=self.obj.title)),
-            next=self.obj.venue.project.url_for('venues'))
+            next=self.obj.venue.project.url_for('venues'),
+        )
 
 
 @route('/<project>/venues/<venue>/<room>', subdomain='<profile>')

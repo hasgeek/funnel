@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """feedback
 
 Revision ID: 5290f9238875
@@ -10,12 +12,13 @@ Create Date: 2013-09-16 21:48:11.320616
 revision = '5290f9238875'
 down_revision = '4b630fb42760'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.create_table('proposal_feedback',
+    op.create_table(
+        'proposal_feedback',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -27,10 +30,10 @@ def upgrade():
         sa.Column('max_scale', sa.Integer(), nullable=False),
         sa.Column('content', sa.Integer(), nullable=True),
         sa.Column('presentation', sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id'], ),
+        sa.ForeignKeyConstraint(['proposal_id'], ['proposal.id']),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('proposal_id', 'auth_type', 'id_type', 'userid')
-        )
+        sa.UniqueConstraint('proposal_id', 'auth_type', 'id_type', 'userid'),
+    )
 
 
 def downgrade():

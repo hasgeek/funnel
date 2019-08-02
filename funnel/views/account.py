@@ -16,9 +16,7 @@ class AccountView(ClassView):
     @lastuser.requires_login
     @render_with('account.html.jinja2')
     def account(self):
-        return {
-            'user': current_auth.user.current_access()
-            }
+        return {'user': current_auth.user.current_access()}
 
 
 @route('/account')

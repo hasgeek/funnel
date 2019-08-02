@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Add search vectors
 
 Revision ID: 1829e53eba75
@@ -12,39 +14,71 @@ down_revision = '752dee4ae101'
 
 from textwrap import dedent
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
 from sqlalchemy_utils import TSVectorType
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
     op.add_column('comment', sa.Column('search_vector', TSVectorType(), nullable=True))
-    op.create_index('ix_comment_search_vector', 'comment', ['search_vector'],
-        unique=False, postgresql_using='gin')
+    op.create_index(
+        'ix_comment_search_vector',
+        'comment',
+        ['search_vector'],
+        unique=False,
+        postgresql_using='gin',
+    )
 
     op.add_column('label', sa.Column('search_vector', TSVectorType(), nullable=True))
-    op.create_index('ix_label_search_vector', 'label', ['search_vector'],
-        unique=False, postgresql_using='gin')
+    op.create_index(
+        'ix_label_search_vector',
+        'label',
+        ['search_vector'],
+        unique=False,
+        postgresql_using='gin',
+    )
 
     op.add_column('profile', sa.Column('search_vector', TSVectorType(), nullable=True))
-    op.create_index('ix_profile_search_vector', 'profile', ['search_vector'],
-        unique=False, postgresql_using='gin')
+    op.create_index(
+        'ix_profile_search_vector',
+        'profile',
+        ['search_vector'],
+        unique=False,
+        postgresql_using='gin',
+    )
 
     op.add_column('project', sa.Column('search_vector', TSVectorType(), nullable=True))
-    op.create_index('ix_project_search_vector', 'project', ['search_vector'],
-        unique=False, postgresql_using='gin')
+    op.create_index(
+        'ix_project_search_vector',
+        'project',
+        ['search_vector'],
+        unique=False,
+        postgresql_using='gin',
+    )
 
     op.add_column('proposal', sa.Column('search_vector', TSVectorType(), nullable=True))
-    op.create_index('ix_proposal_search_vector', 'proposal', ['search_vector'],
-        unique=False, postgresql_using='gin')
+    op.create_index(
+        'ix_proposal_search_vector',
+        'proposal',
+        ['search_vector'],
+        unique=False,
+        postgresql_using='gin',
+    )
 
     op.add_column('session', sa.Column('search_vector', TSVectorType(), nullable=True))
-    op.create_index('ix_session_search_vector', 'session', ['search_vector'],
-        unique=False, postgresql_using='gin')
+    op.create_index(
+        'ix_session_search_vector',
+        'session',
+        ['search_vector'],
+        unique=False,
+        postgresql_using='gin',
+    )
 
     # Update search vectors for existing data
-    op.execute(sa.DDL(dedent(
-        '''
+    op.execute(
+        sa.DDL(
+            dedent(
+                '''
         UPDATE comment SET search_vector = setweight(to_tsvector('english', COALESCE(message_text, '')), 'A');
 
         UPDATE label SET search_vector = setweight(to_tsvector('english', COALESCE(name, '')), 'A') || setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description, '')), 'B');
@@ -56,11 +90,16 @@ def upgrade():
         UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(preview_video, '')), 'C') || setweight(to_tsvector('english', COALESCE(links, '')), 'B') || setweight(to_tsvector('english', COALESCE(bio_text, '')), 'B');
 
         UPDATE session SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker_bio_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker, '')), 'A');
-        ''')))
+        '''
+            )
+        )
+    )
 
     # Create trigger functions and add triggers
-    op.execute(sa.DDL(dedent(
-        '''
+    op.execute(
+        sa.DDL(
+            dedent(
+                '''
         CREATE FUNCTION comment_search_vector_update() RETURNS trigger AS $$
         BEGIN
             NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.message_text, '')), 'A');
@@ -120,7 +159,10 @@ def upgrade():
 
         CREATE TRIGGER session_search_vector_trigger BEFORE INSERT OR UPDATE ON session
         FOR EACH ROW EXECUTE PROCEDURE session_search_vector_update();
-        ''')))
+        '''
+            )
+        )
+    )
 
     op.alter_column('comment', 'search_vector', nullable=False)
     op.alter_column('label', 'search_vector', nullable=False)
@@ -132,8 +174,10 @@ def upgrade():
 
 def downgrade():
     # Drop triggers and functions
-    op.execute(sa.DDL(dedent(
-        '''
+    op.execute(
+        sa.DDL(
+            dedent(
+                '''
         DROP TRIGGER comment_search_vector_trigger ON comment;
         DROP FUNCTION comment_search_vector_update();
 
@@ -151,7 +195,10 @@ def downgrade():
 
         DROP TRIGGER session_search_vector_trigger ON session;
         DROP FUNCTION session_search_vector_update();
-        ''')))
+        '''
+            )
+        )
+    )
 
     op.drop_index('ix_session_search_vector', table_name='session')
     op.drop_column('session', 'search_vector')

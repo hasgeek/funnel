@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from flask import current_app
 
 from funnel.util import (
@@ -13,7 +14,10 @@ class TestUtils(object):
     def test_extract_twitter_handle(self):
         expected = u'shreyas_satish'
         assert extract_twitter_handle('https://twitter.com/shreyas_satish') == expected
-        assert extract_twitter_handle('https://twitter.com/shreyas_satish/favorites') == expected
+        assert (
+            extract_twitter_handle('https://twitter.com/shreyas_satish/favorites')
+            == expected
+        )
         assert extract_twitter_handle('@shreyas_satish') == expected
         assert extract_twitter_handle('shreyas_satish') == expected
         assert extract_twitter_handle('seriouslylongstring') is None

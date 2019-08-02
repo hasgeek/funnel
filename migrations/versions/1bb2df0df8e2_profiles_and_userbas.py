@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Profiles and UserBase2
 
 Revision ID: 1bb2df0df8e2
@@ -10,15 +12,19 @@ Create Date: 2014-04-06 18:49:43.418238
 revision = '1bb2df0df8e2'
 down_revision = '523c53593e3c'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('user', sa.Column('status', sa.Integer(), nullable=False, server_default=sa.text('0')))
+    op.add_column(
+        'user',
+        sa.Column('status', sa.Integer(), nullable=False, server_default=sa.text('0')),
+    )
     op.alter_column('user', 'status', server_default=None)
 
-    op.create_table('profile',
+    op.create_table(
+        'profile',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -30,12 +36,16 @@ def upgrade():
         sa.Column('title', sa.Unicode(length=250), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name'),
-        sa.UniqueConstraint('userid')
-        )
+        sa.UniqueConstraint('userid'),
+    )
 
-    op.add_column('proposal_space', sa.Column('profile_id', sa.Integer(), nullable=True))
+    op.add_column(
+        'proposal_space', sa.Column('profile_id', sa.Integer(), nullable=True)
+    )
     op.drop_constraint('proposal_space_name_key', 'proposal_space')
-    op.create_unique_constraint('proposal_space_profile_id_name_key', 'proposal_space', ['profile_id', 'name'])
+    op.create_unique_constraint(
+        'proposal_space_profile_id_name_key', 'proposal_space', ['profile_id', 'name']
+    )
 
 
 def downgrade():

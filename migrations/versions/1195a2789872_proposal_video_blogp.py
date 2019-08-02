@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Proposal video blogpost
 
 Revision ID: 1195a2789872
@@ -10,14 +12,20 @@ Create Date: 2014-02-23 02:36:49.955698
 revision = '1195a2789872'
 down_revision = '3c47ba103724'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('proposal', sa.Column('blog_post', sa.Unicode(250), server_default=u'', nullable=False))
+    op.add_column(
+        'proposal',
+        sa.Column('blog_post', sa.Unicode(250), server_default=u'', nullable=False),
+    )
     op.alter_column('proposal', 'blog_post', server_default=None)
-    op.add_column('proposal', sa.Column('preview_video', sa.Unicode(250), server_default=u'', nullable=False))
+    op.add_column(
+        'proposal',
+        sa.Column('preview_video', sa.Unicode(250), server_default=u'', nullable=False),
+    )
     op.alter_column('proposal', 'preview_video', server_default=None)
 
 

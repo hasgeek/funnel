@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Label.name check constraint
 
 Revision ID: 034863dbaac2
@@ -10,8 +12,8 @@ Create Date: 2019-05-10 00:51:46.302304
 revision = '034863dbaac2'
 down_revision = '111c9755ae39'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

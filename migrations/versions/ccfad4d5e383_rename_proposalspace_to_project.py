@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Rename ProposalSpace to Project
 
 Revision ID: ccfad4d5e383
@@ -10,8 +12,8 @@ Create Date: 2018-11-13 13:40:54.744756
 revision = 'ccfad4d5e383'
 down_revision = '488077138ee4'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 # (old, new)
 renamed_tables = [
@@ -20,7 +22,7 @@ renamed_tables = [
     ('proposal_space_redirect', 'project_redirect'),
     ('proposal_space_section', 'section'),
     ('votespace', 'voteset'),
-    ]
+]
 
 # (old, new)
 renamed_sequences = [
@@ -28,7 +30,7 @@ renamed_sequences = [
     ('proposal_space_id_seq', 'project_id_seq'),
     ('proposal_space_section_id_seq', 'section_id_seq'),
     ('votespace_id_seq', 'voteset_id_seq'),
-    ]
+]
 
 # (table, old, new)
 renamed_columns = [
@@ -59,7 +61,7 @@ renamed_columns = [
     ('user_group', 'proposal_space_id', 'project_id'),
     ('venue', 'proposal_space_id', 'project_id'),
     ('vote', 'votespace_id', 'voteset_id'),
-    ]
+]
 
 # (table, old, new)
 renamed_constraints = [
@@ -67,12 +69,24 @@ renamed_constraints = [
     ('comment', 'comment_votes_id_fkey', 'comment_voteset_id_fkey'),
     ('comment', 'comment_status_check', 'comment_state_check'),
     ('commentset', 'commentspace_pkey', 'commentset_pkey'),
-    ('contact_exchange', 'contact_exchange_proposal_space_id_fkey', 'contact_exchange_project_id_fkey'),
+    (
+        'contact_exchange',
+        'contact_exchange_proposal_space_id_fkey',
+        'contact_exchange_project_id_fkey',
+    ),
     ('event', 'event_proposal_space_id_name_key', 'event_project_id_name_key'),
     ('event', 'event_proposal_space_id_title_key', 'event_project_id_title_key'),
     ('event', 'event_proposal_space_id_fkey', 'event_project_id_fkey'),
-    ('participant', 'participant_proposal_space_id_email_key', 'participant_project_id_email_key'),
-    ('participant', 'participant_proposal_space_id_fkey', 'participant_project_id_fkey'),
+    (
+        'participant',
+        'participant_proposal_space_id_email_key',
+        'participant_project_id_email_key',
+    ),
+    (
+        'participant',
+        'participant_proposal_space_id_fkey',
+        'participant_project_id_fkey',
+    ),
     ('project', 'proposal_space_name_check', 'project_name_check'),
     ('project', 'proposal_space_status_check', 'project_state_check'),
     ('project', 'proposal_space_legacy_name_key', 'project_legacy_name_key'),
@@ -87,36 +101,88 @@ renamed_constraints = [
     ('project', 'proposal_space_profile_id_fkey', 'project_profile_id_fkey'),
     ('project', 'proposal_space_user_id_fkey', 'project_user_id_fkey'),
     ('project_redirect', 'proposal_space_redirect_pkey', 'project_redirect_pkey'),
-    ('project_redirect', 'proposal_space_redirect_profile_id_fkey', 'project_redirect_profile_id_fkey'),
-    ('project_redirect', 'proposal_space_redirect_proposal_space_id_fkey', 'project_redirect_project_id_fkey'),
+    (
+        'project_redirect',
+        'proposal_space_redirect_profile_id_fkey',
+        'project_redirect_profile_id_fkey',
+    ),
+    (
+        'project_redirect',
+        'proposal_space_redirect_proposal_space_id_fkey',
+        'project_redirect_project_id_fkey',
+    ),
     ('proposal', 'proposal_status_check', 'proposal_state_check'),
-    ('proposal', 'proposal_proposal_space_id_url_id_key', 'proposal_project_id_url_id_key'),
+    (
+        'proposal',
+        'proposal_proposal_space_id_url_id_key',
+        'proposal_project_id_url_id_key',
+    ),
     ('proposal', 'proposal_proposal_space_id_fkey', 'proposal_project_id_fkey'),
     ('proposal', 'proposal_comments_id_fkey', 'proposal_commentset_id_fkey'),
     ('proposal', 'proposal_votes_id_fkey', 'proposal_voteset_id_fkey'),
-    ('proposal_redirect', 'proposal_redirect_proposal_space_id_fkey', 'proposal_redirect_project_id_fkey'),
+    (
+        'proposal_redirect',
+        'proposal_redirect_proposal_space_id_fkey',
+        'proposal_redirect_project_id_fkey',
+    ),
     ('rsvp', 'rsvp_status_check', 'rsvp_state_check'),
     ('rsvp', 'rsvp_proposal_space_id_fkey', 'rsvp_project_id_fkey'),
     ('section', 'proposal_space_section_name_check', 'section_name_check'),
     ('section', 'proposal_space_section_pkey', 'section_pkey'),
-    ('section', 'proposal_space_section_comments_id_fkey', 'section_commentset_id_fkey'),
-    ('section', 'proposal_space_section_proposal_space_id_fkey', 'section_project_id_fkey'),
-    ('section', 'proposal_space_section_proposal_space_id_name_key', 'section_project_id_name_key'),
+    (
+        'section',
+        'proposal_space_section_comments_id_fkey',
+        'section_commentset_id_fkey',
+    ),
+    (
+        'section',
+        'proposal_space_section_proposal_space_id_fkey',
+        'section_project_id_fkey',
+    ),
+    (
+        'section',
+        'proposal_space_section_proposal_space_id_name_key',
+        'section_project_id_name_key',
+    ),
     ('section', 'proposal_space_section_votes_id_fkey', 'section_voteset_id_fkey'),
-    ('session', 'session_proposal_space_id_url_id_key', 'session_project_id_url_id_key'),
+    (
+        'session',
+        'session_proposal_space_id_url_id_key',
+        'session_project_id_url_id_key',
+    ),
     ('session', 'session_proposal_space_id_fkey', 'session_project_id_fkey'),
-    ('ticket_client', 'ticket_client_proposal_space_id_fkey', 'ticket_client_project_id_fkey'),
-    ('ticket_type', 'ticket_type_proposal_space_id_name_key', 'ticket_type_project_id_name_key'),
-    ('ticket_type', 'ticket_type_proposal_space_id_title_key', 'ticket_type_project_id_title_key'),
-    ('ticket_type', 'ticket_type_proposal_space_id_fkey', 'ticket_type_project_id_fkey'),
-    ('user_group', 'user_group_proposal_space_id_name_key', 'user_group_project_id_name_key'),
+    (
+        'ticket_client',
+        'ticket_client_proposal_space_id_fkey',
+        'ticket_client_project_id_fkey',
+    ),
+    (
+        'ticket_type',
+        'ticket_type_proposal_space_id_name_key',
+        'ticket_type_project_id_name_key',
+    ),
+    (
+        'ticket_type',
+        'ticket_type_proposal_space_id_title_key',
+        'ticket_type_project_id_title_key',
+    ),
+    (
+        'ticket_type',
+        'ticket_type_proposal_space_id_fkey',
+        'ticket_type_project_id_fkey',
+    ),
+    (
+        'user_group',
+        'user_group_proposal_space_id_name_key',
+        'user_group_project_id_name_key',
+    ),
     ('user_group', 'user_group_proposal_space_id_fkey', 'user_group_project_id_fkey'),
     ('venue', 'venue_proposal_space_id_name_key', 'venue_project_id_name_key'),
     ('venue', 'venue_proposal_space_id_fkey', 'venue_project_id_fkey'),
     ('vote', 'vote_user_id_votespace_id_key', 'vote_user_id_voteset_id_key'),
     ('vote', 'vote_votespace_id_fkey', 'vote_voteset_id_fkey'),
     ('voteset', 'votespace_pkey', 'voteset_pkey'),
-    ]
+]
 
 
 def upgrade():
@@ -124,28 +190,40 @@ def upgrade():
         op.rename_table(old, new)
 
     for old, new in renamed_sequences:
-        op.execute(sa.DDL('ALTER SEQUENCE {old} RENAME TO {new}'.format(
-            old=old, new=new)))
+        op.execute(
+            sa.DDL('ALTER SEQUENCE {old} RENAME TO {new}'.format(old=old, new=new))
+        )
 
     for table, old, new in renamed_columns:
         op.alter_column(table, old, new_column_name=new)
 
     for table, old, new in renamed_constraints:
-        op.execute(sa.DDL('ALTER TABLE {table} RENAME CONSTRAINT {old} TO {new}'.format(
-            table=table, old=old, new=new)))
+        op.execute(
+            sa.DDL(
+                'ALTER TABLE {table} RENAME CONSTRAINT {old} TO {new}'.format(
+                    table=table, old=old, new=new
+                )
+            )
+        )
 
 
 def downgrade():
     for table, old, new in renamed_constraints:
-        op.execute(sa.DDL('ALTER TABLE {table} RENAME CONSTRAINT {new} TO {old}'.format(
-            table=table, old=old, new=new)))
+        op.execute(
+            sa.DDL(
+                'ALTER TABLE {table} RENAME CONSTRAINT {new} TO {old}'.format(
+                    table=table, old=old, new=new
+                )
+            )
+        )
 
     for table, old, new in renamed_columns:
         op.alter_column(table, new, new_column_name=old)
 
     for old, new in renamed_sequences:
-        op.execute(sa.DDL('ALTER SEQUENCE {new} RENAME TO {old}'.format(
-            old=old, new=new)))
+        op.execute(
+            sa.DDL('ALTER SEQUENCE {new} RENAME TO {old}'.format(old=old, new=new))
+        )
 
     for old, new in renamed_tables:
         op.rename_table(new, old)

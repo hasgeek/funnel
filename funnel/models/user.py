@@ -3,9 +3,10 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy_utils import UUIDType
 
+from flask_lastuser.sqlalchemy import TeamBase, UserBase2
+
 from coaster.sqlalchemy import SqlBuidComparator
 from coaster.utils import buid2uuid, uuid2buid
-from flask_lastuser.sqlalchemy import TeamBase, UserBase2
 
 from . import UuidMixin, db
 
@@ -26,27 +27,20 @@ class UseridMixin(object):
         self.uuid = buid2uuid(value)
 
     @userid.comparator
-    def userid(cls):
+    def userid(cls):  # NOQA: N805
         return SqlBuidComparator(cls.uuid)
 
 
 # --- Models ------------------------------------------------------------------
 
+
 class User(UseridMixin, UuidMixin, UserBase2, db.Model):
     __tablename__ = 'user'
 
     __roles__ = {
-        'all': {
-            'read': {
-                'username', 'fullname', 'avatar',
-                }
-            },
-        'owner': {
-            'read': {
-                'email', 'phone', 'profile_url',
-                }
-            }
-        }
+        'all': {'read': {'username', 'fullname', 'avatar'}},
+        'owner': {'read': {'email', 'phone', 'profile_url'}},
+    }
 
     def roles_for(self, actor, anchors=()):
         roles = super(User, self).roles_for(actor, anchors)
@@ -75,8 +69,11 @@ class Team(UseridMixin, UuidMixin, TeamBase, db.Model):
         self.org_uuid = buid2uuid(value)
 
     @orgid.comparator
-    def orgid(cls):
+    def orgid(cls):  # NOQA: N805
         return SqlBuidComparator(cls.org_uuid)
 
     def __repr__(self):
-        return '<Team %r of %r>' % (self.title, self.profile.title if self.profile else '(missing)')
+        return '<Team %r of %r>' % (
+            self.title,
+            self.profile.title if self.profile else '(missing)',
+        )

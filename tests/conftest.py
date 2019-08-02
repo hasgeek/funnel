@@ -13,25 +13,17 @@ from funnel.models import Label, Profile, Project, Proposal, Team, User, db
 @app.route('/usertest')
 def user_test():
     from coaster.auth import current_auth
+
     return current_auth.user.username if current_auth.user is not None else "<anon>"
 
 
 TEST_DATA = {
     'users': {
-        'testuser': {
-            'username': u"testuser",
-            'email': u"testuser@example.com",
-            },
-        'testuser2': {
-            'username': u"testuser2",
-            'email': u"testuser2@example.com",
-            },
-        'testuser3': {
-            'username': u"testuser3",
-            'email': u"testuser3@example.com",
-            },
-        }
+        'testuser': {'username': u"testuser", 'email': u"testuser@example.com"},
+        'testuser2': {'username': u"testuser2", 'email': u"testuser2@example.com"},
+        'testuser3': {'username': u"testuser3", 'email': u"testuser3@example.com"},
     }
+}
 # Scope: session
 # These fixtures are run before every test session
 
@@ -100,8 +92,9 @@ def new_team(test_db, new_user):
 
 @pytest.fixture(scope='session')
 def new_profile(test_db, new_team):
-    profile = Profile(title=u"Test Profile", description=u"Test Description",
-    admin_team=new_team)
+    profile = Profile(
+        title=u"Test Profile", description=u"Test Description", admin_team=new_team
+    )
     test_db.session.add(profile)
     test_db.session.commit()
     return profile
@@ -110,9 +103,16 @@ def new_profile(test_db, new_team):
 @pytest.fixture(scope='session')
 def new_project(test_db, new_profile, new_user, new_team):
     project = Project(
-        profile=new_profile, user=new_user, title=u"Test Project",
-        tagline=u"Test tagline", description=u"Test description",
-        admin_team=new_team, review_team=new_team, checkin_team=new_team)
+        profile=new_profile,
+        user=new_user,
+        title=u"Test Project",
+        tagline=u"Test tagline",
+        description=u"Test description",
+        location=u"Test Location",
+        admin_team=new_team,
+        review_team=new_team,
+        checkin_team=new_team,
+    )
     test_db.session.add(project)
     test_db.session.commit()
     return project
@@ -121,9 +121,8 @@ def new_project(test_db, new_profile, new_user, new_team):
 @pytest.fixture(scope='class')
 def new_main_label(test_db, new_project):
     main_label_a = Label(
-        title=u"Parent Label A", project=new_project,
-        description=u"A test parent label"
-        )
+        title=u"Parent Label A", project=new_project, description=u"A test parent label"
+    )
     new_project.labels.append(main_label_a)
     test_db.session.add(main_label_a)
 
@@ -145,9 +144,8 @@ def new_main_label(test_db, new_project):
 @pytest.fixture(scope='class')
 def new_main_label_unrestricted(test_db, new_project):
     main_label_b = Label(
-        title=u"Parent Label B", project=new_project,
-        description=u"A test parent label"
-        )
+        title=u"Parent Label B", project=new_project, description=u"A test parent label"
+    )
     new_project.labels.append(main_label_b)
     test_db.session.add(main_label_b)
 
@@ -178,10 +176,13 @@ def new_label(test_db, new_project):
 @pytest.fixture(scope='class')
 def new_proposal(test_db, new_user, new_project):
     proposal = Proposal(
-        user=new_user, speaker=new_user, project=new_project,
-        title=u"Test Proposal", outline=u"Test proposal description",
-        location=u"Bangalore"
-        )
+        user=new_user,
+        speaker=new_user,
+        project=new_project,
+        title=u"Test Proposal",
+        outline=u"Test proposal description",
+        location=u"Bangalore",
+    )
     test_db.session.add(proposal)
     test_db.session.commit()
     return proposal

@@ -13,7 +13,9 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     __tablename__ = 'profile'
     reserved_names = RESERVED_NAMES
 
-    admin_team_id = db.Column(None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
+    admin_team_id = db.Column(
+        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
+    )
     admin_team = db.relationship(Team)
 
     description = MarkdownColumn('description', default=u'', nullable=False)
@@ -21,37 +23,42 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
-    search_vector = db.deferred(db.Column(
-        TSVectorType(
-            'name', 'title', 'description_text',
-            weights={'name': 'A', 'title': 'A', 'description_text': 'B'},
-            regconfig='english',
-            hltext=lambda: db.func.concat_ws(' / ', Profile.title, Profile.description_html),
+    search_vector = db.deferred(
+        db.Column(
+            TSVectorType(
+                'name',
+                'title',
+                'description_text',
+                weights={'name': 'A', 'title': 'A', 'description_text': 'B'},
+                regconfig='english',
+                hltext=lambda: db.func.concat_ws(
+                    ' / ', Profile.title, Profile.description_html
+                ),
             ),
-        nullable=False))
+            nullable=False,
+        )
+    )
 
     teams = db.relationship(
-        Team, primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
-        backref='profile', lazy='dynamic')
+        Team,
+        primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
+        backref='profile',
+        lazy='dynamic',
+    )
 
     __table_args__ = (
         db.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
-        )
+    )
 
-    __roles__ = {
-        'all': {
-            'read': {
-                'id', 'name', 'title', 'description'
-                },
-            },
-        }
+    __roles__ = {'all': {'read': {'id', 'name', 'title', 'description'}}}
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
         perms.add('view')
         if user:
-            if (self.userid in user.user_organizations_owned_ids()
-                    or (self.admin_team and user in self.admin_team.users)):
+            if self.userid in user.user_organizations_owned_ids() or (
+                self.admin_team and user in self.admin_team.users
+            ):
                 perms.add('edit-profile')
                 perms.add('new_project')
                 perms.add('delete-project')
