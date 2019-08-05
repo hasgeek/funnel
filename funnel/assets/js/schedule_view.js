@@ -4,7 +4,7 @@ import Vue from 'vue/dist/vue.min';
 const Schedule = {
   renderScheduleTable() {
     let schedule = this;
-    let printRowHeight = `${schedule.config.printPageHeight/schedule.config.max_sessions}${schedule.config.printPageHeightUnit}`;
+    let printRowHeight = `${schedule.config.printPageHeight/(schedule.config.max_sessions + 2)}${schedule.config.printPageHeightUnit}`;
 
     let styleUI = Vue.component('v-style', {
       template:'<style>@media print {.schedule__row__column--talks { height: {{printRowHeight}} } }</style>',
@@ -71,7 +71,7 @@ const Schedule = {
           return Object.prototype.hasOwnProperty.call(session.rooms[this.activeTab], 'talk');
         },
         removeImg(descriptionHtml) {
-          return descriptionHtml.replace(/<img[^>]*>/g,"").substring(0, 200).concat('..');
+          return descriptionHtml.replace(/<img[^>]*>/g,"").substring(0, 400).concat('..');
         },
         updateMetaTags: function(pageDetails) {
           $('title').html(pageDetails.title);

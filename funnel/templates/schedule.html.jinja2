@@ -59,7 +59,7 @@
       .sub-navbar-container,
       .mobile-nav,
       .admin_panel,
-      .tabs-wrapper
+      .tabs-wrapper,
       .footer {
         display: none;
       }   
@@ -212,7 +212,7 @@
                             <div class="schedule__row__column__content__title">
                               <p class="mui--text-subhead schedule__row__column__content__title__heading" v-if="room.talk.title">{{ room.talk.title }}</p>
                               <p class="mui--text-caption mui--text-light schedule__row__column__content__title__speaker" v-if="room.talk.speaker">{{ room.talk.speaker }}</p>
-                              <div class="schedule__row__column__content__description mui--text-body1" v-html="removeImg(room.talk.description.html)" v-if="room.talk.description.html"></div>
+                              <div class="schedule__row__column__content__description mui--text-body1" v-html="removeImg(room.talk.description.html)" v-if="view == 'calendar' && room.talk.description.html"></div>
                             </div>
                         </div>
 
