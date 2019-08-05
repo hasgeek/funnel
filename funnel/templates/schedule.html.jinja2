@@ -59,7 +59,8 @@
       .sub-navbar-container,
       .mobile-nav,
       .admin_panel,
-      .tabs-wrapper {
+      .tabs-wrapper
+      .footer {
         display: none;
       }   
       .page-content,
@@ -202,7 +203,7 @@
                       <p class="schedule__row__column schedule__row__column--header" :class="[activeTab == roomkey ? 'js-tab-active' : '']" :style="{width: 'calc(100% - ' + getColumnWidth('header') + 'px)'}" @click="toggleTab(roomkey)" v-for="(room, roomkey, roomindex) in schedule.rooms">{{ room.title }}</p>
                     </div>
 
-                    <div class="schedule__row" :class="[view == 'calendar' ? 'schedule__row--calendar' : '', hasActiveRoom(session) ? 'js-active' : '',  view === 'agenda' && !hasActiveRoom(session) ? 'schedule__row--hide': '']" :style="(view == 'calendar') ? {height: rowHeight + 'px'} : ''" v-for="(session, key, index)  in schedule.sessions">
+                    <div class="schedule__row" :class="[view == 'calendar' ? 'schedule__row--calendar' : '', hasActiveRoom(session) ? 'js-active' : '',  view === 'agenda' && !session.showLabel ? 'schedule__row--hide': '']" :style="(view == 'calendar') ? {height: rowHeight + 'px'} : ''" v-for="(session, key, index)  in schedule.sessions">
                         <a :href="'#t' + key" :id="'t' + key" class="schedule__row__column schedule__row__column--time schedule__row__column--time--pointer" :style="{minWidth: timeSlotWidth + 'px'}" @click="disableScroll($event, 't' + key)" v-if="(view === 'calendar' && session.showLabel)">{{ getTimeStr(key) }}</a>
                         <p class="schedule__row__column schedule__row__column--time" :style="{minWidth: timeSlotWidth + 'px'}" v-else-if="(view === 'calendar')"></p>
                       <div class="schedule__row__column" :id="(view === 'agenda') ? 't' + key : ''" :class="['schedule__row__column--' + rowWidth, room.talk ? 'schedule__row__column--talks' : '', room.talk ? roomkey : '', room.talk && activeTab == roomkey ? 'js-active': '']" @click="showSessionModal(room.talk)"  :style="(getColumnWidth('content') > 0) ? {width: 'calc(100% - ' + getColumnWidth('content') + 'px)'} : {width: '100%'}" v-for="(room, roomkey, roomindex) in session.rooms">
