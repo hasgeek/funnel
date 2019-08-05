@@ -172,9 +172,8 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     # Sender is set to None to prevent revealing email.
                     send_mail(sender=None, body=email_body, **item)
         else:
-            # FIXME: ValidationError here. But we cannot return the error as
-            # it redirects to the proposal page, where the comment form is.
-            flash(_("Something went wrong, please try again"), category='error')
+            for error in commentform.get_verbose_errors():
+                flash(error, category='error')
         # Redirect despite this being the same page because HTTP 303 is required
         # to not break the browser Back button.
         return redirect(to_redirect, code=303)

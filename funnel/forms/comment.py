@@ -15,6 +15,17 @@ class CommentForm(forms.Form):
         validators=[forms.validators.DataRequired()],
     )
 
+    def get_verbose_errors(self):
+        verbose_error_list = []
+        for field_name, errors in self.errors.items():
+            for err in errors:
+                verbose_error_list.append(
+                    "{label}: {error}".format(
+                        label=getattr(self, field_name).label.text, error=err
+                    )
+                )
+        return verbose_error_list
+
 
 class DeleteCommentForm(forms.Form):
     comment_id = forms.HiddenField(
