@@ -72,6 +72,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('new_comment')
     def new_comment(self):
+        # TODO: Make this endpoint support AJAX.
         to_redirect = self.obj.url_for(_external=True)
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
@@ -175,8 +176,8 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
             # FIXME: ValidationError here. But we cannot return the error as
             # it redirects to the proposal page, where the comment form is.
             flash(_("Something went wrong, please try again"), category='error')
-        # Redirect despite this being the same page because HTTP 303 is required to not break
-        # the browser Back button
+        # Redirect despite this being the same page because HTTP 303 is required
+        # to not break the browser Back button.
         return redirect(to_redirect, code=303)
 
 
