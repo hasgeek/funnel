@@ -52,7 +52,7 @@ const badgeScan = {
           type: 'POST',
           url:  getContactApiUrl,
           data : formValues,
-          timeout: 30000,
+          timeout: window.HasGeek.config.ajaxTimeout,
           dataType: 'json',
           success(response) {
             badgeScanComponent.set({

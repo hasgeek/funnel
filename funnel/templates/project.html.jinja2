@@ -70,24 +70,20 @@
   </div>
 
   <div class="about">
-    {% if project.boxoffice_data and project.boxoffice_data.item_collection_id or project.allow_rsvp -%}
+    {% if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">
-            <a href="{{ project.url_for() }}" aria-label="Close" class="mui--text-dark mui--text-headline" id="close-ticket-widget"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Tickets</span>
+            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Tickets</span>
           </div>
         </div>
-        {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-          <div id="tickets">
-            {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-              <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
-              <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
-            {%- endif %}
-          </div>
-        {% elif project.allow_rsvp -%}
-          <div id="tickets">
+        <div id="tickets" {% if project.allow_rsvp -%}class="rsvp-wrapper"{%- endif %}>
+          {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+            <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
+            <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
+          {% elif project.allow_rsvp -%}
             <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
-            {%- if g.user %}
+            {%- if current_auth.is_authenticated %}
               {{ rsvpform(project, rsvp_form) }}
             {%- else %}
               <p>
@@ -97,14 +93,14 @@
             {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
               <a href="{{ project.url_for('rsvp_list') }}">See RSVP list</a>
             {% endif %}
-          </div>
-        {%- endif %}
+          {%- endif %}
+        </div>
       </div>
     {%- endif %}
 
     <div class="about__details" id="about">
       <h2 class="mui--text-display1 mui--text-left about__details__headline">About</h2>
-      <div class="about__details__description">{{ project.description.html }}</div>
+      <div class="about__details__description">{{ project.description }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
         <h2 class="mui--text-display1 mui--text-left mui--text-bold">Related events</h2>
@@ -178,7 +174,7 @@
               {%- endfor -%}
             </ul>
           </div>
-          {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(page)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
+          {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule (page)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
         </div>
       {%- endif %}
     </div>
@@ -228,12 +224,16 @@
       var projectConfig = {};
 
       {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        projectConfig.ticketing = {
+        projectConfig.tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ project.boxoffice_data.org|tojson }},
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
           itemCollectionTitle: {{ project.title|tojson }}
+        };
+      {%- elif project.allow_rsvp %}
+        projectConfig.tickets = {
+          rsvp: true 
         };
       {%- endif %}
 

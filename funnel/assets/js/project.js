@@ -1,8 +1,14 @@
 import { Utils, SaveProject } from './util';
 import L from "leaflet";
 
-const TicketWidget = {
-  init({ boxofficeUrl, widgetElem, org, itemCollectionId, itemCollectionTitle }) {
+const Ticketing = {
+  init(tickets) {
+    if(tickets.boxofficeUrl) {
+      this.initBoxfficeWidget(tickets);
+    }
+    this.initTicketModal();
+  },
+  initBoxfficeWidget({ boxofficeUrl, widgetElem, org, itemCollectionId, itemCollectionTitle}) {
     let url;
     if (boxofficeUrl.slice(-1) === '/') {
       url = `${boxofficeUrl}boxoffice.js`;
@@ -12,9 +18,9 @@ const TicketWidget = {
     $.get({
       url,
       crossDomain: true,
-      timeout: 8000,
+      timeout: window.HasGeek.config.ajaxTimeout,
       retries: 5,
-      retryInterval: 8000,
+      retryInterval: window.HasGeek.config.retryInterval,
       success(data) {
         let boxofficeScript = document.createElement('script');
         boxofficeScript.innerHTML = data.script;
@@ -53,10 +59,6 @@ const TicketWidget = {
       });
     }, false);
 
-    this.initTicketModal();
-    this.trackBoxofficeEvents();
-  },
-  trackBoxofficeEvents() {
     $(document).on('boxofficeTicketingEvents', (event, userAction, label, value) => {
       Utils.sendToGA('ticketing', userAction, label, value);
     });
@@ -73,7 +75,7 @@ const TicketWidget = {
     });
 
     if (window.location.hash.indexOf('#tickets') > -1) {
-      if ($(window).width() < 768) {
+      if ($(window).width() < window.HasGeek.config.mobileBreakpoint) {
         this.openTicketModal();
       } else {
         Utils.animateScrollTo($('#tickets').offset().top);
@@ -81,15 +83,15 @@ const TicketWidget = {
     }
 
     $(window).resize(() => {
-      if ($(window).width() > 767 && $('.about__participate').hasClass('about__participate--modal')) {
+      if ($(window).width() >= window.HasGeek.config.mobileBreakpoint && $('.about__participate').hasClass('about__participate--modal')) {
         this.hideTicketModal();
       }
     });
 
     $(window).on('popstate', () => {
-      if($(window).width() < 767 && $('.about__participate').hasClass('about__participate--modal')) {
+      if($(window).width() < window.HasGeek.config.mobileBreakpoint && $('.about__participate').hasClass('about__participate--modal')) {
         this.hideTicketModal();
-      } else if(window.history.state) {
+      } else if(window.history.state && $(window).width() < window.HasGeek.config.mobileBreakpoint) {
         this.openTicketModal();
       }
     });
@@ -158,9 +160,9 @@ const EmbedMap = {
 };
 
 $(() => {
-  window.HasGeek.ProjectInit = function ({ticketing='', venue= '', saveProjectConfig=''}) {
-    if (ticketing) {
-      TicketWidget.init(ticketing);
+  window.HasGeek.ProjectInit = function ({tickets='', venue= '', saveProjectConfig=''}) {
+    if (tickets) {
+      Ticketing.init(tickets);
     }
 
     if (venue) {

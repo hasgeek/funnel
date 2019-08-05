@@ -93,15 +93,15 @@
                       </div>
                       <input type="hidden" name="pid" value="{{ pid }}">
                       {{#if checked_in}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} arial-label="Cancel Check-in">Cancel Check-in  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="{% trans %}Cancel Check-in{% endtrans %}">Cancel Check-in  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                       {{else}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} arial-label=" Check-in">Check-in {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="{% trans %}Check-in{% endtrans %}">Check-in {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                       {{/if}}
                       {{#if submitting}}
                         {{#if checked_in}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="cancel" arial-label="Cancel"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="{% trans %}abort{% endtrans %}"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
                         {{else}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="cancel" arial-label="Cancel"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="{% trans %}abort{% endtrans %}"><i class="material-icons mui--text-title" aria-hidden="true">clear</i></button>
                         {{/if}}
                       {{/if}}
                     </form>

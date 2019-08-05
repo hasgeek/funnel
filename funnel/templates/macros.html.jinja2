@@ -65,9 +65,9 @@
         <div class="project-banner__action">
           {{ saveprojectform(project, project_save_form) }}
           <div class="project-banner__action__social">
-            <a class="list-group-item share-popup" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="Tweet this"><img src="{{ url_for('static', filename='img/twitter-logo.svg') }}" class="project-banner__action__icon" alt="Tweet this" title="Tweet this"/></a>
-            <a class="list-group-item share-popup" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="Share on facebook"><img src="{{ url_for('static', filename='img/facebook-logo.svg') }}" class="project-banner__action__icon" alt="Share on facebook" title="Share on facebook"/></a>
-            <a href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" arial-label="Email this" title="Email this"><i class="material-icons mui--text-headline mui--text-light" aria-hidden="true">email</i></a>
+            <a class="list-group-item share-popup" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}"><img src="{{ url_for('static', filename='img/twitter-logo.svg') }}" class="project-banner__action__icon" alt="Tweet this" title="Tweet this"/></a>
+            <a class="list-group-item share-popup" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on facebook{% endtrans %}"><img src="{{ url_for('static', filename='img/facebook-logo.svg') }}" class="project-banner__action__icon" alt="Share on facebook" title="Share on facebook"/></a>
+            <a href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" title="Email this"><i class="material-icons mui--text-headline mui--text-light" aria-hidden="true">email</i></a>
           </div>
         </div>
         {% if project.cfp_state.OPEN -%}
@@ -107,7 +107,7 @@
                     {% else %}
                       {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
                     {% endif %}
-                    {% if year != year.month %}
+                    {% if year != week.year %}
                       <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
                     {% endif %}
                   </div>
@@ -129,12 +129,10 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" title="About" data-action="About(navbar)">About <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
-      {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+      {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
         <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" title="Tickets" data-action="Tickets(navbar)" id="ticket-btn">Tickets <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a></div>
       {%- elif project.buy_tickets_url.url %}
         <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Tickets(navbar)" id="ticket-btn">Tickets <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a></div>
-      {%- elif project.allow_rsvp %}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" title="Participate" data-action="Participate(navbar)" id="ticket-btn">Participate <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)">Talks <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>

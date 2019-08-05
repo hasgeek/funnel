@@ -1,5 +1,5 @@
 <div class="modal__header mui--bg-accent">
-  <a class="modal__close" href="javascript:void(0);" aria-label="close" rel="modal:close"><i class="material-icons">clear</i></a>
+  <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}close{% endtrans %}" rel="modal:close"><i class="material-icons">clear</i></a>
   <h3 class="js-modal-title mui--text-headline session-modal__title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
@@ -29,11 +29,11 @@
   <div class="section">
     {% if session.description %}
       <h3 class="mui--text-title"><strong>{% trans %}Description{% endtrans %}</strong></h3>
-      <div class="mui--text-body2 image-wrapper">{{ session.description.html }}</div>
+      <div class="mui--text-body2 image-wrapper">{{ session.description }}</div>
     {% endif %}
     {% if session.speaker_bio %}
       <h3 class="mui--text-title"><strong>{% trans %}Speaker Bio{% endtrans %}</strong></h3>
-      <div class="mui--text-body2">{{ session.speaker_bio.html }}</div>
+      <div class="mui--text-body2">{{ session.speaker_bio }}</div>
     {% endif %}
   </div>
 </div>

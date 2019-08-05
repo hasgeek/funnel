@@ -55,7 +55,7 @@
   <div class="grid__col-xs-12 proposal-wrapper">
 
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
-      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" title="{% trans %}Edit{% endtrans %}" aria-label="Edit proposal"><i class="material-icons mui--text-title mui--align-middle mui--text-link" aria-hidden="true">edit</i></a>{% endif %}</h1>
+      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" title="{% trans %}Edit{% endtrans %}" aria-label="{% trans %}Edit proposal{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link" aria-hidden="true">edit</i></a>{% endif %}</h1>
       <p>
         {% trans %}Submitted by{% endtrans%}
         {%- if proposal.speaker %}

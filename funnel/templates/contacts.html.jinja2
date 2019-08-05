@@ -18,11 +18,11 @@
       <div class="grid">
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="previous" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="{% trans %}previous{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
             <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Profile</a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Contacts</p>
             <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Scan badge</a>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="next" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="{% trans %}next{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
           </div>
         </div>
       </div>

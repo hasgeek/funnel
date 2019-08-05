@@ -32,7 +32,7 @@ const Schedule = {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
         getColumnWidth(columnType) {
-          if (columnType === 'header' || this.get('width') > 767 ) {
+          if (columnType === 'header' || this.get('width') >= window.HasGeek.config.mobileBreakpoint ) {
             if (this.get('view') === 'calendar') {
               return (this.get('timeSlotWidth')/this.get('rowWidth'));
             } else {
@@ -50,7 +50,7 @@ const Schedule = {
         }
       },
       toggleTab(event, room) {
-        if(this.get('width') < 992) {
+        if(this.get('width') < window.HasGeek.config.mobileBreakpoint) {
           event.original.preventDefault();
           this.set('activeTab', room);
         }

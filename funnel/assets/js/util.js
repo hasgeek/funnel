@@ -28,7 +28,7 @@ export const Utils = {
   animateScrollTo(offsetY) {
     $('html,body').animate({
       scrollTop: offsetY,
-    }, 500);
+    }, 'slow');
   },
   smoothScroll() {
     $('a.js-smooth-scroll').on('click', function clickHandler(event) {
@@ -41,7 +41,7 @@ export const Utils = {
       // Horizontal scroll to active tab
       $('#jquery-scroll-tabs').animate({
         scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
-      }, 500);
+      }, 'slow');
 
       $('#jquery-scroll-tabs .js-scroll-prev').on('click', function (event) {
         event.preventDefault();
@@ -152,7 +152,7 @@ export const ScrollActiveMenu = {
     activeNavItem.classList.add(this.activeMenuClassName);
     $(`#${this.navId}`).animate({
       scrollLeft: activeNavItem.offsetLeft,
-    }, 500);
+    }, 'slow');
   },
 };
 
