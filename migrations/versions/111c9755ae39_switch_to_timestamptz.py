@@ -12,8 +12,8 @@ Create Date: 2019-05-09 19:01:53.976390
 revision = '111c9755ae39'
 down_revision = 'e679554261b2'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 migrate_table_columns = [
     ('attendee', 'created_at'),

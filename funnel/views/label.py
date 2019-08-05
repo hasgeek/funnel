@@ -52,7 +52,11 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             titlelist.pop(0)
             emojilist.pop(0)
 
-            label = Label(title=form.data.get('title'), icon_emoji=form.data.get('icon_emoji'), project=self.obj)
+            label = Label(
+                title=form.data.get('title'),
+                icon_emoji=form.data.get('icon_emoji'),
+                project=self.obj,
+            )
             label.restricted = form.data.get('restricted')
             label.make_name()
             self.obj.labels.append(label)
@@ -60,12 +64,16 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             db.session.add(label)
 
             for idx, title in enumerate(titlelist):
-                subform = LabelOptionForm(MultiDict({
-                    'title': titlelist[idx], 'icon_emoji': emojilist[idx]
-                    }), meta={'csrf': False})  # parent form has valid CSRF token
+                subform = LabelOptionForm(
+                    MultiDict({'title': titlelist[idx], 'icon_emoji': emojilist[idx]}),
+                    meta={'csrf': False},
+                )  # parent form has valid CSRF token
 
                 if not subform.validate():
-                    flash(_("Error with a label option: {}").format(subform.errors.pop()), category='error')
+                    flash(
+                        _("Error with a label option: {}").format(subform.errors.pop()),
+                        category='error',
+                    )
                     return {'title': "Add label", 'form': form, 'project': self.obj}
                 else:
                     subl = Label(project=self.obj)
@@ -76,7 +84,12 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
             db.session.commit()
             return redirect(self.obj.url_for('labels'), code=303)
-        return {'title': "Add label", 'form': form, 'emptysubform': emptysubform, 'project': self.obj}
+        return {
+            'title': "Add label",
+            'form': form,
+            'emptysubform': emptysubform,
+            'project': self.obj,
+        }
 
 
 @route('/<project>/labels', subdomain='<profile>')
@@ -93,13 +106,17 @@ class LabelView(UrlForView, ModelView):
     __decorators__ = [lastuser.requires_login, legacy_redirect]
     model = Label
     route_model_map = {
-        'profile': 'project.profile.name', 'project': 'project.name',
-        'label': 'name'}
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'label': 'name',
+    }
 
     def loader(self, profile, project, label):
-        proj = Project.query.join(Profile).filter(
-            Profile.name == profile, Project.name == project
-            ).first_or_404()
+        proj = (
+            Project.query.join(Profile)
+            .filter(Profile.name == profile, Project.name == project)
+            .first_or_404()
+        )
         label = self.model.query.filter_by(project=proj, name=label).first_or_404()
         g.profile = proj.profile
         return label
@@ -132,18 +149,32 @@ class LabelView(UrlForView, ModelView):
             for idx, title in enumerate(titlelist):
                 if namelist[idx]:
                     # existing option
-                    subl = Label.query.filter_by(project=self.obj.project, name=namelist[idx]).first()
+                    subl = Label.query.filter_by(
+                        project=self.obj.project, name=namelist[idx]
+                    ).first()
                     subl.title = titlelist[idx]
                     subl.icon_emoji = emojilist[idx]
                     subl.seq = idx + 1
                 else:
-                    subform = LabelOptionForm(MultiDict({
-                        'title': titlelist[idx], 'icon_emoji': emojilist[idx]
-                        }), meta={'csrf': False})  # parent form has valid CSRF token
+                    subform = LabelOptionForm(
+                        MultiDict(
+                            {'title': titlelist[idx], 'icon_emoji': emojilist[idx]}
+                        ),
+                        meta={'csrf': False},
+                    )  # parent form has valid CSRF token
 
                     if not subform.validate():
-                        flash(_("Error with a label option: {}").format(subform.errors.pop()), category='error')
-                        return {'title': "Edit label", 'form': form, 'project': self.obj.project}
+                        flash(
+                            _("Error with a label option: {}").format(
+                                subform.errors.pop()
+                            ),
+                            category='error',
+                        )
+                        return {
+                            'title': "Edit label",
+                            'form': form,
+                            'project': self.obj.project,
+                        }
                     else:
                         subl = Label(project=self.obj.project)
                         subform.populate_obj(subl)
@@ -158,7 +189,13 @@ class LabelView(UrlForView, ModelView):
             flash(_("Label has been edited"), category='success')
 
             return redirect(self.obj.project.url_for('labels'), code=303)
-        return {'title': "Edit label", 'form': form, 'subforms': subforms, 'emptysubform': emptysubform, 'project': self.obj.project}
+        return {
+            'title': "Edit label",
+            'form': form,
+            'subforms': subforms,
+            'emptysubform': emptysubform,
+            'project': self.obj.project,
+        }
 
     @route('archive', methods=['POST'])
     @lastuser.requires_login
@@ -178,7 +215,10 @@ class LabelView(UrlForView, ModelView):
     @requires_permission('admin')
     def delete(self):
         if self.obj.has_proposals:
-            flash(_("Labels that have been assigned to proposals cannot be deleted"), category='error')
+            flash(
+                _("Labels that have been assigned to proposals cannot be deleted"),
+                category='error',
+            )
         else:
             if self.obj.has_options:
                 for olabel in self.obj.options:

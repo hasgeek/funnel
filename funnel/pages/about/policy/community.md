@@ -12,7 +12,7 @@ However upon re-complying with our community guidelines, your account can be rea
 
 ## Account creation
 
-* Pseudonyms not allowed which means you have to use your or your organization's legal name to register an account 
+* Pseudonyms not allowed which means you have to use your or your organization's legal name to register an account
 
 * Age limit of 18 years or older to sign up with HasGeek
 

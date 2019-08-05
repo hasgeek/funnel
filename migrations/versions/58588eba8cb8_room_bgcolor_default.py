@@ -12,8 +12,8 @@ Create Date: 2013-11-18 15:46:41.943587
 revision = '58588eba8cb8'
 down_revision = '31253f116e1e'
 
-import sqlalchemy as sa  # NOQA
 from alembic import op
+import sqlalchemy as sa  # NOQA
 
 from funnel.models import VenueRoom
 

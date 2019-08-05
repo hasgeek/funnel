@@ -69,8 +69,8 @@ export const Utils = {
 
     // Clicking outside close search form if open
     $('body').on('click', function closeSearchForm(event) {
-      if($('.js-search-form').hasClass('search-form--show') && 
-          !$(event.target).is('.js-search-field') && 
+      if($('.js-search-form').hasClass('search-form--show') &&
+          !$(event.target).is('.js-search-field') &&
           !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
         $('.js-search-form').removeClass('search-form--show');
       }
@@ -98,8 +98,8 @@ export const ScrollActiveMenu = {
     this.headings = this.navItems.map(navItem => {
       if (navItem.classList.contains('js-samepage')) {
         return document.querySelector(navItem.getAttribute('href'));
-      } 
-      return false; 
+      }
+      return false;
     });
 
     this.handleObserver = this.handleObserver.bind(this);
@@ -111,7 +111,7 @@ export const ScrollActiveMenu = {
           this.handleObserver,
           {
             rootMargin: '0px',
-            threshold: threshold 
+            threshold: threshold
           },
         );
         observer.observe(heading);

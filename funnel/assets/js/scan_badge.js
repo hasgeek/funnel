@@ -3,7 +3,7 @@ import jsQR from "jsqr";
 
 const badgeScan = {
   init({checkinApiUrl, wrapperId, templateId, projectTitle, eventTitle}) {
-    
+
     let badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
