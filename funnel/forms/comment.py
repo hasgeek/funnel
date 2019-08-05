@@ -16,6 +16,10 @@ class CommentForm(forms.Form):
     )
 
     def get_verbose_errors(self):
+        # Temporary method to display form errors using `flash()`because
+        # the comment submit view right now redirects to proposal page and
+        # there is no other way to show validation errors.
+        # TODO: Remove this method when comment submission is a JS request.
         verbose_error_list = []
         for field_name, errors in self.errors.items():
             for err in errors:
