@@ -100,15 +100,12 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     parent = Comment.query.filter_by(
                         suuid=commentform.parent_id.data
                     ).first_or_404()
-                    if (
-                        parent.user.email
-                    ):  # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
-                        if (
-                            parent.user == self.obj.owner
-                        ):  # check if parent comment is by the proposal owner
-                            if (
-                                not parent.user == current_auth.user
-                            ):  # check if parent comment is by the curernt user
+                    if parent.user.email:
+                        # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
+                        if parent.user == self.obj.owner:
+                            # parent comment is by the proposal owner
+                            if not parent.user == current_auth.user:
+                                # parent comment is not by the curernt user
                                 send_mail_info.append(
                                     {
                                         'to': self.obj.owner.email or self.obj.email,
@@ -119,8 +116,9 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                         'template': 'proposal_comment_reply_email.md',
                                     }
                                 )
-                        else:  # send mail to parent comment owner & proposal owner
+                        else:
                             if not parent.user == current_auth.user:
+                                # send mail to parent comment owner
                                 send_mail_info.append(
                                     {
                                         'to': parent.user.email,
@@ -132,6 +130,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                     }
                                 )
                             if not self.obj.owner == current_auth.user:
+                                # send mail to proposal owner
                                 send_mail_info.append(
                                     {
                                         'to': self.obj.owner.email or self.obj.email,
