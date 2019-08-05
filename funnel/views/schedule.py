@@ -101,9 +101,11 @@ def schedule_data(project):
         daydata.update(start_end_datetime[day])
         for slot in sorted(data[day]):
             daydata['slots'].append({
+                'no_of_sessions': 0,
                 'slot': slot,
-                'sessions': data[day][slot]
+                'sessions': data[day][slot],
             })
+        daydata['no_of_sessions'] = len(daydata['slots'])
         schedule.append(daydata)
 
     return schedule

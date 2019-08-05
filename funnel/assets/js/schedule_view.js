@@ -4,6 +4,17 @@ import Vue from 'vue/dist/vue.min';
 const Schedule = {
   renderScheduleTable() {
     let schedule = this;
+    let printRowHeight = `${schedule.config.printPageHeight/schedule.config.max_sessions}${schedule.config.printPageHeightUnit}`;
+
+    let styleUI = Vue.component('v-style', {
+      template:'<style>@media print {.schedule__row__column--talks { height: {{printRowHeight}} } }</style>',
+      data: function () {
+        return {
+          printRowHeight: printRowHeight,
+        }
+      },
+    });
+
 
     let scheduleUI = Vue.component('schedule', {
       template: schedule.config.scriptTemplate,
@@ -27,7 +38,6 @@ const Schedule = {
             description: schedule.config.pageDescription
           },
           view: 'agenda',
-          activeSession: ''
         }
       },
       methods: {
@@ -90,7 +100,6 @@ const Schedule = {
           });
         },
         openModal: function(sessionHtml, backPage, pageDetails) {
-          console.log('openModal', sessionHtml, backPage, pageDetails);
           this.modalHtml = sessionHtml;
           $("#session-modal").modal('show');
           window.history.pushState({html: sessionHtml, backpage: backPage, pageDetails: pageDetails}, '', backPage);
@@ -145,21 +154,17 @@ const Schedule = {
             this.pageDetails.url = paths.join('/');
             this.showSessionModal(activeSession);
             // Scroll page to session
-            console.log($("#" + activeSession.url_name_suuid))
             Utils.animateScrollTo($("#" + activeSession.url_name_suuid).offset().top - this.headerHeight);
           } else if(window.location.pathname === this.pathName && window.location.hash) {
             let hash;
             hash = window.location.hash.indexOf('/') !== -1 ?
               window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
-            console.log('hash', hash);
             Utils.animateScrollTo($(hash).offset().top - this.headerHeight);
           } else if(scrollPos && scrollPos.pageTitle === this.pageDetails['projectTitle']) {
             // Scroll page to last viewed position
-            console.log('scrollPosY', scrollPos.scrollPosY);
             Utils.animateScrollTo(scrollPos.scrollPosY);
           } else {
             // Scroll page to schedule table
-            console.log('divElem', $(schedule.config.parentContainer));
             Utils.animateScrollTo($(schedule.config.parentContainer).offset().top);
           }
 
@@ -182,11 +187,9 @@ const Schedule = {
 
     let scheduleApp = new Vue({
       components: {
+        styleUI,
         scheduleUI
       },
-      render: function(createElement) {
-        return createElement(scheduleUI);
-      }
     });
     scheduleApp.$mount(schedule.config.divElem);
   },
@@ -205,15 +208,18 @@ const Schedule = {
           .rooms[session.room_scoped_name].talk = session;
       }
     });
-    console.log('addSessionToSchedule', JSON.parse(JSON.stringify(this.config.schedule)));
   },
   createSlots() {
     this.config.eventDayhashes = {};
+    this.config.max_sessions = 0;
     this.config.schedule.forEach((day, index) => {
       day.dateStr = this.Utils.getDateString(day.date);
       day.startTime = this.Utils.getTime(day.start_at);
       day.endTime = this.Utils.getTime(day.end_at);
       day.rooms = JSON.parse(JSON.stringify(this.config.rooms));
+      if(this.config.max_sessions < day.no_of_sessions) {
+        this.config.max_sessions = day.no_of_sessions;
+      }
       this.config.eventDayhashes[this.Utils.getEventDate(day.date)] = index;
       let slots = {};
       let sessionSlots = day.startTime;

@@ -2010,6 +2010,7 @@ html.touch .collapsible__body--disable {
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading {
   cursor: pointer;
+  font-weight: bold;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading:hover {
   color: #4A90E2;
@@ -2057,6 +2058,8 @@ html.touch .collapsible__body--disable {
 }
 .schedule-grid .schedule .schedule__row--sticky {
   display: flex;
+  max-width: 100%;
+  overflow-x: auto;
   position: sticky;
   position: -webkit-sticky;
   top: 62px;
@@ -2076,6 +2079,7 @@ html.touch .collapsible__body--disable {
   background-image: none !important;
   border-bottom: 2px solid rgba(132, 146, 166, 0.3);
   min-height: 50px;
+  min-width: 100px;
   width: 100% !important;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header.js-tab-active {
@@ -2174,6 +2178,7 @@ html.touch .collapsible__body--disable {
     height: 100%;
   }
   .schedule-grid .schedule .schedule__row--sticky {
+    overflow: visible;
     top: 108px;
   }
   .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {

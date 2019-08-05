@@ -52,6 +52,99 @@
     }
     </script>
   {%- endif -%}
+  <style>
+    @media print {
+      .header,
+      .project-banner,
+      .sub-navbar-container,
+      .mobile-nav,
+      .admin_panel,
+      .tabs-wrapper {
+        display: none;
+      }   
+      .page-content,
+      .content-wrapper {
+        padding: 0 !important;
+      }
+      .mui-container {
+        max-width: 100% !important;
+      }
+      .schedule {
+        margin: 5pt 10pt !important;
+      }
+      .schedule__table {
+        margin: 5pt 0;
+        background-color: #fff !important;
+        page-break-after: always;
+      }
+      .schedule__row--sticky {
+        position: relative !important;
+        top: 0 !important;
+        box-shadow: none !important;
+        border-bottom : none !important;
+      }
+      .schedule__row {
+        border-bottom : 1pt solid rgba(132,146,166,0.3) !important;
+      }
+      .schedule__row.schedule__row--hide {
+        border-bottom : none !important;
+      }
+      .schedule__row__column--header {
+        min-height: auto !important;
+        padding: 0 !important;
+        font-size: 6pt !important;
+        border-bottom : none !important;
+      }
+      .schedule__date {
+        font-size: 10pt !important;
+        margin: 0 !important;
+        text-align: left;
+        line-height: 1;
+        padding-left: 0 !important;
+      }
+      .schedule__row__column {
+        display: flex !important;
+      }
+      .schedule__row__column__content {
+        padding: 0 !important;
+        border: none !important;
+        outline: none !important;
+      }
+      .schedule__row__column__content__title {
+        width: 100% !important;
+      }
+      .schedule__row__column__content__title__duration {
+        position: relative !important;
+        top: 0 !important;
+        background-color: transparent !important;
+        font-size: 6pt !important;
+        float: none !important;
+        padding: 0 !important;
+        margin: 0 0 2pt !important;
+        line-height: 1 !important;
+      }
+      .schedule__row__column__content__title__heading,
+      .schedule__row__column__content__title__speaker {
+        font-size: 6pt !important;
+        font-weight: normal !important;
+        line-height: 1.1 !important;
+        margin: 0 0 2pt;
+      }
+      .schedule__row__column__content__description {
+        display: none !important;
+      }
+      .schedule__row__column--talks {
+        overflow: hidden;
+        padding: 2pt !important;
+      }
+
+    }
+    @page {
+      size: 5.25in 5.67in;  /* width height */
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 {% endblock %}
 
 {% block bodytag %}
@@ -89,6 +182,8 @@
       <div class="grid" id="schedule">
         <div class="grid__col-xs-12 schedule-grid">
           <div class="schedule-table-container" id="project-schedule-table">
+              <v-style></v-style>
+              <schedule></schedule>
           </div>
             {% raw %}
              <script type="text/x-template" id="scheduletemplate">
@@ -101,7 +196,7 @@
                 </div>
                 <div class="schedule" v-for="schedule in schedules">
                   <h2 class="mui--text-heading schedule__date">{{ schedule.dateStr }}</h2>
-                  <div class="mui--bg-accent">
+                  <div class="mui--bg-accent schedule__table">
                     <div class="schedule__row schedule__row--sticky">
                       <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><i class="material-icons mui--text-headline" aria-hidden="true">schedule</i></p>
                       <p class="schedule__row__column schedule__row__column--header" :class="[activeTab == roomkey ? 'js-tab-active' : '']" :style="{width: 'calc(100% - ' + getColumnWidth('header') + 'px)'}" @click="toggleTab(roomkey)" v-for="(room, roomkey, roomindex) in schedule.rooms">{{ room.title }}</p>
@@ -114,8 +209,8 @@
                         <div class="schedule__row__column__content" :class="[view === 'calendar' ? 'schedule__row__column__content--calendar schedule__row__column__content--overflow' : '']" :style="(view == 'calendar') ? {height: getColumnHeight(room.talk.duration, rowHeight) + 'px'} : ''" :id="room.talk.url_name_suuid" v-if="room.talk">
                           <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(room.talk.startTime) }}–{{ getTimeStr(room.talk.endTime) }}</p>
                             <div class="schedule__row__column__content__title">
-                              <p class="mui--text-subhead schedule__row__column__content__title__heading" v-if="room.talk.title"><b>{{ room.talk.title }}</b></p>
-                              <p class="mui--text-caption mui--text-light" v-if="room.talk.speaker">{{ room.talk.speaker }}</p>
+                              <p class="mui--text-subhead schedule__row__column__content__title__heading" v-if="room.talk.title">{{ room.talk.title }}</p>
+                              <p class="mui--text-caption mui--text-light schedule__row__column__content__title__speaker" v-if="room.talk.speaker">{{ room.talk.speaker }}</p>
                               <div class="schedule__row__column__content__description mui--text-body1" v-html="removeImg(room.talk.description.html)" v-if="room.talk.description.html"></div>
                             </div>
                         </div>
@@ -150,7 +245,9 @@
       parentContainer: '#schedule',
       active_session: '',
       projectTitle: "{{ project.title }}",
-      pageDescription: "{{ g.profile.description|striptags }}"
+      pageDescription: "{{ g.profile.description|striptags }}",
+      printPageHeight: 5.5,
+      printPageHeightUnit: 'in'
     };
   </script>
   {%- if active_session -%}
