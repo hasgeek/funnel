@@ -347,12 +347,14 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             Session.start_at <= now,
             Session.end_at >= now,
             Session.project == self.obj.venue.project,
-            db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
+            db.or_(Session.venue_room == self.obj, Session.is_break == True),  # NOQA
         ).first()
         next_session = (
             Session.query.filter(
                 Session.start_at > now,
-                db.or_(Session.venue_room == room, Session.is_break == True),  # NOQA
+                db.or_(
+                    Session.venue_room == self.obj, Session.is_break == True
+                ),  # NOQA
                 Session.project == self.obj.venue.project,
             )
             .order_by(Session.start_at)
