@@ -6,7 +6,7 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
-  <p class="mui--text-headline">Manage check-in</p>
+  <p class="mui--text-headline">{% trans %}Manage check-in{% endtrans %}</p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -14,8 +14,8 @@
     <div class="grid__col-xs-12 grid__col-sm-6">
       <div class="card">
         <div class="card__header">
-          <h3 class="mui--text-title">Events</h3>
-          <p class="mui--text-caption">Select an event to check-in attendees</p>
+          <h3 class="mui--text-title">{% trans %}Events{% endtrans %}</h3>
+          <p class="mui--text-caption">{% trans %}Select an event to check-in attendees{% endtrans %}</p>
         </div>
         <div class="card__body">
           <ol class="mui-list--aligned">

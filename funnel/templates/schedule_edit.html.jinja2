@@ -12,7 +12,7 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
-  <p class="mui--text-headline">Edit schedule</p>
+  <p class="mui--text-headline">{% trans %}Edit schedule{% endtrans %}/p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -20,6 +20,7 @@
     <div class="grid__col-xs-12  grid__col-sm-9 calendar-wrapper">
       <div class="mui-form__controls datepicker-wrapper">
         <div class="mui-textfield">
+          <label>Select date</label>
           <input type="date" class="datetime-date" id="select-date" placeholder="yyy-mm-dd" value="">
         </div>
       </div>
@@ -63,8 +64,10 @@
             </div>
           {% endfor %}
           </div>
-          <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
-          <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
+          {% if venues -%}
+            <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
+            <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
+          {%- endif %}
         </form>
       </div>
     </div>

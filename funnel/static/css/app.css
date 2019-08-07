@@ -2248,7 +2248,7 @@ html.touch .collapsible__body--disable {
 }
 .calendar-wrapper .datepicker-wrapper input {
   width: auto;
-  margin: auto;
+  margin: 0;
   font-size: 22px;
 }
 

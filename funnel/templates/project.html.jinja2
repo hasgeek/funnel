@@ -74,7 +74,7 @@
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">
-            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Tickets</span>
+            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
         <div id="tickets" {% if project.allow_rsvp -%}class="rsvp-wrapper"{%- endif %}>
@@ -87,11 +87,11 @@
               {{ rsvpform(project, rsvp_form) }}
             {%- else %}
               <p>
-                <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to rsvp">{% trans %}Login to RSVP{% endtrans %}</a>
+                <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to respond">{% trans %}Login to respond{% endtrans %}</a>
               </p>
             {%- endif %}
             {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
-              <a href="{{ project.url_for('rsvp_list') }}">See RSVP list</a>
+              <a href="{{ project.url_for('rsvp_list') }}">{% trans %}See responses{% endtrans %}</a>
             {% endif %}
           {%- endif %}
         </div>
@@ -99,11 +99,11 @@
     {%- endif %}
 
     <div class="about__details" id="about">
-      <h2 class="mui--text-display1 mui--text-left about__details__headline">About</h2>
+      <h2 class="mui--text-display1 mui--text-left about__details__headline">{% trans %}About{% endtrans %}</h2>
       <div class="about__details__description">{{ project.description }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
-        <h2 class="mui--text-display1 mui--text-left mui--text-bold">Related events</h2>
+        <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Related events{% endtrans %}</h2>
         <ul class="grid">
           {% for subproject in project.subprojects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
@@ -128,7 +128,7 @@
       {%- endif %}
       {% if project.featured_sessions  %}
         <div id="talks" class="mui--clearfix">
-          <h2 class="mui--text-display1 mui--text-left mui--text-bold">Talks</h2>
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Talks{% endtrans %}</h2>
           <div class="grid-no-left-padding grid-no-right-padding">
             <ul class="about__details__featured mui--clearfix">
               {% for session in project.featured_sessions %}
@@ -183,7 +183,7 @@
   {% if project.hasjob_embed_url.url -%}
   <div class="grid project-section" id="related-jobs">
     <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">Related jobs</h2>
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Related jobs{% endtrans %}</h2>
       <div class="hasjob-embed" data-href="{{ project.hasjob_embed_url }}" {% if project.hasjob_embed_limit -%}data-jobpost-limit="{{ project.hasjob_embed_limit }}"{%- else %}data-jobpost-limit="8"{%- endif %}></div>
       <script src="{{ config['HASJOB_SERVER']|url_join('embed.js') }}" type="text/javascript"></script>
     </div>
@@ -193,7 +193,7 @@
   {%- if project.primary_venue -%}
   <div class="grid project-section" id="venue">
     <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">Venue</h2>
+      <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Venue{% endtrans %}</h2>
       <div class="mui--text-body1">
         <p class="zero-bottom-margin">{{ project.primary_venue.title }}</p>
         <p class="zero-bottom-margin">{{ project.primary_venue.address1 }}</p>
@@ -204,7 +204,7 @@
         {%- endif %}
       </div>
       {%- if project.primary_venue.latitude and project.primary_venue.longitude  -%}
-        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>Loading...</h2></div>
+        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>{% trans %}Loading...{% endtrans %}</h2></div>
       {%- endif %}
     </div>
   </div>
@@ -233,7 +233,7 @@
         };
       {%- elif project.allow_rsvp %}
         projectConfig.tickets = {
-          rsvp: true 
+          rsvp: true
         };
       {%- endif %}
 

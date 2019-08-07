@@ -17,7 +17,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Proposals</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -41,7 +41,7 @@
                 {%- if g.user and current_auth.permissions.edit_project %}
                   {%- if proposal.has_outstation_speaker %}
                     <i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">flight</i>
-                    <span class="mui--hide" aria-label="{% trans %}Outstation Speaker{% endtrans %}"></span>
+                    <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>
                   {%- endif %}
                 {%- endif %}
               {%- else -%}
@@ -52,14 +52,13 @@
               {%- if proposal.project != project %}
                 <li>{{ proposal.project.short_title() }}</li>
               {% endif %}
-              <li>{{ proposal.voteset.count }} upvotes</li>
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
               {% if proposal.preview_video.url %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has a preview video" class="material-icons icon-middle" aria-hidden="true">play_arrow</i><span class="mui--hide" aria-label="{% trans %}This proposal has a preview video{% endtrans %}"></span></li>
+                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" class="material-icons icon-middle" aria-hidden="true">play_arrow</i><span class="mui--hide" aria-label="{% trans %}This proposal has a preview video{% endtrans %}"></span></li>
               {% endif %}
               {% if proposal.slides.url %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="This proposal has slides" class="material-icons icon-middle" aria-hidden="true">slideshow</i><span class="mui--hide" aria-label="{% trans %}This proposal has slides{% endtrans %}"></span></li>
+                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" class="material-icons icon-middle" aria-hidden="true">slideshow</i><span class="mui--hide" aria-label="{% trans %}This proposal has slides{% endtrans %}"></span></li>
               {% endif %}
             </ul>
           </td>
@@ -87,7 +86,7 @@
       <div class="grid">
        {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
-          <h2 class="mui--text-display1 mui--text-left mui--text-bold">Call for proposals</h2>
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Call for proposals{% endtrans %}</h2>
           {%- if project.instructions and project.instructions != "None" %}
             <div class="about__details__description">{{ project.instructions }}</div>
           {%- endif %}
@@ -104,7 +103,7 @@
       {% if project.cfp_state.HAS_PROPOSALS -%}
       <div class="grid project-section" id="proposals">
         <div class="grid__col-xs-12">
-          <h2 class="mui--text-display1 mui--text-left project-section__headline">All proposals</h2>
+          <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}All proposals{% endtrans %}</h2>
             {%- if current_auth.permissions.view_status %}
               <div>
                 <form class="mui-form mui--pull-left search-proposal-form mui--z1">

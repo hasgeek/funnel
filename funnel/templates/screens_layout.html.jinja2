@@ -3,7 +3,7 @@
 
 {% block pageheaders %}
 	{% assets 'css_screens' -%}
-	    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+	   <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
 	{%- endassets %}
     {% block screens_pageheaders %}
     {% endblock %}
@@ -14,9 +14,9 @@
 {% block footer %}
     {% block footer_logo %}
     <div id="footerlogo">
-        {%- block footer_logo_image %}
+      {%- block footer_logo_image %}
         <img src="{{ url_for('baseframe.static', filename='img/logo@2x.png') }}">
-        {%- endblock %}
+      {%- endblock %}
     </div>
     {% endblock %}
 {% endblock %}

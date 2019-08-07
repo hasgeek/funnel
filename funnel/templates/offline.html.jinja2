@@ -1,34 +1,23 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}Offline{% endblock %}
 
-{% block banner %}
-  <div class="mui-container hg-banner">
-    <div class="grid">
-      <div class="grid__col-auto logo-wrapper mui--hidden-xs">
-        <img src="{{ url_for('static', filename='img/hg-logo.png') }}" alt="HasGeek logo" class="hg-logo" />
-      </div>
-      <div class="grid__col-auto">
-        <p class="mui--text-display1">
-          <span class="s1">Hello!</span>
-          <span class="s2">HasGeek hosts discussion spaces for geeks.</span>
-          <span class="s3">Join us to meet like-minded people,</span>
-          <span class="s1">learn new things</span>
-          <span class="s2">and discover new opportunities.</span>
-        </p>
-      </div>
-      <div class="grid__col-xs-12"><hr class="mui-divider"></div>
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="grid hg-banner">
+    <div class="grid__col-12">
+      <h1 class="headline">{% trans %}Discussion spaces for geeks{% endtrans %}</h1>
+      <p class="mui--text-title mui--text-light">{% trans %}Meet like-minded people, learn new things and discover new opportunities{% endtrans %}</p>
+      <div class="mui-divider mui-divider--banner"></div>
     </div>
   </div>
-{% endblock %}
-
-{% block headline %}
 {% endblock %}
 
 {% block basecontent %}
   <div class="page-content">
     <div class="grid">
       <div class="grid__col-xs-12">
-        <p class="mui--text-title">You are offline and this page is not available on your device</p>
+        <p class="mui--text-title">{% trans %}You are offline and this page is not available on your device{% endtrans %}</p>
       </div>
     </div>
   </div>

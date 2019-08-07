@@ -4,8 +4,8 @@
     <div id="c{{ comment.suuid }}">
       <div class="comment--content">
         <div class="comment--header">
-          <button class="js-collapse mui-btn--nostyle "><i class="material-icons mui--align-middle mui--text-menu">remove_circle_outline</i></button>
-          <button class="js-uncollapse mui-btn--nostyle mui--hide"><i class="material-icons mui--align-middle mui--text-menu">add_circle_outline</i></button>
+          <button class="js-collapse mui-btn--nostyle" aria-label="{% trans %}New event{% endtrans %}" aria-expanded="true"><i class="material-icons mui--align-middle mui--text-menu" aria-hidden="true">remove_circle_outline</i></button>
+          <button class="js-uncollapse mui-btn--nostyle mui--hide" aria-expanded="false">><i class="material-icons mui--align-middle mui--text-menu" aria-hidden="true">add_circle_outline</i></button>
           {% if comment.state.DELETED -%}
             <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
           {%- else -%}

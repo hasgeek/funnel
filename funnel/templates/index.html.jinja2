@@ -72,7 +72,7 @@
       <div class="grid">
         {% if featured_project %}
         <div class="grid__col-xs-12 {% if current_sessions %}grid__col-sm-6{% endif %} grid__col-md-4 grid__col-lg-5 spotlight">
-          <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">Spotlight</h2>
+          <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">{% trans %}Spotlight{% endtrans %}</h2>
           <div class="grid__cell">
             <a class="card clickable-card spotlight__card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
               <div class="card__image-wrapper">
@@ -161,7 +161,7 @@
         {% endif %}
         {% if upcoming_projects|length > 0 %}
         <div class="grid__col-xs-12 {% if not current_sessions.sessions %}grid__col-md-8 grid__col-lg-7 upcoming{% endif %}">
-          <h2 class="mui--text-title mui--text-light mui--text-uppercase">Upcoming</h2>
+          <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Upcoming{% endtrans %}</h2>
           <ul class="mui-list--unstyled" role="list">
           {% for project in upcoming_projects %}
             <li class="card card--upcoming" role="listitem">
@@ -241,7 +241,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-title mui--text-light mui--text-uppercase">Call for proposals open now</h2>
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Call for proposals open now{% endtrans %}</h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
@@ -250,7 +250,7 @@
               <div class="card card--cfp">
                 <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
                   <div class="card__image-wrapper__overlay"></div>
-                  <p class="card__image-wrapper__text"><i class="material-icons mui--pull-left mui--text-display1" aria-hidden="true">mic</i> <span class="mui--text-menu mui--pull-left">CFP <br>Now open</span></p>
+                  <p class="card__image-wrapper__text"><i class="material-icons mui--pull-left mui--text-display1" aria-hidden="true">mic</i> <span class="mui--text-menu mui--pull-left">CFP <br>{% trans %}Now open{% endtrans %}</span></p>
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                     <noscript>
@@ -274,7 +274,7 @@
         </ul>
         {% if open_cfp_projects|length > 4 %}
           <div class="mui--text-center">
-            <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" title="show all cfp projects" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)">Show more</a>
+            <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" title="show all cfp projects" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -286,7 +286,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-title mui--text-light mui--text-uppercase">Introducing drafts <span class="chip chip--new mui--text-caption mui--align-middle">New</span></h2>
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Introducing drafts{% endtrans %} <span class="chip chip--new mui--text-caption mui--align-middle">{% trans %}New{% endtrans %}</span></h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
@@ -300,12 +300,12 @@
                   </div>
                 </a>
                 <a class="card__title clickable-card clickable-card--padding" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project">
-                  <h4 class="mui--text-title card__title__heading mui--text-bold">Start a project</h4>
-                  <p class="mui--text-caption card__title__heading">Write, collaborate and get feedback.</p>
+                  <h4 class="mui--text-title card__title__heading mui--text-bold">{% trans %}Start a project{% endtrans %}</h4>
+                  <p class="mui--text-caption card__title__heading">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
                 </a>
                 <div class="mui-divider"></div>
                 <div class="card__footer">
-                  <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">Start project</a>
+                  <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">{% trans %}Start project{% endtrans %}</a>
                 </div>
               </div>
             </div>
@@ -348,7 +348,7 @@
           </ul>
           {% if draft_projects|length > 3 %}
             <div class="mui--text-center">
-              <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)">Show more</a>
+              <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         {% endif %}
@@ -362,7 +362,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-title mui--text-light mui--text-uppercase">All projects</h2>
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}All projects{% endtrans %}</h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
@@ -449,7 +449,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-title mui--text-light mui--text-uppercase">Past projects</h2>
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Past projects{% endtrans %}</h2>
             <p class="mui--text-body1">{{ past_projects|length }} projects</p>
           </div>
         </div>
@@ -458,9 +458,9 @@
             <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
               <thead class="mui--bg-primary-light">
                 <tr>
-                  <th class="mui--text-subhead mui--text-capitalize">Date</th>
-                  <th class="mui--text-subhead mui--text-capitalize">Event name</th>
-                  <th class="mui--text-subhead mui--text-capitalize">Location</th>
+                  <th class="mui--text-subhead mui--text-capitalize">{% trans %}Date{% endtrans %}</th>
+                  <th class="mui--text-subhead mui--text-capitalize">{% trans %}Event name{% endtrans %}</th>
+                  <th class="mui--text-subhead mui--text-capitalize">{% trans %}Location{% endtrans %}</th>
                 </tr>
               </thead>
               <tbody>
