@@ -1532,6 +1532,9 @@ html.touch .collapsible__body--disable {
   .about .about__details {
     float: none;
   }
+  .about .about__details hr {
+    overflow: hidden;
+  }
   .about .about__details__featured .about__details__featured__cards {
     display: inline-block;
     width: calc(50% - 32px);
@@ -2187,7 +2190,7 @@ html.touch .collapsible__body--disable {
     bottom: 0;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 10%, #ffffff 60%);
     z-index: 3;
-    padding: 10% 0 0;
+    padding: 15px 0 0;
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
     outline: 1px solid rgba(132, 146, 166, 0.3);
