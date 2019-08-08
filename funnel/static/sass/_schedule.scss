@@ -94,7 +94,7 @@
       position: -webkit-sticky;
       top: 62px;
       order: 1;
-      z-index: 10001;
+      z-index: 999;
       border: none;
       display: flex;
       box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
@@ -258,54 +258,51 @@ and (orientation: landscape) {
 }
 
 .calendar-wrapper {
-	position: relative;
+  position: relative;
 
-	.datepicker-wrapper {
-	    position: absolute;
-	    width: 100%;
-	    top: -18px;
+  .datepicker-wrapper {
+    position: absolute;
+    width: 100%;
+    top: -18px;
 
-	    input {
-	    	width: auto;
-    		margin: auto;
-    		font-size: 22px;
-	    }
-	}
-}
-
-.session-modal--nopadding {
-	padding: 0;
-
-	.modal__header, .modal__body {
-		padding: 15px;
-	}
+    input {
+      width: auto;
+      margin: 0;
+      font-size: 22px;
+    }
+  }
 }
 
 .session-modal {
   max-width: 98%;
-  top: 60px;
+  width: 98%;
+  vertical-align: top;
 }
 
 .session-modal--nopadding {
   padding: 0;
+
+  .modal__header {
+    padding: 15px 15px 5px;
+    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  }
+
+  .modal__body {
+    padding: 15px;
+  }
+
+  .session-modal__title {
+    margin-top: 15px;
+    margin-bottom: 0;
+    font-weight: bold;
+  }
 }
 
-.session-modal--nopadding .modal__header {
-  padding: 15px 15px 5px;
-}
-
-.session-modal--nopadding .modal__body  {
-  padding: 15px;
-}
-
-.session-modal--nopadding .modal__header {
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-}
-
-.session-modal__title {
-  margin-top: 15px;
-  margin-bottom: 0;
-  font-weight: bold;
+@media(min-width: 1200px) {
+  .session-modal {
+    width: 90%;
+    vertical-align: middle;
+  }
 }
 
 .room__title,
@@ -324,7 +321,7 @@ and (orientation: landscape) {
 
 /* Calendar session */
 .calendar-wrapper .fc-header-title {
-	display: none;
+  display: none;
 }
 .fc-event .fc-event-custom {
   position: absolute;
@@ -366,5 +363,5 @@ body>.proposal-box.ui-draggable {
 }
 
 .schedule-settings {
-	margin-top: 10px;
+  margin-top: 10px;
 }

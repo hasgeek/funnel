@@ -178,7 +178,6 @@
 
 .session-card {
   .session-card__header {
-    padding: 0;
     display: flex;
     background: none;
     border-bottom: 1px solid rgba(132,146,166,0.3);
@@ -203,6 +202,9 @@
       padding: 0;
       margin: 0 0 0 10px;
     }
+  }
+  .session-card__header--bck {
+    background: #EFF2F7;
   }
 }
 
