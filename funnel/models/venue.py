@@ -52,6 +52,9 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
                 'room_list',
                 'seq',
                 'suuid',
+                'latitude',
+                'longitude',
+                'has_coordinates',
             }
         }
     }

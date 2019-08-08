@@ -93,7 +93,9 @@ def proposal_label_admin_form(project, proposal):
 
 class ProposalTransferForm(forms.Form):
     user = forms.UserSelectField(
-        __("Transfer to"), validators=[forms.validators.DataRequired()]
+        __("Transfer to"),
+        description=__("Transfer this proposal to another speaker"),
+        validators=[forms.validators.DataRequired()],
     )
 
 
@@ -235,6 +237,7 @@ class ProposalTransitionForm(forms.Form):
 class ProposalMoveForm(forms.Form):
     target = QuerySelectField(
         __("Move proposal to"),
+        description=__("Move this proposal to another project"),
         validators=[forms.validators.DataRequired()],
         get_label='title',
     )
