@@ -121,7 +121,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             'from_date': date_js(self.obj.project.schedule_start_at),
             'to_date': date_js(self.obj.project.schedule_end_at),
             'sessions': session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
-            'schedule': schedule_data(self.obj.project),
+            'schedule': schedule_data(self.obj.project, slots=False),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
             'timezone': (
                 utcnow()

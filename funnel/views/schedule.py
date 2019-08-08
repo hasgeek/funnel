@@ -73,30 +73,32 @@ def date_js(d):
     return mktime(d.timetuple()) * 1000
 
 
-def schedule_data(project):
+def schedule_data(project, slots=True):
     data = defaultdict(lambda: defaultdict(list))
     start_end_datetime = defaultdict(dict)
     for session in project.scheduled_sessions:
         day = str(localize_date(session.start_at, to_tz=project.timezone).date())
-        slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
-        data[day][slot].append({
-            'id': session.url_id,
-            'title': session.title,
-            'start_at': session.start_at.isoformat(),
-            'end_at': session.end_at.isoformat(),
-            'url': session.url_for(_external=True),
-            'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
-            'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
-            'proposal': session.proposal.suuid if session.proposal else None,
-            'feedback_url': session.url_for('feedback', _external=True) if session.proposal else None,
-            'speaker': session.speaker,
-            'room': session.venue_room.scoped_name if session.venue_room else None,
-            'is_break': session.is_break,
-            'description_text': session.description_text,
-            'description': session.description,
-            'speaker_bio': session.speaker_bio,
-            'speaker_bio_text': session.speaker_bio_text,
-        })
+        data[day] = []
+        if(slots):
+            slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
+            data[day][slot].append({
+                'id': session.url_id,
+                'title': session.title,
+                'start_at': session.start_at.isoformat(),
+                'end_at': session.end_at.isoformat(),
+                'url': session.url_for(_external=True),
+                'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
+                'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
+                'proposal': session.proposal.suuid if session.proposal else None,
+                'feedback_url': session.url_for('feedback', _external=True) if session.proposal else None,
+                'speaker': session.speaker,
+                'room': session.venue_room.scoped_name if session.venue_room else None,
+                'is_break': session.is_break,
+                'description_text': session.description_text,
+                'description': session.description,
+                'speaker_bio': session.speaker_bio,
+                'speaker_bio_text': session.speaker_bio_text,
+            })
         if 'start_at' not in start_end_datetime[day]:
             start_end_datetime[day]['start_at'] = session.start_at.isoformat()
         start_end_datetime[day]['end_at'] = session.end_at.isoformat()
@@ -106,13 +108,12 @@ def schedule_data(project):
         daydata.update(start_end_datetime[day])
         for slot in sorted(data[day]):
             daydata['slots'].append({
-                'no_of_sessions': 0,
                 'slot': slot,
                 'sessions': data[day][slot],
             })
-        daydata['no_of_sessions'] = len(daydata['slots'])
         schedule.append(daydata)
 
+    print schedule
     return schedule
 
 
@@ -142,8 +143,11 @@ def session_ical(session):
         else:
             location.append(session.venue_room.venue.country)
         event.add('location', "\n".join(location))
-        if session.venue_room.venue.has_coordinates:
-            event.add('geo', session.venue_room.venue.coordinates)
+        if session.venue_room.venue.latitude and session.venue_room.venue.longitude:
+            event.add(
+                'geo',
+                (session.venue_room.venue.latitude, session.venue_room.venue.longitude),
+            )
     if session.description_text:
         event.add('description', session.description_text)
     if session.proposal:
@@ -185,7 +189,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
                 for room in self.obj.rooms
             },
-            'schedule': schedule_data(self.obj),
+            'schedule': schedule_data(self.obj, slots=False),
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
         }

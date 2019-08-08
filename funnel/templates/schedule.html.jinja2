@@ -100,12 +100,15 @@
       .schedule__row__column--header {
         min-height: auto !important;
         padding: 0 !important;
-        font-size: 4pt !important;
+        font-size: 6pt !important;
         border : none !important;
         outline: none !important;
       }
       .schedule__row__column {
         display: flex !important;
+      }
+      .schedule__row__column--talks {
+        max-height: 10%;
       }
       .schedule__row__column__content {
         padding: 0 !important;
@@ -119,7 +122,7 @@
         position: relative !important;
         top: 0 !important;
         background-color: transparent !important;
-        font-size: 3pt !important;
+        font-size: 5pt !important;
         float: none !important;
         padding: 0 !important;
         margin: 0 0 0.2pt !important;
@@ -135,10 +138,10 @@
       .schedule__row__column__content__description {
         display: none !important;
       }
-      .schedule__row__column--talks {
-        overflow: hidden;
-        padding: 2pt !important;
-      }
+    }
+    @page {
+      margin: 0;
+      padding: 0;
     }
   </style>
 {% endblock %}
@@ -178,11 +181,10 @@
       <div class="grid" id="schedule">
         <div class="grid__col-xs-12 schedule-grid">
           <div class="schedule-table-container" id="project-schedule-table">
-              <v-style></v-style>
-              <schedule></schedule>
+            <schedule></schedule>
           </div>
-            {% raw %}
-             <script type="text/x-template" id="scheduletemplate">
+          {% raw %}
+            <script type="text/x-template" id="scheduletemplate">
               <div>
                 <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
                   <div class="tabs">
@@ -219,7 +221,7 @@
                 </div>
               </div>
             </script>
-            {% endraw %}
+          {% endraw %}
         </div>
       </div>
     </div>
@@ -241,9 +243,7 @@
       parentContainer: '#schedule',
       active_session: '',
       projectTitle: "{{ project.title }}",
-      pageDescription: "{{ g.profile.description|striptags }}",
-      printPageHeight: 5.5,
-      printPageHeightUnit: 'in'
+      pageDescription: "{{ g.profile.description|striptags }}"
     };
   </script>
   {%- if active_session -%}
