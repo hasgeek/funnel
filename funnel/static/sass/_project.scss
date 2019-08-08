@@ -239,6 +239,10 @@
     }
     .about__details {
       float: none;
+
+      hr {
+        overflow: hidden;
+      }
     }
 
     .about__details__featured {
