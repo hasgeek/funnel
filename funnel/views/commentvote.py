@@ -72,6 +72,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('new_comment')
     def new_comment(self):
+        # TODO: Make this endpoint support AJAX.
         to_redirect = self.obj.url_for(_external=True)
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
@@ -99,42 +100,41 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     parent = Comment.query.filter_by(
                         suuid=commentform.parent_id.data
                     ).first_or_404()
-                    if (
-                        parent.user.email
-                    ):  # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
-                        if (
-                            parent.user == self.obj.user
-                        ):  # check if parent comment & proposal owner are same
-                            if (
-                                not current_auth.user == parent.user
-                            ):  # check if parent comment is by proposal owner
+                    if parent.user.email:
+                        # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
+                        if parent.user == self.obj.owner:
+                            # parent comment is by the proposal owner
+                            if not parent.user == current_auth.user:
+                                # parent comment is not by the curernt user
                                 send_mail_info.append(
                                     {
-                                        'to': self.obj.user.email or self.obj.email,
-                                        'subject': u"{project} Funnel: {proposal}".format(
+                                        'to': self.obj.owner.email or self.obj.email,
+                                        'subject': u"[💬] {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
                                         'template': 'proposal_comment_reply_email.md',
                                     }
                                 )
-                        else:  # send mail to parent comment owner & proposal owner
+                        else:
                             if not parent.user == current_auth.user:
+                                # send mail to parent comment owner
                                 send_mail_info.append(
                                     {
                                         'to': parent.user.email,
-                                        'subject': u"{project} Funnel: {proposal}".format(
+                                        'subject': u"[💬] {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
                                         'template': 'proposal_comment_to_proposer_email.md',
                                     }
                                 )
-                            if not self.obj.user == current_auth.user:
+                            if not self.obj.owner == current_auth.user:
+                                # send mail to proposal owner
                                 send_mail_info.append(
                                     {
-                                        'to': self.obj.user.email or self.obj.email,
-                                        'subject': u"{project} Funnel: {proposal}".format(
+                                        'to': self.obj.owner.email or self.obj.email,
+                                        'subject': u"[💬] {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
@@ -145,11 +145,11 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     if parent and parent.commentset == self.obj.commentset:
                         comment.parent = parent
                 else:  # for top level comment
-                    if not self.obj.user == current_auth.user:
+                    if not self.obj.owner == current_auth.user:
                         send_mail_info.append(
                             {
-                                'to': self.obj.user.email or self.obj.email,
-                                'subject': u"{project} Funnel: {proposal}".format(
+                                'to': self.obj.owner.email or self.obj.email,
+                                'subject': u"[💬] {project}: {proposal}".format(
                                     project=self.obj.project.title,
                                     proposal=self.obj.title,
                                 ),
@@ -171,8 +171,11 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                 if item.get('to'):
                     # Sender is set to None to prevent revealing email.
                     send_mail(sender=None, body=email_body, **item)
-        # Redirect despite this being the same page because HTTP 303 is required to not break
-        # the browser Back button
+        else:
+            for error in commentform.get_verbose_errors():
+                flash(error, category='error')
+        # Redirect despite this being the same page because HTTP 303 is required
+        # to not break the browser Back button.
         return redirect(to_redirect, code=303)
 
 
