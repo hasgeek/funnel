@@ -1629,7 +1629,7 @@ html.touch .collapsible__body--disable {
   border: 1px solid rgba(132, 146, 166, 0.3);
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
   padding: 0;
-  margin: 0 15px 70px;
+  margin: 0;
   position: relative;
 }
 
@@ -1664,6 +1664,10 @@ html.touch .collapsible__body--disable {
 }
 
 @media (min-width: 768px) {
+  .proposal-wrapper {
+    margin: 0 15px;
+  }
+
   .slider-btn--push-down {
     position: relative;
     top: 0;
