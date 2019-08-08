@@ -6,7 +6,7 @@
 	  <input type="hidden" name="form.id" value="delete"/>
 	  {{ form.hidden_tag() }}
 	  {% if form.csrf_token.errors %}
-	    <p class="mui-form--error">This form timed out because it was open for a long time. Please submit again.</p>
+	    <p class="mui-form--error">{% trans %}This form timed out because it was open for a long time. Please submit again.{% endtrans %}</p>
 	  {% endif %}
 	  <input class="mui-btn mui-btn--raised mui-btn--danger" type="submit" name="delete" value="{% trans %}Delete{% endtrans %}"/>
 	  <input class="mui-btn mui-btn--raised mui-btn--primary" type="submit" name="cancel" value="{% trans %}Cancel{% endtrans %}"/>

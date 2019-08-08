@@ -2,6 +2,12 @@ import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
   window.HasGeek = {};
+  window.HasGeek.config = {
+    mobileBreakpoint: 768, //this breakpoint switches to desktop UI
+    ajaxTimeout: 30000,
+    retryInterval: 10000,
+    closeModalTimeout: 10000,
+  }
 
   Utils.collapse();
   Utils.smoothScroll();

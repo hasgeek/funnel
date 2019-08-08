@@ -27,7 +27,7 @@
   {%- for error in lform.title.errors %}
     <div><p class="mui-form__error">{{ error }}</p></div>
   {%- endfor %}
-    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="Close"><i class="material-icons mui--text-body1" aria-hidden="true">close</i></button>
+    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}"><i class="material-icons mui--text-body1" aria-hidden="true">close</i></button>
     {%- endif %}
     <!-- Add archive button for existing sublabels -->
   {%- if subform %}

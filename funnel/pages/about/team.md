@@ -5,14 +5,11 @@ We are a small group of broad-minded geeks, communicators, and overall nice peop
 * Abhishek Balaji ([@booleanbalaji](https://twitter.com/booleanbalaji))
 * Anand V ([@iam_anandv](https://twitter.com/iam_anandv))
 * Anish TP ([@tepotheus](https://twitter.com/tepotheus))
-* Arun Teja Godavarthi ([@zeospec](https://twitter.com/zeospec))
 * Bibhas Debnath ([@bibhasdn](https://twitter.com/bibhasdn))
-* Hari CM ([@haricm](http://twitter.com/haricm))
 * Jayalakshmi AG
 * Jyothsna Madabusi
 * Kiran Jonnalagadda, director ([@jackerhack](https://twitter.com/jackerhack))
 * Manjunath AK ([@manjuak](https://twitter.com/manjuak))
-* Shodhan Prakash ([@prakashshodhan](https://twitter.com/prakashshodhan))
 * Stephanie Browne
 * Vidya Ramakrishnan ([@vidya_ramki](https://twitter.com/vidya_ramki))
 * Zainab Bawa, director ([@zainabbawa](https://twitter.com/zainabbawa))
