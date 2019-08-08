@@ -109,7 +109,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                 send_mail_info.append(
                                     {
                                         'to': self.obj.owner.email or self.obj.email,
-                                        'subject': u"[New Comment] {project}: {proposal}".format(
+                                        'subject': u"[💬] {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
@@ -122,7 +122,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                 send_mail_info.append(
                                     {
                                         'to': parent.user.email,
-                                        'subject': u"[New Comment] {project}: {proposal}".format(
+                                        'subject': u"[💬] {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
@@ -134,7 +134,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                 send_mail_info.append(
                                     {
                                         'to': self.obj.owner.email or self.obj.email,
-                                        'subject': u"[New Comment] {project}: {proposal}".format(
+                                        'subject': u"[💬] {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
@@ -149,7 +149,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                         send_mail_info.append(
                             {
                                 'to': self.obj.owner.email or self.obj.email,
-                                'subject': u"[New Comment] {project}: {proposal}".format(
+                                'subject': u"[💬] {project}: {proposal}".format(
                                     project=self.obj.project.title,
                                     proposal=self.obj.title,
                                 ),
