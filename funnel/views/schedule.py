@@ -146,11 +146,8 @@ def session_ical(session):
         else:
             location.append(session.venue_room.venue.country)
         event.add('location', "\n".join(location))
-        if session.venue_room.venue.latitude and session.venue_room.venue.longitude:
-            event.add(
-                'geo',
-                (session.venue_room.venue.latitude, session.venue_room.venue.longitude),
-            )
+        if session.venue_room.venue.has_coordinates:
+            event.add('geo', session.venue_room.venue.coordinates)
     if session.description_text:
         event.add('description', session.description_text)
     if session.proposal:
