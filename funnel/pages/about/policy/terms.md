@@ -34,7 +34,7 @@ The User’s activities under these terms must not violate applicable laws, must
 
 ## Prohibited uses
 
-In addition to other prohibitions as set forth in the Terms of Service, the User is prohibited from using the site or its content: 
+In addition to other prohibitions as set forth in the Terms of Service, the User is prohibited from using the site or its content:
 
 1. for any unlawful purpose;
 2. to solicit others to perform or participate in any unlawful acts;

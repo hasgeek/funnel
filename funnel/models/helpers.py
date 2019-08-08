@@ -30,8 +30,8 @@ RESERVED_NAMES = {
     'contacts',
     'delete',
     'edit',
-    'email'
-    'emails'
+    'email',
+    'emails',
     'embed',
     'event',
     'events',
@@ -85,7 +85,9 @@ def pgquote(identifier):
     """
     Adds double quotes to the given identifier if required (PostgreSQL only).
     """
-    return ('"%s"' % identifier) if identifier in POSTGRESQL_RESERVED_WORDS else identifier
+    return (
+        ('"%s"' % identifier) if identifier in POSTGRESQL_RESERVED_WORDS else identifier
+    )
 
 
 def add_search_trigger(model, column_name):
@@ -125,12 +127,18 @@ def add_search_trigger(model, column_name):
 
     for col in column.type.columns:
         texpr = "to_tsvector('{regconfig}', COALESCE(NEW.{col}, ''))".format(
-            regconfig=regconfig, col=pgquote(col))
+            regconfig=regconfig, col=pgquote(col)
+        )
         uexpr = "to_tsvector('{regconfig}', COALESCE({col}, ''))".format(
-            regconfig=regconfig, col=pgquote(col))
+            regconfig=regconfig, col=pgquote(col)
+        )
         if col in weights:
-            texpr = "setweight({expr}, '{weight}')".format(expr=texpr, weight=weights[col])
-            uexpr = "setweight({expr}, '{weight}')".format(expr=uexpr, weight=weights[col])
+            texpr = "setweight({expr}, '{weight}')".format(
+                expr=texpr, weight=weights[col]
+            )
+            uexpr = "setweight({expr}, '{weight}')".format(
+                expr=uexpr, weight=weights[col]
+            )
         trigger_fields.append(texpr)
         update_fields.append(uexpr)
 
@@ -148,41 +156,50 @@ def add_search_trigger(model, column_name):
 
         CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE ON {table_name}
         FOR EACH ROW EXECUTE PROCEDURE {function_name}();
-        '''.format(
+        '''.format(  # nosec
             function_name=pgquote(function_name),
             column_name=pgquote(column_name),
             trigger_expr=trigger_expr,
             trigger_name=pgquote(trigger_name),
             table_name=pgquote(model.__tablename__),
-            ))
+        )
+    )
 
     update_statement = dedent(
         '''
         UPDATE {table_name} SET {column_name} = {update_expr};
-        '''.format(
+        '''.format(  # nosec
             table_name=pgquote(model.__tablename__),
             column_name=pgquote(column_name),
             update_expr=update_expr,
-            ))
+        )
+    )
 
     drop_statement = dedent(
         '''
         DROP TRIGGER {trigger_name} ON {table_name};
         DROP FUNCTION {function_name}();
-        '''.format(
+        '''.format(  # nosec
             trigger_name=pgquote(trigger_name),
             table_name=pgquote(model.__tablename__),
             function_name=pgquote(function_name),
-            ))
+        )
+    )
 
-    event.listen(model.__table__, 'after_create',
-        DDL(trigger_function).execute_if(dialect='postgresql'))
+    event.listen(
+        model.__table__,
+        'after_create',
+        DDL(trigger_function).execute_if(dialect='postgresql'),
+    )
 
-    event.listen(model.__table__, 'before_drop',
-        DDL(drop_statement).execute_if(dialect='postgresql'))
+    event.listen(
+        model.__table__,
+        'before_drop',
+        DDL(drop_statement).execute_if(dialect='postgresql'),
+    )
 
     return {
         'trigger': trigger_function,
         'update': update_statement,
         'drop': drop_statement,
-        }
+    }

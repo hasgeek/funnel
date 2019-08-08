@@ -139,12 +139,6 @@
         overflow: hidden;
         padding: 2pt !important;
       }
-
-    }
-    @page {
-      size: 5.25in 5.67in;  /* width height */
-      margin: 0;
-      padding: 0;
     }
   </style>
 {% endblock %}
@@ -162,7 +156,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="Back to {{project.title}}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">Schedule</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Schedule{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,

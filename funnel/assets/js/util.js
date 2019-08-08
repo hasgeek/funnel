@@ -28,7 +28,7 @@ export const Utils = {
   animateScrollTo(offsetY) {
     $('html,body').animate({
       scrollTop: offsetY,
-    }, 500);
+    }, 'slow');
   },
   smoothScroll() {
     $('a.js-smooth-scroll').on('click', function clickHandler(event) {
@@ -41,7 +41,7 @@ export const Utils = {
       // Horizontal scroll to active tab
       $('#jquery-scroll-tabs').animate({
         scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
-      }, 500);
+      }, 'slow');
 
       $('#jquery-scroll-tabs .js-scroll-prev').on('click', function (event) {
         event.preventDefault();
@@ -69,8 +69,8 @@ export const Utils = {
 
     // Clicking outside close search form if open
     $('body').on('click', function closeSearchForm(event) {
-      if($('.js-search-form').hasClass('search-form--show') && 
-          !$(event.target).is('.js-search-field') && 
+      if($('.js-search-form').hasClass('search-form--show') &&
+          !$(event.target).is('.js-search-field') &&
           !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
         $('.js-search-form').removeClass('search-form--show');
       }
@@ -98,8 +98,8 @@ export const ScrollActiveMenu = {
     this.headings = this.navItems.map(navItem => {
       if (navItem.classList.contains('js-samepage')) {
         return document.querySelector(navItem.getAttribute('href'));
-      } 
-      return false; 
+      }
+      return false;
     });
 
     this.handleObserver = this.handleObserver.bind(this);
@@ -111,7 +111,7 @@ export const ScrollActiveMenu = {
           this.handleObserver,
           {
             rootMargin: '0px',
-            threshold: threshold 
+            threshold: threshold
           },
         );
         observer.observe(heading);
@@ -123,7 +123,7 @@ export const ScrollActiveMenu = {
     let observer = new IntersectionObserver(
         entries => {
         entries.forEach(entry => {
-          if(!entry.isIntersecting && entry.intersectionRatio > 0.9) {
+          if(!entry.isIntersecting && entry.intersectionRatio > 0.5 && entry.boundingClientRect.y < 0) {
             $('#ticket-btn').addClass('sub-navbar__item--fixed');
           } else if(entry.isIntersecting && entry.intersectionRatio === 1) {
             $('#ticket-btn').removeClass('sub-navbar__item--fixed');
@@ -135,7 +135,7 @@ export const ScrollActiveMenu = {
         threshold: 1
       },
     );
-    observer.observe(document.getElementById('page-navbar'));
+    observer.observe(document.getElementById('ticket-wrapper'));
   },
   handleObserver(entries) {
     entries.forEach(entry => {
@@ -152,7 +152,7 @@ export const ScrollActiveMenu = {
     activeNavItem.classList.add(this.activeMenuClassName);
     $(`#${this.navId}`).animate({
       scrollLeft: activeNavItem.offsetLeft,
-    }, 500);
+    }, 'slow');
   },
 };
 

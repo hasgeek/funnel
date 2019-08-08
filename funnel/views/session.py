@@ -26,7 +26,9 @@ from .schedule import date_js, session_data, schedule_data, session_list_data
 
 def rooms_list(project):
     return [(u"", _("Select Room"))] + [
-        (room.id, u"{venue} – {room}".format(venue=room.venue.title, room=room.title)) for room in project.rooms]
+        (room.id, u"{venue} – {room}".format(venue=room.venue.title, room=room.title))
+        for room in project.rooms
+    ]
 
 
 def session_form(project, proposal=None, session=None):
@@ -48,7 +50,9 @@ def session_form(project, proposal=None, session=None):
     if request.method == 'GET':
         if not (session or proposal):
             form.is_break.data = True
-        return render_template('session_form.html.jinja2', form=form, formid='session_form')
+        return render_template(
+            'session_form.html.jinja2', form=form, formid='session_form'
+        )
     if form.validate_on_submit():
         new = False
         if not session:
@@ -59,21 +63,28 @@ def session_form(project, proposal=None, session=None):
         form.populate_obj(session)
         if new:
             session.parent = project
-            session = failsafe_add(db.session, session, project_id=project.id, url_id=session.url_id)
+            session = failsafe_add(
+                db.session, session, project_id=project.id, url_id=session.url_id
+            )
         db.session.commit()
         data = {
             'id': session.url_id,
             'title': session.title,
-            'room_scoped_name': session.venue_room.scoped_name if session.venue_room else None,
+            'room_scoped_name': (
+                session.venue_room.scoped_name if session.venue_room else None
+            ),
             'is_break': session.is_break,
             'modal_url': session.url_for('edit'),
             'delete_url': session.url_for('delete'),
-            'proposal_id': session.proposal_id  # FIXME: Switch to UUID
+            'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
         }
         return jsonify(status=True, data=data)
     return jsonify(
         status=False,
-        form=render_template('session_form.html.jinja2', form=form, formid='session_new'))
+        form=render_template(
+            'session_form.html.jinja2', form=form, formid='session_new'
+        ),
+    )
 
 
 @route('/<profile>/<project>/sessions')
@@ -112,9 +123,17 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             'sessions': session_list_data(self.obj.project.scheduled_sessions, with_modal_url='view_popup'),
             'schedule': schedule_data(self.obj.project),
             # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
-            'timezone': utcnow().astimezone(self.obj.project.timezone).utcoffset().total_seconds(),
+            'timezone': (
+                utcnow()
+                .astimezone(self.obj.project.timezone)
+                .utcoffset()
+                .total_seconds()
+            ),
             'venues': [venue.current_access() for venue in self.obj.project.venues],
-            'rooms': {room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor} for room in self.obj.project.rooms},
+            'rooms': {
+                room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
+                for room in self.obj.project.rooms
+            },
             'project_save_form': project_save_form,
         }
 
@@ -125,7 +144,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
         return {
             'session': self.obj,
             'timezone': self.obj.project.timezone.zone,
-            'localize_date': localize_date
+            'localize_date': localize_date,
         }
 
     @route('editsession', methods=['GET', 'POST'])
@@ -148,8 +167,17 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
 
     @route('feedback', methods=['POST'])
     @requires_permission('view')
-    @requestargs('id_type', 'userid', ('content', int), ('presentation', int), ('min_scale', int), ('max_scale', int))
-    def feedback(self, id_type, userid, content, presentation, min_scale=0, max_scale=2):
+    @requestargs(
+        'id_type',
+        'userid',
+        ('content', int),
+        ('presentation', int),
+        ('min_scale', int),
+        ('max_scale', int),
+    )
+    def feedback(
+        self, id_type, userid, content, presentation, min_scale=0, max_scale=2
+    ):
         if not self.obj.proposal:
             abort(400)
         # Process feedback
@@ -161,14 +189,25 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             abort(400)
 
         # Was feedback already submitted?
-        feedback = ProposalFeedback.query.filter_by(proposal=self.obj.proposal,
-            auth_type=FEEDBACK_AUTH_TYPE.NOAUTH, id_type=id_type, userid=userid).first()
+        feedback = ProposalFeedback.query.filter_by(
+            proposal=self.obj.proposal,
+            auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
+            id_type=id_type,
+            userid=userid,
+        ).first()
         if feedback is not None:
             return "Dupe\n", 403
         else:
-            feedback = ProposalFeedback(proposal=self.obj.proposal,
-                auth_type=FEEDBACK_AUTH_TYPE.NOAUTH, id_type=id_type, userid=userid,
-                min_scale=min_scale, max_scale=max_scale, content=content, presentation=presentation)
+            feedback = ProposalFeedback(
+                proposal=self.obj.proposal,
+                auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
+                id_type=id_type,
+                userid=userid,
+                min_scale=min_scale,
+                max_scale=max_scale,
+                content=content,
+                presentation=presentation,
+            )
             db.session.add(feedback)
             db.session.commit()
             return "Saved\n", 201
@@ -180,10 +219,14 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     def save(self):
         form = SavedSessionForm()
         if form.validate_on_submit():
-            session_save = SavedSession.query.filter_by(user=current_auth.user, session=self.obj).first()
+            session_save = SavedSession.query.filter_by(
+                user=current_auth.user, session=self.obj
+            ).first()
             if form.save.data:
                 if session_save is None:
-                    session_save = SavedSession(user=current_auth.user, session=self.obj)
+                    session_save = SavedSession(
+                        user=current_auth.user, session=self.obj
+                    )
                     form.populate_obj(session_save)
                     db.session.commit()
             else:
@@ -192,11 +235,16 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                     db.session.commit()
             return {'status': 'ok'}
         else:
-            return {
-                'status': 'error',
-                'error': 'session_save_form_invalid',
-                'error_description': _("Something went wrong, please reload and try again")
-            }, 400
+            return (
+                {
+                    'status': 'error',
+                    'error': 'session_save_form_invalid',
+                    'error_description': _(
+                        "Something went wrong, please reload and try again"
+                    ),
+                },
+                400,
+            )
         return redirect(self.obj.url_for(), code=303)
 
 

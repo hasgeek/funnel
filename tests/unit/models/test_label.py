@@ -37,7 +37,9 @@ class TestLabels(object):
             # because Label B is not a parent label, it cannot be required
             new_label.required = True
 
-    def test_proposal_assignment_radio(self, test_client, test_db, new_main_label, new_proposal):
+    def test_proposal_assignment_radio(
+        self, test_client, test_db, new_main_label, new_proposal
+    ):
         # Parent labels are always in radio mode
         label_a1 = new_main_label.options[0]
         label_a2 = new_main_label.options[1]

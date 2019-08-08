@@ -45,7 +45,7 @@ const Search = {
         $.ajax({
           type: 'GET',
           url: `${url}&page=${page}`,
-          timeout: 5000,
+          timeout: window.HasGeek.config.ajaxTimeout,
           dataType: 'json',
           success: function(data) {
             widget.activateTab(searchType, data.results, url, page);
@@ -68,7 +68,7 @@ const Search = {
         this.set('activeTab', searchType);
         $('#scrollable-tabs').animate({
           scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
-        }, 500);
+        }, 'slow');
         if (url) {
           this.handleBrowserHistory(url);
         }

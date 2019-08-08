@@ -18,17 +18,17 @@
       <div class="grid">
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="previous" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
-            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">Profile</p>
-            <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">Contacts</a>
-            <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">Scan badge</a>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="next" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
+            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Profile{% endtrans %}</p>
+            <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
+            <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">{% trans %}Contacts{% endtrans %}</a>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
           </div>
         </div>
       </div>
     </div>
   </div>
- 
+
   <div class="mui-container tab-content">
     <div class="grid">
       <div class="grid__col-xs-12 grid__col-sm-6">

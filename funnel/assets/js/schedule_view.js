@@ -42,7 +42,7 @@ const Schedule = {
       },
       methods: {
         toggleTab(room) {
-          if(this.width < 992) {
+          if(this.width < window.HasGeek.config.mobileBreakpoint) {
             this.activeTab = room;
           }
         },
@@ -54,7 +54,7 @@ const Schedule = {
           return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
         },
         getColumnWidth(columnType) {
-          if (columnType === 'header' || this.width > 767 ) {
+          if (columnType === 'header' || this.width >= window.HasGeek.config.mobileBreakpoint ) {
             if (this.view === 'calendar') {
               return (this.timeSlotWidth/this.rowWidth);
             } else {

@@ -170,15 +170,120 @@
   }
 }
 
-.about-ticket-wrapper {
-  align-items: flex-start;
+.about {
+  padding: 0 15px;
+  word-break: break-word;
 
-  #participate {
-    padding-left: 30px;
+  .about__details__description h1,
+  .about__details__description h2,
+  .about__details__description h3,
+  .about__details__description h4,
+  .about__details__description h5{
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  img {
+    width: 100%;
+  }
+
+  .about__details__featured {
+    display: block;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    width: 100%;
+
+    .about__details__featured__cards {
+      padding: 0 15px;
+    }
+  }
+
+  .about__participate__back-nav {
+    display: none;
+  }
+
+  .about__participate {
+    display: none;
+  }
+
+  .about__participate--modal {
+    position: fixed;
+    top: 0;
+    background: #fff;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    z-index: 100001;
+    bottom: 0;
+    height: 100%;
+    overflow: auto;
+
+    .about__participate__back-nav {
+      display: block;
+    }
   }
 }
 
-#participate #boxoffice-widget {
+@media (min-width: 768px) {
+  .about {
+    .about__participate {
+      display: block !important;
+      position: relative;
+      width: calc(50% - 30px);
+      float: right;
+      padding: 0;
+      margin-left: 30px;
+      margin-bottom: 15px;
+    }
+    .about__details {
+      float: none;
+
+      hr {
+        overflow: hidden;
+      }
+    }
+
+    .about__details__featured {
+      .about__details__featured__cards {
+        display: inline-block;
+        width: calc(50% - 32px);
+        padding: 0 15px;
+        vertical-align: top;
+        margin: 0 -2px;
+      }
+    }
+  }
+}
+
+@media (min-width: 992px) {
+  .about {
+    .about__participate {
+      width: calc(40% - 30px);
+    }
+
+    .about__details__featured {
+      .about__details__featured__cards {
+        width: calc(33.3% - 30px);
+        padding: 0 15px;
+      }
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .about {
+    .about__details__featured {
+      .about__details__featured__cards {
+        width: calc(33.3% - 30px);
+        padding: 0 15px;
+      }
+    }
+  }
+}
+
+.about #boxoffice-widget {
   padding-top: 0;
   max-width: 100%;
   margin: 0;
@@ -213,6 +318,11 @@
     float: left;
   }
 
+  .ticket-total {
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+
   .item-amount,
   .valid-upto,
   .discount {
@@ -229,56 +339,18 @@
   }
 }
 
-.session-image {
-  max-height: 280px;
-  position: relative;
-  overflow: hidden;
+.about .rsvp-wrapper {
+  padding-top: 50px;
 }
 
-.session-content {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;  
+@media (min-width: 768px) {
+  .about .rsvp-wrapper {
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(158,158,158,0.12), 0 1px 2px rgba(158,158,158,0.24);
+  }
 }
 
-.project-section #boxoffice-widget {
-  padding-top: 0;
-  width: 100%;
-  max-width: none;
-}
 
-.project-section #boxoffice-widget .ticket-title {
-  color: inherit;
-}
-
-.project-section__headline {
-  font-weight: bold;
-}
-
-.project-section__description {
-  word-break: break-word;
-}
-
-.project-section__description h1,
-.project-section__description h2,
-.project-section__description h3,
-.project-section__description h4,
-.project-section__description h5,
-.project-section__instructions h1,
-.project-section__instructions h2,
-.project-section__instructions h3,
-.project-section__instructions h4,
-.project-section__instructions h5 {
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 32px;
-}
-
-.project-section__description  img,
-.project-section__instructions img  {
-  width: 100%;
-}
 
 .project-section__map {
   height: 400px;

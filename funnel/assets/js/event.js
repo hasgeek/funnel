@@ -53,7 +53,7 @@ const Queue = function(queueName) {
     }
   };
 
-  /* updateQueue: If participant in "checkin-queue" has already been checked-in 
+  /* updateQueue: If participant in "checkin-queue" has already been checked-in
   then it is removed from checkin queue */
   this.updateQueue = function(participantsHashMap, ParticipantList) {
     let queue = this;
@@ -63,7 +63,7 @@ const Queue = function(queueName) {
       participantIDs.forEach(function(participantID) {
         if (queue.queueName.indexOf("cancelcheckin-queue") > -1) {
           if (!participantsHashMap[participantID].checked_in) {
-            /* Participant's check-in has already been cancelled so remove 
+            /* Participant's check-in has already been cancelled so remove
             from 'cancelcheckin-queue' */
             queue.dequeue(participantID);
           }
@@ -151,7 +151,7 @@ const ParticipantTable = {
         $.ajax({
           type: 'GET',
           url: participantlistUrl,
-          timeout: 5000,
+          timeout: window.HasGeek.config.ajaxTimeout,
           dataType: 'json',
           success: function(data) {
             count.set({
@@ -169,15 +169,15 @@ const ParticipantTable = {
       onrender() {
         this.updateList();
 
-        /* Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds 
+        /* Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds
         and batch post check-in/cancel check-in status to server */
-        setInterval(function() { 
-          ParticipantTable.processQueues(list); 
+        setInterval(function() {
+          ParticipantTable.processQueues(list);
         }, 8000);
 
         // Get participants data from server every 15 seconds
-        setInterval(function() { 
-          list.updateList(); 
+        setInterval(function() {
+          list.updateList();
         }, 15000);
       }
     });
@@ -207,7 +207,7 @@ const ParticipantTable = {
       type: 'POST',
       url:  list.get('checkinUrl'),
       data : formValues,
-      timeout: 5000,
+      timeout: window.HasGeek.config.ajaxTimeout,
       dataType: 'json',
       success(data) {
         if (data.checked_in) {
@@ -242,4 +242,3 @@ $(() => {
     }
   };
 });
-

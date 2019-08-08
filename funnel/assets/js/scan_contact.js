@@ -4,7 +4,7 @@ import vCardsJS from "vcards-js";
 
 const badgeScan = {
   init({getContactApiUrl, wrapperId, templateId}) {
-    
+
     let badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -31,7 +31,7 @@ const badgeScan = {
         [vCard.firstName, ...lastName] = contact.fullname.split(' ');
         vCard.lastName = lastName.join(' ');
         vCard.email = contact.email;
-        vCard.cellPhone = contact.phone;    
+        vCard.cellPhone = contact.phone;
         vCard.organization = contact.company;
         event.node.setAttribute('href', 'data:text/x-vcard;charset=utf-8,' + encodeURIComponent(vCard.getFormattedString()));
         event.node.setAttribute('download', `${vCard.firstName}.vcf`);
@@ -52,7 +52,7 @@ const badgeScan = {
           type: 'POST',
           url:  getContactApiUrl,
           data : formValues,
-          timeout: 30000,
+          timeout: window.HasGeek.config.ajaxTimeout,
           dataType: 'json',
           success(response) {
             badgeScanComponent.set({
@@ -60,8 +60,8 @@ const badgeScan = {
               'contactFound': true,
               'contact': response.contact,
             });
-            if(!badgeScanComponent.get('contacts').some(contact => 
-              contact.fullname === response.contact.fullname && 
+            if(!badgeScanComponent.get('contacts').some(contact =>
+              contact.fullname === response.contact.fullname &&
               contact.email === response.contact.email)) {
               badgeScanComponent.push('contacts', response.contact);
             }
