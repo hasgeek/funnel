@@ -764,7 +764,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         roles.update(self.profile.roles_for(actor, anchors))
 
-        crew_membership = self.active_crew_memberships.filter_by(user=actor).one_or_none()
+        crew_membership = self.active_crew_memberships.filter_by(
+            user=actor
+        ).one_or_none()
         if crew_membership:
             roles.update(crew_membership.offered_roles())
 
