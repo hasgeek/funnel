@@ -18,14 +18,6 @@
         Total: {{participants | length}}
       </h3>
     </div>
-    <div class="grid__col-xs-6 grid__col-md-4">
-      <form class="search-participant mui-form">
-        <div class="mui-textfield mui-textfield--float-label">
-          <input autofocus class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label>Search</label>
-        </div>
-      </form>
-    </div>
     <div class="grid__col-xs-12 mui-table--responsive-wrapper">
       <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
         <thead>
@@ -49,16 +41,4 @@
   </div>
 {% endblock %}
 {% block footerscripts %}
-<script type="text/javascript">
-  $(document).ready(function() {
-    var tableSearch = new window.TableSearch('participants-table');
-
-    $('input#search').keyup(function(e){
-      $('#participants-table tbody tr').addClass('mui--hide');
-      var hits = tableSearch.searchRows($(this).val());
-      $(hits.join(",")).removeClass('mui--hide');
-    });
-
-  });
-</script>
 {% endblock %}

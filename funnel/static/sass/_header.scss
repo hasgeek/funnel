@@ -362,6 +362,10 @@ and (orientation: landscape) {
     background-color: #F9FAFC;
   }
 
+  .sub-navbar__item--wrapper {
+    height: 56px;
+  }
+
   .sub-navbar__item--fixed {
     position: fixed;
     top: 0;
@@ -378,12 +382,6 @@ and (orientation: landscape) {
 
   .mui-btn {
     margin: 0 0.5em;
-  }
-
-  .sub-navbar__item:hover,
-  .sub-navbar__item:active,
-  .sub-navbar__item--active {
-    border-bottom: 1px solid #856A91;
   }
 
   .sub-navbar__item--primarybg {
@@ -473,6 +471,7 @@ and (orientation: landscape) {
   padding: 15px;
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   background-color: #fff;
   z-index: 1000;

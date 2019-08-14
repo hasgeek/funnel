@@ -28,7 +28,7 @@ export const Utils = {
   animateScrollTo(offsetY) {
     $('html,body').animate({
       scrollTop: offsetY,
-    }, 500);
+    }, 'slow');
   },
   smoothScroll() {
     $('a.js-smooth-scroll').on('click', function clickHandler(event) {
@@ -41,7 +41,7 @@ export const Utils = {
       // Horizontal scroll to active tab
       $('#jquery-scroll-tabs').animate({
         scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
-      }, 500);
+      }, 'slow');
 
       $('#jquery-scroll-tabs .js-scroll-prev').on('click', function (event) {
         event.preventDefault();
@@ -123,7 +123,7 @@ export const ScrollActiveMenu = {
     let observer = new IntersectionObserver(
         entries => {
         entries.forEach(entry => {
-          if(!entry.isIntersecting && entry.intersectionRatio > 0.9) {
+          if(!entry.isIntersecting && entry.intersectionRatio > 0.5 && entry.boundingClientRect.y < 0) {
             $('#ticket-btn').addClass('sub-navbar__item--fixed');
           } else if(entry.isIntersecting && entry.intersectionRatio === 1) {
             $('#ticket-btn').removeClass('sub-navbar__item--fixed');
@@ -135,7 +135,7 @@ export const ScrollActiveMenu = {
         threshold: 1
       },
     );
-    observer.observe(document.getElementById('page-navbar'));
+    observer.observe(document.getElementById('ticket-wrapper'));
   },
   handleObserver(entries) {
     entries.forEach(entry => {
@@ -152,7 +152,7 @@ export const ScrollActiveMenu = {
     activeNavItem.classList.add(this.activeMenuClassName);
     $(`#${this.navId}`).animate({
       scrollLeft: activeNavItem.offsetLeft,
-    }, 500);
+    }, 'slow');
   },
 };
 
