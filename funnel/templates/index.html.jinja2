@@ -167,14 +167,18 @@
             <li class="card card--upcoming" role="listitem">
               <div class="card__image-wrapper">
                 {% if project.bg_image.url %}
-                  <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}" aria-label="{{ project.title }}"><img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/></a>
-                  <noscript>
-                    <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-                  </noscript>
+                  <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}" aria-label="{{ project.title }}">
+                    <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    <noscript>
+                      <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    </noscript>
+                  </a>
                 {% else %}
                   <div class="card__image--default">
-                    <a href="{{ project.url_for() }}" aria-label="{{ project.title }}"><img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/></a>
-                    <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
+                    <a href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+                      <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                      <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
+                    </a>
                   </div>
                 {% endif %}
               </div>
@@ -267,7 +271,7 @@
                   <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
                   {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
                   <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
-                </a>
+                </div>
               </div>
             </li>
           {%- endfor -%}
@@ -339,7 +343,7 @@
                   {% endif %}
                   <div class="mui-divider"></div>
                   <div class="card__footer">
-                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Publish project" data-action="Publish project">Publish project</a>
+                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Publish project" data-action="Publish project">{% trans %}Publish project{% endtrans %}</a>
                   </div>
                 </div>
               </div>
