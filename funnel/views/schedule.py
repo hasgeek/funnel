@@ -79,26 +79,44 @@ def schedule_data(project, slots=True):
     for session in project.scheduled_sessions:
         day = str(localize_date(session.start_at, to_tz=project.timezone).date())
         data[day] = []
-        if(slots):
-            slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
-            data[day][slot].append({
-                'id': session.url_id,
-                'title': session.title,
-                'start_at': session.start_at.isoformat(),
-                'end_at': session.end_at.isoformat(),
-                'url': session.url_for(_external=True),
-                'json_url': session.proposal.url_for('json', _external=True) if session.proposal else None,
-                'proposal_url': session.proposal.url_for(_external=True) if session.proposal else None,
-                'proposal': session.proposal.suuid if session.proposal else None,
-                'feedback_url': session.url_for('feedback', _external=True) if session.proposal else None,
-                'speaker': session.speaker,
-                'room': session.venue_room.scoped_name if session.venue_room else None,
-                'is_break': session.is_break,
-                'description_text': session.description_text,
-                'description': session.description,
-                'speaker_bio': session.speaker_bio,
-                'speaker_bio_text': session.speaker_bio_text,
-            })
+        if slots:
+            slot = localize_date(session.start_at, to_tz=project.timezone).strftime(
+                '%H:%M'
+            )
+            data[day][slot].append(
+                {
+                    'id': session.url_id,
+                    'title': session.title,
+                    'start_at': session.start_at.isoformat(),
+                    'end_at': session.end_at.isoformat(),
+                    'url': session.url_for(_external=True),
+                    'json_url': (
+                        session.proposal.url_for('json', _external=True)
+                        if session.proposal
+                        else None
+                    ),
+                    'proposal_url': (
+                        session.proposal.url_for(_external=True)
+                        if session.proposal
+                        else None
+                    ),
+                    'proposal': session.proposal.suuid if session.proposal else None,
+                    'feedback_url': (
+                        session.url_for('feedback', _external=True)
+                        if session.proposal
+                        else None
+                    ),
+                    'speaker': session.speaker,
+                    'room': (
+                        session.venue_room.scoped_name if session.venue_room else None
+                    ),
+                    'is_break': session.is_break,
+                    'description_text': session.description_text,
+                    'description': session.description,
+                    'speaker_bio': session.speaker_bio,
+                    'speaker_bio_text': session.speaker_bio_text,
+                }
+            )
         if 'start_at' not in start_end_datetime[day]:
             start_end_datetime[day]['start_at'] = session.start_at.isoformat()
         start_end_datetime[day]['end_at'] = session.end_at.isoformat()
@@ -107,13 +125,8 @@ def schedule_data(project, slots=True):
         daydata = {'date': day, 'slots': []}
         daydata.update(start_end_datetime[day])
         for slot in sorted(data[day]):
-            daydata['slots'].append({
-                'slot': slot,
-                'sessions': data[day][slot],
-            })
+            daydata['slots'].append({'slot': slot, 'sessions': data[day][slot]})
         schedule.append(daydata)
-
-    print schedule
     return schedule
 
 
