@@ -253,16 +253,12 @@
   {%- endif %}
   <script type="text/javascript">
     $(document).ready( function() {
-      var start = performance.now();
-
       saveProjectConfig = {
         formId: 'save-form',
         postUrl: "{{ project.url_for('save') }}"
       }
 
       window.HasGeek.ScheduleInit(scheduleConfig, saveProjectConfig);
-      var end = performance.now();
-      console.log("schedule JS took " + (end - start) + " milliseconds.");
     });
   </script>
 {% endblock %}

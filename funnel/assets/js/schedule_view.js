@@ -207,11 +207,14 @@ const Schedule = {
       this.config.eventDayhashes[this.Utils.getEventDate(day.date)] = index;
       let slots = {};
       let sessionSlots = day.startTime;
+      let endSessionSlot;
       while(sessionSlots < day.endTime) {
         slots[sessionSlots] = {showLabel: false, rooms: JSON.parse(JSON.stringify(this.config.rooms))};
+        endSessionSlot = sessionSlots;
         sessionSlots = new Date(sessionSlots);
         sessionSlots = sessionSlots.setMinutes(sessionSlots.getMinutes() + this.config.slotInterval);
       };
+      slots[endSessionSlot].showLabel = true;
       day.sessions = JSON.parse(JSON.stringify(slots));
     });
   },
