@@ -78,7 +78,6 @@ def schedule_data(project, slots=True):
     start_end_datetime = defaultdict(dict)
     for session in project.scheduled_sessions:
         day = str(localize_date(session.start_at, to_tz=project.timezone).date())
-        data[day] = []
         if slots:
             slot = localize_date(session.start_at, to_tz=project.timezone).strftime(
                 '%H:%M'
@@ -118,12 +117,17 @@ def schedule_data(project, slots=True):
                 }
             )
         if 'start_at' not in start_end_datetime[day]:
-            start_end_datetime[day]['start_at'] = session.start_at.isoformat()
-        start_end_datetime[day]['end_at'] = session.end_at.isoformat()
+            start_end_datetime[day]['start_at'] = session.start_at
+        if (
+            'end_at' not in start_end_datetime[day]
+            or session.end_at > start_end_datetime[day]['end_at']
+        ):
+            start_end_datetime[day]['end_at'] = session.end_at
     schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
-        daydata.update(start_end_datetime[day])
+        daydata['start_at'] = start_end_datetime[day]['start_at'].isoformat()
+        daydata['end_at'] = start_end_datetime[day]['end_at'].isoformat()
         for slot in sorted(data[day]):
             daydata['slots'].append({'slot': slot, 'sessions': data[day][slot]})
         schedule.append(daydata)
