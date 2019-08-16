@@ -2056,6 +2056,7 @@ html.touch .collapsible__body--disable {
   width: 100%;
   padding: 5px 15px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  word-break: break-word;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title {
   width: calc(100% - 24px);
