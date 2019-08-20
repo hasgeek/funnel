@@ -108,7 +108,9 @@ def date_js(d):
 
 
 def schedule_data(project, slots=True, scheduled_sessions=None):
-    scheduled_sessions = scheduled_sessions or project.scheduled_sessions
+    scheduled_sessions = scheduled_sessions or session_list_data(
+        project.scheduled_sessions
+    )
     data = defaultdict(lambda: defaultdict(list))
     start_end_datetime = defaultdict(dict)
     for session in scheduled_sessions:
