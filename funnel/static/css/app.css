@@ -252,6 +252,23 @@ html.touch .collapsible__body--disable {
   background: none;
 }
 
+.details-box {
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.details-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.details-box__item {
+  width: 30%;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -1180,14 +1197,10 @@ html.touch .collapsible__body--disable {
   min-height: 150px;
 }
 
-.card__body--new {
-  min-height: 194px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.card__body--new .new-btn:hover {
-  text-decoration: none;
+.card--new {
+  margin: 15px auto;
+  width: 100%;
+  max-width: 500px;
 }
 
 .card--small {
@@ -2385,15 +2398,6 @@ body > .proposal-box.ui-draggable {
   position: absolute;
   top: 10px;
   right: 0;
-}
-
-.label-box--new {
-  margin: 15px auto 35px;
-  width: 100%;
-  max-width: 500px;
-}
-.label-box--new a:hover {
-  text-decoration: none;
 }
 
 .snippets {

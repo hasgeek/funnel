@@ -8,6 +8,7 @@ from . import (
     event,
     index,
     label,
+    membership,
     login,
     participant,
     profile,
