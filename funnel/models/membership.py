@@ -24,8 +24,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __role_columns__ = ()
     #: Parent column ('profile_id' or 'project_id' in the subclasses)
     __parent_column__ = None
-    #: Require timezones in timestamps
-    __with_timezone__ = True
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
