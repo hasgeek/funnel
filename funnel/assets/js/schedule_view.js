@@ -122,11 +122,11 @@ const Schedule = {
         },
         handleBrowserResize() {
           $(window).resize(() => {
-            scheduleUI.width = $(window).width();
-            scheduleUI.height = $(window).height();
+            this.width = $(window).width();
+            this.height = $(window).height();
 
-            if (scheduleUI.width < 768) {
-              scheduleUI.view = 'agenda';
+            if (this.width < 768) {
+              this.view = 'agenda';
             }
           });
         },
@@ -156,13 +156,13 @@ const Schedule = {
           }
 
           // On exiting the page, save page scroll position in session storage
-          window.onbeforeunload = function scrollOnPageLoad() {
+          $(window).bind('beforeunload', () => {
             const scrollDetails = {
-              pageTitle: scheduleUI.pageDetails.projectTitle,
+              pageTitle: this.pageDetails.projectTitle,
               scrollPosY: window.scrollY,
             };
             window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
-          };
+          });
         },
       },
       mounted() {
