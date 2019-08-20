@@ -24,7 +24,9 @@
           <input type="date" class="datetime-date" id="select-date" placeholder="yyy-mm-dd" value="">
         </div>
       </div>
-      <div id="calendar"></div>
+      <div id="calendar">
+        <p class="calendar-wrapper__heading mui--text-title ">To start adding sessions, select a date.</p>
+      </div>
     </div>
     <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
       <ul class="tab-container">
@@ -100,7 +102,7 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     <script type="text/javascript">
       var UPDATE_URL = "{{ project.url_for('update_schedule') }}";
-      var TIMEZONE = {{ timezone }} * 1000;
+      var TIMEZONEOFFSET = {{ timezone }} * 1000;
       var NEW_SESSION_URL = "{{ project.url_for('new_session') }}";
       var SETTINGS_UPDATE_URL = "{{ project.url_for('update_venue_settings') }}";
       var from_date = {%- if from_date -%} {{ from_date|tojson }} {%- else -%} '' {%- endif %};

@@ -37,26 +37,10 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
             'id': session.url_id,
             'title': session.title,
             # `start` and `end` are legacy
-            'start': (
-                localize_date(session.start_at, to_tz=session.project.timezone)
-                if session.scheduled
-                else None
-            ),
-            'end': (
-                localize_date(session.end_at, to_tz=session.project.timezone)
-                if session.scheduled
-                else None
-            ),
-            'start_at': (
-                localize_date(session.start_at, to_tz=session.project.timezone)
-                if session.scheduled
-                else None
-            ),
-            'end_at': (
-                localize_date(session.end_at, to_tz=session.project.timezone)
-                if session.scheduled
-                else None
-            ),
+            'start': session.start_at.isoformat() if session.scheduled else None,
+            'end': session.end_at.isoformat() if session.scheduled else None,
+            'start_at': session.start_at.isoformat() if session.scheduled else None,
+            'end_at': session.end_at.isoformat() if session.scheduled else None,
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': (
                 session.venue_room.scoped_name if session.venue_room else None
@@ -107,16 +91,13 @@ def date_js(d):
     return mktime(d.timetuple()) * 1000
 
 
-def schedule_data(project, slots=True, scheduled_sessions=None):
-    scheduled_sessions = scheduled_sessions or session_list_data(
-        project.scheduled_sessions
-    )
+def schedule_data(project, slots, scheduled_sessions):
     data = defaultdict(lambda: defaultdict(list))
     start_end_datetime = defaultdict(dict)
     for session in scheduled_sessions:
-        day = str(session['start_at'].date())
+        day = str(localize_date(session['start_at'], to_tz=project.timezone).date())
         if slots:
-            slot = session['start_at'].strftime('%H:%M')
+            slot = localize_date(session['start_at'], to_tz=project.timezone).strftime('%H:%M')
             data[day][slot].append(session)
         else:
             data[day] = {}
@@ -202,8 +183,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         )
         return {
             'project': self.obj,
-            'from_date': date_js(self.obj.schedule_start_at),
-            'to_date': date_js(self.obj.schedule_end_at),
+            'from_date': self.obj.schedule_start_at.isoformat() if self.obj.schedule_start_at else None,
+            'to_date': self.obj.schedule_end_at.isoformat() if self.obj.schedule_end_at else None,
             'sessions': scheduled_sessions_list,
             'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             'venues': [venue.current_access() for venue in self.obj.venues],
@@ -228,8 +209,9 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @cors('*')
     @requires_permission('view')
     def schedule_json(self):
+        scheduled_sessions_list = session_list_data(self.obj.scheduled_sessions)
         return jsonp(
-            schedule=schedule_data(self.obj),
+            schedule=schedule_data(self.obj, slots=True, scheduled_sessions=scheduled_sessions_list),
             venues=[venue.current_access() for venue in self.obj.venues],
             rooms=[room_data(room) for room in self.obj.rooms],
         )
@@ -274,8 +256,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'proposals': proposals,
-            'from_date': date_js(self.obj.schedule_start_at),
-            'to_date': date_js(self.obj.schedule_end_at),
+            'from_date': self.obj.schedule_start_at.isoformat() if self.obj.schedule_start_at else None,
+            'to_date': self.obj.schedule_end_at.isoformat() if self.obj.schedule_end_at else None,
             'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             'venues': [venue.current_access() for venue in self.obj.venues],
             'rooms': {

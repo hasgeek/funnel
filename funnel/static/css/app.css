@@ -2312,6 +2312,10 @@ html.touch .collapsible__body--disable {
   display: none;
 }
 
+.calendar-wrapper__heading {
+  margin-top: 70px;
+}
+
 .fc-event .fc-event-custom {
   position: absolute;
   bottom: 0px;

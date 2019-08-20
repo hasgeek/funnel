@@ -40,7 +40,7 @@ $(function() {
     var settings = function() {
         var settings = {
             editable: EDIT_EVENTS,
-            timezone: TIMEZONE,
+            timezoneOffset: TIMEZONEOFFSET,
             container: $('#settings'),
             color_form: $('#room_colors'),
             onColorChange: function(color) {
@@ -545,11 +545,11 @@ $(function() {
                 }
             },
             to_project_timezone: function(dt) {
-                dt = new Date(dt.valueOf() + dt.getTimezoneOffset() * 60000 + settings.timezone);
+                dt = new Date(dt.valueOf() + dt.getTimezoneOffset() * 60000 + settings.timezoneOffset);
                 return dt;
             },
             from_project_timezone: function(dt) {
-                dt = new Date(dt.valueOf() - dt.getTimezoneOffset() * 60000 - settings.timezone);
+                dt = new Date(dt.valueOf() - dt.getTimezoneOffset() * 60000 - settings.timezoneOffset);
                 return dt;
             }
         };
@@ -665,10 +665,12 @@ $(function() {
     });
 
     (function () {
-        // On the datepicker, set the current date if from_date is not available
-        var startDate = from_date ? new Date(from_date) : new Date();
-        document.getElementById("select-date").value = startDate.getFullYear() + '-' + ('0' + (startDate.getMonth() + 1)).slice(-2) + '-' + ('0' + startDate.getDate()).slice(-2);
-        $('#select-date').trigger("change");
+        if(from_date) {
+            var fromdate = new Date(from_date);
+            var startDate = new Date(fromdate.valueOf() + fromdate.getTimezoneOffset() * 60000 + TIMEZONEOFFSET);
+            document.getElementById("select-date").value = startDate.getFullYear() + '-' + ('0' + (startDate.getMonth() + 1)).slice(-2) + '-' + ('0' + startDate.getDate()).slice(-2);
+            $('#select-date').trigger("change");
+        }
     })();
 
 

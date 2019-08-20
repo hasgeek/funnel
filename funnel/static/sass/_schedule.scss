@@ -330,6 +330,9 @@ and (orientation: landscape) {
 .calendar-wrapper .fc-header-title {
   display: none;
 }
+.calendar-wrapper__heading {
+  margin-top: 70px;
+}
 .fc-event .fc-event-custom {
   position: absolute;
   bottom: 0px;
