@@ -249,7 +249,8 @@ const Schedule = {
       /* new Date().getTimezoneOffset() - the time difference
          between UTC and browser timezone in minutes
       */
-      return (new Date().getTimezoneOffset() * 60000 + this.timezoneOffset);
+      const jsDate = new Date();
+      return (jsDate.getTimezoneOffset() * 60000 + this.timezoneOffset);
     },
     getEventDay(eventDate, eventDayshash) {
       const day = this.getEventDate(eventDate);
@@ -260,7 +261,7 @@ const Schedule = {
       return date.getDate();
     },
     getTime(dateTime) {
-      return new Date(dateTime + this.getTimeZoneOffset()).getTime();
+      return new Date(new Date(dateTime).getTime() + this.getTimeZoneOffset()).getTime();
     },
     getDateString(eventDate) {
       return new Date(this.getTime(eventDate)).toDateString();
