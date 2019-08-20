@@ -161,15 +161,10 @@
   min-height: 150px;
 }
 
-.card__body--new {
-  min-height: 194px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  .new-btn:hover {
-    text-decoration: none;
-  }
+.card--new {
+  margin: 15px auto;
+  width: 100%;
+  max-width: 500px;
 }
 
 .card--small {

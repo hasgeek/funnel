@@ -257,3 +257,20 @@ html.touch .collapsible__body--disable {
 .mui-btn--nostyle {
   background: none;
 }
+
+.details-box {
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.details-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.details-box__item {
+  width: 30%;
+}
