@@ -112,16 +112,15 @@ def date_js(d):
     return mktime(d.timetuple()) * 1000
 
 
-def schedule_data(project, slots, scheduled_sessions):
+def schedule_data(project, slots=True, scheduled_sessions=None):
+    scheduled_sessions = scheduled_sessions or session_list_data(
+        project.scheduled_sessions
+    )
     data = defaultdict(lambda: defaultdict(list))
     start_end_datetime = defaultdict(dict)
     for session in scheduled_sessions:
         day = str(session['start_at'].date())
-        if slots:
-            slot = session['start_at'].strftime('%H:%M')
-            data[day][slot].append(session)
-        else:
-            data[day] = {}
+        # calculate the start and end time for the day
         if 'start_at' not in start_end_datetime[day]:
             start_end_datetime[day]['start_at'] = session['start_at']
         if (
@@ -129,6 +128,14 @@ def schedule_data(project, slots, scheduled_sessions):
             or session['end_at'] > start_end_datetime[day]['end_at']
         ):
             start_end_datetime[day]['end_at'] = session['end_at']
+
+        if slots:
+            slot = session['start_at'].strftime('%H:%M')
+            session['start_at'] = session['start_at'].isoformat()
+            session['end_at'] = session['end_at'].isoformat()
+            data[day][slot].append(session)
+        else:
+            data[day] = {}
     schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
