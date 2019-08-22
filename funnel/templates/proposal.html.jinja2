@@ -133,7 +133,7 @@
               {%- endif %}
               {% if proposal.current_roles.admin %}
                 {%- if proposal_move_form %}
-                  {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
+                  {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Copy" if proposal.session else "Move", style='horiz') }}
                 {%- endif %}
                 {%- if proposal_transfer_form %}
                   {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit="Transfer", style='horiz') }}

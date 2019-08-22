@@ -263,6 +263,12 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         lambda proposal: proposal.session is not None and proposal.session.scheduled,
         label=('scheduled', __("Confirmed & Scheduled")),
     )
+    state.add_conditional_state(
+        'MOVABLE',
+        state.DELETABLE,
+        lambda proposal: proposal.session is None,
+        label=('movable', __("Movable")),
+    )
 
     @with_roles(call={'speaker', 'proposer'})
     @state.transition(
@@ -425,7 +431,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             project=project,
             email=self.email,
             phone=self.phone,
-            bio=self.bio,  # section=?
+            bio=self.bio,
             objective=self.objective,
             part_a=self.part_a,
             session_type=self.session_type,
