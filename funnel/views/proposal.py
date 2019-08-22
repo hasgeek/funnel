@@ -315,21 +315,22 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             if target_project != self.obj.project:
                 if self.obj.state.MOVABLE:
                     self.obj.current_access().move_to(target_project)
+                    new_proposal = self.obj
                 else:
-                    proposal = self.obj.current_access().copy_to(
+                    new_proposal = self.obj.current_access().copy_to(
                         target_project, current_auth.user
                     )
-                    db.session.commit()
 
-                    flash(
-                        _(
-                            "This proposal has been moved to {project}.".format(
-                                project=target_project.title
-                            )
-                        ),
-                        'success',
-                    )
-                    return redirect(proposal.url_for(), 303)
+                db.session.commit()
+                flash(
+                    _(
+                        "This proposal has been moved to {project}.".format(
+                            project=target_project.title
+                        )
+                    ),
+                    'success',
+                )
+                return redirect(new_proposal.url_for(), 303)
         else:
             flash(
                 _("Please choose the project you want to move this proposal to."),
