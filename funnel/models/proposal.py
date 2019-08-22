@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for, abort
-from . import (
-    db,
-    TimestampMixin,
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    MarkdownColumn,
-    JsonDict,
-    CoordinatesMixin,
-)
-from .user import User
-from .project import Project
-from .section import Section
-from .commentvote import Commentset, Voteset, SET_TYPE
-from coaster.utils import LabeledEnum
-from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
-from baseframe import __
 from sqlalchemy.ext.hybrid import hybrid_property
-from flask import request
-from pytz import timezone, utc, UnknownTimeZoneError
+
 from werkzeug.utils import cached_property
+
+from baseframe import __
+from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
+from coaster.utils import LabeledEnum
+
 from ..util import geonameid_from_location
+from . import (
+    BaseScopedIdNameMixin,
+    CoordinatesMixin,
+    MarkdownColumn,
+    TimestampMixin,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+)
+from .commentvote import SET_TYPE, Commentset, Voteset
+from .helpers import add_search_trigger
+from .project import Project
+from .user import User
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
@@ -31,7 +32,7 @@ _marker = object()
 # --- Constants ------------------------------------------------------------------
 
 
-class PROPOSAL_STATE(LabeledEnum):
+class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
     # Draft-state for future use, so people can save their proposals and submit only when ready
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __("Draft"))
@@ -88,49 +89,11 @@ class PROPOSAL_STATE(LabeledEnum):
         AWAITING_DETAILS,
         UNDER_EVALUATION,
     }
-    UNDO_TO_SUBMITTED = {AWAITING_DETAILS, UNDER_EVALUATION}
+    UNDO_TO_SUBMITTED = {AWAITING_DETAILS, UNDER_EVALUATION, REJECTED}
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
 
 
 # --- Models ------------------------------------------------------------------
-
-
-class ProposalFormData(object):
-    """
-    Form data access helper for custom fields
-    """
-
-    def __init__(self, proposal):
-        self.__dict__['proposal'] = proposal
-        self.__dict__['data'] = proposal.data
-
-    def __getattr__(self, attr, default=_marker):
-        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
-            raise AttributeError("Invalid attribute: %s" % attr)
-
-        if default is _marker:
-            try:
-                if hasattr(self.proposal, attr):
-                    return getattr(self.proposal, attr)
-                return self.data[attr]
-            except KeyError:
-                raise AttributeError(attr)
-        else:
-            if hasattr(self.proposal, attr):
-                return getattr(self.proposal, attr, default)
-            return self.data.get(attr, default)
-
-    def __setattr__(self, attr, value):
-        if attr in self.proposal.__invalid_fields__ or attr.startswith('_'):
-            raise AttributeError("Invalid attribute: %s" % attr)
-
-        if hasattr(self.proposal, attr):
-            if attr in self.proposal.__valid_fields__:
-                setattr(self.proposal, attr, value)
-            else:
-                raise AttributeError("Cannot set attribute: %s" % attr)
-        else:
-            self.data[attr] = value
 
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
@@ -162,19 +125,11 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     )
     parent = db.synonym('project')
 
-    section_id = db.Column(None, db.ForeignKey('section.id'), nullable=True)
-    section = db.relationship(
-        Section, primaryjoin=section_id == Section.id, backref="proposals"
-    )
-    objective = MarkdownColumn('objective', nullable=True)
-    part_a = db.synonym('objective')
-    session_type = db.Column(db.Unicode(40), nullable=True)
-    technical_level = db.Column(db.Unicode(40), nullable=True)
-    description = MarkdownColumn('description', nullable=True)
-    part_b = db.synonym('description')
+    abstract = MarkdownColumn('abstract', nullable=True)
+    outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
-    slides = db.Column(db.Unicode(2000), nullable=True)
-    preview_video = db.Column(db.Unicode(2000), default=u'', nullable=True)
+    slides = db.Column(UrlType, nullable=True)
+    preview_video = db.Column(UrlType, default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
     _state = db.Column(
@@ -202,63 +157,83 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         lazy='joined',
         cascade='all, delete-orphan',
         single_parent=True,
+        backref=db.backref('proposal', uselist=False),
     )
 
-    edited_at = db.Column(db.DateTime, nullable=True)
+    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
 
-    # Additional form data
-    data = db.Column(JsonDict, nullable=False, server_default='{}')
-
-    __table_args__ = (db.UniqueConstraint('project_id', 'url_id'),)
-
-    # XXX: The following two may overlap. Reconsider whether both are needed
-
-    # Allow these fields to be set on the proposal by custom forms
-    __valid_fields__ = (
-        'title',
-        'speaker',
-        'speaking',
-        'email',
-        'phone',
-        'bio',
-        'section',
-        'objective',
-        'session_type',
-        'technical_level',
-        'description',
-        'requirements',
-        'slides',
-        'preview_video',
-        'links',
-        'location',
-        'latitude',
-        'longitude',
-        'coordinates',
+    search_vector = db.deferred(
+        db.Column(
+            TSVectorType(
+                'title',
+                'abstract_text',
+                'outline_text',
+                'requirements_text',
+                'slides',
+                'preview_video',
+                'links',
+                'bio_text',
+                weights={
+                    'title': 'A',
+                    'abstract_text': 'B',
+                    'outline_text': 'B',
+                    'requirements_text': 'B',
+                    'slides': 'B',
+                    'preview_video': 'C',
+                    'links': 'B',
+                    'bio_text': 'B',
+                },
+                regconfig='english',
+                hltext=lambda: db.func.concat_ws(
+                    ' / ',
+                    Proposal.title,
+                    Proposal.abstract_html,
+                    Proposal.outline_html,
+                    Proposal.requirements_html,
+                    Proposal.links,
+                    Proposal.bio_html,
+                ),
+            ),
+            nullable=False,
+        )
     )
-    # Never allow these fields to be set on the proposal or proposal.data by custom forms
-    __invalid_fields__ = (
-        'id',
-        'name',
-        'url_id',
-        'user_id',
-        'user',
-        'speaker_id',
-        'project_id',
-        'project',
-        'parent',
-        'voteset_id',
-        'voteset',
-        'commentset_id',
-        'commentset',
-        'edited_at',
-        'data',
+
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'url_id'),
+        db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'title',
+                'user',
+                'speaker',
+                'speaking',
+                'bio',
+                'abstract',
+                'outline',
+                'requirements',
+                'slides',
+                'preview_video',
+                'links',
+                'location',
+                'latitude',
+                'longitude',
+                'coordinates',
+                'session',
+                'project',
+            },
+            'call': {'url_for'},
+        },
+        'reviewer': {'read': {'email', 'phone'}},
+    }
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
-        self.voteset = Voteset(type=SET_TYPE.PROPOSAL)
-        self.commentset = Commentset(type=SET_TYPE.PROPOSAL)
+        self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
+        self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
 
     def __repr__(self):
         return u'<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
@@ -285,14 +260,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     state.add_conditional_state(
         'SCHEDULED',
         state.CONFIRMED,
-        lambda proposal: proposal.session is not None,
+        lambda proposal: proposal.session is not None and proposal.session.scheduled,
         label=('scheduled', __("Confirmed & Scheduled")),
-    )
-    state.add_conditional_state(
-        'MOVABLE',
-        state.DELETABLE,
-        lambda proposal: proposal.session is None,
-        label=('movable', __("Movable")),
     )
 
     @with_roles(call={'speaker', 'proposer'})
@@ -472,9 +441,11 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         db.session.add(new_proposal)
         return new_proposal
 
-    @property
-    def formdata(self):
-        return ProposalFormData(self)
+    def transfer_to(self, user):
+        """
+        Transfer the proposal to a new user and speaker
+        """
+        self.speaker = user
 
     @property
     def owner(self):
@@ -509,6 +480,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return (
             Proposal.query.filter(Proposal.project == self.project)
             .filter(Proposal.id != self.id)
+            .filter(Proposal._state == self.state.value)
             .filter(Proposal.created_at < self.created_at)
             .order_by(db.desc('created_at'))
             .first()
@@ -518,6 +490,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return (
             Proposal.query.filter(Proposal.project == self.project)
             .filter(Proposal.id != self.id)
+            .filter(Proposal._state == self.state.value)
             .filter(Proposal.created_at > self.created_at)
             .order_by('created_at')
             .first()
@@ -526,57 +499,15 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def votes_count(self):
         return len(self.voteset.votes)
 
-    def votes_by_group(self):
-        votes_groups = dict([(group.name, 0) for group in self.project.usergroups])
-        groupuserids = dict(
-            [
-                (group.name, [user.userid for user in group.users])
-                for group in self.project.usergroups
-            ]
-        )
-        for vote in self.voteset.votes:
-            for groupname, userids in groupuserids.items():
-                if vote.user.userid in userids:
-                    votes_groups[groupname] += -1 if vote.votedown else +1
-        return votes_groups
-
-    def votes_by_date(self):
-        if 'tz' in request.args:
-            try:
-                tz = timezone(request.args['tz'])
-            except UnknownTimeZoneError:
-                abort(400)
-        else:
-            tz = None
-        votes_bydate = dict([(group.name, {}) for group in self.project.usergroups])
-        groupuserids = dict(
-            [
-                (group.name, [user.userid for user in group.users])
-                for group in self.project.usergroups
-            ]
-        )
-        for vote in self.voteset.votes:
-            for groupname, userids in groupuserids.items():
-                if vote.user.userid in userids:
-                    if tz:
-                        date = tz.normalize(
-                            vote.updated_at.replace(tzinfo=utc).astimezone(tz)
-                        ).strftime('%Y-%m-%d')
-                    else:
-                        date = vote.updated_at.strftime('%Y-%m-%d')
-                    votes_bydate[groupname].setdefault(date, 0)
-                    votes_bydate[groupname][date] += -1 if vote.votedown else +1
-        return votes_bydate
-
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
-            perms.update(['vote-proposal', 'new-comment', 'vote-comment'])
+            perms.update(['vote_proposal', 'new_comment', 'vote_comment'])
             if user == self.owner:
                 perms.update(
                     [
                         'view-proposal',
-                        'edit-proposal',
+                        'edit_proposal',
                         'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
                         'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                         'transfer-proposal',
@@ -586,14 +517,12 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                     perms.add('decline-proposal')  # Decline speaking
         return perms
 
-    # Roles
-
     def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
-        if self.speaker and self.speaker == actor:
-            roles.add('speaker')
-        if self.user and self.user == actor:
-            roles.add('proposer')
+        if self.owner == actor:
+            roles.update({'owner', 'speaker', 'proposer'})
+        if self.user == actor:
+            roles.add('creator')
         roles.update(self.project.roles_for(actor, anchors))
         if self.state.DRAFT and 'reader' in roles:
             roles.remove(
@@ -601,115 +530,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             )  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
 
-    def url_for(self, action='view', _external=False, **kwargs):
-        if action == 'view':
-            return url_for(
-                'proposal_view',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'json':
-            return url_for(
-                'proposal_json',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'edit':
-            return url_for(
-                'proposal_edit',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'delete':
-            return url_for(
-                'proposal_delete',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'voteup':
-            return url_for(
-                'proposal_voteup',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'votedown':
-            return url_for(
-                'proposal_votedown',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'votecancel':
-            return url_for(
-                'proposal_cancelvote',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'next':
-            return url_for(
-                'proposal_next',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'prev':
-            return url_for(
-                'proposal_prev',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'schedule':
-            return url_for(
-                'proposal_schedule',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'transition':
-            return url_for(
-                'proposal_transition',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
-        elif action == 'move-to':
-            return url_for(
-                'proposal_moveto',
-                profile=self.project.profile.name,
-                project=self.project.name,
-                proposal=self.url_name,
-                _external=_external,
-                **kwargs
-            )
+
+add_search_trigger(Proposal, 'search_vector')
 
 
 class ProposalRedirect(TimestampMixin, db.Model):
@@ -742,7 +564,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
         return unicode(self.url_id)
 
     @url_id_name.comparator
-    def url_id_name(cls):
+    def url_id_name(cls):  # NOQA: N805
         return SqlSplitIdComparator(cls.url_id, splitindex=0)
 
     url_name = url_id_name  # Legacy name

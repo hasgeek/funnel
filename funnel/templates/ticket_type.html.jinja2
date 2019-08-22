@@ -3,6 +3,11 @@
 {% block pageheaders %}
 {% endblock %}
 
+{% block top_title %}
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
+  <p class="mui--text-body1"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in"><i class="material-icons mui--text-body2 mui--align-bottom" aria-hidden="true">keyboard_backspace</i> {% trans %}Back to setup events{% endtrans %}</a></p>
+{% endblock %}
+
 {% block contentwrapper %}
   <div class="grid">
     <div class="grid__col-xs-6">
@@ -13,15 +18,7 @@
         Total: {{participants | length}}
       </h3>
     </div>
-    <div class="grid__col-xs-6 grid__col-md-4">
-      <form class="search-participant mui-form">
-        <div class="mui-textfield mui-textfield--float-label">
-          <input autofocus class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label>Search</label>
-        </div>
-      </form>
-    </div>
-    <div class="grid__col-xs-12">
+    <div class="grid__col-xs-12 mui-table--responsive-wrapper">
       <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
         <thead>
           <tr>
@@ -33,9 +30,9 @@
         <tbody>
           {%- for p in participants %}
             <tr id="p-{{ p.id }}">
-              <td class='js-searchable'>{{ p.fullname }}</td>
-              <td class='js-searchable'>{{ p.email }}</td>
-              <td class='js-searchable'>{{ p.company }}</td>
+              <td class='js-searchable' data-th="Name">{{ p.fullname }}</td>
+              <td class='js-searchable' data-th="Email">{{ p.email }}</td>
+              <td class='js-searchable' data-th="Company">{{ p.company }}</td>
             </tr>
           {%- endfor %}
         </tbody>
@@ -44,16 +41,4 @@
   </div>
 {% endblock %}
 {% block footerscripts %}
-<script type="text/javascript">
-  $(document).ready(function() {
-    var tableSearch = new window.TableSearch('participants-table');
-
-    $('input#search').keyup(function(e){
-      $('#participants-table tbody tr').addClass('mui--hide');
-      var hits = tableSearch.searchRows($(this).val());
-      $(hits.join(",")).removeClass('mui--hide');
-    });
-
-  });
-</script>
 {% endblock %}

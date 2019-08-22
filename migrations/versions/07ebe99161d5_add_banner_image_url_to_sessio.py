@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add banner_image_url field to session
 
 Revision ID: 07ebe99161d5
@@ -11,12 +13,13 @@ revision = '07ebe99161d5'
 down_revision = '60a132ae73f1'
 
 from alembic import op
-import sqlalchemy as sa
-
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('session', sa.Column('banner_image_url', sa.Unicode(length=2000), nullable=True))
+    op.add_column(
+        'session', sa.Column('banner_image_url', sa.Unicode(length=2000), nullable=True)
+    )
 
 
 def downgrade():

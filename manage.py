@@ -1,10 +1,10 @@
 #! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from coaster.manage import init_manager
-
-from funnel import app, models
-
+from funnel import app, funnelapp, models
 
 if __name__ == "__main__":
-    manager = init_manager(app, models.db)
+    models.db.app = app
+    manager = init_manager(app, models.db, models=models, funnelapp=funnelapp)
     manager.run()

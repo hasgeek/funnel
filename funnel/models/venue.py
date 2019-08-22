@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from flask import url_for
-from . import db, BaseScopedNameMixin, MarkdownColumn, CoordinatesMixin
-from .project import Project
+from sqlalchemy.ext.orderinglist import ordering_list
 
+from coaster.sqlalchemy import add_primary_relationship
+
+from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db
+from .project import Project
 
 __all__ = ['Venue', 'VenueRoom']
 
 
-class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
+class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'venue'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(Project,
-        backref=db.backref('venues', cascade='all, delete-orphan', order_by='Venue.name'))
+    project = db.relationship(Project)
     parent = db.synonym('project')
     description = MarkdownColumn('description', default=u'', nullable=False)
     address1 = db.Column(db.Unicode(160), default=u'', nullable=False)
@@ -23,37 +24,99 @@ class Venue(BaseScopedNameMixin, CoordinatesMixin, db.Model):
     postcode = db.Column(db.Unicode(20), default=u'', nullable=False)
     country = db.Column(db.Unicode(2), default=u'', nullable=False)
 
+    rooms = db.relationship(
+        'VenueRoom',
+        cascade='all, delete-orphan',
+        order_by='VenueRoom.seq',
+        collection_class=ordering_list('seq', count_from=1),
+    )
+
+    seq = db.Column(db.Integer, nullable=False)
+
     __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
-    def url_for(self, action='new', _external=False):
-        if action == 'new-room':
-            return url_for('venueroom_new', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
-        elif action == 'delete':
-            return url_for('venue_delete', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
-        elif action == 'edit':
-            return url_for('venue_edit', profile=self.project.profile.name, project=self.project.name, venue=self.name, _external=_external)
+    __roles__ = {
+        'all': {
+            'read': {
+                'id',
+                'name',
+                'title',
+                'description',
+                'address1',
+                'address2',
+                'city',
+                'state',
+                'postcode',
+                'country',
+                'project_details',
+                'room_list',
+                'seq',
+                'suuid',
+                'latitude',
+                'longitude',
+                'has_coordinates',
+            }
+        }
+    }
+
+    @property
+    def project_details(self):
+        return {
+            'name': self.project.name,
+            'title': self.project.title,
+            'suuid': self.project.suuid,
+        }
+
+    @property
+    def room_list(self):
+        return [room.current_access() for room in self.rooms]
 
 
-class VenueRoom(BaseScopedNameMixin, db.Model):
+class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'venue_room'
 
     venue_id = db.Column(None, db.ForeignKey('venue.id'), nullable=False)
-    venue = db.relationship(Venue,
-        backref=db.backref('rooms', cascade='all, delete-orphan', order_by='VenueRoom.name'))
+    venue = db.relationship(Venue)
     parent = db.synonym('venue')
     description = MarkdownColumn('description', default=u'', nullable=False)
     bgcolor = db.Column(db.Unicode(6), nullable=False, default=u'229922')
 
+    seq = db.Column(db.Integer, nullable=False)
+
+    scheduled_sessions = db.relationship(
+        "Session",
+        primaryjoin='and_(Session.venue_room_id == VenueRoom.id, Session.scheduled)',
+    )
+
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'id',
+                'name',
+                'title',
+                'description',
+                'bgcolor',
+                'seq',
+                'venue_details',
+                'scoped_name',
+                'suuid',
+            }
+        }
+    }
+
+    @property
+    def venue_details(self):
+        return {
+            'name': self.venue.name,
+            'title': self.venue.title,
+            'suuid': self.venue.suuid,
+        }
 
     @property
     def scoped_name(self):
         return u'{parent}/{name}'.format(parent=self.parent.name, name=self.name)
 
-    def url_for(self, action='new', _external=False):
-        if action == 'delete':
-            return url_for('venueroom_delete', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external)
-        if action == 'ical-schedule':
-            return url_for('schedule_room_ical', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external).replace('https', 'webcal').replace('http', 'webcal')
-        elif action == 'edit':
-            return url_for('venueroom_edit', profile=self.venue.project.profile.name, project=self.venue.project.name, venue=self.venue.name, room=self.name, _external=_external)
+
+add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')

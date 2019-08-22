@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ProposalSpace explore URL
 
 Revision ID: 523c53593e3c
@@ -11,11 +13,14 @@ revision = '523c53593e3c'
 down_revision = '14d7082476c0'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('explore_url', sa.Unicode(length=250), nullable=True))
+    op.add_column(
+        'proposal_space',
+        sa.Column('explore_url', sa.Unicode(length=250), nullable=True),
+    )
 
 
 def downgrade():

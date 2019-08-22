@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import g, flash, redirect, render_template
-from coaster.views import get_next_url
+from flask import flash, g, redirect, render_template
+
 from baseframe import _
+from coaster.views import get_next_url
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile
+from ..models import Profile, db
 
 
 @app.route('/login')
@@ -27,7 +28,9 @@ def logout():
 @funnelapp.route('/login/redirect')
 @lastuser.auth_handler
 def lastuserauth():
-    Profile.update_from_user(g.user, db.session, make_user_profiles=False, make_org_profiles=False)
+    Profile.update_from_user(
+        g.user, db.session, make_user_profiles=False, make_org_profiles=False
+    )
     db.session.commit()
     return redirect(get_next_url())
 
@@ -36,7 +39,9 @@ def lastuserauth():
 @funnelapp.route('/login/notify', methods=['POST'])
 @lastuser.notification_handler
 def lastusernotify(user):
-    Profile.update_from_user(user, db.session, make_user_profiles=False, make_org_profiles=False)
+    Profile.update_from_user(
+        user, db.session, make_user_profiles=False, make_org_profiles=False
+    )
     db.session.commit()
 
 
@@ -45,7 +50,9 @@ def lastuser_error(error, error_description=None, error_uri=None):
     if error == 'access_denied':
         flash("You denied the request to login", category='error')
         return redirect(get_next_url())
-    return render_template("autherror.html.jinja2",
+    return render_template(
+        "autherror.html.jinja2",
         error=error,
         error_description=error_description,
-        error_uri=error_uri)
+        error_uri=error_uri,
+    )

@@ -21,3 +21,7 @@ funnel/static/gen
 *.gz
 *.bz2
 .pytest_cache
+.vscode
+node_modules
+funnel/static/build
+funnel/static/service-worker.js

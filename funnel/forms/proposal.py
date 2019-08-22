@@ -1,83 +1,229 @@
 # -*- coding: utf-8 -*-
 
-from baseframe import __
-import baseframe.forms as forms
 from flask import g
+
+from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
-from ..models import Project, Profile, Proposal
+import baseframe.forms as forms
 
-__all__ = ['TransferProposal', 'ProposalForm', 'ProposalTransitionForm', 'ProposalMoveForm']
+from ..models import Profile, Project
+
+__all__ = [
+    'ProposalForm',
+    'ProposalLabelsAdminForm',
+    'ProposalLabelsForm',
+    'ProposalMoveForm',
+    'ProposalTransferForm',
+    'ProposalTransitionForm',
+]
 
 
-class TransferProposal(forms.Form):
-    userid = forms.UserSelectField(__("Transfer to"), validators=[forms.validators.DataRequired()])
+def proposal_label_form(project, proposal):
+    """Return a label form for the given project and proposal."""
+
+    class ProposalLabelForm(forms.Form):
+        pass
+
+    for label in project.labels:
+        if label.has_options and not label.archived and not label.restricted:
+            setattr(
+                ProposalLabelForm,
+                label.name,
+                forms.RadioField(
+                    label.form_label_text,
+                    description=label.description,
+                    validators=(
+                        [forms.validators.DataRequired(__("Please select one"))]
+                        if label.required
+                        else []
+                    ),
+                    choices=[
+                        (option.name, option.title)
+                        for option in label.options
+                        if not option.archived
+                    ],
+                ),
+            )
+
+    return ProposalLabelForm(
+        obj=proposal.formlabels if proposal else None, meta={'csrf': False}
+    )
+
+
+def proposal_label_admin_form(project, proposal):
+    """
+    Returns a label form to use in admin panel for given project and proposal
+    """
+
+    class ProposalLabelAdminForm(forms.Form):
+        pass
+
+    for label in project.labels:
+        if not label.archived and (label.restricted or not label.has_options):
+            form_kwargs = {}
+            if label.has_options:
+                field_type = forms.RadioField
+                form_kwargs['choices'] = [
+                    (option.name, option.title)
+                    for option in label.options
+                    if not option.archived
+                ]
+            else:
+                field_type = forms.BooleanField
+
+            setattr(
+                ProposalLabelAdminForm,
+                label.name,
+                field_type(
+                    label.form_label_text,
+                    description=label.description,
+                    validators=(
+                        [forms.validators.DataRequired(__("Please select one"))]
+                        if label.required
+                        else []
+                    ),
+                    **form_kwargs
+                ),
+            )
+
+    return ProposalLabelAdminForm(
+        obj=proposal.formlabels if proposal else None, meta={'csrf': False}
+    )
+
+
+class ProposalTransferForm(forms.Form):
+    user = forms.UserSelectField(
+        __("Transfer to"),
+        description=__("Transfer this proposal to another speaker"),
+        validators=[forms.validators.DataRequired()],
+    )
+
+
+class ProposalLabelsForm(forms.Form):
+    formlabels = forms.FormField(forms.Form, __("Labels"))
+
+    def set_queries(self):
+        self.formlabels.form = proposal_label_form(
+            project=self.edit_parent, proposal=self.edit_obj
+        )
+
+
+class ProposalLabelsAdminForm(forms.Form):
+    formlabels = forms.FormField(forms.Form, __("Labels"))
+
+    def set_queries(self):
+        self.formlabels.form = proposal_label_admin_form(
+            project=self.edit_parent, proposal=self.edit_obj
+        )
 
 
 class ProposalForm(forms.Form):
-    speaking = forms.RadioField(__("Are you speaking?"), coerce=int,
-        choices=[(1, __(u"I will be speaking")),
-                 (0, __(u"I’m proposing a topic for someone to speak on"))])
-    title = forms.StringField(__("Title"), validators=[forms.validators.DataRequired()],
-        description=__("The title of your session"))
-    section = QuerySelectField(__("Section"), get_label='title', validators=[forms.validators.DataRequired()],
-        widget=forms.ListWidget(prefix_label=False), option_widget=forms.RadioInput())
-    objective = forms.MarkdownField(__("Objective"), validators=[forms.validators.DataRequired()],
-        description=__("What is the expected benefit for someone attending this?"))
-    session_type = forms.RadioField(__("Session type"), validators=[forms.validators.DataRequired()], choices=[
-        ('Lecture', __("Lecture")),
-        ('Demo', __("Demo")),
-        ('Tutorial', __("Tutorial")),
-        ('Workshop', __("Workshop")),
-        ('Discussion', __("Discussion")),
-        ('Panel', __("Panel")),
-        ])
-    technical_level = forms.RadioField(__("Technical level"), validators=[forms.validators.DataRequired()], choices=[
-        ('Beginner', __("Beginner")),
-        ('Intermediate', __("Intermediate")),
-        ('Advanced', __("Advanced")),
-        ])
-    description = forms.MarkdownField(__("Description"), validators=[forms.validators.DataRequired()],
-        description=__("A detailed description of the session"))
-    requirements = forms.MarkdownField(__("Requirements"),
-        description=__("For workshops, what must participants bring to the session?"))
-    slides = forms.URLField(__("Slides"),
-        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
-        description=__("Link to your slides. These can be just an outline initially. "
-            "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"))
-    preview_video = forms.URLField(__("Preview Video"),
-        validators=[forms.validators.Optional(), forms.validators.URL(), forms.validators.Length(max=2000)],
-        description=__("Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
-            "If you provide a YouTube/Vimeo link, we'll embed it in the page"))
-    links = forms.TextAreaField(__("Links"),
-        description=__("Other links, one per line. Provide links to your profile and "
+    speaking = forms.RadioField(
+        __("Are you speaking?"),
+        coerce=int,
+        choices=[
+            (1, __(u"I will be speaking")),
+            (0, __(u"I’m proposing a topic for someone to speak on")),
+        ],
+    )
+    title = forms.StringField(
+        __("Title"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
+        description=__("The title of your session"),
+    )
+    abstract = forms.MarkdownField(
+        __("Abstract"),
+        validators=[forms.validators.DataRequired()],
+        description=__(
+            "A brief description of your session with target audience and key takeaways"
+        ),
+    )
+    outline = forms.MarkdownField(
+        __("Outline"),
+        validators=[forms.validators.DataRequired()],
+        description=__(
+            "A detailed description of the session with the sequence of ideas to be presented"
+        ),
+    )
+    requirements = forms.MarkdownField(
+        __("Requirements"),
+        description=__("For workshops, what must participants bring to the session?"),
+    )
+    slides = forms.URLField(
+        __("Slides"),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.URL(),
+            forms.validators.ValidUrl(),
+        ],
+        description=__(
+            "Link to your slides. These can be just an outline initially. "
+            "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"
+        ),
+    )
+    preview_video = forms.URLField(
+        __("Preview Video"),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.URL(),
+            forms.validators.ValidUrl(),
+        ],
+        description=__(
+            "Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
+            "If you provide a YouTube/Vimeo link, we'll embed it in the page"
+        ),
+    )
+    links = forms.TextAreaField(
+        __("Links"),
+        description=__(
+            "Other links, one per line. Provide links to your profile and "
             "slides and videos from your previous sessions; anything that'll help "
-            "folks decide if they want to attend your session"))
-    bio = forms.MarkdownField(__("Speaker bio"), validators=[forms.validators.DataRequired()],
-        description=__("Tell us why you are the best person to be taking this session"))
-    email = forms.EmailField(__("Your email address"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
-        description=__("An email address we can contact you at. "
-            "Not displayed anywhere"))
-    phone = forms.StringField(__("Phone number"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
-        description=__("A phone number we can call you at to discuss your proposal, if required. "
-            "Will not be displayed"))
-    location = forms.StringField(__("Your location"), validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
-        description=__("Your location, to help plan for your travel if required"))
+            "folks decide if they want to attend your session"
+        ),
+    )
+    bio = forms.MarkdownField(
+        __("Speaker bio"),
+        validators=[forms.validators.DataRequired()],
+        description=__("Tell us why you are the best person to be taking this session"),
+    )
+    email = forms.EmailField(
+        __("Your email address"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=80),
+            forms.validators.ValidEmail(),
+        ],
+        description=__(
+            "An email address we can contact you at. " "Not displayed anywhere"
+        ),
+    )
+    phone = forms.StringField(
+        __("Phone number"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+        description=__(
+            "A phone number we can call you at to discuss your proposal, if required. "
+            "Will not be displayed"
+        ),
+    )
+    location = forms.StringField(
+        __("Your location"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+        description=__("Your location, to help plan for your travel if required"),
+    )
 
-    def __init__(self, *args, **kwargs):
-        super(ProposalForm, self).__init__(*args, **kwargs)
-        project = kwargs.get('parent')
-        if project.proposal_part_a.get('title'):
-            self.objective.label.text = project.proposal_part_a.get('title')
-        if project.proposal_part_a.get('hint'):
-            self.objective.description = project.proposal_part_a.get('hint')
-        if project.proposal_part_b.get('title'):
-            self.description.label.text = project.proposal_part_b.get('title')
-        if project.proposal_part_b.get('hint'):
-            self.description.description = project.proposal_part_b.get('hint')
+    formlabels = forms.FormField(forms.Form, __("Labels"))
+
+    def set_queries(self):
+        self.formlabels.form = proposal_label_form(
+            project=self.edit_parent, proposal=self.edit_obj
+        )
 
 
 class ProposalTransitionForm(forms.Form):
-    transition = forms.SelectField(__("Status"), validators=[forms.validators.DataRequired()])
+    transition = forms.SelectField(
+        __("Status"), validators=[forms.validators.DataRequired()]
+    )
 
     def set_queries(self):
         """
@@ -89,12 +235,20 @@ class ProposalTransitionForm(forms.Form):
 
 
 class ProposalMoveForm(forms.Form):
-    target = QuerySelectField(__("Move proposal to"), validators=[
-                              forms.validators.DataRequired()], get_label='title')
+    target = QuerySelectField(
+        __("Move proposal to"),
+        description=__("Move this proposal to another project"),
+        validators=[forms.validators.DataRequired()],
+        get_label='title',
+    )
 
     def set_queries(self):
         team_ids = [t.id for t in g.user.teams]
-        self.target.query = Project.query.join(Project.profile).filter(
-            (Project.admin_team_id.in_(team_ids)) |
-            (Profile.admin_team_id.in_(team_ids))
-            ).order_by(Project.date.desc())
+        self.target.query = (
+            Project.query.join(Project.profile)
+            .filter(
+                (Project.admin_team_id.in_(team_ids))
+                | (Profile.admin_team_id.in_(team_ids))
+            )
+            .order_by(Project.schedule_start_at.desc())
+        )

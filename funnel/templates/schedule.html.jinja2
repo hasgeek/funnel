@@ -1,73 +1,194 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ project.title }}{% endblock %}
-{% block headline %}{% endblock %}
-{% block pageheaders %}
-  {% assets 'css_fullcalendar' -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets %}
+{% set title_suffix = project.title %}
+{%- from "macros.html.jinja2" import project_header, admin_panel %}
+{% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock %}
+
+{% block description %}
+  {%- if active_session -%}
+    {%- if active_session.speaker -%}
+      {% trans title=active_session.title, speaker=active_session.speaker, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+    {%- else -%}
+      {{ active_session.title }}, {{ project.title }}
+    {%- endif -%}
+  {%- else -%}
+    {% if g.profile %}{{ g.profile.description|striptags }}{% endif %}
+  {%- endif -%}
 {% endblock %}
 
-{% block content %}
-  <div class="btns">
-    <div class="mui--pull-right">
-      <ul class="mui-list--inline">
-        <li>
-          <a href="{{ project.url_for('subscribe-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" rel="modal:open">{% trans %}Subscribe{% endtrans %}</a>
-        </li>
-        {% if current_auth.is_authenticated and project.current_roles.admin %}
-        <li>
-          <a href="{{ project.url_for('edit-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Edit Schedule{% endtrans %}</a>
-        </li>
-        <li>
-          <a href="{{ project.url_for('json-schedule') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark">{% trans %}Download JSON{% endtrans %}</a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
-    <div id="popup_subscribe" class="modal">
+{%- block pageheaders %}
+  {%- if project.schedule_start_at %}
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "Event",
+      "name": {{ project.title|tojson }},
+      "url": {{ project.url_for(_external=true)|tojson }},
+      "startDate": {{ project.schedule_start_at.astimezone(project.timezone).isoformat()|tojson }},
+      {% if project.primary_venue -%}
+      "location": {
+        "@type": "Place",
+        "name": {{ project.primary_venue.title|tojson }},
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": {{ project.primary_venue.address1|tojson }},
+          "addressLocality": {{ project.primary_venue.city|tojson }},
+          "addressRegion": {{ project.primary_venue.state|tojson }},
+          "postalCode": {{ project.primary_venue.postcode|tojson }},
+          "addressCountry": {{ project.primary_venue.country|tojson }}
+        }
+      },
+      {%- endif -%}
+      {%- if project.bg_image.url %}
+      "image": [
+        "{{ project.bg_image }}"
+       ],
+      {% endif -%}
+      "description": {{ project.tagline|tojson }},
+      "endDate": {{ project.schedule_end_at.astimezone(project.timezone).isoformat()|tojson }},
+      "offers": {
+        "@type": "Offer",
+        "url": {{ project.url_for(_external=true)|tojson }}
+      }
+    }
+    </script>
+  {%- endif -%}
+{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Schedule{% endtrans %}</span>
     </div>
   </div>
-  <div id="calendar"></div>
-  <div>
-    <div class="fc-header-title"><h3 class="mui--text-title"><strong>{% trans %}Venues{% endtrans %}</strong></h3></div>
-    <div id="rooms-list">
-      {%- for venue in project.venues %}
-        <h4 class="venue mui--text-subhead">{{ venue.title }}</h4>
-        <div class="venue_desc mui--text-body2 mui--text-light">{{ venue.description }}</div>
-        {%- for room in venue.rooms %}
-          <div class="room">
-            <h4 class="room__title js-title" data-bgcolor="#{{ room.bgcolor }}">
-              <a href="{{ room.url_for('ical-schedule', _external=True) }}" class=" mui-btn mui-btn--accent mui-btn--small room__title__subsc-btn">{% trans %}Subscribe{% endtrans %}</a>
-              {{ room.title }}
-            </h4>
-            <div class="room__description mui--text-light">{{ room.description }}</div>
+  {{ project_header(project, project_save_form,
+    class='mui--hidden-xs mui--hidden-sm',
+    current_page='schedule') }}
+{% endblock %}
+
+{% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          {% if current_auth.is_authenticated and project.current_roles.admin %}
+            {{ admin_panel(project, schedule_transition_form=schedule_transition_form) }}
+          {%- endif %}
+        </div>
+      </div>
+
+      <div class="grid" id="schedule">
+        <div class="grid__col-xs-12 schedule-grid">
+          <div class="schedule-table-container" id="project-schedule-table">
+            {% raw %}
+              <script id="scheduletemplate" type="text/ractive">
+                <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
+                  <div class="tabs">
+                    <button class="mui-btn--nostyle tabs__item {{#if view === 'calendar'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'calendar')">Calender view</button>
+                    <button class="mui-btn--nostyle tabs__item {{#if view === 'agenda'}}tabs__item--active{{/if}}" on-click="toggleView(event, 'agenda')">Agenda view</button>
+                  </div>
+                </div>
+                {{#schedules:schedule}}
+                  {{#schedule}}
+                    <div class="schedule">
+                      <h2 class="mui--text-heading schedule__date">{{dateStr}}</h2>
+                      <div class="mui--bg-accent">
+                        <div class="schedule__row schedule__row--sticky">
+                            {{#if view === 'calendar'}}
+                              <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" style="min-width:{{timeSlotWidth}}px"><i class="material-icons mui--text-headline" style="position: relative;" aria-hidden="true">schedule</i>
+                              </p>
+                            {{/if}}
+                          {{#rooms:room, roomindex}}
+                            <p class="schedule__row__column schedule__row__column--header {{#if activeTab == room}}js-tab-active{{/if}}" style="width: calc(100% - {{getColumnWidth('header')}}px)" on-click="toggleTab(event, room)">{{title}}</p>
+                          {{/}}
+                        </div>
+                        {{#sessions:session, index}}
+                          <div class="schedule__row {{#if view === 'calendar'}}schedule__row--calendar{{/if}} {{#if hasActiveRoom(sessions[session])}}js-active{{/if}} {{#if view === 'agenda' && !hasActiveRoom(sessions[session])}}schedule__row--hide{{/if}}" {{#if view === 'calendar'}}style="height: {{rowHeight}}px"{{/if}}>
+                            {{#if view === 'calendar'}}
+                              {{#if showLabel}}
+                                <a href="#t{{session}}" id="t{{session}}" class="schedule__row__column schedule__row__column--time schedule__row__column--time--pointer" style="min-width:{{timeSlotWidth}}px" on-click="disableScroll(event)">{{ getTimeStr(session) }}</a>
+                              {{else}}
+                                <p class="schedule__row__column schedule__row__column--time" style="min-width:{{timeSlotWidth}}px"></p>
+                              {{/if}}
+                            {{/if}}
+                            {{#rooms:room, roomIndex}}
+                              <div class="schedule__row__column schedule__row__column--{{rowWidth}} {{#if talks}}schedule__row__column--talks {{room}}{{/if}} {{#if talks && activeTab == room}}js-active{{/if}}" style="width: {{#if width && getColumnWidth('content')}}calc(100% - {{getColumnWidth('content')}}px);{{else}} 100%;{{/if}}" on-click="showSessionModal(event, '')">
+                                {{#if talks}}
+                                  <div class="schedule__row__column__content {{#if view === 'calendar'}}schedule__row__column__content--calendar schedule__row__column__content--overflow{{/if}}" {{#if view === 'calendar'}}style="height: calc({{talks.duration}}*{{rowHeight}}px);"{{/if}} id="{{talks.url_name_suuid}}">
+                                    <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(talks.startTime) }}–{{ getTimeStr(talks.endTime) }}</p>
+                                    <div class="schedule__row__column__content__title">
+
+                                      {{#if talks.title}}
+                                        <p class="mui--text-subhead schedule__row__column__content__title__heading"><b>{{ talks.title }}</b></p>
+                                      {{/if}}
+                                      {{#if talks.speaker}}
+                                        <p class="mui--text-caption mui--text-light">{{ talks.speaker }}</p>
+                                      {{/if}}
+                                    </div>
+                                    {{#if talks.description}}
+                                      <div class="schedule__row__column__content__description mui--text-body1">{{{ removeImg(talks.description.html) }}}</div>
+                                    {{/if}}
+                                  </div>
+                                {{/if}}
+                              </div>
+                            {{/}}
+                          </div>
+                        {{/}}
+                      </div>
+                    </div>
+                  {{/}}
+                {{/}}
+                <div id="session-modal" class="session-modal session-modal--nopadding">
+                  {{{modalHtml}}}
+                </div>
+              </script>
+            {% endraw %}
           </div>
-        {%- endfor %}
-      {%- else %}
-        <p>{% trans %}This event does not have a venue{% endtrans %}</p>
-      {%- endfor %}
-    </div>
-  </div>
-  <div id="popup" class="modal session-modal session-modal--nopadding">
-    <div class="js-modal-inner">
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_fullcalendar" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+  <script src="{{ url_for('static', filename=asset_path('schedule_view')) }}" type="text/javascript"></script>
   <script type="text/javascript">
-    var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
-    var scheduled = {{ sessions|tojson }};
-    var TIMEZONE = {{ timezone }} * 1000;
-    var ROOMS = {{ rooms|tojson }};
-    var BREAK_EVENTS_COLOR = "#999999";
-    var EDIT_EVENTS = false;
-    var CALENDAR_SLOT_MINUTES = 15;
+    var scheduleConfig = {
+      fromDate: {{ from_date|tojson }},
+      toDate: {{ to_date|tojson }},
+      scheduled: {{ sessions|tojson }},
+      venues: {{ venues|tojson }},
+      slotInterval: 5,
+      divElem: "#project-schedule-table",
+      scriptTemplate: '#scheduletemplate',
+      active_session: '',
+      projectTitle: "{{ project.title }}",
+      pageDescription: "{{ g.profile.description|striptags }}"
+    };
   </script>
-  {% assets "js_schedules" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+  {%- if active_session -%}
+    <script type="text/javascript">
+      scheduleConfig['active_session'] = {{ active_session|tojson }}
+    </script>
+  {%- endif %}
+  <script type="text/javascript">
+    $(document).ready( function() {
+
+      saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
+
+      window.HasGeek.ScheduleInit(scheduleConfig, saveProjectConfig);
+    });
+  </script>
 {% endblock %}

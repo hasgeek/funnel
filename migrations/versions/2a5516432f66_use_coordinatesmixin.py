@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Use CoordinatesMixin
 
 Revision ID: 2a5516432f66
@@ -11,14 +13,22 @@ revision = '2a5516432f66'
 down_revision = '2db4d4be1fdf'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.alter_column('venue', 'latitude', existing_type=sa.Numeric(8, 5), type_=sa.Numeric())
-    op.alter_column('venue', 'longitude', existing_type=sa.Numeric(8, 5), type_=sa.Numeric())
+    op.alter_column(
+        'venue', 'latitude', existing_type=sa.Numeric(8, 5), type_=sa.Numeric()
+    )
+    op.alter_column(
+        'venue', 'longitude', existing_type=sa.Numeric(8, 5), type_=sa.Numeric()
+    )
 
 
 def downgrade():
-    op.alter_column('venue', 'latitude', existing_type=sa.Numeric(), type_=sa.Numeric(8, 5))
-    op.alter_column('venue', 'longitude', existing_type=sa.Numeric(), type_=sa.Numeric(8, 5))
+    op.alter_column(
+        'venue', 'latitude', existing_type=sa.Numeric(), type_=sa.Numeric(8, 5)
+    )
+    op.alter_column(
+        'venue', 'longitude', existing_type=sa.Numeric(), type_=sa.Numeric(8, 5)
+    )

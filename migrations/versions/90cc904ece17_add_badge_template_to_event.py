@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add_badge_template_to_event
 
 Revision ID: 90cc904ece17
@@ -11,11 +13,13 @@ revision = '90cc904ece17'
 down_revision = 'cf775ffe502e'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('event', sa.Column('badge_template', sa.Unicode(length=250), nullable=True))
+    op.add_column(
+        'event', sa.Column('badge_template', sa.Unicode(length=250), nullable=True)
+    )
 
 
 def downgrade():

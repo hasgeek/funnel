@@ -1,0 +1,157 @@
+{% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
+{%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header, admin_panel %}
+{% block title %}Proposals{% endblock %}
+{% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
+    </div>
+  </div>
+  {{ project_header(project, project_save_form,
+    class='mui--hidden-xs mui--hidden-sm',
+    current_page='proposals') }}
+{% endblock %}
+
+{%- macro proposal_list(project, proposals) %}
+  <table id="proposals-table" class="proposal-list-table mui-table">
+    <tbody>
+      {% for proposal in proposals %}
+        <tr id="{{ proposal.suuid }}">
+          <td class='js-searchable'>
+            <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline">{{ proposal.title }}</a></h3>
+            <p class="speaker-details">
+              {%- if proposal.speaker -%}
+                <span class="mui--text-subhead">{{ proposal.speaker.pickername }}</span>
+                {%- if proposal.user != proposal.speaker %}
+                  <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
+                {%- endif %}
+                {%- if g.user and current_auth.permissions.edit_project %}
+                  {%- if proposal.has_outstation_speaker %}
+                    <i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">flight</i>
+                    <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>
+                  {%- endif %}
+                {%- endif %}
+              {%- else -%}
+                <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
+              {%- endif -%}
+            </p>
+            <ul class="mui-list--inline mui--text-body2 list-item-rgborder zero-bottom-margin">
+              {%- if proposal.project != project %}
+                <li>{{ proposal.project.short_title() }}</li>
+              {% endif %}
+              <li>{{ proposal.commentset.count }} comments</li>
+              <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
+              {% if proposal.preview_video.url %}
+                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" class="material-icons icon-middle" aria-hidden="true">play_arrow</i><span class="mui--hide" aria-label="{% trans %}This proposal has a preview video{% endtrans %}"></span></li>
+              {% endif %}
+              {% if proposal.slides.url %}
+                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" class="material-icons icon-middle" aria-hidden="true">slideshow</i><span class="mui--hide" aria-label="{% trans %}This proposal has slides{% endtrans %}"></span></li>
+              {% endif %}
+            </ul>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td><em>{% trans %}(No sessions have been submitted){% endtrans %}</em></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{%- endmacro %}
+
+{% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          {% if current_auth.is_authenticated and project.current_roles.admin %}
+            {{ admin_panel(project, cfp_transition_form=cfp_transition_form) }}
+          {%- endif %}
+        </div>
+      </div>
+
+      <div class="grid">
+       {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
+        <div class="grid__col-xs-12 about__details" id="call-for-proposal">
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Call for proposals{% endtrans %}</h2>
+          {%- if project.instructions and project.instructions != "None" %}
+            <div class="about__details__description">{{ project.instructions }}</div>
+          {%- endif %}
+          {% if project.cfp_state.OPEN -%}
+            <p class="mui--text-left">
+              <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
+            </p>
+          {%- endif %}
+        </div>
+      {%- endif %}
+      </div>
+
+
+      {% if project.cfp_state.HAS_PROPOSALS -%}
+      <div class="grid project-section" id="proposals">
+        <div class="grid__col-xs-12">
+          <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}All proposals{% endtrans %}</h2>
+            {%- if current_auth.permissions.view_status %}
+              <div>
+                <form class="mui-form mui--pull-left search-proposal-form mui--z1">
+                  <div class="mui-textfield">
+                    <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search" />
+                  </div>
+                </form>
+              </div>
+              {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
+                <div class="collapsible">
+                  <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
+                  <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
+                </div>
+              {%- endfor -%}
+            {%- else %}
+              {%- if project.proposals_by_confirmation['confirmed'] %}
+                <h3 class="mui--text-subhead proposal-list-header">{% trans %}Confirmed sessions{% endtrans %}</h3>
+                {{ proposal_list(project, project.proposals_by_confirmation['confirmed']) }}
+              {%- endif %}
+              {%- if project.proposals_by_confirmation['unconfirmed'] %}
+                {%- if project.proposals_by_confirmation['confirmed'] %}<h3 class="mui--text-subhead proposal-list-header">{% trans %}Unconfirmed proposals{% endtrans %}</h3>{% endif %}
+                {{ proposal_list(project, project.proposals_by_confirmation['unconfirmed']) }}
+              {%- endif %}
+            {%- endif %}
+          </div>
+        </div>
+      </div>
+      {%- endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var proposalsConfig = {};
+      proposalsConfig.search = {
+        tableId: 'proposals-table',
+        inputId: 'search'
+      };
+
+      proposalsConfig.saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
+
+      window.HasGeek.ProposalsInit(proposalsConfig);
+    });
+  </script>
+{% endblock %}

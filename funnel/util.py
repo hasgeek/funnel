@@ -1,28 +1,38 @@
-from StringIO import StringIO
-import requests
-from urlparse import urljoin
-from urlparse import urlparse
+# -*- coding: utf-8 -*-
+
+import six
+
+from urlparse import urljoin, urlparse
+
 from flask import current_app
-from baseframe import cache
+
 import qrcode
 import qrcode.image.svg
+import requests
+
+from baseframe import cache
 
 
 @cache.memoize(timeout=86400)
 def geonameid_from_location(text):
-    """ Accepts a string, checks hascore if there's a location embedded
-        in the string, and returns a set of matched geonameids.
-        Eg: "Bangalore" -> {1277333}
+    """
+    Convert location string into a set of matching geonameids.
 
-        Returns an empty set if the request timed out, or if the Hascore config
-        wasn't set.
-        To detect multiple locations, split them up and pass each location individually
+    Eg: "Bangalore" -> {1277333}
+
+    Returns an empty set if the request timed out, or if the Hascore config
+    wasn't set.
+    To detect multiple locations, split them up and pass each location individually
     """
     if 'HASCORE_SERVER' in current_app.config:
         url = urljoin(current_app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
         try:
             response = requests.get(url, params={'q': text}, timeout=2.0).json()
-            geonameids = [field['geoname']['geonameid'] for field in response['result'] if 'geoname' in field]
+            geonameids = [
+                field['geoname']['geonameid']
+                for field in response['result']
+                if 'geoname' in field
+            ]
             return set(geonameids)
         except requests.exceptions.Timeout:
             pass
@@ -31,11 +41,12 @@ def geonameid_from_location(text):
 
 def extract_twitter_handle(handle):
     """
-    Extracts a twitter handle from a user input.
+    Extract a twitter handle from a user input.
 
     Usage::
-      >>> extract_twitter_handle('https://twitter.com/marscuriosity')
-      u'marscuriosity'
+
+        >>> extract_twitter_handle('https://twitter.com/marscuriosity')
+        u'marscuriosity'
 
     **Notes**
 
@@ -48,13 +59,15 @@ def extract_twitter_handle(handle):
 
     parsed_handle = urlparse(handle)
     if (
-            (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com') or
-            (not parsed_handle.netloc and len(handle) > 16) or
-            (not parsed_handle.path)
+        (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
+        or (not parsed_handle.netloc and len(handle) > 16)
+        or (not parsed_handle.path)
     ):
         return None
 
-    return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace('@', '')
+    return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace(
+        '@', ''
+    )
 
 
 def format_twitter_handle(handle):
@@ -63,8 +76,8 @@ def format_twitter_handle(handle):
 
 def split_name(fullname):
     """
-    Splits a given fullname into two parts
-    a first name, and a concanetated last name.
+    Split a given fullname into a first name and remaining names.
+
     Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
     """
     if not fullname:
@@ -73,12 +86,11 @@ def split_name(fullname):
     return unicode(name_splits[0]), unicode(" ".join([s for s in name_splits[1:]]))
 
 
+# TODO: Added tests for this
 def make_qrcode(data):
-    """
-    Makes a QR code in-memory and returns the raw svg
-    """
+    """Make a QR code in-memory and return the raw svg"""
     factory = qrcode.image.svg.SvgPathImage
-    stream = StringIO()
+    stream = six.BytesIO()
     img = qrcode.make(data, image_factory=factory)
     img.save(stream)
     qrcode_svg = stream.getvalue()

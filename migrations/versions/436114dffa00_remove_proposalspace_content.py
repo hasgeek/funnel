@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Remove ProposalSpace.content
 
 Revision ID: 436114dffa00
@@ -11,7 +13,8 @@ revision = '436114dffa00'
 down_revision = 'f8204bcd438'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
+
 from coaster.sqlalchemy import JsonDict
 
 
@@ -20,5 +23,8 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column('proposal_space', sa.Column('content', JsonDict, server_default='{}', nullable=False))
+    op.add_column(
+        'proposal_space',
+        sa.Column('content', JsonDict, server_default='{}', nullable=False),
+    )
     op.alter_column('proposal_space', 'content', server_default=None)

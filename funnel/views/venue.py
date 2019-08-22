@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, render_template, jsonify
-from coaster.views import load_models, requestargs
+from flask import flash, request
+
 from baseframe import _
-from baseframe.forms import render_redirect, render_form, render_delete_sqla
+from baseframe.forms import render_delete_sqla, render_form, render_redirect
+from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
 from .. import app, funnelapp, lastuser
-from ..models import db, Profile, Project, ProjectRedirect, Venue, VenueRoom
-from ..forms.venue import VenueForm, VenueRoomForm
+from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
+from ..models import Venue, VenueRoom, db
+from .decorators import legacy_redirect
+from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']
@@ -17,7 +20,7 @@ def venue_data(venue):
     return {
         'name': venue.name,
         'title': venue.title,
-        'description': venue.description.html,
+        'description': venue.description.html,  # FIXME: Needs to be description_html
         'address1': venue.address1,
         'address2': venue.address2,
         'city': venue.city,
@@ -28,156 +31,231 @@ def venue_data(venue):
         'longitude': venue.longitude,
         'url': None,
         'json_url': None,
-        }
+    }
 
 
 def room_data(room):
     return {
         'name': room.scoped_name,
         'title': room.title,
-        'description': room.description.html,
+        'description': room.description.html,  # FIXME: Needs to be description_html
         'venue': room.venue.name,
         'bgcolor': room.bgcolor,
         'url': None,
         'json_url': None,
+    }
+
+
+@route('/<profile>/<project>/venues')
+class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
+    @route('')
+    @render_with('venues.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('view')
+    def venues(self):
+        return {
+            'project': self.obj,
+            'venues': self.obj.venues,
+            'primary_venue_form': VenuePrimaryForm(parent=self.obj),
         }
 
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-venue')
+    def new_venue(self):
+        form = VenueForm()
+        if form.validate_on_submit():
+            venue = Venue()
+            form.populate_obj(venue)
+            venue.make_name(reserved=RESERVED_VENUE)
+            self.obj.venues.append(venue)
+            if not self.obj.primary_venue:
+                self.obj.primary_venue = venue
+            db.session.commit()
+            flash(_(u"You have added a new venue to the event"), 'success')
+            return render_redirect(self.obj.url_for('venues'), code=303)
+        return render_form(
+            form=form,
+            title=_("New venue"),
+            submit=_("Create"),
+            cancel_url=self.obj.url_for('venues'),
+            ajax=False,
+        )
 
-@app.route('/<profile>/<project>/venues')
-@funnelapp.route('/<project>/venues', subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='view')
-def venue_list(profile, project):
-    return render_template('venues.html.jinja2', project=project, venues=project.venues)
+    @route('update_venue_settings', methods=['POST'])
+    @render_with(json=True)
+    @lastuser.requires_login
+    @requires_permission('edit-venue')
+    def update_venue_settings(self):
+        if request.json is None:
+            return {'error': _("Invalid data")}, 400
+        for venue_suuid in request.json.keys():
+            venue = Venue.query.filter_by(suuid=venue_suuid).first()
+            if venue is not None:
+                venue.seq = request.json[venue_suuid]['seq']
+                db.session.add(venue)
+                for room in request.json[venue_suuid]['rooms']:
+                    room_obj = VenueRoom.query.filter_by(
+                        suuid=room['suuid'], venue=venue
+                    ).first()
+                    if room_obj is not None:
+                        room_obj.bgcolor = room['color'].lstrip('#')
+                        room_obj.seq = room['seq']
+                        db.session.add(room_obj)
+        try:
+            db.session.commit()
+            return {'status': True}
+        except Exception as e:
+            return {'error': str(e)}, 400
 
-
-@app.route('/<profile>/<project>/venues/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/venues/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='new-venue')
-def venue_new(profile, project):
-    form = VenueForm()
-    if form.validate_on_submit():
-        venue = Venue()
-        form.populate_obj(venue)
-        venue.project = project
-        venue.make_name(reserved=RESERVED_VENUE)
-        db.session.add(venue)
-        db.session.commit()
-        flash(_(u"You have added a new venue to the event"), 'success')
-        return render_redirect(project.url_for('venues'), code=303)
-    return render_form(form=form, title=_("New venue"), submit=_("Create"), cancel_url=project.url_for('venues'), ajax=False)
-
-
-@app.route('/<profile>/<project>/venues/<venue>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/venues/<venue>/edit', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
-    permission='edit-venue')
-def venue_edit(profile, project, venue):
-    form = VenueForm(obj=venue)
-    if form.validate_on_submit():
-        form.populate_obj(venue)
-        venue.make_name(reserved=RESERVED_VENUE)
-        db.session.commit()
-        flash(_(u"Saved changes to this venue"), 'success')
-        return render_redirect(project.url_for('venues'), code=303)
-    return render_form(form=form, title=_("Edit venue"), submit=_("Save"), cancel_url=project.url_for('venues'), ajax=False)
-
-
-@app.route('/<profile>/<project>/venues/<venue>/delete', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/venues/<venue>/delete', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
-    permission='delete-venue')
-def venue_delete(profile, project, venue):
-    return render_delete_sqla(venue, db, title=u"Confirm delete",
-        message=_(u"Delete venue “{title}”? This cannot be undone".format(title=venue.title)),
-        success=_(u"You have deleted venue “{title}”".format(title=venue.title)),
-        next=project.url_for('venues'))
-
-
-@app.route('/<profile>/<project>/venues/<venue>/new', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/venues/<venue>/new', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
-    permission='new-venue')
-def venueroom_new(profile, project, venue):
-    form = VenueRoomForm()
-    if form.validate_on_submit():
-        room = VenueRoom()
-        form.populate_obj(room)
-        room.venue = venue
-        room.make_name(reserved=RESERVED_VENUEROOM)
-        db.session.add(room)
-        db.session.commit()
-        flash(_(u"You have added a room at this venue"), 'success')
-        return render_redirect(project.url_for('venues'), code=303)
-    return render_form(form=form, title=_("New room"), submit=_("Create"), cancel_url=project.url_for('venues'), ajax=False)
+    @route('makeprimary', methods=['POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-venue')
+    def makeprimary_venue(self):
+        form = VenuePrimaryForm(parent=self.obj)
+        if form.validate_on_submit():
+            venue = form.venue.data
+            if venue == self.obj.primary_venue:
+                flash(_("This is already the primary venue"), 'info')
+            else:
+                self.obj.primary_venue = venue
+                db.session.commit()
+                flash(_("You have changed the primary venue"), 'success')
+        else:
+            flash(_("Please select a venue"), 'danger')
+        return render_redirect(self.obj.url_for('venues'), code=303)
 
 
-@app.route('/<profile>/<project>/venues/<venue>/<room>/edit', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/venues/<venue>/<room>/edit', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
-    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission='edit-venue')
-def venueroom_edit(profile, project, venue, room):
-    form = VenueRoomForm(obj=room)
-    if form.validate_on_submit():
-        form.populate_obj(room)
-        room.make_name(reserved=RESERVED_VENUEROOM)
-        db.session.commit()
-        flash(_(u"Saved changes to this room"), 'success')
-        return render_redirect(project.url_for('venues'), code=303)
-    return render_form(form=form, title=_("Edit room"), submit=_("Save"), cancel_url=project.url_for('venues'), ajax=False)
+@route('/<project>/venues', subdomain='<profile>')
+class FunnelProjectVenueView(ProjectVenueView):
+    pass
 
 
-@app.route('/<profile>/<project>/venues/<venue>/<room>/delete', methods=['GET', 'POST'])
-@funnelapp.route('/<project>/venues/<venue>/<room>/delete', methods=['GET', 'POST'], subdomain='<profile>')
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Venue, {'project': 'project', 'name': 'venue'}, 'venue'),
-    (VenueRoom, {'venue': 'venue', 'name': 'room'}, 'room'),
-    permission='delete-venue')
-def venueroom_delete(profile, project, venue, room):
-    return render_delete_sqla(room, db, title=u"Confirm delete",
-        message=_(u"Delete room “{title}”? This cannot be undone".format(title=room.title)),
-        success=_(u"You have deleted room “{title}”".format(title=room.title)),
-        next=project.url_for('venues'))
+ProjectVenueView.init_app(app)
+FunnelProjectVenueView.init_app(funnelapp)
 
 
-@app.route('/<profile>/<project>/update_venue_colors', methods=['POST'])
-@funnelapp.route('/<project>/update_venue_colors', methods=['POST'], subdomain='<profile>')
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    permission='edit-venue')
-@requestargs('id[]', 'color[]')
-def update_venue_colors(profile, project, id, color):
-    colors = dict([(id[i], col.replace('#', '')) for i, col in enumerate(color)])
-    for room in project.rooms:
-        if room.scoped_name in colors:
-            room.bgcolor = colors[room.scoped_name]
-    db.session.commit()
-    return jsonify(status=True)
+@route('/<profile>/<project>/venues/<venue>')
+class VenueView(VenueViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
+    @route('edit', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-venue')
+    def edit(self):
+        form = VenueForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            self.obj.make_name(reserved=RESERVED_VENUE)
+            db.session.commit()
+            flash(_(u"Saved changes to this venue"), 'success')
+            return render_redirect(self.obj.project.url_for('venues'), code=303)
+        return render_form(
+            form=form,
+            title=_("Edit venue"),
+            submit=_("Save"),
+            cancel_url=self.obj.project.url_for('venues'),
+            ajax=False,
+        )
+
+    @route('delete', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('delete-venue')
+    def delete(self):
+        if self.obj == self.obj.project.primary_venue:
+            flash(_(u"You can not delete the primary venue"), 'danger')
+            return render_redirect(self.obj.project.url_for('venues'), code=303)
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=u"Confirm delete",
+            message=_(
+                u"Delete venue “{title}”? This cannot be undone".format(
+                    title=self.obj.title
+                )
+            ),
+            success=_(u"You have deleted venue “{title}”".format(title=self.obj.title)),
+            next=self.obj.project.url_for('venues'),
+        )
+
+    @route('new', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('new-venue')
+    def new_venueroom(self):
+        form = VenueRoomForm()
+        if form.validate_on_submit():
+            room = VenueRoom()
+            form.populate_obj(room)
+            room.make_name(reserved=RESERVED_VENUEROOM)
+            self.obj.rooms.append(room)
+            db.session.commit()
+            flash(_(u"You have added a room at this venue"), 'success')
+            return render_redirect(self.obj.project.url_for('venues'), code=303)
+        return render_form(
+            form=form,
+            title=_("New room"),
+            submit=_("Create"),
+            cancel_url=self.obj.project.url_for('venues'),
+            ajax=False,
+        )
+
+
+@route('/<project>/venues/<venue>', subdomain='<profile>')
+class FunnelVenueView(VenueView):
+    pass
+
+
+VenueView.init_app(app)
+FunnelVenueView.init_app(funnelapp)
+
+
+@route('/<profile>/<project>/venues/<venue>/<room>')
+class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
+    @route('edit', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('edit-venue')
+    def edit(self):
+        form = VenueRoomForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            self.obj.make_name(reserved=RESERVED_VENUEROOM)
+            db.session.commit()
+            flash(_(u"Saved changes to this room"), 'success')
+            return render_redirect(self.obj.venue.project.url_for('venues'), code=303)
+        return render_form(
+            form=form,
+            title=_("Edit room"),
+            submit=_("Save"),
+            cancel_url=self.obj.venue.project.url_for('venues'),
+            ajax=False,
+        )
+
+    @route('delete', methods=['GET', 'POST'])
+    @lastuser.requires_login
+    @requires_permission('delete-venue')
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=u"Confirm delete",
+            message=_(
+                u"Delete room “{title}”? This cannot be undone".format(
+                    title=self.obj.title
+                )
+            ),
+            success=_(u"You have deleted room “{title}”".format(title=self.obj.title)),
+            next=self.obj.venue.project.url_for('venues'),
+        )
+
+
+@route('/<project>/venues/<venue>/<room>', subdomain='<profile>')
+class FunnelVenueRoomView(VenueRoomView):
+    pass
+
+
+VenueRoomView.init_app(app)
+FunnelVenueRoomView.init_app(funnelapp)

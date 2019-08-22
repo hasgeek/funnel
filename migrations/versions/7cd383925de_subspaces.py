@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Subspaces
 
 Revision ID: 7cd383925de
@@ -11,15 +13,24 @@ revision = '7cd383925de'
 down_revision = '21a7dfe8ab4d'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('parent_space_id', sa.Integer(), nullable=True))
-    op.create_foreign_key('proposal_space_proposal_space_id_fkey',
-        'proposal_space', 'proposal_space', ['parent_space_id'], ['id'])
+    op.add_column(
+        'proposal_space', sa.Column('parent_space_id', sa.Integer(), nullable=True)
+    )
+    op.create_foreign_key(
+        'proposal_space_proposal_space_id_fkey',
+        'proposal_space',
+        'proposal_space',
+        ['parent_space_id'],
+        ['id'],
+    )
 
 
 def downgrade():
-    op.drop_constraint('proposal_space_proposal_space_id_fkey', 'proposal_space', type_='foreignkey')
+    op.drop_constraint(
+        'proposal_space_proposal_space_id_fkey', 'proposal_space', type_='foreignkey'
+    )
     op.drop_column('proposal_space', 'parent_space_id')

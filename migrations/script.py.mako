@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """${message}
 
 Revision ID: ${up_revision}
@@ -10,10 +12,9 @@ Create Date: ${create_date}
 revision = ${repr(up_revision)}
 down_revision = ${repr(down_revision)}
 
+import sqlalchemy as sa  # NOQA
 from alembic import op
-import sqlalchemy as sa
 ${imports if imports else ""}
-
 
 def upgrade():
     ${upgrades if upgrades else "pass"}

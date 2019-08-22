@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ProposalSpace image and color
 
 Revision ID: 14d7082476c0
@@ -11,12 +13,16 @@ revision = '14d7082476c0'
 down_revision = '577689971aa0'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column('proposal_space', sa.Column('bg_color', sa.Unicode(length=6), nullable=True))
-    op.add_column('proposal_space', sa.Column('bg_image', sa.Unicode(length=250), nullable=True))
+    op.add_column(
+        'proposal_space', sa.Column('bg_color', sa.Unicode(length=6), nullable=True)
+    )
+    op.add_column(
+        'proposal_space', sa.Column('bg_image', sa.Unicode(length=250), nullable=True)
+    )
 
 
 def downgrade():

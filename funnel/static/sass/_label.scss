@@ -1,0 +1,54 @@
+.label-box {
+  margin: 10px 0;
+  padding: 10px;
+
+  .label-box__icon {
+    float: left;
+    margin-top: 15px;
+  }
+
+  .label-box__icon--right {
+    padding: 0 15px;
+    box-shadow: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .label-box__heading {
+    margin: 15px 10px;
+    display: inline-block;
+  }
+
+  @media(min-width: 1200px) {
+    .sublabel-wrapper {
+      display: inline-block;
+      max-width: 80%;
+      vertical-align: middle;
+      margin-top: -5px;
+    }
+  }
+
+  .label-box__subheading {
+    margin-right: 10px;
+  }
+
+  .label-box__action {
+    float: right;
+  }
+
+  .label-box__icon-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 0;
+  }
+}
+
+.label-box--new {
+  margin: 15px auto 35px;
+  width: 100%;
+  max-width: 500px;
+
+  a:hover {
+    text-decoration: none;
+  }
+}

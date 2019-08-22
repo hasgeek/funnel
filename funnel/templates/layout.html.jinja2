@@ -1,36 +1,96 @@
 {% extends "baseframe.html.jinja2" -%}
 {% from "baseframe/components.html.jinja2" import hgtopnav with context %}
 
+{%- block titletags %}
+  <title>{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}</title>
+  <meta name="DC.title" content="{{ self.title()|e }}" />
+  <meta property="og:title" content="{{ self.title()|e }}" />
+  <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
+  <link rel="preconnect" crossorigin href="https://ajax.googleapis.com/">
+  <link rel="preconnect" crossorigin href="https://imgee.s3.amazonaws.com/">
+  <link rel="preconnect" crossorigin href="https://images.hasgeek.com/">
+  <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
+  <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
+{%- endblock %}
+
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
+
+{%- block layoutheaders %}
+  {%- if not config['LEGACY'] -%}
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#E05F26">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#E05F26">
+  <meta name="apple-mobile-web-app-title" content="js">
+  <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='img/android-chrome-192x192.png', _external=true) }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png', _external=true) }}">
+  {%- endif -%}
+  {% block pageheaders %}{% endblock %}
+{%- endblock %}
 
 {% block sidedrawer -%}
 {%- endblock %}
 
 {% block header -%}
   {% macro site_title() %}
-    {%- if g.profile -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/></a> <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-      <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark">{{ g.profile.title }}</a>
-      {%- if project %}
-        {%- if project.parent %}
-          <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-          <a href="{{ project.parent.url_for() }}" class="header__site-title__item">{{ project.parent.short_title() }}</a>
+    {%- if config['LEGACY'] -%}
+      {%- if g.profile -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
+        </a><i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
+        {%- if project %}
+          {%- if project.parent_project %}
+            <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+            <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title() }}">{{ project.parent_project.short_title() }}</a>
+          {%- endif %}
+          <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+          <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title() }}">{{ project.short_title() }}</a>
         {%- endif %}
-        <i class="material-icons mui--text-subhead mui--align-center">chevron_right</i>
-        <a href="{{ project.url_for() }}" class="header__site-title__item">{{ project.short_title() }}</a>
+      {%- else -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
+          {{ config['SITE_TITLE'] }}
+        </a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__item"><img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo"/> {{ config['SITE_TITLE'] }}</a>
-    {%- endif -%}
+      <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <form action='/search' class="search-form js-search-form">
+        <input type="text" name="q" aria-label="Search the site" placeholder="Search..." class="search-form__field js-search-field">
+        <input type="text" name="type" value="project" hidden>
+        <button type="submit" class="search-form__submit">
+      </form>
+    {%- endif %}
   {% endmacro %}
-  {{ hgtopnav(site_title=site_title()) }}
+
+  {%- if config['LEGACY'] -%}
+      {{ hgtopnav(site_title=site_title()) }}
+  {%- else %}
+    {% with site_links=[] %}
+      {% if not current_auth.is_anonymous -%}
+        {% set site_links = [
+          {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
+          {'title': 'Account', 'icon': 'account_circle', 'url': url_for('account'), 'name' :'account'}
+          ]%}
+      {%- else %}
+        {% set site_links = [
+           {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
+          {'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'},] %}
+      {%- endif %}
+      {{ hgtopnav(site_title=site_title(), site_links=site_links, auth=false, network=false) }}
+    {% endwith %}
+  {%- endif %}
 {%- endblock %}
 
-{% block bodytag %}<body class="mui--bg-primary">{% endblock %}
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
 
 {% block contenthead %}
-  {% block banner %}
-  {% endblock %}
   {% block headline -%}
     <div class="content-head content-head--top-padding mui--bg-accent">
       <div class="mui-container">
@@ -48,27 +108,86 @@
   {%- endblock %}
 {% endblock %}
 
-{%- block baseheadline %}
-  {% block ads %}
-  {% endblock %}
-{% endblock %}
 
-{% block basecontent %}
-  <div class="page-content">
-    {% block contentwrapper %}
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        {% block content %}{% endblock %}
+{%- block basecontentbox %}
+    {%- block messages %}
+      <div class="mui-container">
+        {{ flash_messages() }}
       </div>
-    </div>
+    {% endblock %}
+    {%- block baseheadline %}{% endblock %}
+    {% block basecontent %}
+      <div class="mui-container">
+        <div class="page-content">
+          {% block contentwrapper %}
+          <div class="grid">
+            <div class="grid__col-xs-12">
+              {% block content %}{% endblock %}
+            </div>
+          </div>
+          {% endblock %}
+        </div>
+      </div>
     {% endblock %}
   </div>
+{% endblock %}
+
+{% block footer %}
+  {%- if not config['LEGACY'] -%}
+  <div class="mui-container">
+    <div class="grid mui--text-body2">
+      <div class="grid__col-sm-12 mui--text-center">
+        <p>
+          {% trans %}&copy; 2010-19 HasGeek and contributors{% endtrans %} &middot;
+          <a href="/about/" title="about">{% trans %}About us and site policies{% endtrans %}</a>
+        </p>
+      </div>
+      </div>
+    </div>
+  </div>
+  {%- else -%}
+    <span class="no-print">{% trans %}&copy; 2010-19 HasGeek and contributors{% endtrans %}</span>
+  {%- endif -%}
 {% endblock %}
 
 {% block jquery -%}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
-  if (typeof jQuery === 'undefined')
-    document.write('<script type="text/javascript" src="{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}"><\/script>');
+  if (typeof jQuery === 'undefined') {
+    var jqueryScript = document.createElement('script');
+    jqueryScript.setAttribute('type','text/javascript');
+    jqueryScript.setAttribute('src','{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}');
+    document.head.appendChild(jqueryScript);
+  }
 </script>
 {%- endblock %}
+
+{% block layoutscripts %}
+  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  {%- if not config['LEGACY'] -%}
+  <script type="text/javascript">
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js')
+        .then(function(registration) {
+          console.log('Service Worker registration successful with scope: ',
+          registration.scope);
+        })
+        .catch(function(err) {
+          console.log('Service Worker registration failed: ', err);
+        });
+      });
+
+      // Setup a listener to track Add to Homescreen events.
+      window.addEventListener('beforeinstallprompt', event => {
+        event.userChoice.then(choice => {
+          if (window.ga) {
+            window.ga('send', 'event', 'Add to Home', choice.outcome);
+          }
+        });
+      });
+    }
+  </script>
+  {%- endif -%}
+  {% block footerscripts %}{% endblock %}
+{% endblock %}

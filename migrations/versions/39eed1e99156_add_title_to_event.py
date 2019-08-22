@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add_title_to_event
 
 Revision ID: 39eed1e99156
@@ -10,12 +12,14 @@ revision = '39eed1e99156'
 down_revision = '4083b7bd0cc8'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
     op.add_column('event', sa.Column('title', sa.Unicode(length=250), nullable=True))
-    op.create_unique_constraint("event_proposal_space_id_name", 'event', ['proposal_space_id', 'name'])
+    op.create_unique_constraint(
+        "event_proposal_space_id_name", 'event', ['proposal_space_id', 'name']
+    )
 
 
 def downgrade():

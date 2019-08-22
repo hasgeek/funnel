@@ -1,25 +1,30 @@
 {% extends "layout.html.jinja2" %}
+{% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block titletags -%}
-  <title>{% block title %}{{ config['SITE_TITLE'] }}{% endblock %}</title>
-  <meta name="DC.title" content="{{ config['SITE_TITLE'] }}"/>
-{%- endblock %}
+{% block description %}{% if profile %}{{ profile.description.html }}{% else %}{% trans %}HasGeek creates discussion spaces for geeks. Meet like-minded people, learn new things and discover new opportunities.{% endtrans %}{% endif %}{% endblock %}
 
-{%- block layoutheaders %}
+{%- block pageheaders %}
+<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
 <script type="application/ld+json">
-  {  "@context" : "http://schema.org",
+  {
+    "@context" : "http://schema.org",
      "@type" : "WebSite",
-     "name" : "{{ config['SITE_TITLE'] }}",
-     "url" : "{{ url_for('index', _external=true) }}"
+     "name" : {{ config['SITE_TITLE']|tojson }},
+     "url" : {{ url_for('index', _external=true)|tojson }},
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+      "query-input": "required name=query"
+    }
   }
 </script>
 <script type="application/ld+json">
   {
     "@context" : "http://schema.org",
     "@type" : "Organization",
-    "name" : "{{ config['SITE_TITLE'] }}",
-    "url" : "{{ url_for('index', _external=true) }}",
-    "logo" : "{{ url_for('static', filename='img/hg-banner.png', _external=true) }}",
+    "name" : {{ config['SITE_TITLE']|tojson }},
+    "url" : {{ url_for('index', _external=true)|tojson }},
+    "logo" : {{ url_for('static', filename='img/hg-banner.png', _external=true)|tojson }},
     "contactPoint" : [{
       "@type" : "ContactPoint",
       "telephone" : "+91 7676 33 2020",
@@ -33,382 +38,462 @@
 </script>
 {%- endblock %}
 
-{% block header -%}
-  {% macro site_title() %}
-    <a href="{{ url_for('index') }}" class="header__site-title__item">{{ config['SITE_TITLE'] }}</a>
-  {%- endmacro -%}
-  {{ hgtopnav(site_title=site_title()) }}
-{%- endblock %}
-
 {%- block image_src %}
-  <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png') }}" />
-  <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png') }}" />
+  <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png') }}" />
+  <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png') }}" />
 {%- endblock %}
 
-{% block bodytag %}<body class="mui--bg-primary">{% endblock %}
+{% block contenthead %}{% endblock %}
 
-{% block banner %}
-  {%- if not g.profile %}
-    <div class="mui-container hg-banner">
-      <div class="grid">
-        <div class="grid__col-auto logo-wrapper mui--hidden-xs">
-          <img src="{{ url_for('static', filename='img/hg-logo.png') }}" alt="HasGeek logo" class="hg-logo" />
-        </div>
-        <div class="grid__col-auto">
-          <p class="mui--text-display1">
-            <span class="s1">Hello!</span>
-            <span class="s2">HasGeek creates discussion spaces for geeks.</span>
-            <span class="s3">Come to our events to meet like-minded people,</span>
-            <span class="s1">learn new things</span>
-            <span class="s2">and discover new opportunities.</span>
-          </p>
-        </div>
-        <div class="grid__col-xs-12"><hr class="mui-divider"></div>
+{% block baseheadline %}
+  {%- if not profile %}
+    <div class="grid hg-banner">
+      <div class="grid__col-12">
+        <h1 class="headline">{% trans %}Discussion spaces for geeks{% endtrans %}</h1>
+        <p class="mui--text-title mui--text-light">{% trans %}Meet like-minded people, learn new things and discover new opportunities{% endtrans %}</p>
+        <div class="mui-divider mui-divider--banner"></div>
       </div>
-      <div class="grid">
-        <div class="grid__col-xs-12 grid__col-sm-6">
-          <p class="mui--text-headline">
-            We operate <a href="https://hasjob.co/" class="click">Hasjob</a>,
-            hang out on a <a href="https://friends.hasgeek.com/" class="click">Slack channel</a>, and
-            <a href="https://github.com/hasgeek" class="click">publish our code</a>.
-            Our activities reach thousands of developers every month.
-          </p>
-        </div>
-        <div class="grid__col-xs-12 grid__col-sm-6">
-          <p class="mui--text-headline">
-            <a href="https://talkfunnel.com/" class="click">Speak at our events</a>,
-            or <a href="http://eepurl.com/cygsfr" class="click">sign up to be notified</a> when we do one.
-            Watch videos from past events on <a href="https://hasgeek.tv/" class="click">HasGeek TV</a>.
-          </p>
-        </div>
+    </div>
+  {% else %}
+    <div class="grid hg-banner">
+      <div class="grid__col-12">
+        <div class="mui--text-headline">{{ profile.description.html }}</div>
+        <div class="mui-divider mui-divider--banner"></div>
       </div>
     </div>
   {% endif %}
 {% endblock %}
 
-{% block headline %}
-{% endblock %}
-
 {% block basecontent %}
-  <div class="page-content">
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        <h2><span><span class="mui--text-headline">Upcoming Events</span> <span class="mui--text-caption">(<a href="https://github.com/hasgeek/events" target="_blank" class="click">Add your event</a>)</span></span></h2>
-      </div>
-    </div>
-    <div id="events-container" class="grid spaces">
-      <div class="grid__col-xs-12">
-        <span><i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></span>
-      </div>
-    </div>
-
-    <div class="grid spaces">
-      <div class="grid__col-xs-12">
-        <h2 class="mui--text-headline">Upcoming Conferences</h2>
-      </div>
-    </div>
-    <div id="conf-container" class="grid spaces">
-      <div class="grid__col-xs-12">
-        <span><i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></span>
-      </div>
-    </div>
-    <div class="grid spaces">
-      <div class="grid__col-xs-12">
-        <p class="mui--text-subhead">
-          Previously:
-          <a href="https://anthillinside.in/2018/" class="click">Anthill Inside 2018</a>,
-          <a href="https://fifthelephant.in/2018/" class="click">The Fifth Elephant 2018</a>,
-          <a href="https://rootconf.in/2018/" class="click">Rootconf 2018</a>,
-          <a href="https://50p.in/2018/" class="click">50p 2018</a>,
-          <a href="https://jsfoo.in/2017/" class="click">JSFoo 2017</a>,
-          <a href="https://reactfoo.in/2017/" class="click">Reactfoo 2017</a>,
-          <a href="https://fragments.in/2017/" class="click">Fragments 2017</a>,
-          <a href="https://anthillinside.in/2017/" class="click">Anthill Inside 2017</a>,
-          <a href="https://fifthelephant.in/2017/" class="click">The Fifth Elephant 2017</a>,
-          <a href="https://rootconf.in/2017/" class="click">Rootconf 2017</a>,
-          <a href="https://kilter.in/2017/" class="click">Kilter 2017</a>,
-          <a href="https://50p.in/2017/" class="click">50p 2017</a>,
-          <a href="https://droidcon.in/2016/" class="click">droidconIN 2016</a>,
-          <a href="https://metarefresh.in/2016/" class="click">Meta Refresh 2016</a>,
-          <a href="https://jsfoo.in/2016/" class="click">JSFoo 2016</a>,
-          <a href="https://www.instamojo.com/devopsnexus/two-day-container-workshop-on-docker-platfor/" class="click">Two Day Container workshop on Docker platform</a>,
-          <a href="https://pipal.in/workshops/2016/http-bottom-up/" class="click">HTTP Bottom Up</a>,
-          <a href="https://pipal.in/workshops/2016/generators-inside-out/" class="click">Generators Inside Out</a>,
-          <a href="https://jsfoo.in/2016/nodejs-workshop/" class="click">NodeJS Workshop</a>,
-          <a href="https://metarefresh.in/2016/workshop" class="click">Good Enough Design for Responsive Web Apps</a>,
-          <a href="https://fifthelephant.in/2016/" class="click">The Fifth Elephant 2016</a>,
-          <a href="https://fifthelephant.in/2016/deep-learning/" class="click">Deep Learning Conf 2016</a>,
-          <a href="https://rootconf.in/2016/" class="click">Rootconf 2016</a>,
-          <a href="https://droidcon.in/2015/" class="click">droidconIN 2015</a>,
-          <a href="http://www.juliacon.in/2015/" class="click">JuliaCon India 2015</a>,
-          <a href="https://jsfoo.in/2015/" class="click">JSFoo 2015</a>,
-          <a href="https://fifthelephant.talkfunnel.com/2015/" class="click">The Fifth Elephant 2015</a>,
-          <a href="https://rootconf.talkfunnel.com/2015/" class="click">Rootconf 2015</a>,
-          <a href="https://metarefresh.talkfunnel.com/2015/" class="click">Meta Refresh 2015</a>,
-          <a href="https://rootconf.talkfunnel.com/informationsecurityworkshop/" class="click">Information Security workshop</a>,
-          <a href="https://droidcon.in/2014/" class="click">Droidcon India 2014</a>,
-          <a href="https://jsfoo.in/2014/" class="click">JSFoo 2014</a>,
-          <a href="https://fifthelephant.in/2014/" class="click">The Fifth Elephant 2014</a>,
-          <a href="https://rootconf.in/2014/" class="click">Rootconf 2014</a>,
-          <a href="https://funnel.hasgeek.com/redis-miniconf-2014" class="click">Redis Miniconf</a>,
-          <a href="https://metarefresh.in/2014/" class="click">Meta Refresh 2014</a>,
-          <a href="https://metarefresh.in/2014/angularjs-miniconf" class="click">AngularJS Miniconf</a>,
-          <a href="https://droidcon.in/2013/" class="click">Droidcon India 2013</a>,
-          <a href="https://jsfoo.in/2013/" class="click">JSFoo 2013</a>,
-          <a href="https://cssworkshop.metarefresh.in/" class="click">Responsive Web Design workshop</a>,
-          <a href="http://hasgeektv.doattend.com/" class="click">HasGeek TV workshop</a>,
-          <a href="https://advancedpython.hasgeek.com/" class="click">Advanced Python workshop</a>,
-          <a href="https://gitworkshop.hasgeek.com/" class="click">Git workshop</a>,
-          <a href="https://fifthelephant.in/2013/" class="click">The Fifth Elephant 2013</a>,
-          <a href="https://pigworkshop.fifthelephant.in/" class="click">Pig workshop</a>,
-          <a href="https://cssworkshop.metarefresh.in/2013-03/" class="click">CSS for the Soul</a>,
-          <a href="https://metarefresh.in/2013/" class="click">Meta Refresh 2013</a>,
-          <a href="https://droidcon.in/2012/" class="click">Droidcon India 2012</a>,
-          <a href="https://funnel.hasgeek.com/jsfoo/" class="click">JSFoo 2012</a>,
-          <a href="https://cartonama.com/2012/" class="click">Cartonama Conference</a>,
-          <a href="https://fifthelephant.in/2012/" class="click">The Fifth Elephant 2012</a>,
-          <a href="https://rootconf.in/bangalore2012" class="click">Rootconf</a>,
-          <a href="https://metarefresh.in/2012/" class="click">Meta Refresh 2012</a>,
-          <a href="https://workshop.cartonama.com/" class="click">Cartonama Workshop</a>,
-          JSFoo 2011-12 (in
-            <a href="https://jsfoo.in/bangalore2011" class="click">Bangalore</a>,
-            <a href="https://jsfoo.in/pune2012" class="click">Pune</a>, and
-            <a href="https://jsfoo.in/chennai2012" class="click">Chennai</a>),
-          <a href="https://droidcon.in/2011" class="click">Droidcon India 2011</a>,
-          <a href="https://phpcloud.hasgeek.com/" class="click">Scaling PHP in the Cloud</a>,
-          <a href="https://androidcamp.hasgeek.com/" class="click">AndroidCamp</a>
-          and <a href="http://www.doctypehtml5.in/" class="click">DocType HTML5</a>.
-        </p>
-      </div>
-    </div>
-  </div>
-{% endblock %}
-
-{% block footer %}
-  <div class="mui-container">
-    <div class="grid mui--text-body2 mui--text-left">
-      <div class="grid__col-sm-6 grid__col-md-5">
-        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-18 HasGeek.  All rights reserved.{% endtrans %}{% endif %} <a href="/about/">About us and site policies</a></p>
-        <p>
-          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com">info@hasgeek.com</a>, <a href="tel:+917676332020">+91 7676 33 2020</a>
-        </p>
-      </div>
-      <div class="grid__col-sm-6 grid__col-md-3">
-        <div>
-          <p id="footer-twitter">
-            <a href="https://twitter.com/hasgeek" class="twitter-follow-button" target="_blank">Follow @hasgeek</a>
-          </p>
-          <a class="fb-like" data-href="https://www.facebook.com/HasGeek" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true" href="https://www.facebook.com/HasGeek" target="_blank">Like HasGeek's page on Facebook</a>
+  {% if featured_project or upcoming_projects|length > 0 %}
+  {% with current_sessions = featured_project.current_sessions() if featured_project is not none else none %}
+  <div class="projects-wrapper">
+    <div class="mui-container">
+      <div class="grid">
+        {% if featured_project %}
+        <div class="grid__col-xs-12 {% if current_sessions %}grid__col-sm-6{% endif %} grid__col-md-4 grid__col-lg-5 spotlight">
+          <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">{% trans %}Spotlight{% endtrans %}</h2>
+          <div class="grid__cell">
+            <a class="card clickable-card spotlight__card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
+              <div class="card__image-wrapper">
+                {% if featured_project.bg_image.url %}
+                  <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
+                {% else %}
+                  <div class="card__image--default">
+                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
+                    <p class="card__image__tagline">{{ featured_project.title }}</p>
+                  </div>
+                {% endif %}
+                {% if featured_project.calendar_weeks.weeks and featured_project.calendar_weeks.weeks|length > 0 %}
+                  <div class="card__calendar mui--clearfix mui--bg-accent">
+                    <div class="calendar">
+                      <div class="calendar__weekdays">
+                        <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                        <div class="calendar__weekdays__name__wrapper">
+                        {% for weekday in featured_project.calendar_weeks.days %}
+                          <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+                        {% endfor %}
+                        </div>
+                      </div>
+                      <div class="calendar__weekdays">
+                        {% for week in featured_project.calendar_weeks.weeks|sort(attribute='year') %}
+                          {% if loop.index == 1 %}
+                            {% set month = '' -%}
+                          {% else %}
+                            {% set month = featured_project.calendar_weeks.weeks[loop.index-1].month -%}
+                          {% endif %}
+                          <div class="calendar__weekdays__month">
+                            {% if month != week.month %}
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
+                            {% else %}
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
+                            {% endif %}
+                          </div>
+                          <div class="calendar__weekdays__dates">
+                            {% for date in week.dates %}
+                              <p class="calendar__weekdays__dates__date {% if date[0] == featured_project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %} {% if date[2] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
+                            {% endfor %}
+                            {% if loop.index == 1 %}
+                              {% set year = '' -%}
+                            {% else %}
+                              {% set year = featured_project.calendar_weeks.weeks[loop.index-1].year -%}
+                            {% endif %}
+                            {% if year != week.year %}
+                              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card__title">
+                <h3 class="mui--text-display1 zero-top-margin zero-bottom-margin">{{ featured_project.title }}</h3>
+                {% if featured_project.primary_venue %}<p class="mui--text-body1 zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
+              </div>
+              {% if featured_project.tagline %}
+                <div class="card__body">
+                  <p class="mui--text-title">{{ featured_project.tagline }}</p>
+                </div>
+              {% endif %}
+            </a>
+          </div>
         </div>
-      </div>
-      <div class="grid__col-sm-3 grid__col-md-3">
-        <p>
-          Hosted by <a href="http://e2enetworks.com/" target="_blank">E2E Networks</a>
-        </p>
-      </div>
-    </div>
-  </div>
-{% endblock %} 
-
-{% block footerscripts %}
-  {% assets "js_ractive" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.13/moment-timezone-with-data.min.js"></script>
-  {% raw %}
-  <script id='event-card' type='text/ractive'>
-    <div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-      <div class="grid__cell">
-        <div class="card">
-          <div class="card__header">
-            <div class="card__header__title">
-              <h3 class="mui--text-title card__title__heading"><b>{{ title }}</b></h3>
-              <h4 class="mui--text-subhead card__title__heading">{{ date }}, {{ city }}</h4>
+        {% endif %}
+        {% if current_sessions.sessions %}
+          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-8 grid__col-lg-7">
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">Right now at {{featured_project.title}}</h2>
+            <div class="card spotlight-schedule-card js-schedule-card">
+              <div class="current-schedule">
+                {% for session in current_sessions.sessions %}
+                  <div class="current-schedule__session">
+                    <p class="mui--text-body1 current-schedule__session__duration">{{ session.start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}–{{ session.end_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
+                    <a class="mui--text-title mui--text-bold zero-bottom-margin" href="{{ session.url_for() }}">{{ session.title }}</a>
+                    <p class="mui--text-body1 zero-bottom-margin">{{ session.speaker }}</p>
+                    <p class="mui--text-subhead mui--text-bold">{{ session.venue_room.title }}</p>
+                    <div class="mui--text-body1 mui--hidden-xs mui--hidden-sm">{{ session.description.html }}</div>
+                  </div>
+                {% endfor %}
+              </div>
             </div>
           </div>
-          <div class="card__body">
-            <p class="mui--text-body2">{{ blurb }}</p>
-          </div>
-          <div class="mui-divider"></div>
-          <div class="card__footer">
-            {{#if url}}
-              <a href="{{ url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" target="_blank">Attend</a>
-            {{/if}}
-          </div>
+        {% endif %}
+        {% if upcoming_projects|length > 0 %}
+        <div class="grid__col-xs-12 {% if not current_sessions.sessions %}grid__col-md-8 grid__col-lg-7 upcoming{% endif %}">
+          <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Upcoming{% endtrans %}</h2>
+          <ul class="mui-list--unstyled" role="list">
+          {% for project in upcoming_projects %}
+            <li class="card card--upcoming" role="listitem">
+              <div class="card__image-wrapper">
+                {% if project.bg_image.url %}
+                  <a href="{{ project.url_for() }}" data-image="{{ project.bg_image }}" aria-label="{{ project.title }}">
+                    <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    <noscript>
+                      <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    </noscript>
+                  </a>
+                {% else %}
+                  <div class="card__image--default">
+                    <a href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+                      <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                      <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card__body">
+                <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-headline mui--text-dark">{{ project.title }}</a></h3>
+                {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
+                {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
+                  <div class="card__calendar">
+                    <div class="calendar">
+                      <div class="calendar__weekdays">
+                        <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                        <div class="calendar__weekdays__name__wrapper">
+                          {% for weekday in project.calendar_weeks.days %}
+                            <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      <div class="calendar__weekdays">
+                        {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
+                          {% if loop.index == 1 %}
+                            {% set month = '' -%}
+                          {% else %}
+                            {% set month = project.calendar_weeks.weeks[loop.index-1].month -%}
+                          {% endif %}
+                          <div class="calendar__weekdays__month">
+                            {% if month != week.month %}
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
+                            {% else %}
+                              <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
+                            {% endif %}
+                          </div>
+                          <div class="calendar__weekdays__dates">
+                            {% for date in week.dates %}
+                              <p class="calendar__weekdays__dates__date {% if date[2] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date[0] == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
+                            {% endfor %}
+                            {% if loop.index == 1 %}
+                              {% set year = '' -%}
+                            {% else %}
+                              {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
+                            {% endif %}
+                            {% if year != week.year %}
+                              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </li>
+          {%- endfor -%}
+          </ul>
         </div>
+        {% endif %}
       </div>
     </div>
-  </script>
-  <script id='conf-card' type='text/ractive'>
-    <div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-      <div class="grid__cell">
-        <div class="card" itemscope itemtype="http://schema.org/Event">
-          <div class="card__image-wrapper">
-            {{#if banner }}
-              <img class="card__image" src="{{ banner }}" alt="{{ title }}"/>
-            {{else }}
-              <div class="card__image--default">
-                <img class="card__image" src="https://static.talkfunnel.com/static/img/card-background.png" alt="{{ title }}"/>
-                <p class="card__image__tagline">{{ title }}</p>
+  </div>
+  {% endwith %}{% endif %}
+
+  {% if open_cfp_projects %}
+    <div class="projects-wrapper mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Call for proposals open now{% endtrans %}</h2>
+          </div>
+        </div>
+        <ul class="grid projects" role="list">
+          {% for project in open_cfp_projects %}
+            <li class="grid__col-xs-12 grid__col-lg-6 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">
+              <div class="card card--cfp">
+                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
+                  <div class="card__image-wrapper__overlay"></div>
+                  <p class="card__image-wrapper__text"><i class="material-icons mui--pull-left mui--text-display1" aria-hidden="true">mic</i> <span class="mui--text-menu mui--pull-left">CFP <br>{% trans %}Now open{% endtrans %}</span></p>
+                  {% if project.bg_image.url %}
+                    <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    <noscript>
+                      <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                    </noscript>
+                  {% else %}
+                    <div class="card__image--default">
+                      <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                      <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
+                    </div>
+                  {% endif %}
+                </a>
+                <div class="card__body card__body--cfp">
+                  <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
+                  {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
+                  <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
+                </div>
               </div>
-            {{/if}}
+            </li>
+          {%- endfor -%}
+        </ul>
+        {% if open_cfp_projects|length > 4 %}
+          <div class="mui--text-center">
+            <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" title="show all cfp projects" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
-          <div class="card__title">
-            <h3 class="mui--text-title card__title__heading" itemprop="name"><b>{{ title }}</b></h3>
-            <h4 class="mui--text-subhead card__title__heading">{{ date }}</h4>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {%- if profile and current_auth.permissions.new_project %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Introducing drafts{% endtrans %} <span class="chip chip--new mui--text-caption mui--align-middle">{% trans %}New{% endtrans %}</span></h2>
           </div>
-          <div class="card__body">
-            <div class="mui--text-body2">
-              <span itemprop="startDate" content="{{ start_time }}"></span>
-              <span itemprop="endDate" content="{{ end_time }}"></span>
-              <div class="location" itemprop="location" itemscope itemtype="http://schema.org/Place">
-                <span itemprop="name">{{ venue }}</span>
-                <div class="address" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
-                  <span itemprop="addressLocality">{{ city }}</span>
+        </div>
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <div class="grid__cell">
+              <div class="card">
+                <a class="card__image-wrapper clickable-card" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project">
+                  <div class="card__image--default card__image--new">
+                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
+                    <p class="card__image__tagline mui--text-display1">+</p>
+                  </div>
+                </a>
+                <a class="card__title clickable-card clickable-card--padding" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project">
+                  <h4 class="mui--text-title card__title__heading mui--text-bold">{% trans %}Start a project{% endtrans %}</h4>
+                  <p class="mui--text-caption card__title__heading">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
+                </a>
+                <div class="mui-divider"></div>
+                <div class="card__footer">
+                  <a href="{{ g.profile.url_for('new_project') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Participate" data-action="Participate(index page card)">{% trans %}Start project{% endtrans %}</a>
                 </div>
               </div>
             </div>
+          </li>
+        {% if draft_projects %}
+          {% for project in draft_projects %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
+              <div class="grid__cell">
+                <div class="card">
+                  <a class="card__image-wrapper clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
+                    {% if project.bg_image.url %}
+                      <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <noscript>
+                        <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      </noscript>
+                    {% else %}
+                      <div class="card__image--default">
+                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                        <p class="card__image__tagline">{{ project.title }}</p>
+                      </div>
+                    {% endif %}
+                  </a>
+                  <a class="card__title clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
+                    <h3 class="mui--text-title card__title__heading">{{ project.title }}</h3>
+                    <p class="mui--text-caption card__title__heading">{{ project.datelocation }}</p>
+                  </a>
+                  {% if project.tagline %}
+                    <a class="card__body clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
+                      <p class="mui--text-body2 zero-bottom-margin">{{ project.tagline }}</p>
+                    </a>
+                  {% endif %}
+                  <div class="mui-divider"></div>
+                  <div class="card__footer">
+                    <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" title="Publish project" data-action="Publish project">{% trans %}Publish project{% endtrans %}</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+          {%- endfor -%}
+          </ul>
+          {% if draft_projects|length > 3 %}
+            <div class="mui--text-center">
+              <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    <div class="mui-divider"></div>
+  {% endif %}
+
+  {% if all_projects %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}All projects{% endtrans %}</h2>
           </div>
-          <div class="mui-divider"></div>
-          <div class="card__footer offers" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-            {{#if url}}
-              <a href="{{ url }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" target="_blank" data-action="Buy tickets" itemprop="url">Tickets</a>
-            {{/if}}
-            {{#if funnel}}
-              <a href="{{ funnel }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" target="_blank" data-action="View proposals">Proposals</a>
-            {{/if}}
+        </div>
+        <ul class="grid projects" role="list">
+          {% for project in all_projects %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              <div class="grid__cell">
+                <a class="card clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
+                  <div class="card__image-wrapper">
+                    {% if project.bg_image.url %}
+                      <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <noscript>
+                        <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      </noscript>
+                    {% else %}
+                      <div class="card__image--default">
+                        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                        <p class="card__image__tagline">{{ project.title }}</p>
+                      </div>
+                    {% endif %}
+                    {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
+                    <div class="card__calendar mui--clearfix mui--bg-accent">
+                      <div class="calendar">
+                        <div class="calendar__weekdays">
+                          <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                          <div class="calendar__weekdays__name__wrapper">
+                            {% for weekday in project.calendar_weeks.days %}
+                              <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        <div class="calendar__weekdays">
+                          {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
+                            {% if loop.index == 1 %}
+                              {% set month = '' -%}
+                            {% else %}
+                              {% set month = project.calendar_weeks.weeks[loop.index-1].month -%}
+                            {% endif %}
+                            <div class="calendar__weekdays__month">
+                              {% if month != week.month %}
+                                <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
+                              {% else %}
+                                <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
+                              {% endif %}
+                            </div>
+                            <div class="calendar__weekdays__dates">
+                              {% for date in week.dates %}
+                                <p class="calendar__weekdays__dates__date {% if date[2] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date[0] == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
+                              {% endfor %}
+                              {% if loop.index == 1 %}
+                                {% set year = '' -%}
+                              {% else %}
+                                {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
+                              {% endif %}
+                              {% if year != week.year %}
+                                <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                              {% endif %}
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="card__title">
+                    <h3 class="mui--text-headline zero-top-margin zero-bottom-margin">{{ project.title }}</h3>
+                    {% if project.primary_venue %}<p class="mui--text-body1 zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                  </div>
+                  {% if project.tagline %}
+                    <div class="card__body">
+                      <p class="mui--text-body2">{{ project.tagline }}</p>
+                    </div>
+                  {% endif %}
+                </a>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if past_projects %}
+    <div class="projects-wrapper mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-title mui--text-light mui--text-uppercase">{% trans %}Past projects{% endtrans %}</h2>
+            <p class="mui--text-body1">{{ past_projects|length }} projects</p>
+          </div>
+        </div>
+        <div class="grid projects">
+          <div class="grid__col-12 mui-table--responsive-wrapper">
+            <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
+              <thead class="mui--bg-primary-light">
+                <tr>
+                  <th class="mui--text-subhead mui--text-capitalize">{% trans %}Date{% endtrans %}</th>
+                  <th class="mui--text-subhead mui--text-capitalize">{% trans %}Event name{% endtrans %}</th>
+                  <th class="mui--text-subhead mui--text-capitalize">{% trans %}Location{% endtrans %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for project in past_projects %}
+                  <tr>
+                    <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.schedule_start_at|longdate }}</p></td>
+                    <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" title="{{ project.title }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
+                    <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
+                  </tr>
+                {%- endfor -%}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
-  </script>
-  <script>
-    $(document).ready(function (argument) {
-      loadEvents();
-    });
+  {% endif %}
 
-    function loadEvents() {
-      $.getJSON("https://hasgeek.github.io/events/api/all.json")
-        .done(function success(data) {
+{% endblock %}
 
-          eventComponent = Ractive.extend({
-            template: '{{#if inFuture}}{{>event-card}}{{/if}}',
-            computed: {
-              inFuture: function() {
-                return new Date(this.get('end_time')) > new Date();
-              },
-              date: function () {
-                startTime = moment(this.get('start_time')).tz("Asia/Kolkata")
-                endTime = moment(this.get('end_time')).tz("Asia/Kolkata")
-                if (startTime.format("D MMM YYYY") === endTime.format("D MMM YYYY")) { // same day
-                  return startTime.format('ddd D MMM, h:mm a')+"–"+endTime.format("h:mm a");
-                }
-                else { // multiple days
-                  return startTime.format("D")+"–"+endTime.format("D MMM YYYY");
-                }
-              },
-            }
-          });
-
-          confComponent = Ractive.extend({
-            template: '{{#if inFuture}}{{>conf-card}}{{/if}}',
-            computed: {
-              inFuture: function() {
-                return new Date(this.get('start_time')) > new Date();
-              },
-              date: function () {
-                startTime = moment(this.get('start_time')).tz("Asia/Kolkata")
-                endTime = moment(this.get('end_time')).tz("Asia/Kolkata")
-                if (startTime.format("D MMM YYYY") === endTime.format("D MMM YYYY")) { // same day
-                  return endTime.format("D MMM YYYY");
-                }
-                else { // multiple days
-                  return startTime.format("D")+"–"+endTime.format("D MMM YYYY");
-                }
-              },
-            }
-          });
-
-          ractive = new Ractive({
-            el: 'events-container',
-            template: '{{#events:idx}}<event/>{{/events}}',
-            data: {
-              events: data.events
-            },
-            oncomplete: function() {
-              $('#events-container .btn').click(function(event) {
-                var target = $(this).attr('href');
-                var action = $(this).data('action');
-                HasWeb.sendGA('click', action, target);
-              });
-            },
-            components: { event: eventComponent }
-          });
-
-          ractive = new Ractive({
-            el: 'conf-container',
-            template: '{{#conferences:idx}}<conf/>{{/conferences}}',
-            data: {
-              conferences: data.conferences
-            },
-            oncomplete: function() {
-              $('#conf-container .btn').click(function(event) {
-                var target = $(this).attr('href');
-                var action = $(this).data('action');
-                HasWeb.sendGA('click', action, target);
-              });
-              $('.card').attr('itemscope', '');
-              $('.location').attr('itemscope', '');
-              $('.address').attr('itemscope', '');
-              $('.offers').attr('itemscope', '');
-            },
-            components: { conf: confComponent }
-          });
-
-        })
-        .fail(function( jqxhr, textStatus, error ) {
-          var err = textStatus + ", " + error;
-          console.log("Request Failed: " + err );
-        });
-    }
-  </script>
-  <div id="fb-root"></div>
-  <script>(function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0';
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));</script>
-  <script src="https://platform.twitter.com/widgets.js" type="text/javascript"></script>
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-19123154-1', 'auto');
-    ga('send', 'pageview');
-    $(document).ready( function() {
-      window.HasGeek = {};
-
-      HasGeek.sendGA = function (category, action, label) {
-        if (typeof ga !== "undefined") {
-          ga('send', { hitType: 'event', eventCategory: category, eventAction: action, eventLabel: label});
+{% block footerscripts %}
+  <script type="text/javascript">
+    $(function() {
+      // Set the spotlight calendar to the height of card
+      $(window).on('load', function() {
+        if($('.js-schedule-card')) {
+          $('.js-schedule-card').height($('.spotlight__card').height());
         }
-      };
-      // Function that tracks a click button in Google Analytics.
-      $('.btn').click(function(event) {
-        var target = $(this).attr('href');
-        var action = $(this).html();
-        HasGeek.sendGA('click', action, target);
-      });
-      $('.click').click(function(event) {
-        var target = $(this).attr('href');
-        var action = "Click"
-        HasGeek.sendGA('click', action, target);
       });
     });
   </script>
-  {% endraw %}
 {% endblock %}

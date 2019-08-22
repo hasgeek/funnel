@@ -47,8 +47,24 @@ $(function() {
                 ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
                 calendar.render();
             },
+            applySortable: function () {
+                $(this).sortable({
+                    placeholder: $(this).data('drag-placeholder'),
+                    cursor: 'move',
+                    update: function() {
+                        $(this).children().each(function(index) {
+                            $(this).children('input[name$="seq"]').val(++index);
+                        });
+                    }
+                });
+                $(this).find("div.sortable").each(settings.applySortable);
+            },
             init: function() {
                 if(this.editable) {
+                    $('#proposals-tab').easytabs();
+
+                    $(".sortable").each(settings.applySortable);
+
                     this.color_form.find('input[type=text]').each(function() {
                         $(this).spectrum({
                             showInitial: true,
@@ -65,13 +81,34 @@ $(function() {
                         calendar.render();
                     });
                     this.color_form.submit(function() {
-                        var data = $(this).serializeArray();
+                        var json = {};
+
+                        $('input[name="uuid"]').each(function(index, element) {
+                            var venue = $(element).val();
+                            json[venue] = {
+                                'seq': $('input[name="venue-seq"][data-venue="'+venue+'"]').val(),
+                                'rooms': []
+                            };
+                            $('input[data-venue="'+venue+'"]').each(function(index, element) {
+                                if($(element).attr('name') === 'room-suuid') {
+                                    var roomSuuid = $(element).val();
+                                    var room = {
+                                        'suuid': roomSuuid,
+                                        'seq': $('input[name="room-seq"][data-room="'+roomSuuid+'"]').val(),
+                                        'color': $('input[name="color"][data-room="'+roomSuuid+'"]').val()
+                                    };
+                                    json[venue]['rooms'].push(room);
+                                }
+                            });
+                        });
                         $.ajax({
-                            url: COLORS_UPDATE_URL,
+                            url: SETTINGS_UPDATE_URL,
                             type: 'POST',
-                            data: data,
+                            dataType: 'json',
+                            contentType: "application/json",
+                            data: JSON.stringify(json),
                             success: function(result) {
-                                toastr.success("The colors have been updated.")
+                                toastr.success("The room sequence and colors have been updated.")
                             },
                             complete: function(xhr, type) {
                                 if(type == 'error' || type == 'timeout') {
@@ -126,8 +163,8 @@ $(function() {
                 else return this.form().find('[name=' + input + ']');
             };
             popup.save = function() {
-                popup.form('start').val(events.current.obj_data.start);
-                popup.form('end').val(events.current.obj_data.end);
+                popup.form('start_at').val(events.current.obj_data.start_at);
+                popup.form('end_at').val(events.current.obj_data.end_at);
                 var data = popup.form().serializeArray();
                 $.ajax({
                     url: events.current.modal_url,
@@ -240,7 +277,7 @@ $(function() {
                     },
                     eventRender: function(event, element) {
                       if (event.speaker) {
-                        element.find('.fc-event-title').append("<br/> by <b>" + event.speaker + "</b>"); 
+                        element.find('.fc-event-title').append("<br/> by <b>" + event.speaker + "</b>");
                       }
                     }
                 },
@@ -364,7 +401,7 @@ $(function() {
                     }
                 })
             };
-            
+
             obj.remove = function(event) {
                 calendar.container.fullCalendar('removeEvents', event._id);
             };
@@ -494,8 +531,8 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    this.current.obj_data.end = events.from_project_timezone(this.current.end).toISOString();
-                    this.current.obj_data.start = events.from_project_timezone(this.current.start).toISOString();
+                    this.current.obj_data.end_at = events.from_project_timezone(this.current.end).toISOString();
+                    this.current.obj_data.start_at = events.from_project_timezone(this.current.start).toISOString();
                 }
             },
             height: function(ht) {
@@ -584,8 +621,8 @@ $(function() {
 
         for(i in scheduled) {
             scheduled[i] = {
-                start: new Date(scheduled[i].start),
-                end: new Date(scheduled[i].end),
+                start: new Date(scheduled[i].start_at),
+                end: new Date(scheduled[i].end_at),
                 modal_url: scheduled[i].modal_url,
                 title: scheduled[i].title,
                 speaker: scheduled[i].speaker,
@@ -614,6 +651,25 @@ $(function() {
 
     }();
 
-    settings.init();
-    calendar.init(scheduled);
+    function scheduleWidgetInit() {
+        $('#calendar').html('');
+        settings.init();
+        calendar.init(scheduled);
+    }
+
+    $('#select-date').on('change', function() {
+        var selectedDate =  new Date($('#select-date').val());
+        from_date = selectedDate.getTime()
+        to_date = selectedDate.setDate(selectedDate.getDate() + 2);
+        scheduleWidgetInit();
+    });
+
+    (function () {
+        // On the datepicker, set the current date if from_date is not available
+        var startDate = from_date ? new Date(from_date) : new Date();
+        document.getElementById("select-date").value = startDate.getFullYear() + '-' + ('0' + (startDate.getMonth() + 1)).slice(-2) + '-' + ('0' + startDate.getDate()).slice(-2);
+        $('#select-date').trigger("change");
+    })();
+
+
 });

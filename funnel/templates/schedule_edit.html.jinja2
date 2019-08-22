@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Schedule{% endtrans %} &mdash; {{ project.title }}{% endblock %}
-{% block headline %}{% endblock %}
+{% set title_suffix = project.title %}
+{% block title %}{% trans %}Schedule{% endtrans %}{% endblock %}
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
@@ -10,9 +10,20 @@
   {%- endassets -%}
 {% endblock %}
 
+{% block top_title %}
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
+  <p class="mui--text-headline">{% trans %}Edit schedule{% endtrans %}</p>
+{% endblock %}
+
 {% block contentwrapper %}
   <div class="grid">
-    <div class="grid__col-xs-12  grid__col-sm-9">
+    <div class="grid__col-xs-12  grid__col-sm-9 calendar-wrapper">
+      <div class="mui-form__controls datepicker-wrapper">
+        <div class="mui-textfield">
+          <label>Select date</label>
+          <input type="date" class="datetime-date" id="select-date" placeholder="yyy-mm-dd" value="">
+        </div>
+      </div>
       <div id="calendar"></div>
     </div>
     <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
@@ -20,33 +31,50 @@
         <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
         <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab">{% trans %}Settings{% endtrans %}</a></li>
       </ul>
-      <div id="list">
+      <div id="list" class="schedule-settings">
         {%- for proposal in proposals['unscheduled'] %}
           <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
         {%- endfor %}
       </div>
-      <div id="settings">
-        <h4 class="mui--text-headline">{% trans %}Room colors{% endtrans %}</h4>
+      <div id="settings" class="schedule-settings">
         <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
-          {% for id in rooms %}
-            <p class="room-color" id="room-color-{{ id }}">
-              <label for="room-color-input-{{ id }}" class="h5">
-                <input type="hidden" name="id" value="{{ id }}">
-                {{ rooms[id].vtitle }} <input type="text" name="color" id="room-color-input-{{ id }}" value="{{ rooms[id].bgcolor }}" data-room-id="{{ id }}" data-color="{{ rooms[id].bgcolor }}">
-              </label>
-            </p>
+          <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+          {% for venue in venues %}
+            <div class="ui-dragable-box ui-dragable-box--header">
+              <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{venue.suuid}}">
+              <div class="collapsible">
+                <div class="collapsible__header">
+                  <input type="hidden" name="uuid" value="{{ venue.suuid }}">
+                  <i class="material-icons mui--text-body1 drag-icon" aria-hidden="true">drag_indicator</i>
+                  <span class="h5">{{ venue.title }}</span> <i class="material-icons mui--align-middle collapsible__icon collapsible__icon--disable" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon collapsible__icon--disable" aria-hidden="true">keyboard_arrow_up</i>
+                </div>
+                <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
+                  {% for room in venue.room_list %}
+                    <p class="ui-dragable-box" draggable="true">
+                      <i class="material-icons mui--text-body1 drag-icon" aria-hidden="true">drag_indicator</i>
+                      <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.suuid}}">
+                      <label for="room-color-input-{{ room.suuid }}" class="h5">
+                        <input type="hidden" name="room-suuid" value="{{ room.suuid }}" data-venue="{{venue.suuid}}">
+                        {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.suuid }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{room.suuid}}">
+                      </label>
+                    </p>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
           {% endfor %}
-          <p>
+          </div>
+          {% if venues -%}
             <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
             <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
-          </p>
+          {%- endif %}
         </form>
       </div>
     </div>
   </div>
   <div id="popup" class="modal session-modal">
     <div class="modal__header">
-      <a class="modal__close" href="javascript:void(0);" aria-label="close" rel="modal:close"><i class="material-icons">clear</i></a>
+      <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"><i class="material-icons" aria-hidden="true">clear</i></a>
       <h3 class="js-modal-title session-modal__title">{{ session.title }}</h3>
     </div>
     <hr class="mui-divider mui-divider--custom">
@@ -65,24 +93,23 @@
   {% assets "js_fullcalendar" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  {% assets "js_jqueryeasytabs" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   {% assets "js_schedules" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     <script type="text/javascript">
-      var UPDATE_URL = "{{ project.url_for('update-schedule') }}";
+      var UPDATE_URL = "{{ project.url_for('update_schedule') }}";
       var TIMEZONE = {{ timezone }} * 1000;
-      var NEW_SESSION_URL = "{{ project.url_for('new-session') }}";
-      var COLORS_UPDATE_URL = "{{ project.url_for('update-venue-colors') }}";
-      var from_date = {{ from_date|tojson }}, to_date = {{ to_date|tojson }};
+      var NEW_SESSION_URL = "{{ project.url_for('new_session') }}";
+      var SETTINGS_UPDATE_URL = "{{ project.url_for('update_venue_settings') }}";
+      var from_date = {%- if from_date -%} {{ from_date|tojson }} {%- else -%} '' {%- endif %};
+      var to_date = {%- if to_date -%} {{ to_date|tojson }} {%- else -%} '' {%- endif %};
       var scheduled = {{ proposals['scheduled']|tojson }};
       var ROOMS = {{ rooms|tojson }};
       var BREAK_EVENTS_COLOR = "#999999";
       var EDIT_EVENTS = true;
       var CALENDAR_SLOT_MINUTES = 5;
-    </script>
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#proposals-tab').easytabs();
-      });
     </script>
   {%- endassets -%}
 {% endblock %}

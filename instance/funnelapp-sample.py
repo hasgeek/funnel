@@ -1,7 +1,11 @@
+# -*- coding: utf-8 -*-
+
 SITE_TITLE = 'HasGeek Funnel'
 SERVER_NAME = 'talkfunnel.com'
-#: LastUser client id
+#: Lastuser client id
 LASTUSER_CLIENT_ID = ''
-#: LastUser client secret
+#: Lastuser client secret
 LASTUSER_CLIENT_SECRET = ''
 LASTUSER_COOKIE_DOMAIN = ''
+ASSET_BASE_PATH = 'build'
+ASSET_MANIFEST_PATH = "static/build/manifest.json"

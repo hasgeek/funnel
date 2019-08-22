@@ -1,37 +1,56 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
 {% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html" import renderfield %}
-{% block title %}{{ project.title }}{% endblock %}
+{% block title %}{{ event.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
 
-{% block content %}
-  <div class="grid" id="scan-badge-wrapper">
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-header">
+  {%- else %}
+    <body class="mui--bg-primary no-header">
+  {%- endif %}
+{% endblock %}
+
+{% block headline -%}
+{%- endblock %}
+
+{% block basecontentbox %}
+  <div id="scan-badge-wrapper">
     {% raw %}
       <script id='scan-badge-template' type='text/ractive'>
-        <div class="grid__col-xs-12 grid__col-lg-4">
-          <h3 class="mui--text-title">{{ eventTitle }}</h3>
-          {{#if video}}
-            <h4 class="mui--text-subhead">Please scan your badge to check-in</h4>
-            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" on-click="setupVideo(event)">Restart QR reader</button></p>
-          {{elseif error}}
+        <div class="scanner-wrapper scanner-wrapper--center">
+          <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
+          {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
-        </div>
-
-        <div class="grid__col-xs-12 grid__col-lg-8">
-          <canvas id="qrreader-canvas"></canvas>
+          {{#if video}}
+          <div>
+            <div class="mui-select camera-dropdown">
+              <select value='{{selectedCamera}}' class="mui--d-inlineblock">
+                <option value=''>Select camera</option>
+                {{#cameras}}
+                  <option value='{{value}}'>{{label}}</option>
+                {{/cameras}}
+              </select>
+            </div>
+            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="switchCamera(event)">Switch camera</button></p>
+          </div>
+          {{/if}}
         </div>
 
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><i class="material-icons">clear</i></a>
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><i class="material-icons" aria-hidden="true">clear</i></a>
             <h3 class="mui--text-title">Check in status</h3>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
+              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i></h4>
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
               <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>
@@ -49,100 +68,20 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_ractive" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.min.js"></script>
+  <script src="{{ url_for('static', filename=asset_path('scan_badge')) }}" type="text/javascript"></script>
   <script type="text/javascript">
-    $(document).ready(function() {
+    $(function() {
 
-      var checkinApiUrl = "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}"
+      var eventConfig = {};
+      eventConfig.checkinApiUrl = "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}"
 
-      window.badgeScanComponent = new Ractive({
-        el: '#scan-badge-wrapper',
-        template: '#scan-badge-template',
-        data: {
-          projectTitle: {{ project.title|tojson }},
-          eventTitle: {{ event.title|tojson }},
-          video: {},
-          error: "Unable to access video. Please make sure you have a camera enabled",
-          attendeeName: '',
-          attendeeFound: false,
-          scanning: true,
-          showModal: false,
-        },
-        closeModal: function(event) {
-          event.original.preventDefault();
-          $.modal.close();
-          badgeScanComponent.set('showModal', false);
-        },
-        checkinAttendee: function(qrcode) {
-          badgeScanComponent.set({
-            'scanning': true,
-            'showModal': true
-          });
+      eventConfig.wrapperId = 'scan-badge-wrapper';
+      eventConfig.templateId = 'scan-badge-template';
+      eventConfig.projectTitle = {{ project.title|tojson }};
+      eventConfig.eventTitle = {{ event.title|tojson }};
 
-          $("#status-msg").modal('show');
+      window.HasGeek.BadgeScanInit(eventConfig);
 
-          var url = checkinApiUrl.replace('puk', qrcode.substring(0,8));
-          var formValues = "checkin=t&csrf_token=" + $("meta[name='csrf-token']").attr('content');
-
-          $.ajax({
-            type: 'POST',
-            url:  url,
-            data : formValues,
-            timeout: 5000,
-            dataType: 'json',
-            success: function(response) {
-              badgeScanComponent.set({
-                'scanning': false,
-                'attendeeFound': true,
-                'attendeeName': response.attendee.fullname
-              });
-            },
-            error: function() {
-              badgeScanComponent.set({
-                'scanning': false,
-                'attendeeFound': false
-              });
-            }
-          });
-        },
-        renderFrame: function () {
-          var canvasElement = document.getElementById("qrreader-canvas");
-          var canvas = canvasElement.getContext("2d");
-
-          if (badgeScanComponent.get('video').readyState === badgeScanComponent.get('video').HAVE_ENOUGH_DATA) {
-            canvasElement.height = badgeScanComponent.get('video').videoHeight;
-            canvasElement.width = badgeScanComponent.get('video').videoWidth;
-            canvas.drawImage(badgeScanComponent.get('video'), 0, 0, canvasElement.width, canvasElement.height);
-            var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-            var qrcode = jsQR(imageData.data, imageData.width, imageData.height);
-
-            if (qrcode && qrcode.data.length === 16 && !badgeScanComponent.get('showModal')) {
-              badgeScanComponent.checkinAttendee(qrcode.data);
-            }
-          }
-          requestAnimationFrame(badgeScanComponent.renderFrame);
-        },
-        setupVideo: function(event) {
-          if (event) event.original.preventDefault();
-          var video = document.createElement("video");
-
-          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
-            badgeScanComponent.set('video', video);
-            badgeScanComponent.get('video').srcObject = stream;
-            badgeScanComponent.get('video').setAttribute("playsinline", true);
-            badgeScanComponent.get('video').play();
-
-            requestAnimationFrame(badgeScanComponent.renderFrame);
-          });
-        },
-        oncomplete: function() {
-          badgeScanComponent.setupVideo('');
-        }
-      });
-      
     });
   </script>
 {% endblock %}

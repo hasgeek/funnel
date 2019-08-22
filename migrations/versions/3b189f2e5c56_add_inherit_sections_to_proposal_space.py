@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """add inherit sections to proposal space
 
 Revision ID: 3b189f2e5c56
@@ -11,11 +13,16 @@ revision = '3b189f2e5c56'
 down_revision = '416a2f958279'
 
 from alembic import op
-import sqlalchemy as sa
+import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.add_column(u'proposal_space', sa.Column('inherit_sections', sa.Boolean(), nullable=False, server_default='True'))
+    op.add_column(
+        u'proposal_space',
+        sa.Column(
+            'inherit_sections', sa.Boolean(), nullable=False, server_default='True'
+        ),
+    )
 
 
 def downgrade():

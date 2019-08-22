@@ -1,0 +1,84 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app tabs-navbar">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
+
+{% block headline -%}
+{%- endblock %}
+
+{% block basecontentbox %}
+  <div class="tabs-wrapper tabs-wrapper--sticky">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="tabs" id="jquery-scroll-tabs">
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
+            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Profile{% endtrans %}</a>
+            <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
+            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Contacts{% endtrans %}</p>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mui-container tab-content">
+    <div class="grid">
+      <div class="grid__col-xs-12 grid__col-sm-6">
+        {% for project,dates in contacts %}
+          <div class="tab-content__results zero-bottom-margin">
+            <div class="collapsible__header collapsible__header--smaller mui--pull-left">
+              <p class="mui--text-subhead zero-bottom-margin"><i class="material-icons mui--align-middle collapsible__icon" aria-hidden="true">keyboard_arrow_right</i><i class="material-icons mui--align-middle mui--hide collapsible__icon" aria-hidden="true">keyboard_arrow_down</i> {{ project.title }}</p>
+            </div>
+            <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
+              <button class="mui-btn--nostyle " data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
+              <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+                <li><a href="{{ url_for('contacts_project_csv', suuid=project.suuid) }}" download title="CSV"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a></li>
+              </ul>
+            </div>
+            <div class="collapsible__body mui-list--aligned">
+              {% for daterow in dates %}
+                <div class="collapsible">
+                  <div class="collapsible__header collapsible__header--smaller mui--pull-left">
+                    <p class="mui--text-subhead zero-bottom-margin"><i class="material-icons mui--align-middle collapsible__icon" aria-hidden="true">keyboard_arrow_right</i><i class="material-icons mui--align-middle mui--hide collapsible__icon" aria-hidden="true">keyboard_arrow_down</i> {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
+                  </div>
+                  <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
+                    <button class="mui-btn--nostyle" data-mui-toggle="dropdown"><i class="material-icons mui--text-headline mui--align-middle">more_vert</i></button>
+                    <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+                      <li><a href="{{ url_for('contacts_project_date_csv', suuid=project.suuid, datestr=daterow.date) }}" download title="CSV" ><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a></li>
+                    </ul>
+                  </div>
+                  <div class="collapsible__body mui-list--aligned">
+                    {% for contact in daterow.contacts.all() %}
+                      <div class="user-box">
+                        <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="{{ contact.participant.fullname }}" aria-labl="{{ contact.participant.fullname }}" />
+                        <div class="mui--clearfix">
+                          <div class=" mui--pull-left">
+                            <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
+                            <p class="mui--text-body1">{{ contact.participant.email }}</p>
+                          </div>
+                          <a class="mui--pull-right contact-download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact"><i class="material-icons mui--text-headline">person_add</i></a>
+                        </div>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('contact')) }}" type="text/javascript"></script>
+{% endblock %}
