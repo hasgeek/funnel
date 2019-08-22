@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from flask import url_for, abort
-from . import db, TimestampMixin, UuidMixin, BaseScopedIdNameMixin, MarkdownColumn, JsonDict, CoordinatesMixin
+from . import (
+    db,
+    TimestampMixin,
+    UuidMixin,
+    BaseScopedIdNameMixin,
+    MarkdownColumn,
+    JsonDict,
+    CoordinatesMixin,
+)
 from .user import User
 from .project import Project
 from .section import Section
@@ -22,6 +30,7 @@ _marker = object()
 
 # --- Constants ------------------------------------------------------------------
 
+
 class PROPOSAL_STATE(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
     # If you add any new state, you need to add a migration to modify the check constraint
@@ -37,26 +46,60 @@ class PROPOSAL_STATE(LabeledEnum):
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
     SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
-    SHORTLISTED_FOR_REHEARSAL = (9, 'shortlisted_for_rehearsal', __("Shortlisted for rehearsal"))
+    SHORTLISTED_FOR_REHEARSAL = (
+        9,
+        'shortlisted_for_rehearsal',
+        __("Shortlisted for rehearsal"),
+    )
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
     # Groups
-    CONFIRMABLE = {WAITLISTED, UNDER_EVALUATION, SHORTLISTED, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
-    REJECTABLE = {WAITLISTED, UNDER_EVALUATION, SHORTLISTED, SHORTLISTED_FOR_REHEARSAL, REHEARSAL}
+    CONFIRMABLE = {
+        WAITLISTED,
+        UNDER_EVALUATION,
+        SHORTLISTED,
+        SHORTLISTED_FOR_REHEARSAL,
+        REHEARSAL,
+    }
+    REJECTABLE = {
+        WAITLISTED,
+        UNDER_EVALUATION,
+        SHORTLISTED,
+        SHORTLISTED_FOR_REHEARSAL,
+        REHEARSAL,
+    }
     WAITLISTABLE = {CONFIRMED, UNDER_EVALUATION}
     EVALUATEABLE = {SUBMITTED, AWAITING_DETAILS}
-    DELETABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
-    CANCELLABLE = {DRAFT, SUBMITTED, CONFIRMED, WAITLISTED, REJECTED, AWAITING_DETAILS, UNDER_EVALUATION}
+    DELETABLE = {
+        DRAFT,
+        SUBMITTED,
+        CONFIRMED,
+        WAITLISTED,
+        REJECTED,
+        AWAITING_DETAILS,
+        UNDER_EVALUATION,
+    }
+    CANCELLABLE = {
+        DRAFT,
+        SUBMITTED,
+        CONFIRMED,
+        WAITLISTED,
+        REJECTED,
+        AWAITING_DETAILS,
+        UNDER_EVALUATION,
+    }
     UNDO_TO_SUBMITTED = {AWAITING_DETAILS, UNDER_EVALUATION}
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
 
 
 # --- Models ------------------------------------------------------------------
 
+
 class ProposalFormData(object):
     """
     Form data access helper for custom fields
     """
+
     def __init__(self, proposal):
         self.__dict__['proposal'] = proposal
         self.__dict__['data'] = proposal.data
@@ -94,24 +137,35 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref=db.backref('proposals', cascade="all, delete-orphan"))
+    user = db.relationship(
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('proposals', cascade="all, delete-orphan"),
+    )
 
     speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    speaker = db.relationship(User, primaryjoin=speaker_id == User.id, lazy='joined',
-        backref=db.backref('speaker_at', cascade="all"))
+    speaker = db.relationship(
+        User,
+        primaryjoin=speaker_id == User.id,
+        lazy='joined',
+        backref=db.backref('speaker_at', cascade="all"),
+    )
 
     email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
     bio = MarkdownColumn('bio', nullable=True)
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(Project, primaryjoin=project_id == Project.id,
-        backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'))
+    project = db.relationship(
+        Project,
+        primaryjoin=project_id == Project.id,
+        backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'),
+    )
     parent = db.synonym('project')
 
     section_id = db.Column(None, db.ForeignKey('section.id'), nullable=True)
-    section = db.relationship(Section, primaryjoin=section_id == Section.id,
-        backref="proposals")
+    section = db.relationship(
+        Section, primaryjoin=section_id == Section.id, backref="proposals"
+    )
     objective = MarkdownColumn('objective', nullable=True)
     part_a = db.synonym('objective')
     session_type = db.Column(db.Unicode(40), nullable=True)
@@ -123,17 +177,32 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     preview_video = db.Column(db.Unicode(2000), default=u'', nullable=True)
     links = db.Column(db.Text, default=u'', nullable=True)
 
-    _state = db.Column('state', db.Integer, StateManager.check_constraint('state', PROPOSAL_STATE),
-        default=PROPOSAL_STATE.SUBMITTED, nullable=False)
+    _state = db.Column(
+        'state',
+        db.Integer,
+        StateManager.check_constraint('state', PROPOSAL_STATE),
+        default=PROPOSAL_STATE.SUBMITTED,
+        nullable=False,
+    )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(Voteset, uselist=False, lazy='joined',
-                            cascade='all, delete-orphan', single_parent=True)
+    voteset = db.relationship(
+        Voteset,
+        uselist=False,
+        lazy='joined',
+        cascade='all, delete-orphan',
+        single_parent=True,
+    )
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(Commentset, uselist=False, lazy='joined',
-                               cascade='all, delete-orphan', single_parent=True)
+    commentset = db.relationship(
+        Commentset,
+        uselist=False,
+        lazy='joined',
+        cascade='all, delete-orphan',
+        single_parent=True,
+    )
 
     edited_at = db.Column(db.DateTime, nullable=True)
     location = db.Column(db.Unicode(80), nullable=False)
@@ -146,12 +215,45 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     # XXX: The following two may overlap. Reconsider whether both are needed
 
     # Allow these fields to be set on the proposal by custom forms
-    __valid_fields__ = ('title', 'speaker', 'speaking', 'email', 'phone', 'bio', 'section', 'objective', 'session_type',
-        'technical_level', 'description', 'requirements', 'slides', 'preview_video', 'links', 'location',
-        'latitude', 'longitude', 'coordinates')
+    __valid_fields__ = (
+        'title',
+        'speaker',
+        'speaking',
+        'email',
+        'phone',
+        'bio',
+        'section',
+        'objective',
+        'session_type',
+        'technical_level',
+        'description',
+        'requirements',
+        'slides',
+        'preview_video',
+        'links',
+        'location',
+        'latitude',
+        'longitude',
+        'coordinates',
+    )
     # Never allow these fields to be set on the proposal or proposal.data by custom forms
-    __invalid_fields__ = ('id', 'name', 'url_id', 'user_id', 'user', 'speaker_id', 'project_id',
-        'project', 'parent', 'voteset_id', 'voteset', 'commentset_id', 'commentset', 'edited_at', 'data')
+    __invalid_fields__ = (
+        'id',
+        'name',
+        'url_id',
+        'user_id',
+        'user',
+        'speaker_id',
+        'project_id',
+        'project',
+        'parent',
+        'voteset_id',
+        'voteset',
+        'commentset_id',
+        'commentset',
+        'edited_at',
+        'data',
+    )
 
     def __init__(self, **kwargs):
         super(Proposal, self).__init__(**kwargs)
@@ -160,7 +262,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     def __repr__(self):
         return u'<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
-            proposal=self.title, project=self.project.title, user=self.owner.fullname)
+            proposal=self.title, project=self.project.title, user=self.owner.fullname
+        )
 
     @db.validates('project')
     def _validate_project(self, key, value):
@@ -170,68 +273,146 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if value != self.project and self.project is not None:
             redirect = ProposalRedirect.query.get((self.project_id, self.url_id))
             if redirect is None:
-                redirect = ProposalRedirect(project=self.project, url_id=self.url_id, proposal=self)
+                redirect = ProposalRedirect(
+                    project=self.project, url_id=self.url_id, proposal=self
+                )
                 db.session.add(redirect)
             else:
                 redirect.proposal = self
         return value
 
     # State transitions
-    state.add_conditional_state('SCHEDULED', state.CONFIRMED, lambda proposal: proposal.session is not None, label=('scheduled', __("Confirmed & Scheduled")))
-    state.add_conditional_state('MOVABLE', state.DELETABLE, lambda proposal: proposal.session is None, label=('movable', __("Movable")))
+    state.add_conditional_state(
+        'SCHEDULED',
+        state.CONFIRMED,
+        lambda proposal: proposal.session is not None,
+        label=('scheduled', __("Confirmed & Scheduled")),
+    )
+    state.add_conditional_state(
+        'MOVABLE',
+        state.DELETABLE,
+        lambda proposal: proposal.session is None,
+        label=('movable', __("Movable")),
+    )
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.AWAITING_DETAILS, state.DRAFT, title=__("Draft"), message=__("This proposal has been withdrawn"), type='danger')
+    @state.transition(
+        state.AWAITING_DETAILS,
+        state.DRAFT,
+        title=__("Draft"),
+        message=__("This proposal has been withdrawn"),
+        type='danger',
+    )
     def withdraw(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.DRAFT, state.SUBMITTED, title=__("Submit"), message=__("This proposal has been submitted"), type='success')
+    @state.transition(
+        state.DRAFT,
+        state.SUBMITTED,
+        title=__("Submit"),
+        message=__("This proposal has been submitted"),
+        type='success',
+    )
     def submit(self):
         pass
 
     @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.UNDO_TO_SUBMITTED, state.SUBMITTED, title=__("Send Back to Submitted"), message=__("This proposal has been submitted"), type='danger')
+    @state.transition(
+        state.UNDO_TO_SUBMITTED,
+        state.SUBMITTED,
+        title=__("Send Back to Submitted"),
+        message=__("This proposal has been submitted"),
+        type='danger',
+    )
     def undo_to_submitted(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMABLE, state.CONFIRMED, title=__("Confirm"), message=__("This proposal has been confirmed"), type='success')
+    @state.transition(
+        state.CONFIRMABLE,
+        state.CONFIRMED,
+        title=__("Confirm"),
+        message=__("This proposal has been confirmed"),
+        type='success',
+    )
     def confirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.CONFIRMED, state.SUBMITTED, title=__("Unconfirm"), message=__("This proposal is no longer confirmed"), type='danger')
+    @state.transition(
+        state.CONFIRMED,
+        state.SUBMITTED,
+        title=__("Unconfirm"),
+        message=__("This proposal is no longer confirmed"),
+        type='danger',
+    )
     def unconfirm(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.WAITLISTABLE, state.WAITLISTED, title=__("Waitlist"), message=__("This proposal has been waitlisted"), type='primary')
+    @state.transition(
+        state.WAITLISTABLE,
+        state.WAITLISTED,
+        title=__("Waitlist"),
+        message=__("This proposal has been waitlisted"),
+        type='primary',
+    )
     def waitlist(self):
         pass
 
     @with_roles(call={'admin'})
-    @state.transition(state.REJECTABLE, state.REJECTED, title=__("Reject"), message=__("This proposal has been rejected"), type='danger')
+    @state.transition(
+        state.REJECTABLE,
+        state.REJECTED,
+        title=__("Reject"),
+        message=__("This proposal has been rejected"),
+        type='danger',
+    )
     def reject(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.CANCELLABLE, state.CANCELLED, title=__("Cancel"), message=__("This proposal has been cancelled"), type='danger')
+    @state.transition(
+        state.CANCELLABLE,
+        state.CANCELLED,
+        title=__("Cancel"),
+        message=__("This proposal has been cancelled"),
+        type='danger',
+    )
     def cancel(self):
         pass
 
     @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.SUBMITTED, state.AWAITING_DETAILS, title=__("Awaiting details"), message=__("Awaiting details for this proposal"), type='primary')
+    @state.transition(
+        state.SUBMITTED,
+        state.AWAITING_DETAILS,
+        title=__("Awaiting details"),
+        message=__("Awaiting details for this proposal"),
+        type='primary',
+    )
     def awaiting_details(self):
         pass
 
     @with_roles(call={'admin', 'reviewer'})
-    @state.transition(state.EVALUATEABLE, state.UNDER_EVALUATION, title=__("Under evaluation"), message=__("This proposal has been put under evaluation"), type='success')
+    @state.transition(
+        state.EVALUATEABLE,
+        state.UNDER_EVALUATION,
+        title=__("Under evaluation"),
+        message=__("This proposal has been put under evaluation"),
+        type='success',
+    )
     def under_evaluation(self):
         pass
 
     @with_roles(call={'speaker', 'proposer'})
-    @state.transition(state.DELETABLE, state.DELETED, title=__("Delete"), message=__("This proposal has been deleted"), type='danger')
+    @state.transition(
+        state.DELETABLE,
+        state.DELETED,
+        title=__("Delete"),
+        message=__("This proposal has been deleted"),
+        type='danger',
+    )
     def delete(self):
         pass
 
@@ -268,13 +449,25 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         ``user`` is the person making the copy.
         """
         new_proposal = Proposal(
-            name=self.name, title=self.title,
-            user=user, speaker=self.speaker, project=project,
-            email=self.email, phone=self.phone, bio=self.bio,  # section=?
-            objective=self.objective, part_a=self.part_a, session_type=self.session_type,
-            technical_level=self.technical_level, description=self.description, part_b=self.part_b,
-            requirements=self.requirements, slides=self.slides, preview_video=self.preview_video,
-            links=self.links, location=self.location
+            name=self.name,
+            title=self.title,
+            user=user,
+            speaker=self.speaker,
+            project=project,
+            email=self.email,
+            phone=self.phone,
+            bio=self.bio,  # section=?
+            objective=self.objective,
+            part_a=self.part_a,
+            session_type=self.session_type,
+            technical_level=self.technical_level,
+            description=self.description,
+            part_b=self.part_b,
+            requirements=self.requirements,
+            slides=self.slides,
+            preview_video=self.preview_video,
+            links=self.links,
+            location=self.location,
         )
         db.session.add(new_proposal)
         return new_proposal
@@ -313,21 +506,34 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
 
     def getnext(self):
-        return Proposal.query.filter(Proposal.project == self.project).filter(
-            Proposal.id != self.id).filter(
-                Proposal.created_at < self.created_at).order_by(db.desc('created_at')).first()
+        return (
+            Proposal.query.filter(Proposal.project == self.project)
+            .filter(Proposal.id != self.id)
+            .filter(Proposal.created_at < self.created_at)
+            .order_by(db.desc('created_at'))
+            .first()
+        )
 
     def getprev(self):
-        return Proposal.query.filter(Proposal.project == self.project).filter(
-            Proposal.id != self.id).filter(
-                Proposal.created_at > self.created_at).order_by('created_at').first()
+        return (
+            Proposal.query.filter(Proposal.project == self.project)
+            .filter(Proposal.id != self.id)
+            .filter(Proposal.created_at > self.created_at)
+            .order_by('created_at')
+            .first()
+        )
 
     def votes_count(self):
         return len(self.voteset.votes)
 
     def votes_by_group(self):
         votes_groups = dict([(group.name, 0) for group in self.project.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users]) for group in self.project.usergroups])
+        groupuserids = dict(
+            [
+                (group.name, [user.userid for user in group.users])
+                for group in self.project.usergroups
+            ]
+        )
         for vote in self.voteset.votes:
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:
@@ -343,13 +549,19 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         else:
             tz = None
         votes_bydate = dict([(group.name, {}) for group in self.project.usergroups])
-        groupuserids = dict([(group.name, [user.userid for user in group.users])
-            for group in self.project.usergroups])
+        groupuserids = dict(
+            [
+                (group.name, [user.userid for user in group.users])
+                for group in self.project.usergroups
+            ]
+        )
         for vote in self.voteset.votes:
             for groupname, userids in groupuserids.items():
                 if vote.user.userid in userids:
                     if tz:
-                        date = tz.normalize(vote.updated_at.replace(tzinfo=utc).astimezone(tz)).strftime('%Y-%m-%d')
+                        date = tz.normalize(
+                            vote.updated_at.replace(tzinfo=utc).astimezone(tz)
+                        ).strftime('%Y-%m-%d')
                     else:
                         date = vote.updated_at.strftime('%Y-%m-%d')
                     votes_bydate[groupname].setdefault(date, 0)
@@ -359,19 +571,17 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
-            perms.update([
-                'vote-proposal',
-                'new-comment',
-                'vote-comment',
-                ])
+            perms.update(['vote-proposal', 'new-comment', 'vote-comment'])
             if user == self.owner:
-                perms.update([
-                    'view-proposal',
-                    'edit-proposal',
-                    'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
-                    'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
-                    'transfer-proposal',
-                    ])
+                perms.update(
+                    [
+                        'view-proposal',
+                        'edit-proposal',
+                        'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
+                        'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
+                        'transfer-proposal',
+                    ]
+                )
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
         return perms
@@ -386,46 +596,139 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
             roles.add('proposer')
         roles.update(self.project.roles_for(actor, anchors))
         if self.state.DRAFT and 'reader' in roles:
-            roles.remove('reader')  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
+            roles.remove(
+                'reader'
+            )  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
         return roles
 
     def url_for(self, action='view', _external=False, **kwargs):
         if action == 'view':
-            return url_for('proposal_view', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_view',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'json':
-            return url_for('proposal_json', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_json',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'edit':
-            return url_for('proposal_edit', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_edit',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'delete':
-            return url_for('proposal_delete', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_delete',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'voteup':
-            return url_for('proposal_voteup', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_voteup',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'votedown':
-            return url_for('proposal_votedown', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_votedown',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'votecancel':
-            return url_for('proposal_cancelvote', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_cancelvote',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'next':
-            return url_for('proposal_next', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_next',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'prev':
-            return url_for('proposal_prev', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_prev',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'schedule':
-            return url_for('proposal_schedule', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_schedule',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'transition':
-            return url_for('proposal_transition', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_transition',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
         elif action == 'move-to':
-            return url_for('proposal_moveto', profile=self.project.profile.name, project=self.project.name, proposal=self.url_name, _external=_external, **kwargs)
+            return url_for(
+                'proposal_moveto',
+                profile=self.project.profile.name,
+                project=self.project.name,
+                proposal=self.url_name,
+                _external=_external,
+                **kwargs
+            )
 
 
 class ProposalRedirect(TimestampMixin, db.Model):
     __tablename__ = 'proposal_redirect'
 
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False, primary_key=True)
-    project = db.relationship(Project, primaryjoin=project_id == Project.id,
-        backref=db.backref('proposal_redirects', cascade="all, delete-orphan"))
+    project_id = db.Column(
+        None, db.ForeignKey('project.id'), nullable=False, primary_key=True
+    )
+    project = db.relationship(
+        Project,
+        primaryjoin=project_id == Project.id,
+        backref=db.backref('proposal_redirects', cascade="all, delete-orphan"),
+    )
     parent = db.synonym('project')
     url_id = db.Column(db.Integer, nullable=False, primary_key=True)
 
-    proposal_id = db.Column(None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True)
+    proposal_id = db.Column(
+        None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True
+    )
     proposal = db.relationship(Proposal, backref='redirects')
 
     @hybrid_property
@@ -446,17 +749,20 @@ class ProposalRedirect(TimestampMixin, db.Model):
 
     def __repr__(self):
         return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
-            self.project.profile.name, self.project.name, self.url_id,
+            self.project.profile.name,
+            self.project.name,
+            self.url_id,
             self.proposal.project.profile.name if self.proposal else "(none)",
             self.proposal.project.name if self.proposal else "(none)",
-            self.proposal.url_id if self.proposal else "(none)")
+            self.proposal.url_id if self.proposal else "(none)",
+        )
 
     def redirect_view_args(self):
         if self.proposal:
             return {
                 'profile': self.proposal.project.profile.name,
                 'project': self.proposal.project.name,
-                'proposal': self.proposal.url_name
-                }
+                'proposal': self.proposal.url_name,
+            }
         else:
             return {}
