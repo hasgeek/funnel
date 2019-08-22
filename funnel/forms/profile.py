@@ -44,7 +44,7 @@ class EditProfileForm(forms.Form):
         get_label='title',
         allow_blank=False,
         description=__(
-            "The team of users with administrative rights to this Talkfunnel (owners always have admin access)"
+            "The team of users with administrative rights to this Profile (owners always have admin access)"
         ),
     )
 

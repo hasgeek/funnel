@@ -3,6 +3,7 @@
 
 from .comment import *
 from .label import *
+from .membership import *
 from .participant import *
 from .profile import *
 from .project import *
