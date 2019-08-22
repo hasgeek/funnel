@@ -418,7 +418,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.make_id()
 
     @with_roles(call={'admin'})
-    def copy_to(self, project, user):
+    def make_copy(self, project, user):
         """
         Make a copy of the proposal in a new project.
         ``user`` is the person making the copy.

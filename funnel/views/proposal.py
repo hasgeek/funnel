@@ -308,7 +308,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('move', methods=['POST'])
     @lastuser.requires_login
     @requires_permission('move-proposal')
-    def moveto(self):
+    def move_to(self):
         proposal_move_form = ProposalMoveForm()
         if proposal_move_form.validate_on_submit():
             target_project = proposal_move_form.target.data
@@ -317,7 +317,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     self.obj.current_access().move_to(target_project)
                     new_proposal = self.obj
                 else:
-                    new_proposal = self.obj.current_access().copy_to(
+                    new_proposal = self.obj.current_access().make_copy(
                         target_project, current_auth.user
                     )
 
