@@ -62,6 +62,12 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
                 if session.scheduled
                 else None
             ),
+            'timezone': session.project.timezone.zone,
+            'timezone_offset': (
+                session.start_at.astimezone(session.project.timezone)
+                .utcoffset()
+                .total_seconds()
+            ),
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': (
                 session.venue_room.scoped_name if session.venue_room else None
