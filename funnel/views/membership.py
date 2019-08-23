@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from baseframe import _
 from baseframe.forms import render_form
 from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
@@ -41,13 +40,15 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         }
 
     @route('new', methods=['GET', 'POST'])
-    @render_with('membership.html.jinja2', json=True)
+    @render_with(json=True)
     @lastuser.requires_login
     @requires_permission('admin')
     def new_member(self):
-        form = ProjectMembershipForm()
         html_form = render_form(
-            form=form, title=_("New member"), ajax=False, with_chrome=False
+            form=ProjectMembershipForm(),
+            title=_("New member"),
+            ajax=False,
+            with_chrome=False,
         )
         return {'form': html_form}
 
