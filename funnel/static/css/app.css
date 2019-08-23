@@ -259,10 +259,15 @@ html.touch .collapsible__body--disable {
   margin-bottom: 15px;
 }
 
-.details-box {
+.details-box--flex {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.details-box--small {
+  max-width: 800px;
+  margin: 0 auto 15px;
 }
 
 .details-box__item {
@@ -1198,7 +1203,7 @@ html.touch .collapsible__body--disable {
 }
 
 .card--new {
-  margin: 15px auto;
+  margin: 15px auto 30px;
   width: 100%;
   max-width: 500px;
 }
