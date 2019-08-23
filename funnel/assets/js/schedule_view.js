@@ -13,6 +13,7 @@ const Schedule = {
           rowWidth: Object.keys(schedule.config.rooms).length,
           rowHeight: '30',
           timeSlotWidth: '75',
+          timeZone: schedule.config.timeZone,
           rowBorder: '1',
           activeTab: Object.keys(schedule.config.rooms)[0],
           width: $(window).width(),
@@ -40,7 +41,11 @@ const Schedule = {
           this.view = view;
         },
         getTimeStr(time) {
-          return new Date(parseInt(time, 10)).toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
+          const options = {
+            timeStyle: 'short',
+            timeZone: this.timeZone,
+          };
+          return new Date(parseInt(time, 10)).toLocaleTimeString('en-GB', options);
         },
         getColumnWidth(columnType) {
           if (columnType === 'header' || this.width >= window.HasGeek.config.mobileBreakpoint) {
@@ -189,6 +194,8 @@ const Schedule = {
       session.eventDay = this.Utils.getEventDay(session.start_at, this.config.eventDayhashes);
       session.duration = this.Utils.getDuration(session.end_at,
         session.start_at, this.config.slotInterval);
+      console.log('sessions', session);
+      console.log('this.config.schedule', this.config.schedule[session.eventDay]);
       if (this.config.schedule[session.eventDay]) {
         this.config.schedule[session.eventDay].sessions[session.startTime].showLabel = true;
         this.config.schedule[session.eventDay].sessions[session.startTime]
@@ -204,7 +211,7 @@ const Schedule = {
       day.startTime = this.Utils.getTime(day.start_at);
       day.endTime = this.Utils.getTime(day.end_at);
       day.rooms = JSON.parse(JSON.stringify(this.config.rooms));
-      this.config.eventDayhashes[this.Utils.getEventDate(day.date)] = index;
+      this.config.eventDayhashes[this.Utils.getEventDate(day.start_at)] = index;
       const slots = {
       };
       let sessionSlots = day.startTime;
@@ -219,6 +226,7 @@ const Schedule = {
           + this.config.slotInterval);
       }
       slots[endSessionSlot].showLabel = true;
+      console.log('slots', slots);
       day.sessions = JSON.parse(JSON.stringify(slots));
     });
   },
@@ -232,7 +240,7 @@ const Schedule = {
         this.config.rooms[room.scoped_name].venue_title = venue.title;
       });
     });
-    this.Utils.setTimeZoneOffset(this.config.timezoneOffset);
+    this.Utils.setTimeZoneOffset(this.config.timeZone, this.config.timezoneOffset);
 
     if (Object.keys(this.config.rooms).length) {
       this.createSlots();
@@ -241,30 +249,33 @@ const Schedule = {
     }
   },
   Utils: {
-    setTimeZoneOffset(timezoneOffset) {
-      // The time difference between UTC and project timezone in milliseconds
+    setTimeZoneOffset(timeZone, timezoneOffset) {
+      this.timeZone = timeZone;
       this.timezoneOffset = timezoneOffset;
-    },
-    getTimeZoneOffset() {
-      /* new Date().getTimezoneOffset() - the time difference
-         between UTC and browser timezone in minutes
-      */
-      const jsDate = new Date();
-      return (jsDate.getTimezoneOffset() * 60000 + this.timezoneOffset);
     },
     getEventDay(eventDate, eventDayshash) {
       const day = this.getEventDate(eventDate);
       return eventDayshash[day];
     },
     getEventDate(eventDate) {
-      const date = new Date(this.getTime(eventDate));
-      return date.getDate();
+      const options = {
+        day: 'numeric',
+        timeZone: this.timeZone,
+      };
+      return new Date(eventDate).toLocaleDateString('en-GB', options);
     },
     getTime(dateTime) {
-      return new Date(new Date(dateTime).getTime() + this.getTimeZoneOffset()).getTime();
+      return new Date(dateTime).getTime();
     },
     getDateString(eventDate) {
-      return new Date(this.getTime(eventDate)).toDateString();
+      const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: this.timeZone,
+      };
+      return new Date(eventDate).toLocaleDateString('en-GB', options);
     },
     getDuration(endDate, startDate, slotInterval) {
       const duration = new Date(endDate) - new Date(startDate);
