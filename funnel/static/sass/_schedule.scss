@@ -268,14 +268,26 @@ and (orientation: landscape) {
   position: relative;
 
   .datepicker-wrapper {
-    position: absolute;
-    width: 100%;
-    top: -18px;
+    .mui-textfield {
+      width: auto;
+    }
 
     input {
       width: auto;
       margin: 0;
-      font-size: 22px;
+      font-size: 16px;
+    }
+  }
+}
+
+@media (min-device-width: 768px) {
+  .calendar-wrapper {
+    position: relative;
+
+    .datepicker-wrapper {
+      position: absolute;
+      width: 100%;
+      top: -18px;
     }
   }
 }

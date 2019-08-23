@@ -2254,17 +2254,25 @@ html.touch .collapsible__body--disable {
 .calendar-wrapper {
   position: relative;
 }
-.calendar-wrapper .datepicker-wrapper {
-  position: absolute;
-  width: 100%;
-  top: -18px;
+.calendar-wrapper .datepicker-wrapper .mui-textfield {
+  width: auto;
 }
 .calendar-wrapper .datepicker-wrapper input {
   width: auto;
   margin: 0;
-  font-size: 22px;
+  font-size: 16px;
 }
 
+@media (min-device-width: 768px) {
+  .calendar-wrapper {
+    position: relative;
+  }
+  .calendar-wrapper .datepicker-wrapper {
+    position: absolute;
+    width: 100%;
+    top: -18px;
+  }
+}
 .session-modal {
   max-width: 98%;
   width: 98%;

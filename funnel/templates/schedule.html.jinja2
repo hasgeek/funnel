@@ -234,7 +234,9 @@
     var scheduleConfig = {
       fromDate: {{ from_date|tojson }},
       toDate: {{ to_date|tojson }},
-      timezoneOffset: {{ timezone }} * 1000,
+      timeZone: "{{ timezone }}",
+      // JavaScript uses milliseconds as the unit of measurement, whereas Unix Time is in seconds.
+      timezoneOffset: {{ timezone_offset * 1000 }},
       sessions: {{ sessions|tojson }},
       schedule: {{ schedule|tojson }},
       venues: {{ venues|tojson }},
@@ -246,12 +248,10 @@
       projectTitle: "{{ project.title }}",
       pageDescription: "{{ g.profile.description|striptags }}"
     };
-  </script>
-  {%- if active_session -%}
-    <script type="text/javascript">
+    {%- if active_session -%}
       scheduleConfig['active_session'] = {{ active_session|tojson }};
-    </script>
-  {%- endif %}
+    {%- endif %}
+  </script>
   <script type="text/javascript">
     $(document).ready( function() {
       saveProjectConfig = {
