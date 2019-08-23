@@ -22,40 +22,29 @@
   <div class="page-content page-content--mob-nav">
     <div class="grid" id="membership">
       <div class="grid__col-xs-12">
-        <div id="manage-membership">
-          <membership></membership>
-        </div>
         {% raw %}
-          <script type="text/x-template" id="admin-membership-template">
-            <div class="grid">
-              <div class="grid__col-xs-12">
-                <a class="clickable-card card card--new mui--z2" title="New label" @click="addNewMember($event)">
-                  <div class="card__body mui--text-center">
-                    <p class="mui--text-headline mui--text-light mui--text-center zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-display1" aria-hidden="true">add</i> Add a member</p>
-                  </div>
-                </a>
-              </div>
-              <div class="grid__col-xs-12">
-                <h2 class="mui--text-headline" v-if="members">Members</h2>
-              </div>
-              <div class="grid__col-xs-12" v-for="member in members">
-                <div class="details-box details-box--flex">
-                    <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.title }}</h3>
-                    <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder">
-                      <li>Editor</li>
-                      <li>Concierge</li>
-                      <li>Usher</li>
-                    </ul>
-                    <div>
-                      <a :href="member.edit_url" title="Edit" aria-label="Edit"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
-                      <a :href="member.delete_url" title="Delete" aria-label="Delete"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
-                    </div>
-                  </div>
-                </div>
-              <div id="new-member-form" class="session-modal" v-html="newMemberForm">
-              </div>
+        <div id="manage-membership">
+          <a class="clickable-card card card--new mui--z2" title="New label" @click="fetchForm($event, newMemberUrl)">
+            <div class="card__body mui--text-center">
+              <p class="mui--text-headline mui--text-light mui--text-center zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-display1" aria-hidden="true">add</i> Add a member</p>
             </div>
-          </script>
+          </a>
+<!--           <h2 class="mui--text-headline mui--text-center" v-if="members">Members</h2> -->
+          <div class="details-box details-box--flex details-box--small" v-for="member in members">
+            <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.title }}</h3>
+            <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder">
+              <li>Editor</li>
+              <li>Concierge</li>
+              <li>Usher</li>
+            </ul>
+            <div>
+              <a href="javascript:void(0)" @click="fetchForm($event, member.edit_url)" title="Edit" aria-label="Edit"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
+              <a :href="member.delete_url" title="Delete" aria-label="Delete"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
+            </div>
+          </div>
+          <div id="member-form" class="modal">
+            <component :is="Form"></component>
+          </div>
         {% endraw %}
       </div>
     </div>
@@ -65,50 +54,51 @@
 
 {% block footerscripts %}
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-script2@2.1.0/dist/vue-script2.min.js"></script>
   <script type="text/javascript">
     $(function() {
 
       const Membership = {
         init({divElem, scriptTemplate, newMemberUrl, members}) {
-          let MembershipComponent = Vue.component('membership', {
-            template: scriptTemplate,
+          Vue.use(VueScript2);
+          let MembershipComponent = new Vue({
+            el: divElem,
             data: function () {
               return {
                 newMemberUrl: newMemberUrl,
                 members: members,
-                newMemberForm: ''
+                memberForm: '',
               }
             },
             methods: {
-              addNewMember(event) {
+              fetchForm(event, url) {
+                console.log('url', url);
                 event.preventDefault();
                 let app = this;
-                if(app.newMemberForm) {
-                  $('#new-member-form').modal('show');
-                } else {
-                  $.ajax({
-                    type: 'GET',
-                    url: app.newMemberUrl,
-                    timeout: window.HasGeek.config.ajaxTimeout,
-                    dataType: 'json',
-                    success: function(data) {
-                      app.newMemberForm = data.form;
-                      $('#new-member-form').modal('show');
-                    }
-                  });
-                }
+                $.ajax({
+                  type: 'GET',
+                  url: app.newMemberUrl,
+                  timeout: window.HasGeek.config.ajaxTimeout,
+                  dataType: 'json',
+                  success: function(data) {
+                    let vueFormHtml = data.form
+                    app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+                    $('#member-form').modal('show');
+                  }
+                });
+              },
+            },
+            computed: {
+              Form() {
+                const template = this.memberForm ? this.memberForm : '<div></div>';
+                return {
+                  template
+                };
               },
             },
             mounted() {
             },
           });
-
-          let MembershipApp = new Vue({
-            components: {
-              MembershipComponent
-            },
-          });
-          MembershipApp.$mount(divElem);
         },
       }
 
