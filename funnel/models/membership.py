@@ -5,7 +5,6 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from coaster.sqlalchemy import immutable
-from coaster.utils import utcnow
 
 from . import BaseMixin, UuidMixin, db
 from .profile import Profile
@@ -215,6 +214,26 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     __role_columns__ = ('is_editor', 'is_concierge', 'is_usher')
     __parent_column__ = 'project_id'
 
+    __roles__ = {
+        # 'profile_admin': {
+        #     'read': {
+        #         'user_fullname',
+        #         'is_editor',
+        #         'is_concierge',
+        #         'is_usher',
+        #     }
+        # },
+        # 'profile_owner': {
+        #     'read': {
+        #         'user_fullname',
+        #         'is_editor',
+        #         'is_concierge',
+        #         'is_usher',
+        #     }
+        # },
+        'all': {'read': {'user_fullname', 'is_editor', 'is_concierge', 'is_usher'}}
+    }
+
     project_id = immutable(
         db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
     )
@@ -275,9 +294,9 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         )
         return tuple(args)
 
-    def revoke(self, revoked_by):
-        self.revoked_at = utcnow().astimezone(self.project.timezone)
-        self.revoked_by_id = revoked_by.id
+    @property
+    def user_fullname(self):
+        return self.user.fullname
 
     def offered_roles(self):
         """Roles offered by this membership record"""
