@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from flask import flash, redirect
+
 from baseframe import _
 from baseframe.forms import render_form
+from coaster.auth import current_auth
 from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
 from .. import app, funnelapp, lastuser
 from ..forms import ProjectMembershipForm, SavedProjectForm
+from ..models import ProjectCrewMembership, db
 from .decorators import legacy_redirect
 from .mixins import ProjectViewMixin
 
@@ -35,7 +39,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
-            'labels': labels_list_data(self.obj.labels),
+            'members': [member.current_access() for member in self.obj.crew],
             'project_save_form': project_save_form,
         }
 
@@ -44,13 +48,27 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('admin')
     def new_member(self):
-        html_form = render_form(
-            form=ProjectMembershipForm(),
-            title=_("New member"),
-            ajax=False,
-            with_chrome=False,
+        membership_form = ProjectMembershipForm()
+        if membership_form.validate_on_submit():
+            previous_memberships = ProjectCrewMembership.query.filter(
+                ProjectCrewMembership.active
+            ).filter_by(project=self.obj, user=membership_form.user.data)
+            for prevmem in previous_memberships:
+                prevmem.revoke(revoked_by=current_auth.user)
+
+            new_membership = ProjectCrewMembership(project=self.obj)
+            membership_form.populate_obj(new_membership)
+            db.session.add(new_membership)
+            db.session.commit()
+
+            flash(_("The new member has been added"), category='success')
+            return redirect(self.obj.url_for('membership'), 303)
+        else:
+            flash(_("The new member could not be added"), category='error')
+        membership_form_html = render_form(
+            form=membership_form, title=_("New member"), ajax=False, with_chrome=False
         )
-        return {'form': html_form}
+        return {'form': membership_form_html}
 
 
 @route('/<project>/membership', subdomain='<profile>')

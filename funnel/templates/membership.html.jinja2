@@ -31,7 +31,7 @@
           </a>
 <!--           <h2 class="mui--text-headline mui--text-center" v-if="members">Members</h2> -->
           <div class="details-box details-box--flex details-box--small" v-for="member in members">
-            <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.title }}</h3>
+            <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.fullname }}</h3>
             <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder">
               <li>Editor</li>
               <li>Concierge</li>
@@ -108,7 +108,7 @@
 
       var membershipConfig = {
         newMemberUrl: "{{ project.url_for('new_member') }}",
-        members: {{ labels|tojson }},
+        members: {{ members|tojson }},
         divElem: "#manage-membership",
         scriptTemplate: '#admin-membership-template',
         parentContainer: '#membership',
