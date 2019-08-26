@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from coaster.sqlalchemy import immutable
+from coaster.utils import utcnow
 
 from . import BaseMixin, UuidMixin, db
 from .profile import Profile
@@ -273,6 +274,10 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             )
         )
         return tuple(args)
+
+    def revoke(self, revoked_by):
+        self.revoked_at = utcnow().astimezone(self.project.timezone)
+        self.revoked_by_id = revoked_by.id
 
     def offered_roles(self):
         """Roles offered by this membership record"""
