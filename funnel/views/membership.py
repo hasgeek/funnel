@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect
+from flask import request
 
 from baseframe import _
 from baseframe.forms import render_form
@@ -39,7 +39,10 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
-            'members': [member.current_access() for member in self.obj.crew],
+            'memberships': [
+                membership.current_access()
+                for membership in self.obj.active_crew_memberships
+            ],
             'project_save_form': project_save_form,
         }
 
@@ -49,26 +52,42 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('admin')
     def new_member(self):
         membership_form = ProjectMembershipForm()
-        if membership_form.validate_on_submit():
-            previous_memberships = ProjectCrewMembership.query.filter(
-                ProjectCrewMembership.active
-            ).filter_by(project=self.obj, user=membership_form.user.data)
-            for prevmem in previous_memberships:
-                prevmem.revoke(revoked_by=current_auth.user)
 
-            new_membership = ProjectCrewMembership(project=self.obj)
-            membership_form.populate_obj(new_membership)
-            db.session.add(new_membership)
-            db.session.commit()
+        if request.method == 'POST':
+            if membership_form.validate_on_submit():
+                previous_membership = (
+                    ProjectCrewMembership.query.filter(ProjectCrewMembership.active)
+                    .filter_by(project=self.obj, user=membership_form.user.data)
+                    .one_or_none()
+                )
+                if previous_membership is not None:
+                    new_membership = previous_membership.replace(
+                        actor=current_auth.user,
+                        is_editor=membership_form.is_editor.data,
+                        is_concierge=membership_form.is_concierge.data,
+                        is_usher=membership_form.is_usher.data,
+                    )
+                else:
+                    new_membership = ProjectCrewMembership(project=self.obj)
+                    membership_form.populate_obj(new_membership)
+                    db.session.add(new_membership)
+                db.session.commit()
 
-            flash(_("The new member has been added"), category='success')
-            return redirect(self.obj.url_for('membership'), 303)
-        else:
-            flash(_("The new member could not be added"), category='error')
+                return {'status': 'ok'}
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'message': _("The new member could not be added"),
+                        'errors': membership_form.errors,
+                    },
+                    400,
+                )
+
         membership_form_html = render_form(
             form=membership_form, title=_("New member"), ajax=False, with_chrome=False
         )
-        return {'form': membership_form_html}
+        return {'status': 'ok', 'form': membership_form_html}
 
 
 @route('/<project>/membership', subdomain='<profile>')
