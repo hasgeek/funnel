@@ -216,7 +216,14 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     __roles__ = {
         'profile_admin': {
-            'read': {'user_fullname', 'is_editor', 'is_concierge', 'is_usher'}
+            'read': {
+                'user_fullname',
+                'is_editor',
+                'is_concierge',
+                'is_usher',
+                'edit_url',
+                'delete_url',
+            }
         },
         # 'profile_owner': {
         #     'read': {
@@ -291,6 +298,14 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     @property
     def user_fullname(self):
         return self.user.fullname
+
+    @property
+    def edit_url(self):
+        return self.project.url_for('edit_member', _external=True)
+
+    @property
+    def delete_url(self):
+        return self.project.url_for('delete_member', _external=True)
 
     def offered_roles(self):
         """Roles offered by this membership record"""
