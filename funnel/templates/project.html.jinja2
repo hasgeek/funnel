@@ -63,7 +63,7 @@
 {% block contentwrapper %}
   <div class="grid">
     <div class="grid__col-12">
-      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
+      {%- if project.current_roles.profile_admin or project.current_roles.project_usher %}
         {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
       {% endif %}
     </div>
