@@ -42,7 +42,8 @@ const Schedule = {
         },
         getTimeStr(time) {
           const options = {
-            timeStyle: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
             timeZone: this.timeZone,
           };
           return new Date(parseInt(time, 10)).toLocaleTimeString('en-GB', options);
@@ -194,8 +195,6 @@ const Schedule = {
       session.eventDay = this.Utils.getEventDay(session.start_at, this.config.eventDayhashes);
       session.duration = this.Utils.getDuration(session.end_at,
         session.start_at, this.config.slotInterval);
-      console.log('sessions', session);
-      console.log('this.config.schedule', this.config.schedule[session.eventDay]);
       if (this.config.schedule[session.eventDay]) {
         this.config.schedule[session.eventDay].sessions[session.startTime].showLabel = true;
         this.config.schedule[session.eventDay].sessions[session.startTime]
@@ -215,9 +214,7 @@ const Schedule = {
       const slots = {
       };
       let sessionSlots = day.startTime;
-      let endSessionSlot;
-      while (sessionSlots < day.endTime) {
-        endSessionSlot = sessionSlots;
+      while (sessionSlots <= day.endTime) {
         slots[sessionSlots] = {
           showLabel: false, rooms: JSON.parse(JSON.stringify(this.config.rooms)),
         };
@@ -225,8 +222,7 @@ const Schedule = {
         sessionSlots = sessionSlots.setMinutes(sessionSlots.getMinutes()
           + this.config.slotInterval);
       }
-      slots[endSessionSlot].showLabel = true;
-      console.log('slots', slots);
+      slots[day.endTime].showLabel = true;
       day.sessions = JSON.parse(JSON.stringify(slots));
     });
   },
@@ -240,7 +236,7 @@ const Schedule = {
         this.config.rooms[room.scoped_name].venue_title = venue.title;
       });
     });
-    this.Utils.setTimeZoneOffset(this.config.timeZone, this.config.timezoneOffset);
+    this.Utils.setTimeZone(this.config.timeZone);
 
     if (Object.keys(this.config.rooms).length) {
       this.createSlots();
@@ -249,9 +245,8 @@ const Schedule = {
     }
   },
   Utils: {
-    setTimeZoneOffset(timeZone, timezoneOffset) {
+    setTimeZone(timeZone) {
       this.timeZone = timeZone;
-      this.timezoneOffset = timezoneOffset;
     },
     getEventDay(eventDate, eventDayshash) {
       const day = this.getEventDate(eventDate);

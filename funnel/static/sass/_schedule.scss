@@ -213,7 +213,7 @@
           margin: 0;
           background-color: #fff;
           display: block;
-          padding: 8px 0 0;
+          padding: 2px 0 0;
           text-align: center;
           color: #F0A40C;
           text-decoration: none;
@@ -276,6 +276,11 @@ and (orientation: landscape) {
       width: auto;
       margin: 0;
       font-size: 16px;
+    }
+
+    .datepicker-wrappe__tz {
+      padding-top: 18px;
+      margin-left: 5px;
     }
   }
 }
