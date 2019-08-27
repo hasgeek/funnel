@@ -21,3 +21,11 @@ class ProjectMembershipForm(forms.Form):
             self.is_usher.errors.append("At lease one role must be chosen")
             is_valid = False
         return is_valid
+
+
+class ProjectMembershipDeleteForm(forms.Form):
+    user = forms.UserSelectField(
+        __("User"),
+        validators=[forms.validators.DataRequired(_(u"Please select a user"))],
+        description=__("The user who you want to delete from this project"),
+    )
