@@ -160,7 +160,7 @@
         <h3 class="mui--text-title mui--text-uppercase mui--text-bold">{% trans %}Admin panel{% endtrans %}</h3>
       </div>
       <div class="card__body">
-        {%- if project.current_roles.admin %}
+        {%- if project.current_roles.profile_admind %}
           {%- if transition_form %}
             <div class="mui--d-inlineblock right-padding">
               <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
@@ -231,9 +231,6 @@
                 <a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% trans %}Setup events for check-in{% endtrans %}</a>
               </li>
               <li>
-                <a href="{{ project.url_for('events') }}" title="Scan badges to check-in">{% trans %}Scan badges to check-in{% endtrans %}</a>
-              </li>
-              <li>
                 <a href="{{ project.url_for('membership') }}" title="Manage membership">{% trans %}Manage membership{% endtrans %}</a>
               </li>
             </ul>
@@ -247,16 +244,16 @@
               <a href="{{ project.url_for('schedule_json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="Schedule JSON"><i class="material-icons mui--text-subhead mui--align-top"  aria-hidden="true">save_alt</i> {% trans %}Schedule JSON{% endtrans %}</a>
             </p>
           </div>
-        {% elif current_auth.permissions.checkin_event %}
+        {% elif project.current_roles.project_usher %}
           <div>
-            <ol>
+            <ul class="mui-list--inline list-item-rgborder">
               <li>
                 <a href="{{ project.url_for('admin') }}" title="Manual check-in">{% trans %}Manual check-in{% endtrans %}</a>
               </li>
               <li>
                 <a href="{{ project.url_for('events') }}" title="Scan badges to check-in">{% trans %}Scan badges to check-in{% endtrans %}</a>
               </li>
-            </ol>
+            </ul>
           </div>
         {% endif %}
       </div>
