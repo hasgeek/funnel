@@ -215,14 +215,9 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     __parent_column__ = 'project_id'
 
     __roles__ = {
-        # 'profile_admin': {
-        #     'read': {
-        #         'user_fullname',
-        #         'is_editor',
-        #         'is_concierge',
-        #         'is_usher',
-        #     }
-        # },
+        'profile_admin': {
+            'read': {'user_fullname', 'is_editor', 'is_concierge', 'is_usher'}
+        },
         # 'profile_owner': {
         #     'read': {
         #         'user_fullname',
@@ -231,7 +226,6 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         #         'is_usher',
         #     }
         # },
-        'all': {'read': {'user_fullname', 'is_editor', 'is_concierge', 'is_usher'}}
     }
 
     project_id = immutable(

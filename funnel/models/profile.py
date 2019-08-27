@@ -72,6 +72,7 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         # migration to memberships
         if actor is not None and self.admin_team in actor.teams:
             roles.add('admin')
+            roles.add('profile_admin')
 
         membership = self.active_admin_memberships.filter_by(user=actor).one_or_none()
         if membership:
