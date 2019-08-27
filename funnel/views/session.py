@@ -137,7 +137,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             ),
             'active_session': session_data(self.obj, with_modal_url='view_popup'),
             'sessions': scheduled_sessions_list,
-            'timezone': self.obj.project.timezone.utcoffset(datetime.now()).total_seconds(),
+            'timezone': self.obj.project.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.project.venues],
             'rooms': {
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}

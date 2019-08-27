@@ -240,7 +240,7 @@ $(function() {
                     var diff = calendar.helpers.date_diff(from,to);
                     if(diff >= 7) return [];
                     else {
-                        var from_day = from.getDay(), to_day = to.getDay();
+                        var from_day = getDaydate(from), to_day = getDaydate(to);
                         var inactive = [];
                         for(i=0; i <= 6; i++) {
                             if(
@@ -255,6 +255,7 @@ $(function() {
             },
             options: {
                 config: {
+                    timezone: false,
                     header: {
                         left: '',
                         center: 'title',
@@ -285,12 +286,13 @@ $(function() {
                     var config = calendar.options.config;
                     config.events = scheduled;
                     if(from_date != null) {
-                        config.year = from_date.getFullYear();
-                        config.month = from_date.getMonth();
-                        config.date = from_date.getDate();
+                        var fromdate = getDateArrayProjectTZ(from_date)
+                        config.year = parseInt(fromdate[0], 10);
+                        config.month = parseInt(fromdate[1], 10) - 1;
+                        config.date = parseInt(fromdate[2], 10);
                         if(to_date != null) {
                             config.hiddenDays = calendar.helpers.inactive_days(from_date, to_date);
-                            config.firstDay = from_date.getDay();
+                            config.firstDay = getDaydate(from_date);
                         }
                     };
                     config.eventClick = events.onClick;
@@ -414,8 +416,6 @@ $(function() {
         obj.events = calendar.events;
 
         obj.init = function(scheduled) {
-            from_date = new Date(from_date);
-            to_date = new Date(to_date);
             calendar.init(scheduled);
             popup.init();
             if(events.init_open) {
@@ -531,8 +531,11 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    this.current.obj_data.end_at = events.from_project_timezone(this.current.end).toISOString();
-                    this.current.obj_data.start_at = events.from_project_timezone(this.current.start).toISOString();
+                    var stipTimeZoneEnd = moment(this.current.end).parseZone().format("YYYY-MM-DDTHH:mm:ss");
+                    var stipTimeZoneStart = moment(this.current.start).parseZone().format("YYYY-MM-DDTHH:mm:ss");
+                    // Change to project timezone
+                    this.current.obj_data.end_at = moment.tz(stipTimeZoneEnd, TIMEZONE).format();
+                    this.current.obj_data.start_at = moment.tz(stipTimeZoneStart, TIMEZONE).format();
                 }
             },
             height: function(ht) {
@@ -544,14 +547,6 @@ $(function() {
                     popup.open();
                 }
             },
-            to_project_timezone: function(dt) {
-                dt = new Date(dt.valueOf() + dt.getTimezoneOffset() * 60000 + settings.timezoneOffset);
-                return dt;
-            },
-            from_project_timezone: function(dt) {
-                dt = new Date(dt.valueOf() - dt.getTimezoneOffset() * 60000 - settings.timezoneOffset);
-                return dt;
-            }
         };
 
         if(settings.editable) {
@@ -621,8 +616,8 @@ $(function() {
 
         for(i in scheduled) {
             scheduled[i] = {
-                start: new Date(scheduled[i].start_at),
-                end: new Date(scheduled[i].end_at),
+                start: moment.tz(scheduled[i].start_at, TIMEZONE).format(),
+                end: moment.tz(scheduled[i].end_at, TIMEZONE).format(),
                 modal_url: scheduled[i].modal_url,
                 title: scheduled[i].title,
                 speaker: scheduled[i].speaker,
@@ -639,8 +634,6 @@ $(function() {
             delete scheduled[i].url_name;
             delete scheduled[i].obj_data.url_name;
             if(scheduled[i].obj_data.delete_url) scheduled[i].delete_url = scheduled[i].obj_data.delete_url;
-            scheduled[i].start = events.to_project_timezone(scheduled[i].start);
-            scheduled[i].end = events.to_project_timezone(scheduled[i].end);
             events.update_properties(scheduled[i]);
             delete scheduled[i].obj_data.modal_url;
             delete scheduled[i].obj_data.delete_url;
@@ -651,6 +644,14 @@ $(function() {
 
     }();
 
+    function getDaydate(date) {
+        return moment.tz(date, TIMEZONE).day()
+    }
+
+    function getDateArrayProjectTZ(date) {
+        return moment.tz(date, TIMEZONE).format('YYYY/MM/DD').split('/');
+    }
+
     function scheduleWidgetInit() {
         $('#calendar').html('');
         settings.init();
@@ -658,17 +659,16 @@ $(function() {
     }
 
     $('#select-date').on('change', function() {
-        var selectedDate =  new Date($('#select-date').val());
-        from_date = selectedDate.getTime()
-        to_date = selectedDate.setDate(selectedDate.getDate() + 2);
+        var selectedDate =  $('#select-date').val();
+        from_date = moment.tz(selectedDate, TIMEZONE).format()
+        to_date = moment(from_date).add(2, 'day').format();
         scheduleWidgetInit();
     });
 
     (function () {
         if(from_date) {
-            var fromdate = new Date(from_date);
-            var startDate = new Date(fromdate.valueOf() + fromdate.getTimezoneOffset() * 60000 + TIMEZONEOFFSET);
-            document.getElementById("select-date").value = startDate.getFullYear() + '-' + ('0' + (startDate.getMonth() + 1)).slice(-2) + '-' + ('0' + startDate.getDate()).slice(-2);
+            var fromdate = getDateArrayProjectTZ(from_date);
+            document.getElementById("select-date").value = fromdate[0] + '-' + fromdate[1] + '-' + fromdate[2];
             $('#select-date').trigger("change");
         }
     })();

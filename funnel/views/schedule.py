@@ -232,7 +232,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 else None
             ),
             'sessions': scheduled_sessions_list,
-            'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'timezone_offset': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
             'rooms': {
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
@@ -318,7 +319,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 if self.obj.schedule_start_at
                 else None
             ),
-            'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'timezone_offset': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
             'rooms': {
                 room.scoped_name: {

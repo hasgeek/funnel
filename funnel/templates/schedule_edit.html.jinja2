@@ -19,10 +19,11 @@
   <div class="grid">
     <div class="grid__col-xs-12  grid__col-sm-9 calendar-wrapper">
       <div class="mui-form__controls datepicker-wrapper">
-        <div class="mui-textfield">
+        <div class="mui-textfield mui--d-inlineblock ">
           <label>Select date</label>
           <input type="date" class="datetime-date" id="select-date" placeholder="yyy-mm-dd" value="">
         </div>
+        <p class="mui--text-title mui--d-inlineblock">{{ timezone }}</p>
       </div>
       <div id="calendar">
         <p class="calendar-wrapper__heading mui--text-title ">To start adding sessions, select a date.</p>
@@ -99,10 +100,13 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {% assets "js_schedules" -%}
+    <script type="text/javascript" src="https://momentjs.com/downloads/moment.js"></script>
+    <script type="text/javascript" src="https://momentjs.com/downloads/moment-timezone-with-data-10-year-range.js"></script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     <script type="text/javascript">
       var UPDATE_URL = "{{ project.url_for('update_schedule') }}";
-      var TIMEZONEOFFSET = {{ timezone }} * 1000;
+      var TIMEZONEOFFSET = {{ timezone_offset }} * 1000;
+      var TIMEZONE = "{{ timezone }}";
       var NEW_SESSION_URL = "{{ project.url_for('new_session') }}";
       var SETTINGS_UPDATE_URL = "{{ project.url_for('update_venue_settings') }}";
       var from_date = {%- if from_date -%} {{ from_date|tojson }} {%- else -%} '' {%- endif %};

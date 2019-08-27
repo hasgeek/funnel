@@ -235,8 +235,6 @@
       fromDate: {{ from_date|tojson }},
       toDate: {{ to_date|tojson }},
       timeZone: "{{ timezone }}",
-      // JavaScript uses milliseconds as the unit of measurement, whereas Unix Time is in seconds.
-      timezoneOffset: {{ timezone_offset * 1000 }},
       sessions: {{ sessions|tojson }},
       schedule: {{ schedule|tojson }},
       venues: {{ venues|tojson }},
