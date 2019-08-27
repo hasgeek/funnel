@@ -87,6 +87,26 @@ export const Utils = {
       });
     }
   },
+  getElementId(htmlString) {
+    return htmlString.match(/id="(.*?)"/)[1];
+  },
+  formErrorHandler(formId, errorResponse) {
+    let errorMsg = '';
+    // xhr readyState '4' indicates server has received the request & response is ready
+    if (errorResponse.readyState === 4) {
+      if (errorResponse.status === 500) {
+        errorMsg = 'Internal Server Error';
+      } else {
+        window.Baseframe.Forms.showValidationErrors(formId, errorResponse.responseJSON.errors);
+        errorMsg = 'Error';
+      }
+    } else {
+      errorMsg = 'Unable to connect. Please try again.';
+    }
+    $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
+    $(`#${formId}`).find('.loading').addClass('mui--hide');
+    return errorMsg;
+  },
 };
 
 export const ScrollActiveMenu = {

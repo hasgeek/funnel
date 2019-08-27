@@ -73,7 +73,13 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     db.session.add(new_membership)
                 db.session.commit()
 
-                return {'status': 'ok'}
+                return {
+                    'status': 'ok',
+                    'memberships': [
+                        membership.current_access()
+                        for membership in self.obj.active_crew_memberships
+                    ],
+                }
             else:
                 return (
                     {
