@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from flask import request
+from flask import g, request
 
 from baseframe import _
-from baseframe.forms import render_form
+from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
+from coaster.views import (
+    ModelView,
+    UrlChangeCheck,
+    UrlForView,
+    render_with,
+    requires_roles,
+    route,
+)
 
 from .. import app, funnelapp, lastuser
-from ..forms import ProjectMembershipDeleteForm, ProjectMembershipForm, SavedProjectForm
-from ..models import ProjectCrewMembership, db
+from ..forms import ProjectMembershipForm, SavedProjectForm
+from ..models import Profile, Project, ProjectCrewMembership, db
 from .decorators import legacy_redirect
 from .mixins import ProjectViewMixin
 
@@ -73,51 +80,75 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         )
         return {'form': membership_form_html}
 
-    @route('edit', methods=['POST'])
+
+@route('/<project>/membership', subdomain='<profile>')
+class FunnelProjectMembershipView(ProjectMembershipView):
+    pass
+
+
+ProjectMembershipView.init_app(app)
+FunnelProjectMembershipView.init_app(funnelapp)
+
+
+@route('/<profile>/<project>/membership/<suuid>')
+class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+    model = ProjectCrewMembership
+
+    route_model_map = {
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'suuid': 'suuid',
+    }
+
+    def loader(self, profile, project, suuid):
+        membership = (
+            self.model.query.join(Project, Profile)
+            .filter(
+                Profile.name == profile,
+                Project.name == project,
+                ProjectCrewMembership.suuid == suuid,
+            )
+            .first_or_404()
+        )
+        return membership
+
+    def after_loader(self):
+        g.profile = self.obj.project.profile
+        super(ProjectCrewMembershipView, self).after_loader()
+
+    @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
     @requires_roles({'profile_admin'})
-    def edit_member(self):
-        membership_form = ProjectMembershipForm()
+    def edit(self):
+        previous_membership = self.obj
+
+        membership_form = ProjectMembershipForm(obj=previous_membership)
 
         if membership_form.validate_on_submit():
-            previous_membership = (
-                ProjectCrewMembership.query.filter(ProjectCrewMembership.active)
-                .filter_by(project=self.obj, user=membership_form.user.data)
-                .one_or_none()
+            previous_membership.replace(
+                actor=current_auth.user,
+                is_editor=membership_form.is_editor.data,
+                is_concierge=membership_form.is_concierge.data,
+                is_usher=membership_form.is_usher.data,
             )
-            if previous_membership is None:
-                return (
-                    {
-                        'status': "error",
-                        'message': _("This member does not exist in this project"),
-                    },
-                    400,
-                )
-            else:
-                previous_membership.replace(
-                    actor=current_auth.user,
-                    is_editor=membership_form.is_editor.data,
-                    is_concierge=membership_form.is_concierge.data,
-                    is_usher=membership_form.is_usher.data,
-                )
-                db.session.commit()
-                return {'status': 'ok'}
-        else:
-            return ({'status': 'error', 'errors': membership_form.errors}, 400)
+            db.session.commit()
+            return {'status': 'ok'}
+
+        membership_form_html = render_form(
+            form=membership_form, title=_("Edit member"), ajax=False, with_chrome=False
+        )
+        return {'form': membership_form_html}
 
     @route('delete', methods=['POST'])
     @render_with(json=True)
     @lastuser.requires_login
     @requires_roles({'profile_admin'})
-    def delete_member(self):
-        member_delete_form = ProjectMembershipDeleteForm()
-        if member_delete_form.validate_on_submit():
-            previous_membership = (
-                ProjectCrewMembership.query.filter(ProjectCrewMembership.active)
-                .filter_by(project=self.obj, user=member_delete_form.user.data)
-                .one_or_none()
-            )
+    def delete(self):
+        form = Form()
+        if form.validate_on_submit():
+            previous_membership = self.obj
             if previous_membership is None:
                 return (
                     {
@@ -131,13 +162,13 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
                 return {'status': 'ok'}
         else:
-            return ({'status': 'error', 'errors': member_delete_form.errors}, 400)
+            return ({'status': 'error', 'errors': form.errors}, 400)
 
 
-@route('/<project>/membership', subdomain='<profile>')
-class FunnelProjectMembershipView(ProjectMembershipView):
+@route('/<project>/membership/<suuid>', subdomain='<profile>')
+class FunnelProjectCrewMembershipView(ProjectCrewMembershipView):
     pass
 
 
-ProjectMembershipView.init_app(app)
-FunnelProjectMembershipView.init_app(funnelapp)
+ProjectCrewMembershipView.init_app(app)
+FunnelProjectCrewMembershipView.init_app(funnelapp)

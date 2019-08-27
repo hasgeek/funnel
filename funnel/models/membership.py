@@ -301,11 +301,11 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     @property
     def edit_url(self):
-        return self.project.url_for('edit_member', _external=True)
+        return self.url_for('edit', _external=True)
 
     @property
     def delete_url(self):
-        return self.project.url_for('delete_member', _external=True)
+        return self.url_for('delete', _external=True)
 
     def offered_roles(self):
         """Roles offered by this membership record"""
