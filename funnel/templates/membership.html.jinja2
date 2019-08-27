@@ -58,6 +58,33 @@
   <script type="text/javascript">
     $(function() {
 
+
+      function getElementId(htmlString) {
+        return htmlString.match(/id="(.*?)"/)[1];
+      }
+
+      function formErrorHandler(formId, errorResponse) {
+        let errorMsg = '';
+        // xhr readyState '4' indicates server has received the request & response is ready
+        if (errorResponse.readyState === 4) {
+          if (errorResponse.status === 500) {
+            errorMsg = 'Internal Server Error';
+          } else {
+            window.Baseframe.Forms.showValidationErrors(formId, errorResponse.responseJSON.errors);
+            errorMsg = 'Error';
+          }
+        } else {
+          errorMsg = 'Unable to connect. Please try again.';
+        }
+        $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
+        $(`#${formId}`).find('.loading').addClass('mui--hide');
+        return errorMsg;
+      }
+
+      function getActionUrl(formId) {
+        return $(`#${formId}`).attr('action');
+      }
+
       const Membership = {
         init({divElem, scriptTemplate, newMemberUrl, memberships}) {
           Vue.use(VueScript2);
@@ -86,17 +113,40 @@
                     $('#member-form').modal('show');
                   }
                 });
+              },         
+              activateForm() {
+                const formId = getElementId(this.memberForm);
+                const url = getActionUrl(formId);
+                console.log('formID', formId);
+                let onSuccess = (responseData) => {
+                  $.modal.close();
+                  this.updateMembersList(responseData.memberships);
+                }
+                let onError = (response) => {
+                  var errors = formErrorHandler(formId, response);
+                  console.log('errors', errors);
+                }
+                Baseframe.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
+              },
+              updateMembersList(updatedMemberships) {
+                this.memberships = updatedMemberships;
               },
             },
             computed: {
               Form() {
                 const template = this.memberForm ? this.memberForm : '<div></div>';
+                const isFormTemplate = this.memberForm ? true : false;
                 return {
-                  template
+                  template,
+                  mounted() {
+                    if (isFormTemplate) {
+                      this.$parent.activateForm();
+                    }
+                  },
                 };
               },
             },
-            mounted() {
+            mounted() { 
             },
           });
         },
