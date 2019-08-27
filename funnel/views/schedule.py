@@ -37,21 +37,6 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            # `start` and `end` are legacy
-            'start': (
-                localize_timezone(
-                    session.start_at, tz=session.project.timezone
-                ).isoformat()
-                if session.scheduled
-                else None
-            ),
-            'end': (
-                localize_timezone(
-                    session.end_at, tz=session.project.timezone
-                ).isoformat()
-                if session.scheduled
-                else None
-            ),
             'start_at': (
                 localize_timezone(session.start_at, tz=session.project.timezone)
                 if session.scheduled
