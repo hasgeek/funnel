@@ -35,7 +35,7 @@
             <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder">
               <li v-if="membership.is_editor">Editor</li>
               <li v-if="membership.is_concierge">Concierge</li>
-              <li v-if="membership.is_ucher">Usher</li>
+              <li v-if="membership.is_usher">Usher</li>
             </ul>
             <div>
               <a href="javascript:void(0)" @click="fetchForm($event, membership.edit_url)" title="Edit" aria-label="Edit"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
@@ -104,7 +104,7 @@
                 let app = this;
                 $.ajax({
                   type: 'GET',
-                  url: app.newMemberUrl,
+                  url: url,
                   timeout: window.HasGeek.config.ajaxTimeout,
                   dataType: 'json',
                   success: function(data) {
@@ -113,7 +113,7 @@
                     $('#member-form').modal('show');
                   }
                 });
-              },         
+              },
               activateForm() {
                 const formId = getElementId(this.memberForm);
                 const url = getActionUrl(formId);
@@ -146,7 +146,7 @@
                 };
               },
             },
-            mounted() { 
+            mounted() {
             },
           });
         },

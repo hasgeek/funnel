@@ -128,7 +128,6 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'profile_admin'})
     def edit(self):
         previous_membership = self.obj
-
         membership_form = ProjectMembershipForm(obj=previous_membership)
 
         if membership_form.validate_on_submit():
@@ -139,7 +138,13 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 is_usher=membership_form.is_usher.data,
             )
             db.session.commit()
-            return {'status': 'ok'}
+            return {
+                'status': 'ok',
+                'memberships': [
+                    membership.current_access()
+                    for membership in self.obj.project.active_crew_memberships
+                ],
+            }
 
         membership_form_html = render_form(
             form=membership_form, title=_("Edit member"), ajax=False, with_chrome=False
