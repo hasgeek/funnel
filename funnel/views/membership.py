@@ -5,7 +5,7 @@ from flask import request
 from baseframe import _
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
+from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp, lastuser
 from ..forms import ProjectMembershipForm, SavedProjectForm
@@ -34,7 +34,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with('membership.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('edit_project')
+    @requires_roles({'profile_admin'})
     def membership(self):
         project_save_form = SavedProjectForm()
         return {
@@ -49,7 +49,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_permission('admin')
+    @requires_roles({'profile_admin'})
     def new_member(self):
         membership_form = ProjectMembershipForm()
 
@@ -87,7 +87,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         membership_form_html = render_form(
             form=membership_form, title=_("New member"), ajax=False, with_chrome=False
         )
-        return {'status': 'ok', 'form': membership_form_html}
+        return {'form': membership_form_html}
 
 
 @route('/<project>/membership', subdomain='<profile>')
