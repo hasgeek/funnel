@@ -121,6 +121,7 @@ export const ScrollActiveMenu = {
     this.activeNavItem = '';
 
     if (document.getElementById('ticket-wrapper')) {
+      let observer = new IntersectionObserver(
           entries => {
           entries.forEach(entry => {
             if (!entry.isIntersecting && entry.intersectionRatio > 0.5 && entry.boundingClientRect.y < 0) {
