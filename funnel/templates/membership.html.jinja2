@@ -129,12 +129,14 @@
                 Baseframe.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
               },
               updateMembersList(updatedMemberships) {
-                this.memberships = updatedMemberships;
+                if (updatedMemberships !== undefined) {
+                  this.memberships = updatedMemberships;
+                }
               },
               deleteMember(event, member, url) {
                 event.preventDefault();
                 let app = this;
-                let confirmTxt = `Are you sure you want to ${member}`;
+                let confirmTxt = `Are you sure you want to remove ${member} from this project?`;
                 let csrftoken = `csrf_token=${document.head.querySelector("[name=csrf-token]").content}`;
                 if(window.confirm(confirmTxt)) {
                   $.ajax({

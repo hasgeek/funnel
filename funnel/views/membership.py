@@ -63,6 +63,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     new_membership = ProjectCrewMembership(project=self.obj)
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
+                    db.session.commit()
                     return {
                         'status': 'ok',
                         'memberships': [
