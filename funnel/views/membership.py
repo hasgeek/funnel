@@ -54,7 +54,12 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     .filter_by(project=self.obj, user=membership_form.user.data)
                     .one_or_none()
                 )
-                if previous_membership is None:
+                if previous_membership is not None:
+                    return {
+                        'status': 'error',
+                        'message': _("Member already exists in the project"),
+                    }
+                else:
                     new_membership = ProjectCrewMembership(project=self.obj)
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
@@ -64,11 +69,6 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             membership.current_access()
                             for membership in self.obj.active_crew_memberships
                         ],
-                    }
-                else:
-                    return {
-                        'status': 'ok',
-                        'message': _("Member already exists in the project"),
                     }
             else:
                 return (
@@ -130,21 +130,22 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
         previous_membership = self.obj
         membership_form = ProjectMembershipForm(obj=previous_membership)
 
-        if membership_form.validate_on_submit():
-            previous_membership.replace(
-                actor=current_auth.user,
-                is_editor=membership_form.is_editor.data,
-                is_concierge=membership_form.is_concierge.data,
-                is_usher=membership_form.is_usher.data,
-            )
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'memberships': [
-                    membership.current_access()
-                    for membership in self.obj.project.active_crew_memberships
-                ],
-            }
+        if request.method == 'POST':
+            if membership_form.validate_on_submit():
+                previous_membership.replace(
+                    actor=current_auth.user,
+                    is_editor=membership_form.is_editor.data,
+                    is_concierge=membership_form.is_concierge.data,
+                    is_usher=membership_form.is_usher.data,
+                )
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'memberships': [
+                        membership.current_access()
+                        for membership in self.obj.project.active_crew_memberships
+                    ],
+                }
 
         membership_form_html = render_form(
             form=membership_form, title=_("Edit member"), ajax=False, with_chrome=False
@@ -157,19 +158,20 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'profile_admin'})
     def delete(self):
         form = Form()
-        if form.validate_on_submit():
-            previous_membership = self.obj
-            previous_membership.revoke(actor=current_auth.user)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'memberships': [
-                    membership.current_access()
-                    for membership in self.obj.project.active_crew_memberships
-                ],
-            }
-        else:
-            return ({'status': 'error', 'errors': form.errors}, 400)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                previous_membership = self.obj
+                previous_membership.revoke(actor=current_auth.user)
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'memberships': [
+                        membership.current_access()
+                        for membership in self.obj.project.active_crew_memberships
+                    ],
+                }
+            else:
+                return ({'status': 'error', 'errors': form.errors}, 400)
 
         form_html = render_form(
             form=form,
