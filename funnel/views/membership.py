@@ -170,7 +170,13 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
             else:
                 previous_membership.revoke(actor=current_auth.user)
                 db.session.commit()
-                return {'status': 'ok'}
+                return {
+                    'status': 'ok',
+                    'memberships': [
+                        membership.current_access()
+                        for membership in self.obj.active_crew_memberships
+                    ],
+                }
         else:
             return ({'status': 'error', 'errors': form.errors}, 400)
 
