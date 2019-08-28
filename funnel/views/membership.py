@@ -151,7 +151,7 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
         )
         return {'form': membership_form_html}
 
-    @route('delete', methods=['POST'])
+    @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
     @requires_roles({'profile_admin'})
@@ -159,26 +159,27 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
         form = Form()
         if form.validate_on_submit():
             previous_membership = self.obj
-            if previous_membership is None:
-                return (
-                    {
-                        'status': 'error',
-                        'message': _("Member does not exist in this project"),
-                    },
-                    400,
-                )
-            else:
-                previous_membership.revoke(actor=current_auth.user)
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'memberships': [
-                        membership.current_access()
-                        for membership in self.obj.active_crew_memberships
-                    ],
-                }
+            previous_membership.revoke(actor=current_auth.user)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'memberships': [
+                    membership.current_access()
+                    for membership in self.obj.project.active_crew_memberships
+                ],
+            }
         else:
             return ({'status': 'error', 'errors': form.errors}, 400)
+
+        form_html = render_form(
+            form=form,
+            title=_("Delete member"),
+            message=_("Are you sure you want to remove this member from the project?"),
+            submit=_("Delete"),
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': form_html}
 
 
 @route('/<project>/membership/<suuid>', subdomain='<profile>')
