@@ -39,7 +39,7 @@
             </ul>
             <div>
               <a href="javascript:void(0)" @click="fetchForm($event, membership.edit_url)" title="Edit" aria-label="Edit"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
-              <a :href="membership.delete_url" title="Delete" aria-label="Delete"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
+              <a :href="membership.delete_url" @click="deleteMember($event, membership.user_fullname, membership.delete_url)" title="Delete" aria-label="Delete"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
             </div>
           </div>
           <div id="member-form" class="modal">
@@ -130,6 +130,35 @@
               },
               updateMembersList(updatedMemberships) {
                 this.memberships = updatedMemberships;
+              },
+              deleteMember(event, member, url) {
+                event.preventDefault();
+                let app = this;
+                let confirmTxt = `Are you sure you want to ${member}`;
+                let csrftoken = `csrf_token=${document.head.querySelector("[name=csrf-token]").content}`;
+                if(window.confirm(confirmTxt)) {
+                  $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data : csrftoken,
+                    success(responseData) {
+                      app.updateMembersList(responseData.memberships);
+                    },
+                    error(response) {
+                      let errorMsg = '';
+                      if (response.readyState === 4) {
+                        if (response.status === 500) {
+                          errorMsg ='Internal Server Error. Please reload and try again.';
+                        } else {
+                          errorMsg = JSON.parse(response.responseText).error_description;
+                        }
+                      } else {
+                        errorMsg = 'Unable to connect. Please reload and try again.';
+                      }
+                      window.toastr.error(errorMsg);
+                    }
+                  });
+                }
               },
             },
             computed: {
