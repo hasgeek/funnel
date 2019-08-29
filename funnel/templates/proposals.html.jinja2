@@ -77,14 +77,14 @@
     <div class="page-content page-content--mob-nav">
       <div class="grid">
         <div class="grid__col-xs-12">
-          {% if current_auth.is_authenticated and project.current_roles.admin %}
+          {% if project.current_roles.profile_admin %}
             {{ admin_panel(project, cfp_transition_form=cfp_transition_form) }}
           {%- endif %}
         </div>
       </div>
 
       <div class="grid">
-       {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
+       {% if project.current_roles.profile_admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
           <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Call for proposals{% endtrans %}</h2>
           {%- if project.instructions and project.instructions != "None" %}

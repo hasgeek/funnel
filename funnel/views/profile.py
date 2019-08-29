@@ -133,7 +133,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .all()
         )
         draft_projects = [
-            proj for proj in self.obj.draft_projects if proj.current_roles.admin
+            proj for proj in self.obj.draft_projects if proj.current_roles.profile_admin
         ]
         return {
             'profile': self.obj.current_access(),
