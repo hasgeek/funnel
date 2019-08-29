@@ -90,7 +90,7 @@
                 <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to respond">{% trans %}Login to respond{% endtrans %}</a>
               </p>
             {%- endif %}
-            {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
+            {% if project.current_roles.profile_admin or current_auth.permissions.view_rsvps %}
               <a href="{{ project.url_for('rsvp_list') }}">{% trans %}See responses{% endtrans %}</a>
             {% endif %}
           {%- endif %}

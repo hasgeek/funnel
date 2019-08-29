@@ -25,6 +25,7 @@ from coaster.views import (
     jsonp,
     render_with,
     requires_permission,
+    requires_roles,
     route,
 )
 
@@ -391,7 +392,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('checkin_event')
+    @requires_roles({'profile_admin', 'project_usher'})
     def admin(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
