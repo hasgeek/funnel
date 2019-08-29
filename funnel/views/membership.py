@@ -55,10 +55,13 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     .one_or_none()
                 )
                 if previous_membership is not None:
-                    return {
-                        'status': 'error',
-                        'message': _("Member already exists in the project"),
-                    }
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _("Member already exists in the project"),
+                        },
+                        400,
+                     )
                 else:
                     new_membership = ProjectCrewMembership(project=self.obj)
                     membership_form.populate_obj(new_membership)
@@ -82,7 +85,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                 )
 
         membership_form_html = render_form(
-            form=membership_form, title=_("New member"), ajax=False, with_chrome=False
+            form=membership_form, title=_("Add a new member"), ajax=False, with_chrome=False
         )
         return {'form': membership_form_html}
 
@@ -177,7 +180,7 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
         form_html = render_form(
             form=form,
             title=_("Delete member"),
-            message=_("Are you sure you want to remove this member from the project?"),
+            message=_("Are you sure you want to remove {member} from the project?").format(member=self.obj.user_fullname),
             submit=_("Delete"),
             ajax=False,
             with_chrome=False,
