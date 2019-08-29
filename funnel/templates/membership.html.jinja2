@@ -30,16 +30,16 @@
             </div>
           </a>
 <!--           <h2 class="mui--text-headline mui--text-center" v-if="members">Members</h2> -->
-          <div class="details-box details-box--flex details-box--small" v-for="membership in memberships">
-            <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ membership.user_fullname }}</h3>
+          <div class="details-box details-box--flex details-box--small" v-for="member in members">
+            <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.user_fullname }}</h3>
             <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder details-box__item">
-              <li v-if="membership.is_editor">Editor</li>
-              <li v-if="membership.is_concierge">Concierge</li>
-              <li v-if="membership.is_usher">Usher</li>
+              <li v-if="member.is_editor">Editor</li>
+              <li v-if="member.is_concierge">Concierge</li>
+              <li v-if="member.is_usher">Usher</li>
             </ul>
             <div>
-              <a href="javascript:void(0)" @click="fetchForm($event, membership.edit_url)" title="Edit" aria-label="Edit"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
-              <a @click="fetchForm($event, membership.delete_url)" title="Delete" aria-label="Delete"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
+              <a href="javascript:void(0)" @click="fetchForm($event, member.edit_url)" title="Edit" aria-label="Edit"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
+              <a @click="fetchForm($event, member.delete_url)" title="Delete" aria-label="Delete"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
             </div>
           </div>
           <div id="member-form" class="modal">
@@ -90,14 +90,14 @@
       }
 
       const Membership = {
-        init({divElem, scriptTemplate, newMemberUrl, memberships}) {
+        init({divElem, scriptTemplate, newMemberUrl, members=''}) {
           Vue.use(VueScript2);
           let MembershipComponent = new Vue({
             el: divElem,
             data: function () {
               return {
                 newMemberUrl: newMemberUrl,
-                memberships: memberships,
+                members: members.length > 0 ? members : '',
                 memberForm: '',
                 errorMsg: '',
               }
@@ -136,8 +136,8 @@
                 }
                 Baseframe.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
               },
-              updateMembersList(updatedMemberships) {
-                this.memberships = updatedMemberships;
+              updateMembersList(members) {
+                this.members = members;
               },
             },
             computed: {
@@ -153,6 +153,9 @@
                   },
                 };
               },
+              showMemberList() {
+
+              }
             },
             mounted() {
             },
@@ -166,7 +169,7 @@
 
       var membershipConfig = {
         newMemberUrl: "{{ project.url_for('new_member') }}",
-        memberships: {{ memberships|tojson }},
+        members: {{ memberships|tojson }},
         divElem: "#manage-membership",
         scriptTemplate: '#admin-membership-template',
         parentContainer: '#membership',
