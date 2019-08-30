@@ -61,7 +61,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             'message': _("Member already exists in the project"),
                         },
                         400,
-                     )
+                    )
                 else:
                     new_membership = ProjectCrewMembership(project=self.obj)
                     membership_form.populate_obj(new_membership)
@@ -85,7 +85,10 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                 )
 
         membership_form_html = render_form(
-            form=membership_form, title=_("Add a new member"), ajax=False, with_chrome=False
+            form=membership_form,
+            title=_("Add a new member"),
+            ajax=False,
+            with_chrome=False,
         )
         return {'form': membership_form_html}
 
@@ -165,8 +168,9 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
         if request.method == 'POST':
             if form.validate_on_submit():
                 previous_membership = self.obj
-                previous_membership.revoke(actor=current_auth.user)
-                db.session.commit()
+                if previous_membership.active:
+                    previous_membership.revoke(actor=current_auth.user)
+                    db.session.commit()
                 return {
                     'status': 'ok',
                     'memberships': [
@@ -180,7 +184,9 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
         form_html = render_form(
             form=form,
             title=_("Delete member"),
-            message=_("Are you sure you want to remove {member} from the project?").format(member=self.obj.user_fullname),
+            message=_(
+                "Are you sure you want to remove {member} from the project?"
+            ).format(member=self.obj.user_fullname),
             submit=_("Delete"),
             ajax=False,
             with_chrome=False,

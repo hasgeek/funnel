@@ -31,6 +31,7 @@ class TestMembership(object):
 
         assert 'project_editor' in new_project.roles_for(new_user)
         assert new_membership.active
+        assert new_membership in new_project.active_crew_memberships
 
         # only one membership can be active for a user at a time.
         # so adding a new membership without revoking the previous one
@@ -51,6 +52,8 @@ class TestMembership(object):
         )
         previous_membership2.revoke(actor=new_user2)
         test_db.session.commit()
+
+        assert previous_membership2 not in new_project.active_crew_memberships
 
         assert 'project_editor' not in new_project.roles_for(new_user)
         assert 'project_concierge' not in new_project.roles_for(new_user)
