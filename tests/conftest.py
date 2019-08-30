@@ -19,9 +19,21 @@ def user_test():
 
 TEST_DATA = {
     'users': {
-        'testuser': {'username': u"testuser", 'email': u"testuser@example.com"},
-        'testuser2': {'username': u"testuser2", 'email': u"testuser2@example.com"},
-        'testuser3': {'username': u"testuser3", 'email': u"testuser3@example.com"},
+        'testuser': {
+            'username': u"testuser",
+            'fullname': u"Test User",
+            'email': u"testuser@example.com",
+        },
+        'testuser2': {
+            'username': u"testuser2",
+            'fullname': u"Test User 2",
+            'email': u"testuser2@example.com",
+        },
+        'testuser3': {
+            'username': u"testuser3",
+            'fullname': u"Test User 3",
+            'email': u"testuser3@example.com",
+        },
     }
 }
 # Scope: session
@@ -91,9 +103,28 @@ def new_team(test_db, new_user):
 
 
 @pytest.fixture(scope='session')
+def new_team2(test_db, new_user2):
+    team = Team(title=u"Owners 2", owners=True, org_uuid=uuid.uuid4())
+    test_db.session.add(team)
+    team.users.append(new_user2)
+    test_db.session.commit()
+    return team
+
+
+@pytest.fixture(scope='session')
 def new_profile(test_db, new_team):
     profile = Profile(
         title=u"Test Profile", description=u"Test Description", admin_team=new_team
+    )
+    test_db.session.add(profile)
+    test_db.session.commit()
+    return profile
+
+
+@pytest.fixture(scope='session')
+def new_profile2(test_db, new_team2):
+    profile = Profile(
+        title=u"Test Profile 2", description=u"Test Description 2", admin_team=new_team2
     )
     test_db.session.add(profile)
     test_db.session.commit()
@@ -112,6 +143,24 @@ def new_project(test_db, new_profile, new_user, new_team):
         admin_team=new_team,
         review_team=new_team,
         checkin_team=new_team,
+    )
+    test_db.session.add(project)
+    test_db.session.commit()
+    return project
+
+
+@pytest.fixture(scope='session')
+def new_project2(test_db, new_profile2, new_user2, new_team2):
+    project = Project(
+        profile=new_profile2,
+        user=new_user2,
+        title=u"Test Project",
+        tagline=u"Test tagline",
+        description=u"Test description",
+        location=u"Test Location",
+        admin_team=new_team2,
+        review_team=new_team2,
+        checkin_team=new_team2,
     )
     test_db.session.add(project)
     test_db.session.commit()
