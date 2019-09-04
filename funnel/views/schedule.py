@@ -160,7 +160,7 @@ def session_ical(session):
         if session.venue_room.venue.has_coordinates:
             event.add(
                 'geo',
-                (session.coordinates),
+                (session.venue_room.venue.coordinates),
             )
     if session.description_text:
         event.add('description', session.description_text)
