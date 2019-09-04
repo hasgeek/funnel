@@ -530,11 +530,11 @@ $(function() {
             update_time: function(event) {
                 if(typeof event != 'undefined') this.current = event;
                 if(this.current) {
-                    var stipTimeZoneEnd = moment(this.current.end).parseZone().format("YYYY-MM-DDTHH:mm:ss");
-                    var stipTimeZoneStart = moment(this.current.start).parseZone().format("YYYY-MM-DDTHH:mm:ss");
+                    var stripTimeZoneEnd = moment(this.current.end).parseZone().format("YYYY-MM-DDTHH:mm:ss");
+                    var stripTimeZoneStart = moment(this.current.start).parseZone().format("YYYY-MM-DDTHH:mm:ss");
                     // Change to project timezone
-                    this.current.obj_data.end_at = moment.tz(stipTimeZoneEnd, TIMEZONE).format();
-                    this.current.obj_data.start_at = moment.tz(stipTimeZoneStart, TIMEZONE).format();
+                    this.current.obj_data.end_at = moment.tz(stripTimeZoneEnd, TIMEZONE).format();
+                    this.current.obj_data.start_at = moment.tz(stripTimeZoneStart, TIMEZONE).format();
                 }
             },
             height: function(ht) {

@@ -92,6 +92,8 @@ app.assets.register(
         assets.require(
             '!jquery.js',
             'jquery.fullcalendar.js',
+            'moment.js',
+            'moment-timezone-data.js',
             'spectrum.js',
             'jquery.ui.sortable.touch.js',
         ),
@@ -200,6 +202,8 @@ funnelapp.assets.register(
         assets.require(
             '!jquery.js',
             'jquery.fullcalendar.js',
+            'moment.js',
+            'moment-timezone-data.js',
             'spectrum.js',
             'jquery.ui.sortable.touch.js',
         ),
