@@ -34,6 +34,7 @@ assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
+assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
 # --- Import rest of the app --------------------------------------------------
 
@@ -136,7 +137,9 @@ app.assets.register(
 app.assets.register(
     'css_screens',
     Bundle(
-        assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
+        assets.require('screens.css'),
+        output='css/screens.packed.css',
+        filters='cssmin'
     ),
 )
 app.assets.register(
@@ -193,6 +196,14 @@ app.assets.register(
         assets.require('!jquery.js', 'jquery.ui.js', 'jquery.ui.sortable.touch.js'),
         output='js/sortable.packed.js',
         filters='uglipyjs',
+    ),
+)
+app.assets.register(
+    'css_schedule_print',
+    Bundle(
+        assets.require('schedule-print.css'),
+        output='css/schedule-print.packed.css',
+        filters='cssmin'
     ),
 )
 
@@ -305,6 +316,15 @@ funnelapp.assets.register(
         filters='uglipyjs',
     ),
 )
+funnelapp.assets.register(
+    'css_schedule_print',
+    Bundle(
+        assets.require('schedule-print.css'),
+        output='css/schedule-print.packed.css',
+        filters='cssmin'
+    ),
+)
+
 
 # FIXME: Hack for external build system generating relative /static URLs.
 # Fix this by generating absolute URLs to the static subdomain during build.

@@ -131,7 +131,7 @@ const Schedule = {
             this.width = $(window).width();
             this.height = $(window).height();
 
-            if (this.width < 768) {
+            if (this.width < window.HasGeek.config.mobileBreakpoint) {
               this.view = 'agenda';
             }
           });
@@ -281,7 +281,7 @@ const Schedule = {
 };
 
 $(() => {
-  window.HasGeek.ScheduleInit = function initSchedule(config, saveProjectConfig) {
+  window.HasGeek.ScheduleInit = (config, saveProjectConfig) => {
     Schedule.init(config);
 
     if (saveProjectConfig) {
