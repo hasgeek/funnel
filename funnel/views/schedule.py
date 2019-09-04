@@ -48,11 +48,6 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
                 else None
             ),
             'timezone': session.project.timezone.zone,
-            'timezone_offset': (
-                session.start_at.astimezone(session.project.timezone)
-                .utcoffset()
-                .total_seconds()
-            ),
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': (
                 session.venue_room.scoped_name if session.venue_room else None
@@ -162,10 +157,10 @@ def session_ical(session):
         else:
             location.append(session.venue_room.venue.country)
         event.add('location', "\n".join(location))
-        if session.venue_room.venue.latitude and session.venue_room.venue.longitude:
+        if session.venue_room.venue.has_coordinates:
             event.add(
                 'geo',
-                (session.venue_room.venue.latitude, session.venue_room.venue.longitude),
+                (session.coordinates),
             )
     if session.description_text:
         event.add('description', session.description_text)
@@ -215,7 +210,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 else None
             ),
             'sessions': scheduled_sessions_list,
-            'timezone_offset': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
             'rooms': {
@@ -302,7 +296,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 if self.obj.schedule_start_at
                 else None
             ),
-            'timezone_offset': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
             'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
             'rooms': {

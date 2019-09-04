@@ -234,7 +234,7 @@
     var scheduleConfig = {
       fromDate: {{ from_date|tojson }},
       toDate: {{ to_date|tojson }},
-      timeZone: "{{ timezone }}",
+      timeZone: {{ timezone|tojson }},
       sessions: {{ sessions|tojson }},
       schedule: {{ schedule|tojson }},
       venues: {{ venues|tojson }},

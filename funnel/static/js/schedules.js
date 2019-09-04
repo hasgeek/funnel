@@ -40,7 +40,6 @@ $(function() {
     var settings = function() {
         var settings = {
             editable: EDIT_EVENTS,
-            timezoneOffset: TIMEZONEOFFSET,
             container: $('#settings'),
             color_form: $('#room_colors'),
             onColorChange: function(color) {

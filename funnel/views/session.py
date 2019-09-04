@@ -132,7 +132,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 localize_timezone(
                     self.obj.project.schedule_end_at, tz=self.obj.project.timezone
                 ).isoformat()
-                if self.obj.project.schedule_start_at
+                if self.obj.project.schedule_end_at
                 else None
             ),
             'active_session': session_data(self.obj, with_modal_url='view_popup'),
