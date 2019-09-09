@@ -6,6 +6,14 @@
 
 {% block contenthead %}{% endblock %}
 
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app modal-form-page">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
+
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
@@ -23,34 +31,97 @@
     <div class="grid" id="membership">
       <div class="grid__col-xs-12">
         {% raw %}
-        <div id="manage-membership">
-          <a class="clickable-card card card--new mui--z2" title="New label" @click="fetchForm($event, newMemberUrl)">
-            <div class="card__body mui--text-center">
-              <p class="mui--text-headline mui--text-light mui--text-center zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-display1" aria-hidden="true">add</i> Add a member</p>
+        <div id="manage-membership" class="membership-wrapper">
+          <div class="mui--text-center btn-wrapper"><button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member"><i class="material-icons mui--align-middle mui--text-title" aria-hidden="true">add</i> Add new member</p></button></div>
+
+          <div v-if="members">
+            <div class="mui--text-center">
+              <form class="mui-form mui--d-inlineblock search-form mui--z1">
+                <div class="mui-textfield">
+                  <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search" v-model="search" @input="onChange"/>
+                </div>
+              </form>
             </div>
-          </a>
-<!--           <h2 class="mui--text-headline mui--text-center" v-if="members">Members</h2> -->
-          <div class="details-box details-box--flex details-box--small" v-for="member in members">
-            <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.user_fullname }}</h3>
-            <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder details-box__item">
-              <li v-if="member.is_editor">Editor</li>
-              <li v-if="member.is_concierge">Concierge</li>
-              <li v-if="member.is_usher">Usher</li>
-            </ul>
-            <div>
-              <a href="javascript:void(0)" @click="fetchForm($event, member.edit_url)" title="Edit" aria-label="Edit"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
-              <a @click="fetchForm($event, member.delete_url)" title="Delete" aria-label="Delete"><i class="material-icons mui--align-middle mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
+            <div class="mui--clearfix membership-wrapper__filter">
+              <p class="mui--text-title mui--pull-left">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
+              <div class="mui--pull-right">
+                 <button class="mui-btn mui-btn--nostyle mui--text-title" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold' : 'mui--text-light']">Name</button>
+                  <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-title" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold' : 'mui--text-light']">Role</button>
+              </div>
+            </div>
+            <div v-if="view == 'role'">
+              <div v-for="role in roles" class="membership-wrapper__list">
+                <p class="mui--text-subhead membership-wrapper__list__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }} 
+                  <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="!role.showMembers">keyboard_arrow_down</i>
+                  <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="role.showMembers">keyboard_arrow_up</i>
+                </p>
+                <div v-if="role.showMembers">
+                  <div class="details-box details-box--nomargin details-box--select" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
+                    <member :member="member"></member>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="view == 'name'" class="membership-wrapper__list">
+              <div class="details-box details-box--select" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
+                <member :member="member"></member>
+              </div>
             </div>
           </div>
-          <div id="member-form" class="modal">
+          <div class="content-box mui--bg-accent grid-no-left-padding grid-no-right-padding" v-else>
+            <p class="mui--text-center zero-bottom-margin"><i class="material-icons mui--text-display1 mui--text-light">people</i></p>
+            <p class="mui--text-subhead mui--text-bold mui--text-center">No members found</p>
+          </div>
+          <div class="membership-wrapper__info">
+            <h4><i class="material-icons mui--text-title mui--align-middle">vpn_key</i> <span class="mui--text-headline mui--text-bold mui--text-center">Member roles</span></h4>
+            <p class="mui--text-title mui--text-uppercase mui--text-light ">Editor</p>
+            <ul class="mui-list--unstyled">
+              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+            </ul>
+            <hr>
+            <p class="mui--text-title mui--text-uppercase mui--text-light ">Concierge</p>
+            <ul class="mui-list--unstyled">
+              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+            </ul>
+            <hr>
+            <p class="mui--text-title mui--text-uppercase mui--text-light ">Usher</p>
+            <ul class="mui-list--unstyled">
+              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+            </ul>
+            <hr>
+          </div>
+          <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
             <component :is="Form"></component>
-            <p class="mui--text-subhead mui--text-danger">{{ errorMsg }}</p>
+            <div class="modal-form__action-box mui--bg-accent">
+              <p class="mui--text-subhead mui--text-danger" v-if="errorMsg">{{ errorMsg }}</p>
+              <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
+            </div>
+            <div v-if="activeMember" class="modal-form__action-box--revoke">
+              <button @click="fetchForm($event, deleteURL)" title="Delete" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-bold">Revoke this membership</button>
+            </div>
           </div>
         {% endraw %}
       </div>
     </div>
   </div>
 </div>
+{% raw %}
+<script type="text/x-template" id="member-template">
+  <div class="user-box">
+    <img class="user-gravatar" :src=member.user_avatar :alt=member.user_fullname :aria-label=member.user_fullname v-if="member.user_avatar"/>
+    <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" :alt=member.user_fullname :aria-label=member.user_fullname v-else/>
+    <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.user_fullname }}</h3>
+    <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder details-box__item">
+      <li v-if="member.is_editor">Editor</li>
+      <li v-if="member.is_concierge">Concierge</li>
+      <li v-if="member.is_usher">Usher</li>
+    </ul>
+  </div>
+</script>
+{% endraw %}
 {% endblock %}
 
 {% block footerscripts %}
@@ -89,23 +160,51 @@
         return $(`#${formId}`).attr('action');
       }
 
+      var memberUI = Vue.component('member', {
+        template: '#member-template',
+        props: ['member'],
+      });
+
       const Membership = {
         init({divElem, scriptTemplate, newMemberUrl, members=''}) {
           Vue.use(VueScript2);
           let MembershipComponent = new Vue({
             el: divElem,
+            components: {
+              memberUI
+            },
             data: function () {
               return {
                 newMemberUrl: newMemberUrl,
                 members: members.length > 0 ? members : '',
+                roles: [
+                  { 
+                    roleKey: 'is_editor', 
+                    roleName: 'Editor',
+                    showMembers: false,
+                  },
+                  {  
+                    roleKey: 'is_concierge', 
+                    roleName: 'Concierge',
+                    showMembers: false,
+                  },
+                  {  
+                    roleKey: 'is_usher', 
+                    roleName: 'Usher',
+                    showMembers: false,
+                  },
+                ],
                 memberForm: '',
+                activeMember: '',
                 errorMsg: '',
+                view: 'name',
+                search: '',
               }
             },
             methods: {
-              fetchForm(event, url) {
-                console.log('url', url);
+              fetchForm(event, url, member='') {
                 event.preventDefault();
+                this.activeMember = member;
                 let app = this;
                 $.ajax({
                   type: 'GET',
@@ -125,7 +224,7 @@
                 console.log('formID', formId);
                 let app = this;
                 let onSuccess = (responseData) => {
-                  $.modal.close();
+                  this.closeForm();
                   console.log('responseData', responseData.memberships)
                   if(responseData.memberships) {
                     app.updateMembersList(responseData.memberships);
@@ -138,6 +237,24 @@
               },
               updateMembersList(members) {
                 this.members = members;
+              },
+              filter(event, action) {
+                event.preventDefault();
+                this.view = action;
+              },
+              closeForm(event='') {
+                if (event) event.preventDefault();
+                $.modal.close();
+                this.errorMsg = '';
+              },
+              onChange() {
+                if (this.search) {
+                  members.filter(member => member.hide = member.user_fullname.toLowerCase().indexOf(this.search.toLowerCase()) === -1)
+                }
+              },
+              collapse(event, role) {
+                event.preventDefault();
+                role.showMembers = !role.showMembers;
               },
             },
             computed: {
@@ -153,8 +270,8 @@
                   },
                 };
               },
-              showMemberList() {
-
+              deleteURL() {
+                return this.activeMember.delete_url;
               }
             },
             mounted() {

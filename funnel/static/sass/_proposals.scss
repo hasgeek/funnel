@@ -18,24 +18,3 @@
     }
   }
 }
-
-.search-proposal-form {
-  width: 100%;
-  margin: 10px 0;
-  padding: 0 10px;
-  border: 1px solid rgba(132,146,166,0.3);
-
-  .mui-textfield {
-    padding-top: 5px;
-
-    > input {
-      border-bottom: 0;
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .search-proposal-form {
-    width: 50%;
-  }
-}

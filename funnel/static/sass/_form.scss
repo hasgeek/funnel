@@ -179,3 +179,82 @@
   margin-top: 5px;
   margin-left: 5px;
 }
+
+.modal-form-page .jquery-modal.blocker.current {
+  padding: 0;
+}
+
+.modal-form {
+  min-width: 100%;
+  min-height: 325px;
+  height: 100%;
+  border-radius: 0;
+
+  .modal-form__action-box {
+    padding: 20px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-top: 1px solid rgba(132,146,166,0.3);
+    border-bottom: 1px solid rgba(132,146,166,0.3);
+    z-index: 1002;
+  }
+
+  .modal-form__action-box--revoke {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 20px;
+  }
+
+  .mui-form {
+    .form-actions {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 15px;
+      z-index: 1003;
+    }
+  }
+}
+
+.modal-form.modal-form--edit {
+  .modal-form__action-box,
+  .mui-form .form-actions {
+    bottom: 65px;
+  }
+  
+}
+
+@media (min-width: 768px) {
+  .modal-form {
+    min-width: 50%;
+    min-height: 450px;
+    height: auto;
+    border-radius: 4px;
+  }
+}
+
+
+.search-form {
+  width: 100%;
+  margin: 10px 0;
+  padding: 0 10px;
+  border: 1px solid rgba(132,146,166,0.3);
+
+  .mui-textfield {
+    padding-top: 5px;
+
+    > input {
+      border-bottom: 0;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .search-form.search-form--50 {
+    width: 50%;
+  }
+}

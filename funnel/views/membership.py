@@ -86,7 +86,8 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
         membership_form_html = render_form(
             form=membership_form,
-            title=_("Add a new member"),
+            title='',
+            submit=u'Add member',
             ajax=False,
             with_chrome=False,
         )
@@ -155,7 +156,7 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 }
 
         membership_form_html = render_form(
-            form=membership_form, title=_("Edit member"), ajax=False, with_chrome=False
+            form=membership_form, title='', submit=u'Edit membership', ajax=False, with_chrome=False
         )
         return {'form': membership_form_html}
 
