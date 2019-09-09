@@ -4,7 +4,7 @@ from baseframe import _, __
 import baseframe.forms as forms
 
 
-class ProjectMembershipForm(forms.Form):
+class ProjectCrewMembershipForm(forms.Form):
     # add a member to a project
     user = forms.UserSelectField(
         __("User"),
@@ -16,8 +16,16 @@ class ProjectMembershipForm(forms.Form):
     is_usher = forms.BooleanField(__("Usher"), default=False)
 
     def validate(self, extra_validators=None):
-        is_valid = super(ProjectMembershipForm, self).validate(extra_validators)
+        is_valid = super(ProjectCrewMembershipForm, self).validate(extra_validators)
         if not any([self.is_editor.data, self.is_concierge.data, self.is_usher.data]):
             self.is_usher.errors.append("At lease one role must be chosen")
             is_valid = False
         return is_valid
+
+
+class ProjectCrewMembershipInviteForm(forms.Form):
+    action = forms.SelectField(
+        __("Choice"),
+        choices=[('accept', __("Accept")), ('decline', __("Decline"))],
+        validators=[forms.validators.DataRequired(_(u"Please make a choice"))],
+    )
