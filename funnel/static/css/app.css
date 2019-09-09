@@ -255,8 +255,7 @@ html.touch .collapsible__body--disable {
 .content-box {
   padding-top: 15px;
   padding-bottom: 15px;
-  border-top: 1px solid rgba(132, 146, 166, 0.3);
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  border: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 .details-box {
