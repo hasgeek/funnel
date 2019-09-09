@@ -72,7 +72,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         project=self.obj, granted_by=current_auth.user
                     )
                     membership_form.populate_obj(new_membership)
-                    # new_membership.direct_add()
+                    new_membership.direct_add()
                     db.session.add(new_membership)
                     db.session.commit()
 
@@ -81,14 +81,14 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         sender=None,
                         to=new_membership.user.email,
                         body=render_template(
-                            # 'membership_add_email.md',
-                            'membership_add_invite_email.md',
+                            'membership_add_email.md',
+                            # 'membership_add_invite_email.md',
                             invited_by=current_auth.user,
                             project=self.obj,
-                            # roles=", ".join(new_membership.offered_roles_verbose())
-                            link=new_membership.url_for('invite', _external=True),
+                            roles=", ".join(new_membership.offered_roles_verbose())
+                            # link=new_membership.url_for('invite', _external=True),
                         ),
-                        subject=_("You have been invited to {} as a member").format(
+                        subject=_("You have been added to {} as a member").format(
                             self.obj.title
                         ),
                     )
@@ -232,7 +232,11 @@ class ProjectCrewMembershipView(
                 }
 
         membership_form_html = render_form(
-            form=membership_form, title='', submit=u'Edit membership', ajax=False, with_chrome=False
+            form=membership_form,
+            title='',
+            submit=u'Edit membership',
+            ajax=False,
+            with_chrome=False,
         )
         return {'form': membership_form_html}
 
