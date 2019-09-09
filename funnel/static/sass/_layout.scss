@@ -212,6 +212,10 @@ html.touch .collapsible__body--disable {
   margin-bottom: 10px;
 }
 
+.full-width-btn {
+  width: 100%;
+}
+
 .past-events-table {
   border-collapse: collapse;
 
@@ -254,28 +258,24 @@ html.touch .collapsible__body--disable {
   }
 }
 
-.mui-btn--nostyle {
-  background: none;
+.content-box {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-top: 1px solid rgba(132,146,166,0.3);
+  border-bottom: 1px solid rgba(132,146,166,0.3);
 }
 
 .details-box {
   border-radius: 3px;
   border: 1px solid #ddd;
   padding: 15px;
-  margin-bottom: 15px;
+  margin-bottom: 30px;
 }
 
-.details-box--flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.details-box--nomargin {
+  margin: 0 auto;
 }
 
-.details-box--small {
-  max-width: 800px;
-  margin: 0 auto 15px;
-}
-
-.details-box__item {
-  width: 40%;
+.details-box--select {
+  cursor: pointer;
 }

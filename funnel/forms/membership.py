@@ -9,7 +9,7 @@ class ProjectMembershipForm(forms.Form):
     user = forms.UserSelectField(
         __("User"),
         validators=[forms.validators.DataRequired(_(u"Please select a user"))],
-        description=__("The user who you want to add to this project"),
+        description=__("Lookup a user by their username or email address"),
     )
     is_editor = forms.BooleanField(__("Editor"), default=False)
     is_concierge = forms.BooleanField(__("Concierge"), default=False)

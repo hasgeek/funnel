@@ -1,0 +1,24 @@
+.membership-wrapper {
+  width: 100%;
+  max-width: 740px;
+  margin: auto;
+}
+
+.membership-wrapper__filter,
+.membership-wrapper__info {
+	margin-top: 30px;
+}
+
+.membership-wrapper__list {
+	.membership-wrapper__list__collapsible__header {
+		margin: 10px 0 0;
+    width: 100%;
+  	background: #EFF2F7;
+  	padding: 20px;
+  	cursor: pointer;
+	}
+}
+
+.membership-wrapper__list:first-child .membership-wrapper__list__collapsible__header {
+  margin: 0;
+}
