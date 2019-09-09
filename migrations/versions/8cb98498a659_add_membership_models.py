@@ -27,9 +27,12 @@ def upgrade():
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('is_owner', sa.Boolean(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),
+        sa.Column('granted_by_id', sa.Integer(), nullable=True),
+        sa.Column('record_type', sa.Integer(), nullable=False),
         sa.Column('id', UUIDType(binary=False), nullable=False),
         sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['revoked_by_id'], ['user.id'], ondelete='SET NULL'),
+        sa.ForeignKeyConstraint(['granted_by_id'], ['user.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
@@ -59,6 +62,8 @@ def upgrade():
         sa.Column('is_concierge', sa.Boolean(), nullable=False),
         sa.Column('is_usher', sa.Boolean(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),
+        sa.Column('granted_by_id', sa.Integer(), nullable=True),
+        sa.Column('record_type', sa.Integer(), nullable=False),
         sa.Column('id', UUIDType(binary=False), nullable=False),
         sa.CheckConstraint(
             u'is_editor IS TRUE OR is_concierge IS TRUE OR is_usher IS TRUE',
@@ -66,6 +71,7 @@ def upgrade():
         ),
         sa.ForeignKeyConstraint(['project_id'], ['project.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['revoked_by_id'], ['user.id'], ondelete='SET NULL'),
+        sa.ForeignKeyConstraint(['granted_by_id'], ['user.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )

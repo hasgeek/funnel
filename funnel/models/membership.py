@@ -4,14 +4,23 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from coaster.sqlalchemy import immutable
+from baseframe import __
+from coaster.sqlalchemy import StateManager, immutable, with_roles
+from coaster.utils import LabeledEnum
 
 from . import BaseMixin, UuidMixin, db
 from .profile import Profile
 from .project import Project
 from .user import User
 
-__all__ = ['ProfileAdminMembership', 'ProjectCrewMembership']
+__all__ = ['ProfileAdminMembership', 'ProjectCrewMembership', 'MEMBERSHIP_RECORD_TYPE']
+
+
+class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
+    INVITE = (0, 'invite', __(u"Invite"))
+    ACCEPT = (1, 'accept', __("Accept"))
+    DIRECT_ADD = (2, 'direct_add', __(u"Direct add"))
+    AMMEND = (3, 'ammend', __(u"Ammend"))
 
 
 class ImmutableMembershipMixin(UuidMixin, BaseMixin):
@@ -32,6 +41,17 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     )
     #: End time of membership, ordinarily a mirror of updated_at
     revoked_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    #: Record type
+    _record_type = db.Column(
+        'record_type',
+        db.Integer,
+        StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
+        default=MEMBERSHIP_RECORD_TYPE.INVITE,
+        nullable=False,
+    )
+    record_type = StateManager(
+        '_record_type', MEMBERSHIP_RECORD_TYPE, doc="Membership record type"
+    )
 
     @declared_attr
     def revoked_by_id(cls):
@@ -45,6 +65,18 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         """User who revoked the membership"""
         return db.relationship(User, foreign_keys=[cls.revoked_by_id])
 
+    @declared_attr
+    def granted_by_id(cls):
+        """Id of user who assigned the membership"""
+        return db.Column(
+            None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+        )
+
+    @declared_attr
+    def granted_by(cls):
+        """User who assigned the membership"""
+        return db.relationship(User, foreign_keys=[cls.granted_by_id])
+
     @hybrid_property
     def active(self):
         return self.revoked_at is None
@@ -52,6 +84,32 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @active.expression
     def active(cls):  # NOQA: N805
         return cls.revoked_at.is_(None)
+
+    @hybrid_property
+    def is_invite(self):
+        return self._record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+
+    @with_roles(call={'profile_admin'})
+    @record_type.transition(
+        record_type.INVITE,
+        record_type.DIRECT_ADD,
+        title=__("Add directly"),
+        message=__("The member has been added to the project"),
+        type='success',
+    )
+    def direct_add(self):
+        pass
+
+    @with_roles(call={'profile_admin'})
+    @record_type.transition(
+        record_type.INVITE,
+        record_type.ACCEPT,
+        title=__("Accept"),
+        message=__("The member has been added to the project"),
+        type='success',
+    )
+    def accept(self):
+        pass
 
     @declared_attr
     def __table_args__(cls):
@@ -80,7 +138,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise AttributeError("Unknown role")
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
-        new = type(self)(user=self.user)
+        new = type(self)(user=self.user, granted_by=self.granted_by)
+        new._record_type = MEMBERSHIP_RECORD_TYPE.INVITE
         setattr(new, self.__parent_column__, getattr(self, self.__parent_column__))
         for column in self.__role_columns__:
             if column in roles:
@@ -223,7 +282,9 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
                 'is_usher',
                 'edit_url',
                 'delete_url',
-            }
+                'project',
+            },
+            'call': {'url_for'},
         },
         # 'profile_owner': {
         #     'read': {
@@ -317,6 +378,10 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         if self.is_usher:
             roles.add('project_usher')
         return roles
+
+    def offered_roles_verbose(self):
+        roles = self.offered_roles()
+        return {role.replace('project_').title() for role in roles}
 
     def roles_for(self, actor, anchors=()):
         """Roles available to the specified actor and anchors"""
