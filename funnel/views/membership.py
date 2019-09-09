@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import g, request
+from flask import abort, g, redirect, render_template, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
@@ -15,8 +15,13 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp, lastuser
-from ..forms import ProjectMembershipForm, SavedProjectForm
-from ..models import Profile, Project, ProjectCrewMembership, db
+from ..forms import (
+    ProjectCrewMembershipForm,
+    ProjectCrewMembershipInviteForm,
+    SavedProjectForm,
+)
+from ..jobs import send_mail_async
+from ..models import MEMBERSHIP_RECORD_TYPE, Profile, Project, ProjectCrewMembership, db
 from .decorators import legacy_redirect
 from .mixins import ProjectViewMixin
 
@@ -45,7 +50,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_roles({'profile_admin'})
     def new_member(self):
-        membership_form = ProjectMembershipForm()
+        membership_form = ProjectCrewMembershipForm()
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
@@ -63,12 +68,33 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         400,
                     )
                 else:
-                    new_membership = ProjectCrewMembership(project=self.obj)
+                    new_membership = ProjectCrewMembership(
+                        project=self.obj, granted_by=current_auth.user
+                    )
                     membership_form.populate_obj(new_membership)
+                    # new_membership.direct_add()
                     db.session.add(new_membership)
                     db.session.commit()
+
+                    # TODO: Once invite is introduced, send invite email here
+                    send_mail_async.queue(
+                        sender=None,
+                        to=new_membership.user.email,
+                        body=render_template(
+                            # 'membership_add_email.md',
+                            'membership_add_invite_email.md',
+                            invited_by=current_auth.user,
+                            project=self.obj,
+                            # roles=", ".join(new_membership.offered_roles_verbose())
+                            link=new_membership.url_for('invite', _external=True),
+                        ),
+                        subject=_("You have been invited to {} as a member").format(
+                            self.obj.title
+                        ),
+                    )
                     return {
                         'status': 'ok',
+                        'message': _("The user has been added as a member"),
                         'memberships': [
                             membership.current_access()
                             for membership in self.obj.active_crew_memberships
@@ -103,9 +129,7 @@ ProjectMembershipView.init_app(app)
 FunnelProjectMembershipView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/membership/<suuid>')
-class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
+class ProjectCrewMembershipMixin(object):
     model = ProjectCrewMembership
 
     route_model_map = {
@@ -128,7 +152,58 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(ProjectCrewMembershipView, self).after_loader()
+        super(ProjectCrewMembershipMixin, self).after_loader()
+
+
+@route('/<profile>/<project>/membership/<suuid>/invite')
+class ProjectCrewMembershipInviteView(
+    ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
+):
+    __decorators__ = [legacy_redirect]
+
+    def loader(self, profile, project, suuid):
+        membership = super(ProjectCrewMembershipInviteView, self).loader(
+            profile, project, suuid
+        )
+        if not membership.record_type.INVITE or membership.user != current_auth.user:
+            raise abort(404)
+
+        return membership
+
+    @route('', methods=['GET'])
+    @render_with('membership_invite_actions.html.jinja2')
+    @lastuser.requires_login
+    def invite(self):
+        return {'membership': self.obj.current_access(), 'form': Form()}
+
+    @route('action', methods=['POST'])
+    @lastuser.requires_login
+    def invite_action(self):
+        membership_invite_form = ProjectCrewMembershipInviteForm()
+        if membership_invite_form.validate_on_submit():
+            if membership_invite_form.action.data == 'accept':
+                new_membership = self.obj.replace(actor=current_auth.user)
+                new_membership.accept()
+            elif membership_invite_form.action.data == 'decline':
+                self.obj.revoke(actor=current_auth.user)
+            db.session.commit()
+        return redirect(self.obj.project.url_for(), 303)
+
+
+@route('/<project>/membership/<suuid>/invite', subdomain='<profile>')
+class FunnelProjectCrewMembershipInviteView(ProjectCrewMembershipInviteView):
+    pass
+
+
+ProjectCrewMembershipInviteView.init_app(app)
+FunnelProjectCrewMembershipInviteView.init_app(funnelapp)
+
+
+@route('/<profile>/<project>/membership/<suuid>')
+class ProjectCrewMembershipView(
+    ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
+):
+    __decorators__ = [legacy_redirect]
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
@@ -136,12 +211,13 @@ class ProjectCrewMembershipView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'profile_admin'})
     def edit(self):
         previous_membership = self.obj
-        membership_form = ProjectMembershipForm(obj=previous_membership)
+        membership_form = ProjectCrewMembershipForm(obj=previous_membership)
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
                 previous_membership.replace(
                     actor=current_auth.user,
+                    record_type=MEMBERSHIP_RECORD_TYPE.AMMEND,
                     is_editor=membership_form.is_editor.data,
                     is_concierge=membership_form.is_concierge.data,
                     is_usher=membership_form.is_usher.data,
