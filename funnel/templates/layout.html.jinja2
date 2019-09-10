@@ -15,6 +15,19 @@
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
+{%- block image_src %}
+  {%- if project and project.bg_image.url %}
+    <link rel="image_src" href="{{ project.bg_image }}" />
+    <meta property="og:image" content="{{ project.bg_image }}" />
+  {%- elif not config['LEGACY'] -%}
+    <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png', _external=true) }}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png', _external=true) }}" />
+  {%- else  -%}
+    <link rel="image_src" href="{{ url_for('static', filename='img/funnel-logo.png', _external=true) }}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/funnel-logo.png', _external=true) }}" />
+  {% endif -%}
+{%- endblock %}
+
 {%- block layoutheaders %}
   {%- if not config['LEGACY'] -%}
   <link rel="manifest" href="/manifest.json">
