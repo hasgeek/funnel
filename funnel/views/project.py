@@ -344,7 +344,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             flash(transition.data['message'], 'success')
         else:
             flash(_("This response is not valid"), 'error')
-            abort(403)
         return redirect(self.obj.url_for(), code=303)
 
     @route('rsvp_list')

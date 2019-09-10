@@ -84,7 +84,9 @@
           {% elif project.allow_rsvp -%}
             <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
             {% if current_rsvp is not none %}
-            <p>Your current status: {{ current_rsvp.state.label.title }}
+              {% trans current_rsvp_title=current_rsvp.state.label.title %}
+                <p>Your current status: {{ current_rsvp_title }}</p>
+              {% endtrans %}
             {% endif %}
             {%- if current_auth.is_authenticated %}
               <form action="{{ project.url_for('rsvp_transition') }}" method="post" class="form-inline">
