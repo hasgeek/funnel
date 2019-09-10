@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
-from ..models import Project
+from ..models import Project, Rsvp
 
 __all__ = [
     'CfpForm',
@@ -234,7 +234,15 @@ class RsvpTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        self.transition.choices = self.edit_obj.state.transitions().items()
+        # usually you need to use an instance's state.transitions to find
+        # all the valid transitions for the current state of the instance.
+        # But for RSVP, we're showing all the options all the time, so this
+        # can is valid. We're also doing this because we want to load the
+        # options in the form even without an Rsvp instance.
+        self.transition.choices = [
+            (transition_name, getattr(Rsvp, transition_name))
+            for transition_name in Rsvp.state.statemanager.transitions
+        ]
 
 
 class EventForm(forms.Form):

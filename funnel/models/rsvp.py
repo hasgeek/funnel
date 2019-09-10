@@ -38,7 +38,7 @@ class Rsvp(TimestampMixin, db.Model):
         'state',
         db.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),
-        default=RSVP_STATUS.MAYBE,
+        default=RSVP_STATUS.AWAITING,
         nullable=False,
     )
     state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
@@ -48,7 +48,7 @@ class Rsvp(TimestampMixin, db.Model):
         None,
         state.YES,
         title=__("Going"),
-        message=__("Your RSVP has been saved"),
+        message=__("Your response has been saved"),
         type='primary',
     )
     def rsvp_yes(self):
@@ -59,7 +59,7 @@ class Rsvp(TimestampMixin, db.Model):
         None,
         state.NO,
         title=__("Not going"),
-        message=__("Your RSVP has been saved"),
+        message=__("Your response has been saved"),
         type='dark',
     )
     def rsvp_no(self):
@@ -70,28 +70,24 @@ class Rsvp(TimestampMixin, db.Model):
         None,
         state.MAYBE,
         title=__("Maybe"),
-        message=__("Your RSVP has been saved"),
+        message=__("Your response has been saved"),
         type='accent',
     )
     def rsvp_maybe(self):
         pass
 
     @classmethod
-    def get_for(cls, project, user, create=False, session_add=False):
+    def get_for(cls, project, user, create=False):
         if user:
             result = cls.query.get((project.id, user.id))
             if not result and create:
                 result = cls(project=project, user=user)
-                # we need to show the transition form on the project page but
-                # every person who opens the project page may not want to RSVP.
-                # so this flag lets us create an Rsvp object without adding it to the db.
-                if session_add:
-                    db.session.add(result)
+                db.session.add(result)
             return result
 
 
-def _project_rsvp_for(self, user, create=False, session_add=False):
-    return Rsvp.get_for(self, user, create, session_add)
+def _project_rsvp_for(self, user, create=False):
+    return Rsvp.get_for(self, user, create)
 
 
 def _project_rsvps_with(self, status):

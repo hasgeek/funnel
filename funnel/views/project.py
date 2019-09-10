@@ -122,13 +122,11 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @render_with('project.html.jinja2')
     @requires_permission('view')
     def view(self):
-        current_rsvp = self.obj.rsvp_for(current_auth.user)
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
-        rsvp_form = RsvpTransitionForm(
-            obj=self.obj.rsvp_for(current_auth.user, create=True, session_add=False)
-        )
+        rsvp_form = RsvpTransitionForm()
+        current_rsvp = self.obj.rsvp_for(current_auth.user)
         return {
             'project': self.obj,
             'current_rsvp': current_rsvp,
@@ -337,15 +335,15 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('rsvp', methods=['POST'])
     @lastuser.requires_login
     def rsvp_transition(self):
-        rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True, session_add=True)
-        form = RsvpTransitionForm(obj=rsvp)
+        form = RsvpTransitionForm()
         if form.validate_on_submit():
+            rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             transition = getattr(rsvp, form.transition.data)
             transition()
             db.session.commit()
             flash(transition.data['message'], 'success')
         else:
-            flash(_("Invalid RSVP option for this project"), 'error')
+            flash(_("This response is not valid"), 'error')
             abort(403)
         return redirect(self.obj.url_for(), code=303)
 
