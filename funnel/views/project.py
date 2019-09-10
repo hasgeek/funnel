@@ -7,7 +7,6 @@ from flask import (
     abort,
     current_app,
     flash,
-    g,
     redirect,
     render_template,
     request,
@@ -36,7 +35,7 @@ from ..forms import (
     ProjectForm,
     ProjectScheduleTransitionForm,
     ProjectTransitionForm,
-    RsvpForm,
+    RsvpTransitionForm,
     SavedProjectForm,
 )
 from ..jobs import import_tickets, tag_locations
@@ -123,12 +122,16 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @render_with('project.html.jinja2')
     @requires_permission('view')
     def view(self):
-        rsvp_form = RsvpForm(obj=self.obj.rsvp_for(g.user))
+        current_rsvp = self.obj.rsvp_for(current_auth.user)
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
+        rsvp_form = RsvpTransitionForm(
+            obj=self.obj.rsvp_for(current_auth.user, create=True, session_add=False)
+        )
         return {
             'project': self.obj,
+            'current_rsvp': current_rsvp,
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
@@ -332,21 +335,19 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for())
 
     @route('rsvp', methods=['POST'])
-    @render_with('rsvp.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('view')
-    def rsvp(self):
-        form = RsvpForm()
+    def rsvp_transition(self):
+        rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True, session_add=True)
+        form = RsvpTransitionForm(obj=rsvp)
         if form.validate_on_submit():
-            rsvp = Rsvp.get_for(self.obj, g.user, create=True)
-            form.populate_obj(rsvp)
+            transition = getattr(rsvp, form.transition.data)
+            transition()
             db.session.commit()
-            if request.is_xhr:
-                return {'project': self.obj, 'rsvp': rsvp, 'rsvp_form': form}
-            else:
-                return redirect(self.obj.url_for(), code=303)
+            flash(transition.data['message'], 'success')
         else:
-            abort(400)
+            flash(_("Invalid RSVP option for this project"), 'error')
+            abort(403)
+        return redirect(self.obj.url_for(), code=303)
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')

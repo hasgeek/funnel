@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
-from ..models import RSVP_STATUS, Project
+from ..models import Project
 
 __all__ = [
     'CfpForm',
@@ -20,7 +20,7 @@ __all__ = [
     'ProjectForm',
     'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
-    'RsvpForm',
+    'RsvpTransitionForm',
     'SavedProjectForm',
     'TicketClientForm',
     'TicketTypeForm',
@@ -228,10 +228,13 @@ class SavedProjectForm(forms.Form):
     description = forms.StringField(__("Note to self"))
 
 
-class RsvpForm(forms.Form):
-    status = forms.RadioField(
-        "Status", choices=[(k, RSVP_STATUS[k].title) for k in RSVP_STATUS.USER_CHOICES]
+class RsvpTransitionForm(forms.Form):
+    transition = forms.SelectField(
+        __("Status"), validators=[forms.validators.DataRequired()]
     )
+
+    def set_queries(self):
+        self.transition.choices = self.edit_obj.state.transitions().items()
 
 
 class EventForm(forms.Form):
