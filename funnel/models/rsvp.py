@@ -32,7 +32,7 @@ class Rsvp(TimestampMixin, db.Model):
     user_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=False, primary_key=True
     )
-    user = db.relationship(User)
+    user = with_roles(db.relationship(User), grants={'owner'})
 
     _state = db.Column(
         'state',
@@ -43,7 +43,7 @@ class Rsvp(TimestampMixin, db.Model):
     )
     state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
 
-    @with_roles(call={'auth'})
+    @with_roles(call={'owner'})
     @state.transition(
         None,
         state.YES,
@@ -54,7 +54,7 @@ class Rsvp(TimestampMixin, db.Model):
     def rsvp_yes(self):
         pass
 
-    @with_roles(call={'auth'})
+    @with_roles(call={'owner'})
     @state.transition(
         None,
         state.NO,
@@ -65,7 +65,7 @@ class Rsvp(TimestampMixin, db.Model):
     def rsvp_no(self):
         pass
 
-    @with_roles(call={'auth'})
+    @with_roles(call={'owner'})
     @state.transition(
         None,
         state.MAYBE,
