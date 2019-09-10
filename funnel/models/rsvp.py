@@ -82,8 +82,6 @@ class Rsvp(TimestampMixin, db.Model):
             result = cls.query.get((project.id, user.id))
             if not result and create:
                 result = cls(project=project, user=user)
-                # result.rsvp_maybe()  # default transition value doesn't apply without db.session.add()
-
                 # we need to show the transition form on the project page but
                 # every person who opens the project page may not want to RSVP.
                 # so this flag lets us create an Rsvp object without adding it to the db.
