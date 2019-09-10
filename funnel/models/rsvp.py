@@ -67,7 +67,7 @@ class Rsvp(TimestampMixin, db.Model):
 
     @with_roles(call={'auth'})
     @state.transition(
-        None,  # Need this to call this transition inside `get_for` below
+        None,
         state.MAYBE,
         title=__("Maybe"),
         message=__("Your RSVP has been saved"),
