@@ -83,12 +83,12 @@
             <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
           {% elif project.allow_rsvp -%}
             <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
-            {% if current_rsvp is not none %}
-              {% trans current_rsvp_title=current_rsvp.state.label.title %}
-                <p>Your current status: {{ current_rsvp_title }}</p>
-              {% endtrans %}
-            {% endif %}
             {%- if current_auth.is_authenticated %}
+              {% if current_rsvp is not none %}
+                {% trans current_rsvp_title=current_rsvp.state.label.title %}
+                  <p>Your current status: {{ current_rsvp_title }}</p>
+                {% endtrans %}
+              {% endif %}
               <form action="{{ project.url_for('rsvp_transition') }}" method="post" class="form-inline">
                 {{ rsvp_form.hidden_tag() }}
                 <p class="btn-group">
