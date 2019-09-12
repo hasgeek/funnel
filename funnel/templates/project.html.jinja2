@@ -233,7 +233,9 @@
   <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var projectConfig = {};
+      var projectConfig = {
+        isUserProfileAdmin: {%- if project.current_roles.profile_admin %} true {% else %} false {%- endif %},
+      };
 
       {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
         projectConfig.tickets = {
