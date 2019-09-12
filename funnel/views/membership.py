@@ -252,6 +252,19 @@ class ProjectCrewMembershipView(
                 if previous_membership.active:
                     previous_membership.revoke(actor=current_auth.user)
                     db.session.commit()
+
+                    send_mail_async.queue(
+                        sender=None,
+                        to=previous_membership.user.email,
+                        body=render_template(
+                            'membership_revoke_notification_email.md',
+                            revoked_by=current_auth.user,
+                            project=self.obj.project,
+                        ),
+                        subject=_("You have been removed from {} as a member").format(
+                            self.obj.project.title
+                        ),
+                    )
                 return {
                     'status': 'ok',
                     'memberships': [
