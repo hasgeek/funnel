@@ -3,9 +3,8 @@
 export const Utils = {
   // convert array of objects into hashmap
   tohashMap(objectArray, key) {
-    let hashMap = {
-    };
-    objectArray.forEach((obj) => {
+    let hashMap = {};
+    objectArray.forEach(obj => {
       hashMap[obj[key]] = obj;
     });
     return hashMap;
@@ -20,70 +19,89 @@ export const Utils = {
     return index;
   },
   collapse() {
-    $('.collapsible__header').on('click', function collapseContent() {
-      $(this).find('.collapsible__icon').toggleClass('mui--hide');
-      $(this).siblings('.collapsible__body').slideToggle();
+    $(".collapsible__header").on("click", function collapseContent() {
+      $(this)
+        .find(".collapsible__icon")
+        .toggleClass("mui--hide");
+      $(this)
+        .siblings(".collapsible__body")
+        .slideToggle();
     });
   },
   animateScrollTo(offsetY) {
-    $('html,body').animate({
-      scrollTop: offsetY,
-    }, 'slow');
+    $("html,body").animate(
+      {
+        scrollTop: offsetY
+      },
+      "slow"
+    );
   },
   smoothScroll() {
-    $('a.js-smooth-scroll').on('click', function clickHandler(event) {
+    $("a.js-smooth-scroll").on("click", function clickHandler(event) {
       event.preventDefault();
       Utils.animateScrollTo($(this.hash).offset().top);
     });
   },
   scrollTabs() {
-    if(document.getElementById('jquery-scroll-tabs')) {
+    if (document.getElementById("jquery-scroll-tabs")) {
       // Horizontal scroll to active tab
-      $('#jquery-scroll-tabs').animate({
-        scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
-      }, 'slow');
+      $("#jquery-scroll-tabs").animate(
+        {
+          scrollLeft: document.querySelector(".tabs__item--active").offsetLeft
+        },
+        "slow"
+      );
 
-      $('#jquery-scroll-tabs .js-scroll-prev').on('click', function (event) {
+      $("#jquery-scroll-tabs .js-scroll-prev").on("click", function(event) {
         event.preventDefault();
-        let prevTab = $('.tabs__item--active').prev('.tabs__item').attr('href')
-        if(prevTab) {
+        let prevTab = $(".tabs__item--active")
+          .prev(".tabs__item")
+          .attr("href");
+        if (prevTab) {
           window.location.href = prevTab;
         }
       });
 
-      $('#jquery-scroll-tabs .js-scroll-next').on('click', function (event) {
+      $("#jquery-scroll-tabs .js-scroll-next").on("click", function(event) {
         event.preventDefault();
-        let nextTab = $('.tabs__item--active').next('.tabs__item').attr('href')
-        if(nextTab) {
+        let nextTab = $(".tabs__item--active")
+          .next(".tabs__item")
+          .attr("href");
+        if (nextTab) {
           window.location.href = nextTab;
         }
       });
     }
   },
   navSearchForm() {
-    $('.js-search-show').on('click', function toggleSearchForm(event) {
+    $(".js-search-show").on("click", function toggleSearchForm(event) {
       event.preventDefault();
-      $('.js-search-form').toggleClass('search-form--show');
-      $('.js-search-field').focus();
+      $(".js-search-form").toggleClass("search-form--show");
+      $(".js-search-field").focus();
     });
 
     // Clicking outside close search form if open
-    $('body').on('click', function closeSearchForm(event) {
-      if($('.js-search-form').hasClass('search-form--show') &&
-          !$(event.target).is('.js-search-field') &&
-          !$.contains($('.js-search-show').parent('.header__nav-list__item')[0], event.target)) {
-        $('.js-search-form').removeClass('search-form--show');
+    $("body").on("click", function closeSearchForm(event) {
+      if (
+        $(".js-search-form").hasClass("search-form--show") &&
+        !$(event.target).is(".js-search-field") &&
+        !$.contains(
+          $(".js-search-show").parent(".header__nav-list__item")[0],
+          event.target
+        )
+      ) {
+        $(".js-search-form").removeClass("search-form--show");
       }
     });
   },
-  sendToGA(category, action, label, value = '') {
-    if (typeof ga !== 'undefined') {
-      ga('send', {
-        hitType: 'event',
+  sendToGA(category, action, label, value = "") {
+    if (typeof ga !== "undefined") {
+      ga("send", {
+        hitType: "event",
         eventCategory: category,
         eventAction: action,
         eventLabel: label,
-        eventValue: value,
+        eventValue: value
       });
     }
   },
@@ -91,22 +109,29 @@ export const Utils = {
     return htmlString.match(/id="(.*?)"/)[1];
   },
   formErrorHandler(formId, errorResponse) {
-    let errorMsg = '';
+    let errorMsg = "";
     // xhr readyState '4' indicates server has received the request & response is ready
     if (errorResponse.readyState === 4) {
       if (errorResponse.status === 500) {
-        errorMsg = 'Internal Server Error';
+        errorMsg = "Internal Server Error";
       } else {
-        window.Baseframe.Forms.showValidationErrors(formId, errorResponse.responseJSON.errors);
-        errorMsg = 'Error';
+        window.Baseframe.Forms.showValidationErrors(
+          formId,
+          errorResponse.responseJSON.errors
+        );
+        errorMsg = "Error";
       }
     } else {
-      errorMsg = 'Unable to connect. Please try again.';
+      errorMsg = "Unable to connect. Please try again.";
     }
-    $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
-    $(`#${formId}`).find('.loading').addClass('mui--hide');
+    $(`#${formId}`)
+      .find('button[type="submit"]')
+      .prop("disabled", false);
+    $(`#${formId}`)
+      .find(".loading")
+      .addClass("mui--hide");
     return errorMsg;
-  },
+  }
 };
 
 export const ScrollActiveMenu = {
@@ -116,8 +141,8 @@ export const ScrollActiveMenu = {
     this.activeMenuClassName = activeMenuClassName;
     this.navItems = [...document.querySelectorAll(`.${navItemsClassName}`)];
     this.headings = this.navItems.map(navItem => {
-      if (navItem.classList.contains('js-samepage')) {
-        return document.querySelector(navItem.getAttribute('href'));
+      if (navItem.classList.contains("js-samepage")) {
+        return document.querySelector(navItem.getAttribute("href"));
       }
       return false;
     });
@@ -126,14 +151,14 @@ export const ScrollActiveMenu = {
 
     this.headings.forEach(heading => {
       if (heading) {
-        let threshold = heading.offsetHeight/window.innerHeight > 1 ? 0.1 : heading.offsetHeight/window.innerHeight;
-        let observer = new IntersectionObserver(
-          this.handleObserver,
-          {
-            rootMargin: '0px',
-            threshold: threshold
-          },
-        );
+        let threshold =
+          heading.offsetHeight / window.innerHeight > 1
+            ? 0.1
+            : heading.offsetHeight / window.innerHeight;
+        let observer = new IntersectionObserver(this.handleObserver, {
+          rootMargin: "0px",
+          threshold: threshold
+        });
         observer.observe(heading);
       }
     });
@@ -142,12 +167,16 @@ export const ScrollActiveMenu = {
 
     if (document.getElementById('ticket-wrapper')) {
       let observer = new IntersectionObserver(
-          entries => {
+        entries => {
           entries.forEach(entry => {
-            if (!entry.isIntersecting && entry.intersectionRatio > 0.5 && entry.boundingClientRect.y < 0) {
-              $('#ticket-btn').addClass('sub-navbar__item--fixed');
+            if (
+              !entry.isIntersecting &&
+              entry.intersectionRatio > 0.5 &&
+              entry.boundingClientRect.y < 0
+            ) {
+              $("#ticket-btn").addClass("sub-navbar__item--fixed");
             } else if (entry.isIntersecting && entry.intersectionRatio === 1) {
-              $('#ticket-btn').removeClass('sub-navbar__item--fixed');
+              $("#ticket-btn").removeClass("sub-navbar__item--fixed");
             }
           });
         },
@@ -156,13 +185,17 @@ export const ScrollActiveMenu = {
           threshold: 1,
         },
       );
-      observer.observe(document.getElementById('ticket-wrapper'));
+      observer.observe(document.getElementById("ticket-wrapper"));
     }
   },
   handleObserver(entries) {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        let activeNavItem = this.navItems.find(navItem => navItem.getAttribute('href') === `#${entry.target.getAttribute('id')}`);
+        let activeNavItem = this.navItems.find(
+          navItem =>
+            navItem.getAttribute("href") ===
+            `#${entry.target.getAttribute("id")}`
+        );
         this.setActiveNavItem(activeNavItem);
       }
       return;
@@ -172,10 +205,13 @@ export const ScrollActiveMenu = {
     this.activeNavItem = activeNavItem;
     $(`.${this.navItemsClassName}`).removeClass(this.activeMenuClassName);
     activeNavItem.classList.add(this.activeMenuClassName);
-    $(`#${this.navId}`).animate({
-      scrollLeft: activeNavItem.offsetLeft,
-    }, 'slow');
-  },
+    $(`#${this.navId}`).animate(
+      {
+        scrollLeft: activeNavItem.offsetLeft
+      },
+      "slow"
+    );
+  }
 };
 
 export const LazyloadImg = {
@@ -185,7 +221,7 @@ export const LazyloadImg = {
     this.imgItems.forEach(img => {
       if (img) {
         let observer = new IntersectionObserver(
-            entries => {
+          entries => {
             entries.forEach(entry => {
               if (entry.isIntersecting) {
                 entry.target.src = entry.target.dataset.src;
@@ -194,39 +230,49 @@ export const LazyloadImg = {
             });
           },
           {
-            rootMargin: '0px',
-            threshold: 0,
-          },
+            rootMargin: "0px",
+            threshold: 0
+          }
         );
         observer.observe(img);
       }
     });
-  },
+  }
 };
 
-export const SaveProject = function({formId, postUrl, config={}}) {
+export const SaveProject = function({ formId, postUrl, config = {} }) {
   const onSuccess = function() {
-    $('#' + formId).find('button').css('display', 'inline-block').prop('disabled', false).toggleClass('mui--hide');
+    $("#" + formId)
+      .find("button")
+      .css("display", "inline-block")
+      .prop("disabled", false)
+      .toggleClass("mui--hide");
   };
 
   const onError = function(response) {
-    var errorMsg = '';
+    var errorMsg = "";
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg ='Internal Server Error. Please reload and try again.';
+        errorMsg = "Internal Server Error. Please reload and try again.";
       } else {
         errorMsg = JSON.parse(response.responseText).error_description;
       }
     } else {
-      errorMsg = 'Unable to connect. Please reload and try again.';
+      errorMsg = "Unable to connect. Please reload and try again.";
     }
     window.toastr.error(errorMsg);
   };
 
-  window.Baseframe.Forms.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
+  window.Baseframe.Forms.handleFormSubmit(
+    formId,
+    postUrl,
+    onSuccess,
+    onError,
+    config
+  );
 };
 
-export const TableSearch = function (tableId) {
+export const TableSearch = function(tableId) {
   // a little library that takes a table id
   // and provides a method to search the table's rows for a given query.
   // the row's td must contain the class 'js-searchable' to be considered
@@ -240,36 +286,39 @@ export const TableSearch = function (tableId) {
   this.allMatchedIds = [];
 };
 
-TableSearch.prototype.getRows = function () {
+TableSearch.prototype.getRows = function() {
   let tablerow = `#${this.tableId} tbody tr`;
   return $(tablerow);
 };
 
-TableSearch.prototype.setRowData = function () {
+TableSearch.prototype.setRowData = function() {
   // Builds a list of objects and sets it the object's rowData
   let rowMap = [];
   $.each(this.getRows(), (rowIndex, row) => {
-    let rowid = $(row).attr('id');
+    let rowid = $(row).attr("id");
     rowMap.push({
       rid: `#${rowid}`,
-      text: $(row).find('td.js-searchable').text().toLowerCase(),
+      text: $(row)
+        .find("td.js-searchable")
+        .text()
+        .toLowerCase()
     });
   });
   this.rowData = rowMap;
 };
 
-TableSearch.prototype.setAllMatchedIds = function (ids) {
+TableSearch.prototype.setAllMatchedIds = function(ids) {
   this.allMatchedIds = ids;
 };
 
-TableSearch.prototype.searchRows = function (q) {
+TableSearch.prototype.searchRows = function(q) {
   // Search the rows of the table for a supplied query.
   // reset data collection on first search or if table has changed
   if (this.rowData.length !== this.getRows().length) {
     this.setRowData();
   }
   // return cached matched ids if query is blank
-  if (q === '' && this.allMatchedIds.length !== 0) {
+  if (q === "" && this.allMatchedIds.length !== 0) {
     return this.allMatchedIds;
   }
   let matchedIds = [];
@@ -279,7 +328,7 @@ TableSearch.prototype.searchRows = function (q) {
     }
   }
   // cache ids if query is blank
-  if (q === '') {
+  if (q === "") {
     this.setAllMatchedIds(matchedIds);
   }
   return matchedIds;
