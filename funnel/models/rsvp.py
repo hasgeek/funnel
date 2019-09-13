@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from baseframe import __
-from coaster.sqlalchemy import StateManager
+from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import TimestampMixin, db
@@ -13,13 +13,11 @@ __all__ = ['Rsvp', 'RSVP_STATUS']
 
 class RSVP_STATUS(LabeledEnum):  # NOQA: N801
     # If you add any new state, you need to add a migration to modify the check constraint
-    Y = ('Y', 'yes', __("Yes"))
-    N = ('N', 'no', __("No"))
-    M = ('M', 'maybe', __("Maybe"))
-    A = ('A', 'awaiting', __("Awaiting"))
-    # To avoid interfering with LabeledEnum, the following should use a list, not a tuple,
-    # and should contain actual status values, not Python objects
-    USER_CHOICES = ['Y', 'N', 'M']
+    YES = ('Y', 'yes', __("Going"))
+    NO = ('N', 'no', __("Not going"))
+    MAYBE = ('M', 'maybe', __("Maybe"))
+    AWAITING = ('A', 'awaiting', __("Awaiting"))
+    # USER_CHOICES = {YES, NO, MAYBE}
 
 
 class Rsvp(TimestampMixin, db.Model):
@@ -34,16 +32,49 @@ class Rsvp(TimestampMixin, db.Model):
     user_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=False, primary_key=True
     )
-    user = db.relationship(User)
+    user = with_roles(db.relationship(User), grants={'owner'})
 
     _state = db.Column(
         'state',
         db.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),
-        default=RSVP_STATUS.A,
+        default=RSVP_STATUS.AWAITING,
         nullable=False,
     )
     state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
+
+    @with_roles(call={'owner'})
+    @state.transition(
+        None,
+        state.YES,
+        title=__("Going"),
+        message=__("Your response has been saved"),
+        type='primary',
+    )
+    def rsvp_yes(self):
+        pass
+
+    @with_roles(call={'owner'})
+    @state.transition(
+        None,
+        state.NO,
+        title=__("Not going"),
+        message=__("Your response has been saved"),
+        type='dark',
+    )
+    def rsvp_no(self):
+        pass
+
+    @with_roles(call={'owner'})
+    @state.transition(
+        None,
+        state.MAYBE,
+        title=__("Maybe"),
+        message=__("Your response has been saved"),
+        type='accent',
+    )
+    def rsvp_maybe(self):
+        pass
 
     @classmethod
     def get_for(cls, project, user, create=False):

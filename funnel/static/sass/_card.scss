@@ -35,6 +35,8 @@
 .card__image--default {
   background-color: #F6EDE3;
   min-height: 125px;
+  position: relative;
+  overflow: hidden;
 }
 
 .card__calendar {
@@ -45,11 +47,13 @@
 .card__image__tagline {
   position: absolute;
   color: #333;
-  top: 35%;
+  top: 50%;
   left: 16px;
   right: 16px;
   text-align: center;
   font-size: 18px;
+  transform: translateY(-50%);
+  max-height: 100%;
 }
 
 @media (min-width: 768px) {

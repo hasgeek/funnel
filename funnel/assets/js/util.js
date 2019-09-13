@@ -140,7 +140,6 @@ export const ScrollActiveMenu = {
 
     this.activeNavItem = '';
 
-
     if (document.getElementById('ticket-wrapper')) {
       let observer = new IntersectionObserver(
           entries => {
