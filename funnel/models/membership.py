@@ -91,7 +91,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'profile_admin'})
     @record_type.transition(
-        record_type.INVITE,
+        None,
         record_type.DIRECT_ADD,
         title=__("Add directly"),
         message=__("The member has been added to the project"),
@@ -133,13 +133,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
 
-    def replace(self, actor, **roles):
+    def replace(self, actor, record_type, **roles):
         if not set(roles.keys()).issubset(self.__role_columns__):
             raise AttributeError("Unknown role")
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
         new = type(self)(user=self.user, granted_by=self.granted_by)
-        new._record_type = MEMBERSHIP_RECORD_TYPE.INVITE
+        new._record_type = record_type
         setattr(new, self.__parent_column__, getattr(self, self.__parent_column__))
         for column in self.__role_columns__:
             if column in roles:
@@ -381,7 +381,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     def offered_roles_verbose(self):
         roles = self.offered_roles()
-        return {role.replace('project_').title() for role in roles}
+        return {role.replace('project_', '').title() for role in roles}
 
     def roles_for(self, actor, anchors=()):
         """Roles available to the specified actor and anchors"""

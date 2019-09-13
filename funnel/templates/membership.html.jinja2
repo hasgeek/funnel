@@ -51,7 +51,7 @@
             </div>
             <div v-if="view == 'role'">
               <div v-for="role in roles" class="membership-wrapper__list">
-                <p class="mui--text-subhead membership-wrapper__list__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }} 
+                <p class="mui--text-subhead membership-wrapper__list__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
                   <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="!role.showMembers">keyboard_arrow_down</i>
                   <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="role.showMembers">keyboard_arrow_up</i>
                 </p>
@@ -88,7 +88,7 @@
             <hr>
             <p class="mui--text-title mui--text-uppercase mui--text-light ">Usher</p>
             <ul class="mui-list--unstyled">
-              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Can check-in attendees</span></li>
               <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
             </ul>
             <hr>
@@ -178,18 +178,18 @@
                 newMemberUrl: newMemberUrl,
                 members: members.length > 0 ? members : '',
                 roles: [
-                  { 
-                    roleKey: 'is_editor', 
+                  {
+                    roleKey: 'is_editor',
                     roleName: 'Editor',
                     showMembers: false,
                   },
-                  {  
-                    roleKey: 'is_concierge', 
+                  {
+                    roleKey: 'is_concierge',
                     roleName: 'Concierge',
                     showMembers: false,
                   },
-                  {  
-                    roleKey: 'is_usher', 
+                  {
+                    roleKey: 'is_usher',
                     roleName: 'Usher',
                     showMembers: false,
                   },
