@@ -32,8 +32,6 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET', 'POST'])
     @render_with('membership.html.jinja2')
-    @lastuser.requires_login
-    @requires_roles({'profile_admin'})
     def membership(self):
         project_save_form = SavedProjectForm()
         return {
@@ -231,7 +229,14 @@ class ProjectCrewMembershipView(
                     ],
                 }
             else:
-                return {'status': 'error', 'errors': membership_form.errors}
+                return (
+                    {
+                        'status': 'error',
+                        'message': _("At lease one role must be chosen"),
+                        'errors': membership_form.errors,
+                    },
+                    400,
+                )
 
         membership_form_html = render_form(
             form=membership_form,
