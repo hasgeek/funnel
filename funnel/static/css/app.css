@@ -256,7 +256,6 @@ html.touch .collapsible__body--disable {
 .content-box {
   padding: 15px;
   background-color: #F6E2C5;
-  border: 1.5px dashed #d6bf9e;
   color: #906B37;
   cursor: pointer;
   margin-bottom: 15px;
@@ -1085,7 +1084,9 @@ html.touch .collapsible__body--disable {
   border-radius: 2px;
 }
 .search .mui-textfield {
-  padding-top: 0;
+  padding: 0;
+  margin: 0;
+  height: 36px;
 }
 .search .mui-textfield > input {
   border-bottom: 0;
@@ -2543,9 +2544,15 @@ body > .proposal-box.ui-draggable {
     padding-left: 15px;
   }
 }
-.membership-wrapper__filter,
-.membership-wrapper__info {
+.membership-wrapper__filter {
   margin-top: 10px;
+  clear: both;
+}
+
+.membership-wrapper__info {
+  background: white;
+  margin: 10px -15px -15px;
+  padding: 15px;
   clear: both;
 }
 
@@ -2559,6 +2566,7 @@ body > .proposal-box.ui-draggable {
 .membership-wrapper__members .membership-wrapper__members__list {
   border-bottom: 1px solid #ddd;
   cursor: pointer;
+  padding: 5px;
 }
 .membership-wrapper__members .membership-wrapper__members__list .membership-wrapper__members__list__roles {
   display: inline-block;
@@ -2571,6 +2579,12 @@ body > .proposal-box.ui-draggable {
 }
 .membership-wrapper__members .membership-wrapper__members__list .membership-wrapper__members__list__roles__role:first-child {
   display: block;
+}
+.membership-wrapper__members .membership-wrapper__members__list:last-child {
+  border: none;
+}
+.membership-wrapper__members .membership-wrapper__members__list--viewonly {
+  cursor: default;
 }
 .membership-wrapper__members .membership-wrapper__members__list--nomargin {
   margin: 0 auto;
@@ -2585,11 +2599,11 @@ body > .proposal-box.ui-draggable {
   }
 }
 .slide-fade-enter-active {
-  transition: all .3s ease;
+  transition: all .1s ease-in;
 }
 
 .slide-fade-leave-active {
-  transition: all .3s ease;
+  transition: all .1s ease-in;
 }
 
 .slide-fade-enter, .slide-fade-leave-to {

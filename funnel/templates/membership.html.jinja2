@@ -33,7 +33,7 @@
         {% raw %}
         <div id="manage-membership">
           <div class="membership-wrapper--right">
-            <div class="content-box" @click="showInfo = !showInfo" role="button" aria-label="What role should I assign? Read more">
+            <div class="content-box mui--z1" @click="showInfo = !showInfo" role="button" aria-label="What role should I assign? Read more">
               <p class="mui--text-headline mui--text-bold">What role should I assign?</p>
               <p class="mui--text-subhead">Read this before adding a new member <i aria-hidden="true" class="material-icons mui--align-middle" v-if="showInfo">keyboard_arrow_up</i><i aria-hidden="true" class="material-icons mui--align-middle" v-else>keyboard_arrow_down</i></p>
               <transition name="slide-fade">
@@ -63,11 +63,11 @@
           </div>
           <div class="membership-wrapper--right">
             <div class="mui--clearfix">
-              <div class="mui--text-center btn-wrapper membership-wrapper--left">
+              <div class="mui--text-center btn-wrapper membership-wrapper--left" v-if="admin">
                 <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member"><i class="material-icons mui--align-middle mui--text-title" aria-hidden="true">add</i> Add new member</p></button>
                 <hr class="mui--hidden-xl">
               </div>
-              <div class="mui--text-center membership-wrapper--right" v-if="members">
+              <div class="mui--text-center" v-if="members" :class="[admin? 'membership-wrapper--right': '']">
                 <form class="mui-form mui--d-inlineblock search mui--z1">
                   <div class="mui-textfield">
                     <input class="field-search" type="text" name="key" value="" placeholder="Search member..." v-model="search" @input="onChange"/>
@@ -91,7 +91,7 @@
                   </p>
                   <transition name="slide-fade">
                     <div v-if="role.showMembers">
-                      <div v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]" class="membership-wrapper__members__list membership-wrapper__members__list--nomargin">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', admin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>
@@ -99,8 +99,8 @@
                 </div>
               </div>
               <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
-                  <member :member="member" class="membership-wrapper__members__list"></member>
+                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', admin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
+                  <member :member="member"></member>
                 </div>
               </div>
             </div>
@@ -138,7 +138,7 @@
       <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body1">Editor</li>
       <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body1">Concierge</li>
       <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body1">Usher</li>
-      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption"  v-if="rolesCount(member) > 1">+ {{ rolesCount(member) }} more <span>roles</span><span v-else>role</span></li>
+      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 1">+ {{ rolesCount(member) }} more <span>roles</span><span>role</span></li>
     </ul>
   </div>
 </script>
@@ -158,7 +158,6 @@
 
       function formErrorHandler(formId, errorResponse) {
         let errorMsg = '';
-        console.log('errorResponse', errorResponse);
         // xhr readyState '4' indicates server has received the request & response is ready
         if (errorResponse.readyState === 4) {
           if (errorResponse.status === 500) {
@@ -181,23 +180,24 @@
         return $(`#${formId}`).attr('action');
       }
 
-      var memberUI = Vue.component('member', {
-        template: '#member-template',
-        props: ['member'],
-        methods: {
-          rolesCount(member) {
-            let count = 0;
-            if (member.is_editor) count++;
-            if (member.is_concierge) count++;
-            if (member.is_usher) count++;
-            return count - 1;
-          },
-        },
-      });
-
       const Membership = {
-        init({divElem, scriptTemplate, newMemberUrl, members=''}) {
+        init({newMemberUrl, members='', divElem, memberTemplate, isUserProfileAdmin}) {
           Vue.use(VueScript2);
+
+          let memberUI = Vue.component('member', {
+            template: memberTemplate,
+            props: ['member'],
+            methods: {
+              rolesCount(member) {
+                let count = 0;
+                if (member.is_editor) count++;
+                if (member.is_concierge) count++;
+                if (member.is_usher) count++;
+                return count - 1;
+              },
+            },
+          });
+
           let MembershipComponent = new Vue({
             el: divElem,
             components: {
@@ -207,6 +207,7 @@
               return {
                 newMemberUrl: newMemberUrl,
                 members: members.length > 0 ? members : '',
+                admin: isUserProfileAdmin,
                 roles: [
                   {
                     roleKey: 'is_editor',
@@ -235,28 +236,28 @@
             methods: {
               fetchForm(event, url, member='') {
                 event.preventDefault();
-                this.activeMember = member;
-                let app = this;
-                $.ajax({
-                  type: 'GET',
-                  url: url,
-                  timeout: window.HasGeek.config.ajaxTimeout,
-                  dataType: 'json',
-                  success: function(data) {
-                    let vueFormHtml = data.form;
-                    app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-                    $('#member-form').modal('show');
-                  }
-                });
+                if(this.admin) {
+                  this.activeMember = member;
+                  let app = this;
+                  $.ajax({
+                    type: 'GET',
+                    url: url,
+                    timeout: window.HasGeek.config.ajaxTimeout,
+                    dataType: 'json',
+                    success: function(data) {
+                      let vueFormHtml = data.form;
+                      app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+                      $('#member-form').modal('show');
+                    }
+                  });
+                }
               },
               activateForm() {
                 const formId = getElementId(this.memberForm);
                 const url = getActionUrl(formId);
-                console.log('formID', formId);
                 let app = this;
                 let onSuccess = (responseData) => {
                   this.closeForm();
-                  console.log('responseData', responseData.memberships)
                   if(responseData.memberships) {
                     app.updateMembersList(responseData.memberships);
                   }
@@ -267,7 +268,7 @@
                 Baseframe.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
               },
               updateMembersList(members) {
-                this.members = members;
+                this.members = members.length > 0 ? members : '';
               },
               filter(event, action) {
                 event.preventDefault();
@@ -323,8 +324,7 @@
         newMemberUrl: "{{ project.url_for('new_member') }}",
         members: {{ memberships|tojson }},
         divElem: "#manage-membership",
-        scriptTemplate: '#admin-membership-template',
-        parentContainer: '#membership',
+        memberTemplate: '#member-template',
         isUserProfileAdmin: {%- if project.current_roles.profile_admin %} true {% else %} false {%- endif %},
       };
 
