@@ -10,9 +10,15 @@
   }
 }
 
-.membership-wrapper__filter,
-.membership-wrapper__info {
+.membership-wrapper__filter {
 	margin-top: 10px;
+  clear: both;
+}
+
+.membership-wrapper__info {
+  background: white;
+  margin: 10px -15px -15px;
+  padding: 15px;
   clear: both;
 }
 
@@ -28,6 +34,7 @@
   .membership-wrapper__members__list {
     border-bottom: 1px solid #ddd;
     cursor: pointer;
+    padding: 5px;
 
     .membership-wrapper__members__list__roles {
       display: inline-block;
@@ -42,6 +49,14 @@
     .membership-wrapper__members__list__roles__role:first-child {
       display: block;
     }
+  }
+
+  .membership-wrapper__members__list:last-child {
+    border: none;
+  }
+
+  .membership-wrapper__members__list--viewonly {
+    cursor: default;
   }
 
   .membership-wrapper__members__list--nomargin {
@@ -64,10 +79,10 @@
 }
 
 .slide-fade-enter-active {
-  transition: all .3s ease;
+  transition: all .1s ease-in;
 }
 .slide-fade-leave-active {
-  transition: all .3s ease;
+  transition: all .1s ease-in;
 }
 .slide-fade-enter, .slide-fade-leave-to {
   transform: translateY(10px);
