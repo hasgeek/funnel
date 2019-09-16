@@ -230,6 +230,8 @@ class ProjectCrewMembershipView(
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
+            else:
+                return {'status': 'error', 'errors': membership_form.errors}
 
         membership_form_html = render_form(
             form=membership_form,
