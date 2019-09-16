@@ -112,7 +112,7 @@
             <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
               <component :is="Form"></component>
               <div class="modal-form__action-box mui--bg-accent">
-                <p class="mui--text-subhead mui--text-danger" v-if="errorMsg">{{ errorMsg }}</p>
+                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
                 <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
               </div>
               <div v-if="activeMember" class="modal-form__action-box--revoke mui--text-center">
@@ -138,7 +138,7 @@
       <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body1">Editor</li>
       <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body1">Concierge</li>
       <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body1">Usher</li>
-      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
+      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption"  v-if="rolesCount(member) > 1">+ {{ rolesCount(member) }} more <span>roles</span><span v-else>role</span></li>
     </ul>
   </div>
 </script>
