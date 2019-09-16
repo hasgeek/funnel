@@ -149,6 +149,7 @@
       {%- if project.primary_venue -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">{% trans %}Venue{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.url_for('membership') }}" title="Crew" data-action="Crew(navbar)">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
     </nav>
   </div>
 {% endmacro %}
@@ -229,9 +230,6 @@
               </li>
               <li>
                 <a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% trans %}Setup events for check-in{% endtrans %}</a>
-              </li>
-              <li>
-                <a href="{{ project.url_for('membership') }}" title="Manage membership">{% trans %}Manage membership{% endtrans %}</a>
               </li>
             </ul>
           </div>

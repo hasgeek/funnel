@@ -31,76 +31,93 @@
     <div class="grid" id="membership">
       <div class="grid__col-xs-12">
         {% raw %}
-        <div id="manage-membership" class="membership-wrapper">
-          <div class="mui--text-center btn-wrapper"><button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member"><i class="material-icons mui--align-middle mui--text-title" aria-hidden="true">add</i> Add new member</p></button></div>
-
-          <div v-if="members">
-            <div class="mui--text-center">
-              <form class="mui-form mui--d-inlineblock search-form mui--z1">
-                <div class="mui-textfield">
-                  <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search" v-model="search" @input="onChange"/>
+        <div id="manage-membership">
+          <div class="membership-wrapper--right">
+            <div class="content-box" @click="showInfo = !showInfo" role="button" aria-label="What role should I assign? Read more">
+              <p class="mui--text-headline mui--text-bold">What role should I assign?</p>
+              <p class="mui--text-subhead">Read this before adding a new member <i aria-hidden="true" class="material-icons mui--align-middle" v-if="showInfo">keyboard_arrow_up</i><i aria-hidden="true" class="material-icons mui--align-middle" v-else>keyboard_arrow_down</i></p>
+              <transition name="slide-fade">
+                <div class="membership-wrapper__info" v-if="showInfo">
+                  <h4><i class="material-icons mui--text-title mui--align-middle">vpn_key</i> <span class="mui--text-headline mui--text-bold mui--text-center">Member roles</span></h4>
+                  <p class="mui--text-title mui--text-uppercase">Editor</p>
+                  <ul class="mui-list--unstyled">
+                    <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                  </ul>
+                  <hr>
+                  <p class="mui--text-title mui--text-uppercase">Concierge</p>
+                  <ul class="mui-list--unstyled">
+                    <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                  </ul>
+                  <hr>
+                  <p class="mui--text-title mui--text-uppercase">Usher</p>
+                  <ul class="mui-list--unstyled">
+                    <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                  </ul>
+                  <hr>
                 </div>
-              </form>
+              </transition>
             </div>
-            <div class="mui--clearfix membership-wrapper__filter">
-              <p class="mui--text-title mui--pull-left">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
-              <div class="mui--pull-right">
-                 <button class="mui-btn mui-btn--nostyle mui--text-title" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold' : 'mui--text-light']">Name</button>
-                  <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-title" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold' : 'mui--text-light']">Role</button>
+          </div>
+          <div class="membership-wrapper--right">
+            <div class="mui--clearfix">
+              <div class="mui--text-center btn-wrapper membership-wrapper--left">
+                <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member"><i class="material-icons mui--align-middle mui--text-title" aria-hidden="true">add</i> Add new member</p></button>
+                <hr class="mui--hidden-xl">
               </div>
-            </div>
-            <div v-if="view == 'role'">
-              <div v-for="role in roles" class="membership-wrapper__list">
-                <p class="mui--text-subhead membership-wrapper__list__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
-                  <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="!role.showMembers">keyboard_arrow_down</i>
-                  <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="role.showMembers">keyboard_arrow_up</i>
-                </p>
-                <div v-if="role.showMembers">
-                  <div class="details-box details-box--nomargin details-box--select" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
-                    <member :member="member"></member>
+              <div class="mui--text-center membership-wrapper--right" v-if="members">
+                <form class="mui-form mui--d-inlineblock search mui--z1">
+                  <div class="mui-textfield">
+                    <input class="field-search" type="text" name="key" value="" placeholder="Search member..." v-model="search" @input="onChange"/>
                   </div>
+                </form>
+              </div>
+            </div>
+            <div v-if="members">
+              <div class="mui--clearfix membership-wrapper__filter">
+                <p class="mui--text-title mui--pull-left">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
+                <div class="mui--pull-right">
+                   <button class="mui-btn mui-btn--nostyle mui--text-title" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Name</button>
+                    <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-title" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Role</button>
+                </div>
+              </div>
+              <div v-if="view == 'role'" class="membership-wrapper__members">
+                <div v-for="role in roles">
+                  <p class="mui--text-subhead membership-wrapper__members__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
+                    <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="!role.showMembers">keyboard_arrow_right</i>
+                    <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true" v-if="role.showMembers">keyboard_arrow_down</i>
+                  </p>
+                  <transition name="slide-fade">
+                    <div v-if="role.showMembers">
+                      <div v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]" class="membership-wrapper__members__list membership-wrapper__members__list--nomargin">
+                        <member :member="member"></member>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+              </div>
+              <div v-if="view == 'name'" class="membership-wrapper__members">
+                <div class="membership-wrapper__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
+                  <member :member="member" class="membership-wrapper__members__list"></member>
                 </div>
               </div>
             </div>
-            <div v-if="view == 'name'" class="membership-wrapper__list">
-              <div class="details-box details-box--select" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
-                <member :member="member"></member>
+            <div class="mui--bg-accent" v-else>
+              <p class="mui--text-center zero-bottom-margin"><i class="material-icons mui--text-display1 mui--text-light">people</i></p>
+              <p class="mui--text-subhead mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
+              <p class="mui--text-body1 mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here...</p>
+            </div>
+            <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
+              <component :is="Form"></component>
+              <div class="modal-form__action-box mui--bg-accent">
+                <p class="mui--text-subhead mui--text-danger" v-if="errorMsg">{{ errorMsg }}</p>
+                <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
               </div>
-            </div>
-          </div>
-          <div class="content-box mui--bg-accent" v-else>
-            <p class="mui--text-center zero-bottom-margin"><i class="material-icons mui--text-display1 mui--text-light">people</i></p>
-            <p class="mui--text-subhead mui--text-bold mui--text-center">No members found</p>
-          </div>
-          <div class="membership-wrapper__info">
-            <h4><i class="material-icons mui--text-title mui--align-middle">vpn_key</i> <span class="mui--text-headline mui--text-bold mui--text-center">Member roles</span></h4>
-            <p class="mui--text-title mui--text-uppercase mui--text-light ">Editor</p>
-            <ul class="mui-list--unstyled">
-              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-            </ul>
-            <hr>
-            <p class="mui--text-title mui--text-uppercase mui--text-light ">Concierge</p>
-            <ul class="mui-list--unstyled">
-              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-            </ul>
-            <hr>
-            <p class="mui--text-title mui--text-uppercase mui--text-light ">Usher</p>
-            <ul class="mui-list--unstyled">
-              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Can check-in attendees</span></li>
-              <li><i class="material-icons mui--text-body1 mui--align-middle">check_circle_outline</i> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-            </ul>
-            <hr>
-          </div>
-          <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
-            <component :is="Form"></component>
-            <div class="modal-form__action-box mui--bg-accent">
-              <p class="mui--text-subhead mui--text-danger" v-if="errorMsg">{{ errorMsg }}</p>
-              <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
-            </div>
-            <div v-if="activeMember" class="modal-form__action-box--revoke">
-              <button @click="fetchForm($event, deleteURL)" title="Delete" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-bold">Revoke this membership</button>
+              <div v-if="activeMember" class="modal-form__action-box--revoke mui--text-center">
+                <button @click="fetchForm($event, deleteURL)" title="Delete" class="mui-btn mui-btn--nostyle mui--text-subhead"><span class="mui--text-light">Revoke this membership - </span><span class="mui--text-bold">Revoke</span></button>
+              </div>
             </div>
           </div>
         {% endraw %}
@@ -110,14 +127,18 @@
 </div>
 {% raw %}
 <script type="text/x-template" id="member-template">
-  <div class="user-box">
+  <div class="user-box mui--clearfix">
     <img class="user-gravatar" :src=member.user_avatar :alt=member.user_fullname :aria-label=member.user_fullname v-if="member.user_avatar"/>
     <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" :alt=member.user_fullname :aria-label=member.user_fullname v-else/>
-    <h3 class="mui--text-title zero-top-margin zero-bottom-margin details-box__item">{{ member.user_fullname }}</h3>
-    <ul class="mui-list--inline mui--text-title mui--text-light zero-bottom-margin list-item-rgborder details-box__item">
-      <li v-if="member.is_editor">Editor</li>
-      <li v-if="member.is_concierge">Concierge</li>
-      <li v-if="member.is_usher">Usher</li>
+    <div class="mui--d-inlineblock">
+    <h3 class="mui--text-title zero-top-margin zero-bottom-margin">{{ member.user_fullname }}</h3>
+    <h3 class="mui--text-subhead zero-top-margin zero-bottom-margin"><span>@username</span></h3>
+    </div>
+    <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
+      <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body1">Editor</li>
+      <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body1">Concierge</li>
+      <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body1">Usher</li>
+      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
     </ul>
   </div>
 </script>
@@ -163,6 +184,15 @@
       var memberUI = Vue.component('member', {
         template: '#member-template',
         props: ['member'],
+        methods: {
+          rolesCount(member) {
+            let count = 0;
+            if (member.is_editor) count++;
+            if (member.is_concierge) count++;
+            if (member.is_usher) count++;
+            return count - 1;
+          },
+        },
       });
 
       const Membership = {
@@ -199,6 +229,7 @@
                 errorMsg: '',
                 view: 'name',
                 search: '',
+                showInfo: false,
               }
             },
             methods: {
@@ -256,6 +287,10 @@
                 event.preventDefault();
                 role.showMembers = !role.showMembers;
               },
+              showRoleDetails(event) {
+                event.preventDefault();
+                this.showInfo = !this.showInfo;
+              },
             },
             computed: {
               Form() {
@@ -272,7 +307,7 @@
               },
               deleteURL() {
                 return this.activeMember.delete_url;
-              }
+              },
             },
             mounted() {
             },
@@ -290,6 +325,7 @@
         divElem: "#manage-membership",
         scriptTemplate: '#admin-membership-template',
         parentContainer: '#membership',
+        isUserProfileAdmin: {%- if project.current_roles.profile_admin %} true {% else %} false {%- endif %},
       };
 
       HasGeek.Membership(membershipConfig);
