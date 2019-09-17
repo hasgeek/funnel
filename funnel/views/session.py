@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from flask import abort, jsonify, redirect, render_template, request
-from datetime import datetime
 
 from baseframe import _, localize_timezone
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
-from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -22,7 +20,7 @@ from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session
 from .decorators import legacy_redirect
 from .helpers import localize_date
 from .mixins import ProjectViewMixin, SessionViewMixin
-from .schedule import date_js, session_data, schedule_data, session_list_data
+from .schedule import schedule_data, session_data, session_list_data
 
 
 def rooms_list(project):
@@ -144,7 +142,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 for room in self.obj.project.rooms
             },
             'schedule': schedule_data(
-                self.obj, slots=False, scheduled_sessions=scheduled_sessions_list
+                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'project_save_form': project_save_form,
         }
