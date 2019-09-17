@@ -274,21 +274,16 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     __parent_column__ = 'project_id'
 
     __roles__ = {
+        'all': {
+            'read': {'user_details', 'is_editor', 'is_concierge', 'is_usher', 'project'}
+        },
         'profile_admin': {
-            'read': {
-                'user_fullname',
-                'is_editor',
-                'is_concierge',
-                'is_usher',
-                'edit_url',
-                'delete_url',
-                'project',
-            },
+            'read': {'edit_url', 'delete_url', 'project'},
             'call': {'url_for'},
         },
         # 'profile_owner': {
         #     'read': {
-        #         'user_fullname',
+        #         'user_details',
         #         'is_editor',
         #         'is_concierge',
         #         'is_usher',
@@ -357,8 +352,8 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         return tuple(args)
 
     @property
-    def user_fullname(self):
-        return self.user.fullname
+    def user_details(self):
+        return {'fullname': self.user.fullname, 'username': self.user.username}
 
     @property
     def edit_url(self):
@@ -396,7 +391,9 @@ Project.active_crew_memberships = db.relationship(
     ProjectCrewMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        ProjectCrewMembership.project_id == Project.id, ProjectCrewMembership.active
+        ProjectCrewMembership.project_id == Project.id,
+        ProjectCrewMembership.active,
+        ProjectCrewMembership.is_invite.is_(False),
     ),
 )
 
@@ -407,6 +404,7 @@ Project.active_editor_memberships = db.relationship(
         ProjectCrewMembership.project_id == Project.id,
         ProjectCrewMembership.active,
         ProjectCrewMembership.is_editor.is_(True),
+        ProjectCrewMembership.is_invite.is_(False),
     ),
 )
 
@@ -417,6 +415,7 @@ Project.active_concierge_memberships = db.relationship(
         ProjectCrewMembership.project_id == Project.id,
         ProjectCrewMembership.active,
         ProjectCrewMembership.is_concierge.is_(True),
+        ProjectCrewMembership.is_invite.is_(False),
     ),
 )
 
@@ -427,6 +426,7 @@ Project.active_usher_memberships = db.relationship(
         ProjectCrewMembership.project_id == Project.id,
         ProjectCrewMembership.active,
         ProjectCrewMembership.is_usher.is_(True),
+        ProjectCrewMembership.is_invite.is_(False),
     ),
 )
 
