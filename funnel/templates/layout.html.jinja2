@@ -5,6 +5,8 @@
   <title>{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}</title>
   <meta name="DC.title" content="{{ self.title()|e }}" />
   <meta property="og:title" content="{{ self.title()|e }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@hasgeek" />
   <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
   <link rel="preconnect" crossorigin href="https://ajax.googleapis.com/">
   <link rel="preconnect" crossorigin href="https://imgee.s3.amazonaws.com/">
