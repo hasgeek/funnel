@@ -71,7 +71,7 @@
     {%- else -%}
       <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
       <form action="/search" class="search-form js-search-form">
-        <input type="text" name="q" aria-label="Search the site" placeholder="Search..." class="search-form__field js-search-field" id="header-search">
+        <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
         <img src="{{ url_for('static', filename='img/search-icon.svg') }}" class="search-form__field__img" aria-hidden="true"/>
         <input type="text" name="type" value="project" hidden>
         <button type="submit" class="search-form__submit">
