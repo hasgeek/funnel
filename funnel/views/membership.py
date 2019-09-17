@@ -287,7 +287,7 @@ class ProjectCrewMembershipView(
             title=_("Delete member"),
             message=_(
                 "Are you sure you want to remove {member} from the project?"
-            ).format(member=self.obj.user_fullname),
+            ).format(member=self.obj.user_details['fullname']),
             submit=_("Delete"),
             ajax=False,
             with_chrome=False,

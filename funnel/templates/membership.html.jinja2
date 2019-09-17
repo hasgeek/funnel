@@ -128,11 +128,11 @@
 {% raw %}
 <script type="text/x-template" id="member-template">
   <div class="user-box mui--clearfix">
-    <img class="user-gravatar" :src=member.user_avatar :alt=member.user_fullname :aria-label=member.user_fullname v-if="member.user_avatar"/>
-    <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" :alt=member.user_fullname :aria-label=member.user_fullname v-else/>
+    <img class="user-gravatar" :src=member.user_avatar :alt=member.user_details.fullname :aria-label=member.user_details.fullname v-if="member.user_avatar"/>
+    <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" :alt=member.user_details.fullname :aria-label=member.user_details.fullname v-else/>
     <div class="mui--d-inlineblock">
-    <h3 class="mui--text-title zero-top-margin zero-bottom-margin">{{ member.user_fullname }}</h3>
-    <h3 class="mui--text-subhead zero-top-margin zero-bottom-margin"><span>@username</span></h3>
+    <h3 class="mui--text-title zero-top-margin zero-bottom-margin">{{ member.user_details.fullname }}</h3>
+    <h3 v-if="member.user_details.username" class="mui--text-subhead zero-top-margin zero-bottom-margin"><span>@{{ member.user_details.username }}</span></h3>
     </div>
     <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
       <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body1">Editor</li>
@@ -281,7 +281,7 @@
               },
               onChange() {
                 if (this.search) {
-                  members.filter(member => member.hide = member.user_fullname.toLowerCase().indexOf(this.search.toLowerCase()) === -1)
+                  members.filter(member => member.hide = member.user_details.fullname.toLowerCase().indexOf(this.search.toLowerCase()) === -1)
                 }
               },
               collapse(event, role) {
