@@ -279,10 +279,17 @@ html.touch .collapsible__body--disable {
 .hg-app .header--fixed .header__nav .header__site-title .search-form .search-form__field {
   background-color: #eff2f6;
   border: none;
-  padding: 15px 30px;
+  padding: 15px 30px 15px 35px;
   min-width: calc(100% - 60px);
-  color: #1F2D3D;
+  color: #79818B;
   font-size: 16px;
+}
+.hg-app .header--fixed .header__nav .header__site-title .search-form .search-form__field__img {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 16px;
+  height: 16px;
 }
 .hg-app .header--fixed .header__nav .header__site-title .search-form .search-form__submit {
   visibility: hidden;
@@ -356,7 +363,13 @@ html.touch .collapsible__body--disable {
   }
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field {
     border-radius: 2px;
-    padding: 8px 10px;
+    padding: 8px 10px 8px 30px;
+  }
+  .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field__img {
+    top: 8px;
+    left: 8px;
+    width: 18px;
+    height: 18px;
   }
   .hg-app .header--fixed .header__nav .header__site-title--smaller {
     width: 67%;
@@ -434,6 +447,10 @@ html.touch .collapsible__body--disable {
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field {
     padding: 5px 10px;
     font-size: 14px;
+  }
+  .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field__img {
+    top: 8px;
+    left: 8px;
   }
   .hg-app .header--fixed .header__nav .header__right-nav .header__nav-list .header__nav-list__item .header__nav-links .header__nav-links__icon {
     font-size: 18px;

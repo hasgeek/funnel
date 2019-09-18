@@ -566,7 +566,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             # Convering to JSON messes up dictionary key order even though we used OrderedDict.
             # This turns the OrderedDict into a list of tuples and JSON preserves that order.
             week['dates'] = [
-                (date.isoformat(), format_date(date, 'd', get_locale()), count)
+                {
+                    'isoformat': date.isoformat(),
+                    'day': format_date(date, 'd', get_locale()),
+                    'count': count,
+                }
                 for date, count in week['dates'].items()
             ]
 
