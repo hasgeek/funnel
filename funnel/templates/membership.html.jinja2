@@ -70,7 +70,7 @@
               <div class="mui--text-center" v-if="members" :class="[admin? 'membership-wrapper--right': '']">
                 <form class="mui-form mui--d-inlineblock search mui--z1">
                   <div class="mui-textfield">
-                    <input class="field-search" type="text" name="key" value="" placeholder="Search member..." v-model="search" @input="onChange"/>
+                    <input class="field-search" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
                   </div>
                 </form>
               </div>
@@ -107,7 +107,7 @@
             <div class="mui--bg-accent" v-else>
               <p class="mui--text-center zero-bottom-margin"><i class="material-icons mui--text-display1 mui--text-light" aria-hidden="true">people</i></p>
               <p class="mui--text-subhead mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
-              <p class="mui--text-body1 mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here...</p>
+              <p class="mui--text-body1 mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here…</p>
             </div>
             <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
               <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"><i class="material-icons" aria-hidden="true">clear</i></a>
