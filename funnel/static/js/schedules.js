@@ -285,7 +285,7 @@ $(function() {
                     var config = calendar.options.config;
                     config.events = scheduled;
                     if(from_date != null) {
-                        var fromdate = getDateArrayProjectTZ(from_date)
+                        var fromdate = getDateArrayProjectTZ(from_date);
                         config.year = parseInt(fromdate[0], 10);
                         config.month = parseInt(fromdate[1], 10) - 1;
                         config.date = parseInt(fromdate[2], 10);

@@ -226,23 +226,33 @@ const Schedule = {
       day.sessions = JSON.parse(JSON.stringify(slots));
     });
   },
+  addDefaultRoom(venue) {
+    this.config.rooms[venue.name] = {
+      title: venue.title,
+      venue_title: venue.title,
+    };
+  },
   init(config) {
+    let self = this;
     this.config = config;
     this.config.rooms = {
     };
     this.config.venues.forEach((venue) => {
-      venue.room_list.forEach((room) => {
-        this.config.rooms[room.scoped_name] = room;
-        this.config.rooms[room.scoped_name].venue_title = venue.title;
-      });
+      if (venue.room_list.length) {
+        venue.room_list.forEach((room) => {
+          this.config.rooms[room.scoped_name] = room;
+          this.config.rooms[room.scoped_name].venue_title = venue.title;
+        });
+      } else {
+        self.addDefaultRoom(venue);
+      }
     });
+
     this.Utils.setTimeZone(this.config.timeZone);
 
-    if (Object.keys(this.config.rooms).length) {
-      this.createSlots();
-      this.addSessionToSlots();
-      this.renderScheduleTable();
-    }
+    this.createSlots();
+    this.addSessionToSlots();
+    this.renderScheduleTable();
   },
   Utils: {
     setTimeZone(timeZone) {
@@ -257,6 +267,7 @@ const Schedule = {
         day: 'numeric',
         timeZone: this.timeZone,
       };
+      // British English(en-GB) uses day-month-year order
       return new Date(eventDate).toLocaleDateString('en-GB', options);
     },
     getTime(dateTime) {
@@ -270,6 +281,7 @@ const Schedule = {
         day: 'numeric',
         timeZone: this.timeZone,
       };
+      // British English(en-GB) uses day-month-year order
       return new Date(eventDate).toLocaleDateString('en-GB', options);
     },
     getDuration(endDate, startDate, slotInterval) {
