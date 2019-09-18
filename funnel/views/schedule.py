@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from time import mktime
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -96,7 +96,7 @@ def date_js(d):
     return mktime(d.timetuple()) * 1000
 
 
-def schedule_data(project, slots=True, scheduled_sessions=None):
+def schedule_data(project, with_slots=True, scheduled_sessions=None):
     scheduled_sessions = scheduled_sessions or session_list_data(
         project.scheduled_sessions
     )
@@ -113,7 +113,7 @@ def schedule_data(project, slots=True, scheduled_sessions=None):
         ):
             start_end_datetime[day]['end_at'] = session['end_at']
 
-        if slots:
+        if with_slots:
             slot = session['start_at'].strftime('%H:%M')
             session['start_at'] = session['start_at'].isoformat()
             session['end_at'] = session['end_at'].isoformat()
@@ -158,10 +158,7 @@ def session_ical(session):
             location.append(session.venue_room.venue.country)
         event.add('location', "\n".join(location))
         if session.venue_room.venue.has_coordinates:
-            event.add(
-                'geo',
-                (session.venue_room.venue.coordinates),
-            )
+            event.add('geo', session.venue_room.venue.coordinates)
     if session.description_text:
         event.add('description', session.description_text)
     if session.proposal:
@@ -217,7 +214,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 for room in self.obj.rooms
             },
             'schedule': schedule_data(
-                self.obj, slots=False, scheduled_sessions=scheduled_sessions_list
+                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
@@ -236,7 +233,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         scheduled_sessions_list = session_list_data(self.obj.scheduled_sessions)
         return jsonp(
             schedule=schedule_data(
-                self.obj, slots=True, scheduled_sessions=scheduled_sessions_list
+                self.obj, with_slots=True, scheduled_sessions=scheduled_sessions_list
             ),
             venues=[venue.current_access() for venue in self.obj.venues],
             rooms=[room_data(room) for room in self.obj.rooms],
