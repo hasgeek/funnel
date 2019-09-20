@@ -190,6 +190,10 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
+        rooms_list = {
+            room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
+            for room in self.obj.rooms
+        }
         return {
             'project': self.obj,
             'from_date': (
@@ -209,10 +213,16 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             'sessions': scheduled_sessions_list,
             'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
-            'rooms': {
-                room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
-                for room in self.obj.rooms
-            },
+            'rooms': (
+                rooms_list
+                if len(rooms_list) > 0
+                else {
+                    self.obj.primary_venue.name: {
+                        'title': self.obj.primary_venue.title,
+                        'bgcolor': u"CCCCCC",
+                    }
+                }
+            ),
             'schedule': schedule_data(
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
