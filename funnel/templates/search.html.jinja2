@@ -24,11 +24,11 @@
               <div class="grid">
                 <div class="grid__col-12">
                   <div class="tabs" id="scrollable-tabs">
-                    <p class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light" aria-label="{% trans %}Previous{% endtrans %}" on-click="swipe(-1)"><i class="material-icons tabs__item-control__icon">chevron_left</i></p>
+                    <p class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light" aria-label="{% trans %}Previous{% endtrans %}" on-click="swipe(-1)"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-left"></use></svg></p>
                     {{#each tabs}}
                       <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count-chip mui--text-caption">{{ count }}</span></p>
                     {{/each}}
-                    <p class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light" aria-label="{% trans %}Next{% endtrans %}" on-click="swipe(1)"><i class="material-icons tabs__item-control__icon">chevron_right</i></p>
+                    <p class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light" aria-label="{% trans %}Next{% endtrans %}" on-click="swipe(1)"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                   </div>
                 </div>
               </div>
@@ -172,7 +172,7 @@
       var searchConfig = {
         counts: {{ counts|tojson }},
         results: {{results|default("")|tojson}},
-        defaultImage: "{{url_for('static', filename='img/card-background.png')}}"
+        defaultImage: "{{url_for('static', filename='img/card-background.png')}}",
       };
 
       HasGeek.Search(searchConfig);

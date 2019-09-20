@@ -19,7 +19,7 @@
 {% block contentwrapper %}
   {%- if config['LEGACY'] and not g.profile %}
     <div class="alert alert--warning funnel-notice">
-      <p class="alert__text"><i class="material-icons alert__icon mui--text-body1"  aria-hidden="true">warning</i> {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use {% endtrans %}<a href="https://hasgeek.com" class="funnel-notice-txt">HasGeek</a>.</p>
+      <p class="alert__text"><svg class="fa5-icon alert__icon" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#exclamation-triangle"></use></svg> {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use {% endtrans %}<a href="https://hasgeek.com" class="funnel-notice-txt">HasGeek</a>.</p>
     </div>
     <div class="grid">
       <div class="grid__col-sm-12">

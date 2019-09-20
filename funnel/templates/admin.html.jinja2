@@ -25,7 +25,7 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>{%- endif %}
+              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" class="mui--align-middle"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -52,7 +52,7 @@
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
             <li>
-              <a href="{{ url_for('ticket_type', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>{%- endif %}
+              <a href="{{ url_for('ticket_type', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;&nbsp;<a href="{{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" class="mui--align-middle"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -76,7 +76,7 @@
         <ol class="mui-list--aligned">
           {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;<a href="{{ url_for('ticket_client_edit', profile=project.profile.name, project=project.name, id=client.id) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>{%- endif %}
+              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;&nbsp;<a href="{{ url_for('ticket_client_edit', profile=project.profile.name, project=project.name, id=client.id) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" class="mui--align-middle"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>

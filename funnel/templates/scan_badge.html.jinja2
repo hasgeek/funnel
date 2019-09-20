@@ -23,7 +23,7 @@
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper scanner-wrapper--center">
           <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
-          {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          {{#if video}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg> {{/if}}
           {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
@@ -45,12 +45,12 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><i class="material-icons" aria-hidden="true">clear</i></a>
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
             <h3 class="mui--text-title">Check in status</h3>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i></h4>
+              <h4 class="mui--text-headline mui--align-middle">Scanning <svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg></h4>
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
               <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>

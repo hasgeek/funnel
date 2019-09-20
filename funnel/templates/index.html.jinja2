@@ -127,7 +127,7 @@
               </div>
               <div class="card__title">
                 <h3 class="mui--text-display1 zero-top-margin zero-bottom-margin">{{ featured_project.title }}</h3>
-                {% if featured_project.primary_venue %}<p class="mui--text-body1 zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
+                {% if featured_project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#map-marker-alt"></use></svg> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
               </div>
               {% if featured_project.tagline %}
                 <div class="card__body">
@@ -181,7 +181,7 @@
               </div>
               <div class="card__body">
                 <h3 class="zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-headline mui--text-dark">{{ project.title }}</a></h3>
-                {% if project.primary_venue %}<p class="mui--text-body1 zero-top-margin zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                {% if project.primary_venue %}<p class="mui--text-subhead zero-top-margin zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#map-marker-alt"></use></svg> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                 <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
                 {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                   <div aria-label="{{ project.datelocation }}">
@@ -253,7 +253,7 @@
               <div class="card card--cfp">
                 <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
                   <div class="card__image-wrapper__overlay"></div>
-                  <p class="card__image-wrapper__text"><i class="material-icons mui--pull-left mui--text-display1" aria-hidden="true">mic</i> <span class="mui--text-menu mui--pull-left">CFP <br>{% trans %}Now open{% endtrans %}</span></p>
+                  <p class="card__image-wrapper__text"><svg class="fa5-icon fa5-icon--display1 fa5--align-baseline mui--pull-left" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#microphone-alt"></use></svg> <span class="mui--text-menu mui--pull-left">CFP <br>{% trans %}Now open{% endtrans %}</span></p>
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                     <noscript>
@@ -431,7 +431,7 @@
                   </div>
                   <div class="card__title">
                     <h3 class="mui--text-headline zero-top-margin zero-bottom-margin">{{ project.title }}</h3>
-                    {% if project.primary_venue %}<p class="mui--text-body1 zero-bottom-margin"><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true" title="Project venue">place</i> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                    {% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#map-marker-alt"></use></svg> {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                   </div>
                   {% if project.tagline %}
                     <div class="card__body">

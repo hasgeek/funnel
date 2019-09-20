@@ -13,6 +13,7 @@ const Search = {
         pagePath: window.location.pathname,
         queryString: '',
         defaultImage: config.defaultImage,
+        svgIconUrl: window.HasGeek.config.svgIconUrl,
         formatTime: function (date) {
           let d = new Date(date);
           return d.toLocaleTimeString('default', { hour: 'numeric', minute: 'numeric' });

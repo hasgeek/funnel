@@ -26,11 +26,13 @@
       <div class="grid">
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-left"></use></svg>
+            </a>
             <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Profile{% endtrans %}</a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Scan badge{% endtrans %}</p>
             <a href="{{ url_for('contacts') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Contacts{% endtrans %}</a>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-right"></use></svg>
+            </a>
           </div>
         </div>
       </div>
@@ -42,7 +44,7 @@
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper">
           <video id="qrreader" class="scanner-wrapper__camera"></video>
-          {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
+          {{#if video}}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg>{{/if}}
           {{#if !video && error}}
             <p class="mui--text-danger">{{ error }}</p>
           {{/if}}
@@ -50,22 +52,22 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><i class="material-icons">clear</i></a>
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4>Scanning <i class="material-icons mui--text-subhead mui--align-middle spinner">refresh</i></h4>
+              <h4 class="mui--text-headlin mui--align-middle">Scanning <svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg></h4>
             {{elseif contactFound}}
-              <h3 class="mui--text-title mui--text-bold">{{ contact.fullname }}</h3>
-              <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contact.email }}</p>
+              <h3 class="mui--text-title mui--text-bold"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>&nbsp;&nbsp;{{ contact.fullname }}</h3>
+              <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg>&nbsp;&nbsp; {{ contact.email }}</p>
               {{#if contact.phone }}
-                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contact.phone }}</p>
+                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg>&nbsp;&nbsp; {{ contact.phone }}</p>
               {{/if}}
               {{#if contact.twitter }}
-                <p>{{ contact.twitter }}</p>
+                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>&nbsp;&nbsp;{{ contact.twitter }}</p>
               {{/if}}
               {{#if contact.company }}
-                <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contact.company }}</p>
+                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg>&nbsp;&nbsp; {{ contact.company }}</p>
               {{/if}}
               <p class="mui--text-body1"><i>This contact has been added to contacts tab in the account page</i></p>
             {{else}}
@@ -83,23 +85,23 @@
           {{#each contacts:i}}
             <div class="card mui--z2 contact-card card--small">
               <div class="card__body mui--clearfix">
-                <p class="mui--pull-left"><i class="material-icons mui--text-display3">account_circle</i></p>
+                <p class="mui--pull-left"><svg class="fa5-icon fa5-icon-display1" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg></p>
                 <div class="mui--pull-right contact-card__details">
                   <div class="mui--clearfix">
                     <div class="mui--pull-left">
-                      <h3 class="mui--text-title mui--text-bold">{{ contacts[i].fullname }}</h3>
-                      <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">email</i> {{ contacts[i].email }}</p>
+                      <h3 class="mui--text-title mui--text-bold"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>{{ contacts[i].fullname }}</h3>
+                      <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg> {{ contacts[i].email }}</p>
                       {{#if contacts[i].phone }}
-                        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">call</i> {{ contacts[i].phone }}</p>
+                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg> {{ contacts[i].phone }}</p>
                       {{/if}}
                       {{#if contacts[i].twitter }}
-                        <p>{{ contacts[i].twitter }}</p>
+                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>{{ contacts[i].twitter }}</p>
                       {{/if}}
                       {{#if contacts[i].company }}
-                        <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle">work</i> {{ contacts[i].company }}</p>
+                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg> {{ contacts[i].company }}</p>
                       {{/if}}
                     </div>
-                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><i class="material-icons  mui--align-middle">person_add</i></a>
+                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#address-card"></use></svg></a>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 <div class="modal__header mui--bg-accent">
-  <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"><i class="material-icons">clear</i></a>
+  <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"><svg class="fa5-icon fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#times"></use></svg></a>
   <h3 class="js-modal-title mui--text-headline session-modal__title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}

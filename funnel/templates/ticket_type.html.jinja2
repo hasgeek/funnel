@@ -5,13 +5,13 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
-  <p class="mui--text-body1"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in"><i class="material-icons mui--text-body2 mui--align-bottom" aria-hidden="true">keyboard_backspace</i> {% trans %}Back to setup events{% endtrans %}</a></p>
+  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in"><svg class="fa5-icon fa5-subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#arrow-left"></use></svg> {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
 {% block contentwrapper %}
   <div class="grid">
     <div class="grid__col-xs-6">
-      <h3 class="mui--text-title">{{ticket_type.title}} <a href={{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary">edit</i></a></h3>
+      <h3 class="mui--text-title">{{ticket_type.title}}&nbsp;&nbsp;<a href="{{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a></h3>
     </div>
     <div class="grid__col-xs-6">
       <h3 class="mui--text-title mui--text-right">

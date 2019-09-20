@@ -27,7 +27,7 @@
     <a class="mui-btn mui-btn--small mui-btn--primary mui--d-inlineblock" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Tickets(header-proposalpage)">{% trans %}Tickets{% endtrans %}</a>
   {%- endif %}
   {% if project.cfp_state.OPEN -%}
-    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">mic</i>{% trans %}Propose a session{% endtrans %}</a>
+    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(header)"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#microphone-alt"></use></svg> {% trans %}Propose a session{% endtrans %}</a>
   {% endif %}
   </p>
 {% endblock %}
@@ -39,13 +39,13 @@
       <div class="slider-btn {% if proposal.getnext() %} slider-btn--push-down {% endif %} mui--pull-left">
         {%- if proposal.getprev() -%}
           <p class="mui--text-title mui--text-light {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">Previous proposal</p>
-          <a href="{{ proposal.url_for('prev') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold"><i class="material-icons mui--text-light" aria-hidden="true">arrow_back</i> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">{{ proposal.getprev().title }}</span></p></a>
+          <a href="{{ proposal.url_for('prev') }}" rel="nofollow" class="mui--text-title mui--text-light mui--text-bold slider-btn__action-btn"><svg class="fa5-icon fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#arrow-left"></use></svg> <span class="truncate-title {%- if proposal.getnext() %} mui--hidden-xs mui--hidden-sm{%- endif -%}">&nbsp;{{ proposal.getprev().title }}</span></a>
         {%- endif -%}
       </div>
       <div class="slider-btn slider-btn--right mui--pull-right">
         {%- if proposal.getnext() -%}
           <p class="mui--text-title mui--text-light mui--text-right">Next proposal</p>
-          <a href="{{ proposal.url_for('next') }}" rel="nofollow"><p class="mui--text-title mui--text-light mui--text-bold mui--text-right"><span class="truncate-title">{{ proposal.getnext().title }}</span> <i class="material-icons mui--text-light" aria-hidden="true">arrow_forward</i></p></a>
+          <a href="{{ proposal.url_for('next') }}" rel="nofollow" class="mui--text-title mui--text-light mui--text-bold mui--text-right slider-btn__action-btn"><span class="truncate-title">{{ proposal.getnext().title }}</span> <svg class="fa5-icon fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#arrow-right"></use></svg></a>
         {%- endif -%}
       </div>
     </div>
@@ -53,7 +53,7 @@
   <div class="grid__col-xs-12 proposal-wrapper">
 
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
-      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" title="{% trans %}Edit{% endtrans %}" aria-label="{% trans %}Edit proposal{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link" aria-hidden="true">edit</i></a>{% endif %}</h1>
+      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" title="{% trans %}Edit{% endtrans %}" aria-label="{% trans %}Edit proposal{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{% endif %}</h1>
       <p>
         {% trans %}Submitted by{% endtrans%}
         {%- if proposal.speaker %}
@@ -78,7 +78,7 @@
           {% if proposal.preview_video.url %}
             <div class="proposal-video mui--bg-primary-light" data-href="{{ proposal.preview_video }}" id="js-embed">
               <p class="video_txt">
-                <i class="material-icons" aria-hidden="true">videocam</i><br>
+                <svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#video"></use></svg><br>
                 <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
               </p>
             </div>
@@ -89,7 +89,7 @@
             </div>
           {%- else %}
             <div class="proposal-video mui--bg-primary-light">
-              <i class="material-icons no-video" aria-hidden="true">videocam_off</i>
+              <svg class="fa5-icon fa5-icon--display1 fa5--align-baseline no-video" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#video-slash"></use></svg>
             </div>
           {% endif %}
         </div>
@@ -157,7 +157,7 @@
                     {%- for label in proposal.labels %}
                       <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
                     {%- endfor %}
-                    <i class="material-icons mui--text-light" aria-hidden="true">arrow_drop_down</i>
+                    <svg class="fa5-icon fa5--align-baseline mui--text-light" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#angle-down"></use></svg>
                   </div>
                   <div id="label-dropdown" class="label-dropdown-wrapper">
                     {{ renderfield(proposal_label_admin_form.formlabels, css_class="label-select-fields") }}
@@ -172,42 +172,42 @@
 
       <div class="proposal__section proposal__section--left">
         <div class="proposal-content">
-          <h3 class="mui--text-headline mui--text-bold">{% trans %}Abstract{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-abstract" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+          <h3 class="mui--text-headline mui--text-bold">{% trans %}Abstract{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-abstract" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{% endif %}</h3>
           <div class="mui--text-subhead">{{ proposal.abstract }}</div>
 
-          <h3 class="mui--text-headline mui--text-bold">{% trans %}Outline{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-outline" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+          <h3 class="mui--text-headline mui--text-bold">{% trans %}Outline{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-outline" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{% endif %}</h3>
           <div class="mui--text-subhead">{{ proposal.outline }}</div>
 
           {% if proposal.requirements.text -%}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-requirements" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %} </h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-requirements" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{% endif %} </h3>
             <div class="mui--text-subhead">{{ proposal.requirements }}</div>
           {%- elif proposal.current_roles.owner %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-requirements" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a></h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-requirements" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a></h3>
             <p><i>This section is empty.</i></p>
           {%- endif %}
 
           {% if proposal.bio.text -%}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Speaker bio{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-bio" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Speaker bio{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-bio" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{% endif %}</h3>
             <div class="mui--text-subhead">{{ proposal.bio }}</div>
           {%- endif %}
 
           {% if proposal.links %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-links" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-links" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{% endif %}</h3>
             <ul class="links-list">
               {% for link in links -%}
                 <li class="mui--text-subhead">{{ link }}</li>
               {% endfor %}
             </ul>
           {%- elif proposal.current_roles.owner %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-links" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a></h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-links" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a></h3>
             <p><i>This section is empty.</i></p>
           {% endif %}
 
           {% if proposal.slides.url %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-slides" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-slides" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>{% endif %}</h3>
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
           {%- elif proposal.current_roles.owner %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-slides" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--align-middle mui--text-link">edit</i></a></h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-slides" title="{% trans %}Edit{% endtrans %}" class="mui--text-subhead mui--align-middle"> <svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a></h3>
             <p><i>This section is empty.</i></p>
           {% endif %}
 

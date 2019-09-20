@@ -7,6 +7,7 @@ $(() => {
     ajaxTimeout: 30000,
     retryInterval: 10000,
     closeModalTimeout: 10000,
+    svgIconUrl: "{{ url_for('static', filename='img/custom.svg') }}",
   }
 
   Utils.collapse();

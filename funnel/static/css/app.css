@@ -147,12 +147,15 @@
   width: calc(100% - 45px);
   padding: 10px;
   margin: 0 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .collapsible__dropdown {
   margin: 0;
   margin-right: 1px;
-  padding: 10px 10px 4px;
+  padding: 10px 10px 10px;
   background: #EFF2F7;
 }
 
@@ -241,6 +244,7 @@ html.touch .collapsible__body--disable {
 }
 .user-box .user-gravatar {
   width: 40px;
+  height: 40px;
   display: inline-block;
   position: absolute;
   left: 0;
@@ -250,6 +254,42 @@ html.touch .collapsible__body--disable {
 
 .mui-btn--nostyle {
   background: none;
+}
+
+.fa5-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.fa5--align-baseline {
+  position: relative;
+  top: .125em;
+}
+
+.fa5-icon--caption {
+  width: 12px;
+  height: 12px;
+}
+
+.fa5-icon--subhead {
+  width: 16px;
+  height: 16px;
+}
+
+.fa5-icon--title {
+  width: 18px;
+  height: 18px;
+}
+
+.fa5-icon--headline {
+  width: 24px;
+  height: 24px;
+}
+
+.fa5-icon--display1 {
+  width: 32px;
+  height: 32px;
 }
 
 .hg-app .header--fixed {
@@ -284,12 +324,10 @@ html.touch .collapsible__body--disable {
   color: #79818B;
   font-size: 16px;
 }
-.hg-app .header--fixed .header__nav .header__site-title .search-form .search-form__field__img {
+.hg-app .header--fixed .header__nav .header__site-title .search-form .search-form__field__icon {
   position: absolute;
   top: 15px;
   left: 15px;
-  width: 16px;
-  height: 16px;
 }
 .hg-app .header--fixed .header__nav .header__site-title .search-form .search-form__submit {
   visibility: hidden;
@@ -363,13 +401,11 @@ html.touch .collapsible__body--disable {
   }
   .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field {
     border-radius: 2px;
-    padding: 8px 10px 8px 30px;
+    padding: 8px 10px 8px 25px;
   }
-  .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field__img {
-    top: 8px;
+  .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field__icon {
+    top: 9px;
     left: 8px;
-    width: 18px;
-    height: 18px;
   }
   .hg-app .header--fixed .header__nav .header__site-title--smaller {
     width: 67%;
@@ -973,7 +1009,7 @@ html.touch .collapsible__body--disable {
 .ui-dragable-box .drag-icon {
   position: absolute;
   left: 5px;
-  top: 0;
+  top: 5px;
 }
 
 .ui-dragable-box--header {
@@ -1676,6 +1712,11 @@ html.touch .collapsible__body--disable {
   width: 90%;
 }
 
+.slider-btn__action-btn svg {
+  position: relative;
+  top: -5px;
+}
+
 .truncate-title {
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -2376,7 +2417,7 @@ body > .proposal-box.ui-draggable {
 }
 .label-box .label-box__icon {
   float: left;
-  margin-top: 15px;
+  margin-top: 22px;
 }
 .label-box .label-box__icon--right {
   padding: 0 15px;
@@ -2441,7 +2482,7 @@ body > .proposal-box.ui-draggable {
 .contact-download-btn {
   position: relative;
   top: 6px;
-  left: -6px;
+  left: -15px;
 }
 
 .scanner-wrapper {

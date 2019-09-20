@@ -29,6 +29,12 @@
   width: 90%;
 }
 
+
+.slider-btn__action-btn svg{
+  position: relative;
+  top: -5px;
+}
+
 .truncate-title {
   white-space: nowrap;
   text-overflow: ellipsis;

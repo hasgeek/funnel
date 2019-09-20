@@ -19,14 +19,14 @@
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border">
               {%- for venue in primary_venue_form.venue.query %}
-                <li>
+                <li class="mui--text-subhead">
                   <input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.suuid }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %}>&nbsp;
                   <label for="venue-{{ loop.index }}">{{ venue.title }}</label>
                   {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}
                   <span class="mui--pull-right">
-                    <a href="{{ venue.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
+                    <a href="{{ venue.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}" class="mui--text-title"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>
                     {%- if venue != project.primary_venue %}
-                      <a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
+                      &nbsp;&nbsp;&nbsp;<a href="{{ venue.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#trash-alt"></use></svg></a>
                     {% endif %}
                   </span>
                 </li>
@@ -55,11 +55,11 @@
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border">
               {%- for room in venue.rooms %}
-                <li>
+                <li class="mui--text-subhead">
                   <span class="mui--text-subhead"><strong>{{ room.title }}</strong></span>
                   <span class="mui--pull-right">
-                    <a href="{{ room.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">edit</i></a>
-                    <a href="{{ room.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-subhead mui--align-top left-margin">delete</i></a>
+                    <a href="{{ room.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}" class="mui--text-title"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>
+                    &nbsp;&nbsp;&nbsp;<a href="{{ room.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}" class="mui--text-title"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#trash-alt"></use></svg></a>
                   </span>
                   <div class="mui--text-body2">{{ room.description }}</div>
                 </li>

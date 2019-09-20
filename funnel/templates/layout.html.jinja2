@@ -52,14 +52,14 @@
       {%- if g.profile -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
           <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
-        </a><i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+        </a><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-right"></use></svg>
         <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
         {%- if project %}
           {%- if project.parent_project %}
-            <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+            <svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-right"></use></svg>
             <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title() }}">{{ project.parent_project.short_title() }}</a>
           {%- endif %}
-          <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+          <svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-right"></use></svg>
           <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title() }}">{{ project.short_title() }}</a>
         {%- endif %}
       {%- else -%}
@@ -72,7 +72,7 @@
       <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
       <form action="/search" class="search-form js-search-form">
         <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
-        <img src="{{ url_for('static', filename='img/search-icon.svg') }}" class="search-form__field__img" aria-hidden="true"/>
+        <svg class="fa5-icon fa5--align-baseline search-form__field__icon" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#search"></use></svg>
         <input type="text" name="type" value="project" hidden>
         <button type="submit" class="search-form__submit">
       </form>

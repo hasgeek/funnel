@@ -32,12 +32,10 @@
             color: #79818B;
             font-size: 16px;
           }
-          .search-form__field__img {
+          .search-form__field__icon {
             position: absolute;
             top: 15px;
             left: 15px;
-            width: 16px;
-            height: 16px;
           }
           .search-form__submit {
             visibility: hidden;
@@ -132,13 +130,11 @@
 
               .search-form__field {
                 border-radius: 2px;
-                padding: 8px 10px 8px 30px;
+                padding: 8px 10px 8px 25px;
               }
-              .search-form__field__img {
-                top: 8px;
+              .search-form__field__icon {
+                top: 9px;
                 left: 8px;
-                width: 18px;
-                height: 18px;
               }
             }
           }

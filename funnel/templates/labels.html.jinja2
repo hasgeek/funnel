@@ -13,7 +13,7 @@
   <div class="grid__col-xs-12">
     <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}" title="New label">
       <div class="card__body mui--text-center">
-        <a class="mui--text-headline mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><i class="material-icons mui--align-middle mui--text-display1" aria-hidden="true">add</i> {% trans %}Create new label{% endtrans %}</a>
+        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset"><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#plus"></use></svg> <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
       </div>
     </div>
   </div>
@@ -22,7 +22,7 @@
       {{ form.hidden_tag() }}
       {%- for label in labels %}
         <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
-          <i class="material-icons mui--text-body1 mui--text-light label-box__icon" aria-hidden="true">drag_indicator</i>
+          <svg class="fa5-icon label-box__icon" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#grip-vertical"></use></svg>
           <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
@@ -37,11 +37,11 @@
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
           <div class="label-box__icon-wrapper">
-            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}" aria-label="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" aria-hidden="true">edit</i></a>
+            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" title="{% trans %}Edit{% endtrans %}" aria-label="{% trans %}Edit{% endtrans %}"><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a>
             {% if label.has_proposals %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}" aria-label="{% trans %}Archive{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" aria-hidden="true">archive</i></a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" title="{% trans %}Archive{% endtrans %}" aria-label="{% trans %}Archive{% endtrans %}"><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#archive"></use></svg></a>
             {% else %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}" aria-label="{% trans %}Delete{% endtrans %}"><i class="material-icons mui--text-title mui--text-light" aria-hidden="true">delete</i></a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" title="{% trans %}Delete{% endtrans %}" aria-label="{% trans %}Delete{% endtrans %}"><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#trash-alt"></use></svg></a>
             {% endif %}
           </div>
         </div>

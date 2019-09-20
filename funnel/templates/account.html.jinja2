@@ -18,11 +18,13 @@
       <div class="grid">
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_left</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-left"></use></svg>
+            </a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Profile{% endtrans %}</p>
             <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
             <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">{% trans %}Contacts{% endtrans %}</a>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"><i class="material-icons tabs__item-control__icon">chevron_right</i></a>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-right"></use></svg>
+            </a>
           </div>
         </div>
       </div>
@@ -37,10 +39,24 @@
           <div class="card__header">
             <h3 class="mui--text-title mui--text-bold">{{ user.fullname }}</h3>
           </div>
-          <div class="card__body card__body--lgtext mui--text-subhead">
-            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">perm_identity</i> {{ user.username }}</p>
-            <p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">email</i> {{ user.email }}</p>
-            {% if user.phone %}<p><i class="material-icons mui--text-subhead mui--text-light mui--align-middle" aria-hidden="true">call</i> {{ user.phone }}</p>{% endif %}
+          <div class="card__body card__body--lgtext">
+            <p class="mui--text-subhead">
+              <svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
+                <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#user"></use>
+              </svg>&nbsp;&nbsp;{{ user.username }}
+            </p>
+            <p class="mui--text-subhead">
+              <svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
+                <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#envelope"></use>
+              </svg>&nbsp;&nbsp;{{ user.email }}
+            </p>
+            {% if user.phone %}
+              <p class="mui--text-subhead">
+                <svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
+                  <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#phone-alt"></use>
+                </svg>&nbsp;&nbsp;{{ user.phone }}
+              </p>
+            {% endif %}
           </div>
           <div class="mui-divider"></div>
           <div class="card__footer">
