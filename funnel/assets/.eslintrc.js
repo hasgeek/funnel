@@ -9,7 +9,6 @@ module.exports = {
     jquery: true,
   },
   extends: ['airbnb-base', 'plugin:prettier/recommended'],
-  // add your custom rules here
   rules: {
     'no-console': WARN,
     'prefer-arrow-callback': [ERROR, { allowNamedFunctions: true }],

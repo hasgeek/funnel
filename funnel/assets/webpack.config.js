@@ -1,4 +1,4 @@
-coprocess.traceDeprecation = true;
+process.traceDeprecation = true;
 
 const webpack = require("webpack");
 const nodeEnv = process.env.NODE_ENV || "production";
