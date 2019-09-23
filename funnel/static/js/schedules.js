@@ -647,8 +647,12 @@ $(function() {
         return moment.tz(date, TIMEZONE).day()
     }
 
+    function getDateProjectTZ(date) {
+        return moment.tz(date, TIMEZONE).format('YYYY-MM-DD');
+    }
+
     function getDateArrayProjectTZ(date) {
-        return moment.tz(date, TIMEZONE).format('YYYY/MM/DD').split('/');
+        return getDateProjectTZ(date).split('-');
     }
 
     function scheduleWidgetInit() {
@@ -666,8 +670,7 @@ $(function() {
 
     (function () {
         if(from_date) {
-            var fromdate = getDateArrayProjectTZ(from_date);
-            document.getElementById("select-date").value = fromdate[0] + '-' + fromdate[1] + '-' + fromdate[2];
+            document.getElementById("select-date").value = getDateProjectTZ(from_date);
             $('#select-date').trigger("change");
         }
     })();
