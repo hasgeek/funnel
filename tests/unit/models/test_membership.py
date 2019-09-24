@@ -26,14 +26,13 @@ class TestMembership(object):
         new_membership = ProjectCrewMembership(
             project=new_project, user=new_user, is_editor=True
         )
-        new_membership.direct_add()
         test_db.session.add(new_membership)
         test_db.session.commit()
 
         assert 'project_editor' in new_project.roles_for(new_user)
         assert new_membership.active
         assert new_membership in new_project.active_crew_memberships
-        assert new_membership.record_type.DIRECT_ADD
+        assert new_membership.record_type == MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
 
         # only one membership can be active for a user at a time.
         # so adding a new membership without revoking the previous one
@@ -41,7 +40,6 @@ class TestMembership(object):
         new_membership_without_revoke = ProjectCrewMembership(
             project=new_project, user=new_user, is_concierge=True
         )
-        new_membership_without_revoke.direct_add()
         test_db.session.add(new_membership_without_revoke)
         with pytest.raises(IntegrityError):
             test_db.session.commit()
@@ -66,7 +64,6 @@ class TestMembership(object):
         new_membership2 = ProjectCrewMembership(
             project=new_project, user=new_user, is_concierge=True, is_usher=True
         )
-        new_membership2.direct_add()
         test_db.session.add(new_membership2)
         test_db.session.commit()
 
@@ -86,7 +83,7 @@ class TestMembership(object):
         assert 'project_editor' in new_project.roles_for(new_user)
         assert 'project_concierge' not in new_project.roles_for(new_user)
         assert 'project_usher' not in new_project.roles_for(new_user)
-        assert new_membership3.record_type.AMEND
+        assert new_membership3.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
         # replace() can replace a single role as well, rest stays as they were
         new_membership4 = new_membership3.replace(
@@ -98,7 +95,7 @@ class TestMembership(object):
         assert 'project_usher' in new_project.roles_for(new_user)
         # offered_roles should also return all valid roles
         assert new_membership4.offered_roles() == {'project_editor', 'project_usher'}
-        assert new_membership4.record_type.AMEND
+        assert new_membership4.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
         # can't replace with an unknown role
         with pytest.raises(AttributeError):
