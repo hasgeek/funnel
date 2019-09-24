@@ -70,7 +70,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         project=self.obj, granted_by=current_auth.user
                     )
                     membership_form.populate_obj(new_membership)
-                    new_membership.direct_add()
+                    new_membership.record_type = MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
                     db.session.add(new_membership)
                     db.session.commit()
 
@@ -83,7 +83,9 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             # 'membership_add_invite_email.md',
                             invited_by=current_auth.user,
                             project=self.obj,
-                            roles=", ".join(new_membership.offered_roles_verbose())
+                            project_membership_link=self.obj.url_for(
+                                'membership', _external=True
+                            )
                             # link=new_membership.url_for('invite', _external=True),
                         ),
                         subject=_("You have been added to {} as a member").format(
@@ -163,7 +165,7 @@ class ProjectCrewMembershipInviteView(
         membership = super(ProjectCrewMembershipInviteView, self).loader(
             profile, project, suuid
         )
-        if not membership.record_type.INVITE or membership.user != current_auth.user:
+        if not membership.is_invite or membership.user != current_auth.user:
             raise abort(404)
 
         return membership
@@ -180,8 +182,7 @@ class ProjectCrewMembershipInviteView(
         membership_invite_form = ProjectCrewMembershipInviteForm()
         if membership_invite_form.validate_on_submit():
             if membership_invite_form.action.data == 'accept':
-                new_membership = self.obj.replace(actor=current_auth.user)
-                new_membership.accept()
+                self.obj.accept(actor=current_auth.user)
             elif membership_invite_form.action.data == 'decline':
                 self.obj.revoke(actor=current_auth.user)
             db.session.commit()
@@ -206,7 +207,7 @@ class ProjectCrewMembershipView(
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'editor'})
     def edit(self):
         previous_membership = self.obj
         membership_form = ProjectCrewMembershipForm(obj=previous_membership)
@@ -215,7 +216,7 @@ class ProjectCrewMembershipView(
             if membership_form.validate_on_submit():
                 previous_membership.replace(
                     actor=current_auth.user,
-                    record_type=MEMBERSHIP_RECORD_TYPE.AMMEND,
+                    record_type=MEMBERSHIP_RECORD_TYPE.AMEND,
                     is_editor=membership_form.is_editor.data,
                     is_concierge=membership_form.is_concierge.data,
                     is_usher=membership_form.is_usher.data,
@@ -250,7 +251,7 @@ class ProjectCrewMembershipView(
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'editor'})
     def delete(self):
         form = Form()
         if request.method == 'POST':
