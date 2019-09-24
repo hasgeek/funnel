@@ -81,7 +81,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         body=render_template(
                             'membership_add_email.md',
                             # 'membership_add_invite_email.md',
-                            invited_by=current_auth.user,
+                            granted_by=new_membership.granted_by,
                             project=self.obj,
                             project_membership_link=self.obj.url_for(
                                 'membership', _external=True
