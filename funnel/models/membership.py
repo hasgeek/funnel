@@ -43,7 +43,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         db.Column(
             db.Integer,
             StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
-            default=MEMBERSHIP_RECORD_TYPE.INVITE,
+            default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
             nullable=False,
         )
     )
