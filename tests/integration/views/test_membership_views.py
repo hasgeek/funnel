@@ -19,7 +19,7 @@ class TestMembershipViews(object):
             # but new_user is not new_project2.profile's admin, so it should not load
             resp2 = c.get(new_project2.url_for('membership'))
             assert resp2.status_code == 403  # forbidden
-            assert u"Add a member" not in resp2.data.decode('utf-8')
+            assert u"Add new member" not in resp2.data.decode('utf-8')
             assert u"Access denied" in resp2.data.decode('utf-8')
 
             # let's add a member to the project
