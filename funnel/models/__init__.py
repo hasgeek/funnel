@@ -41,3 +41,5 @@ from .session import *  # isort:skip
 from .user import *  # isort:skip
 from .venue import *  # isort:skip
 from .membership import *  # isort:skip
+from .profile_membership import *  # isort:skip
+from .project_membership import *  # isort:skip

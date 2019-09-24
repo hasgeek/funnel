@@ -77,7 +77,7 @@ class TestMembership(object):
         # let's try replacing the roles in place
         new_membership3 = new_membership2.replace(
             actor=new_user2,
-            record_type=MEMBERSHIP_RECORD_TYPE.AMMEND,
+            record_type=MEMBERSHIP_RECORD_TYPE.AMEND,
             is_editor=True,
             is_concierge=False,
             is_usher=False,
@@ -86,11 +86,11 @@ class TestMembership(object):
         assert 'project_editor' in new_project.roles_for(new_user)
         assert 'project_concierge' not in new_project.roles_for(new_user)
         assert 'project_usher' not in new_project.roles_for(new_user)
-        assert new_membership3.record_type.AMMEND
+        assert new_membership3.record_type.AMEND
 
         # replace() can replace a single role as well, rest stays as they were
         new_membership4 = new_membership3.replace(
-            actor=new_user2, record_type=MEMBERSHIP_RECORD_TYPE.AMMEND, is_usher=True
+            actor=new_user2, record_type=MEMBERSHIP_RECORD_TYPE.AMEND, is_usher=True
         )
         test_db.session.commit()
         assert 'project_editor' in new_project.roles_for(new_user)
@@ -98,12 +98,12 @@ class TestMembership(object):
         assert 'project_usher' in new_project.roles_for(new_user)
         # offered_roles should also return all valid roles
         assert new_membership4.offered_roles() == {'project_editor', 'project_usher'}
-        assert new_membership4.record_type.AMMEND
+        assert new_membership4.record_type.AMEND
 
         # can't replace with an unknown role
         with pytest.raises(AttributeError):
             new_membership2.replace(
                 actor=new_user2,
-                record_type=MEMBERSHIP_RECORD_TYPE.AMMEND,
+                record_type=MEMBERSHIP_RECORD_TYPE.AMEND,
                 is_foobar=True,
             )
