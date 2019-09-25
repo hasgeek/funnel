@@ -11,13 +11,13 @@ icalendar==4.0.3
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
-alembic==1.0.11
+alembic==1.1.0
 qrcode==6.1
 rq==1.1.0
 psycopg2==2.8.3
 Flask-Migrate==2.5.2
 git+https://github.com/hasgeek/Flask-FlatPages.git
-progressbar2==3.42.0
-pycountry==19.7.15
+progressbar2==3.43.1
+pycountry==19.8.18
 Babel==2.7.0
 six==1.12.0
