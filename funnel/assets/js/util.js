@@ -109,29 +109,32 @@ export const Utils = {
     return htmlString.match(/id="(.*?)"/)[1];
   },
   formErrorHandler(formId, errorResponse) {
-    let errorMsg = "";
+    let errorMsg = '';
     // xhr readyState '4' indicates server has received the request & response is ready
     if (errorResponse.readyState === 4) {
       if (errorResponse.status === 500) {
-        errorMsg = "Internal Server Error";
+        errorMsg = 'Internal Server Error';
       } else {
         window.Baseframe.Forms.showValidationErrors(
           formId,
-          errorResponse.responseJSON.errors
+          errorResponse.responseJSON.errors,
         );
-        errorMsg = "Error";
+        errorMsg = errorResponse.responseJSON.message ? errorResponse.responseJSON.message : 'Error';
       }
     } else {
-      errorMsg = "Unable to connect. Please try again.";
+      errorMsg = 'Unable to connect. Please try again.';
     }
     $(`#${formId}`)
       .find('button[type="submit"]')
-      .prop("disabled", false);
+      .prop('disabled', false);
     $(`#${formId}`)
-      .find(".loading")
-      .addClass("mui--hide");
+      .find('.loading')
+      .addClass('mui--hide');
     return errorMsg;
-  }
+  },
+  getActionUrl(formId) {
+    return $(`#${formId}`).attr('action');
+  },
 };
 
 export const ScrollActiveMenu = {

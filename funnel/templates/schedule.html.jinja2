@@ -78,14 +78,6 @@
 {% block basecontent %}
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
-      <div class="grid">
-        <div class="grid__col-xs-12">
-          {% if project.current_roles.profile_admin %}
-            {{ admin_panel(project, schedule_transition_form=schedule_transition_form) }}
-          {%- endif %}
-        </div>
-      </div>
-
       <div class="grid" id="schedule">
         <div class="grid__col-xs-12 schedule-grid">
           <div class="schedule-table-container" id="project-schedule-table">
