@@ -55,6 +55,8 @@ module.exports = {
     "scan_contact": path.resolve(__dirname, "js/scan_contact.js"),
     "contact": path.resolve(__dirname, "js/contact.js"),
     "search": path.resolve(__dirname, "js/search.js"),
+    "membership": path.resolve(__dirname, "js/membership.js"),
+    "settings": path.resolve(__dirname, "js/settings.js"),
   },
   output: {
     path: path.resolve(__dirname,  "../static/build"),

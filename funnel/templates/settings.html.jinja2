@@ -1,0 +1,151 @@
+{% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
+{%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header, admin_panel %}
+{% block title %}Proposals{% endblock %}
+{% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Settings{% endtrans %}</span>
+    </div>
+  </div>
+  {{ project_header(project, project_save_form,
+    class='mui--hidden-xs mui--hidden-sm',
+    current_page='settings') }}
+{% endblock %}
+
+{% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid">
+        <div class="card">
+          <div class="card__header">
+            <h3 class="mui--text-title mui--text-uppercase mui--text-bold">{% trans %}Admin panel{% endtrans %}</h3>
+          </div>
+          <div class="card__body">
+            {%- if project.current_roles.profile_admin %}
+              {%- if transition_form %}
+                <div>
+                  <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Status</p>
+                  <p class="mui--text-subhead">{{ project.state.label.title }}</p>
+                  <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
+                    {{ transition_form.hidden_tag() }}
+                    <p class="btn-group">
+                      {% for name, transition in transition_form.transition.choices %}
+                        <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                      {% endfor %}
+                    </p>
+                  </form>
+                </div>
+              {%- endif %}
+              {%- if cfp_transition_form %}
+                <div>
+                  <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">{% trans %}CfP status{% endtrans %}</p>
+                  <p class="mui--text-subhead">{{ project.cfp_state.label.title }}</p>
+                  <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
+                    {{ cfp_transition_form.hidden_tag() }}
+                    <p class="btn-group">
+                      {% for name, transition in cfp_transition_form.cfp_transition.choices %}
+                        <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                      {% endfor %}
+                    </p>
+                  </form>
+                </div>
+              {%- endif %}
+              {%- if schedule_transition_form %}
+                <div>
+                  <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">{% trans %}Schedule status{% endtrans %}</p>
+                  <p class="mui--text-subhead">{{ project.schedule_state.label.title }}</p>
+                  <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
+                    {{ schedule_transition_form.hidden_tag() }}
+                    <p class="btn-group">
+                      {% for name, transition in schedule_transition_form.schedule_transition.choices %}
+                        <button name="schedule_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                      {% endfor %}
+                    </p>
+                  </form>
+                </div>
+              {%- endif %}
+              <hr class="mui-divider">
+              <div>
+                <ul class="mui-list--inline list-item-rgborder">
+                  <li>
+                    <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
+                  </li>
+                  <li>
+                    <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
+                  </li>
+                  {% if project.cfp_state.NONE -%}
+                    <li>
+                      <a href="{{ project.url_for('cfp') }}" title="Add a CfP">{% trans %}Add a CfP{% endtrans %}</a>
+                    </li>
+                  {% else -%}
+                    <li>
+                      <a href="{{ project.url_for('cfp') }}" title="Modify the CfP">{% trans %}Modify the CfP{% endtrans %}</a>
+                    </li>
+                  {%- endif %}
+                  <li>
+                    <a href="{{ project.url_for('edit_schedule') }}" title="Edit schedule">{% trans %}Edit schedule{% endtrans %}</a>
+                  </li>
+                  <li>
+                    <a href="{{ project.url_for('labels') }}" title="Manage labels">{% trans %}Manage labels{% endtrans %}</a>
+                  </li>
+                  <li>
+                    <a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% trans %}Setup events for check-in{% endtrans %}</a>
+                  </li>
+                </ul>
+              </div>
+              <hr class="mui-divider">
+              <div>
+                <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Downloads</p>
+                <p class="btn-group">
+                  <a href="{{ project.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="CSV"><i class="material-icons mui--text-subhead mui--align-top" aria-hidden="true">save_alt</i> {% trans %}CSV{% endtrans %}</a>
+                  <a href="{{ project.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="JSON"><i class="material-icons mui--text-subhead mui--align-top"  aria-hidden="true">save_alt</i> {% trans %}JSON{% endtrans %}</a>
+                  <a href="{{ project.url_for('schedule_json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="Schedule JSON"><i class="material-icons mui--text-subhead mui--align-top"  aria-hidden="true">save_alt</i> {% trans %}Schedule JSON{% endtrans %}</a>
+                </p>
+              </div>
+            {% elif project.current_roles.project_usher %}
+              <div>
+                <ul class="mui-list--inline list-item-rgborder">
+                  <li>
+                    <a href="{{ project.url_for('admin') }}" title="Manual check-in">{% trans %}Manual check-in{% endtrans %}</a>
+                  </li>
+                  <li>
+                    <a href="{{ project.url_for('events') }}" title="Scan badges to check-in">{% trans %}Scan badges to check-in{% endtrans %}</a>
+                  </li>
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('settings')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      var saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
+
+      HasGeek.Settings(saveProjectConfig);
+
+    });
+  </script>
+{% endblock %}

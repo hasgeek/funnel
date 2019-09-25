@@ -62,6 +62,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         {
                             'status': 'error',
                             'message': _("Member already exists in the project"),
+                            'errors': membership_form.errors,
                         },
                         400,
                     )

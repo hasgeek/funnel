@@ -63,11 +63,11 @@
           </div>
           <div class="membership-wrapper--right">
             <div class="mui--clearfix">
-              <div class="mui--text-center btn-wrapper membership-wrapper--left" v-if="admin">
+              <div class="mui--text-center btn-wrapper membership-wrapper--left" v-if="isUserProfileAdmin">
                 <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member"><i class="material-icons mui--align-middle mui--text-title" aria-hidden="true">add</i> Add new member</p></button>
                 <hr class="mui--hidden-xl">
               </div>
-              <div class="mui--text-center" v-if="members" :class="[admin? 'membership-wrapper--right': '']">
+              <div class="mui--text-center" v-if="members" :class="[isUserProfileAdmin? 'membership-wrapper--right': '']">
                 <form class="mui-form mui--d-inlineblock search mui--z1">
                   <div class="mui-textfield">
                     <input class="field-search" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
@@ -91,7 +91,7 @@
                   </p>
                   <transition name="slide-fade">
                     <div v-if="role.showMembers">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', admin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>
@@ -99,7 +99,7 @@
                 </div>
               </div>
               <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', admin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
+                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
                   <member :member="member"></member>
                 </div>
               </div>
@@ -139,7 +139,7 @@
       <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body1">Editor</li>
       <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body1">Concierge</li>
       <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body1">Usher</li>
-      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 1">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
+      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
     </ul>
   </div>
 </script>
@@ -147,182 +147,9 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue-script2@2.1.0/dist/vue-script2.min.js"></script>
+  <script src="{{ url_for('static', filename=asset_path('membership')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-
-
-      function getElementId(htmlString) {
-        return htmlString.match(/id="(.*?)"/)[1];
-      }
-
-      function formErrorHandler(formId, errorResponse) {
-        let errorMsg = '';
-        // xhr readyState '4' indicates server has received the request & response is ready
-        if (errorResponse.readyState === 4) {
-          if (errorResponse.status === 500) {
-            errorMsg = 'Internal Server Error';
-          } else {
-            if (errorResponse.responseJSON.errors) {
-              window.Baseframe.Forms.showValidationErrors(formId, errorResponse.responseJSON.errors);
-            }
-            errorMsg = errorResponse.responseJSON.message ? errorResponse.responseJSON.message : 'Error';
-          }
-        } else {
-          errorMsg = 'Unable to connect. Please try again.';
-        }
-        $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
-        $(`#${formId}`).find('.loading').addClass('mui--hide');
-        return errorMsg;
-      }
-
-      function getActionUrl(formId) {
-        return $(`#${formId}`).attr('action');
-      }
-
-      const Membership = {
-        init({newMemberUrl, members='', divElem, memberTemplate, isUserProfileAdmin}) {
-          Vue.use(VueScript2);
-
-          let memberUI = Vue.component('member', {
-            template: memberTemplate,
-            props: ['member'],
-            methods: {
-              rolesCount(member) {
-                let count = 0;
-                if (member.is_editor) count++;
-                if (member.is_concierge) count++;
-                if (member.is_usher) count++;
-                return count - 1;
-              },
-            },
-          });
-
-          let MembershipComponent = new Vue({
-            el: divElem,
-            components: {
-              memberUI
-            },
-            data: function () {
-              return {
-                newMemberUrl: newMemberUrl,
-                members: members.length > 0 ? members : '',
-                admin: isUserProfileAdmin,
-                roles: [
-                  {
-                    roleKey: 'is_editor',
-                    roleName: 'Editor',
-                    showMembers: false,
-                  },
-                  {
-                    roleKey: 'is_concierge',
-                    roleName: 'Concierge',
-                    showMembers: false,
-                  },
-                  {
-                    roleKey: 'is_usher',
-                    roleName: 'Usher',
-                    showMembers: false,
-                  },
-                ],
-                memberForm: '',
-                activeMember: '',
-                errorMsg: '',
-                view: 'name',
-                search: '',
-                showInfo: false,
-              }
-            },
-            methods: {
-              fetchForm(event, url, member='') {
-                event.preventDefault();
-                if(this.admin) {
-                  this.activeMember = member;
-                  let app = this;
-                  $.ajax({
-                    type: 'GET',
-                    url: url,
-                    timeout: window.HasGeek.config.ajaxTimeout,
-                    dataType: 'json',
-                    success: function(data) {
-                      let vueFormHtml = data.form;
-                      app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-                      $('#member-form').modal('show');
-                    }
-                  });
-                }
-              },
-              activateForm() {
-                const formId = getElementId(this.memberForm);
-                const url = getActionUrl(formId);
-                let app = this;
-                let onSuccess = (responseData) => {
-                  this.closeForm();
-                  if(responseData.memberships) {
-                    app.updateMembersList(responseData.memberships);
-                  }
-                }
-                let onError = (response) => {
-                  this.errorMsg = formErrorHandler(formId, response);
-                }
-                Baseframe.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
-              },
-              updateMembersList(members) {
-                this.members = members.length > 0 ? members : '';
-              },
-              filter(event, action) {
-                event.preventDefault();
-                this.view = action;
-              },
-              closeForm(event='') {
-                if (event) event.preventDefault();
-                $.modal.close();
-                this.errorMsg = '';
-              },
-              onChange() {
-                if (this.search) {
-                  members.filter(member => member.hide = member.user_details.fullname.toLowerCase().indexOf(this.search.toLowerCase()) === -1)
-                }
-              },
-              collapse(event, role) {
-                event.preventDefault();
-                role.showMembers = !role.showMembers;
-              },
-              showRoleDetails(event) {
-                event.preventDefault();
-                this.showInfo = !this.showInfo;
-              },
-            },
-            computed: {
-              Form() {
-                const template = this.memberForm ? this.memberForm : '<div></div>';
-                const isFormTemplate = this.memberForm ? true : false;
-                return {
-                  template,
-                  mounted() {
-                    if (isFormTemplate) {
-                      this.$parent.activateForm();
-                    }
-                  },
-                };
-              },
-              deleteURL() {
-                return this.activeMember.delete_url;
-              },
-            },
-            mounted() {
-              $("#member-form").on($.modal.CLOSE, () => {
-                this.closeForm();
-              });
-            },
-          });
-        },
-      }
-
-      window.HasGeek.Membership = function (config) {
-        Membership.init(config);
-      }
 
       var membershipConfig = {
         newMemberUrl: "{{ project.url_for('new_member') }}",
@@ -332,13 +159,12 @@
         isUserProfileAdmin: {%- if project.current_roles.profile_admin %} true {% else %} false {%- endif %},
       };
 
-      HasGeek.Membership(membershipConfig);
+      var saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: "{{ project.url_for('save') }}"
+      }
 
-      // $(() => {
-      //   window.HasGeek.Membership = function (config) {
-      //     Membership.init(config);
-      //   }
-      // });
+      HasGeek.Membership(membershipConfig, saveProjectConfig);
 
     });
   </script>
