@@ -2075,15 +2075,16 @@ html.touch .collapsible__body--disable {
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
   background-color: #fff;
   width: 100%;
-  padding: 5px 15px 0;
+  padding: 5px 15px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  word-break: break-word;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title {
-  float: left;
   width: calc(100% - 24px);
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading {
   cursor: pointer;
+  font-weight: bold;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title .schedule__row__column__content__title__heading:hover {
   color: #4A90E2;
@@ -2108,7 +2109,7 @@ html.touch .collapsible__body--disable {
   z-index: 4;
   background-color: #F9FAFC;
   float: right;
-  padding: 10px;
+  padding: 5px;
   border-radius: 3px;
   line-height: 1;
 }
@@ -2131,6 +2132,8 @@ html.touch .collapsible__body--disable {
 }
 .schedule-grid .schedule .schedule__row--sticky {
   display: flex;
+  max-width: 100%;
+  overflow-x: auto;
   position: sticky;
   position: -webkit-sticky;
   top: 62px;
@@ -2150,6 +2153,7 @@ html.touch .collapsible__body--disable {
   background-image: none !important;
   border-bottom: 2px solid rgba(132, 146, 166, 0.3);
   min-height: 50px;
+  min-width: 100px;
   width: 100% !important;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header.js-tab-active {
@@ -2174,7 +2178,7 @@ html.touch .collapsible__body--disable {
     display: none;
   }
   .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
-    height: auto !important;
+    min-height: 50px;
   }
   .schedule .schedule__row--sticky {
     display: flex;
@@ -2215,12 +2219,12 @@ html.touch .collapsible__body--disable {
     bottom: 0;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 10%, #ffffff 60%);
     z-index: 3;
-    padding: 15px 0 0;
+    padding: 20px 0 0;
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
     outline: 1px solid rgba(132, 146, 166, 0.3);
     width: calc(100% - 1px);
-    border-bottom: 0;
+    height: 100%;
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column .schedule__row__column__content .schedule__row__column__content__title__duration {
     top: 205px;
@@ -2235,7 +2239,7 @@ html.touch .collapsible__body--disable {
     margin: 0;
     background-color: #fff;
     display: block;
-    padding: 8px 0 0;
+    padding: 2px 0 0;
     text-align: center;
     color: #F0A40C;
     text-decoration: none;
@@ -2244,8 +2248,10 @@ html.touch .collapsible__body--disable {
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column--time--pointer {
     cursor: pointer;
+    height: 100%;
   }
   .schedule-grid .schedule .schedule__row--sticky {
+    overflow: visible;
     top: 108px;
   }
   .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {
@@ -2269,17 +2275,29 @@ html.touch .collapsible__body--disable {
 .calendar-wrapper {
   position: relative;
 }
-.calendar-wrapper .datepicker-wrapper {
-  position: absolute;
-  width: 100%;
-  top: -18px;
+.calendar-wrapper .datepicker-wrapper .mui-textfield {
+  width: auto;
 }
 .calendar-wrapper .datepicker-wrapper input {
   width: auto;
   margin: 0;
-  font-size: 22px;
+  font-size: 16px;
+}
+.calendar-wrapper .datepicker-wrapper .datepicker-wrapper__tz {
+  padding-top: 18px;
+  margin-left: 5px;
 }
 
+@media (min-device-width: 768px) {
+  .calendar-wrapper {
+    position: relative;
+  }
+  .calendar-wrapper .datepicker-wrapper {
+    position: absolute;
+    width: 100%;
+    top: -18px;
+  }
+}
 .session-modal {
   max-width: 98%;
   width: 98%;
@@ -2325,6 +2343,10 @@ html.touch .collapsible__body--disable {
 /* Calendar session */
 .calendar-wrapper .fc-header-title {
   display: none;
+}
+
+.calendar-wrapper__heading {
+  margin-top: 70px;
 }
 
 .fc-event .fc-event-custom {

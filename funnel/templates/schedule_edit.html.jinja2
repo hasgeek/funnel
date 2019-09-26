@@ -19,12 +19,15 @@
   <div class="grid">
     <div class="grid__col-xs-12  grid__col-sm-9 calendar-wrapper">
       <div class="mui-form__controls datepicker-wrapper">
-        <div class="mui-textfield">
-          <label>Select date</label>
-          <input type="date" class="datetime-date" id="select-date" placeholder="yyy-mm-dd" value="">
+        <div class="mui-textfield mui--pull-left">
+          <label>{% trans %}Select date{% endtrans %}</label>
+          <input type="date" class="datetime-date" id="select-date" placeholder="yyyy-mm-dd" value="">
         </div>
+        <p class="mui--text-subhead mui--pull-left datepicker-wrapper__tz">{{ timezone }}</p>
       </div>
-      <div id="calendar"></div>
+      <div id="calendar">
+        <p class="calendar-wrapper__heading mui--text-title">{% trans %}Select a date to add sessions{% endtrans %}</p>
+      </div>
     </div>
     <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
       <ul class="tab-container">
@@ -99,10 +102,10 @@
   {% assets "js_schedules" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     <script type="text/javascript">
-      var UPDATE_URL = "{{ project.url_for('update_schedule') }}";
-      var TIMEZONE = {{ timezone }} * 1000;
-      var NEW_SESSION_URL = "{{ project.url_for('new_session') }}";
-      var SETTINGS_UPDATE_URL = "{{ project.url_for('update_venue_settings') }}";
+      var UPDATE_URL = {{ project.url_for('update_schedule')|tojson }};
+      var TIMEZONE = {{ timezone|tojson }};
+      var NEW_SESSION_URL = {{ project.url_for('new_session')|tojson }};
+      var SETTINGS_UPDATE_URL = {{ project.url_for('update_venue_settings')|tojson }};
       var from_date = {%- if from_date -%} {{ from_date|tojson }} {%- else -%} '' {%- endif %};
       var to_date = {%- if to_date -%} {{ to_date|tojson }} {%- else -%} '' {%- endif %};
       var scheduled = {{ proposals['scheduled']|tojson }};

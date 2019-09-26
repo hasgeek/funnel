@@ -2,10 +2,9 @@
 
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _
+from baseframe import _, localize_timezone
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
-from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -21,7 +20,7 @@ from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session
 from .decorators import legacy_redirect
 from .helpers import localize_date
 from .mixins import ProjectViewMixin, SessionViewMixin
-from .schedule import date_js, session_data, session_list_data
+from .schedule import schedule_data, session_data, session_list_data
 
 
 def rooms_list(project):
@@ -115,26 +114,36 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
         project_save_form = SavedProjectForm()
+        scheduled_sessions_list = session_list_data(
+            self.obj.project.scheduled_sessions, with_modal_url='view_popup'
+        )
         return {
             'project': self.obj.project,
+            'from_date': (
+                localize_timezone(
+                    self.obj.project.schedule_start_at, tz=self.obj.project.timezone
+                ).isoformat()
+                if self.obj.project.schedule_start_at
+                else None
+            ),
+            'to_date': (
+                localize_timezone(
+                    self.obj.project.schedule_end_at, tz=self.obj.project.timezone
+                ).isoformat()
+                if self.obj.project.schedule_end_at
+                else None
+            ),
             'active_session': session_data(self.obj, with_modal_url='view_popup'),
-            'from_date': date_js(self.obj.project.schedule_start_at),
-            'to_date': date_js(self.obj.project.schedule_end_at),
-            'sessions': session_list_data(
-                self.obj.project.scheduled_sessions, with_modal_url='view_popup'
-            ),
-            # FIXME: This timezone by UTC offset is not accounting for DST. Look up where it's being used and fix it
-            'timezone': (
-                utcnow()
-                .astimezone(self.obj.project.timezone)
-                .utcoffset()
-                .total_seconds()
-            ),
+            'sessions': scheduled_sessions_list,
+            'timezone': self.obj.project.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.project.venues],
             'rooms': {
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
                 for room in self.obj.project.rooms
             },
+            'schedule': schedule_data(
+                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
+            ),
             'project_save_form': project_save_form,
         }
 
