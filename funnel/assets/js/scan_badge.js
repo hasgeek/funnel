@@ -13,7 +13,7 @@ const badgeScan = {
         video: {},
         canvas: '',
         canvasElement: '',
-        error: 'Unable to access video. Please make sure you have a camera enabled',
+        error: '',
         attendeeName: '',
         attendeeFound: false,
         scanning: true,
@@ -123,15 +123,19 @@ const badgeScan = {
         }
         let constraints = { video: videoConstraints, audio: false };
 
-        navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-          this.set('video', video);
-          this.get('video').srcObject = stream;
-          this.get('video').play();
-          this.set('canvasElement', canvasElement);
-          this.set('canvas', canvas);
-          this.startRenderFrameLoop();
-          if(this.get('cameras').length === 0) navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getDeviceCameras);
-        });
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+            this.set('video', video);
+            this.get('video').srcObject = stream;
+            this.get('video').play();
+            this.set('canvasElement', canvasElement);
+            this.set('canvas', canvas);
+            this.startRenderFrameLoop();
+            if(this.get('cameras').length === 0) navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getDeviceCameras);
+          });
+        } else {
+          this.set('error', 'Unable to access video stream. Please make sure you have a camera enabled or try a different browser.');
+        }
       },
       switchCamera(event) {
         event.original.preventDefault();
