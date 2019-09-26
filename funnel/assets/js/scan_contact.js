@@ -138,7 +138,7 @@ const badgeScan = {
             this.startRenderFrameLoop();
           });
         } else {
-          this.set('error', 'Unable to access video stream. Please make sure you have a camera enabled or try a different browser');
+          this.set('error', 'Unable to access video stream. Please make sure you have a camera enabled or try a different browser.');
         }
       },
       oncomplete() {

@@ -134,7 +134,7 @@ const badgeScan = {
             if(this.get('cameras').length === 0) navigator.mediaDevices.enumerateDevices().then(badgeScanComponent.getDeviceCameras);
           });
         } else {
-          this.set('error', 'Unable to access video stream. Please make sure you have a camera enabled or try a different browser');
+          this.set('error', 'Unable to access video stream. Please make sure you have a camera enabled or try a different browser.');
         }
       },
       switchCamera(event) {
