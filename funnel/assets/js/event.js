@@ -88,7 +88,7 @@ const Queue = function(queueName) {
 };
 
 const ParticipantTable = {
-  init: function({isAdmin, badgeUrl, editUrl, checkinUrl, participantlistUrl, eventName}) {
+  init: function({isAdmin, isConcierge, badgeUrl, editUrl, checkinUrl, participantlistUrl, eventName}) {
     Ractive.DEBUG = false;
 
     let count = new Ractive({
@@ -108,7 +108,8 @@ const ParticipantTable = {
         checkinUrl: checkinUrl,
         checkinQ: new Queue(`${eventName}-checkin-queue`),
         cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
-        isAdmin: isAdmin,
+        isAdmin,
+        isConcierge,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
         },
