@@ -41,11 +41,11 @@
     <div id="scan-badge-wrapper">
       <script id='scan-badge-template' type='text/ractive'>
         <div class="scanner-wrapper">
+          {{#if error}}
+            <p class="mui--text-subhead mui--text-danger page-content">{{ error }}</p>
+          {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera"></video>
           {{#if video}}<i class="material-icons scanner-wrapper__badge--icon">center_focus_strong</i> {{/if}}
-          {{#if !video && error}}
-            <p class="mui--text-danger">{{ error }}</p>
-          {{/if}}
         </div>
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">

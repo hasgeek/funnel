@@ -10,7 +10,7 @@ const badgeScan = {
       template: `#${templateId}`,
       data: {
         video: {},
-        error: 'Unable to access video. Please make sure you have a camera enabled',
+        error: '',
         contact: '',
         contactFound: false,
         scanning: true,
@@ -119,27 +119,32 @@ const badgeScan = {
         }
       },
       setupVideo(event) {
-        if (event)  {
+        if (event) {
           event.original.preventDefault();
         }
-        let video = document.getElementById('qrreader');
-        let canvasElement = document.createElement('canvas');
-        let canvas = canvasElement.getContext("2d");
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => {
-          this.set('video', video);
-          this.get('video').srcObject = stream;
-          this.get('video').setAttribute("playsinline", true);
-          this.get('video').play();
-          this.set('canvasElement', canvasElement);
-          this.set('canvas', canvas);
-          this.startRenderFrameLoop();
-        });
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          let video = document.getElementById('qrreader');
+          let canvasElement = document.createElement('canvas');
+          let canvas = canvasElement.getContext("2d");
+
+          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => {
+            this.set('video', video);
+            this.get('video').srcObject = stream;
+            this.get('video').setAttribute('playsinline', true);
+            this.get('video').play();
+            this.set('canvasElement', canvasElement);
+            this.set('canvas', canvas);
+            this.startRenderFrameLoop();
+          });
+        } else {
+          this.set('error', 'Unable to access video stream. Please make sure you have a camera enabled or try a different browser');
+        }
       },
       oncomplete() {
         this.setupVideo('');
         this.renderFrame = this.renderFrame.bind(this);
-      }
+      },
     });
   },
 };
