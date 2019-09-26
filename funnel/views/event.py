@@ -90,7 +90,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('ticket_client/new', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('new-ticket-client')
+    @requires_permission('new_ticket_client')
     def new_ticket_client(self):
         form = TicketClientForm()
         if form.validate_on_submit():
@@ -143,6 +143,7 @@ class EventView(UrlForView, ModelView):
 
     @route('')
     @render_with('event.html.jinja2')
+    @requires_permission('checkin_event')
     def view(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
@@ -186,6 +187,7 @@ class EventView(UrlForView, ModelView):
         }
 
     @route('edit', methods=['GET', 'POST'])
+    @requires_permission('edit_event')
     def edit(self):
         form = EventForm(obj=self.obj, model=Event)
         if form.validate_on_submit():
@@ -197,6 +199,7 @@ class EventView(UrlForView, ModelView):
 
     @route('scan_badge')
     @render_with('scan_badge.html.jinja2')
+    @requires_permission('checkin_event')
     def scan_badge(self):
         return {
             'profile': self.obj.project.profile,
@@ -242,6 +245,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     @route('')
     @render_with('ticket_type.html.jinja2')
+    @requires_permission('view_ticket_type')
     def view(self):
         participants = (
             Participant.query.join(SyncTicket)
@@ -256,6 +260,7 @@ class TicketTypeView(UrlForView, ModelView):
         }
 
     @route('edit', methods=['GET', 'POST'])
+    @requires_permission('edit_event')
     def edit(self):
         form = TicketTypeForm(obj=self.obj, model=TicketType)
         form.events.query = self.obj.project.events
@@ -305,6 +310,7 @@ class TicketClientView(UrlForView, ModelView):
         super(TicketClientView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
+    @requires_permission('edit_ticket_client')
     def edit(self):
         form = TicketClientForm(obj=self.obj, model=TicketClient)
         if form.validate_on_submit():
