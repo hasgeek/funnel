@@ -21,7 +21,7 @@
           <ol class="mui-list--aligned">
             {%- for event in events %}
               <li class="mui--text-title">
-                <a href="{{ url_for('scan_badge', profile=project.profile.name, project=project.name, name=event.name) }}" title="Check-in"><strong>{{ event.title }}</strong></a>
+                <a href="{{ event.url_for('scan_badge') }}" title="Check-in"><strong>{{ event.title }}</strong></a>
               </li>
             {%- endfor %}
           </ol>
