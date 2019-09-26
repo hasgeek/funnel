@@ -133,7 +133,7 @@ export const ScrollActiveMenu = {
         },
         {
           rootMargin: '0px',
-          threshold: 1
+          threshold: 1,
         },
       );
       observer.observe(document.getElementById('ticket-wrapper'));
