@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}" arial-label="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary" aria-hidden="true">edit</i></a></h3>
+      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary" aria-hidden="true">edit</i></a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       <h3 class="mui--text-right" id="participants-count">
