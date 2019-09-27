@@ -2,15 +2,7 @@
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import (
-    flash,
-    jsonify,
-    make_response,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import flash, jsonify, make_response, redirect, render_template, request
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -207,12 +199,7 @@ def event_checkin(profile, project, event):
             return jsonify(
                 status=True, participant_ids=participant_ids, checked_in=checked_in
             )
-    return redirect(
-        url_for(
-            'event', profile=project.profile.name, project=project.name, name=event.name
-        ),
-        code=303,
-    )
+    return redirect(event.url_for('view'), code=303)
 
 
 @app.route(
