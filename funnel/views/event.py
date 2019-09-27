@@ -141,7 +141,7 @@ class EventView(UrlForView, ModelView):
         g.profile = self.obj.project.profile
         super(EventView, self).after_loader()
 
-    @route('')
+    @route('', methods=['GET', 'POST'])
     @render_with('event.html.jinja2')
     @requires_permission('checkin_event')
     def view(self):
