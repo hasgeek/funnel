@@ -2,7 +2,7 @@
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import flash, g, jsonify, redirect, url_for
+from flask import flash, g, jsonify, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -168,15 +168,7 @@ class EventView(UrlForView, ModelView):
                 )
             ).update({'badge_printed': badge_printed}, False)
             db.session.commit()
-            return redirect(
-                url_for(
-                    'event',
-                    profile=self.obj.project.profile.name,
-                    project=self.obj.project.name,
-                    name=self.obj.name,
-                ),
-                code=303,
-            )
+            return redirect(self.obj.url_for('view'), code=303)
         return {
             'profile': self.obj.project.profile,
             'event': self.obj,
