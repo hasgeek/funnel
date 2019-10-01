@@ -315,7 +315,7 @@ class TicketClientView(UrlForView, ModelView):
         )
 
 
-@route('/<project>/ticket_client/<name>', subdomain='<profile>')
+@route('/<project>/ticket_client/<client_id>', subdomain='<profile>')
 class FunnelTicketClientView(TicketClientView):
     pass
 

@@ -3,6 +3,8 @@
 import base64
 import os
 
+from coaster.sqlalchemy import PermissionMixin
+
 from . import BaseMixin, BaseScopedNameMixin, db, with_roles
 from .project import Project
 from .user import User
@@ -333,6 +335,12 @@ class TicketClient(BaseMixin, db.Model):
                 )
                 # Ensure that the new or updated participant has access to events
                 ticket.participant.add_events(ticket_type.events)
+
+    def permissions(self, user, inherited=None):
+        perms = super(TicketClient, self).permissions(user, inherited)
+        if self.project is not None and isinstance(self.project, PermissionMixin):
+            return self.project.permissions(user) | perms
+        return perms
 
 
 class SyncTicket(BaseMixin, db.Model):
