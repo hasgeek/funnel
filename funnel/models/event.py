@@ -3,8 +3,6 @@
 import base64
 import os
 
-from coaster.sqlalchemy import PermissionMixin
-
 from . import BaseMixin, BaseScopedNameMixin, db, with_roles
 from .project import Project
 from .user import User
@@ -338,7 +336,7 @@ class TicketClient(BaseMixin, db.Model):
 
     def permissions(self, user, inherited=None):
         perms = super(TicketClient, self).permissions(user, inherited)
-        if self.project is not None and isinstance(self.project, PermissionMixin):
+        if self.project is not None:
             return self.project.permissions(user) | perms
         return perms
 
