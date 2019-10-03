@@ -224,9 +224,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% if project.allow_rsvp -%}
-    {{ ajaxform('rsvp-form', request, force=true) }}
-  {%- endif %}
   {% assets "js_jquerysuccinct" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
