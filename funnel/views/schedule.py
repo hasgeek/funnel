@@ -222,6 +222,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                         'bgcolor': u"CCCCCC",
                     }
                 }
+                if self.obj.primary_venue is not None
+                else []
             ),
             'schedule': schedule_data(
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
