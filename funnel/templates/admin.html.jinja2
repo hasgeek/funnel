@@ -1,6 +1,5 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}Setup events for check-in{% endblock %}
 
@@ -25,7 +24,7 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ url_for('event', profile=project.profile.name, project=project.name, name=event.name) }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.profile_admin %}&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>{%- endif %}
+              <a href="{{ event.url_for('view') }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -52,7 +51,7 @@
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
             <li>
-              <a href="{{ url_for('ticket_type', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" class="mui--text-subhead">{{ ticket_type.title }}</a>&nbsp;<a href="{{ url_for('ticket_type_edit', profile=project.profile.name, project=project.name, name=ticket_type.name) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>
+              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -74,7 +73,7 @@
         <ol class="mui-list--aligned">
           {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>&nbsp;<a href="{{ url_for('ticket_client_edit', profile=project.profile.name, project=project.name, id=client.id) }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>
+              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit"><i class="material-icons mui--text-subhead pull-right" aria-hidden="true">edit</i></a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
