@@ -85,6 +85,7 @@ const Queue = function(queueName) {
 const ParticipantTable = {
   init({
     isAdmin,
+    isConcierge,
     badgeUrl,
     editUrl,
     checkinUrl,
@@ -111,6 +112,7 @@ const ParticipantTable = {
         checkinQ: new Queue(`${eventName}-checkin-queue`),
         cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
         isAdmin,
+        isConcierge,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
         },
