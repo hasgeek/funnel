@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
-{%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header, admin_panel %}
+{%- from "macros.html.jinja2" import project_header, admin_panel %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
 
@@ -154,7 +154,10 @@
                           <div class="card__header session-card__header">
                         {% endif %}
                           <p class="session-card__header__img-wrapper">
-                            <img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
+                            <img class="session-card__header__img-wrapper__img js-lazyload-img" data-src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
+                            <noscript>
+                              <img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
+                            </noscript>
                           </p>
                           <div class="card__title__heading session-card__header__title">
                             {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
@@ -226,9 +229,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% if project.allow_rsvp -%}
-    {{ ajaxform('rsvp-form', request, force=true) }}
-  {%- endif %}
   {% assets "js_jquerysuccinct" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}

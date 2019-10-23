@@ -1,15 +1,4 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
-{% macro rsvpform(project, form) %}{% with counts=project.rsvp_counts() %}
-  <form id="rsvp-form" action="{{ project.url_for('rsvp') }}" method="POST">
-    {{ form.hidden_tag() }}
-    <p class="no-jshidden">
-      {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'accent', "Maybe"), ('N', 'dark', "Not going")] %}
-        <button type="submit" name="status" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--{{ class_ }}" data-action="{{ title }}">{{ title }} {%- if counts[value] %}&nbsp;<span class="badge">{{ counts[value] }}</span>{% endif %}{%- if form.status.data == value %}&nbsp;<i class="material-icons mui--text-caption" aria-hidden="true">check</i>{% endif %}</button>
-      {%- endfor %}
-      &nbsp;<span class="loading mui--hide"><i class="material-icons mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i></span>
-    </p>
-  </form>
-{% endwith %}{% endmacro %}
 
 {% macro saveprojectform(project, form) %}
   <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
@@ -121,7 +110,7 @@
         {%- if project.primary_venue %}
           <div class="date-wrapper">
             <div class="date-wrapper__details">
-              <p class="mui--text-light zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-light" aria-hidden="true">place</i> <span class="mui--text-title">{{ project.primary_venue.title }}</span>, <span class="mui--text-title">{{ project.primary_venue.city }}</span></p>
+              <p class="mui--text-light zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-light" aria-hidden="true">place</i> <span class="mui--text-title">{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span class="mui--text-title">{{ project.primary_venue.city }}</span>{%- endif %}</p>
             </div>
           </div>
         {%- endif %}
