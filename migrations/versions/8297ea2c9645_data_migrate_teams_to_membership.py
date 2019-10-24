@@ -102,6 +102,9 @@ def downgrade():
                     sa.and_(
                         project_crew_membership.c.project_id == project_id,
                         project_crew_membership.c.user_id == user_id,
+                        project_crew_membership.c.is_editor == False,
+                        project_crew_membership.c.is_concierge == False,
+                        project_crew_membership.c.is_usher == True,
                         project_crew_membership.c.granted_by_id == None,  # NOQA
                     )
                 )
