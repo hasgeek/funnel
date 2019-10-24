@@ -5,19 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "webpack --mode development --progress --watch",
-    "build": "webpack --mode production",
-    "lint": "./node_modules/.bin/eslint --fix js"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "js": [
-      "./node_modules/.bin/eslint --fix js && echo 'Lint complete.'",
-      "git add"
-    ]
+    "build": "webpack --mode production"
   },
   "author": "HasGeek team",
   "license": "AGPLv3",
