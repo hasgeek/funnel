@@ -142,7 +142,7 @@
     var eventConfig = {};
     eventConfig.checkin = {
       isEditor: {%- if project.current_roles.project_editor %} true {% else %} false {%- endif %},
-      isConcierge: {%- if current_auth.permissions.checkin_event %} true {% else %} false {%- endif %},
+      isConcierge: {%- if project.current_roles.project_concierge %} true {% else %} false {%- endif %},
       badgeUrl: "{{ url_for('participant_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       editUrl: "{{ url_for('participant_edit', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       checkinUrl: "{{ url_for('event_checkin', profile=project.profile.name, project=project.name, name=event.name, participant_id='participant-id') }}",
