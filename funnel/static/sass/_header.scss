@@ -10,7 +10,7 @@
       .header__site-title {
         padding: 0;
         width: 47px;
-        padding-right: calc(calc(100% - 127px)/3);
+        padding-right: calc(calc(100% - 127px) / 3);
 
         .header__site-title__logo {
           height: 35px;
@@ -21,7 +21,8 @@
           bottom: 50px;
           width: 100%;
           left: 0;
-          box-shadow: 0 1px 3px rgba(158,158,158,0.12), 0 1px 2px rgba(158,158,158,0.24);
+          box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
+            0 1px 2px rgba(158, 158, 158, 0.24);
           display: none;
 
           .search-form__field {
@@ -29,7 +30,7 @@
             border: none;
             padding: 15px 30px 15px 35px;
             min-width: calc(100% - 60px);
-            color: #79818B;
+            color: #79818b;
             font-size: 16px;
           }
           .search-form__field__img {
@@ -51,12 +52,11 @@
       .header__right-nav {
         width: 66.67%;
         padding: 0;
-        padding-left: calc(calc(calc(100% - 127px)/3)/2);
+        padding-left: calc(calc(calc(100% - 127px) / 3) / 2);
 
         .header__nav-list {
           justify-content: space-between;
           .header__nav-list__item {
-
             .header__nav-links {
               .header__nav-links__icon {
                 font-size: 18px;
@@ -86,10 +86,10 @@
   }
 }
 
-@media(max-width: 767px) {
+@media (max-width: 767px) {
   .hg-app.no-sticky-header {
     .header--fixed {
-      display: none
+      display: none;
     }
   }
   .hg-app.no-sticky-header {
@@ -164,7 +164,7 @@
                 font-size: 20px;
                 top: -2px;
               }
-              .header__nav-links .header__nav-links__text  {
+              .header__nav-links .header__nav-links__text {
                 display: inline;
                 font-size: 18px;
                 margin-left: 8px;
@@ -216,11 +216,8 @@
   }
 }
 
-@media only screen
-and (max-device-width: 767px)
-and (orientation: landscape) {
+@media only screen and (max-device-width: 767px) and (orientation: landscape) {
   .hg-app {
-
     .header--fixed {
       .header__nav {
         height: 35px;
@@ -255,11 +252,8 @@ and (orientation: landscape) {
   }
 }
 
-@media (min-device-width: 768px)
-and (max-device-width: 1200px)
-and (orientation: landscape) {
+@media (min-device-width: 768px) and (max-device-width: 1199px) and (orientation: landscape) {
   .hg-app {
-
     .header--fixed {
       .header__nav {
         height: 35px;
@@ -271,11 +265,11 @@ and (orientation: landscape) {
 
             .search-form {
               .search-form__field {
-                padding: 5px 10px;
+                padding: 5px 10px 5px 30px;
                 font-size: 14px;
               }
               .search-form__field__img {
-                top: 8px;
+                top: 4px;
                 left: 8px;
               }
             }
@@ -287,7 +281,7 @@ and (orientation: landscape) {
               .header__nav-links .header__nav-links__icon {
                 font-size: 18px;
               }
-              .header__nav-links .header__nav-links__text  {
+              .header__nav-links .header__nav-links__text {
                 font-size: 16px;
               }
             }
@@ -300,7 +294,6 @@ and (orientation: landscape) {
     }
   }
 }
-
 
 .header__site-title__item {
   font-size: 18px;
@@ -339,7 +332,7 @@ and (orientation: landscape) {
   top: -2px;
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
   .header__site-title__item {
     font-size: 24px;
     line-height: 32px;
@@ -352,8 +345,8 @@ and (orientation: landscape) {
   top: -6px;
 }
 
-@media(max-width: 1199px) {
- .no-header {
+@media (max-width: 1199px) {
+  .no-header {
     .header {
       display: none;
     }
@@ -372,11 +365,11 @@ and (orientation: landscape) {
     padding: 15px;
     margin: 0;
     text-decoration: none;
-    border-bottom: 1px solid rgba(132,146,166,0.3);
+    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
     transition: border-color 1.5s ease;
     min-width: 0;
     min-height: 0;
-    background-color: #F9FAFC;
+    background-color: #f9fafc;
   }
 
   .sub-navbar__item--wrapper {
@@ -390,11 +383,12 @@ and (orientation: landscape) {
     right: 0;
     z-index: 1000;
     border-bottom: none;
-    box-shadow: 0 1px 3px rgba(158,158,158,0.12), 0 1px 2px rgba(158,158,158,0.24)
+    box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
+      0 1px 2px rgba(158, 158, 158, 0.24);
   }
 
   .sub-navbar__item:first-child {
-    border-top: 1px solid rgba(132,146,166,0.3);
+    border-top: 1px solid rgba(132, 146, 166, 0.3);
   }
 
   .mui-btn {
@@ -402,16 +396,15 @@ and (orientation: landscape) {
   }
 
   .sub-navbar__item--primarybg {
-    background-color: #E05F26;
+    background-color: #e05f26;
     color: #fff;
   }
 }
 
-
 @media (min-width: 768px) {
   .sub-navbar-container {
-    border-bottom: 1px solid rgba(132,146,166,0.3);
-    border-top: 1px solid rgba(132,146,166,0.3);
+    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+    border-top: 1px solid rgba(132, 146, 166, 0.3);
     margin-top: 2em;
   }
 
@@ -457,14 +450,12 @@ and (orientation: landscape) {
     .sub-navbar__item:hover,
     .sub-navbar__item:active,
     .sub-navbar__item--active {
-      border-bottom: 2px solid #856A91;
+      border-bottom: 2px solid #856a91;
     }
   }
 }
 
-@media (min-device-width: 768px)
-and (max-device-width: 1200px)
-and (orientation: landscape) {
+@media (min-device-width: 768px) and (max-device-width: 1199px) and (orientation: landscape) {
   .sub-navbar-container--sticky {
     top: 35px;
   }
@@ -501,7 +492,7 @@ and (orientation: landscape) {
 
 .tabs-wrapper {
   background: #fff;
-  box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
+  box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
   width: 100%;
 }
 
@@ -541,7 +532,7 @@ and (orientation: landscape) {
   }
 
   .tabs__item--active {
-    border-bottom: 2px solid #856A91;
+    border-bottom: 2px solid #856a91;
   }
 
   button.tabs__item--active {
@@ -568,7 +559,7 @@ and (orientation: landscape) {
   }
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
   .tabs-navbar .header {
     box-shadow: none;
   }
@@ -581,9 +572,7 @@ and (orientation: landscape) {
   }
 }
 
-@media (min-device-width: 768px)
-and (max-device-width: 1200px)
-and (orientation: landscape) {
+@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
   .tabs-wrapper--sticky {
     top: 35px;
   }
