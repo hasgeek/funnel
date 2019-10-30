@@ -1,15 +1,4 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
-{% macro rsvpform(project, form) %}{% with counts=project.rsvp_counts() %}
-  <form id="rsvp-form" action="{{ project.url_for('rsvp') }}" method="POST">
-    {{ form.hidden_tag() }}
-    <p class="no-jshidden">
-      {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'accent', "Maybe"), ('N', 'dark', "Not going")] %}
-        <button type="submit" name="status" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--{{ class_ }}" data-action="{{ title }}">{{ title }} {%- if counts[value] %}&nbsp;<span class="badge">{{ counts[value] }}</span>{% endif %}{%- if form.status.data == value %}&nbsp;<i class="material-icons mui--text-caption" aria-hidden="true">check</i>{% endif %}</button>
-      {%- endfor %}
-      &nbsp;<span class="loading mui--hide"><i class="material-icons mui--align-middle mui--text-dark-secondary" aria-hidden="true">refresh</i></span>
-    </p>
-  </form>
-{% endwith %}{% endmacro %}
 
 {% macro saveprojectform(project, form) %}
   <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
@@ -58,7 +47,7 @@
             <a href="{{project.profile.url_for()}}"><img class="profile-details__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>
           {% endif %}
           <div class="profile-details__title">
-            <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{project.profile.url_for()}}">{{ project.profile.title|e }}</a></h3>
+            <p class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{project.profile.url_for()}}">{{ project.profile.title|e }}</a></p>
             <div class="mui--text-body1 mui--text-light">{{ project.profile.description|safe }}</div>
           </div>
         </div>
@@ -74,44 +63,46 @@
           <p><a class="mui-btn mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a></p>
         {%- endif %}
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
-          <div class="card__calendar">
-            <div class="calendar">
-              <div class="calendar__weekdays">
-                <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
-                <div class="calendar__weekdays__name__wrapper">
-                  {% for weekday in project.calendar_weeks.days %}
-                    <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+          <div aria-label="{{ project.datelocation }}">
+            <div class="card__calendar" aria-hidden="true">
+              <div class="calendar">
+                <div class="calendar__weekdays">
+                  <p class="calendar__weekdays__name calendar__weekdays__name--first mui--text-title mui--text-light"></p>
+                  <div class="calendar__weekdays__name__wrapper">
+                    {% for weekday in project.calendar_weeks.days %}
+                      <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="calendar__weekdays">
+                  {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
+                    {% if loop.index == 1 %}
+                      {% set month = '' -%}
+                    {% else %}
+                      {% set month = project.calendar_weeks.weeks[loop.index-1].month -%}
+                    {% endif %}
+                    <div class="calendar__weekdays__month">
+                      {% if month != week.month %}
+                        <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
+                      {% else %}
+                        <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
+                      {% endif %}
+                    </div>
+                    <div class="calendar__weekdays__dates">
+                      {% for date in week.dates %}
+                        <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date.day }}</span></p>
+                      {% endfor %}
+                      {% if loop.index == 1 %}
+                        {% set year = '' -%}
+                      {% else %}
+                        {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
+                      {% endif %}
+                      {% if year != week.year %}
+                        <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
+                      {% endif %}
+                    </div>
                   {% endfor %}
                 </div>
-              </div>
-              <div class="calendar__weekdays">
-                {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
-                  {% if loop.index == 1 %}
-                    {% set month = '' -%}
-                  {% else %}
-                    {% set month = project.calendar_weeks.weeks[loop.index-1].month -%}
-                  {% endif %}
-                  <div class="calendar__weekdays__month">
-                    {% if month != week.month %}
-                      <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ week.month }}</p>
-                    {% else %}
-                      <p class="calendar__weekdays__month__name mui--text-title mui--text-bold"> </p>
-                    {% endif %}
-                  </div>
-                  <div class="calendar__weekdays__dates">
-                    {% for date in week.dates %}
-                      <p class="calendar__weekdays__dates__date {% if date[2] > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date[0] == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date[1] }}</span></p>
-                    {% endfor %}
-                    {% if loop.index == 1 %}
-                      {% set year = '' -%}
-                    {% else %}
-                      {% set year = project.calendar_weeks.weeks[loop.index-1].year -%}
-                    {% endif %}
-                    {% if year != week.year %}
-                      <p class="calendar__weekdays__dates__date calendar__weekdays__dates__date--year mui--text-title mui--text-bold">{{ week.year }}</p>
-                    {% endif %}
-                  </div>
-                {% endfor %}
               </div>
             </div>
           </div>
@@ -119,7 +110,7 @@
         {%- if project.primary_venue %}
           <div class="date-wrapper">
             <div class="date-wrapper__details">
-              <p class="mui--text-light zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-light" aria-hidden="true">place</i> <span class="mui--text-title">{{ project.primary_venue.title }}</span>, <span class="mui--text-title">{{ project.primary_venue.city }}</span></p>
+              <p class="mui--text-light zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-light" aria-hidden="true">place</i> <span class="mui--text-title">{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span class="mui--text-title">{{ project.primary_venue.city }}</span>{%- endif %}</p>
             </div>
           </div>
         {%- endif %}

@@ -17,6 +17,7 @@ class RSVP_STATUS(LabeledEnum):  # NOQA: N801
     NO = ('N', 'no', __("Not going"))
     MAYBE = ('M', 'maybe', __("Maybe"))
     AWAITING = ('A', 'awaiting', __("Awaiting"))
+    __order__ = (YES, NO, MAYBE, AWAITING)
     # USER_CHOICES = {YES, NO, MAYBE}
 
 
