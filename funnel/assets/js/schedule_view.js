@@ -46,12 +46,18 @@ const Schedule = {
             minute: '2-digit',
             timeZone: this.timeZone,
           };
-          return new Date(parseInt(time, 10)).toLocaleTimeString('en-GB', options);
+          return new Date(parseInt(time, 10)).toLocaleTimeString(
+            'en-GB',
+            options
+          );
         },
         getColumnWidth(columnType) {
-          if (columnType === 'header' || this.width >= window.HasGeek.config.mobileBreakpoint) {
+          if (
+            columnType === 'header' ||
+            this.width >= window.HasGeek.config.mobileBreakpoint
+          ) {
             if (this.view === 'calendar') {
-              return (this.timeSlotWidth / this.rowWidth);
+              return this.timeSlotWidth / this.rowWidth;
             }
           }
           return 0;
@@ -60,17 +66,26 @@ const Schedule = {
           return duration * rowHeight;
         },
         hasActiveRoom(session) {
-          return Object.prototype.hasOwnProperty.call(session.rooms[this.activeTab], 'talk');
+          return Object.prototype.hasOwnProperty.call(
+            session.rooms[this.activeTab],
+            'talk'
+          );
         },
         removeImg(descriptionHtml) {
-          return descriptionHtml.replace(/<img[^>]*>/g, '').substring(0, 400).concat('..');
+          return descriptionHtml
+            .replace(/<img[^>]*>/g, '')
+            .substring(0, 400)
+            .concat('..');
         },
         updateMetaTags(pageDetails) {
           $('title').html(pageDetails.title);
           $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
           $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
           $('meta[name=description]').attr('content', pageDetails.description);
-          $('meta[property="og:description"]').attr('content', pageDetails.description);
+          $('meta[property="og:description"]').attr(
+            'content',
+            pageDetails.description
+          );
           $('link[rel=canonical]').attr('href', pageDetails.url);
           $('meta[property="og:url"]').attr('content', pageDetails.url);
         },
@@ -87,17 +102,26 @@ const Schedule = {
               $.modal.close();
             } else if (window.history.state) {
               // Open the modal with previous session viewed
-              this.openModal(window.history.state.html,
-                window.history.state.backPage, window.history.state.pageDetails);
+              this.openModal(
+                window.history.state.html,
+                window.history.state.backPage,
+                window.history.state.pageDetails
+              );
             }
           });
         },
         openModal(sessionHtml, backPage, pageDetails) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
-          window.history.pushState({
-            html: sessionHtml, backpage: backPage, pageDetails,
-          }, '', backPage);
+          window.history.pushState(
+            {
+              html: sessionHtml,
+              backpage: backPage,
+              pageDetails,
+            },
+            '',
+            backPage
+          );
           this.updateMetaTags(pageDetails);
         },
         showSessionModal(activeSession) {
@@ -105,7 +129,8 @@ const Schedule = {
           const pageDetails = {
             title: `${activeSession.title} — ${this.pageDetails.projectTitle}`,
             pageTitle: activeSession.title,
-            description: activeSession.speaker ? `${activeSession.title} by ${activeSession.speaker}`
+            description: activeSession.speaker
+              ? `${activeSession.title} by ${activeSession.speaker}`
               : `${activeSession.title}, ${this.pageDetails.projectTitle}`,
             url: backPage,
           };
@@ -113,11 +138,13 @@ const Schedule = {
             $.ajax({
               url: activeSession.modal_url,
               type: 'GET',
-              success: (sessionHtml) => {
+              success: sessionHtml => {
                 this.openModal(sessionHtml, backPage, pageDetails);
               },
               error() {
-                window.toastr.error('There was a problem in contacting the server. Please try again later.');
+                window.toastr.error(
+                  'There was a problem in contacting the server. Please try again later.'
+                );
               },
             });
           }
@@ -139,7 +166,9 @@ const Schedule = {
         animateWindowScrollWithHeader() {
           this.headerHeight = 2 * $('.schedule__row--sticky').height();
           this.pathName = window.location.pathname;
-          const scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
+          const scrollPos = JSON.parse(
+            window.sessionStorage.getItem('scrollPos')
+          );
           const activeSession = schedule.config.active_session;
           if (activeSession) {
             // Open session modal
@@ -148,17 +177,33 @@ const Schedule = {
             this.pageDetails.url = paths.join('/');
             this.showSessionModal(activeSession);
             // Scroll page to session
-            Utils.animateScrollTo($(`#${activeSession.url_name_suuid}`).offset().top - this.headerHeight);
-          } else if (window.location.pathname === this.pathName && window.location.hash) {
-            const hash = window.location.hash.indexOf('/') !== -1
-              ? window.location.hash.substring(0, window.location.hash.indexOf('/')) : window.location.hash;
+            Utils.animateScrollTo(
+              $(`#${activeSession.url_name_suuid}`).offset().top -
+                this.headerHeight
+            );
+          } else if (
+            window.location.pathname === this.pathName &&
+            window.location.hash
+          ) {
+            const hash =
+              window.location.hash.indexOf('/') !== -1
+                ? window.location.hash.substring(
+                    0,
+                    window.location.hash.indexOf('/')
+                  )
+                : window.location.hash;
             Utils.animateScrollTo($(hash).offset().top - this.headerHeight);
-          } else if (scrollPos && scrollPos.pageTitle === this.pageDetails.projectTitle) {
+          } else if (
+            scrollPos &&
+            scrollPos.pageTitle === this.pageDetails.projectTitle
+          ) {
             // Scroll page to last viewed position
             Utils.animateScrollTo(scrollPos.scrollPosY);
           } else {
             // Scroll page to schedule table
-            Utils.animateScrollTo($(schedule.config.parentContainer).offset().top);
+            Utils.animateScrollTo(
+              $(schedule.config.parentContainer).offset().top
+            );
           }
 
           // On exiting the page, save page scroll position in session storage
@@ -167,7 +212,10 @@ const Schedule = {
               pageTitle: this.pageDetails.projectTitle,
               scrollPosY: window.scrollY,
             };
-            window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
+            window.sessionStorage.setItem(
+              'scrollPos',
+              JSON.stringify(scrollDetails)
+            );
           });
         },
       },
@@ -186,41 +234,50 @@ const Schedule = {
     scheduleApp.$mount(schedule.config.divElem);
   },
   addSessionToSlots() {
-    this.config.sessions.forEach((session) => {
+    this.config.sessions.forEach(session => {
       if (!session.room_scoped_name) {
         [session.room_scoped_name] = Object.keys(this.config.rooms);
       }
       session.startTime = this.Utils.getTime(session.start_at);
       session.endTime = this.Utils.getTime(session.end_at);
-      session.eventDay = this.Utils.getEventDay(session.start_at, this.config.eventDayhashes);
-      session.duration = this.Utils.getDuration(session.end_at,
-        session.start_at, this.config.slotInterval);
+      session.eventDay = this.Utils.getEventDay(
+        session.start_at,
+        this.config.eventDayhashes
+      );
+      session.duration = this.Utils.getDuration(
+        session.end_at,
+        session.start_at,
+        this.config.slotInterval
+      );
       if (this.config.schedule[session.eventDay]) {
-        this.config.schedule[session.eventDay].sessions[session.startTime].showLabel = true;
-        this.config.schedule[session.eventDay].sessions[session.startTime]
-          .rooms[session.room_scoped_name].talk = session;
+        this.config.schedule[session.eventDay].sessions[
+          session.startTime
+        ].showLabel = true;
+        this.config.schedule[session.eventDay].sessions[
+          session.startTime
+        ].rooms[session.room_scoped_name].talk = session;
       }
     });
   },
   createSlots() {
-    this.config.eventDayhashes = {
-    };
+    this.config.eventDayhashes = {};
     this.config.schedule.forEach((day, index) => {
       day.dateStr = this.Utils.getDateString(day.start_at);
       day.startTime = this.Utils.getTime(day.start_at);
       day.endTime = this.Utils.getTime(day.end_at);
       day.rooms = JSON.parse(JSON.stringify(this.config.rooms));
       this.config.eventDayhashes[this.Utils.getEventDate(day.start_at)] = index;
-      const slots = {
-      };
+      const slots = {};
       let sessionSlots = day.startTime;
       while (sessionSlots <= day.endTime) {
         slots[sessionSlots] = {
-          showLabel: false, rooms: JSON.parse(JSON.stringify(this.config.rooms)),
+          showLabel: false,
+          rooms: JSON.parse(JSON.stringify(this.config.rooms)),
         };
         sessionSlots = new Date(sessionSlots);
-        sessionSlots = sessionSlots.setMinutes(sessionSlots.getMinutes()
-          + this.config.slotInterval);
+        sessionSlots = sessionSlots.setMinutes(
+          sessionSlots.getMinutes() + this.config.slotInterval
+        );
       }
       slots[day.endTime].showLabel = true;
       day.sessions = JSON.parse(JSON.stringify(slots));
@@ -235,11 +292,10 @@ const Schedule = {
   init(config) {
     let self = this;
     this.config = config;
-    this.config.rooms = {
-    };
-    this.config.venues.forEach((venue) => {
+    this.config.rooms = {};
+    this.config.venues.forEach(venue => {
       if (venue.room_list.length) {
-        venue.room_list.forEach((room) => {
+        venue.room_list.forEach(room => {
           this.config.rooms[room.scoped_name] = room;
           this.config.rooms[room.scoped_name].venue_title = venue.title;
         });
