@@ -110,7 +110,7 @@
         {%- if project.primary_venue %}
           <div class="date-wrapper">
             <div class="date-wrapper__details">
-              <p class="mui--text-light zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-light" aria-hidden="true">place</i> <span class="mui--text-title">{{ project.primary_venue.title }}</span>, <span class="mui--text-title">{{ project.primary_venue.city }}</span></p>
+              <p class="mui--text-light zero-bottom-margin"><i class="material-icons mui--align-middle mui--text-light" aria-hidden="true">place</i> <span class="mui--text-title">{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span class="mui--text-title">{{ project.primary_venue.city }}</span>{%- endif %}</p>
             </div>
           </div>
         {%- endif %}
