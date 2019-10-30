@@ -80,7 +80,7 @@
               <td class='js-searchable' data-th="Company">{{ company }}</td>
               <td class='buttongrp-column'>
                 <ul class="mui-list--unstyled">
-                  {{#if isAdmin || isConcierge}}
+                  {{#if isEditor || isConcierge}}
                   <li>
                     <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
                   </li>
@@ -105,7 +105,7 @@
                       {{/if}}
                     </form>
                   </li>
-                  {{#if isAdmin}}
+                  {{#if isEditor}}
                   <li>
                     <a href="{{ getEditUrl(pid) }}" class="mui--text-hyperlink" target="_blank">Edit attendee details</a>
                   </li>
@@ -141,7 +141,7 @@
 
     var eventConfig = {};
     eventConfig.checkin = {
-      isAdmin: {%- if project.current_roles.profile_admin %} true {% else %} false {%- endif %},
+      isEditor: {%- if project.current_roles.project_editor %} true {% else %} false {%- endif %},
       isConcierge: {%- if current_auth.permissions.checkin_event %} true {% else %} false {%- endif %},
       badgeUrl: "{{ url_for('participant_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       editUrl: "{{ url_for('participant_edit', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
