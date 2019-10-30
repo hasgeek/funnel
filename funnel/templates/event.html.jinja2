@@ -1,6 +1,5 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}Setup events{% endblock %}
 {% block pageheaders %}
@@ -24,7 +23,7 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ url_for('event_edit', profile=project.profile.name, project=project.name, name=event.name) }}" arial-label="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary" aria-hidden="true">edit</i></a></h3>
+      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}"><i class="material-icons mui--text-body2 mui--align-bottom mui--text-dark-secondary" aria-hidden="true">edit</i></a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       <h3 class="mui--text-right" id="participants-count">
@@ -81,7 +80,7 @@
               <td class='js-searchable' data-th="Company">{{ company }}</td>
               <td class='buttongrp-column'>
                 <ul class="mui-list--unstyled">
-                  {{#if isAdmin}}
+                  {{#if isAdmin || isConcierge}}
                   <li>
                     <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
                   </li>
@@ -143,6 +142,7 @@
     var eventConfig = {};
     eventConfig.checkin = {
       isAdmin: {%- if project.current_roles.profile_admin %} true {% else %} false {%- endif %},
+      isConcierge: {%- if current_auth.permissions.checkin_event %} true {% else %} false {%- endif %},
       badgeUrl: "{{ url_for('participant_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       editUrl: "{{ url_for('participant_edit', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       checkinUrl: "{{ url_for('event_checkin', profile=project.profile.name, project=project.name, name=event.name, participant_id='participant-id') }}",

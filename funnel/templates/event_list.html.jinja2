@@ -1,6 +1,5 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% from "macros.html.jinja2" import rsvpform, rsvpscript %}
 {% from "baseframe/forms.html" import renderfield %}
 {% block title %}Manage check-in{% endblock %}
 
@@ -21,7 +20,7 @@
           <ol class="mui-list--aligned">
             {%- for event in events %}
               <li class="mui--text-title">
-                <a href="{{ url_for('scan_badge', profile=project.profile.name, project=project.name, name=event.name) }}" title="Check-in"><strong>{{ event.title }}</strong></a>
+                <a href="{{ event.url_for('scan_badge') }}" title="Check-in"><strong>{{ event.title }}</strong></a>
               </li>
             {%- endfor %}
           </ol>
