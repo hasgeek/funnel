@@ -14,10 +14,10 @@ __all__ = ['MEMBERSHIP_RECORD_TYPE']
 
 
 class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
-    INVITE = (0, 'invite', __(u"Invite"))
+    INVITE = (0, 'invite', __("Invite"))
     ACCEPT = (1, 'accept', __("Accept"))
-    DIRECT_ADD = (2, 'direct_add', __(u"Direct add"))
-    AMEND = (3, 'amend', __(u"Amend"))
+    DIRECT_ADD = (2, 'direct_add', __("Direct add"))
+    AMEND = (3, 'amend', __("Amend"))
 
 
 class ImmutableMembershipMixin(UuidMixin, BaseMixin):

@@ -100,7 +100,7 @@
               <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
             {%- endif %}
           {%- endfor %}
-          {%- if proposal.current_roles.profile_admin %}
+          {%- if proposal.current_roles.project_editor %}
             {%- for label in proposal.labels %}
               {%- if label.restricted %}
                 <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
@@ -118,20 +118,17 @@
     <section class="proposal__section--border">
 
       <div class="proposal__admin-panel sticky-admin-panel">
-        {%- if proposal.current_roles.profile_owner or proposal.current_roles.profile_admin %}
+        {%- if proposal.current_roles.project_editor %}
           <div class="card">
             <div class="card__header">
               <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
             </div>
             <div class="card__body">
-              {%- if proposal.current_roles.profile_owner %}
                 <ul class="mui-list--aligned">
                   <li><a href="{{ proposal.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></li>
                   <li><a href="{{ proposal.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
                 </ul>
                 <hr class="mui-divider">
-              {%- endif %}
-              {% if proposal.current_roles.profile_admin %}
                 {%- if proposal_move_form %}
                   {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
                 {%- endif %}
@@ -148,8 +145,7 @@
                     {% endfor %}
                   </p>
                 </form>
-              {% endif %}
-              {% if proposal.current_roles.profile_admin and proposal_label_admin_form %}
+              {% if proposal_label_admin_form %}
                 <form action="{{ proposal.url_for('edit_labels') }}" method="post" class="add-label-form">
                   {{ proposal_label_admin_form.hidden_tag() }}
                   <p class="mui--text-title">Labels</p>

@@ -1,4 +1,4 @@
-import {Utils, TableSearch} from './util';
+import { Utils, TableSearch } from './util';
 import Ractive from "ractive";
 
 const Store = {
@@ -12,11 +12,11 @@ const Store = {
   },
 };
 
-const Queue = function(queueName) {
+const Queue = function (queueName) {
   this.queueName = queueName;
 
   // Adds a participantId to queue
-  this.enqueue = function(participantId) {
+  this.enqueue = function (participantId) {
     let participantList = Store.read(this.queueName) || [];
     if (participantList.indexOf(participantId) === -1) {
       participantList.push(participantId);
@@ -29,7 +29,7 @@ const Queue = function(queueName) {
 
   // Reads and returns all items from queue
   // Returns undefined when queue is empty or not defined
-  this.readAll = function() {
+  this.readAll = function () {
     let participantList = Store.read(this.queueName);
     if (participantList && participantList.length) {
       return participantList;
@@ -40,7 +40,7 @@ const Queue = function(queueName) {
 
   // Removes item from queue and returns true
   // Returns undefined when item not present in queue
-  this.dequeue = function(participantId) {
+  this.dequeue = function (participantId) {
     var participantList = Store.read(this.queueName);
     var index = participantList ? participantList.indexOf(participantId) : -1;
     if (index !== -1) {
@@ -55,12 +55,12 @@ const Queue = function(queueName) {
 
   /* updateQueue: If participant in "checkin-queue" has already been checked-in
   then it is removed from checkin queue */
-  this.updateQueue = function(participantsHashMap, ParticipantList) {
+  this.updateQueue = function (participantsHashMap, ParticipantList) {
     let queue = this;
     let participantIDs = queue.readAll();
     let participants = ParticipantList.get('participants');
     if (participantIDs) {
-      participantIDs.forEach(function(participantID) {
+      participantIDs.forEach(function (participantID) {
         if (queue.queueName.indexOf("cancelcheckin-queue") > -1) {
           if (!participantsHashMap[participantID].checked_in) {
             /* Participant's check-in has already been cancelled so remove
@@ -88,7 +88,7 @@ const Queue = function(queueName) {
 };
 
 const ParticipantTable = {
-  init: function({isAdmin, isConcierge, badgeUrl, editUrl, checkinUrl, participantlistUrl, eventName}) {
+  init: function ({ isEditor, isConcierge, badgeUrl, editUrl, checkinUrl, participantlistUrl, eventName }) {
     Ractive.DEBUG = false;
 
     let count = new Ractive({
@@ -108,7 +108,7 @@ const ParticipantTable = {
         checkinUrl: checkinUrl,
         checkinQ: new Queue(`${eventName}-checkin-queue`),
         cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
-        isAdmin,
+        isEditor,
         isConcierge,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
@@ -138,7 +138,7 @@ const ParticipantTable = {
       handleAbortCheckIn(event, checkin) {
         event.original.preventDefault();
         var participantID = this.get(event.keypath + '.pid');
-        if(checkin) {
+        if (checkin) {
           this.get('checkinQ').dequeue(participantID)
           this.get('cancelcheckinQ').enqueue(participantID);
         } else {
@@ -154,12 +154,12 @@ const ParticipantTable = {
           url: participantlistUrl,
           timeout: window.HasGeek.config.ajaxTimeout,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             count.set({
               total_participants: data.total_participants,
               total_checkedin: data.total_checkedin
             });
-            list.set('participants', data.participants).then(function() {
+            list.set('participants', data.participants).then(function () {
               let participants = Utils.tohashMap(data.participants, "pid");
               list.get('checkinQ').updateQueue(participants, list);
               list.get('cancelcheckinQ').updateQueue(participants, list);
@@ -172,12 +172,12 @@ const ParticipantTable = {
 
         /* Read 'checkin-queue' and 'cancelcheckin-queue' every 8 seconds
         and batch post check-in/cancel check-in status to server */
-        setInterval(function() {
+        setInterval(function () {
           ParticipantTable.processQueues(list);
         }, 8000);
 
         // Get participants data from server every 15 seconds
-        setInterval(function() {
+        setInterval(function () {
           list.updateList();
         }, 15000);
       }
@@ -206,8 +206,8 @@ const ParticipantTable = {
     formValues = `${participants}&checkin=${checkin}&csrf_token=${content}`;
     $.ajax({
       type: 'POST',
-      url:  list.get('checkinUrl'),
-      data : formValues,
+      url: list.get('checkinUrl'),
+      data: formValues,
       timeout: window.HasGeek.config.ajaxTimeout,
       dataType: 'json',
       success(data) {
@@ -226,7 +226,7 @@ const ParticipantTable = {
 };
 
 $(() => {
-  window.HasGeek.EventInit = function ({checkin='', search=''}) {
+  window.HasGeek.EventInit = function ({ checkin = '', search = '' }) {
     if (checkin) {
       ParticipantTable.init(checkin);
     }
@@ -235,7 +235,7 @@ $(() => {
       let tableSearch = new TableSearch(search.tableId);
       let inputId = `#${search.inputId}`;
       let tableRow = `#${search.tableId} tbody tr`;
-      $(inputId).keyup(function() {
+      $(inputId).keyup(function () {
         $(tableRow).addClass('mui--hide');
         var hits = tableSearch.searchRows($(this).val());
         $(hits.join(",")).removeClass('mui--hide');
