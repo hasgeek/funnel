@@ -87,6 +87,7 @@ const ParticipantTable = {
     isAdmin,
     isConcierge,
     badgeUrl,
+    labelbadgeUrl,
     editUrl,
     checkinUrl,
     participantlistUrl,
@@ -118,6 +119,9 @@ const ParticipantTable = {
         },
         getBadgeUrl(pid) {
           return badgeUrl.replace('participant-id', pid);
+        },
+        getLabelBadgeUrl(pid) {
+          return labelbadgeUrl.replace('participant-id', pid);
         },
         getEditUrl(pid) {
           return editUrl.replace('participant-id', pid);

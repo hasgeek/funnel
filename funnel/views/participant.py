@@ -173,6 +173,21 @@ def participant_badge(profile, project, participant):
     )
 
 
+@app.route('/<profile>/<project>/participant/<participant_id>/label_badge')
+@funnelapp.route('/<project>/participant/<participant_id>/badge', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    (Participant, {'id': 'participant_id'}, 'participant'),
+    permission='checkin_event',
+)
+def participant_label_badge(profile, project, participant):
+    return render_template(
+        'label_badge.html.jinja2', badges=participant_badge_data([participant], project)
+    )
+
+
 @app.route('/<profile>/<project>/event/<name>/participants/checkin', methods=['POST'])
 @funnelapp.route(
     '/<project>/event/<name>/participants/checkin',
@@ -273,6 +288,30 @@ def event_badges(profile, project, event):
     )
     return render_template(
         'badge.html.jinja2',
+        badge_template=event.badge_template,
+        badges=participant_badge_data(participants, project),
+    )
+
+
+@app.route('/<profile>/<project>/event/<name>/label_badges')
+@funnelapp.route('/<project>/event/<name>/badges', subdomain='<profile>')
+@lastuser.requires_login
+@load_models(
+    (Profile, {'name': 'profile'}, 'g.profile'),
+    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
+    (Event, {'name': 'name', 'project': 'project'}, 'event'),
+    permission='checkin_event',
+)
+def event_label_badges(profile, project, event):
+    badge_printed = True if request.args.get('badge_printed') == 't' else False
+    participants = (
+        Participant.query.join(Attendee)
+        .filter(Attendee.event_id == event.id)
+        .filter(Participant.badge_printed == badge_printed)
+        .all()
+    )
+    return render_template(
+        'label_badge.html.jinja2',
         badge_template=event.badge_template,
         badges=participant_badge_data(participants, project),
     )
