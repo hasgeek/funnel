@@ -303,10 +303,10 @@ def event_badges(profile, project, event):
     permission='checkin_event',
 )
 def event_label_badges(profile, project, event):
-    badge_printed = True if request.args.get('badge_printed') == 't' else False
+    badge_printed = getbool(request.args.get('badge_printed'))
     participants = (
         Participant.query.join(Attendee)
-        .filter(Attendee.event_id == event.id)
+        .filter(Attendee.event == event)
         .filter(Participant.badge_printed == badge_printed)
         .all()
     )
