@@ -15,6 +15,9 @@
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  {% assets "css_select2" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
 {% endblock %}
 
 {% block top_title %}
@@ -266,11 +269,19 @@
   {% assets "js_codemirrormarkdown" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  {%- if proposal.current_roles.owner or proposal.current_roles.admin %}
+    {% assets "js_select2" -%}
+      <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {%- endassets -%}
+  {% endif %}
 {% endblock %}
 
 {% block footerscripts %}
 <script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
-{{ widgetscripts(proposal_transfer_form, script=true) }}
+{%- if proposal.current_roles.owner or proposal.current_roles.admin %}
+  {{ widgetscripts(proposal_transfer_form, script=true) }}
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+{% endif %}
 <script type="text/javascript">
   $(function() {
     var proposalConfig = {};
@@ -283,5 +294,4 @@
 
   });
 </script>
-<script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
 {% endblock %}

@@ -8,6 +8,9 @@
   {% assets "css_leaflet" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  {% assets "css_select2" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
   {% block pageheaders %}{% endblock %}
 {% endblock %}
 
@@ -27,6 +30,9 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {% assets "js_leaflet" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  {% assets "js_select2" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
 {% endblock %}

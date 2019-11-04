@@ -135,11 +135,25 @@ app.assets.register(
     ),
 )
 app.assets.register(
+    'js_select2',
+    Bundle(
+        assets.require('!jquery.js', 'select2-material.js'),
+        output='js/select2-material.packed.js',
+        filters='uglipyjs',
+    ),
+)
+app.assets.register(
+    'css_select2',
+    Bundle(
+        assets.require('!jquery.js', 'select2-material.css'),
+        output='css/select2-material.packed.css',
+        filters='cssmin',
+    ),
+)
+app.assets.register(
     'css_screens',
     Bundle(
-        assets.require('screens.css'),
-        output='css/screens.packed.css',
-        filters='cssmin'
+        assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
     ),
 )
 app.assets.register(
@@ -203,7 +217,7 @@ app.assets.register(
     Bundle(
         assets.require('schedule-print.css'),
         output='css/schedule-print.packed.css',
-        filters='cssmin'
+        filters='cssmin',
     ),
 )
 
@@ -251,6 +265,22 @@ funnelapp.assets.register(
     Bundle(
         assets.require('codemirror-markdown.css'),
         output='css/codemirror-markdown.packed.css',
+        filters='cssmin',
+    ),
+)
+funnelapp.assets.register(
+    'js_select2',
+    Bundle(
+        assets.require('!jquery.js', 'select2-material.js'),
+        output='js/select2-material.packed.js',
+        filters='uglipyjs',
+    ),
+)
+funnelapp.assets.register(
+    'css_select2',
+    Bundle(
+        assets.require('!jquery.js', 'select2-material.css'),
+        output='css/select2-material.packed.css',
         filters='cssmin',
     ),
 )
@@ -321,7 +351,7 @@ funnelapp.assets.register(
     Bundle(
         assets.require('schedule-print.css'),
         output='css/schedule-print.packed.css',
-        filters='cssmin'
+        filters='cssmin',
     ),
 )
 
