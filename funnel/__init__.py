@@ -145,7 +145,7 @@ app.assets.register(
 app.assets.register(
     'css_select2',
     Bundle(
-        assets.require('!jquery.js', 'select2-material.css'),
+        assets.require('select2-material.css'),
         output='css/select2-material.packed.css',
         filters='cssmin',
     ),
@@ -279,7 +279,7 @@ funnelapp.assets.register(
 funnelapp.assets.register(
     'css_select2',
     Bundle(
-        assets.require('!jquery.js', 'select2-material.css'),
+        assets.require('select2-material.css'),
         output='css/select2-material.packed.css',
         filters='cssmin',
     ),
