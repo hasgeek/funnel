@@ -1,3 +1,13 @@
+export const Proposal = {
+  init() {
+    $('button[name="transition"][value="delete"]').click(function(e) {
+      if (!window.confirm('Do you really want to delete this proposal?')) {
+        e.preventDefault();
+      }
+    });
+  },
+};
+
 export const Comments = {
   init(pageURL) {
     $('.comment .js-collapse').click(function() {
@@ -234,6 +244,7 @@ $(() => {
     videoWrapper = '',
     videoUrl = '',
   }) {
+    Proposal.init();
     Comments.init(pageUrl);
     LabelsWidget.init();
 
