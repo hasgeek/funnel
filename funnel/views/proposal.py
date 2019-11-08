@@ -280,6 +280,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
+
+            if transition_form.transition.data == 'delete':
+                # if the proposal is deleted, don't redirect to proposal page
+                return redirect(self.obj.project.url_for('view_proposals'))
         else:
             flash(_("Invalid transition for this proposal."), 'error')
             abort(403)
