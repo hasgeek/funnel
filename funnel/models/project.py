@@ -649,7 +649,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             .order_by(db.desc('created_at'))
             .all(),
             'unconfirmed': basequery.filter(
-                ~(Proposal.state.CONFIRMED), ~(Proposal.state.DRAFT)
+                ~(Proposal.state.CONFIRMED),
+                ~(Proposal.state.DRAFT),
+                ~(Proposal.state.DELETED),
             )
             .order_by(db.desc('created_at'))
             .all(),
