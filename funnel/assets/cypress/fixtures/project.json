@@ -1,0 +1,9 @@
+{
+  "url": "cypress",
+  "title": "Cypress e2e testing workshop",
+  "location": "Bangalore",
+  "tagline": "JavaScript end to end testing",
+  "website": "https://hasgeek.com",
+  "description": "This tutorial will cover the fundamentals of End to end testing and setup and usage of of Cypress. ##Who should attend this workshop: 1. This tutorial is for developers with intermediate to advanced knowledge of JS. Any front-end or fullstack developer with JS familiarity should attend this workshop. ",
+  "bg_image": "https://images.hasgeek.com/embed/file/10acd7709d8e45b598ea107ff29a985e"
+}

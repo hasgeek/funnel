@@ -296,7 +296,7 @@
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             <div class="grid__cell">
               <div class="card">
-                <a class="card__image-wrapper clickable-card" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project">
+                <a class="card__image-wrapper clickable-card" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project" data-cy="new-project">
                   <div class="card__image--default card__image--new">
                     <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
                     <p class="card__image__tagline mui--text-display1">+</p>

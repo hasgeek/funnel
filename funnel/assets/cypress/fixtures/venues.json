@@ -1,0 +1,25 @@
+[
+  {
+    "venue_title": "HasGeek House",
+    "venue_description": "HasGeek House second floor",
+    "venue_address1": "#2699, 19th Main, 5th Cross",
+    "venue_address2": "Indiranagar HAL 2nd Stage",
+    "venue_city": "Bangalore",
+    "venue_state": "Karnataka",
+    "venue_postcode": 560008
+  },
+  {
+    "venue_title": "Taj M G Road",
+    "venue_description": "Located in the heart of Bengaluru's business and entertainment hub.",
+    "venue_address1": "41/3, MG Road, Yellappa Garden,",
+    "venue_address2": "Yellappa Chetty Layout, Sivanchetti Gardens",
+    "venue_city": "Bangalore",
+    "venue_state": "Karnataka",
+    "venue_postcode": 560001,
+    "room": {
+      "title": "Banquet hall",
+      "description": "Taj Banquet hall",
+      "bgcolor": "6075B1"
+    }
+  }
+]

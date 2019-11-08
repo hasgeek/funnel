@@ -79,7 +79,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         return render_form(
             form=form,
             title=_("New venue"),
-            submit=_("Create"),
+            submit=_("Add venue"),
             cancel_url=self.obj.url_for('venues'),
             ajax=False,
         )
