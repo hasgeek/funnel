@@ -1363,6 +1363,7 @@ html.touch .collapsible__body--disable {
   .card--upcoming .card__body,
   .card--cfp .card__body {
     flex: 0 0 calc(100% - 250px);
+    width: calc(100% - 250px);
     padding: 0 0 0 15px;
   }
 }
@@ -1376,10 +1377,16 @@ html.touch .collapsible__body--disable {
   .card--upcoming .card__body,
   .card--cfp .card__body {
     flex: 0 0 calc(100% - 300px);
+    width: calc(100% - 300px);
   }
   .card--upcoming .card__body--cfp,
   .card--cfp .card__body--cfp {
     padding: 0 0 0 15px;
+  }
+  .card--upcoming .card__body--cfp .card--cfp__title,
+  .card--cfp .card__body--cfp .card--cfp__title {
+    max-height: calc(27px * 2);
+    overflow: hidden;
   }
   .card--upcoming .card__image-wrapper--cfp,
   .card--cfp .card__image-wrapper--cfp {

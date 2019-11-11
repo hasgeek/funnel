@@ -14,10 +14,5 @@ $(() => {
       $(projectElemClass).removeClass('mui--hide');
       $(this).addClass('mui--hide');
     });
-
-    // Truncate CFP cards tagline text
-    $('.cfp-truncate').succinct({
-      size: 125,
-    });
   };
 });
