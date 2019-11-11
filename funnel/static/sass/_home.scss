@@ -1,16 +1,16 @@
 .projects-wrapper {
-	padding: 30px 0;
+  padding: 30px 0;
 }
 
 .projects {
-	padding-top: 15px;
+  padding-top: 15px;
 }
 
 .chip--new {
-	background-color: #F6E2C5;
-	padding: 5px;
-	font-weight: bold;
-	text-transform: uppercase;
+  background-color: #f6e2c5;
+  padding: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .hg-banner {
@@ -29,7 +29,7 @@
   }
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
   .hg-banner {
     text-align: center;
 
@@ -68,7 +68,7 @@
 
 @media (min-width: 992px) {
   .funnel-banner {
-    border-bottom: 2px solid rgba(132,146,166,0.3);
+    border-bottom: 2px solid rgba(132, 146, 166, 0.3);
 
     .banner__headline {
       position: absolute;
@@ -92,37 +92,37 @@
   }
 }
 
-@media(min-width: 992px) {
+@media (min-width: 992px) {
   .upcoming {
     padding-left: 30px;
   }
 }
 
-@media(min-width: 768px) and (max-width: 991px) {
+@media (min-width: 768px) and (max-width: 991px) {
   .spotlight {
     margin-bottom: 15px;
 
     spotlight__headline {
       text-align: center;
     }
-    .spotlight__card {
+    .card--spotlight {
       margin: auto;
     }
   }
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
   .upcoming {
     padding-left: 45px;
   }
 }
 
-.funnel-notice .alert__text{
+.funnel-notice .alert__text {
   font-size: 24px;
   line-height: 32px;
 
   .funnel-notice-txt {
-    color: #F0A40C;
+    color: #f0a40c;
   }
 }
 
@@ -134,15 +134,15 @@
   .current-schedule__session {
     padding: 15px 15px 0;
     height: 100%;
-    border-bottom: 1px solid rgba(132,146,166,0.3);
+    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 
     .current-schedule__session__duration {
       position: -webkit-sticky;
       position: sticky;
       top: 40px;
-      color: #E05F26;
+      color: #e05f26;
       z-index: 4;
-      background-color: #F9FAFC;
+      background-color: #f9fafc;
       float: right;
       padding: 10px;
       border-radius: 3px;
@@ -155,13 +155,13 @@
   }
 }
 
-@media(max-width: 767px) {
+@media (max-width: 767px) {
   .spotlight-schedule-card {
     height: auto !important;
   }
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
   .spotlight-schedule-card {
     height: 531px;
     overflow: scroll;
