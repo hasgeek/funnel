@@ -1388,6 +1388,11 @@ html.touch .collapsible__body--disable {
     max-height: calc(27px * 2);
     overflow: hidden;
   }
+  .card--upcoming .card__body--cfp .card--cfp__tagline,
+  .card--cfp .card__body--cfp .card--cfp__tagline {
+    max-height: calc(24px * 4);
+    overflow: hidden;
+  }
   .card--upcoming .card__image-wrapper--cfp,
   .card--cfp .card__image-wrapper--cfp {
     height: 150px;
