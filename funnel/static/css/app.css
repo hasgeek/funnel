@@ -1221,6 +1221,10 @@ html.touch .collapsible__body--disable {
   margin-left: 5px;
 }
 
+.badge-print-status-btn .mui-form__fields.select2-inline {
+  min-width: 160px;
+}
+
 .clickable-card,
 .card-wrapper {
   color: #1f2d3d;
