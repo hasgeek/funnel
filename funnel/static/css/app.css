@@ -1963,6 +1963,7 @@ html.touch .collapsible__body--disable {
     float: right;
     width: calc(30% - 15px);
     margin-top: 30px;
+    margin-right: 15px;
   }
 }
 .proposal__section--bleed-y {
