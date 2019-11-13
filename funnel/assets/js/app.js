@@ -69,11 +69,4 @@ $(() => {
     const target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });
-
-  $('.jquery-show-all').click(function showAll(event) {
-    event.preventDefault();
-    const projectElemClass = `.${$(this).data('projects')}`;
-    $(projectElemClass).removeClass('mui--hide');
-    $(this).addClass('mui--hide');
-  });
 });
