@@ -488,7 +488,7 @@
   {% assets "js_jquerysuccinct" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  <script src="{{ url_for('static', filename=asset_path('home')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       window.HasGeek.HomeInit();

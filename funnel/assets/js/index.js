@@ -3,7 +3,7 @@ $(() => {
     // Adjust the height of schedule card to match spotlight card's height
     $(window).on('load', function() {
       if ($('.js-schedule-card')) {
-        $('.js-schedule-card').height($('.spotlight__card').height());
+        $('.js-schedule-card').height($('.card--spotlight').height());
       }
     });
 
