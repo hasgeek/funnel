@@ -46,6 +46,7 @@
     <div class="grid__col-xs-12 grid__col-md-9">
       <ul class="mui-list--inline">
         <li><a href={{ url_for('event_badges', profile=project.profile.name, project=project.name, name=event.name) }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Badges to be printed</a></li>
+         <li><a href={{ url_for('event_label_badges', profile=project.profile.name, project=project.name, name=event.name) }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Label badges to be printed</a></li>
         <li><a href={{ url_for('event_badges', profile=project.profile.name, project=project.name, name=event.name, badge_printed='t') }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="mui-form">
@@ -83,6 +84,9 @@
                   {{#if isAdmin || isConcierge}}
                   <li>
                     <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
+                  </li>
+                  <li>
+                    <a href="{{ getLabelBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show Label Badge</a>
                   </li>
                   {{/if}}
                   <li>
@@ -144,6 +148,7 @@
       isAdmin: {%- if project.current_roles.admin %} true {% else %} false {%- endif %},
       isConcierge: {%- if current_auth.permissions.checkin_event %} true {% else %} false {%- endif %},
       badgeUrl: "{{ url_for('participant_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
+      labelbadgeUrl: "{{ url_for('participant_label_badge', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       editUrl: "{{ url_for('participant_edit', profile=project.profile.name, project=project.name, participant_id='participant-id') }}",
       checkinUrl: "{{ url_for('event_checkin', profile=project.profile.name, project=project.name, name=event.name, participant_id='participant-id') }}",
       participantlistUrl: "{{ url_for('event_participants_json', profile=project.profile.name, project=project.name, name=event.name) }}",
