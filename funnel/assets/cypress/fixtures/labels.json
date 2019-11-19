@@ -1,0 +1,19 @@
+[
+  {
+    "title": "Section",
+    "label1": "Full talk",
+    "label2": "Crisp talk"
+  },
+  {
+    "title": "Technical level",
+    "label1": "Beginner",
+    "label2": "Advanced"
+  },
+  {
+    "title": "Review stage",
+    "label1": "Under review",
+    "label2": "Need more information",
+    "label3": "Waiting for review comments",
+    "adminLabel": true
+  }
+]

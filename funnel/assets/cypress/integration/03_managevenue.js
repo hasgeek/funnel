@@ -1,18 +1,19 @@
 describe('Project', function() {
-  const user = require('../../fixtures/user.json');
+  const admin = require('../fixtures/admin.json');
+  const project = require('../fixtures/project.json');
 
-  it('Publish project', function() {
+  it('Add venue', function() {
     cy.visit('/JSFoo/' + project.url)
       .get('#hgnav')
       .find('.header__button')
       .click();
     cy.get('#showmore').click();
     cy.get('.field-username')
-      .type(user.username)
-      .should('have.value', user.username);
+      .type(admin.username)
+      .should('have.value', admin.username);
     cy.get('.field-password')
-      .type(user.password)
-      .should('have.value', user.password);
+      .type(admin.password)
+      .should('have.value', admin.password);
     cy.get('.form-actions')
       .find('button')
       .click();
@@ -37,27 +38,35 @@ describe('Project', function() {
         cy.contains('Add venue').click();
         cy.wait(500);
       });
+
       cy.get('[data-cy="' + venues[1].venue_title + '"]').click();
       cy.get('[data-cy="set-primary-venue"]').click();
-      cy.get('[data-cy="' + venues[1].venue_title + '"]')
+      cy.get('[data-cy="' + venue.venue_title + '"]')
         .find('em')
         .contains('(primary)');
-      cy.get('.card[data-cy-venue="' + venues[1].venue_title + '"]')
-        .find('a')
-        .click();
-      cy.wait(500);
-      cy.get('#title').type(venues[1].room.title);
-      cy.get('#field-description')
-        .find('.CodeMirror textarea')
-        .type(venues[1].room.description, { force: true });
-      cy.get('#bgcolor')
-        .clear()
-        .type(venues[1].room.bgcolor);
-      cy.contains('Create').click();
-      cy.wait(500);
-      cy.get('.card[data-cy-venue="' + venues[1].venue_title + '"]')
-        .find('li')
-        .contains(venues[1].room.title);
+
+      venues.forEach(function(venue) {
+        cy.get('.card[data-cy-venue="' + venue.venue_title + '"]')
+          .find('a[data-cy="add-room"]')
+          .click();
+        cy.wait(500);
+        cy.get('#title').type(venue.room.title);
+        cy.get('#field-description')
+          .find('.CodeMirror textarea')
+          .type(venue.room.description, { force: true });
+        cy.get('#bgcolor')
+          .clear()
+          .type(venue.room.bgcolor);
+        cy.contains('Create').click();
+        cy.wait(500);
+        cy.get('.card[data-cy-venue="' + venue.venue_title + '"]')
+          .find('li')
+          .contains(venue.room.title);
+      });
+
+      venues.forEach(function(venue) {
+        cy.get('[data-cy-room="' + venue.room.title + '"]').should('exist');
+      });
     });
   });
 });

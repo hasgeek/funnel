@@ -31,7 +31,7 @@
       {% for proposal in proposals %}
         <tr id="{{ proposal.suuid }}">
           <td class='js-searchable'>
-            <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline">{{ proposal.title }}</a></h3>
+            <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
             <p class="speaker-details">
               {%- if proposal.speaker -%}
                 <span class="mui--text-subhead">{{ proposal.speaker.pickername }}</span>

@@ -251,7 +251,7 @@
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-lg-6 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">
               <div class="card card--cfp">
-                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">
+                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}">
                   <div class="card__image-wrapper__overlay"></div>
                   <p class="card__image-wrapper__text"><i class="material-icons mui--pull-left mui--text-display1" aria-hidden="true">mic</i> <span class="mui--text-menu mui--pull-left">CFP <br>{% trans %}Now open{% endtrans %}</span></p>
                   {% if project.bg_image.url %}

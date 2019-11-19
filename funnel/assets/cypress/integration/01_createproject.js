@@ -1,6 +1,6 @@
 describe('Project', function() {
-  const user = require('../../fixtures/user.json');
-  const project = require('../../fixtures/project.json');
+  const admin = require('../fixtures/admin.json');
+  const project = require('../fixtures/project.json');
 
   it('Create a new project', function() {
     cy.visit('/JSFoo/cypress')
@@ -9,16 +9,17 @@ describe('Project', function() {
       .click();
     cy.get('#showmore').click();
     cy.get('.field-username')
-      .type(user.username)
-      .should('have.value', user.username);
+      .type(admin.username)
+      .should('have.value', admin.username);
     cy.get('.field-password')
-      .type(user.password)
-      .should('have.value', user.password);
+      .type(admin.password)
+      .should('have.value', admin.password);
     cy.get('.form-actions')
       .find('button')
       .click();
 
     cy.get('a[data-cy="new-project"]').click();
+    cy.wait(1000);
 
     cy.get('#name').type(project.url);
     cy.get('#title').type(project.title);

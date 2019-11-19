@@ -1,9 +1,9 @@
 describe('Project', function() {
-  const user = require('../../fixtures/user.json');
-  const cfp = require('../../fixtures/cfp.json');
+  const user = require('../fixtures/user.json');
+  const project = require('../fixtures/project.json');
 
-  it('Publish project', function() {
-    cy.visit('/JSFoo/' + project.url)
+  it('RSVP', function() {
+    cy.visit('/')
       .get('#hgnav')
       .find('.header__button')
       .click();
@@ -18,7 +18,11 @@ describe('Project', function() {
       .find('button')
       .click();
 
-    cy.get('a[data-cy="add-cfp"]').click();
-    cy.wait(500);
+    cy.get('a[data-cy-project="' + project.title + '"]').click();
+    cy.wait(1000);
+    cy.get('#tickets')
+      .find('button[title="Going"]')
+      .click();
+    cy.get('[data-cy-rsvp="going"]').should('exist');
   });
 });

@@ -6,7 +6,12 @@
     "venue_address2": "Indiranagar HAL 2nd Stage",
     "venue_city": "Bangalore",
     "venue_state": "Karnataka",
-    "venue_postcode": 560008
+    "venue_postcode": 560008,
+    "room": {
+      "title": "Second floor room",
+      "description": "Second floor room",
+      "bgcolor": "F7B89E"
+    }
   },
   {
     "venue_title": "Taj M G Road",

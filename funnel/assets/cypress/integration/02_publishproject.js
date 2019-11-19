@@ -1,5 +1,5 @@
 describe('Project', function() {
-  const user = require('../../fixtures/user.json');
+  const admin = require('../fixtures/admin.json');
 
   it('Publish project', function() {
     cy.visit('/JSFoo')
@@ -8,11 +8,11 @@ describe('Project', function() {
       .click();
     cy.get('#showmore').click();
     cy.get('.field-username')
-      .type(user.username)
-      .should('have.value', user.username);
+      .type(admin.username)
+      .should('have.value', admin.username);
     cy.get('.field-password')
-      .type(user.password)
-      .should('have.value', user.password);
+      .type(admin.password)
+      .should('have.value', admin.password);
     cy.get('.form-actions')
       .find('button')
       .click();
@@ -20,7 +20,7 @@ describe('Project', function() {
     cy.get('[title="' + project.title + '"]')
       .first()
       .click();
-    cy.get('button[data-cy=publish]').click();
+    cy.get('button[data-cy-state=publish]').click();
 
     cy.wait(1000);
 
