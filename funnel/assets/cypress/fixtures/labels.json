@@ -15,5 +15,8 @@
     "label2": "Need more information",
     "label3": "Waiting for review comments",
     "adminLabel": true
+  },
+  {
+    "title": "Talk"
   }
 ]

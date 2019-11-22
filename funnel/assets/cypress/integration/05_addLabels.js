@@ -1,6 +1,7 @@
 describe('Project', function() {
   const admin = require('../fixtures/admin.json');
   const project = require('../fixtures/project.json');
+  const labels = require('../fixtures/labels.json');
 
   it('Add labels', function() {
     cy.login('/JSFoo/' + project.url, admin.username, admin.password);
@@ -21,59 +22,63 @@ describe('Project', function() {
         ).click();
         cy.get('.emojionearea-picker').should('be.hidden');
 
-        cy.get('#add-sublabel-form').click();
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(0)
-          .should('be.visible');
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(0)
-          .find('#title')
-          .type(label.label1);
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(0)
-          .find('.emojionearea-button')
-          .click();
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(0)
-          .find('.emojionearea-picker')
-          .should('be.visible');
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(0)
-          .find(
-            '.emojionearea-category[name="smileys_people"] i[title="Relaxed"]'
-          )
-          .click();
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(0)
-          .find('.emojionearea-picker')
-          .should('be.hidden');
+        if (label.label1) {
+          cy.get('#add-sublabel-form').click();
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(0)
+            .should('be.visible');
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(0)
+            .find('#title')
+            .type(label.label1);
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(0)
+            .find('.emojionearea-button')
+            .click();
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(0)
+            .find('.emojionearea-picker')
+            .should('be.visible');
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(0)
+            .find(
+              '.emojionearea-category[name="smileys_people"] i[title="Relaxed"]'
+            )
+            .click();
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(0)
+            .find('.emojionearea-picker')
+            .should('be.hidden');
+        }
 
-        cy.get('#add-sublabel-form').click();
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(1)
-          .should('be.visible');
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(1)
-          .find('#title')
-          .type(label.label2);
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(1)
-          .find('.emojionearea-button')
-          .click();
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(1)
-          .find('.emojionearea-picker')
-          .should('be.visible');
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(1)
-          .find(
-            '.emojionearea-category[name="smileys_people"] i[title="Smile"]'
-          )
-          .click();
-        cy.get('#child-form > .ui-dragable-box')
-          .eq(1)
-          .find('.emojionearea-picker')
-          .should('be.hidden');
+        if (label.label2) {
+          cy.get('#add-sublabel-form').click();
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(1)
+            .should('be.visible');
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(1)
+            .find('#title')
+            .type(label.label2);
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(1)
+            .find('.emojionearea-button')
+            .click();
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(1)
+            .find('.emojionearea-picker')
+            .should('be.visible');
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(1)
+            .find(
+              '.emojionearea-category[name="smileys_people"] i[title="Smile"]'
+            )
+            .click();
+          cy.get('#child-form > .ui-dragable-box')
+            .eq(1)
+            .find('.emojionearea-picker')
+            .should('be.hidden');
+        }
 
         if (label.adminLabel) {
           cy.get('#field-restricted')
@@ -84,5 +89,24 @@ describe('Project', function() {
         cy.location('pathname').should('contain', '/labels');
       });
     });
+
+    cy.get('.ui-dragable-box')
+      .eq(0)
+      .trigger('mouseover', { which: 1, force: true, view: window })
+      .trigger('mousedown', { which: 1, force: true, view: window })
+      .trigger('mousemove', {
+        pageX: 230,
+        pageY: 550,
+        force: true,
+        view: window,
+      })
+      .trigger('mouseup', { force: true, view: window });
+
+    cy.get('button[data-cy="save-label-seq"]').click();
+
+    cy.get('.ui-dragable-box')
+      .eq(0)
+      .find('.label-box__heading')
+      .contains(labels[1].title);
   });
 });

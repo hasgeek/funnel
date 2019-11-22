@@ -18,12 +18,19 @@ describe('Project', function() {
     cy.get('#label-dropdown label')
       .contains(labels[2].title)
       .click();
+    cy.get('#label-dropdown label')
+      .contains(labels[3].title)
+      .click();
     cy.get('#label-select').click();
     cy.get('button[name="add-label"]').click();
 
     cy.fixture('labels').then(labels => {
       labels.forEach(function(label) {
-        cy.get('.label').contains(label.title + ': ' + label.label1);
+        if (label.label1) {
+          cy.get('.label').contains(label.title + ': ' + label.label1);
+        } else {
+          cy.get('.label').contains(label.title);
+        }
       });
     });
     cy.get('[data-cy="proposal-status"]')
