@@ -5,59 +5,100 @@ describe('Project', function() {
   const project = require('../fixtures/project.json');
 
   it('Update schedule', function() {
-    cy.visit('/')
-      .get('#hgnav')
-      .find('.header__button')
-      .click();
-    cy.get('#showmore').click();
-    cy.get('.field-username')
-      .type(admin.username)
-      .should('have.value', admin.username);
-    cy.get('.field-password')
-      .type(admin.password)
-      .should('have.value', admin.password);
-    cy.get('.form-actions')
-      .find('button')
-      .click();
+    cy.server();
+    cy.route('**/sessions/new').as('add-session');
+    cy.login('/JSFoo/', admin.username, admin.password);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
-    cy.wait(1000);
+    cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="schedule"').click();
-    cy.wait(1000);
-    var today = Cypress.moment()
+    cy.location('pathname').should('contain', 'schedule');
+    var tomorrow = Cypress.moment()
       .add(1, 'days')
       .format('YYYY-MM-DD');
     cy.get('#select-date')
-      .type(today)
-      .trigger('change');
-    cy.contains('.fc-widget-header', '9am')
+      .type(tomorrow)
+      .click();
+    cy.get('.js-unscheduled').click();
+    cy.get('.fc-agenda-axis')
+      .contains(session.time)
       .next('.fc-widget-content')
       .click(5, 5);
+    cy.get('#popup').should('be.visible');
     cy.get('#title').type(session.title);
     cy.get('select#venue_room_id').select(session.room, { force: true });
+    cy.get('#field-speaker').type(session.speaker);
     cy.get('#field-banner_image_url').type(session.bg);
     cy.get('#field-is_break')
       .find('label')
       .click();
     cy.get('#session-save').click();
-    cy.wait(1000);
+    cy.wait('@add-session');
+
     cy.get('[data-cy="project-page"]').click();
     cy.get('button[data-cy-schedule=publish_schedule]').click();
-    cy.wait(1000);
     cy.get('[data-cy="schedule-state"]').contains('Upcoming');
 
     cy.get('.header__site-title__title')
       .find('a')
       .click();
-    cy.wait(1000);
     cy.get('.upcoming')
       .find('li.card--upcoming')
       .contains(project.title);
 
-    // cy.contains('.fc-widget-header', '9:10am').scrollIntoView();
+    // cy.get('.js-unscheduled').then(el => {
+    //   const draggable = el[0]; // Pick up this
+    //   console.log('draggable', draggable);
+    //   cy.get('.fc-slot120 .fc-widget-content').then(el => {
+    //     const droppable = el[0]; // Drop over this
+    //     console.log('droppable', droppable);
+
+    //     const coords = droppable.getBoundingClientRect();
+    //     console.log('coords', coords);
+    //     el.trigger('mousemove');
+    //     el.trigger('mousedown');
+    //     el.trigger('mousemove', { clientX: 10, clientY: 0 });
+    //     el.trigger('mousemove', {
+    //       clientX: 30,
+    //       clientY: 429,
+    //     });
+    //     el.trigger('mouseup');
+    //   });
+    // });
     // cy.get('.js-unscheduled')
-    //   .trigger('mousedown', { which: 1 })
-    //   .trigger('mousemove', { which: 1, pageX: 410, pageY: 130 })
-    //   .trigger('mouseup', { which: 1, force: true });
+    //   .trigger('mouseover', { which: 1, force: true, view: window })
+    //   .trigger('mousedown', { which: 1, force: true, view: window })
+    //   .trigger('mousemove', {
+    //     pageX: 230,
+    //     pageY: 429,
+    //     force: true,
+    //     view: window,
+    //   })
+    //   .trigger('mouseup', { force: true, view: window });
+    // const eventData = {
+    //   date: new Date(),
+    //   dateStr: new Date().toISOString(),
+    //   draggedEl: {
+    //     dataset: {
+    //       notificationId: '123',
+    //       priority: '0',
+    //       title: 'Test',
+    //     },
+    //   },
+    //   jsEvent: null,
+    //   resource: {
+    //     id: '123',
+    //   },
+    //   event: null,
+    //   oldEvent: null,
+    // };
+
+    // cy.get('.fc-slot120 td.fc-widget-content').scrollIntoView();
+
+    // cy.get('.js-unscheduled') // selector for the external event I want to drag in the calendar
+    //   .trigger('dragstart')
+    //   .get('.fc-slot120 td.fc-widget-content') // selector for where I want to drop the event.
+    //   .trigger('drop', eventData); // this will fire the eventDrop event
+    // cy.wait(1000);
   });
 });

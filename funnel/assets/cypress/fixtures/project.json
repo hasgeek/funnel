@@ -1,9 +1,9 @@
 {
-  "url": "cypress",
-  "title": "Cypress e2e testing workshop",
+  "url": "2034",
+  "title": "Javascript Kochi 2019",
   "location": "Bangalore",
-  "tagline": "JavaScript end to end testing",
+  "tagline": "On JavaScript and Security",
   "website": "https://hasgeek.com",
-  "description": "This tutorial will cover the fundamentals of End to end testing and setup and usage of of Cypress. ##Who should attend this workshop: 1. This tutorial is for developers with intermediate to advanced knowledge of JS. Any front-end or fullstack developer with JS familiarity should attend this workshop. ",
+  "description": "##About the conference:\nJSFoo is HasGeek's annual JavaScript conference. JSFoo is in its eighth edition this year.\nThe 2018 edition is single-track event with talks in auditorium 1 at the NIMHANS Convention Centre, and Birds of Feather (BOF) sessions in the hallway. Meta Refresh -- with talks on usability, user experience, design and UI engineering will be held in auditorium 2 at the NIMHANS Convention Centre.\n ##Theme: JavaScript and Security\nCore talks, held in the mornings, at JSFoo 2018 will be based on the theme 'JavaScript and Security'. Under this theme, we will cover the following topics:\n1. Security and front-end\n2. Backend, node.js and security\n3. Framework specific security concerns\n4. Authentication\n5. Security audits",
   "bg_image": "https://images.hasgeek.com/embed/file/10acd7709d8e45b598ea107ff29a985e"
 }

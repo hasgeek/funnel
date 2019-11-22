@@ -4,23 +4,11 @@ describe('Project', function() {
   const project = require('../fixtures/project.json');
 
   it('Add CFP', function() {
-    cy.visit('/JSFoo/')
-      .get('#hgnav')
-      .find('.header__button')
-      .click();
-    cy.get('#showmore').click();
-    cy.get('.field-username')
-      .type(admin.username)
-      .should('have.value', admin.username);
-    cy.get('.field-password')
-      .type(admin.password)
-      .should('have.value', admin.password);
-    cy.get('.form-actions')
-      .find('button')
-      .click();
+    cy.login('/JSFoo/' + project.url, admin.username, admin.password);
 
     cy.get('a[data-cy="add-cfp"]').click();
-    cy.wait(1000);
+    cy.location('pathname').should('contain', '/cfp');
+
     cy.get('#field-instructions')
       .find('.CodeMirror textarea')
       .type(cfp.instructions, { force: true });
@@ -33,11 +21,10 @@ describe('Project', function() {
     cy.get('#cfp_end_at-date').type(cfpEndDay);
     cy.get('#cfp_end_at-time').type(time);
     cy.get('button[data-cy="add-cfp"]').click();
-    cy.wait(1000);
+    cy.location('pathname').should('contain', project.url);
+
     cy.get('button[data-cy-cfp=open_cfp]').click();
-
-    cy.wait(1000);
-
+    cy.location('pathname').should('contain', project.url);
     cy.get('[data-cy="cfp-state"]').contains('Open');
   });
 });

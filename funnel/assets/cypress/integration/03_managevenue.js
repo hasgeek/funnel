@@ -3,29 +3,15 @@ describe('Project', function() {
   const project = require('../fixtures/project.json');
 
   it('Add venue', function() {
-    cy.visit('/JSFoo/' + project.url)
-      .get('#hgnav')
-      .find('.header__button')
-      .click();
-    cy.get('#showmore').click();
-    cy.get('.field-username')
-      .type(admin.username)
-      .should('have.value', admin.username);
-    cy.get('.field-password')
-      .type(admin.password)
-      .should('have.value', admin.password);
-    cy.get('.form-actions')
-      .find('button')
-      .click();
+    cy.login('/JSFoo/' + project.url, admin.username, admin.password);
 
     cy.get('a[data-cy="manage-venues"]').click();
-    cy.wait(500);
+    cy.location('pathname').should('contain', '/venues');
 
     cy.fixture('venues').then(venues => {
       venues.forEach(function(venue) {
         cy.get('a[data-cy="new-venue"]').click();
-        cy.wait(500);
-        console.log('venue', venue);
+        cy.location('pathname').should('contain', '/new');
         cy.get('#title').type(venue.venue_title);
         cy.get('#field-description')
           .find('.CodeMirror textarea')
@@ -35,13 +21,18 @@ describe('Project', function() {
         cy.get('#city').type(venue.venue_city);
         cy.get('#state').type(venue.venue_state);
         cy.get('#postcode').type(venue.venue_postcode);
-        cy.contains('Add venue').click();
-        cy.wait(500);
+        cy.get('button')
+          .contains('Add venue')
+          .click();
+        cy.location('pathname').should(
+          'include',
+          '/JSFoo/' + project.url + '/venues'
+        );
       });
 
       cy.get('[data-cy="' + venues[1].venue_title + '"]').click();
       cy.get('[data-cy="set-primary-venue"]').click();
-      cy.get('[data-cy="' + venue.venue_title + '"]')
+      cy.get('[data-cy="' + venues[1].venue_title + '"]')
         .find('em')
         .contains('(primary)');
 
@@ -49,7 +40,7 @@ describe('Project', function() {
         cy.get('.card[data-cy-venue="' + venue.venue_title + '"]')
           .find('a[data-cy="add-room"]')
           .click();
-        cy.wait(500);
+        cy.location('pathname').should('contain', '/new');
         cy.get('#title').type(venue.room.title);
         cy.get('#field-description')
           .find('.CodeMirror textarea')
@@ -57,8 +48,13 @@ describe('Project', function() {
         cy.get('#bgcolor')
           .clear()
           .type(venue.room.bgcolor);
-        cy.contains('Create').click();
-        cy.wait(500);
+        cy.get('button')
+          .contains('Create')
+          .click();
+        cy.location('pathname').should(
+          'include',
+          '/JSFoo/' + project.url + '/venues'
+        );
         cy.get('.card[data-cy-venue="' + venue.venue_title + '"]')
           .find('li')
           .contains(venue.room.title);

@@ -3,23 +3,10 @@ describe('Project', function() {
   const project = require('../fixtures/project.json');
 
   it('Create a new project', function() {
-    cy.visit('/JSFoo/cypress')
-      .get('#hgnav')
-      .find('.header__button')
-      .click();
-    cy.get('#showmore').click();
-    cy.get('.field-username')
-      .type(admin.username)
-      .should('have.value', admin.username);
-    cy.get('.field-password')
-      .type(admin.password)
-      .should('have.value', admin.password);
-    cy.get('.form-actions')
-      .find('button')
-      .click();
+    cy.login('/JSFoo', admin.username, admin.password);
 
     cy.get('a[data-cy="new-project"]').click();
-    cy.wait(1000);
+    cy.location('pathname').should('contain', '/new');
 
     cy.get('#name').type(project.url);
     cy.get('#title').type(project.title);
@@ -31,9 +18,10 @@ describe('Project', function() {
       .type(project.description, { force: true });
     cy.get('#bg_image').type(project.bg_image);
     cy.get('#allow_rsvp').click();
-    cy.contains('Create project').click();
-
-    cy.wait(1000);
+    cy.get('button')
+      .contains('Create project')
+      .click();
+    cy.location('pathname').should('contain', project.url);
 
     cy.title().should('include', project.title);
     cy.get('img[data-cy="bg_image"]').should(

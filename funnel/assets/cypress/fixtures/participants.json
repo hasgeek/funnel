@@ -1,0 +1,26 @@
+[
+  {
+    "fullname": "Alpha Bravo",
+    "email": "alpha@test.com",
+    "phone": "9102345679",
+    "company": "Tango",
+    "twitter": "alpha_bravo",
+    "event": "Day 1"
+  },
+  {
+    "fullname": "Charlie Delta",
+    "email": "bravo@test.com",
+    "phone": "9102345679",
+    "company": "Sierra",
+    "twitter": "bravo123",
+    "event": "Day 1"
+  },
+  {
+    "fullname": "Echo Foxtrot",
+    "email": "charlie@test.com",
+    "phone": "9102345679",
+    "company": "Zulu",
+    "twitter": "delta",
+    "event": "Workshop"
+  }
+]

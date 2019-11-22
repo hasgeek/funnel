@@ -5,25 +5,14 @@ describe('Project', function() {
   const labels = require('../fixtures/labels.json');
 
   it('Add proposal', function() {
-    cy.visit('/')
-      .get('#hgnav')
-      .find('.header__button')
-      .click();
-    cy.get('#showmore').click();
-    cy.get('.field-username')
-      .type(user.username)
-      .should('have.value', user.username);
-    cy.get('.field-password')
-      .type(user.password)
-      .should('have.value', user.password);
-    cy.get('.form-actions')
-      .find('button')
-      .click();
+    cy.login('/JSFoo/', user.username, user.password);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
-    cy.wait(1000);
+    cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="proposals"]').click();
+    cy.location('pathname').should('contain', 'proposals');
     cy.get('a[data-cy="propose-a-session"]').click();
+    cy.location('pathname').should('contain', 'new');
 
     cy.get('#speaking label')
       .eq(0)
@@ -54,10 +43,14 @@ describe('Project', function() {
       .find('input')
       .eq(0)
       .click();
-    cy.contains('Submit proposal').click();
-    cy.wait(1000);
+    cy.get('button')
+      .contains('Submit proposal')
+      .click();
+    cy.location('pathname').should('contain', 'proposals');
 
-    cy.get('.proposal__section__headline').contains(proposal.title);
+    cy.get('.proposal__section__headline')
+      .should('exist')
+      .contains(proposal.title);
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
   });
