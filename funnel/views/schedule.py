@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from time import mktime
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -10,6 +10,7 @@ from flask import Response, current_app, json, jsonify, request
 
 from icalendar import Alarm, Calendar, Event
 
+from baseframe import localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -36,11 +37,17 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         {
             'id': session.url_id,
             'title': session.title,
-            # `start` and `end` are legacy
-            'start': session.start_at.isoformat() if session.scheduled else None,
-            'end': session.end_at.isoformat() if session.scheduled else None,
-            'start_at': session.start_at.isoformat() if session.scheduled else None,
-            'end_at': session.end_at.isoformat() if session.scheduled else None,
+            'start_at': (
+                localize_timezone(session.start_at, tz=session.project.timezone)
+                if session.scheduled
+                else None
+            ),
+            'end_at': (
+                localize_timezone(session.end_at, tz=session.project.timezone)
+                if session.scheduled
+                else None
+            ),
+            'timezone': session.project.timezone.zone,
             'speaker': session.speaker if session.speaker else None,
             'room_scoped_name': (
                 session.venue_room.scoped_name if session.venue_room else None
@@ -49,8 +56,24 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
             'url_name_suuid': session.url_name_suuid,
             'url_name': session.url_name,
             'proposal_id': session.proposal_id,
-            'speaker_bio': session.speaker_bio,
             'description': session.description,
+            'speaker_bio': session.speaker_bio,
+            'url': session.url_for(_external=True),
+            'json_url': (
+                session.proposal.url_for('json', _external=True)
+                if session.proposal
+                else None
+            ),
+            'proposal_url': (
+                session.proposal.url_for(_external=True) if session.proposal else None
+            ),
+            'proposal': session.proposal.suuid if session.proposal else None,
+            'feedback_url': (
+                session.url_for('feedback', _external=True)
+                if session.proposal
+                else None
+            ),
+            'room': (session.venue_room.scoped_name if session.venue_room else None),
         }.items()
         + dict(
             {'modal_url': session.url_for(with_modal_url)} if with_modal_url else {}
@@ -73,50 +96,38 @@ def date_js(d):
     return mktime(d.timetuple()) * 1000
 
 
-def schedule_data(project):
+def schedule_data(project, with_slots=True, scheduled_sessions=None):
+    scheduled_sessions = scheduled_sessions or session_list_data(
+        project.scheduled_sessions
+    )
     data = defaultdict(lambda: defaultdict(list))
-    for session in project.scheduled_sessions:
-        day = str(localize_date(session.start_at, to_tz=project.timezone).date())
-        slot = localize_date(session.start_at, to_tz=project.timezone).strftime('%H:%M')
-        data[day][slot].append(
-            {
-                'id': session.url_id,
-                'title': session.title,
-                'start_at': session.start_at.isoformat(),
-                'end_at': session.end_at.isoformat(),
-                'url': session.url_for(_external=True),
-                'json_url': (
-                    session.proposal.url_for('json', _external=True)
-                    if session.proposal
-                    else None
-                ),
-                'proposal_url': (
-                    session.proposal.url_for(_external=True)
-                    if session.proposal
-                    else None
-                ),
-                'proposal': session.proposal.suuid if session.proposal else None,
-                'feedback_url': (
-                    session.url_for('feedback', _external=True)
-                    if session.proposal
-                    else None
-                ),
-                'speaker': session.speaker,
-                'room': session.venue_room.scoped_name if session.venue_room else None,
-                'is_break': session.is_break,
-                'description_text': session.description_text,
-                'description': session.description,
-                'speaker_bio': session.speaker_bio,
-                'speaker_bio_text': session.speaker_bio_text,
-            }
-        )
+    start_end_datetime = defaultdict(dict)
+    for session in scheduled_sessions:
+        day = str(session['start_at'].date())
+        # calculate the start and end time for the day
+        if 'start_at' not in start_end_datetime[day]:
+            start_end_datetime[day]['start_at'] = session['start_at']
+        if (
+            'end_at' not in start_end_datetime[day]
+            or session['end_at'] > start_end_datetime[day]['end_at']
+        ):
+            start_end_datetime[day]['end_at'] = session['end_at']
+
+        if with_slots:
+            slot = session['start_at'].strftime('%H:%M')
+            session['start_at'] = session['start_at'].isoformat()
+            session['end_at'] = session['end_at'].isoformat()
+            data[day][slot].append(session)
+        else:
+            data[day] = {}
     schedule = []
     for day in sorted(data):
         daydata = {'date': day, 'slots': []}
+        daydata['start_at'] = start_end_datetime[day]['start_at'].isoformat()
+        daydata['end_at'] = start_end_datetime[day]['end_at'].isoformat()
         for slot in sorted(data[day]):
             daydata['slots'].append({'slot': slot, 'sessions': data[day][slot]})
         schedule.append(daydata)
-
     return schedule
 
 
@@ -176,19 +187,47 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
+        scheduled_sessions_list = session_list_data(
+            self.obj.scheduled_sessions, with_modal_url='view_popup'
+        )
+        rooms_list = {
+            room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
+            for room in self.obj.rooms
+        }
         return {
             'project': self.obj,
-            'from_date': date_js(self.obj.schedule_start_at),
-            'to_date': date_js(self.obj.schedule_end_at),
-            'sessions': session_list_data(
-                self.obj.scheduled_sessions, with_modal_url='view_popup'
+            'from_date': (
+                localize_timezone(
+                    self.obj.schedule_start_at, tz=self.obj.timezone
+                ).isoformat()
+                if self.obj.schedule_start_at
+                else None
             ),
-            'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'to_date': (
+                localize_timezone(
+                    self.obj.schedule_end_at, tz=self.obj.timezone
+                ).isoformat()
+                if self.obj.schedule_start_at
+                else None
+            ),
+            'sessions': scheduled_sessions_list,
+            'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
-            'rooms': {
-                room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
-                for room in self.obj.rooms
-            },
+            'rooms': (
+                rooms_list
+                if len(rooms_list) > 0
+                else {
+                    self.obj.primary_venue.name: {
+                        'title': self.obj.primary_venue.title,
+                        'bgcolor': u"CCCCCC",
+                    }
+                }
+                if self.obj.primary_venue is not None
+                else []
+            ),
+            'schedule': schedule_data(
+                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
+            ),
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
         }
@@ -203,8 +242,11 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @cors('*')
     @requires_permission('view')
     def schedule_json(self):
+        scheduled_sessions_list = session_list_data(self.obj.scheduled_sessions)
         return jsonp(
-            schedule=schedule_data(self.obj),
+            schedule=schedule_data(
+                self.obj, with_slots=True, scheduled_sessions=scheduled_sessions_list
+            ),
             venues=[venue.current_access() for venue in self.obj.venues],
             rooms=[room_data(room) for room in self.obj.rooms],
         )
@@ -249,9 +291,21 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'proposals': proposals,
-            'from_date': date_js(self.obj.schedule_start_at),
-            'to_date': date_js(self.obj.schedule_end_at),
-            'timezone': self.obj.timezone.utcoffset(datetime.now()).total_seconds(),
+            'from_date': (
+                localize_timezone(
+                    self.obj.schedule_start_at, tz=self.obj.timezone
+                ).isoformat()
+                if self.obj.schedule_start_at
+                else None
+            ),
+            'to_date': (
+                localize_timezone(
+                    self.obj.schedule_end_at, tz=self.obj.timezone
+                ).isoformat()
+                if self.obj.schedule_start_at
+                else None
+            ),
+            'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
             'rooms': {
                 room.scoped_name: {

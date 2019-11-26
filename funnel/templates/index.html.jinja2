@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{% if profile %}{{ profile.description.html }}{% else %}{% trans %}HasGeek creates discussion spaces for geeks. Meet like-minded people, learn new things and discover new opportunities.{% endtrans %}{% endif %}{% endblock %}
+{% block description %}{% if profile %}{{ profile.description.html|firstline }}{% else %}{% trans %}HasGeek creates discussion spaces for geeks. Meet like-minded people, learn new things and discover new opportunities.{% endtrans %}{% endif %}{% endblock %}
 
 {%- block pageheaders %}
 <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
@@ -69,7 +69,7 @@
         <div class="grid__col-xs-12 {% if current_sessions %}grid__col-sm-6{% endif %} grid__col-md-4 grid__col-lg-5 spotlight">
           <h2 class="mui--text-title mui--text-light mui--text-uppercase spotlight__headline">{% trans %}Spotlight{% endtrans %}</h2>
           <div class="grid__cell">
-            <a class="card clickable-card spotlight__card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
+            <a class="card clickable-card card--spotlight" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
                   <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
@@ -126,8 +126,8 @@
                 {% endif %}
               </div>
               <div class="card__title">
-                <h3 class="mui--text-display1 zero-top-margin zero-bottom-margin">{{ featured_project.title }}</h3>
-                {% if featured_project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#map-marker-alt"></use></svg> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
+                <h3 class="mui--text-display1 zero-top-margin">{{ featured_project.title }}</h3>
+                {% if featured_project.primary_venue %}<p class="mui--text-body1 zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#map-marker-alt"></use></svg> {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
               </div>
               {% if featured_project.tagline %}
                 <div class="card__body">
@@ -267,9 +267,9 @@
                   {% endif %}
                 </a>
                 <div class="card__body card__body--cfp">
-                  <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
+                  <h3 class="card--cfp__title mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}">{{ project.title }}</a></h3>
                   {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
-                  <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
+                  <p class="mui--text-subhead mui--text-light zero-top-margin card--cfp__tagline">{{ project.tagline }}</p>
                 </div>
               </div>
             </li>
@@ -485,14 +485,13 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% assets "js_jquerysuccinct" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      // Set the spotlight calendar to the height of card
-      $(window).on('load', function() {
-        if($('.js-schedule-card')) {
-          $('.js-schedule-card').height($('.spotlight__card').height());
-        }
-      });
+      window.HasGeek.HomeInit();
     });
   </script>
 {% endblock %}

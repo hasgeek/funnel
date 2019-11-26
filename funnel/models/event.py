@@ -334,6 +334,12 @@ class TicketClient(BaseMixin, db.Model):
                 # Ensure that the new or updated participant has access to events
                 ticket.participant.add_events(ticket_type.events)
 
+    def permissions(self, user, inherited=None):
+        perms = super(TicketClient, self).permissions(user, inherited)
+        if self.project is not None:
+            return self.project.permissions(user) | perms
+        return perms
+
 
 class SyncTicket(BaseMixin, db.Model):
     """ Model for a ticket that was bought elsewhere. Eg: Explara."""

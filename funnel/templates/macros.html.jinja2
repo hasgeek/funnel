@@ -1,15 +1,4 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
-{% macro rsvpform(project, form) %}{% with counts=project.rsvp_counts() %}
-  <form id="rsvp-form" action="{{ project.url_for('rsvp') }}" method="POST">
-    {{ form.hidden_tag() }}
-    <p class="no-jshidden">
-      {%- for value, class_, title in [('Y', 'primary', "Going"), ('M', 'accent', "Maybe"), ('N', 'dark', "Not going")] %}
-        <button type="submit" name="status" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--{{ class_ }}" data-action="{{ title }}">{{ title }} {%- if counts[value] %}&nbsp;<span class="badge">{{ counts[value] }}</span>{% endif %}{%- if form.status.data == value %}&nbsp;<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#check"></use></svg>{% endif %}</button>
-      {%- endfor %}
-      &nbsp;<span class="loading mui--hide"></span>
-    </p>
-  </form>
-{% endwith %}{% endmacro %}
 
 {% macro saveprojectform(project, form) %}
   <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
@@ -121,7 +110,7 @@
         {%- if project.primary_venue %}
           <div class="date-wrapper">
             <div class="date-wrapper__details">
-              <p class="mui--text-title mui--text-light zero-bottom-margin"><svg class="fa5-icon fa5-title" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#map-marker-alt"></use></svg> {{ project.primary_venue.title }}</span>, <span class="mui--text-title">{{ project.primary_venue.city }}</span></p>
+              <p class="mui--text-light zero-bottom-margin"><svg class="fa5-icon fa5-title" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#map-marker-alt"></use></svg> <span class="mui--text-title">{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span class="mui--text-title">{{ project.primary_venue.city }}</span>{%- endif %}</p>
             </div>
           </div>
         {%- endif %}
@@ -156,7 +145,7 @@
 {% endmacro %}
 
 {% macro admin_panel(project, transition_form=none, schedule_transition_form=none, cfp_transition_form=none) %}
-  <div>
+  <div class="admin_panel">
     <div class="card">
       <div class="card__header">
         <h3 class="mui--text-title mui--text-uppercase mui--text-bold">{% trans %}Admin panel{% endtrans %}</h3>

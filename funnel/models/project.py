@@ -631,7 +631,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         else:
             basequery = Proposal.query.filter_by(project=self)
         return Proposal.state.group(
-            basequery.filter(~(Proposal.state.DRAFT)).order_by(db.desc('created_at'))
+            basequery.filter(
+                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
+            ).order_by(db.desc('created_at'))
         )
 
     @property
@@ -649,7 +651,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             .order_by(db.desc('created_at'))
             .all(),
             'unconfirmed': basequery.filter(
-                ~(Proposal.state.CONFIRMED), ~(Proposal.state.DRAFT)
+                ~(Proposal.state.CONFIRMED),
+                ~(Proposal.state.DRAFT),
+                ~(Proposal.state.DELETED),
             )
             .order_by(db.desc('created_at'))
             .all(),
@@ -687,13 +691,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'edit-session',
                         'new-event',
                         'new-ticket-type',
-                        'new-ticket-client',
-                        'edit-ticket-client',
-                        'edit-event',
+                        'new_ticket_client',
+                        'edit_ticket_client',
+                        'edit_event',
                         'admin',
                         'checkin_event',
                         'view-event',
-                        'view-ticket-type',
+                        'view_ticket_type',
                         'edit-participant',
                         'view-participant',
                         'new-participant',
@@ -712,7 +716,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'new-session',
                         'edit-session',
                         'view-event',
-                        'view-ticket-type',
+                        'view_ticket_type',
                         'edit-participant',
                         'view-participant',
                         'new-participant',
