@@ -2,5 +2,7 @@
 set -e
 export PYTHONIOENCODING="UTF-8"
 export FLASK_ENV="TESTING"
-coverage run -m pytest "$@"
-coverage report -m
+# coverage run -m pytest "$@"
+# coverage report -m
+python -m funnel.assets.cypress.initdb
+# run cypress tests
