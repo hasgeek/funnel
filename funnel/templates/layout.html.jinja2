@@ -77,27 +77,19 @@
         <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
         {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline search-form__field__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %}
         <input type="text" name="type" value="project" hidden>
-        <button type="submit" class="search-form__submit">
+        <button type="submit" class="search-form__submit"></button>
       </form>
+      <a href="javascript:void(0)" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links-active{% endif %}" aria-label="Search">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %}<span class="header__nav-links__text">Search</span></a>
+      <a href="/account" class="header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links-active{% endif %}" aria-label="Account">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user-circle"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span>
+      </a>
+      </ul>
     {%- endif %}
   {% endmacro %}
 
   {%- if config['LEGACY'] -%}
-      {{ hgtopnav(site_title=site_title()) }}
+    {{ hgtopnav(site_title=site_title()) }}
   {%- else %}
-    {% with site_links=[] %}
-      {% if not current_auth.is_anonymous -%}
-        {% set site_links = [
-          {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
-          {'title': 'Account', 'icon': 'account_circle', 'url': url_for('account'), 'name' :'account'}
-          ]%}
-      {%- else %}
-        {% set site_links = [
-           {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
-          {'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'},] %}
-      {%- endif %}
-      {{ hgtopnav(site_title=site_title(), site_links=site_links, auth=false, network=false) }}
-    {% endwith %}
+    {{ hgtopnav(site_title=site_title(), site_links=(), auth=false, network=false) }}
   {%- endif %}
 {%- endblock %}
 

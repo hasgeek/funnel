@@ -313,17 +313,31 @@ a.mui-btn {
 }
 .hg-app .header--fixed .header__nav .header__site-title {
   padding: 0;
-  width: 47px;
-  padding-right: calc(calc(100% - 127px) / 3);
+  width: 100%;
 }
 .hg-app
   .header--fixed
   .header__nav
   .header__site-title
+  .header__site-title__title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
   .header__site-title__logo {
   height: 35px;
 }
-.hg-app .header--fixed .header__nav .header__site-title .search-form {
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .search-form {
   position: fixed;
   bottom: 50px;
   width: 100%;
@@ -336,6 +350,7 @@ a.mui-btn {
   .header--fixed
   .header__nav
   .header__site-title
+  .header__site-title__title
   .search-form
   .search-form__field {
   background-color: #eff2f6;
@@ -349,65 +364,42 @@ a.mui-btn {
   .header--fixed
   .header__nav
   .header__site-title
+  .header__site-title__title
   .search-form
   .search-form__field__icon {
   position: absolute;
-  top: 15px;
+  top: 17px;
   left: 15px;
 }
 .hg-app
   .header--fixed
   .header__nav
   .header__site-title
+  .header__site-title__title
   .search-form
   .search-form__submit {
   visibility: hidden;
 }
-.hg-app .header--fixed .header__nav .header__site-title .search-form--show {
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .search-form--show {
   display: inline-block;
 }
-.hg-app .header--fixed .header__nav .header__right-nav {
-  width: 66.67%;
-  padding: 0;
-  padding-left: calc(calc(calc(100% - 127px) / 3) / 2);
-}
-.hg-app .header--fixed .header__nav .header__right-nav .header__nav-list {
-  justify-content: space-between;
-}
 .hg-app
   .header--fixed
   .header__nav
-  .header__right-nav
-  .header__nav-list
-  .header__nav-list__item
+  .header__site-title
+  .header__site-title__title
   .header__nav-links
   .header__nav-links__icon {
-  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__right-nav
-  .header__nav-list
-  .header__nav-list__item
-  .header__button {
-  color: #fff;
-  line-height: 30.6px;
-  margin: 0;
-}
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__right-nav
-  .header__nav-list
-  .header__nav-list__item
-  .header__button
-  .header__nav-links__text {
-  height: 30.6px;
-  line-height: 30.6px;
-  padding: 0;
-  font-size: 13px;
-  margin-left: 0 !important;
+.hg-app .header--fixed .header__nav .header__right-nav {
+  display: none;
 }
 .hg-app .content-wrapper {
   padding-top: 0;
@@ -428,7 +420,7 @@ a.mui-btn {
     top: 0;
   }
   .hg-app .header--fixed .header__nav .header__site-title {
-    width: 70%;
+    width: 100%;
     margin-right: 0;
     padding-right: 0;
   }
@@ -451,6 +443,14 @@ a.mui-btn {
     margin-right: 15px;
     position: relative;
     top: -2px;
+  }
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .header__nav-links--search {
+    display: none;
   }
   .hg-app
     .header--fixed
@@ -484,79 +484,27 @@ a.mui-btn {
     top: 9px;
     left: 8px;
   }
-  .hg-app .header--fixed .header__nav .header__site-title--smaller {
-    width: 67%;
-  }
-  .hg-app .header--fixed .header__nav .header__right-nav {
-    width: 250px;
-    padding-left: 0;
-  }
-  .hg-app .header--fixed .header__nav .header__right-nav .header__nav-list {
-    justify-content: flex-end;
-  }
   .hg-app
     .header--fixed
     .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item:first-child {
-    display: none;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
+    .header__site-title
+    .header__site-title__title
     .header__nav-links
     .header__nav-links__icon {
-    display: inline;
-    font-size: 20px;
-    top: -2px;
+    width: 20px;
+    height: 20px;
+    vertical-align: text-bottom;
   }
   .hg-app
     .header--fixed
     .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
+    .header__site-title
+    .header__site-title__title
     .header__nav-links
     .header__nav-links__text {
-    display: inline;
-    font-size: 18px;
+    display: inline-block;
     margin-left: 8px;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
-    .header__button {
-    color: #fff;
-    line-height: 30.6px;
-    margin: 0;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
-    .header__button
-    .header__nav-links__text {
-    height: 30.6px;
-    line-height: 30.6px;
-    padding: 0;
-    font-size: 13px;
-    margin-left: 0 !important;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav--larger
-    .header__nav-list {
-    justify-content: flex-end;
+    font-size: 18px;
   }
   .hg-app .content-wrapper {
     padding-top: 50px;
@@ -589,28 +537,17 @@ a.mui-btn {
     .header__nav
     .header__site-title
     .header__site-title__title
+    .header__nav-links
+    .header__nav-links__icon {
+    vertical-align: text-top;
+  }
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
     .search-form {
     bottom: 35px;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
-    .header__nav-list__item__text {
-    display: inline-block;
-    margin-left: 8px;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
-    .header__button {
-    line-height: 25px;
-    height: 25px;
   }
 }
 @media (min-device-width: 768px) and (max-device-width: 1199px) and (orientation: landscape) {
@@ -644,26 +581,6 @@ a.mui-btn {
     .search-form__field__icon {
     top: 6px;
     left: 8px;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
-    .header__nav-links
-    .header__nav-links__icon {
-    font-size: 18px;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__right-nav
-    .header__nav-list
-    .header__nav-list__item
-    .header__nav-links
-    .header__nav-links__text {
-    font-size: 16px;
   }
   .hg-app .content-wrapper {
     padding-top: 35px;

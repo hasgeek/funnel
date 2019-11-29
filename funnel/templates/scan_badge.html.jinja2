@@ -71,14 +71,14 @@
   <script type="text/javascript">
     $(function() {
 
-      var eventConfig = {};
-      eventConfig.checkinApiUrl = "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}"
-
-      eventConfig.wrapperId = 'scan-badge-wrapper';
-      eventConfig.templateId = 'scan-badge-template';
-      eventConfig.projectTitle = {{ project.title|tojson }};
-      eventConfig.eventTitle = {{ event.title|tojson }};
-
+      var eventConfig = {
+        checkinApiUrl: "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }},
+        wrapperId: 'scan-badge-wrapper',
+        templateId: 'scan-badge-template',
+        projectTitle:  {{ project.title|tojson }},
+        eventTitle: {{ event.title|tojson }},
+        svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %},
+      };
       window.HasGeek.BadgeScanInit(eventConfig);
 
     });

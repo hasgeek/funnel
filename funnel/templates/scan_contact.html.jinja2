@@ -118,12 +118,12 @@
   <script type="text/javascript">
     $(function() {
 
-      var scanConfig = {};
-      scanConfig.getContactApiUrl = "{{ url_for('scan_connect') }}"
-
-      scanConfig.wrapperId = 'scan-badge-wrapper';
-      scanConfig.templateId = 'scan-badge-template';
-
+      var scanConfig = {
+        getContactApiUrl = "{{ url_for('scan_connect') }}",
+        wrapperId = 'scan-badge-wrapper',
+        templateId = 'scan-badge-template',
+        svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %},
+      };
       window.HasGeek.BadgeScanInit(scanConfig);
     });
   </script>
