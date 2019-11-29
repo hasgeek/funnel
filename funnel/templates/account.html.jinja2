@@ -18,12 +18,12 @@
       <div class="grid">
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-left"></use></svg>
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
             </a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Profile{% endtrans %}</p>
             <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
             <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">{% trans %}Contacts{% endtrans %}</a>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-right"></use></svg>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
             </a>
           </div>
         </div>
@@ -41,20 +41,20 @@
           </div>
           <div class="card__body card__body--lgtext">
             <p class="mui--text-subhead">
-              <svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
-                <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#user"></use>
-              </svg>&nbsp;&nbsp;{{ user.username }}
+              {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
+                <use xlink:href="{{ ASSET_URL }}#user"></use>
+              </svg>{% endassets %}&nbsp;&nbsp;{{ user.username }}
             </p>
             <p class="mui--text-subhead">
-              <svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
-                <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#envelope"></use>
-              </svg>&nbsp;&nbsp;{{ user.email }}
+              {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
+                <use xlink:href="{{ ASSET_URL }}#envelope"></use>
+              </svg>{% endassets %}&nbsp;&nbsp;{{ user.email }}
             </p>
             {% if user.phone %}
               <p class="mui--text-subhead">
-                <svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
-                  <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#phone-alt"></use>
-                </svg>&nbsp;&nbsp;{{ user.phone }}
+                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img">
+                  <use xlink:href="{{ ASSET_URL }}#phone-alt"></use>
+                </svg>{% endassets %}&nbsp;&nbsp;{{ user.phone }}
               </p>
             {% endif %}
           </div>

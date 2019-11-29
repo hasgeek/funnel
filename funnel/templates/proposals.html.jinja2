@@ -17,7 +17,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#long-arrow-left"></use></svg></a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -40,7 +40,7 @@
                 {%- endif %}
                 {%- if g.user and current_auth.permissions.edit_project %}
                   {%- if proposal.has_outstation_speaker %}
-                    <svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#plane"></use></svg>
+                    {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plane"></use></svg>{% endassets %}
                     <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>
                   {%- endif %}
                 {%- endif %}
@@ -56,12 +56,12 @@
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
               {% if proposal.preview_video.url %}
                 <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
-                  <svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#video"></use></svg>
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}
                 </li>
               {% endif %}
               {% if proposal.slides.url %}
                 <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" aria-label="{% trans %}This proposal has slides{% endtrans %}">
-                  <svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#presentation"></use></svg>
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %}
                 </li>
               {% endif %}
             </ul>
@@ -118,7 +118,7 @@
               </div>
               {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
                 <div class="collapsible">
-                  <p class="mui--text-subhead collapsible__header proposal-list-header" aria-expanded="false" aria-controls="collapse-{{state.label.title}}">{{ state.label.title }} {% trans %}proposals{% endtrans %} <svg class="fa5-icon fa5-icon--title fa5--align-baseline collapsible__icon mui--pull-right" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#angle-down"></use></svg><svg class="fa5-icon fa5-icon--title fa5--align-baseline collapsible__icon mui--hide mui--pull-right" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#angle-up"></use></svg></p>
+                  <p class="mui--text-subhead collapsible__header proposal-list-header" aria-expanded="false" aria-controls="collapse-{{state.label.title}}">{{ state.label.title }} {% trans %}proposals{% endtrans %} {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline collapsible__icon mui--pull-right" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline collapsible__icon mui--hide mui--pull-right" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-up"></use></svg>{% endassets %}</p>
                   <div class="collapsible__body" id="collapse-{{state.label.title}}">{{ proposal_list(project, proposal_group) }}</div>
                 </div>
               {%- endfor -%}

@@ -18,12 +18,12 @@
       <div class="grid">
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-left"></use></svg>
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
             </a>
             <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Profile{% endtrans %}</a>
             <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Contacts{% endtrans %}</p>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#chevron-right"></use></svg>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
             </a>
           </div>
         </div>
@@ -38,21 +38,21 @@
           <div class="tab-content__results zero-bottom-margin">
             <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{project.id}}">
               <p class="mui--text-subhead zero-bottom-margin">
-                <svg class="fa5-icon fa5--align-baseline collapsible__icon" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#angle-right"></use></svg>
-                <svg class="fa5-icon fa5--align-baseline collapsible__icon mui--hide" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#angle-down"></use></svg>
+                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline collapsible__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-right"></use></svg>{% endassets %}
+                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline collapsible__icon mui--hide" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}
                 {{ project.title }}
               </p>
             </div>
             <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
               <button class="mui-btn--nostyle" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">
-                <svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#ellipsis-v"></use></svg>
+                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#ellipsis-v"></use></svg>{% endassets %}
               </button>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                 <li>
                   <a href="{{ url_for('contacts_project_csv', suuid=project.suuid) }}" download title="CSV">
-                    <svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img">
-                      <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#download"></use>
-                    </svg> {% trans %}CSV{% endtrans %}
+                    {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img">
+                      <use xlink:href="{{ ASSET_URL }}#download"></use>
+                    </svg>{% endassets %} {% trans %}CSV{% endtrans %}
                   </a>
                 </li>
               </ul>
@@ -62,23 +62,23 @@
                 <div class="collapsible">
                   <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{daterow.date}}">
                     <p class="mui--text-subhead zero-bottom-margin">
-                      <svg class="fa5-icon fa5--align-baseline collapsible__icon" aria-hidden="true" role="img">
-                        <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#angle-right"></use>
-                      </svg>
-                      <svg class="fa5-icon fa5--align-baseline collapsible__icon mui--hide" aria-hidden="true" role="img">
-                        <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#angle-down"></use>
-                      </svg> {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
+                      {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline collapsible__icon" aria-hidden="true" role="img">
+                        <use xlink:href="{{ ASSET_URL }}#angle-right"></use>
+                      </svg>{% endassets %}
+                      {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline collapsible__icon mui--hide" aria-hidden="true" role="img">
+                        <use xlink:href="{{ ASSET_URL }}#angle-down"></use>
+                      </svg>{% endassets %} {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
                   </div>
                   <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle" id="collapse-{{daterow.date}}">
                     <button class="mui-btn--nostyle" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">
-                      <svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img">
-                        <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#ellipsis-v"></use>
-                      </svg>
+                      {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img">
+                        <use xlink:href="{{ ASSET_URL }}#ellipsis-v"></use>
+                      </svg>{% endassets %}
                     </button>
                     <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                       <li>
                         <a href="{{ url_for('contacts_project_date_csv', suuid=project.suuid, datestr=daterow.date) }}" download title="CSV" >
-                          <svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#download"></use></svg> {% trans %}CSV{% endtrans %}
+                          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#download"></use></svg>{% endassets %} {% trans %}CSV{% endtrans %}
                         </a>
                       </li>
                     </ul>
@@ -86,16 +86,16 @@
                   <div class="collapsible__body mui-list--aligned">
                     {% for contact in daterow.contacts.all() %}
                       <div class="user-box">
-                        <svg class="fa5-icon fa5-icon--headline user-gravatar" aria-hidden="true" role="img">
-                          <use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#user-circle"></use>
-                        </svg>
+                        {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline user-gravatar" aria-hidden="true" role="img">
+                          <use xlink:href="{{ ASSET_URL }}#user-circle"></use>
+                        </svg>{% endassets %}
                         <div class="mui--clearfix">
                           <div class=" mui--pull-left">
                             <p class="mui--text-body1 zero-bottom-margin">{{ contact.participant.fullname }}</p>
                             <p class="mui--text-body1">{{ contact.participant.email }}</p>
                           </div>
                           <a class="mui--pull-right contact-download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact">
-                            <svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#address-card"></use></svg>
+                            {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#address-card"></use></svg>{% endassets %}
                           </a>
                         </div>
                       </div>

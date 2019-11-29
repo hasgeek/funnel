@@ -78,12 +78,14 @@ baseframe.init_app(
     requires=['funnel'],
     ext_requires=['pygments', 'toastr', 'baseframe-mui'],
     theme='mui',
+    asset_modules=('baseframe_private_assets',),
 )
 baseframe.init_app(
     funnelapp,
     requires=['funnel'],
     ext_requires=['pygments', 'toastr', 'baseframe-mui'],
     theme='mui',
+    asset_modules=('baseframe_private_assets',),
 )
 
 # Register JS and CSS assets on both apps
@@ -137,9 +139,7 @@ app.assets.register(
 app.assets.register(
     'css_screens',
     Bundle(
-        assets.require('screens.css'),
-        output='css/screens.packed.css',
-        filters='cssmin'
+        assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
     ),
 )
 app.assets.register(
@@ -203,7 +203,7 @@ app.assets.register(
     Bundle(
         assets.require('schedule-print.css'),
         output='css/schedule-print.packed.css',
-        filters='cssmin'
+        filters='cssmin',
     ),
 )
 
@@ -321,7 +321,7 @@ funnelapp.assets.register(
     Bundle(
         assets.require('schedule-print.css'),
         output='css/schedule-print.packed.css',
-        filters='cssmin'
+        filters='cssmin',
     ),
 )
 

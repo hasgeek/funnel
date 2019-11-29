@@ -5,10 +5,10 @@
       <div class="comment--content">
         <div class="comment--header">
           <button class="js-collapse mui-btn--nostyle" aria-label="{% trans %}Hide comment{% endtrans %}" aria-expanded="true">
-            <svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#caret-circle-up"></use></svg>
+            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-up"></use></svg>{% endassets %}
           </button>
           <button class="js-uncollapse mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
-            <svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#caret-circle-down"></use></svg>
+            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-down"></use></svg>{% endassets %}
           </button>&nbsp;
           {% if comment.state.DELETED -%}
             <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>

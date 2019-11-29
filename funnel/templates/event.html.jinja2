@@ -7,7 +7,7 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
-  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in"><svg class="fa5-icon fa5-subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#arrow-left"></use></svg> {% trans %}Back to setup events{% endtrans %}</a></p>
+  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#arrow-left"></use></svg>{% endassets %} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}"><svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#edit"></use></svg></a></h3>
+      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       <h3 class="mui--text-right" id="participants-count">
@@ -39,7 +39,7 @@
       <form class="search-participant mui-form mui-form--margins">
         <div class="mui-textfield mui-textfield--float-label">
           <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ url_for('static', filename='img/custom.svg') }}#search"></use></svg> Search</label>
+          <label>{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %} Search</label>
         </div>
       </form>
     </div>
@@ -102,9 +102,9 @@
                       {{/if}}
                       {{#if submitting}}
                         {{#if checked_in}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="Abort"><svg class="fa5-icon fa5-title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg></button>
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="Abort">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg>{% endassets %}</button>
                         {{else}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="Abort"><svg class="fa5-icon fa5-title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg></button>
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="Abort">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg>{% endassets %}</button>
                         {{/if}}
                       {{/if}}
                     </form>
