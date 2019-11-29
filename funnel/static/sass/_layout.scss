@@ -145,9 +145,15 @@
 }
 
 .collapsible__header--smaller {
-  width: calc(100% - 45px);
+  width: calc(100% - 37px);
   padding: 10px;
   margin: 0 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsible__header__title {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -156,8 +162,9 @@
 .collapsible__dropdown {
   margin: 0;
   margin-right: 1px;
-  padding: 10px 10px 4px;
+  padding: 10px;
   background: #eff2f7;
+  max-height: 44px;
 }
 
 .collapsible__body {

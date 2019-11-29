@@ -37,15 +37,15 @@
         {% for project,dates in contacts %}
           <div class="tab-content__results zero-bottom-margin">
             <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{project.id}}">
-              <p class="mui--text-subhead zero-bottom-margin">
+              <p class="mui--text-subhead zero-bottom-margin collapsible__header__title">
                 {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline collapsible__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-right"></use></svg>{% endassets %}
                 {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline collapsible__icon mui--hide" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}
                 {{ project.title }}
               </p>
             </div>
             <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
-              <button class="mui-btn--nostyle" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">
-                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#ellipsis-v"></use></svg>{% endassets %}
+              <button class="mui-btn--nostyle mui--text-subhead" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">
+                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#ellipsis-v"></use></svg>{% endassets %}
               </button>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                 <li>
