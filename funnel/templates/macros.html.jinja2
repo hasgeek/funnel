@@ -131,7 +131,7 @@
       {%- if project.hasjob_embed_url.url -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" title="Jobs" data-action="Jobs(navbar)">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
-      {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
+      {%- if project.current_roles.project_editor or not project.cfp_state.NONE -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" title="Proposals" data-action="Proposals(navbar)">{% trans %}Proposals{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
       {%- if project.schedule_state.PUBLISHED %}
