@@ -24,7 +24,7 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ event.url_for('view') }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" class="mui--align-middle">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+              <a href="{{ event.url_for('view') }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -51,7 +51,7 @@
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
             <li>
-              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" class="mui--align-middle">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -75,7 +75,7 @@
         <ol class="mui-list--aligned">
           {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" class="mui--align-middle">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
