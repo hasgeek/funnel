@@ -109,6 +109,11 @@
   }
   .card__body {
     padding: 0 15px 7.5px;
+
+    .card__calendar {
+      margin: 0 -15px;
+      padding: 10px 0 0;
+    }
   }
 }
 

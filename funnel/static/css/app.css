@@ -1316,6 +1316,10 @@ a.mui-btn {
 .card--upcoming .card__body {
   padding: 0 15px 7.5px;
 }
+.card--upcoming .card__body .card__calendar {
+  margin: 0 -15px;
+  padding: 10px 0 0;
+}
 
 .card--cfp {
   display: flex;
