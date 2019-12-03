@@ -1,3 +1,42 @@
+.card--spotlight {
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  max-width: 450px;
+}
+
+@media (min-width: 1200px) {
+  .card--spotlight {
+    display: flex;
+    box-shadow: none;
+    max-width: 100%;
+    border-radius: 0;
+
+    .card__image-wrapper {
+      flex: 0 0 60%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .card__body {
+      position: relative;
+      padding: 15px 10% 15px 30px;
+
+      .card__body__divider {
+        height: 4px;
+        background-color: #eff2f6;
+        width: 40px;
+        margin: 10px 0;
+      }
+
+      .card__body__footer {
+        position: absolute;
+        bottom: 0;
+      }
+    }
+  }
+}
+
 .clickable-card,
 .card-wrapper {
   color: #1f2d3d;
@@ -40,7 +79,7 @@
 }
 
 .card__calendar {
-  padding: 15px;
+  padding: 15px 0;
 }
 
 .card__image__tagline {
@@ -61,12 +100,27 @@
   }
 }
 
-.card--upcoming,
+.card--upcoming {
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  .card__image-wrapper {
+    padding: 0;
+  }
+  .card__body {
+    padding: 0 15px 7.5px;
+  }
+}
+
 .card--cfp {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 30px;
   background: transparent;
+  max-width: 450px;
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
 
   .card__image__tagline {
     font-size: inherit;
@@ -119,17 +173,11 @@
   }
 }
 
-.card--spotlight,
-.card--upcoming {
-  .card__body {
-    padding: 0 15px 7.5px;
-  }
-}
-
 @media (min-width: 992px) {
-  .card--upcoming,
   .card--cfp {
     box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
 
     .card__image-wrapper,
     .card__image--default {
@@ -144,7 +192,6 @@
 }
 
 @media (min-width: 1200px) {
-  .card--upcoming,
   .card--cfp {
     .card__image-wrapper,
     .card__image--default {
@@ -256,17 +303,13 @@
     font-variant: all-small-caps;
   }
 
-  .calendar__weekdays__name--first {
-    width: 10%;
-  }
-
   .calendar__weekdays__name__wrapper {
     display: flex;
-    width: 90%;
+    width: 100%;
   }
 
   .calendar__weekdays__name--weekday {
-    width: calc(100% / 8);
+    width: calc(100% / 7);
   }
 
   .calendar__weekdays__month {
@@ -280,16 +323,17 @@
     font-variant: all-small-caps;
     width: 100%;
     text-align: left;
+    padding-left: calc(100% / 7 / 4);
   }
 
   .calendar__weekdays__dates {
-    width: 90%;
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
 
     .calendar__weekdays__dates__date {
       position: relative;
-      width: calc(100% / 8);
+      width: calc(100% / 7);
       text-align: center;
       font-size: 14px;
       line-height: 28px;

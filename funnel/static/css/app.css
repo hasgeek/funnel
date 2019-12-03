@@ -491,9 +491,9 @@ a.mui-btn {
     .header__site-title__title
     .header__nav-links
     .header__nav-links__icon {
-    width: 20px;
-    height: 20px;
-    vertical-align: text-bottom;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-top;
   }
   .hg-app
     .header--fixed
@@ -928,27 +928,6 @@ a.mui-btn {
     left: -40px;
   }
 }
-@media (min-width: 992px) {
-  .upcoming {
-    padding-left: 30px;
-  }
-}
-@media (min-width: 768px) and (max-width: 991px) {
-  .spotlight {
-    margin-bottom: 15px;
-  }
-  .spotlight spotlight__headline {
-    text-align: center;
-  }
-  .spotlight .card--spotlight {
-    margin: auto;
-  }
-}
-@media (min-width: 1200px) {
-  .upcoming {
-    padding-left: 45px;
-  }
-}
 .funnel-notice .alert__text {
   font-size: 24px;
   line-height: 32px;
@@ -957,6 +936,37 @@ a.mui-btn {
   color: #f0a40c;
 }
 
+.project-headline {
+  margin-bottom: 35px;
+  position: relative;
+}
+
+.project-headline:after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  width: 64px;
+  left: 0;
+  border-bottom: 3px solid #dda32a;
+}
+
+.project-headline--secondary:after {
+  border-bottom: 3px solid #82688d;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .spotlight {
+    margin-bottom: 15px;
+  }
+}
+@media (min-width: 1200px) {
+  .mui-container--fullwidth {
+    max-width: 100%;
+  }
+  .mui-container--fullwidth .grid__col-12 {
+    padding: 0;
+  }
+}
 .spotlight-schedule-card .tabs-wrapper--sticky {
   top: 0;
 }
@@ -995,6 +1005,16 @@ a.mui-btn {
     overflow: scroll;
   }
 }
+.hg-banner-img {
+  border-radius: 16px 16px 16px 0;
+  width: 100%;
+  margin: 15px auto;
+}
+
+.hg-text {
+  color: #e05f25;
+}
+
 .cfp-action-btn {
   padding: 10px 0;
   cursor: pointer;
@@ -1189,6 +1209,40 @@ a.mui-btn {
   min-width: 160px;
 }
 
+.card--spotlight {
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  max-width: 450px;
+}
+
+@media (min-width: 1200px) {
+  .card--spotlight {
+    display: flex;
+    box-shadow: none;
+    max-width: 100%;
+    border-radius: 0;
+  }
+  .card--spotlight .card__image-wrapper {
+    flex: 0 0 60%;
+    margin: 0;
+    padding: 0;
+  }
+  .card--spotlight .card__body {
+    position: relative;
+    padding: 15px 10% 15px 30px;
+  }
+  .card--spotlight .card__body .card__body__divider {
+    height: 4px;
+    background-color: #eff2f6;
+    width: 40px;
+    margin: 10px 0;
+  }
+  .card--spotlight .card__body .card__body__footer {
+    position: absolute;
+    bottom: 0;
+  }
+}
 .clickable-card,
 .card-wrapper {
   color: #1f2d3d;
@@ -1231,7 +1285,7 @@ a.mui-btn {
 }
 
 .card__calendar {
-  padding: 15px;
+  padding: 15px 0;
 }
 
 .card__image__tagline {
@@ -1251,19 +1305,31 @@ a.mui-btn {
     font-size: 24px;
   }
 }
-.card--upcoming,
+.card--upcoming {
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+}
+.card--upcoming .card__image-wrapper {
+  padding: 0;
+}
+.card--upcoming .card__body {
+  padding: 0 15px 7.5px;
+}
+
 .card--cfp {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 30px;
   background: transparent;
+  max-width: 450px;
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
 }
-.card--upcoming .card__image__tagline,
 .card--cfp .card__image__tagline {
   font-size: inherit;
 }
-.card--upcoming .card__image-wrapper,
-.card--upcoming .card__image--default,
 .card--cfp .card__image-wrapper,
 .card--cfp .card__image--default {
   flex: 0 0 100%;
@@ -1273,14 +1339,11 @@ a.mui-btn {
   cursor: pointer;
   overflow: hidden;
 }
-.card--upcoming .card__image-wrapper a,
-.card--upcoming .card__image--default a,
 .card--cfp .card__image-wrapper a,
 .card--cfp .card__image--default a {
   display: block;
   width: 100%;
 }
-.card--upcoming .card__image-wrapper--cfp .card__image-wrapper__overlay,
 .card--cfp .card__image-wrapper--cfp .card__image-wrapper__overlay {
   position: absolute;
   top: 0;
@@ -1290,41 +1353,31 @@ a.mui-btn {
   z-index: 1;
   background-image: linear-gradient(to bottom, rgba(67, 89, 111, 0.5), #202d3c);
 }
-.card--upcoming .card__image-wrapper--cfp .card__image-wrapper__text,
 .card--cfp .card__image-wrapper--cfp .card__image-wrapper__text {
   position: absolute;
   z-index: 2;
   color: #fff;
   bottom: 0;
 }
-.card--upcoming .card__body,
 .card--cfp .card__body {
   flex: 0 0 100%;
 }
-.card--upcoming .card__calendar,
 .card--cfp .card__calendar {
   padding: 15px 0;
   border-top: 1px solid rgba(132, 146, 166, 0.3);
   margin: 0;
 }
 
-.card--spotlight .card__body,
-.card--upcoming .card__body {
-  padding: 0 15px 7.5px;
-}
-
 @media (min-width: 992px) {
-  .card--upcoming,
   .card--cfp {
     box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
   }
-  .card--upcoming .card__image-wrapper,
-  .card--upcoming .card__image--default,
   .card--cfp .card__image-wrapper,
   .card--cfp .card__image--default {
     flex: 0 0 250px;
   }
-  .card--upcoming .card__body,
   .card--cfp .card__body {
     flex: 0 0 calc(100% - 250px);
     width: calc(100% - 250px);
@@ -1332,32 +1385,25 @@ a.mui-btn {
   }
 }
 @media (min-width: 1200px) {
-  .card--upcoming .card__image-wrapper,
-  .card--upcoming .card__image--default,
   .card--cfp .card__image-wrapper,
   .card--cfp .card__image--default {
     flex: 0 0 300px;
   }
-  .card--upcoming .card__body,
   .card--cfp .card__body {
     flex: 0 0 calc(100% - 300px);
     width: calc(100% - 300px);
   }
-  .card--upcoming .card__body--cfp,
   .card--cfp .card__body--cfp {
     padding: 0 0 0 15px;
   }
-  .card--upcoming .card__body--cfp .card--cfp__title,
   .card--cfp .card__body--cfp .card--cfp__title {
     max-height: calc(27px * 2);
     overflow: hidden;
   }
-  .card--upcoming .card__body--cfp .card--cfp__tagline,
   .card--cfp .card__body--cfp .card--cfp__tagline {
     max-height: calc(24px * 4);
     overflow: hidden;
   }
-  .card--upcoming .card__image-wrapper--cfp,
   .card--cfp .card__image-wrapper--cfp {
     height: 150px;
   }
@@ -1440,15 +1486,12 @@ a.mui-btn {
   line-height: 1.5;
   font-variant: all-small-caps;
 }
-.calendar .calendar__weekdays__name--first {
-  width: 10%;
-}
 .calendar .calendar__weekdays__name__wrapper {
   display: flex;
-  width: 90%;
+  width: 100%;
 }
 .calendar .calendar__weekdays__name--weekday {
-  width: calc(100% / 8);
+  width: calc(100% / 7);
 }
 .calendar .calendar__weekdays__month {
   width: 10%;
@@ -1460,15 +1503,16 @@ a.mui-btn {
   font-variant: all-small-caps;
   width: 100%;
   text-align: left;
+  padding-left: calc(100% / 7 / 4);
 }
 .calendar .calendar__weekdays__dates {
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
 }
 .calendar .calendar__weekdays__dates .calendar__weekdays__dates__date {
   position: relative;
-  width: calc(100% / 8);
+  width: calc(100% / 7);
   text-align: center;
   font-size: 14px;
   line-height: 28px;

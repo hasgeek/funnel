@@ -13,6 +13,8 @@ from .project import project_data
 
 @route('/')
 class IndexView(ClassView):
+    current_section = 'home'
+
     @render_with('index.html.jinja2', json=True)
     def home(self):
         g.profile = None
