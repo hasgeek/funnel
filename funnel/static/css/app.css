@@ -394,9 +394,18 @@ a.mui-btn {
   .header__site-title
   .header__site-title__title
   .header__nav-links
+  .header__nav-links__text {
+  font-size: 12px;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links
   .header__nav-links__icon {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
 }
 .hg-app .header--fixed .header__nav .header__right-nav {
   display: none;
@@ -491,9 +500,9 @@ a.mui-btn {
     .header__site-title__title
     .header__nav-links
     .header__nav-links__icon {
-    width: 16px;
-    height: 16px;
-    vertical-align: text-top;
+    width: 20px;
+    height: 20px;
+    vertical-align: bottom;
   }
   .hg-app
     .header--fixed
@@ -1268,7 +1277,7 @@ a.mui-btn {
 }
 
 .card__image-wrapper {
-  min-height: 126px;
+  min-height: 180px;
   position: relative;
   padding-bottom: 8px;
 }
@@ -1278,10 +1287,16 @@ a.mui-btn {
 }
 
 .card__image--default {
-  background-color: #f6ede3;
-  min-height: 125px;
+  background-image: linear-gradient(to bottom, #4d5763, #202d3c);
+  min-height: 180px;
   position: relative;
   overflow: hidden;
+}
+.card__image--default .card__image__tagline {
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card__calendar {

@@ -62,7 +62,7 @@
 }
 
 .card__image-wrapper {
-  min-height: 126px;
+  min-height: 180px;
   position: relative;
   padding-bottom: 8px;
 }
@@ -72,10 +72,17 @@
 }
 
 .card__image--default {
-  background-color: #f6ede3;
-  min-height: 125px;
+  background-image: linear-gradient(to bottom, #4d5763, #202d3c);
+  min-height: 180px;
   position: relative;
   overflow: hidden;
+
+  .card__image__tagline {
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .card__calendar {
