@@ -234,6 +234,7 @@
             {{ commentform.hidden_tag() }}
           </div>
           {{ renderfield(commentform.message, nolabel=true) }}
+          {{ renderfield(commentform.recaptcha, nolabel=true) }}
           <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
         </form>
         <p id="toplevel-comment" class="mui--hide">
@@ -267,6 +268,7 @@
 {% block footerscripts %}
 <script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
 {{ widgetscripts(proposal_transfer_form, script=true) }}
+{{ widgetscripts(commentform, script=true, ref_id='comment-form') }}
 <script type="text/javascript">
   $(function() {
     var proposalConfig = {};
