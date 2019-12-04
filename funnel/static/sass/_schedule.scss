@@ -17,7 +17,7 @@
           background-color: #fff;
           width: 100%;
           padding: 5px 15px;
-          border-bottom: 1px solid rgba(132,146,166,0.3);
+          border-bottom: 1px solid rgba(132, 146, 166, 0.3);
           word-break: break-word;
 
           .schedule__row__column__content__title {
@@ -29,7 +29,7 @@
             }
 
             .schedule__row__column__content__title__heading:hover {
-              color: #4A90E2;
+              color: #4a90e2;
             }
           }
 
@@ -47,22 +47,20 @@
           p {
             margin: 0;
           }
-
         }
 
         .schedule__row__column__content__title__duration {
           position: -webkit-sticky;
           position: sticky;
           top: 165px;
-          color: #E05F26;
+          color: #e05f26;
           z-index: 4;
-          background-color: #F9FAFC;
+          background-color: #f9fafc;
           float: right;
           padding: 5px;
           border-radius: 3px;
           line-height: 1;
         }
-
       }
 
       .schedule__row__column.js-active {
@@ -82,10 +80,9 @@
       display: none;
     }
 
-
     .schedule__row:before,
     .schedule__row:after {
-      content: " ";
+      content: ' ';
       display: table;
     }
 
@@ -100,7 +97,7 @@
       z-index: 999;
       border: none;
       display: flex;
-      box-shadow: 0 2px 2px -1px rgba(158,158,158,0.24);
+      box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
 
       .schedule__row__column--header {
         display: flex !important;
@@ -110,14 +107,14 @@
         justify-content: center;
         background-color: #fff;
         background-image: none !important;
-        border-bottom: 2px solid rgba(132,146,166,0.3);
+        border-bottom: 2px solid rgba(132, 146, 166, 0.3);
         min-height: 50px;
         min-width: 100px;
         width: 100% !important;
       }
 
       .schedule__row__column--header.js-tab-active {
-        border-bottom: 2px solid #856A91;
+        border-bottom: 2px solid #856a91;
       }
 
       .schedule__row__column--time {
@@ -135,7 +132,7 @@
   }
 }
 
-@media(max-width: 767px) {
+@media (max-width: 767px) {
   .schedule {
     .schedule__row {
       display: none;
@@ -160,12 +157,11 @@
   }
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
   .schedule-grid {
     padding: 0 15px;
 
     .schedule {
-
       .schedule__date {
         padding-left: 0;
       }
@@ -190,12 +186,16 @@
             left: 1px;
             right: 1px;
             bottom: 0;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 10%, #ffffff 60%);
+            background: linear-gradient(
+              to bottom,
+              rgba(255, 255, 255, 0.2) 10%,
+              #ffffff 60%
+            );
             z-index: 3;
             padding: 20px 0 0;
           }
           .schedule__row__column__content {
-            outline: 1px solid rgba(132,146,166,0.3);
+            outline: 1px solid rgba(132, 146, 166, 0.3);
             width: calc(100% - 1px);
             height: 100%;
             .schedule__row__column__content__title__duration {
@@ -215,7 +215,7 @@
           display: block;
           padding: 2px 0 0;
           text-align: center;
-          color: #F0A40C;
+          color: #f0a40c;
           text-decoration: none;
           line-height: 1;
           margin: 0;
@@ -231,7 +231,7 @@
 
         .schedule__row__column--header {
           padding: 15px 10px;
-          outline: 1px solid rgba(132,146,166,0.3);
+          outline: 1px solid rgba(132, 146, 166, 0.3);
           border: none !important;
         }
         .schedule__row__column--time--header {
@@ -252,9 +252,7 @@
   }
 }
 
-@media (min-device-width: 768px)
-and (max-device-width: 1200px)
-and (orientation: landscape) {
+@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
   .schedule-grid {
     .schedule {
       .schedule__row--sticky {
@@ -322,7 +320,7 @@ and (orientation: landscape) {
   }
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
   .session-modal {
     width: 90%;
     vertical-align: middle;
@@ -361,8 +359,8 @@ and (orientation: landscape) {
 .fc-event:hover .fc-event-custom {
   display: block;
   padding: 1px 5px;
-  background: #FFF;
-  background: rgba(255,255,255,0.6);
+  background: #fff;
+  background: rgba(255, 255, 255, 0.6);
   border-top-left-radius: 3px;
 }
 
@@ -378,14 +376,14 @@ and (orientation: landscape) {
 }
 
 .proposal-box,
-body>.proposal-box.ui-draggable {
+body > .proposal-box.ui-draggable {
   margin: 10px 0;
   padding: 2px 4px;
-  background: #FFF;
+  background: #fff;
   color: #333;
   border-radius: 3px;
   border: 1px solid #333;
-  font-size: .85em;
+  font-size: 0.85em;
   cursor: pointer;
 }
 
