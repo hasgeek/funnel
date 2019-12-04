@@ -8,7 +8,6 @@ export const Utils = {
     });
     return hashMap;
   },
-
   findLoopIndex(objectArray, key, search) {
     let index;
 
@@ -20,7 +19,6 @@ export const Utils = {
 
     return index;
   },
-
   collapse() {
     $('.collapsible__header').on('click', function collapseContent() {
       $(this)
@@ -31,7 +29,6 @@ export const Utils = {
         .slideToggle();
     });
   },
-
   animateScrollTo(offsetY) {
     $('html,body').animate(
       {
@@ -40,14 +37,12 @@ export const Utils = {
       'slow'
     );
   },
-
   smoothScroll() {
     $('a.js-smooth-scroll').on('click', function clickHandler(event) {
       event.preventDefault();
       Utils.animateScrollTo($(this.hash).offset().top);
     });
   },
-
   scrollTabs() {
     if (document.getElementById('jquery-scroll-tabs')) {
       // Horizontal scroll to active tab
@@ -79,7 +74,6 @@ export const Utils = {
       });
     }
   },
-
   navSearchForm() {
     $('.js-search-show').on('click', function toggleSearchForm(event) {
       event.preventDefault();
@@ -100,7 +94,6 @@ export const Utils = {
       }
     });
   },
-
   sendToGA(category, action, label, value = '') {
     if (typeof ga !== 'undefined') {
       ga('send', {
@@ -111,6 +104,40 @@ export const Utils = {
         eventValue: value,
       });
     }
+  },
+  getElementId(htmlString) {
+    return htmlString.match(/id="(.*?)"/)[1];
+  },
+  formErrorHandler(formId, errorResponse) {
+    let errorMsg = '';
+    // xhr readyState '4' indicates server has received the request & response is ready
+    if (errorResponse.readyState === 4) {
+      if (errorResponse.status === 500) {
+        errorMsg = 'Internal Server Error';
+      } else {
+        if (errorResponse.responseJSON.errors) {
+          window.Baseframe.Forms.showValidationErrors(
+            formId,
+            errorResponse.responseJSON.errors
+          );
+        }
+        errorMsg = errorResponse.responseJSON.message
+          ? errorResponse.responseJSON.message
+          : 'Error';
+      }
+    } else {
+      errorMsg = 'Unable to connect. Please try again.';
+    }
+    $(`#${formId}`)
+      .find('button[type="submit"]')
+      .prop('disabled', false);
+    $(`#${formId}`)
+      .find('.loading')
+      .addClass('mui--hide');
+    return errorMsg;
+  },
+  getActionUrl(formId) {
+    return $(`#${formId}`).attr('action');
   },
 };
 export const ScrollActiveMenu = {
