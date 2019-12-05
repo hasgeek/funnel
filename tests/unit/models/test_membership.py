@@ -33,7 +33,7 @@ class TestMembership(object):
         assert previous_membership is None
 
         new_membership = ProjectCrewMembership(
-            project=new_project, user=new_user, is_editor=True
+            parent=new_project, user=new_user, is_editor=True
         )
         test_db.session.add(new_membership)
         test_db.session.commit()
@@ -47,7 +47,7 @@ class TestMembership(object):
         # so adding a new membership without revoking the previous one
         # will raise IntegrityError in database.
         new_membership_without_revoke = ProjectCrewMembership(
-            project=new_project, user=new_user, is_concierge=True
+            parent=new_project, user=new_user, is_concierge=True
         )
         test_db.session.add(new_membership_without_revoke)
         with pytest.raises(IntegrityError):
@@ -71,7 +71,7 @@ class TestMembership(object):
 
         # let's add back few more roles
         new_membership2 = ProjectCrewMembership(
-            project=new_project, user=new_user, is_concierge=True, is_usher=True
+            parent=new_project, user=new_user, is_concierge=True, is_usher=True
         )
         test_db.session.add(new_membership2)
         test_db.session.commit()
@@ -102,4 +102,4 @@ class TestMembership(object):
 
         # can't replace with an unknown role
         with pytest.raises(AttributeError):
-            new_membership2.replace(actor=new_user2, is_foobar=True)
+            new_membership4.replace(actor=new_user2, is_foobar=True)

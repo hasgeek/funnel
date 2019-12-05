@@ -68,7 +68,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     )
                 else:
                     new_membership = ProjectCrewMembership(
-                        project=self.obj, granted_by=current_auth.user
+                        parent_id=self.obj.id, granted_by=current_auth.user
                     )
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)

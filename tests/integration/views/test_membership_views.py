@@ -24,7 +24,7 @@ class TestMembershipViews(object):
 
             # let's add a member to the project
             new_membership = ProjectCrewMembership(
-                project=new_project, user=new_user, is_editor=True
+                parent=new_project, user=new_user, is_editor=True
             )
             test_db.session.add(new_membership)
             test_db.session.commit()
@@ -63,7 +63,7 @@ class TestMembershipViews(object):
         with test_client as c:
             # let's add a member to the project
             new_membership = ProjectCrewMembership(
-                project=new_project, user=new_user2, is_editor=True
+                parent=new_project, user=new_user2, is_editor=True
             )
             test_db.session.add(new_membership)
             test_db.session.commit()
@@ -86,7 +86,7 @@ class TestMembershipViews(object):
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
             new_membership = ProjectCrewMembership(
-                project=new_project, user=new_user2, is_editor=True
+                parent=new_project, user=new_user2, is_editor=True
             )
             test_db.session.add(new_membership)
             test_db.session.commit()

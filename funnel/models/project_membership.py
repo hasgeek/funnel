@@ -21,7 +21,6 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     # List of is_role columns in this model
     __data_columns__ = ('is_editor', 'is_concierge', 'is_usher')
-    __parent_column__ = 'project_id'
 
     __roles__ = {
         'all': {'read': {'user', 'is_editor', 'is_concierge', 'is_usher', 'project'}},
@@ -43,6 +42,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         )
     )
     parent = immutable(db.synonym('project'))
+    parent_id = immutable(db.synonym('project_id'))
 
     # Project crew roles (at least one must be True):
 

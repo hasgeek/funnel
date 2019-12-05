@@ -26,8 +26,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __uuid_primary_key__ = True
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__ = ()
-    #: Parent column ('profile_id' or 'project_id' in the subclasses)
-    __parent_column__ = None
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
@@ -104,7 +102,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return (
             db.Index(
                 cls.__tablename__ + '_active',
-                cls.__parent_column__,
+                cls.parent_id.name,
                 'user_id',
                 unique=True,
                 postgresql_where=db.text('revoked_at IS NULL'),
@@ -132,7 +130,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise AttributeError("Unknown role")
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
-        new = type(self)(user=self.user, granted_by=self.granted_by)
+        new = type(self)(user=self.user, parent=self.parent, granted_by=self.granted_by)
 
         # if existing record type is INVITE, replace it with ACCEPT,
         # else, replace it with AMEND.
@@ -141,7 +139,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         else:
             new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
 
-        setattr(new, self.__parent_column__, getattr(self, self.__parent_column__))
         for column in self.__data_columns__:
             if column in roles:
                 setattr(new, column, roles[column])
