@@ -22,7 +22,6 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
 
     # List of role columns in this model
     __data_columns__ = ('is_owner',)
-    __parent_column__ = 'profile_id'
 
     __roles__ = {
         'all': {'read': {'user', 'is_owner', 'profile'}},
@@ -45,6 +44,7 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
         )
     )
     parent = immutable(db.synonym('profile'))
+    parent_id = immutable(db.synonym('profile_id'))
 
     # Profile roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
