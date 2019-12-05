@@ -119,11 +119,15 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'subject', 'editor'})
     def revoke(self, actor):
+        if self.revoked_at is not None:
+            raise TypeError("This membership record has already been revoked")
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
 
     @with_roles(call={'editor'})
     def replace(self, actor, **roles):
+        if self.revoked_at is not None:
+            raise TypeError("This membership record has already been revoked")
         if not set(roles.keys()).issubset(self.__data_columns__):
             raise AttributeError("Unknown role")
         self.revoked_at = db.func.utcnow()
@@ -148,5 +152,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'subject'})
     def accept(self, actor):
-        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
-            return self.replace(actor)
+        if self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE:
+            raise TypeError("This membership record is not an invite")
+        return self.replace(actor)
