@@ -26,6 +26,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __uuid_primary_key__ = True
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__ = ()
+    #: Parent column (override as synonym of 'profile_id' or 'project_id' in the subclasses)
+    parent_id = None
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
