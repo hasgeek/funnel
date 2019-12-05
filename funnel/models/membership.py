@@ -10,8 +10,6 @@ from coaster.utils import LabeledEnum
 from . import BaseMixin, UuidMixin, db
 from .user import User
 
-__all__ = ['MEMBERSHIP_RECORD_TYPE']
-
 
 class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
     INVITE = (0, 'invite', __("Invite"))
@@ -47,6 +45,19 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             nullable=False,
         )
     )
+
+    @declared_attr
+    def user_id(cls):
+        return db.Column(
+            None,
+            db.ForeignKey('user.id', ondelete='CASCADE'),
+            nullable=False,
+            index=True,
+        )
+
+    @declared_attr
+    def user(cls):
+        return db.relationship(User, foreign_keys=[cls.user_id])
 
     @declared_attr
     def revoked_by_id(cls):
@@ -112,19 +123,19 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         self.revoked_by = actor
 
     @with_roles(call={'editor'})
-    def replace(self, actor, record_type, **roles):
+    def replace(self, actor, **roles):
         if not set(roles.keys()).issubset(self.__data_columns__):
             raise AttributeError("Unknown role")
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
         new = type(self)(user=self.user, granted_by=self.granted_by)
 
-        # if existing record type is INVITE, let it be,
-        # unless the new record type is ACCEPT.
-        if self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE:
-            new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
-        elif record_type == MEMBERSHIP_RECORD_TYPE.ACCEPT:
+        # if existing record type is INVITE, replace it with ACCEPT,
+        # else, replace it with AMEND.
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
             new.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
+        else:
+            new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
 
         setattr(new, self.__parent_column__, getattr(self, self.__parent_column__))
         for column in self.__data_columns__:
@@ -137,4 +148,5 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'subject'})
     def accept(self, actor):
-        return self.replace(actor, record_type=MEMBERSHIP_RECORD_TYPE.ACCEPT)
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
+            return self.replace(actor)

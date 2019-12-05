@@ -18,7 +18,13 @@ from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa  # NOQA
 
-from funnel.models.membership import MEMBERSHIP_RECORD_TYPE
+
+class MEMBERSHIP_RECORD_TYPE:  # NOQA: N801
+    INVITE = 0
+    ACCEPT = 1
+    DIRECT_ADD = 2
+    AMEND = 3
+
 
 project = table(
     'project',

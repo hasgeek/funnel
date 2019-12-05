@@ -21,7 +21,7 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..jobs import send_mail_async
-from ..models import MEMBERSHIP_RECORD_TYPE, Profile, Project, ProjectCrewMembership, db
+from ..models import Profile, Project, ProjectCrewMembership, db
 from .decorators import legacy_redirect
 from .mixins import ProjectViewMixin
 
@@ -71,7 +71,6 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         project=self.obj, granted_by=current_auth.user
                     )
                     membership_form.populate_obj(new_membership)
-                    new_membership.record_type = MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
                     db.session.add(new_membership)
                     db.session.commit()
 
@@ -217,7 +216,6 @@ class ProjectCrewMembershipView(
             if membership_form.validate_on_submit():
                 previous_membership.replace(
                     actor=current_auth.user,
-                    record_type=MEMBERSHIP_RECORD_TYPE.AMEND,
                     is_editor=membership_form.is_editor.data,
                     is_concierge=membership_form.is_concierge.data,
                     is_usher=membership_form.is_usher.data,

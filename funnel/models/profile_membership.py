@@ -2,7 +2,7 @@
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from coaster.sqlalchemy import immutable, with_roles
+from coaster.sqlalchemy import immutable
 
 from . import db
 from .membership import ImmutableMembershipMixin
@@ -45,31 +45,6 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
         )
     )
     parent = immutable(db.synonym('profile'))
-
-    #: User who is an admin or owner
-    user_id = immutable(
-        db.Column(
-            None,
-            db.ForeignKey('user.id', ondelete='CASCADE'),
-            nullable=False,
-            index=True,
-        )
-    )
-    user = with_roles(
-        immutable(
-            db.relationship(
-                User,
-                foreign_keys=[user_id],
-                backref=db.backref(
-                    'profile_admin_memberships',
-                    lazy='dynamic',
-                    cascade='all, delete-orphan',
-                    passive_deletes=True,
-                ),
-            )
-        ),
-        grants={'subject'},
-    )
 
     # Profile roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
