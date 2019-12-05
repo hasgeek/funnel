@@ -25,7 +25,7 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
     __parent_column__ = 'profile_id'
 
     __roles__ = {
-        'all': {'read': {'user_details', 'is_owner', 'profile'}, 'call': {'url_for'}},
+        'all': {'read': {'user', 'is_owner', 'profile'}, 'call': {'url_for'}},
         'editor': {'read': {'edit_url', 'delete_url'}},
     }
 
@@ -48,14 +48,6 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
 
     # Profile roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
-
-    @property
-    def user_details(self):
-        return {
-            'fullname': self.user.fullname,
-            'username': self.user.username,
-            'avatar': self.user.avatar,
-        }
 
     @property
     def edit_url(self):

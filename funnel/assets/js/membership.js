@@ -85,13 +85,13 @@ const Membership = {
           const formId = Utils.getElementId(this.memberForm);
           const url = Utils.getActionUrl(formId);
           const app = this;
-          const onSuccess = (responseData) => {
+          const onSuccess = responseData => {
             this.closeForm();
             if (responseData.memberships) {
               app.updateMembersList(responseData.memberships);
             }
           };
-          const onError = (response) => {
+          const onError = response => {
             this.errorMsg = Utils.formErrorHandler(formId, response);
           };
           window.Baseframe.Forms.handleFormSubmit(
@@ -99,8 +99,7 @@ const Membership = {
             url,
             onSuccess,
             onError,
-            {
-            },
+            {}
           );
         },
         updateMembersList(membersList) {
@@ -117,9 +116,9 @@ const Membership = {
         },
         onChange() {
           if (this.search) {
-            members.filter((member) => {
+            members.filter(member => {
               member.hide =
-                member.user_details.fullname
+                member.user.fullname
                   .toLowerCase()
                   .indexOf(this.search.toLowerCase()) === -1;
               return true;
@@ -162,7 +161,7 @@ const Membership = {
 };
 
 $(() => {
-  window.HasGeek.Membership = function (config, saveProjectConfig = '') {
+  window.HasGeek.Membership = function(config, saveProjectConfig = '') {
     Membership.init(config);
 
     if (saveProjectConfig) {
