@@ -4,7 +4,16 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-from funnel.models import MEMBERSHIP_RECORD_TYPE, ProjectCrewMembership
+from baseframe import __
+from coaster.utils import LabeledEnum
+from funnel.models import ProjectCrewMembership
+
+
+class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
+    INVITE = (0, 'invite', __("Invite"))
+    ACCEPT = (1, 'accept', __("Accept"))
+    DIRECT_ADD = (2, 'direct_add', __("Direct add"))
+    AMEND = (3, 'amend', __("Amend"))
 
 
 class TestMembership(object):
@@ -73,11 +82,7 @@ class TestMembership(object):
 
         # let's try replacing the roles in place
         new_membership3 = new_membership2.replace(
-            actor=new_user2,
-            record_type=MEMBERSHIP_RECORD_TYPE.AMEND,
-            is_editor=True,
-            is_concierge=False,
-            is_usher=False,
+            actor=new_user2, is_editor=True, is_concierge=False, is_usher=False
         )
         test_db.session.commit()
         assert 'project_editor' in new_project.roles_for(new_user)
@@ -86,9 +91,7 @@ class TestMembership(object):
         assert new_membership3.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
         # replace() can replace a single role as well, rest stays as they were
-        new_membership4 = new_membership3.replace(
-            actor=new_user2, record_type=MEMBERSHIP_RECORD_TYPE.AMEND, is_usher=True
-        )
+        new_membership4 = new_membership3.replace(actor=new_user2, is_usher=True)
         test_db.session.commit()
         assert 'project_editor' in new_project.roles_for(new_user)
         assert 'project_concierge' not in new_project.roles_for(new_user)
@@ -99,8 +102,4 @@ class TestMembership(object):
 
         # can't replace with an unknown role
         with pytest.raises(AttributeError):
-            new_membership2.replace(
-                actor=new_user2,
-                record_type=MEMBERSHIP_RECORD_TYPE.AMEND,
-                is_foobar=True,
-            )
+            new_membership2.replace(actor=new_user2, is_foobar=True)

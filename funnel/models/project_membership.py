@@ -3,12 +3,11 @@
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 
-from coaster.sqlalchemy import immutable, with_roles
+from coaster.sqlalchemy import immutable
 
 from . import db
 from .membership import ImmutableMembershipMixin
 from .project import Project
-from .user import User
 
 __all__ = ['ProjectCrewMembership']
 
@@ -53,30 +52,6 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         )
     )
     parent = immutable(db.synonym('project'))
-
-    user_id = immutable(
-        db.Column(
-            None,
-            db.ForeignKey('user.id', ondelete='CASCADE'),
-            nullable=False,
-            index=True,
-        )
-    )
-    user = with_roles(
-        immutable(
-            db.relationship(
-                User,
-                foreign_keys=[user_id],
-                backref=db.backref(
-                    'profile_crew_memberships',
-                    lazy='dynamic',
-                    cascade='all, delete-orphan',
-                    passive_deletes=True,
-                ),
-            )
-        ),
-        grants={'subject'},
-    )
 
     # Project crew roles (at least one must be True):
 
