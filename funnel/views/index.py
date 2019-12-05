@@ -47,6 +47,11 @@ class IndexView(ClassView):
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
+        past_projects = (
+            projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
+            .order_by(Project.schedule_start_at.desc())
+            .all()
+        )
 
         return {
             'all_projects': [p.current_access() for p in all_projects],
@@ -55,6 +60,7 @@ class IndexView(ClassView):
             'featured_project': (
                 featured_project.current_access() if featured_project else None
             ),
+            'past_projects': [p.current_access() for p in past_projects],
         }
 
 

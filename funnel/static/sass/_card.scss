@@ -235,33 +235,36 @@
   }
 }
 
-.card__image--new {
-  background-color: #82698d;
+.card--new {
+  .card__image-wrapper {
+    background-image: none;
+    background-color: #82698d;
 
-  .card__image__tagline {
-    font-size: 65px;
-    color: #fff;
-    border: 2px dotted #a890af;
-    width: 66px;
-    padding: 16px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    .card__image__tagline {
+      font-size: 65px;
+      color: #fff;
+      border: 2px dotted #a890af;
+      width: 66px;
+      padding: 16px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
-}
 
-.card__body--minheight {
-  min-height: 150px;
-}
+  .card__body--minheight {
+    min-height: 150px;
+  }
 
-.card__body--new {
-  min-height: 194px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  .card__body--new {
+    min-height: 194px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  .new-btn:hover {
-    text-decoration: none;
+    .new-btn:hover {
+      text-decoration: none;
+    }
   }
 }
 

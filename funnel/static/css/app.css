@@ -1431,10 +1431,11 @@ a.mui-btn {
     height: 150px;
   }
 }
-.card__image--new {
+.card--new .card__image-wrapper {
+  background-image: none;
   background-color: #82698d;
 }
-.card__image--new .card__image__tagline {
+.card--new .card__image-wrapper .card__image__tagline {
   font-size: 65px;
   color: #fff;
   border: 2px dotted #a890af;
@@ -1444,18 +1445,16 @@ a.mui-btn {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
-.card__body--minheight {
+.card--new .card__body--minheight {
   min-height: 150px;
 }
-
-.card__body--new {
+.card--new .card__body--new {
   min-height: 194px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.card__body--new .new-btn:hover {
+.card--new .card__body--new .new-btn:hover {
   text-decoration: none;
 }
 
