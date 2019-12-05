@@ -1,11 +1,20 @@
 $(() => {
-  window.HasGeek.HomeInit = function() {
+  window.HasGeek.HomeInit = function(config) {
     // Adjust the height of schedule card to match spotlight card's height
     $(window).on('load', function() {
       if ($('.js-schedule-card')) {
         $('.js-schedule-card').height($('.card--spotlight').height());
       }
     });
+
+    // Random display of HasGeek banner
+    if (config.hgBannerImgList.length) {
+      let random = Math.floor(
+        Math.random() * Math.floor(config.hgBannerImgList.length)
+      );
+      let bannerFile = config.ImgFolderPath + config.hgBannerImgList[random];
+      $('.js-hg-banner').attr('src', bannerFile);
+    }
 
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {

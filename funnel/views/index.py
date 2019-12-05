@@ -61,6 +61,7 @@ class IndexView(ClassView):
                 featured_project.current_access() if featured_project else None
             ),
             'past_projects': [p.current_access() for p in past_projects],
+            'hg_banner': app.config.get('HG_BANNER_IMG', []),
         }
 
 

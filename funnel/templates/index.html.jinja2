@@ -131,7 +131,10 @@
             <p class="mui--hidden-xs mui--hidden-sm"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
           </div>
           <div class="grid__col-xs-12 grid__col-sm-6">
-            <img src="{{ url_for('static', filename='img/hg-banner-img.jpg') }}" alt="{{ config['SITE_TITLE'] }}" class="hg-banner-img">
+            <img class="hg-banner-img js-hg-banner" src="{{ url_for('static', filename='img/hg-banner-default.png') }}" alt="{{ config['SITE_TITLE'] }}"/>
+            <noscript>
+              <img src="{{ url_for('static', filename='img/hg-banner-default.png') }}" alt="{{ config['SITE_TITLE'] }}" class="hg-banner-img">
+            </noscript>
             <p class="mui--hidden-md mui--hidden-lg mui--hidden-xl"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
           </div>
         </div>
@@ -435,7 +438,13 @@
   <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      window.HasGeek.HomeInit();
+
+      var hgBannerConfig = {
+        hgBannerImgList: {{ hg_banner|tojson }},
+        ImgFolderPath: "{{ url_for('static', filename='img/') }}"
+      };
+
+      window.HasGeek.HomeInit(hgBannerConfig);
     });
   </script>
 {% endblock %}
