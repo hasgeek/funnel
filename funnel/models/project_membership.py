@@ -25,13 +25,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {
-                'user_details',
-                'is_editor',
-                'is_concierge',
-                'is_usher',
-                'project',
-            },
+            'read': {'user', 'is_editor', 'is_concierge', 'is_usher', 'project'},
             'call': {'url_for'},
         },
         'editor': {'read': {'edit_url', 'delete_url'}},
@@ -75,14 +69,6 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             )
         )
         return tuple(args)
-
-    @property
-    def user_details(self):
-        return {
-            'fullname': self.user.fullname,
-            'username': self.user.username,
-            'avatar': self.user.avatar,
-        }
 
     @property
     def edit_url(self):
