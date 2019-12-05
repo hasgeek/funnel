@@ -25,7 +25,7 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
     __parent_column__ = 'profile_id'
 
     __roles__ = {
-        'all': {'read': {'user', 'is_owner', 'profile'}, 'call': {'url_for'}},
+        'all': {'read': {'user', 'is_owner', 'profile'}},
         'editor': {'read': {'edit_url', 'delete_url'}},
     }
 
