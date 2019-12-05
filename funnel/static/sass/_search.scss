@@ -6,9 +6,11 @@
 }
 .search-icon {
   width: 20px;
+  height: 12px;
   display: inline-block;
   position: absolute;
   left: 8px;
+  top: 12px;
 }
 .search-icon:after {
   content: '🔍';

@@ -65,40 +65,23 @@
   min-height: 180px;
   position: relative;
   padding-bottom: 8px;
-}
-
-.card__image-wrapper img {
-  display: block;
-}
-
-.card__image--default {
   background-image: linear-gradient(to bottom, #4d5763, #202d3c);
-  min-height: 180px;
-  position: relative;
-  overflow: hidden;
 
   .card__image__tagline {
+    position: absolute;
     color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    top: 50%;
+    left: 16px;
+    right: 16px;
+    text-align: center;
+    font-size: 18px;
+    transform: translateY(-50%);
+    max-height: 100%;
   }
-}
 
-.card__calendar {
-  padding: 15px 0;
-}
-
-.card__image__tagline {
-  position: absolute;
-  color: #333;
-  top: 50%;
-  left: 16px;
-  right: 16px;
-  text-align: center;
-  font-size: 18px;
-  transform: translateY(-50%);
-  max-height: 100%;
+  img {
+    display: block;
+  }
 }
 
 @media (min-width: 768px) {
@@ -107,12 +90,32 @@
   }
 }
 
+.card__calendar {
+  padding: 15px 0;
+}
+
 .card--upcoming {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  max-width: 450px;
   .card__image-wrapper {
-    padding: 0;
+    position: relative;
+    padding-bottom: 56.2%;
+    background-image: linear-gradient(to bottom, #4d5763, #202d3c);
+
+    .card__image {
+      position: absolute;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+    .card__image__tagline {
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
   .card__body {
     padding: 0 15px 7.5px;
@@ -134,10 +137,6 @@
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
 
-  .card__image__tagline {
-    font-size: inherit;
-  }
-
   .card__image-wrapper,
   .card__image--default {
     flex: 0 0 100%;
@@ -146,9 +145,14 @@
     position: relative;
     cursor: pointer;
     overflow: hidden;
+    background-image: none;
     a {
       display: block;
       width: 100%;
+    }
+    .card__image__tagline {
+      font-size: inherit;
+      color: #333;
     }
   }
 

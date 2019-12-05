@@ -47,27 +47,27 @@
             <p class="mui--text-subhead mui--text-danger page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera"></video>
-          {{#if video}}}{% assets "fa5-sprite" %}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg>{% endassets %}{{/if}}
+          {{#if video}}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg>{{/if}}
         </div>
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg>{% endassets %}</a>
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4 class="mui--text-headlin mui--align-middle">Scanning {% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg>{% endassets %}</h4>
+              <h4 class="mui--text-headlin mui--align-middle">Scanning <svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg></h4>
             {{elseif contactFound}}
-              <h3 class="mui--text-title mui--text-bold">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>{% endassets %}&nbsp;&nbsp;{{ contact.fullname }}</h3>
-              <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg>{% endassets %}&nbsp;&nbsp; {{ contact.email }}</p>
+              <h3 class="mui--text-title mui--text-bold"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>&nbsp;&nbsp;{{ contact.fullname }}</h3>
+              <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg>&nbsp;&nbsp; {{ contact.email }}</p>
               {{#if contact.phone }}
-                <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg>{% endassets %}&nbsp;&nbsp; {{ contact.phone }}</p>
+                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg>&nbsp;&nbsp; {{ contact.phone }}</p>
               {{/if}}
               {{#if contact.twitter }}
-                <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>{% endassets %}&nbsp;&nbsp;{{ contact.twitter }}</p>
+                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>&nbsp;&nbsp;{{ contact.twitter }}</p>
               {{/if}}
               {{#if contact.company }}
-                <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg>{% endassets %}&nbsp;&nbsp; {{ contact.company }}</p>
+                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg>&nbsp;&nbsp; {{ contact.company }}</p>
               {{/if}}
               <p class="mui--text-body1"><i>This contact has been added to contacts tab in the account page</i></p>
             {{else}}
@@ -85,23 +85,23 @@
           {{#each contacts:i}}
             <div class="card mui--z2 contact-card card--small">
               <div class="card__body mui--clearfix">
-                <p class="mui--pull-left">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon-display1" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg>{% endassets %}</p>
+                <p class="mui--pull-left"><svg class="fa5-icon fa5-icon-display1" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg></p>
                 <div class="mui--pull-right contact-card__details">
                   <div class="mui--clearfix">
                     <div class="mui--pull-left">
-                      <h3 class="mui--text-title mui--text-bold">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>{% endassets %}{{ contacts[i].fullname }}</h3>
-                      <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg>{% endassets %} {{ contacts[i].email }}</p>
+                      <h3 class="mui--text-title mui--text-bold"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>{{ contacts[i].fullname }}</h3>
+                      <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg> {{ contacts[i].email }}</p>
                       {{#if contacts[i].phone }}
-                        <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg>{% endassets %} {{ contacts[i].phone }}</p>
+                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg> {{ contacts[i].phone }}</p>
                       {{/if}}
                       {{#if contacts[i].twitter }}
-                        <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>{% endassets %}{{ contacts[i].twitter }}</p>
+                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>{{ contacts[i].twitter }}</p>
                       {{/if}}
                       {{#if contacts[i].company }}
-                        <p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg>{% endassets %} {{ contacts[i].company }}</p>
+                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg> {{ contacts[i].company }}</p>
                       {{/if}}
                     </div>
-                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#address-card"></use></svg>{% endassets %}</a>
+                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#address-card"></use></svg></a>
                   </div>
                 </div>
               </div>

@@ -1280,32 +1280,11 @@ a.mui-btn {
   min-height: 180px;
   position: relative;
   padding-bottom: 8px;
-}
-
-.card__image-wrapper img {
-  display: block;
-}
-
-.card__image--default {
   background-image: linear-gradient(to bottom, #4d5763, #202d3c);
-  min-height: 180px;
-  position: relative;
-  overflow: hidden;
 }
-.card__image--default .card__image__tagline {
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card__calendar {
-  padding: 15px 0;
-}
-
-.card__image__tagline {
+.card__image-wrapper .card__image__tagline {
   position: absolute;
-  color: #333;
+  color: #fff;
   top: 50%;
   left: 16px;
   right: 16px;
@@ -1314,19 +1293,41 @@ a.mui-btn {
   transform: translateY(-50%);
   max-height: 100%;
 }
+.card__image-wrapper img {
+  display: block;
+}
 
 @media (min-width: 768px) {
   .card__image__tagline {
     font-size: 24px;
   }
 }
+.card__calendar {
+  padding: 15px 0;
+}
+
 .card--upcoming {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  max-width: 450px;
 }
 .card--upcoming .card__image-wrapper {
-  padding: 0;
+  position: relative;
+  padding-bottom: 56.2%;
+  background-image: linear-gradient(to bottom, #4d5763, #202d3c);
+}
+.card--upcoming .card__image-wrapper .card__image {
+  position: absolute;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+.card--upcoming .card__image-wrapper .card__image__tagline {
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .card--upcoming .card__body {
   padding: 0 15px 7.5px;
@@ -1346,9 +1347,6 @@ a.mui-btn {
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
 }
-.card--cfp .card__image__tagline {
-  font-size: inherit;
-}
 .card--cfp .card__image-wrapper,
 .card--cfp .card__image--default {
   flex: 0 0 100%;
@@ -1357,11 +1355,17 @@ a.mui-btn {
   position: relative;
   cursor: pointer;
   overflow: hidden;
+  background-image: none;
 }
 .card--cfp .card__image-wrapper a,
 .card--cfp .card__image--default a {
   display: block;
   width: 100%;
+}
+.card--cfp .card__image-wrapper .card__image__tagline,
+.card--cfp .card__image--default .card__image__tagline {
+  font-size: inherit;
+  color: #333;
 }
 .card--cfp .card__image-wrapper--cfp .card__image-wrapper__overlay {
   position: absolute;
@@ -2809,9 +2813,11 @@ body > .proposal-box.ui-draggable {
 
 .search-icon {
   width: 20px;
+  height: 12px;
   display: inline-block;
   position: absolute;
   left: 8px;
+  top: 12px;
 }
 
 .search-icon:after {
