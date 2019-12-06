@@ -131,7 +131,7 @@
             <p class="mui--hidden-xs mui--hidden-sm"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
           </div>
           <div class="grid__col-xs-12 grid__col-sm-6">
-            <img class="hg-banner-img js-hg-banner" src="{{ url_for('static', filename='img/hg-banner-default.png') }}" alt="{{ config['SITE_TITLE'] }}"/>
+            <img class="hg-banner-img js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
             <noscript>
               <img src="{{ url_for('static', filename='img/hg-banner-default.png') }}" alt="{{ config['SITE_TITLE'] }}" class="hg-banner-img">
             </noscript>
@@ -441,7 +441,8 @@
 
       var hgBannerConfig = {
         hgBannerImgList: {{ hg_banner|tojson }},
-        ImgFolderPath: "{{ url_for('static', filename='img/') }}"
+        ImgFolderPath: "{{ url_for('static', filename='img/') }}",
+        defaultBanner: "{{ url_for('static', filename='img/hg-banner-default.png') }}",
       };
 
       window.HasGeek.HomeInit(hgBannerConfig);

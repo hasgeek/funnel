@@ -14,6 +14,8 @@ $(() => {
       );
       let bannerFile = config.ImgFolderPath + config.hgBannerImgList[random];
       $('.js-hg-banner').attr('src', bannerFile);
+    } else {
+      $('.js-hg-banner').attr('src', config.defaultBanner);
     }
 
     // Expand CFP section
