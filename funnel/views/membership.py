@@ -53,7 +53,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         if request.method == 'POST':
             if membership_form.validate_on_submit():
                 previous_membership = (
-                    ProjectCrewMembership.query.filter(ProjectCrewMembership.active)
+                    ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
                     .filter_by(project=self.obj, user=membership_form.user.data)
                     .one_or_none()
                 )
@@ -256,7 +256,7 @@ class ProjectCrewMembershipView(
         if request.method == 'POST':
             if form.validate_on_submit():
                 previous_membership = self.obj
-                if previous_membership.active:
+                if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
                     db.session.commit()
 

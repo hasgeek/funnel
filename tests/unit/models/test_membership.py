@@ -26,7 +26,7 @@ class TestMembership(object):
         assert 'project_usher' not in new_project.roles_for(new_user)
 
         previous_membership = (
-            ProjectCrewMembership.query.filter(ProjectCrewMembership.active)
+            ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
             .filter_by(project=new_project, user=new_user)
             .first()
         )
@@ -39,7 +39,7 @@ class TestMembership(object):
         test_db.session.commit()
 
         assert 'project_editor' in new_project.roles_for(new_user)
-        assert new_membership.active
+        assert new_membership.is_active
         assert new_membership in new_project.active_crew_memberships
         assert new_membership.record_type == MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
 
@@ -56,7 +56,7 @@ class TestMembership(object):
 
         # let's revoke previous membership
         previous_membership2 = (
-            ProjectCrewMembership.query.filter(ProjectCrewMembership.active)
+            ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
             .filter_by(project=new_project, user=new_user)
             .first()
         )
