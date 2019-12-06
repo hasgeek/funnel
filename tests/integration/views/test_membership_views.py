@@ -103,5 +103,5 @@ class TestMembershipViews(object):
             assert resp2.status_code == 200
             assert resp2.json.get('status') == 'ok'
 
-            assert new_membership.active is not True
+            assert new_membership.is_active is not True
             assert new_membership not in new_project.active_crew_memberships

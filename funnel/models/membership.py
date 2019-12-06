@@ -88,12 +88,12 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return db.relationship(User, foreign_keys=[cls.granted_by_id])
 
     @hybrid_property
-    def active(self):
-        return self.revoked_at is None
+    def is_active(self):
+        return self.revoked_at is None and not self.is_invite
 
-    @active.expression
-    def active(cls):  # NOQA: N805
-        return cls.revoked_at.is_(None)
+    @is_active.expression
+    def is_active(cls):  # NOQA: N805
+        return cls.revoked_at.is_(None) & cls.is_invite.is_(False)
 
     @hybrid_property
     def is_invite(self):

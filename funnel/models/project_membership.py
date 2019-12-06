@@ -100,9 +100,7 @@ Project.active_crew_memberships = db.relationship(
     ProjectCrewMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.active,
-        ~ProjectCrewMembership.is_invite,
+        ProjectCrewMembership.project_id == Project.id, ProjectCrewMembership.is_active
     ),
 )
 
@@ -111,9 +109,8 @@ Project.active_editor_memberships = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.active,
+        ProjectCrewMembership.is_active,
         ProjectCrewMembership.is_editor.is_(True),
-        ~ProjectCrewMembership.is_invite,
     ),
 )
 
@@ -122,9 +119,8 @@ Project.active_concierge_memberships = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.active,
+        ProjectCrewMembership.is_active,
         ProjectCrewMembership.is_concierge.is_(True),
-        ~ProjectCrewMembership.is_invite,
     ),
 )
 
@@ -133,9 +129,8 @@ Project.active_usher_memberships = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.active,
+        ProjectCrewMembership.is_active,
         ProjectCrewMembership.is_usher.is_(True),
-        ~ProjectCrewMembership.is_invite,
     ),
 )
 

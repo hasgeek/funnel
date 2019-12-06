@@ -79,8 +79,7 @@ Profile.active_admin_memberships = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         ProfileAdminMembership.profile_id == Profile.id,
-        ProfileAdminMembership.active,
-        ~ProfileAdminMembership.is_invite,
+        ProfileAdminMembership.is_active,
     ),
 )
 
@@ -89,9 +88,8 @@ Profile.active_owner_memberships = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         ProfileAdminMembership.profile_id == Profile.id,
-        ProfileAdminMembership.active,
+        ProfileAdminMembership.is_active,
         ProfileAdminMembership.is_owner.is_(True),
-        ~ProfileAdminMembership.is_invite,
     ),
 )
 
@@ -108,9 +106,7 @@ User.active_profile_admin_memberships = db.relationship(
     ProfileAdminMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        ProfileAdminMembership.user_id == User.id,
-        ProfileAdminMembership.active,
-        ~ProfileAdminMembership.is_invite,
+        ProfileAdminMembership.user_id == User.id, ProfileAdminMembership.is_active
     ),
 )
 
@@ -119,9 +115,8 @@ User.active_profile_owner_memberships = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         ProfileAdminMembership.user_id == User.id,
-        ProfileAdminMembership.active,
+        ProfileAdminMembership.is_active,
         ProfileAdminMembership.is_owner.is_(True),
-        ~ProfileAdminMembership.is_invite,
     ),
 )
 
