@@ -8,7 +8,7 @@ $(() => {
     });
 
     // Random display of HasGeek banner
-    if (config.hgBannerImgList.length) {
+    if (config.hgBannerImgList && config.hgBannerImgList.length) {
       let random = Math.floor(
         Math.random() * Math.floor(config.hgBannerImgList.length)
       );

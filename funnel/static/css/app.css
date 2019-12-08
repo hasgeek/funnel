@@ -855,9 +855,14 @@ a.mui-btn {
 }
 
 .projects-wrapper {
-  padding: 30px 0;
+  padding: 15px 0;
 }
 
+@media (min-width: 1200px) {
+  .projects-wrapper {
+    padding: 30px 0;
+  }
+}
 .projects {
   padding-top: 15px;
 }
@@ -1021,6 +1026,30 @@ a.mui-btn {
 
 .hg-text {
   color: #e05f25;
+}
+
+.hg-about {
+  position: relative;
+}
+
+.hg-about:before {
+  background: #dda32a;
+  position: absolute;
+  content: '';
+  height: 33.3%;
+  left: 0;
+  top: 0;
+  width: 5px;
+}
+
+.hg-about:after {
+  background: linear-gradient(to bottom, #82688d 50%, #e05f25 50%);
+  position: absolute;
+  content: '';
+  height: 66.6%;
+  left: 0;
+  top: 33.3%;
+  width: 5px;
 }
 
 .cfp-action-btn {
@@ -1236,19 +1265,27 @@ a.mui-btn {
     margin: 0;
     padding: 0;
   }
+  .card--spotlight .card__image-wrapper .card__image {
+    position: absolute;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
   .card--spotlight .card__body {
     position: relative;
     padding: 15px 10% 15px 30px;
+  }
+  .card--spotlight .card__body .card_calendar {
+    padding: 10px 0 0;
   }
   .card--spotlight .card__body .card__body__divider {
     height: 4px;
     background-color: #eff2f6;
     width: 40px;
-    margin: 10px 0;
+    margin: 16px 0;
   }
   .card--spotlight .card__body .card__body__footer {
-    position: absolute;
-    bottom: 0;
+    margin: 0;
   }
 }
 .clickable-card,
@@ -1333,7 +1370,25 @@ a.mui-btn {
 }
 .card--upcoming .card__body .card__calendar {
   margin: 0 -15px;
-  padding: 10px 0 0;
+  padding: 8px 0 0;
+}
+.card--upcoming .card__body .card__body__title {
+  margin: 16px 0 0;
+}
+.card--upcoming .card__body .card__body__tagline {
+  margin: 8px 0 12px;
+}
+.card--upcoming .card__body .card__body__location {
+  margin: 12px 0 12px;
+}
+.card--upcoming .card__body .card__body__divider {
+  height: 4px;
+  background-color: #eff2f6;
+  width: 24px;
+  margin: 12px 0;
+}
+.card--upcoming .card__body .card__body__footer {
+  margin: 12px 0 6.5px;
 }
 
 .card--cfp {
@@ -1434,12 +1489,22 @@ a.mui-btn {
   background-image: none;
   background-color: #82698d;
 }
-.card--new .card__image-wrapper .card__image__tagline {
-  font-size: 65px;
+.card--new .card__image-wrapper .card__image-wrapper__icon-wrapper {
   color: #fff;
   border: 2px dotted #a890af;
-  width: 66px;
-  padding: 16px;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.card--new
+  .card__image-wrapper
+  .card__image-wrapper__icon-wrapper
+  .card__image-wrapper__icon-wrapper__icon {
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

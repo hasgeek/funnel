@@ -108,8 +108,8 @@
                       </div>
                     </div>
                   {% endif %}
-                  <!-- <div class="card__body__divider"></div> -->
-                  <p class="card__body__footer zero-bottom-margin mui--text-uppercase">
+                  <div class="card__body__divider"></div>
+                  <p class="card__body__footer mui--text-uppercase">
                     <a class="mui--text-dark mui--text-subhead" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</a>
                   </p>
                 </div>
@@ -122,8 +122,8 @@
   {% endwith %}{% endif %}
 
   {%- if not profile %}
-    <div class="projects-wrapper mui--bg-accent">
-      <div class="mui-container hg-about">
+    <div class="projects-wrapper hg-about">
+      <div class="mui-container">
         <div class="grid">
           <div class="grid__col-xs-12 grid__col-sm-6">
             <h2 class="mui--text-display1 mui--text-bold project-headline project-headline--secondary">Hasgeek creates <br>discussion <br>spaces for geeks</h2>
@@ -192,9 +192,10 @@
                   </div>
                 </div>
               {% endif %}
-              <h3 class="mui--text-headline mui--text-bold">{{ project.title }}</h3>
-              <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
-              {% if project.primary_venue %}<p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+              <h3 class="mui--text-headline card__body__title">{{ project.title }}</h3>
+              <p class="mui--text-subhead mui--text-light card__body__tagline">{{ project.tagline }}</p>
+              {% if project.primary_venue %}<p class="mui--text-subhead card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+              <div class="card__body__divider"></div>
               <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
             </div>
           </a>
@@ -202,6 +203,7 @@
       {%- endfor -%}
       </ul>
     </div>
+  </div>
   {% endwith %}{% endif %}
 
   {% if open_cfp_projects %}
@@ -260,7 +262,7 @@
             <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" title="New project" aria-label="Create new project">
               <div class="card__image-wrapper">
                 <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
-                <p class="card__image__tagline">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %}</p>
+                <p class="card__image-wrapper__icon-wrapper">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 mui--align-middle card__image-wrapper__icon-wrapper__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %}</p>
               </div>
               <div class="card__body">
                 <h4 class="mui--text-headline mui--text-bold">{% trans %}Start a project{% endtrans %}</h4>
@@ -313,9 +315,10 @@
                       </div>
                     </div>
                   {% endif %}
-                  <h3 class="mui--text-headline mui--text-bold">{{ project.title }}</h3>
-                  <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
-                  {% if project.primary_venue %}<p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                  <h3 class="mui--text-headline card__body__title">{{ project.title }}</h3>
+                  <p class="mui--text-subhead mui--text-light card__body__tagline">{{ project.tagline }}</p>
+                  {% if project.primary_venue %}<p class="mui--text-subhead card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                  <div class="card__body__divider"></div>
                   <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
                 </div>
               </a>
@@ -381,9 +384,10 @@
                       </div>
                     </div>
                   {% endif %}
-                  <h3 class="mui--text-headline mui--text-bold">{{ project.title }}</h3>
-                  <p class="mui--text-subhead mui--text-light zero-top-margin">{{ project.tagline }}</p>
-                  {% if project.primary_venue %}<p class="mui--text-subhead">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                  <h3 class="mui--text-headline card__body__title">{{ project.title }}</h3>
+                  <p class="mui--text-subhead mui--text-light card__body__tagline">{{ project.tagline }}</p>
+                  {% if project.primary_venue %}<p class="mui--text-subhead card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+                  <div class="card__body__divider"></div>
                   <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
                 </div>
               </a>
@@ -440,10 +444,14 @@
     $(function() {
 
       var hgBannerConfig = {
-        hgBannerImgList: {{ hg_banner|tojson }},
+        hgBannerImgList: '',
         ImgFolderPath: "{{ url_for('static', filename='img/') }}",
         defaultBanner: "{{ url_for('static', filename='img/hg-banner-default.png') }}",
       };
+
+      {% if hgBannerImgList %}
+        hgBannerImgList: {{ hg_banner|tojson }};,
+      {% endif %}
 
       window.HasGeek.HomeInit(hgBannerConfig);
     });

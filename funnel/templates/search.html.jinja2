@@ -77,12 +77,13 @@
                                   </div>
                                 </div>
                               {{/if}}
-                              <h3 class="mui--text-headline mui--text-bold">{{{ title_html }}}</h3>
-                              <p class="mui--text-subhead mui--text-light zero-top-margin">{{ obj.tagline }}</p>
+                              <h3 class="mui--text-headline card__body__title">{{{ title_html }}}</h3>
+                              <p class="mui--text-subhead mui--text-light card__body__tagline">{{ obj.tagline }}</p>
                               {{#if obj.location }}
-                                <p class="mui--text-subhead"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}</p>
+                                <p class="mui--text-subhead card__body__location"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}</p>
                               {{/if}}
                               <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
+                              <div class="card__body__divider"></div>
                               <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                             </div>
                           </a>

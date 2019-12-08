@@ -1,5 +1,11 @@
 .projects-wrapper {
-  padding: 30px 0;
+  padding: 15px 0;
+}
+
+@media (min-width: 1200px) {
+  .projects-wrapper {
+    padding: 30px 0;
+  }
 }
 
 .projects {
@@ -184,4 +190,28 @@
 
 .hg-text {
   color: #e05f25;
+}
+
+.hg-about {
+  position: relative;
+}
+
+.hg-about:before {
+  background: #dda32a;
+  position: absolute;
+  content: '';
+  height: 33.3%;
+  left: 0;
+  top: 0;
+  width: 5px;
+}
+
+.hg-about:after {
+  background: linear-gradient(to bottom, #82688d 50%, #e05f25 50%);
+  position: absolute;
+  content: '';
+  height: 66.6%;
+  left: 0;
+  top: 33.3%;
+  width: 5px;
 }
