@@ -54,7 +54,6 @@
 
 {% block basecontent %}
   {% if featured_project %}
-  {% with current_sessions = featured_project.current_sessions() if featured_project is not none else none %}
     <div class="projects-wrapper mui--bg-accent">
       <div class="spotlight">
         <div class="mui-container">
@@ -119,7 +118,7 @@
         </div>
       </div>
     </div>
-  {% endwith %}{% endif %}
+  {% endif %}
 
   {%- if not profile %}
     <div class="projects-wrapper hg-about">
@@ -143,7 +142,6 @@
   {% endif %}
 
   {% if upcoming_projects|length > 0 %}
-  {% with current_sessions = featured_project.current_sessions() if featured_project is not none else none %}
   <div class="projects-wrapper mui--bg-accent">
     <div class="mui-container">
       <div class="grid">
@@ -204,7 +202,7 @@
       </ul>
     </div>
   </div>
-  {% endwith %}{% endif %}
+  {% endif %}
 
   {% if open_cfp_projects %}
     <div class="projects-wrapper mui--bg-accent">
