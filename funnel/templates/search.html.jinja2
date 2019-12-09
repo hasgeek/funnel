@@ -88,7 +88,7 @@
                             </div>
                           </a>
                         {{elseif result == 'profile'}}
-                          <a href="{{ obj.url }}" aria-label="{{ title }}" class="card card--upcoming  clickable-card">
+                          <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming  clickable-card">
                             <div class="card__image-wrapper">
                               {{#if obj.logo_url }}
                                 <img class="card__image" src="{{ obj.logo_url }}" alt="{{ title }}"/>
@@ -98,9 +98,10 @@
                               {{/if}}
                             </div>
                             <div class="card__body">
-                              <h3 class="zero-top-margin zero-bottom-margin">{{{ title_html }}}</h3>
-                              <p class="mui--text-subhead mui--text-light zero-top-margin">{{{ obj.description.html }}}</p>
+                              <h3 class="mui--text-headline card__body__title">{{{ title_html }}}</h3>
+                              <p class="mui--text-subhead mui--text-light card__body__tagline">{{{ obj.description.html }}}</p>
                               <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
+                              <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit profile page&nbsp;&nbsp;<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                             </div>
                           </a>
                         {{elseif result == 'session'}}

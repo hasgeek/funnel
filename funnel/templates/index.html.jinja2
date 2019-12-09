@@ -444,13 +444,13 @@
     $(function() {
 
       var hgBannerConfig = {
-        hgBannerImgList: '',
+        hgBannerImgList: [],
         ImgFolderPath: "{{ url_for('static', filename='img/') }}",
         defaultBanner: "{{ url_for('static', filename='img/hg-banner-default.png') }}",
       };
 
-      {% if hgBannerImgList %}
-        hgBannerImgList: {{ hg_banner|tojson }};,
+      {% if hg_banner %}
+        hgBannerConfig.hgBannerImgList = {{ hg_banner|tojson }};
       {% endif %}
 
       window.HasGeek.HomeInit(hgBannerConfig);
