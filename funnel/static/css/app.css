@@ -1670,14 +1670,20 @@ a.mui-btn {
     right: 0;
   }
 }
+.project-banner .profile-details {
+  display: none;
+}
+.project-banner .project-banner__headline {
+  margin-bottom: 8px;
+}
 .project-banner .project-banner__box {
   padding: 0;
 }
-.project-banner .project-banner__box .project-banner__box__video {
+.project-banner .project-banner__box .project-banner__box__16_9 {
   padding-bottom: 56%;
   position: relative;
 }
-.project-banner .project-banner__box .project-banner__box__video iframe {
+.project-banner .project-banner__box .project-banner__box__16_9 iframe {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -1685,22 +1691,47 @@ a.mui-btn {
   top: 0;
   display: block;
 }
-.project-banner .project-banner__box .project-banner__box__image {
+.project-banner
+  .project-banner__box
+  .project-banner__box__16_9
+  .project-banner__box__image {
+  position: absolute;
+  object-fit: cover;
   width: 100%;
-  display: block;
+  height: 100%;
 }
 .project-banner .project-banner__box .project-banner__headline {
   padding: 0 15px;
 }
+.project-banner .profile-text {
+  margin: 15px 0;
+}
+.project-banner .profile-text p {
+  margin: 0;
+}
 .project-banner .card__calendar {
-  padding: 0;
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-  border-top: 1px solid rgba(132, 146, 166, 0.3);
-  background-color: #f9fafc;
+  padding: 0 0 15px;
   margin-right: -15px;
   margin-left: -15px;
   padding: 0 15px;
+  margin-bottom: 15px;
+}
+.project-banner .project-time {
+  margin-bottom: 15px;
+}
+.project-banner .project-venue {
+  margin-bottom: 15px;
+}
+.project-banner .propose-btn {
+  background-color: #202d3c;
+  color: #fff;
   margin-bottom: 0;
+}
+.project-banner .propose-btn.strike-text {
+  text-decoration: line-through;
+}
+.project-banner .propose-btn.strike-text:hover {
+  text-decoration: line-through;
 }
 .project-banner .project-banner__action {
   display: flex;
@@ -1720,98 +1751,51 @@ a.mui-btn {
 .project-banner .project-banner__action .project-banner__action__button {
   display: inline-block;
   width: 165px;
+  box-shadow: none;
+  text-align: left;
+  padding: 0;
+  margin: 0;
 }
 .project-banner .project-banner__action .mui-btn + .mui-btn {
   margin-left: 0;
 }
-.project-banner .profile-details {
-  display: flex;
-}
-.project-banner .profile-details .profile-details__logo {
-  height: 45px;
-  margin-right: 15px;
-}
-.project-banner .profile-details .profile-details__title {
-  word-break: keep-all;
-}
-.project-banner .date-wrapper {
-  display: flex;
-  margin: 0 -15px;
-  padding: 15px;
-}
-.project-banner .date-wrapper .date-wrapper__icon {
-  border-radius: 50%;
-  border: 1px solid #79818b;
-  min-width: 32px;
-  height: 32px;
-  text-align: center;
-  margin-right: 15px;
-}
-.project-banner .date-wrapper .date-wrapper__details {
-  word-break: keep-all;
-}
 
-@media (min-width: 544px) {
-  .project-banner .project-banner__action {
-    max-width: 300px;
+@media (min-width: 992px) {
+  .project-banner .profile-details {
+    display: block;
+    margin: 15px 0 0;
   }
-}
-@media (min-width: 768px) {
-  .project-banner {
-    margin-top: 30px;
+  .project-banner .profile-details .profile-details__logo-wrapper {
+    display: inline-block;
+    height: 50px;
+    margin-right: 5px;
+  }
+  .project-banner
+    .profile-details
+    .profile-details__logo-wrapper
+    .profile-details__logo_wrapper__logo {
+    height: 100%;
+  }
+  .project-banner .profile-details .profile-details__text {
+    height: 50px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .project-banner .project-banner__headline {
+    margin-bottom: 16px;
   }
   .project-banner .project-banner__box {
-    padding: 0 15px;
+    padding: 0 0 0 15px;
   }
-  .project-banner .project-banner__box .project-banner__box__video {
-    padding-bottom: 56%;
-    position: relative;
-  }
-  .project-banner .project-banner__box .project-banner__box__video iframe {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    display: block;
-  }
-  .project-banner .project-banner__box .project-banner__box__image {
-    width: 100%;
-    display: block;
-  }
-  .project-banner .project-banner__box .project-banner__headline {
-    margin-top: 15px;
-    padding: 0;
-  }
-  .project-banner .profile-details {
+  .project-banner .profile-text {
     margin: 0 0 15px;
   }
-  .project-banner .card__calendar {
-    background-color: transparent;
-    margin: 0 0 0;
-    padding: 0;
-  }
-  .project-banner .project-banner__action {
-    max-width: 100%;
+  .project-banner .profile-text p {
     margin: 0;
   }
-  .project-banner .project-banner__action .project-banner__action__social {
-    justify-content: space-between;
-    width: 150px;
-    display: flex;
-    align-items: center;
-  }
-  .project-banner .date-wrapper {
-    border: 0;
-  }
-}
-@media (min-width: 768px) and (max-width: 1199px) {
-  .project-banner
-    .project-banner__box
-    .project-banner__headline
-    .profile-details {
-    display: block;
-    display: flex;
+  .project-banner .card__calendar {
+    margin: 0 0 15px;
+    padding: 10px 0 0;
   }
 }
 .about {
