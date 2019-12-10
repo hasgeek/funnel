@@ -70,7 +70,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Schedule{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Schedule{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -107,7 +107,7 @@
                   <h2 class="mui--text-heading schedule__date">{{ schedule.dateStr }}</h2>
                   <div class="mui--bg-accent schedule__table">
                     <div class="schedule__row schedule__row--sticky">
-                      <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><i class="material-icons mui--text-headline" aria-hidden="true">schedule</i></p>
+                      <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><svg class="fa5-icon fa5-icon--subhead test fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#clock'"></use></svg></p>
                       <p class="schedule__row__column schedule__row__column--header" :class="[activeTab == roomkey ? 'js-tab-active' : '']" :style="{width: 'calc(100% - ' + getColumnWidth('header') + 'px)'}" @click="toggleTab(roomkey)" v-for="(room, roomkey, roomindex) in schedule.rooms">{{ room.title }}</p>
                     </div>
 
@@ -155,7 +155,8 @@
       parentContainer: '#schedule',
       active_session: '',
       projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
-      pageDescription: {{ g.profile.description|striptags|tojson }} // HTML escaped for use in HTML tags via JS
+      pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
+      svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %}
     };
     {%- if active_session -%}
       scheduleConfig['active_session'] = {{ active_session|tojson }};

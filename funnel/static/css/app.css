@@ -302,6 +302,10 @@ a.mui-btn {
   height: 32px;
 }
 
+.read-more {
+  cursor: pointer;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -1472,14 +1476,6 @@ a.mui-btn {
   }
   .card--cfp .card__body--cfp {
     padding: 0 0 0 15px;
-  }
-  .card--cfp .card__body--cfp .card--cfp__title {
-    max-height: calc(27px * 2);
-    overflow: hidden;
-  }
-  .card--cfp .card__body--cfp .card--cfp__tagline {
-    max-height: calc(24px * 4);
-    overflow: hidden;
   }
   .card--cfp .card__image-wrapper--cfp {
     height: 150px;

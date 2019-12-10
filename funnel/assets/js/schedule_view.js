@@ -28,6 +28,7 @@ const Schedule = {
             description: schedule.config.pageDescription,
           },
           view: 'agenda',
+          svgIconUrl: schedule.config.svgIconUrl,
         };
       },
       methods: {

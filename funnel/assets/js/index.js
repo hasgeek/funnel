@@ -25,5 +25,19 @@ $(() => {
       $(projectElemClass).removeClass('mui--hide');
       $(this).addClass('mui--hide');
     });
+
+    $('.js-truncate-title').trunk8({
+      lines: 2,
+    });
+
+    $('.js-truncate-tagline').trunk8({
+      lines: 3,
+      fill:
+        '&hellip;<span class="js-read-more-text mui--text-hyperlink read-more">read more</span>',
+    });
+
+    $('.js-read-more-text').click(function() {
+      $('.js-truncate-tagline').trunk8('revert');
+    });
   };
 });

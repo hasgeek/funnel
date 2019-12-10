@@ -48,7 +48,7 @@
         </div>
       {% endif %}
       <div class="grid__col-md-4">
-        <div class="mui--text-body1 mui--text-light profile-text">{{ project.profile.description|safe }}</div>
+        <div class="mui--text-body1 mui--text-light profile-text js-truncate-text">{{ project.profile.description|safe }}</div>
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             <div class="card__calendar mui--bg-accent" aria-hidden="true">

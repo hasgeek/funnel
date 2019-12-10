@@ -147,7 +147,7 @@
                       <p class="mui--text-title">No results found</p>
                     {{/}}
                     {{#if results[result].next_num }}
-                      <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><i class="material-icons mui--text-subhead mui--align-middle spinner" aria-hidden="true">refresh</i> Loading more</p>
+                      <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><svg class="fa5-icon fa5-icon--subhead test fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg> Loading more</p>
                     {{/if}}
                   {{/if}}
                 {{/each}}

@@ -212,8 +212,18 @@ $(() => {
       SaveProject(saveProjectConfig);
     }
 
-    $('.truncate').succinct({
-      size: 150,
+    $('.js-truncate-text p').trunk8({
+      lines: 2,
+      fill:
+        '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+    });
+
+    $('.js-read-more').click(function() {
+      $('.js-truncate-text p').trunk8('revert');
+    });
+
+    $('.js-truncate-desc').trunk8({
+      lines: 3,
     });
   };
 });

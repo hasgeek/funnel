@@ -248,15 +248,6 @@
     }
     .card__body--cfp {
       padding: 0 0 0 15px;
-      .card--cfp__title {
-        // calc(line-height * max-lines);
-        max-height: calc(27px * 2);
-        overflow: hidden;
-      }
-      .card--cfp__tagline {
-        max-height: calc(24px * 4);
-        overflow: hidden;
-      }
     }
     .card__image-wrapper--cfp {
       height: 150px;
