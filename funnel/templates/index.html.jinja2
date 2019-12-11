@@ -53,6 +53,55 @@
 {% endblock %}
 
 {% block basecontent %}
+  {% with current_sessions = featured_project.current_sessions() if featured_project is not none else none %}
+  {% if featured_project and featured_project.livestream or  current_sessions and current_sessions.sessions|length > 0 %}
+    <div class="projects-wrapper mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline mui--text-bold project-headline">
+              {% if not featured_project.livestream and current_sessions.sessions|length > 0 %}
+                {% trans %}Live schedule{% endtrans %}
+              {% elif featured_project.livestream and not current_sessions.sessions|length > 0 %}
+                {% trans %}LiveStream{% endtrans %}
+              {% elif featured_project.livestream and current_sessions.sessions.sessions|length > 0 %}
+                {% trans %}LiveStream and Schedule{% endtrans %}
+              {% endif %}
+            </h2>
+          </div>
+        </div>
+        <div class="grid__col-xs-12">
+          <div class="card card--spotlight card--spotlight--live">
+            <div class="card__image-wrapper">
+              {% if featured_project.bg_image.url %}
+                <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
+              {% else %}
+                <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
+                <p class="card__image__tagline">{{ featured_project.title }}</p>
+              {% endif %}
+            </div>
+            <div class="card__body">
+              <h3 class="mui--text-headline zero-top-margin">{{ featured_project.title }}</h3>
+              <p class="mui--text-title mui--text-bold hg-text">Live</p>
+              {% if current_sessions.sessions|length > 0 %}
+                <p class="mui--text-title mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} Session starts at {{ current_sessions.sessions[0].start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
+              {% endif %}
+              <div>
+                {%- if featured_project.livestream %}
+                  <a class="mui-btn mui-btn--primary mui-btn--raised" title="Watch LiveStream" data-action="Watch LiveStream(homepage)" href="{{ featured_project.url_for('') }}">{% trans %}Schedule{% endtrans %}</a>
+                {%- endif %}
+                {%- if current_sessions.sessions|length > 0 %}
+                  <a class="mui-btn mui-btn--primary mui-btn--raised" title="Schedule" data-action="Schedule(homepage)" href="{{ featured_project.url_for('schedule') }}">{% trans %}Schedule{% endtrans %}</a>
+                {%- endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  {% endwith %}
+
   {% if featured_project %}
     <div class="projects-wrapper mui--bg-accent">
       <div class="spotlight">
@@ -125,9 +174,9 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-xs-12 grid__col-sm-6">
-            <h2 class="mui--text-display1 mui--text-bold project-headline project-headline--secondary">Hasgeek creates <br>discussion <br>spaces for geeks</h2>
-            <p class="mui--text-subhead">Meet like-minded people, learn new things and discover new opportunities</p>
-            <p class="mui--hidden-xs mui--hidden-sm"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
+            <h2 class="mui--text-display1 mui--text-bold project-headline project-headline--secondary hg-about__content">Hasgeek creates discussion spaces for geeks</h2>
+            <p class="mui--text-subhead hg-about__content">Meet like-minded people, learn new things and discover new opportunities</p>
+            <p class="mui--hidden-xs mui--hidden-sm hg-about__link"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
           </div>
           <div class="grid__col-xs-12 grid__col-sm-6">
             <img class="hg-banner-img js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>

@@ -72,8 +72,8 @@
         </a>
       {%- endif %}
     {%- else -%}
-      <!-- <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a> -->
-      <a href="{{ url_for('index') }}" class="header__nav-links {% if  current_view.current_section == 'home' %}header__nav-links-active{% endif %}" aria-label="Home">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#home"></use></svg>{% endassets %}<span class="header__nav-links__text">Home</span></a>
+      <a href="{{ url_for('index') }}" class="mui--hidden-xs mui--hidden-sm"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links-active{% endif %}" aria-label="Home">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#home"></use></svg>{% endassets %}<span class="header__nav-links__text">Home</span></a>
       <form action="/search" class="search-form js-search-form">
         <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
         {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline search-form__field__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %}

@@ -108,14 +108,14 @@
 }
 
 .project-headline {
-  margin-bottom: 35px;
+  margin-bottom: 40px;
   position: relative;
 }
 
 .project-headline:after {
   content: '';
   position: absolute;
-  bottom: -12px;
+  bottom: -16px;
   width: 64px;
   left: 0;
   border-bottom: 3px solid #dda32a;
@@ -125,9 +125,16 @@
   border-bottom: 3px solid #82688d;
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
-  .spotlight {
-    margin-bottom: 15px;
+@media (min-width: 1200px) {
+  .hg-about {
+    position: relative;
+    .hg-about__content {
+      width: 70%;
+    }
+    .hg-about__link {
+      position: absolute;
+      bottom: 30%;
+    }
   }
 }
 
