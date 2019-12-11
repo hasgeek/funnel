@@ -121,7 +121,7 @@
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
   max-width: 450px;
-  transition: transform 200ms linear;
+  transition: 200ms linear;
 
   .card__image-wrapper {
     position: relative;
@@ -171,7 +171,7 @@
 }
 
 .card--upcoming:hover {
-  transform: scale(1.1) translateZ(0);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
 .card--cfp {
