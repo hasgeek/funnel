@@ -3,7 +3,7 @@ describe('Project', function() {
   const project = require('../fixtures/project.json');
 
   it('Create a new project', function() {
-    cy.login('/JSFoo', admin.username, admin.password);
+    cy.visit('/testlogin?email=testuser@example.com&next=/test-profile');
 
     cy.get('a[data-cy="new-project"]').click();
     cy.location('pathname').should('contain', '/new');
