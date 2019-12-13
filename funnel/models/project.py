@@ -192,6 +192,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
     )
 
+    livestream_urls = db.Column(db.ARRAY(db.UnicodeText, dimensions=1))
+
     venues = db.relationship(
         'Venue',
         cascade='all, delete-orphan',
