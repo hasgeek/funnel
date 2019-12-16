@@ -261,18 +261,18 @@ funnelapp.assets.register(
     ),
 )
 funnelapp.assets.register(
-    'js_jquerytruncate',
-    Bundle(
-        assets.require('!jquery.js', 'jquery.truncate8.js'),
-        output='js/jquerytruncate.packed.js',
-        filters='uglipyjs',
-    ),
-)
-funnelapp.assets.register(
     'js_jqueryeasytabs',
     Bundle(
         assets.require('!jquery.js', 'jquery-easytabs.js'),
         output='js/jqueryeasytabs.packed.js',
+        filters='uglipyjs',
+    ),
+)
+funnelapp.assets.register(
+    'js_jquerytruncate',
+    Bundle(
+        assets.require('!jquery.js', 'jquery.truncate8.js'),
+        output='js/jquerytruncate.packed.js',
         filters='uglipyjs',
     ),
 )
