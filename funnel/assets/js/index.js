@@ -26,18 +26,12 @@ $(() => {
       $(this).addClass('mui--hide');
     });
 
-    $('.js-truncate-title').trunk8({
+    $('.js-truncate-2').trunk8({
       lines: 2,
     });
 
-    $('.js-truncate-tagline').trunk8({
+    $('.js-truncate-3').trunk8({
       lines: 3,
-      fill:
-        '&hellip;<span class="js-read-more-text mui--text-hyperlink js-read-more-text">read more</span>',
-    });
-
-    $('.js-read-more-text').click(function() {
-      $('.js-truncate-tagline').trunk8('revert');
     });
   };
 });

@@ -250,6 +250,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'location',
                 'calendar_weeks',
                 'primary_venue',
+                'livestream_urls',
             },
             'call': {'url_for', 'current_sessions'},
         }

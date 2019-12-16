@@ -1408,12 +1408,12 @@ a.mui-btn {
 .card--upcoming .card__body .card__body__title {
   margin: 16px 0 0;
   font-size: 20px;
-  line-height: 24px;
+  line-height: 28px;
 }
 .card--upcoming .card__body .card__body__tagline {
   margin: 8px 0 12px;
   font-size: 20px;
-  line-height: 24px;
+  line-height: 28px;
 }
 .card--upcoming .card__body .card__body__location {
   margin: 12px 0 12px;
@@ -1739,7 +1739,7 @@ a.mui-btn {
 .project-banner .project-banner__box .project-banner__headline {
   padding: 0 15px;
 }
-.project-banner .livestream {
+.project-banner .livestream-box {
   margin: 15px 0 30px;
   padding: 0;
 }

@@ -72,5 +72,14 @@ $(() => {
 
   $('.js-truncate-2lines').trunk8({
     lines: 2,
+    fill:
+      '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+  });
+
+  $('.js-read-more').click(function() {
+    console.log(this);
+    $(this)
+      .parent('.js-truncate-2lines')
+      .trunk8('revert');
   });
 });

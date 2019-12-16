@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import rsvpform, rsvpscript, project_header, admin_panel %}
+{%- from "macros.html.jinja2" import project_header, admin_panel %}
 {% block title %}Settings{% endblock %}
 {% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
@@ -30,7 +30,7 @@
     <div class="page-content page-content--mob-nav">
       <div class="grid">
         <div class="grid__col-xs-12 grid__col-md-8">
-          <div class="card">
+          <div class="card" id="admin-panel">
             <div class="card__header">
               <h3 class="mui--text-title mui--text-uppercase mui--text-bold">{% trans %}Admin panel{% endtrans %}</h3>
             </div>

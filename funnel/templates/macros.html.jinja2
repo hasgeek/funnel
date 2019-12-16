@@ -36,17 +36,17 @@
         <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
-      {% if project.livestream %}
-        <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream">
+      {% if project.livestream_urls %}
+        <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">
           <ul class="mui-tabs__bar project-banner__box" role="tablist">
-            {%- for stream in project.livestream %}
+            {%- for stream in project.livestream_urls %}
               <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
                 <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}">Livestream {{loop.index}}</a>
               </li>
             {%- endfor %}
           </ul>
 
-          {%- for stream in project.livestream %}
+          {%- for stream in project.livestream_urls %}
             <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
               <div class="project-banner__box">
                 <div class="project-banner__box__16_9">
@@ -69,7 +69,7 @@
         </div>
       {% endif %}
       <div class="grid__col-md-4">
-        <div class="mui--text-body1 mui--text-light profile-text js-truncate-text">{{ project.profile.description|safe|striptags }}</div>
+        <div class="mui--text-body1 mui--text-light profile-text js-truncate-2lines">{{ project.profile.description|safe|striptags }}</div>
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             <div class="card__calendar mui--bg-accent" aria-hidden="true">
@@ -152,7 +152,7 @@
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
       {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#call-for-proposal" title="Settings" data-action="Settings(navbar)">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" title="Settings" data-action="Settings(navbar)">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
     </nav>
   </div>
