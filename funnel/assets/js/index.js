@@ -25,13 +25,5 @@ $(() => {
       $(projectElemClass).removeClass('mui--hide');
       $(this).addClass('mui--hide');
     });
-
-    $('.js-truncate-2').trunk8({
-      lines: 2,
-    });
-
-    $('.js-truncate-3').trunk8({
-      lines: 3,
-    });
   };
 });

@@ -70,16 +70,25 @@ $(() => {
     Utils.sendToGA('click', action, target);
   });
 
-  $('.js-truncate-2lines').trunk8({
-    lines: 2,
-    fill:
-      '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+  $('.js-truncate').each(function() {
+    let linesLimit = $(this).data('truncate-lines');
+    $(this).trunk8({
+      lines: linesLimit,
+    });
+  });
+
+  $('.js-truncate-readmore').each(function() {
+    let linesLimit = $(this).data('truncate-lines');
+    $(this).trunk8({
+      lines: linesLimit,
+      fill:
+        '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+    });
   });
 
   $('.js-read-more').click(function() {
-    console.log(this);
     $(this)
-      .parent('.js-truncate-2lines')
+      .parent('.js-truncate-readmore')
       .trunk8('revert');
   });
 });

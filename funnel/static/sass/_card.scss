@@ -179,6 +179,14 @@
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
+@media (min-width: 768px) {
+  .card--upcoming {
+    .card__body {
+      min-height: 300px;
+    }
+  }
+}
+
 .card--cfp {
   display: flex;
   flex-wrap: wrap;

@@ -69,7 +69,7 @@
         </div>
       {% endif %}
       <div class="grid__col-md-4">
-        <div class="mui--text-body1 mui--text-light profile-text js-truncate-2lines">{{ project.profile.description|safe|striptags }}</div>
+        <div class="mui--text-body1 mui--text-light profile-text js-truncate-readmore" data-truncate-lines="2">{{ project.profile.description|safe|striptags }}</div>
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             <div class="card__calendar mui--bg-accent" aria-hidden="true">

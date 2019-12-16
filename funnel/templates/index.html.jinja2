@@ -239,8 +239,7 @@
                   </div>
                 </div>
               {% endif %}
-              <div class="card__body__title js-truncate-3"><span class="mui--text-bold">{{ project.title }}</span>
-              <span class="mui--text-light">{{ project.tagline }}</span></div>
+              <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span> <span class="mui--text-light">{{ project.tagline }}</span></div>
               {% if project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
               <div class="card__body__divider"></div>
               <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
@@ -279,9 +278,9 @@
                   {% endif %}
                 </a>
                 <div class="card__body card__body--cfp">
-                  <h3 class="card--cfp__title mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="js-truncate-2">{{ project.title }}</a></h3>
+                  <h3 class="card--cfp__title mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="js-truncate" data-truncate-lines="2">{{ project.title }}</a></h3>
                   {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
-                  <p class="mui--text-subhead mui--text-light zero-top-margin card--cfp__tagline js-truncate-2lines">{{ project.tagline }}</p>
+                  <p class="mui--text-subhead mui--text-light zero-top-margin card--cfp__tagline js-truncate-readmore" data-truncate-lines="2">{{ project.tagline }}</p>
                 </div>
               </div>
             </li>
@@ -362,8 +361,7 @@
                       </div>
                     </div>
                   {% endif %}
-                  <h3 class="card__body__title js-truncate-2lines">{{ project.title }}</h3>
-                  <p class="mui--text-light card__body__tagline js-truncate-2lines">{{ project.tagline }}</p>
+                  <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span> <span class="mui--text-light">{{ project.tagline }}</span></div>
                   {% if project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                   <div class="card__body__divider"></div>
                   <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
@@ -431,8 +429,7 @@
                       </div>
                     </div>
                   {% endif %}
-                  <h3 class="card__body__title js-truncate-2lines">{{ project.title }}</h3>
-                  <p class="mui--text-light card__body__tagline js-truncate-2lines">{{ project.tagline }}</p>
+                  <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span> <span class="mui--text-light">{{ project.tagline }}</span></div>
                   {% if project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
                   <div class="card__body__divider"></div>
                   <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
