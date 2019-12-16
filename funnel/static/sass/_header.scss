@@ -101,6 +101,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            overflow: visible;
 
             .header__site-title__logo {
               height: 35px;
@@ -121,12 +122,12 @@
               box-shadow: none;
 
               .search-form__field {
-                border-radius: 2px;
-                padding: 8px 10px 8px 25px;
+                border-radius: 16px;
+                padding: 8px 10px 8px 30px;
               }
               .search-form__field__icon {
                 top: 9px;
-                left: 8px;
+                left: 13px;
               }
             }
 
@@ -141,6 +142,9 @@
                 margin-left: 8px;
                 font-size: 18px;
               }
+            }
+            .header__nav-links__dropdown {
+              margin-top: 13px;
             }
           }
         }

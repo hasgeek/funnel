@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
-{%- from "macros.html.jinja2" import project_header, admin_panel %}
+{%- from "macros.html.jinja2" import project_header %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
 
@@ -61,14 +61,6 @@
 {% endblock %}
 
 {% block contentwrapper %}
-  <div class="grid">
-    <div class="grid__col-12">
-      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
-        {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
-      {% endif %}
-    </div>
-  </div>
-
   <div class="about">
     {% if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
       <div class="about__participate">
@@ -229,9 +221,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_jquerytruncate" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {

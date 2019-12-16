@@ -54,6 +54,7 @@
     }
 
     .card__body {
+      width: 70%;
       padding: 0 0 0 30px;
     }
   }
@@ -151,9 +152,13 @@
 
     .card__body__title {
       margin: 16px 0 0;
+      font-size: 20px;
+      line-height: 24px;
     }
     .card__body__tagline {
       margin: 8px 0 12px;
+      font-size: 20px;
+      line-height: 24px;
     }
     .card__body__location {
       margin: 12px 0 12px;

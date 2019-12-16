@@ -444,6 +444,7 @@ a.mui-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    overflow: visible;
   }
   .hg-app
     .header--fixed
@@ -483,8 +484,8 @@ a.mui-btn {
     .header__site-title__title
     .search-form
     .search-form__field {
-    border-radius: 2px;
-    padding: 8px 10px 8px 25px;
+    border-radius: 16px;
+    padding: 8px 10px 8px 30px;
   }
   .hg-app
     .header--fixed
@@ -494,7 +495,7 @@ a.mui-btn {
     .search-form
     .search-form__field__icon {
     top: 9px;
-    left: 8px;
+    left: 13px;
   }
   .hg-app
     .header--fixed
@@ -517,6 +518,14 @@ a.mui-btn {
     display: inline-block;
     margin-left: 8px;
     font-size: 18px;
+  }
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .header__nav-links__dropdown {
+    margin-top: 13px;
   }
   .hg-app .content-wrapper {
     padding-top: 50px;
@@ -1307,6 +1316,7 @@ a.mui-btn {
     flex: auto;
   }
   .card--spotlight--live .card__body {
+    width: 70%;
     padding: 0 0 0 30px;
   }
 }
@@ -1397,9 +1407,13 @@ a.mui-btn {
 }
 .card--upcoming .card__body .card__body__title {
   margin: 16px 0 0;
+  font-size: 20px;
+  line-height: 24px;
 }
 .card--upcoming .card__body .card__body__tagline {
   margin: 8px 0 12px;
+  font-size: 20px;
+  line-height: 24px;
 }
 .card--upcoming .card__body .card__body__location {
   margin: 12px 0 12px;
@@ -1689,6 +1703,9 @@ a.mui-btn {
     right: 0;
   }
 }
+.project-banner {
+  margin-top: 15px;
+}
 .project-banner .profile-details {
   display: none;
 }
@@ -1722,11 +1739,19 @@ a.mui-btn {
 .project-banner .project-banner__box .project-banner__headline {
   padding: 0 15px;
 }
+.project-banner .livestream {
+  margin: 15px 0 30px;
+  padding: 0;
+}
 .project-banner .profile-text {
   margin: 15px 0;
 }
 .project-banner .profile-text p {
+  display: none;
+}
+.project-banner .profile-text p:first-child {
   margin: 0;
+  display: block;
 }
 .project-banner .card__calendar {
   padding: 0 0 15px;
@@ -1782,7 +1807,6 @@ a.mui-btn {
 @media (min-width: 992px) {
   .project-banner .profile-details {
     display: block;
-    margin: 15px 0 0;
   }
   .project-banner .profile-details .profile-details__logo-wrapper {
     display: inline-block;
@@ -1795,16 +1819,11 @@ a.mui-btn {
     .profile-details__logo_wrapper__logo {
     height: 100%;
   }
-  .project-banner .profile-details .profile-details__text {
-    height: 50px;
-    display: inline-block;
-    vertical-align: middle;
-  }
   .project-banner .project-banner__headline {
     margin-bottom: 16px;
   }
   .project-banner .project-banner__box {
-    padding: 0 0 0 15px;
+    padding: 0 15px;
   }
   .project-banner .profile-text {
     margin: 0 0 15px;

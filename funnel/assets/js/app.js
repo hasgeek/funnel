@@ -69,4 +69,8 @@ $(() => {
     const target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });
+
+  $('.js-truncate-2lines').trunk8({
+    lines: 2,
+  });
 });

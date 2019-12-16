@@ -143,14 +143,6 @@ app.assets.register(
     ),
 )
 app.assets.register(
-    'js_jquerysuccinct',
-    Bundle(
-        assets.require('!jquery.js', 'jquery.succinct.js'),
-        output='js/jquerysuccinct.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
     'js_jquerytruncate',
     Bundle(
         assets.require('!jquery.js', 'jquery.truncate8.js'),

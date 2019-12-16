@@ -33,7 +33,7 @@ $(() => {
     $('.js-truncate-tagline').trunk8({
       lines: 3,
       fill:
-        '&hellip;<span class="js-read-more-text mui--text-hyperlink read-more">read more</span>',
+        '&hellip;<span class="js-read-more-text mui--text-hyperlink js-read-more-text">read more</span>',
     });
 
     $('.js-read-more-text').click(function() {
