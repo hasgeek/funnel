@@ -21,7 +21,7 @@
             <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
             </a>
             <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Profile{% endtrans %}</a>
-            <a href="{{ url_for('my_saves') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}My saves{% endtrans %}</a>
+            <a href="{{ url_for('saved') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}My saves{% endtrans %}</a>
             <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Contacts{% endtrans %}</p>
             <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
