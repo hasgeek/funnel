@@ -271,11 +271,11 @@
   .card--cfp {
     .card__image-wrapper,
     .card__image--default {
-      flex: 0 0 300px;
+      flex: 0 0 270px;
     }
     .card__body {
-      flex: 0 0 calc(100% - 300px);
-      width: calc(100% - 300px);
+      flex: 0 0 calc(100% - 270px);
+      width: calc(100% - 270px);
     }
     .card__body--cfp {
       padding: 0 0 0 15px;
