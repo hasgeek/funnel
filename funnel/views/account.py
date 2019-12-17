@@ -18,15 +18,10 @@ class AccountView(ClassView):
     def account(self):
         return {'user': current_auth.user.current_access()}
 
-
-@route('/my_saves')
-class SavesView(ClassView):
-    current_section = 'saves'  # needed for showing active tab
-
-    @route('', endpoint='my_saves')
+    @route('saved', endpoint='saved')
     @lastuser.requires_login
-    @render_with('my_saves.html.jinja2')
-    def my_saves(self):
+    @render_with('account_saved.html.jinja2')
+    def saved(self):
         return {'saved_projects': current_auth.user.saved_projects}
 
 
@@ -40,5 +35,4 @@ class FunnelAccountView(ClassView):
 
 
 AccountView.init_app(app)
-SavesView.init_app(app)
 FunnelAccountView.init_app(funnelapp)
