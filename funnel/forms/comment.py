@@ -6,7 +6,7 @@ import baseframe.forms as forms
 __all__ = ['CommentForm', 'DeleteCommentForm']
 
 
-class CommentForm(forms.Form):
+class CommentForm(forms.RecaptchaForm):
     parent_id = forms.HiddenField(__("Parent"), default="", id="comment_parent_id")
     comment_edit_id = forms.HiddenField(__("Edit"), default="", id="comment_edit_id")
     message = forms.MarkdownField(

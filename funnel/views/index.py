@@ -58,7 +58,7 @@ class IndexView(ClassView):
 
 @route('/')
 class FunnelIndexView(ClassView):
-    @render_with('funnelindex.html.jinja2', json=True)
+    @render_with('funnelindex.html.jinja2')
     def home(self):
         g.profile = None
         projects = Project.fetch_sorted(legacy=True).all()  # NOQA
