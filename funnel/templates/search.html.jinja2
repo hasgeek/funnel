@@ -77,8 +77,7 @@
                                   </div>
                                 </div>
                               {{/if}}
-                              <h3 class="mui--text-headline card__body__title">{{{ title_html }}}</h3>
-                              <p class="mui--text-subhead mui--text-light card__body__tagline">{{ obj.tagline }}</p>
+                              <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
                               {{#if obj.location }}
                                 <p class="mui--text-subhead card__body__location"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}</p>
                               {{/if}}
@@ -98,8 +97,7 @@
                               {{/if}}
                             </div>
                             <div class="card__body">
-                              <h3 class="mui--text-headline card__body__title">{{{ title_html }}}</h3>
-                              <p class="mui--text-subhead mui--text-light card__body__tagline">{{{ obj.description.html }}}</p>
+                              <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{{ obj.description.html }}}</span></div>
                               <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
                               <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit profile page&nbsp;&nbsp;<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                             </div>
