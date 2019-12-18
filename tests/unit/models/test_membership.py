@@ -19,11 +19,11 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
 class TestMembership(object):
     def test_crew_membership(self, test_db, new_user, new_user2, new_project):
         # new_user is profile admin
-        assert 'profile_admin' in new_project.roles_for(new_user)
+        assert 'profile_admin' in new_project.profile.roles_for(new_user)
         # but it has no role in the project yet
-        assert 'project_editor' not in new_project.roles_for(new_user)
-        assert 'project_concierge' not in new_project.roles_for(new_user)
-        assert 'project_usher' not in new_project.roles_for(new_user)
+        assert 'editor' not in new_project.roles_for(new_user)
+        assert 'concierge' not in new_project.roles_for(new_user)
+        assert 'usher' not in new_project.roles_for(new_user)
 
         previous_membership = (
             ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
@@ -38,7 +38,7 @@ class TestMembership(object):
         test_db.session.add(new_membership)
         test_db.session.commit()
 
-        assert 'project_editor' in new_project.roles_for(new_user)
+        assert 'editor' in new_project.roles_for(new_user)
         assert new_membership.is_active
         assert new_membership in new_project.active_crew_memberships
         assert new_membership.record_type == MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
@@ -65,9 +65,9 @@ class TestMembership(object):
 
         assert previous_membership2 not in new_project.active_crew_memberships
 
-        assert 'project_editor' not in new_project.roles_for(new_user)
-        assert 'project_concierge' not in new_project.roles_for(new_user)
-        assert 'project_usher' not in new_project.roles_for(new_user)
+        assert 'editor' not in new_project.roles_for(new_user)
+        assert 'concierge' not in new_project.roles_for(new_user)
+        assert 'usher' not in new_project.roles_for(new_user)
 
         # let's add back few more roles
         new_membership2 = ProjectCrewMembership(
@@ -76,28 +76,28 @@ class TestMembership(object):
         test_db.session.add(new_membership2)
         test_db.session.commit()
 
-        assert 'project_editor' not in new_project.roles_for(new_user)
-        assert 'project_concierge' in new_project.roles_for(new_user)
-        assert 'project_usher' in new_project.roles_for(new_user)
+        assert 'editor' not in new_project.roles_for(new_user)
+        assert 'concierge' in new_project.roles_for(new_user)
+        assert 'usher' in new_project.roles_for(new_user)
 
         # let's try replacing the roles in place
         new_membership3 = new_membership2.replace(
             actor=new_user2, is_editor=True, is_concierge=False, is_usher=False
         )
         test_db.session.commit()
-        assert 'project_editor' in new_project.roles_for(new_user)
-        assert 'project_concierge' not in new_project.roles_for(new_user)
-        assert 'project_usher' not in new_project.roles_for(new_user)
+        assert 'editor' in new_project.roles_for(new_user)
+        assert 'concierge' not in new_project.roles_for(new_user)
+        assert 'usher' not in new_project.roles_for(new_user)
         assert new_membership3.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
         # replace() can replace a single role as well, rest stays as they were
         new_membership4 = new_membership3.replace(actor=new_user2, is_usher=True)
         test_db.session.commit()
-        assert 'project_editor' in new_project.roles_for(new_user)
-        assert 'project_concierge' not in new_project.roles_for(new_user)
-        assert 'project_usher' in new_project.roles_for(new_user)
+        assert 'editor' in new_project.roles_for(new_user)
+        assert 'concierge' not in new_project.roles_for(new_user)
+        assert 'usher' in new_project.roles_for(new_user)
         # offered_roles should also return all valid roles
-        assert new_membership4.offered_roles() == {'project_editor', 'project_usher'}
+        assert new_membership4.offered_roles() == {'editor', 'usher'}
         assert new_membership4.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
         # can't replace with an unknown role

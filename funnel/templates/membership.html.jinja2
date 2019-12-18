@@ -156,7 +156,7 @@
         members: {{ memberships|tojson }},
         divElem: "#manage-membership",
         memberTemplate: '#member-template',
-        isUserProfileAdmin: {%- if project.current_roles.profile_admin %} true {% else %} false {%- endif %},
+        isUserProfileAdmin: {%- if project.profile.current_roles.admin %} true {% else %} false {%- endif %},
       };
 
       var saveProjectConfig = {

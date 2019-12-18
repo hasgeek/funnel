@@ -59,17 +59,17 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
 
     def offered_roles(self):
         """Roles offered by this membership record"""
-        roles = {'profile_admin'}
+        roles = {'admin'}
         if self.is_owner:
-            roles.add('profile_owner')
+            roles.add('owner')
         return roles
 
-    def roles_for(self, actor, anchors=()):
-        """Roles available to the specified actor and anchors"""
-        roles = super(ProfileAdminMembership, self).roles_for(actor, anchors)
-        if 'profile_admin' in self.profile.roles_for(actor, anchors):
-            roles.add('editor')
-        return roles
+    # def roles_for(self, actor, anchors=()):
+    #     """Roles available to the specified actor and anchors"""
+    #     roles = super(ProfileAdminMembership, self).roles_for(actor, anchors)
+    #     if 'profile_admin' in self.profile.roles_for(actor, anchors):
+    #         roles.add('editor')
+    #     return roles
 
 
 # Add active membership relationships to Profile and User

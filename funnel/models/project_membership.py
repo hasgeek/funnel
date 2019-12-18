@@ -79,19 +79,19 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         """Roles offered by this membership record"""
         roles = set()
         if self.is_editor:
-            roles.add('project_editor')
+            roles.add('editor')
         if self.is_concierge:
-            roles.add('project_concierge')
+            roles.add('concierge')
         if self.is_usher:
-            roles.add('project_usher')
+            roles.add('usher')
         return roles
 
-    def roles_for(self, actor, anchors=()):
-        """Roles available to the specified actor and anchors"""
-        roles = super(ProjectCrewMembership, self).roles_for(actor, anchors)
-        if 'profile_admin' in self.project.profile.roles_for(actor, anchors):
-            roles.add('editor')
-        return roles
+    # def roles_for(self, actor, anchors=()):
+    #     """Roles available to the specified actor and anchors"""
+    #     roles = super(ProjectCrewMembership, self).roles_for(actor, anchors)
+    #     if 'profile_admin' in self.project.profile.roles_for(actor, anchors):
+    #         roles.add('editor')
+    #     return roles
 
 
 # Project relationships: all crew, vs specific roles

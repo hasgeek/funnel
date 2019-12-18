@@ -9,4 +9,3 @@ class TestUser(object):
             rv = c.get('/usertest')
             assert rv.data == new_user.username
             assert new_profile.current_roles.admin
-            assert new_profile.current_roles.profile_admin
