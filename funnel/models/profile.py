@@ -68,15 +68,22 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)
 
-        # TODO: Remove this admin test when the Team model is removed as part of the
-        # migration to memberships
-        if actor is not None and self.admin_team in actor.teams:
-            roles.add('admin')
-            roles.add('profile_admin')
+        if actor is not None:
+            roles.add('reader')
+            # TODO: remove this after adding profile membership UI
+            if self.admin_team in actor.teams:
+                roles.add('admin')
 
         membership = self.active_admin_memberships.filter_by(user=actor).one_or_none()
         if membership:
             roles.update(membership.offered_roles())
+
+        # Need these roles for require_roles() decorator for views
+        if 'admin' in roles:
+            roles.add('profile_admin')
+
+        if 'owner' in roles:
+            roles.add('profile_owner')
 
         return roles
 

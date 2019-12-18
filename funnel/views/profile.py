@@ -9,7 +9,7 @@ from coaster.views import (
     UrlForView,
     jsonp,
     render_with,
-    requires_permission,
+    requires_roles,
     route,
 )
 
@@ -95,7 +95,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('index.html.jinja2', json=True)
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.
         # We're using it because we want to define our own order here.
@@ -132,9 +132,8 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
-        draft_projects = [
-            proj for proj in self.obj.draft_projects if proj.current_roles.profile_admin
-        ]
+        draft_projects = self.obj.draft_projects if self.obj.current_roles.admin else []
+
         return {
             'profile': self.obj.current_access(),
             'past_projects': [p.current_access() for p in past_projects],
@@ -149,7 +148,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('json')
     @render_with(json=True)
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def json(self):
         projects = Project.fetch_sorted().filter_by(profile=self.obj).all()
         return jsonp(
@@ -157,7 +156,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         )  # FIXME: Remove when the native app switches over
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_permission('edit-profile')
+    @requires_roles({'profile_admin'})
     def edit(self):
         form = EditProfileForm(obj=self.obj, model=Profile)
         if form.validate_on_submit():
@@ -178,7 +177,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 class FunnelProfileView(ProfileView):
     @route('')
     @render_with('funnelindex.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view(self):
         return {'profile': self.obj, 'projects': self.obj.listed_projects}
 
