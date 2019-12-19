@@ -80,7 +80,7 @@
         event.preventDefault();
         var btnTitle = $(this).attr('title').toLowerCase();
         var url = $(this).attr('href');
-        var text = "Are you sure you want to " + btnTitle;
+        var text = "Are you sure you want to " + btnTitle + "?";
         var csrftoken = 'csrf_token=' + document.head.querySelector("[name=csrf-token]").content;
         if(window.confirm(text)) {
           $.ajax({

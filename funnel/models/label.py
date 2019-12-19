@@ -241,7 +241,8 @@ class Label(BaseScopedNameMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Label, self).roles_for(actor, anchors)
-        roles.update(self.project.roles_for(actor, anchors))
+        if self.project.current_roles.editor:
+            roles.add('project_editor')
         return roles
 
     def apply_to(self, proposal):
