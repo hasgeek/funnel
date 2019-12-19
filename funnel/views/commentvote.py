@@ -82,7 +82,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     suuid=commentform.comment_edit_id.data
                 ).first_or_404()
                 if comment:
-                    if comment.current_permissions.edit_comment:
+                    if comment.current_roles.author:
                         comment.message = commentform.message.data
                         comment.edited_at = utcnow()
                         flash(_("Your comment has been edited"), 'info')
