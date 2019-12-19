@@ -38,7 +38,7 @@
                 {%- if proposal.user != proposal.speaker %}
                   <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
                 {%- endif %}
-                {%- if g.user and current_auth.permissions.edit_project %}
+                {%- if project.current_roles.editor %}
                   {%- if proposal.has_outstation_speaker %}
                     <i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">flight</i>
                     <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>

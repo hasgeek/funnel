@@ -760,17 +760,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def roles_for(self, actor=None, anchors=()):
         roles = super(Project, self).roles_for(actor, anchors)
 
-        # TODO: Remove this admin test when the Team model is removed as part of the
-        # migration to memberships
         if actor is not None:
-            # if self.admin_team in actor.teams:
-            #     roles.add('admin')
             if self.review_team in actor.teams:
                 roles.add('reviewer')
             # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
             roles.add('reader')
-
-        # roles.update(self.profile.roles_for(actor, anchors))
 
         crew_membership = self.active_crew_memberships.filter_by(
             user=actor

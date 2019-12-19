@@ -4,7 +4,7 @@ from flask import flash, g, redirect, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
-from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
+from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp, lastuser
 from ..forms import LabelForm, LabelOptionForm
@@ -20,7 +20,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
     @lastuser.requires_login
-    @requires_permission('edit_project')
+    @requires_roles({'project_editor'})
     def labels(self):
         form = forms.Form()
         if form.validate_on_submit():
@@ -36,7 +36,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @render_with('labels_form.html.jinja2')
-    @requires_permission('admin')
+    @requires_roles({'project_editor'})
     def new_label(self):
         form = LabelForm(model=Label, parent=self.obj.parent)
         emptysubform = LabelOptionForm(MultiDict({}))
@@ -124,7 +124,7 @@ class LabelView(UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @lastuser.requires_login
     @render_with('labels_form.html.jinja2')
-    @requires_permission('edit_project')
+    @requires_roles({'project_editor'})
     def edit(self):
         emptysubform = LabelOptionForm(MultiDict({}))
         subforms = []
@@ -199,7 +199,7 @@ class LabelView(UrlForView, ModelView):
 
     @route('archive', methods=['POST'])
     @lastuser.requires_login
-    @requires_permission('admin')
+    @requires_roles({'project_editor'})
     def archive(self):
         form = forms.Form()
         if form.validate_on_submit():
@@ -212,7 +212,7 @@ class LabelView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('admin')
+    @requires_roles({'project_editor'})
     def delete(self):
         if self.obj.has_proposals:
             flash(
