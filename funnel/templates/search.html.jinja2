@@ -54,22 +54,19 @@
                             <div class="card__body">
                               {{#if obj.calendar_weeks.weeks && obj.calendar_weeks.weeks.length > 0 }}
                                 <div aria-label="{{ project.datelocation }}">
-                                  <div class="card__calendar mui--bg-accent" aria-hidden="true">
+                                  <div class="card__calendar" aria-hidden="true">
                                     <div class="calendar">
-                                      <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ obj.calendar_weeks.weeks[0].month }} {{ obj.calendar_weeks.weeks[0].year }}</p>
-                                      <div class="calendar__weekdays">
-                                        <div class="calendar__weekdays__name__wrapper">
-                                          {{#each obj.calendar_weeks.days }}
-                                            <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ . }}</p>
-                                          {{/each}}
-                                        </div>
-                                      </div>
-                                      <div class="calendar__weekdays">
+                                      <p class="calendar__weekdays__month__name">{{ obj.calendar_weeks.weeks[0].month }} {{ obj.calendar_weeks.weeks[0].year }}</p>
+
+                                      <div class="calendar__weekdays mui--bg-accent">
                                         {{#obj.calendar_weeks.weeks}}{{# { week: . } }}
                                           <div class="calendar__weekdays__dates">
-                                            {{#week.dates}}{{# { date: . } }}
-                                              <p class="calendar__weekdays__dates__date {{#if date.count > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif date.isoformat == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}}"><span class="calendar__weekdays__dates__date__text">{{ date.day }}</span></p>
-                                            {{/}}{{/date}}
+                                            {{#each week.dates: date}}
+                                              <p class="calendar__weekdays__dates__date {{#if week.dates[date].count > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif week.dates[date].isoformat == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}}">
+                                                <span class="calendar__weekdays__dates__date__text">{{ week.dates[date].day }}</span><br>
+                                                <span class="calendar__weekdays__name mui--text-title {{#if week.dates[date].count > 0 }} calendar__weekdays__name--active {{elseif week.dates[date].isoformat == obj.calendar_weeks.today }}  calendar__weekdays__name--today{{/if}}">{{ obj.calendar_weeks.days[date] }}</span>
+                                              </p>
+                                            {{/each}}
                                           </div>
                                         {{/}}{{/week}}
                                       </div>
@@ -77,13 +74,13 @@
                                   </div>
                                 </div>
                               {{/if}}
-                              <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
+                              <div class="card__body__title js-truncate {{#if !obj.calendar_weeks.weeks }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
+                              <p class="mui--text-subhead card__body__location">
                               {{#if obj.location }}
-                                <p class="mui--text-subhead card__body__location"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}</p>
+                                <svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}
                               {{/if}}
+                              </p>
                               <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
-                              <div class="card__body__divider"></div>
-                              <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                             </div>
                           </a>
                         {{elseif result == 'profile'}}
@@ -97,9 +94,8 @@
                               {{/if}}
                             </div>
                             <div class="card__body">
-                              <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{{ obj.description.html }}}</span></div>
+                              <div class="card__body__title js-truncate card__body__title--smaller" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{{ obj.description.html }}}</span></div>
                               <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
-                              <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit profile page&nbsp;&nbsp;<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                             </div>
                           </a>
                         {{elseif result == 'session'}}
