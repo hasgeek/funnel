@@ -209,5 +209,13 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 perms.update(['edit_comment', 'delete_comment'])
         return perms
 
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(Comment, self).roles_for(actor, anchors)
+        if actor is not None:
+            roles.add('reader')
+            if actor == self.user:
+                roles.add('author')
+        return roles
+
 
 add_search_trigger(Comment, 'search_vector')
