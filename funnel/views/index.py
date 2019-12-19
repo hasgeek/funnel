@@ -7,6 +7,7 @@ from flask import Response, g, jsonify, redirect, render_template
 from coaster.views import ClassView, jsonp, load_model, render_with, route
 
 from .. import app, funnelapp, pages
+from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
 from .project import project_data
 
@@ -62,6 +63,7 @@ class IndexView(ClassView):
             ),
             'past_projects': [p.current_access() for p in past_projects],
             'hg_banner': app.config.get('HG_BANNER_IMG', []),
+            'project_save_form': SavedProjectForm(),
         }
 
 

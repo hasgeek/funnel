@@ -582,7 +582,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'weeks': weeks_list,
             'today': now.date().isoformat(),
             'days': [
-                format_date(day, 'EEEEE', locale=get_locale())
+                format_date(day, 'EEE', locale=get_locale())
                 for day in Week.thisweek().days()
             ],
         }

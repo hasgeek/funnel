@@ -1,21 +1,17 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
 
-{% macro saveprojectform(project, form) %}
-  <form id="save-form" action="{{ project.url_for('save') }}" method="POST">
+{% macro saveprojectform(project, form, formid='save-form') %}
+  <form id={{formid}} class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ form.hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if not current_auth.user %}
-        <a class="mui-btn mui-btn--raised project-banner__action__button mui--text-light mui--text-subhead"  href="{{ url_for('login') }}" data-action="Login to save project">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#heart"></use></svg>{% endassets %} {% trans %}Save{% endtrans %}</a>
+        <a class="mui-btn--nostyle"  href="{{ url_for('login') }}" data-action="Login to save project">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn mui-btn--raised project-banner__action__button mui--text-light mui--text-subhead js-save-button {% if current_view.project_currently_saved %}mui--hide{% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
-          {% if project.schedule_state.UPCOMING %}
-            {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#heart"></use></svg>{% endassets %} {% trans %}Save{% endtrans %}
-          {% else %}
-            {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#heart"></use></svg>{% endassets %} {% trans %}Save{% endtrans %}
-          {% endif %}
+        <button type="submit" value="true" class="mui-btn--nostyle animate-btn {% if not current_view.project_currently_saved %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
+          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--raised mui--text-light mui--text-subhead project-banner__action__button js-save-button {% if not current_view.project_currently_saved %}mui--hide{% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#heart-filled"></use></svg>{% endassets %} {% trans %}Saved{% endtrans %}</button>
+        <button type="submit" value="false" class="mui-btn--nostyle animate-btn animate-btn--saved{% if current_view.project_currently_saved %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
       {%- endif %}
     </p>
   </form>
@@ -70,23 +66,20 @@
       {% endif %}
       <div class="grid__col-md-4">
         <div class="mui--text-body1 mui--text-light profile-text js-truncate-readmore" data-truncate-lines="2">{{ project.profile.description|safe|striptags }}</div>
+        <div class="bookmark-icon">{{ saveprojectform(project, project_save_form) }}</div>
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
-            <div class="card__calendar mui--bg-accent" aria-hidden="true">
+            <div class="card__calendar" aria-hidden="true">
               <div class="calendar">
-                <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
-                <div class="calendar__weekdays">
-                  <div class="calendar__weekdays__name__wrapper">
-                    {% for weekday in project.calendar_weeks.days %}
-                      <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
-                    {% endfor %}
-                  </div>
-                </div>
-                <div class="calendar__weekdays">
+                <p class="calendar__weekdays__month__name">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
+                <div class="calendar__weekdays mui--bg-accent">
                   {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
                     <div class="calendar__weekdays__dates">
                       {% for date in week.dates %}
-                        <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date.day }}</span></p>
+                        <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                          <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
+                          <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ project.calendar_weeks.days[loop.index-1] }}</span>
+                        </p>
                       {% endfor %}
                     </div>
                   {% endfor %}
@@ -118,7 +111,6 @@
           {%- endif %}
         </div>
         <div class="project-banner__action">
-          {{ saveprojectform(project, project_save_form) }}
           <div class="project-banner__action__social">
             <a class="list-group-item share-popup  mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" title="{% trans %}Tweet this{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#twitter-square"></use></svg>{% endassets %}</a>
             <a class="list-group-item share-popup  mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" title="{% trans %}Share on Facebook{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#facebook-square"></use></svg>{% endassets %}</a>

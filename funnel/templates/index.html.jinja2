@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
-
+{%- from "macros.html.jinja2" import saveprojectform %}
 {% block description %}{% if profile %}{{ profile.description.html|firstline }}{% else %}{% trans %}HasGeek creates discussion spaces for geeks. Meet like-minded people, learn new things and discover new opportunities.{% endtrans %}{% endif %}{% endblock %}
 
 {%- block pageheaders %}
@@ -38,6 +38,10 @@
 </script>
 {%- endblock %}
 
+{% block bodytag %}
+  <body class="mui--bg-accent hg-app">
+{% endblock %}
+
 {% block contenthead %}{% endblock %}
 
 {% block baseheadline %}
@@ -55,7 +59,7 @@
 {% block basecontent %}
   {% with current_sessions = featured_project.current_sessions() if featured_project is not none else none %}
   {% if featured_project and featured_project.livestream_urls or current_sessions and current_sessions.sessions|length > 0 %}
-    <div class="projects-wrapper mui--bg-accent">
+    <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
@@ -69,30 +73,30 @@
               {% endif %}
             </h2>
           </div>
-        </div>
-        <div class="grid__col-xs-12">
-          <div class="card card--spotlight card--spotlight--live">
-            <div class="card__image-wrapper">
-              {% if featured_project.bg_image.url %}
-                <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
-              {% else %}
-                <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
-                <p class="card__image__tagline">{{ featured_project.title }}</p>
-              {% endif %}
-            </div>
-            <div class="card__body">
-              <h3 class="mui--text-headline zero-top-margin"><a class="clickable-card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}">{{ featured_project.title }}</a></h3>
-              <p class="mui--text-title mui--text-bold hg-text">Live</p>
-              {% if current_sessions.sessions|length > 0 %}
-                <p class="mui--text-title mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} Session starts at {{ current_sessions.sessions[0].start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
-              {% endif %}
-              <div>
-                {%- if featured_project.livestream_urls %}
-                  <a class="mui-btn mui-btn--primary mui-btn--raised" title="Watch LiveStream" data-action="Watch LiveStream(homepage)" href="{{ featured_project.url_for() }}">{% trans %}Livestream{% endtrans %}</a>
-                {%- endif %}
-                {%- if current_sessions.sessions|length > 0 %}
-                  <a class="mui-btn mui-btn--primary mui-btn--raised" title="Schedule" data-action="Schedule(homepage)" href="{{ featured_project.url_for('schedule') }}">{% trans %}Schedule{% endtrans %}</a>
-                {%- endif %}
+          <div class="grid__col-xs-12">
+            <div class="card card--spotlight card--spotlight--live">
+              <div class="card__image-wrapper">
+                {% if featured_project.bg_image.url %}
+                  <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
+                {% else %}
+                  <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
+                  <p class="card__image__tagline">{{ featured_project.title }}</p>
+                {% endif %}
+              </div>
+              <div class="card__body">
+                <h3 class="mui--text-headline zero-top-margin"><a class="clickable-card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}">{{ featured_project.title }}</a></h3>
+                <p class="mui--text-title mui--text-bold hg-text">Live</p>
+                {% if current_sessions.sessions|length > 0 %}
+                  <p class="mui--text-title mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} Session starts at {{ current_sessions.sessions[0].start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
+                {% endif %}
+                <div>
+                  {%- if featured_project.livestream_urls %}
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" title="Watch LiveStream" data-action="Watch LiveStream(homepage)" href="{{ featured_project.url_for() }}">{% trans %}Livestream{% endtrans %}</a>
+                  {%- endif %}
+                  {%- if current_sessions.sessions|length > 0 %}
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" title="Schedule" data-action="Schedule(homepage)" href="{{ featured_project.url_for('schedule') }}">{% trans %}Schedule{% endtrans %}</a>
+                  {%- endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -103,7 +107,7 @@
   {% endwith %}
 
   {% if featured_project %}
-    <div class="projects-wrapper mui--bg-accent">
+    <div class="projects-wrapper">
       <div class="spotlight">
         <div class="mui-container">
           <div class="grid">
@@ -112,42 +116,37 @@
             </div>
           </div>
         </div>
-        <div class="mui-container mui-container--fullwidth">
+        <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <div class="card card--spotlight">
-                <a class="card__image-wrapper" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
+              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">
+                <div class="card__image-wrapper">
                   {% if featured_project.bg_image.url %}
                     <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
                   {% else %}
                     <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
                     <p class="card__image__tagline">{{ featured_project.title }}</p>
                   {% endif %}
-                </a>
+                </div>
                 <div class="card__body">
-                  <h3 class="mui--text-display1 zero-top-margin mui--text-bold"><a class="mui--text-black" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}">{{ featured_project.title }}</a></h3>
-                  {% if featured_project.tagline %}
-                    <p class="mui--text-subhead mui--text-light">{{ featured_project.tagline }}</p>
+                  <h3 class="mui--text-headline zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title }}</span>{% if featured_project.tagline %}: <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
+                  {% if featured_project.primary_venue %}
+                    <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>
                   {% endif %}
-                  {% if featured_project.primary_venue %}<p class="mui--text-subhead mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>{% endif %}
-
+                  <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, featured_project.name) }}</div>
                   {% if featured_project.calendar_weeks.weeks and featured_project.calendar_weeks.weeks|length > 0 %}
                     <div aria-label="{{ featured_project.datelocation }}">
-                      <div class="card__calendar mui--clearfix mui--bg-accent" aria-hidden="true">
+                      <div class="card__calendar" aria-hidden="true">
                         <div class="calendar">
-                          <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ featured_project.calendar_weeks.weeks[0].month }} {{ featured_project.calendar_weeks.weeks[0].year }}</p>
-                          <div class="calendar__weekdays">
-                            <div class="calendar__weekdays__name__wrapper">
-                            {% for weekday in featured_project.calendar_weeks.days %}
-                              <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
-                            {% endfor %}
-                            </div>
-                          </div>
-                          <div class="calendar__weekdays">
+                          <p class="calendar__weekdays__month__name">{{ featured_project.calendar_weeks.weeks[0].month }} {{ featured_project.calendar_weeks.weeks[0].year }}</p>
+                          <div class="calendar__weekdays mui--bg-accent">
                             {% for week in featured_project.calendar_weeks.weeks|sort(attribute='year') %}
                               <div class="calendar__weekdays__dates">
                                 {% for date in week.dates %}
-                                  <p class="calendar__weekdays__dates__date {% if date.isoformat == featured_project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.count > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date.day }}</span></p>
+                                  <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == featured_project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                                    <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
+                                    <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == featured_project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ featured_project.calendar_weeks.days[loop.index-1] }}</span>
+                                  </p>
                                 {% endfor %}
                               </div>
                             {% endfor %}
@@ -156,12 +155,8 @@
                       </div>
                     </div>
                   {% endif %}
-                  <div class="card__body__divider"></div>
-                  <p class="card__body__footer mui--text-uppercase">
-                    <a class="mui--text-dark mui--text-subhead" href="{{ featured_project.url_for() }}" title="{{ featured_project.title }}" aria-label="{{ featured_project.title }}">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</a>
-                  </p>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
         </div>
@@ -170,13 +165,13 @@
   {% endif %}
 
   {%- if not profile %}
-    <div class="projects-wrapper hg-about">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-xs-12 grid__col-sm-6">
-            <h2 class="mui--text-display1 mui--text-bold project-headline project-headline--secondary hg-about__content">HasGeek creates discussion spaces for geeks</h2>
-            <p class="mui--text-subhead hg-about__content">Meet like-minded people, learn new things and discover new opportunities</p>
-            <p class="mui--hidden-xs mui--hidden-sm hg-about__link"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
+    <div class="mui-container">
+      <div class="projects-wrapper projects-wrapper--padding">
+        <div class="grid hg-about mui--bg-primary">
+          <div class="grid__col-xs-12 grid__col-sm-6 hg-about__content">
+            <h2 class="mui--text-display1 mui--text-bold project-headline project-headline--secondary hg-about__content__txt">HasGeek creates discussion spaces for geeks</h2>
+            <p class="mui--text-subhead hg-about__content__txt">Meet like-minded people, learn new things and discover new opportunities</p>
+            <p class="mui--hidden-xs mui--hidden-sm hg-about__content__link"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
           </div>
           <div class="grid__col-xs-12 grid__col-sm-6">
             <img class="hg-banner-img js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
@@ -191,7 +186,7 @@
   {% endif %}
 
   {% if upcoming_projects|length > 0 %}
-  <div class="projects-wrapper mui--bg-accent">
+  <div class="projects-wrapper">
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
@@ -214,23 +209,20 @@
               {% endif %}
             </div>
             <div class="card__body">
+              <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>
               {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                 <div aria-label="{{ project.datelocation }}">
-                  <div class="card__calendar mui--bg-accent" aria-hidden="true">
+                  <div class="card__calendar" aria-hidden="true">
                     <div class="calendar">
-                      <div class="calendar__weekdays">
-                        <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
-                        <div class="calendar__weekdays__name__wrapper">
-                          {% for weekday in project.calendar_weeks.days %}
-                            <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
-                          {% endfor %}
-                        </div>
-                      </div>
-                      <div class="calendar__weekdays">
+                      <p class="calendar__weekdays__month__name">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
+                      <div class="calendar__weekdays mui--bg-accent">
                         {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
                           <div class="calendar__weekdays__dates">
                             {% for date in week.dates %}
-                              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date.day }}</span></p>
+                              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                                <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
+                                <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ project.calendar_weeks.days[loop.index-1] }}</span>
+                              </p>
                             {% endfor %}
                           </div>
                         {% endfor %}
@@ -239,10 +231,8 @@
                   </div>
                 </div>
               {% endif %}
-              <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span> <span class="mui--text-light">{{ project.tagline }}</span></div>
-              {% if project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
-              <div class="card__body__divider"></div>
-              <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
+              <h3 class="card__body__title js-truncate {% if not project.calendar_weeks.weeks %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span>: <span class="mui--text-light">{{ project.tagline }}</span></h3>
+              <p class="card__body__location">{% if project.primary_venue %}{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
             </div>
           </a>
         </li>
@@ -253,7 +243,7 @@
   {% endif %}
 
   {% if open_cfp_projects %}
-    <div class="projects-wrapper mui--bg-accent">
+    <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
@@ -296,7 +286,7 @@
   {% endif %}
 
   {%- if profile and current_auth.permissions.new_project %}
-    <div class="projects-wrapper mui--bg-accent">
+    <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
@@ -338,21 +328,17 @@
                 <div class="card__body">
                   {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                     <div aria-label="{{ project.datelocation }}">
-                      <div class="card__calendar mui--bg-accent" aria-hidden="true">
+                      <div class="card__calendar" aria-hidden="true">
                         <div class="calendar">
-                          <div class="calendar__weekdays">
-                            <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
-                            <div class="calendar__weekdays__name__wrapper">
-                              {% for weekday in project.calendar_weeks.days %}
-                                <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
-                              {% endfor %}
-                            </div>
-                          </div>
-                          <div class="calendar__weekdays">
+                          <p class="calendar__weekdays__month__name">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
+                          <div class="calendar__weekdays mui--bg-accent">
                             {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
                               <div class="calendar__weekdays__dates">
                                 {% for date in week.dates %}
-                                  <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date.day }}</span></p>
+                                  <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                                    <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
+                                    <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ project.calendar_weeks.days[loop.index-1] }}</span>
+                                  </p>
                                 {% endfor %}
                               </div>
                             {% endfor %}
@@ -361,10 +347,8 @@
                       </div>
                     </div>
                   {% endif %}
-                  <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span> <span class="mui--text-light">{{ project.tagline }}</span></div>
-                  {% if project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
-                  <div class="card__body__divider"></div>
-                  <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
+                  <h3 class="card__body__title {% if not project.calendar_weeks.weeks %} card__body__title--smaller {% endif %} js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span>: <span class="mui--text-light">{{ project.tagline }}</span></h3>
+                  <p class="card__body__location">{% if project.primary_venue %}{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
                 </div>
               </a>
             </li>
@@ -381,7 +365,7 @@
   {% endif %}
 
   {% if all_projects %}
-    <div class="projects-wrapper mui--bg-accent">
+    <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
@@ -404,23 +388,20 @@
                   {% endif %}
                 </div>
                 <div class="card__body">
+                  <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>
                   {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                     <div aria-label="{{ project.datelocation }}">
-                      <div class="card__calendar mui--bg-accent" aria-hidden="true">
+                      <div class="card__calendar" aria-hidden="true">
                         <div class="calendar">
-                          <div class="calendar__weekdays">
-                            <p class="calendar__weekdays__month__name mui--text-title mui--text-bold">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
-                            <div class="calendar__weekdays__name__wrapper">
-                              {% for weekday in project.calendar_weeks.days %}
-                                <p class="calendar__weekdays__name calendar__weekdays__name--weekday mui--text-title mui--text-light">{{ weekday }}</p>
-                              {% endfor %}
-                            </div>
-                          </div>
-                          <div class="calendar__weekdays">
+                          <p class="calendar__weekdays__month__name">{{ project.calendar_weeks.weeks[0].month }} {{ project.calendar_weeks.weeks[0].year }}</p>
+                          <div class="calendar__weekdays mui--bg-accent">
                             {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
                               <div class="calendar__weekdays__dates">
                                 {% for date in week.dates %}
-                                  <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active mui--text-dark {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today {% else %}mui--text-accent{% endif %}"><span class="calendar__weekdays__dates__date__text">{{ date.day }}</span></p>
+                                  <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                                    <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
+                                    <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ project.calendar_weeks.days[loop.index-1] }}</span>
+                                  </p>
                                 {% endfor %}
                               </div>
                             {% endfor %}
@@ -429,10 +410,8 @@
                       </div>
                     </div>
                   {% endif %}
-                  <div class="card__body__title js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span> <span class="mui--text-light">{{ project.tagline }}</span></div>
-                  {% if project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
-                  <div class="card__body__divider"></div>
-                  <p class="card__body__footer mui--text-caption mui--text-uppercase">Visit project page&nbsp;&nbsp;{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</p>
+                  <h3 class="card__body__title {% if not project.calendar_weeks.weeks %} card__body__title--smaller {% endif %} js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title }}</span>: <span class="mui--text-light">{{ project.tagline }}</span></h3>
+                  <p class="card__body__location">{% if project.primary_venue %}{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
                 </div>
               </a>
             </li>
@@ -443,7 +422,7 @@
   {% endif %}
 
   {% if past_projects %}
-    <div class="projects-wrapper mui--bg-accent">
+    <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">

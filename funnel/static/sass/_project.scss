@@ -50,6 +50,12 @@
       display: block;
     }
   }
+  .bookmark-icon {
+    position: relative;
+    top: 6px;
+    text-align: right;
+    height: 0;
+  }
   .card__calendar {
     padding: 0 0 15px;
     margin-right: -15px;
@@ -86,9 +92,10 @@
 
     .project-banner__action__social {
       justify-content: space-between;
-      width: 110px;
+      width: 50%;
       display: flex;
       align-items: center;
+      margin-bottom: 10px;
     }
 
     .project-banner__action__button {
@@ -128,15 +135,23 @@
       padding: 0 15px;
     }
     .profile-text {
-      margin: 0 0 15px;
+      margin: 0 0 5px;
 
       p {
         margin: 0;
       }
     }
+    .bookmark-icon {
+      top: 15px;
+    }
     .card__calendar {
       margin: 0 0 15px;
       padding: 10px 0 0;
+    }
+    .project-banner__action {
+      .project-banner__action__social {
+        width: 100%;
+      }
     }
   }
 }

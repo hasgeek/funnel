@@ -1,12 +1,7 @@
+import { SaveProject } from './util';
+
 $(() => {
   window.HasGeek.HomeInit = function(config) {
-    // Adjust the height of schedule card to match spotlight card's height
-    $(window).on('load', function() {
-      if ($('.js-schedule-card')) {
-        $('.js-schedule-card').height($('.card--spotlight').height());
-      }
-    });
-
     // Random display of HasGeek banner
     if (config.hgBannerImgList && config.hgBannerImgList.length) {
       let random = Math.floor(
@@ -24,6 +19,14 @@ $(() => {
       const projectElemClass = `.${$(this).data('projects')}`;
       $(projectElemClass).removeClass('mui--hide');
       $(this).addClass('mui--hide');
+    });
+
+    $('.js-save-form').each(function() {
+      let projectSaveConfig = {
+        formId: $(this).attr('id'),
+        postUrl: $(this).attr('action'),
+      };
+      SaveProject(projectSaveConfig);
     });
   };
 });

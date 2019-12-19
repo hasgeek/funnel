@@ -2,9 +2,16 @@
   padding: 15px 0;
 }
 
+.projects-wrapper--padding {
+  padding: 15px;
+}
+
 @media (min-width: 1200px) {
   .projects-wrapper {
     padding: 30px 0;
+  }
+  .projects-wrapper--padding {
+    padding: 30px 15px;
   }
 }
 
@@ -126,19 +133,6 @@
 }
 
 @media (min-width: 1200px) {
-  .hg-about {
-    position: relative;
-    .hg-about__content {
-      width: 70%;
-    }
-    .hg-about__link {
-      position: absolute;
-      bottom: 30%;
-    }
-  }
-}
-
-@media (min-width: 1200px) {
   .mui-container--fullwidth {
     max-width: 100%;
     .grid__col-12 {
@@ -221,4 +215,20 @@
   left: 0;
   top: 33.3%;
   width: 5px;
+}
+
+@media (min-width: 1200px) {
+  .hg-about {
+    position: relative;
+    .hg-about__content {
+      padding: 5% 5% 5% 10%;
+    }
+    .hg-about__content__txt {
+      width: 70%;
+    }
+    .hg-about__content__link {
+      position: absolute;
+      bottom: 15%;
+    }
+  }
 }
