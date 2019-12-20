@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, abort, escape, flash, g, redirect, request
+from flask import Markup, abort, escape, flash, redirect, request
 
 from bleach import linkify
 
@@ -15,6 +15,7 @@ from coaster.views import (
     jsonp,
     render_with,
     requires_permission,
+    requires_roles,
     route,
 )
 
@@ -122,21 +123,32 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     __decorators__ = [legacy_redirect]
 
     @lastuser.requires_login
-    @requires_permission('new-proposal')
+    @requires_roles({'reader'})
     def new_proposal(self):
+        # This along with the `reader` role makes it possible for
+        # anyone to submit a proposal if the CFP is open.
+        if not self.obj.cfp_state.OPEN:
+            flash(_("CFP for this project is not open"), 'error')
+            return redirect(self.obj.url_for(), code=303)
+
         form = ProposalForm(model=Proposal, parent=self.obj)
+
         if request.method == 'GET':
-            form.email.data = g.user.email
-            form.phone.data = g.user.phone
+            form.email.data = current_auth.user.email
+            form.phone.data = current_auth.user.phone
+
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
             form.populate_obj(proposal)
             proposal.name = make_name(proposal.title)
             db.session.add(proposal)
-            proposal.voteset.vote(g.user)  # Vote up your own proposal by default
+            proposal.voteset.vote(
+                current_auth.user
+            )  # Vote up your own proposal by default
             db.session.commit()
             flash(_("Your new session has been saved"), 'info')
             return redirect(proposal.url_for(), code=303)
+
         return render_form(
             form=form,
             title=_("Submit a session proposal"),
@@ -228,7 +240,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_permission('edit_proposal')
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
-        if self.obj.user != g.user:
+        if self.obj.user != current_auth.user:
             del form.speaking
         if form.validate_on_submit():
             form.populate_obj(self.obj)

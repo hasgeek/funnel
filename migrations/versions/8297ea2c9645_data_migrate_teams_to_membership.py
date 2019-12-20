@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""data migrate checkin teams to membership
+"""data migrate checkin and admin teams to membership
 
 Revision ID: 8297ea2c9645
 Revises: 8cb98498a659
@@ -111,9 +111,11 @@ def upgrade():
                         'is_concierge': user_id in admin_dict,
                         'is_usher': user_id in checkin_dict,
                         'granted_by_id': None,
-                        'granted_at': checkin_dict[user_id]
-                        if user_id in checkin_dict
-                        else admin_dict[user_id],
+                        'granted_at': (
+                            checkin_dict[user_id]
+                            if user_id in checkin_dict
+                            else admin_dict[user_id]
+                        ),
                         'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
                         'created_at': sa.func.now(),
                         'updated_at': sa.func.now(),
