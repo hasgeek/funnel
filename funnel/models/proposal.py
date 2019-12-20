@@ -495,10 +495,16 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         if self.user == actor:
             roles.add('creator')
         roles.update(self.project.roles_for(actor, anchors))
+
         if self.state.DRAFT and 'reader' in roles:
             roles.remove(
                 'reader'
             )  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
+
+        if actor is not None and self.project.review_team in actor.teams:
+            # this will be replaced by a reviewer role supplied by
+            # membership models when we implement proposal membership.
+            roles.add('reviewer')
         return roles
 
 
