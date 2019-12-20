@@ -143,9 +143,10 @@
                             {% for week in featured_project.calendar_weeks.weeks|sort(attribute='year') %}
                               <div class="calendar__weekdays__dates">
                                 {% for date in week.dates %}
-                                  <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == featured_project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                                  <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == featured_project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}">
                                     <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
                                     <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == featured_project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ featured_project.calendar_weeks.days[loop.index-1] }}</span>
+                                    {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
                                   </p>
                                 {% endfor %}
                               </div>
@@ -219,9 +220,10 @@
                         {% for week in project.calendar_weeks.weeks|sort(attribute='year') %}
                           <div class="calendar__weekdays__dates">
                             {% for date in week.dates %}
-                              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}">
                                 <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
                                 <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ project.calendar_weeks.days[loop.index-1] }}</span>
+                                {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
                               </p>
                             {% endfor %}
                           </div>

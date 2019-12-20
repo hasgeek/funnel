@@ -252,7 +252,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'primary_venue',
                 'livestream_urls',
             },
-            'call': {'url_for', 'current_sessions'},
+            'call': {'url_for', 'current_sessions', 'is_saved_by'},
         }
     }
 

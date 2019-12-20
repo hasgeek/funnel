@@ -8,10 +8,10 @@
         <a class="mui-btn--nostyle"  href="{{ url_for('login') }}" data-action="Login to save project">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn--nostyle animate-btn {% if not current_view.project_currently_saved %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
+        <button type="submit" value="true" class="mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
           {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}
         </button>
-        <button type="submit" value="false" class="mui-btn--nostyle animate-btn animate-btn--saved{% if current_view.project_currently_saved %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
+        <button type="submit" value="false" class="mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
       {%- endif %}
     </p>
   </form>
