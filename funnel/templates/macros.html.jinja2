@@ -4,7 +4,7 @@
   <form id={{formid}} class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ form.hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
-      {%- if not current_auth.user %}
+      {%- if current_auth.is_anonymous %}
         <a class="mui-btn--nostyle"  href="{{ url_for('login') }}" data-action="Login to save project">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}</a>
       {%- else %}
         <input type="hidden" name="save" value="">

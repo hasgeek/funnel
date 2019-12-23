@@ -130,7 +130,7 @@
                 </div>
                 <div class="card__body">
                   <h3 class="mui--text-headline zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title }}</span>{% if featured_project.tagline %}: <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
-                  <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, featured_project.name) }}</div>
+                  {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, featured_project.name) }}</div>{% endif %}
                   {% if featured_project.calendar_weeks.weeks and featured_project.calendar_weeks.weeks|length > 0 %}
                     <div aria-label="{{ featured_project.datelocation }}">
                       <div class="card__calendar" aria-hidden="true">
@@ -209,7 +209,7 @@
               {% endif %}
             </div>
             <div class="card__body">
-              <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>
+              {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>{% endif %}
               {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                 <div aria-label="{{ project.datelocation }}">
                   <div class="card__calendar" aria-hidden="true">
@@ -389,7 +389,7 @@
                   {% endif %}
                 </div>
                 <div class="card__body">
-                  <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>
+                  {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>{% endif %}
                   {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                     <div aria-label="{{ project.datelocation }}">
                       <div class="card__calendar" aria-hidden="true">
