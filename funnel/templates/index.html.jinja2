@@ -130,9 +130,6 @@
                 </div>
                 <div class="card__body">
                   <h3 class="mui--text-headline zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title }}</span>{% if featured_project.tagline %}: <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
-                  {% if featured_project.primary_venue %}
-                    <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>
-                  {% endif %}
                   <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, featured_project.name) }}</div>
                   {% if featured_project.calendar_weeks.weeks and featured_project.calendar_weeks.weeks|length > 0 %}
                     <div aria-label="{{ featured_project.datelocation }}">
@@ -156,6 +153,8 @@
                       </div>
                     </div>
                   {% endif %}
+                    <p class="mui--text-subhead mui--text-light">{% if featured_project.primary_venue %}
+                    {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}{% endif %}</p>
                 </div>
               </a>
             </div>
@@ -403,6 +402,7 @@
                                   <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
                                     <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
                                     <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ project.calendar_weeks.days[loop.index-1] }}</span>
+                                    {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
                                   </p>
                                 {% endfor %}
                               </div>
