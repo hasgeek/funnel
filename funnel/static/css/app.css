@@ -474,6 +474,10 @@ a.mui-btn {
 .hg-app .header--fixed .header__nav .header__right-nav {
   display: none;
 }
+.hg-app .header--fixed .header__nav a.header__button {
+  line-height: 30.6px;
+  margin: 6px 0;
+}
 .hg-app .content-wrapper {
   padding-top: 0;
 }
