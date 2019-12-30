@@ -2,5 +2,5 @@
 set -e
 export PYTHONIOENCODING="UTF-8"
 export FLASK_ENV="TESTING"
-python -m funnel.assets.cypress.initdb
+python -m tests.e2e.frontend_tests_initdb
 python runcypressserver.py &

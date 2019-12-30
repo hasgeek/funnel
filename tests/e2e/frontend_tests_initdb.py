@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 from funnel import app
 from funnel.models import User, db
 
