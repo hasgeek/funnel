@@ -20,12 +20,10 @@ def upgrade():
     op.add_column(
         'project',
         sa.Column(
-            'livestream_urls',
-            sa.ARRAY(sa.UnicodeText(), dimensions=1),
-            server_default='{}',
-            nullable=True,
+            'livestream_urls', sa.ARRAY(sa.UnicodeText(), dimensions=1), nullable=True
         ),
     )
+    op.alter_column('project', 'livestream_urls', server_default='{}')
 
 
 def downgrade():
