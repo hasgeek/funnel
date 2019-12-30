@@ -167,7 +167,6 @@
         counts: {{ counts|tojson }},
         results: {{results|default("")|tojson}},
         defaultImage: "{{url_for('static', filename='img/card-background.png')}}",
-        svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %},
       };
 
       HasGeek.Search(searchConfig);

@@ -25,7 +25,7 @@
             <p class="mui--text-danger mui--text-subhead page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
-          {{#if video}}{% assets "fa5-sprite" %}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg> {{/if}}
+          {{#if video}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg> {{/if}}
           {{#if video}}
           <div>
             <div class="mui-select camera-dropdown">
@@ -77,7 +77,6 @@
         templateId: 'scan-badge-template',
         projectTitle:  {{ project.title|tojson }},
         eventTitle: {{ event.title|tojson }},
-        svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %},
       };
       window.HasGeek.BadgeScanInit(eventConfig);
 

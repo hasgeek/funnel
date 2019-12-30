@@ -2,14 +2,7 @@ import Ractive from 'ractive';
 import jsQR from 'jsqr';
 
 const badgeScan = {
-  init({
-    checkinApiUrl,
-    wrapperId,
-    templateId,
-    projectTitle,
-    eventTitle,
-    svgIconUrl,
-  }) {
+  init({ checkinApiUrl, wrapperId, templateId, projectTitle, eventTitle }) {
     const badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -28,7 +21,7 @@ const badgeScan = {
         facingMode: true,
         cameras: [],
         selectedCamera: '',
-        svgIconUrl: svgIconUrl,
+        svgIconUrl: window.HasGeek.config.svgIconUrl,
       },
 
       closeModal(event) {

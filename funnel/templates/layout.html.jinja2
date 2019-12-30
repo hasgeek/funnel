@@ -201,6 +201,11 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      window.HasGeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %};
+    });
+  </script>
   {%- if not config['LEGACY'] -%}
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {

@@ -3,7 +3,7 @@ import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
 
 const badgeScan = {
-  init({ getContactApiUrl, wrapperId, templateId, svgIconUrl }) {
+  init({ getContactApiUrl, wrapperId, templateId }) {
     const badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -16,7 +16,7 @@ const badgeScan = {
         showModal: false,
         errorMsg: '',
         contacts: [],
-        svgIconUrl: svgIconUrl,
+        svgIconUrl: window.HasGeek.config.svgIconUrl,
       },
 
       closeModal(event) {

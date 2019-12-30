@@ -48,7 +48,7 @@
             <p class="mui--text-subhead mui--text-danger page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera"></video>
-          {{#if video}}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg>{{/if}}
+          {{#if video}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg>{{/if}}
         </div>
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
@@ -120,10 +120,9 @@
     $(function() {
 
       var scanConfig = {
-        getContactApiUrl = "{{ url_for('scan_connect') }}",
-        wrapperId = 'scan-badge-wrapper',
-        templateId = 'scan-badge-template',
-        svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %},
+        getContactApiUrl: "{{ url_for('scan_connect') }}",
+        wrapperId: 'scan-badge-wrapper',
+        templateId: 'scan-badge-template',
       };
       window.HasGeek.BadgeScanInit(scanConfig);
     });

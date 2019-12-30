@@ -102,9 +102,9 @@
                       {{/if}}
                       {{#if submitting}}
                         {{#if checked_in}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="Abort">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg>{% endassets %}</button>
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="Abort"><svg class="fa5-icon fa5-icon--title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></button>
                         {{else}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="Abort">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg>{% endassets %}</button>
+                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="Abort"><svg class="fa5-icon fa5-icon--title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></button>
                         {{/if}}
                       {{/if}}
                     </form>
