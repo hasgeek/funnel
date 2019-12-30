@@ -22,7 +22,7 @@ describe('Project', function() {
       .click();
     cy.get('.js-unscheduled').click();
     cy.get('.fc-agenda-axis')
-      .contains(session.time)
+      .contains(session.timecolumn)
       .next('.fc-widget-content')
       .click(5, 5);
     cy.get('#popup').should('be.visible');

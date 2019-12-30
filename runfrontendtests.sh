@@ -5,4 +5,4 @@ export FLASK_ENV="TESTING"
 python -m tests.e2e.frontend_tests_initdb
 python runcypressserver.py &
 cd funnel/assets
-npx cypress run
+npx cypress run --headless --browser chrome --record --key $RECORD_KEY
