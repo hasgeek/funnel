@@ -1,5 +1,6 @@
 {
   "projectId": "",
   "chromeWebSecurity": false,
-  "baseUrl": "http://funnel.travis.local:3002"
+  "baseUrl": "http://funnel.travis.local:3002",
+  "video": false
 }

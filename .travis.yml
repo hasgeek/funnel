@@ -4,7 +4,6 @@ python:
 before_script:
   - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres
-  - ./runfrontendtests.sh
 install:
   - pip install -U pip wheel
   - pip install -r requirements.txt
@@ -12,7 +11,7 @@ install:
   - make
 script:
   - ./runtests.sh
-  - cd funnel/assets && npm cypress run
+  - ./runfrontendtests.sh
 after_success:
   - coveralls
 addons:

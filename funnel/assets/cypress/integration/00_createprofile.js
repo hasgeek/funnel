@@ -1,6 +1,5 @@
 describe('Login', function() {
   const { admin } = require('../fixtures/user.js');
-  console.log(admin);
 
   it('Create a new project', function() {
     cy.login('/new', admin.username, admin.password);

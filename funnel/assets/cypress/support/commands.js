@@ -14,12 +14,8 @@ Cypress.Commands.add('login', (route, username, password) => {
     .find('.header__button')
     .click();
   cy.get('#showmore').click();
-  cy.get('.field-username')
-    .type(username)
-    .should('have.value', username);
-  cy.get('.field-password')
-    .type(password)
-    .should('have.value', password);
+  cy.get('.field-username').type(username);
+  cy.get('.field-password').type(password);
   cy.get('.form-actions')
     .find('button')
     .click();
