@@ -1,9 +1,9 @@
 describe('Project', function() {
-  const admin = require('../fixtures/admin.json');
+  const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 
   it('Create a new project', function() {
-    cy.visit('/testlogin?email=testuser@example.com&next=/test-profile');
+    cy.relogin('/testcypressproject');
 
     cy.get('a[data-cy="new-project"]').click();
     cy.location('pathname').should('contain', '/new');

@@ -1,10 +1,10 @@
 describe('Project', function() {
-  const admin = require('../fixtures/admin.json');
+  const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
   it('Add labels', function() {
-    cy.login('/JSFoo/' + project.url, admin.username, admin.password);
+    cy.relogin('/testcypressproject/' + project.url);
 
     cy.get('a[data-cy="labels"').click();
     cy.location('pathname').should('contain', '/labels');

@@ -1,12 +1,17 @@
 describe('Project', function() {
-  const admin = require('../fixtures/admin.json');
+  const { admin } = require('../fixtures/user.js');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  it('Confirm proposal', function() {
-    cy.login('/JSFoo/', admin.username, admin.password);
+  before(function() {
+    cy.login('/testcypressproject/new', admin.username, admin.password);
+    cy.get('a')
+      .contains('Cancel')
+      .click();
+  });
 
+  it('Confirm proposal', function() {
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="proposals"]').click();

@@ -1,19 +1,16 @@
 describe('Project', function() {
-  const user = require('../fixtures/user.json');
+  const { user } = require('../fixtures/user.js');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
   it('Add proposal', function() {
-    cy.login('/JSFoo/', user.username, user.password);
-
-    cy.get('a[data-cy-project="' + project.title + '"]').click();
-    cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="proposals"]').click();
-    cy.location('pathname').should('contain', 'proposals');
-    cy.get('a[data-cy="propose-a-session"]').click();
+    cy.login(
+      '/testcypressproject/2020/proposals/new',
+      user.username,
+      user.password
+    );
     cy.location('pathname').should('contain', 'new');
-
     cy.get('#speaking label')
       .eq(0)
       .click();

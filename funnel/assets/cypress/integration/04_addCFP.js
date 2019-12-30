@@ -1,10 +1,10 @@
 describe('Project', function() {
-  const admin = require('../fixtures/admin.json');
+  const { admin } = require('../fixtures/user.js');
   const cfp = require('../fixtures/cfp.json');
   const project = require('../fixtures/project.json');
 
   it('Add CFP', function() {
-    cy.login('/JSFoo/' + project.url, admin.username, admin.password);
+    cy.relogin('/testcypressproject/' + project.url);
 
     cy.get('a[data-cy="add-cfp"]').click();
     cy.location('pathname').should('contain', '/cfp');

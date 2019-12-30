@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import uuid
 
 from funnel import app
-from funnel.models import Profile, Team, User, db
+from funnel.models import User, db
 
 
 def init_models():
@@ -11,19 +10,12 @@ def init_models():
         db.drop_all()
         db.create_all()
 
-        u = User(username="testuser", email="testuser@example.com")
+        u = User(username="admin-cypress", email="cypressuser1@gmail.com")
         db.session.add(u)
         db.session.commit()
 
-        team = Team(title=u"Owners", owners=True, org_uuid=uuid.uuid4())
-        db.session.add(team)
-        team.users.append(u)
-        db.session.commit()
-
-        profile = Profile(
-            title=u"Test Profile", description=u"Test Description", admin_team=team
-        )
-        db.session.add(profile)
+        u = User(username="member-user", email="cypressmemberuser@gmail.com")
+        db.session.add(u)
         db.session.commit()
 
 

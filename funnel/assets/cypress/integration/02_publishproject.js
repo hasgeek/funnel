@@ -1,9 +1,9 @@
 describe('Project', function() {
-  const admin = require('../fixtures/admin.json');
+  const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 
   it('Publish project', function() {
-    cy.login('/JSFoo', admin.username, admin.password);
+    cy.relogin('/testcypressproject');
 
     cy.get('[title="' + project.title + '"]')
       .first()

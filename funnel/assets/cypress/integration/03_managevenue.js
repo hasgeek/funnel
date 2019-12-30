@@ -1,9 +1,9 @@
 describe('Project', function() {
-  const admin = require('../fixtures/admin.json');
+  const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 
   it('Add venue', function() {
-    cy.login('/JSFoo/' + project.url, admin.username, admin.password);
+    cy.relogin('/testcypressproject/' + project.url);
 
     cy.get('a[data-cy="manage-venues"]').click();
     cy.location('pathname').should('contain', '/venues');
@@ -26,7 +26,7 @@ describe('Project', function() {
           .click();
         cy.location('pathname').should(
           'include',
-          '/JSFoo/' + project.url + '/venues'
+          '/testcypressproject/' + project.url + '/venues'
         );
       });
 
@@ -53,7 +53,7 @@ describe('Project', function() {
           .click();
         cy.location('pathname').should(
           'include',
-          '/JSFoo/' + project.url + '/venues'
+          '/testcypressproject/' + project.url + '/venues'
         );
         cy.get('.card[data-cy-venue="' + venue.venue_title + '"]')
           .find('li')

@@ -1,5 +1,5 @@
 describe('Project', function() {
-  const admin = require('../fixtures/admin.json');
+  const { admin } = require('../fixtures/user.js');
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
@@ -7,10 +7,11 @@ describe('Project', function() {
   it('Update schedule', function() {
     cy.server();
     cy.route('**/sessions/new').as('add-session');
-    cy.login('/JSFoo/', admin.username, admin.password);
 
+    cy.relogin('/testcypressproject/');
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
+
     cy.get('a[data-cy="schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
     var tomorrow = Cypress.moment()

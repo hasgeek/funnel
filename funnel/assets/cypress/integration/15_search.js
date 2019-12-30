@@ -6,25 +6,22 @@ describe('Project', function() {
   it('Search', function() {
     cy.visit('/');
     cy.get('input[name="q"]')
-      .type('JSFoo')
+      .type('Javascript')
       .type('{enter}');
     cy.get('.tab-content__results')
       .find('.card')
       .contains(project.title);
+
+    cy.get('input[name="q"]')
+      .clear()
+      .type('test')
+      .type('{enter}');
     cy.get('.tabs__item')
       .contains('Profiles')
       .click();
-
     cy.get('.tab-content__results')
       .find('.card')
-      .contains('JSFoo');
-    cy.get('input[name="q"]')
-      .clear()
-      .type(project.title)
-      .type('{enter}');
-    cy.get('.tab-content__results')
-      .find('.card')
-      .contains(project.title);
+      .contains('test');
 
     cy.get('input[name="q"]')
       .clear()
@@ -33,9 +30,7 @@ describe('Project', function() {
     cy.get('.tabs__item')
       .contains('Proposals')
       .click();
-    cy.get('.tab-content__results')
-      .find('.card')
-      .contains(proposal.title);
+    cy.get('.tab-content__results').contains(proposal.title);
 
     // cy.get('input[name="q"]')
     //   .clear()

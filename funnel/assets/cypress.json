@@ -1,5 +1,5 @@
 {
-  "projectId": "o46g8n",
+  "projectId": "",
   "chromeWebSecurity": false,
-  "baseUrl": "http://hasgeek.local:3000"
+  "baseUrl": "http://funnel.travis.local:3002"
 }
