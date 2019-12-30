@@ -506,6 +506,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @cached_property
     def calendar_weeks(self):
+        # session_dates is a list of tuples in this format -
+        # (date, day_start_at, day_end_at, event_count)
         session_dates = list(
             db.session.query('date', 'day_start_at', 'day_end_at', 'count')
             .from_statement(
@@ -551,11 +553,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             current_week = Week.withdate(now)
             schedule_start_week = Week.withdate(self.schedule_start_at)
 
+            # session_dates is a list of tuples in this format -
+            # (date, day_start_at, day_end_at, event_count)
+            # as these days dont have any event, day_start/end_at are None,
+            # and count is 0.
             if (
                 schedule_start_week > current_week
                 and (schedule_start_week - current_week) <= 2
             ):
                 if (schedule_start_week - current_week) == 2:
+                    # add this so that the next week's dates
+                    # are also included in the calendar.
                     session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
                 session_dates.insert(0, (now, None, None, 0))
 
