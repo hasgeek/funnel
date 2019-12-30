@@ -69,8 +69,7 @@ class ProjectForm(forms.Form):
         __("Livestream URLs. One per line."),
         validators=[
             forms.validators.Optional(),
-            forms.ForEach([forms.validators.URL()]),
-            forms.ForEach([forms.validators.ValidUrl()]),
+            forms.ForEach([forms.validators.URL(), forms.validators.ValidUrl()]),
         ],
     )
     description = forms.MarkdownField(
