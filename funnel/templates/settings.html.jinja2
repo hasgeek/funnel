@@ -82,6 +82,9 @@
                       <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
                     </li>
                     <li>
+                      <a href="{{ project.url_for('edit') }}#field-livestream_urls" title="Add livestream url">{% trans %}Add livestream url{% endtrans %}</a>
+                    </li>
+                    <li>
                       <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
                     </li>
                     {% if project.cfp_state.NONE -%}

@@ -41,6 +41,10 @@
   top: 2px;
 }
 
+.material-icons {
+  display: none;
+}
+
 .no-js .js-lazyload-img {
   display: none;
 }
@@ -260,6 +264,7 @@ html.touch .collapsible__body--disable {
 
 .mui-btn--nostyle {
   background: none;
+  border: none;
 }
 
 .fa5-icon {
