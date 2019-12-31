@@ -16,6 +16,7 @@ const badgeScan = {
         showModal: false,
         errorMsg: '',
         contacts: [],
+        svgIconUrl: window.HasGeek.config.svgIconUrl,
       },
 
       closeModal(event) {

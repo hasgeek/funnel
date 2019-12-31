@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
-{%- from "macros.html.jinja2" import project_header, admin_panel %}
+{%- from "macros.html.jinja2" import project_header %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
 
@@ -61,20 +61,12 @@
 {% endblock %}
 
 {% block contentwrapper %}
-  <div class="grid">
-    <div class="grid__col-12">
-      {%- if project.current_roles.admin or current_auth.permissions.checkin_event %}
-        {{ admin_panel(project, transition_form=transition_form, schedule_transition_form=schedule_transition_form) }}
-      {% endif %}
-    </div>
-  </div>
-
   <div class="about">
     {% if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">
-            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
+            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
         <div id="tickets" {% if project.allow_rsvp and not project.boxoffice_data -%}class="rsvp-wrapper"{%- endif %}>
@@ -182,7 +174,7 @@
                         {% else %}
                           <div class="card__body">
                         {% endif %}
-                          <div class="mui--text-body1 mui--text-light truncate">{{ session.description|striptags }}</div>
+                          <div class="mui--text-body1 mui--text-light js-truncate-readmore" data-truncate-lines="2">{{ session.description|striptags }}</div>
                         {% if session.proposal %}</a>{% else %}</div>{% endif %}
                       {% endif %}
                     </div>
@@ -229,9 +221,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_jquerysuccinct" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {

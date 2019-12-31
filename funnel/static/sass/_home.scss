@@ -1,5 +1,18 @@
 .projects-wrapper {
-  padding: 30px 0;
+  padding: 15px 0;
+}
+
+.projects-wrapper--padding {
+  padding: 15px;
+}
+
+@media (min-width: 1200px) {
+  .projects-wrapper {
+    padding: 30px 0;
+  }
+  .projects-wrapper--padding {
+    padding: 30px 15px;
+  }
 }
 
 .projects {
@@ -92,37 +105,39 @@
   }
 }
 
-@media (min-width: 992px) {
-  .upcoming {
-    padding-left: 30px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  .spotlight {
-    margin-bottom: 15px;
-
-    spotlight__headline {
-      text-align: center;
-    }
-    .card--spotlight {
-      margin: auto;
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .upcoming {
-    padding-left: 45px;
-  }
-}
-
 .funnel-notice .alert__text {
   font-size: 24px;
   line-height: 32px;
 
   .funnel-notice-txt {
     color: #f0a40c;
+  }
+}
+
+.project-headline {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.project-headline:after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  width: 64px;
+  left: 0;
+  border-bottom: 3px solid #dda32a;
+}
+
+.project-headline--secondary:after {
+  border-bottom: 3px solid #82688d;
+}
+
+@media (min-width: 1200px) {
+  .mui-container--fullwidth {
+    max-width: 100%;
+    .grid__col-12 {
+      padding: 0;
+    }
   }
 }
 
@@ -165,5 +180,55 @@
   .spotlight-schedule-card {
     height: 531px;
     overflow: scroll;
+  }
+}
+
+.hg-banner-img {
+  border-radius: 16px 16px 16px 0;
+  width: 100%;
+  margin: 15px auto;
+}
+
+.hg-text {
+  color: #e05f25;
+}
+
+.hg-about {
+  position: relative;
+}
+
+.hg-about:before {
+  background: #dda32a;
+  position: absolute;
+  content: '';
+  height: 33.3%;
+  left: 0;
+  top: 0;
+  width: 5px;
+}
+
+.hg-about:after {
+  background: linear-gradient(to bottom, #82688d 50%, #e05f25 50%);
+  position: absolute;
+  content: '';
+  height: 66.6%;
+  left: 0;
+  top: 33.3%;
+  width: 5px;
+}
+
+@media (min-width: 1200px) {
+  .hg-about {
+    position: relative;
+    .hg-about__content {
+      padding: 5% 5% 5% 10%;
+    }
+    .hg-about__content__txt {
+      width: 70%;
+    }
+    .hg-about__content__link {
+      position: absolute;
+      bottom: 15%;
+    }
   }
 }

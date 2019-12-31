@@ -1,0 +1,84 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}My account{% endtrans %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app tabs-navbar">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
+
+{% block headline -%}
+{%- endblock %}
+
+{% block basecontentbox %}
+  <div class="tabs-wrapper tabs-wrapper--sticky">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="tabs" id="jquery-scroll-tabs">
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
+            </a>
+            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Profile{% endtrans %}</a>
+            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}My saves{% endtrans %}</p>
+            <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
+            <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">{% trans %}Contacts{% endtrans %}</a>
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mui-container tab-content">
+    <div class="saved-projects-wrapper">
+      <ul class="mui-list--unstyled grid" role="list">
+      {% for saved in saved_projects %}
+        <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+          <a class="card card--upcoming clickable-card" href="{{ saved.project.url_for() }}" title="{{ saved.project.title }}" aria-label="{{ saved.project.title }}">
+            <div class="card__image-wrapper">
+              {% if saved.project.bg_image.url %}
+                <img class="card__image js-lazyload-img" data-src="{{ saved.project.bg_image }}" alt="{{ saved.project.title }}"/>
+                <noscript>
+                  <img class="card__image" src="{{ saved.project.bg_image }}" alt="{{ saved.project.title }}"/>
+                </noscript>
+              {% else %}
+                <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ saved.project.title }}"/>
+                <p class="card__image__tagline mui--text-body1">{{ saved.project.title }}</p>
+              {% endif %}
+            </div>
+            <div class="card__body">
+              {% if saved.project.calendar_weeks.weeks and saved.project.calendar_weeks.weeks|length > 0 %}
+                <div aria-label="{{ saved.project.datelocation }}">
+                  <div class="card__calendar" aria-hidden="true">
+                    <div class="calendar">
+                      <p class="calendar__weekdays__month__name">{{ saved.project.calendar_weeks.weeks[0].month }} {{ saved.project.calendar_weeks.weeks[0].year }}</p>
+
+                      <div class="calendar__weekdays mui--bg-accent">
+                        {% for week in saved.project.calendar_weeks.weeks|sort(attribute='year') %}
+                          <div class="calendar__weekdays__dates">
+                            {% for date in week.dates %}
+                              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == saved.project.calendar_weeks.today %} calendar__weekdays__dates__date--today{% endif %}">
+                                <span class="calendar__weekdays__dates__date__text">{{ date.day }}</span><br>
+                                <span class="calendar__weekdays__name mui--text-title {% if date.count > 0 %}calendar__weekdays__name--active {% elif date.isoformat == saved.project.calendar_weeks.today %} calendar__weekdays__name--today{% endif %}">{{ saved.project.calendar_weeks.days[loop.index-1] }}</span>
+                              </p>
+                            {% endfor %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              <div class="card__body__title js-truncate {% if not saved.project.calendar_weeks.weeks %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ saved.project.title }}</span> <span class="mui--text-light">{{ saved.project.tagline }}</span></div>
+              {% if saved.project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if saved.project.primary_venue.city %}{{ saved.project.primary_venue.city }}{% else %}{{ saved.project.primary_venue.title }}{% endif %}</p>{% endif %}
+            </div>
+          </a>
+        </li>
+      {%- endfor -%}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

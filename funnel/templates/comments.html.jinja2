@@ -4,8 +4,12 @@
     <div id="c{{ comment.suuid }}">
       <div class="comment--content">
         <div class="comment--header">
-          <button class="js-collapse mui-btn--nostyle" aria-label="{% trans %}New event{% endtrans %}" aria-expanded="true"><i class="material-icons mui--align-middle mui--text-menu" aria-hidden="true">remove_circle_outline</i></button>
-          <button class="js-uncollapse mui-btn--nostyle mui--hide" aria-expanded="false">><i class="material-icons mui--align-middle mui--text-menu" aria-hidden="true">add_circle_outline</i></button>
+          <button class="js-collapse mui-btn--nostyle" aria-label="{% trans %}Hide comment{% endtrans %}" aria-expanded="true">
+            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-up"></use></svg>{% endassets %}
+          </button>
+          <button class="js-uncollapse mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
+            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-down"></use></svg>{% endassets %}
+          </button>&nbsp;
           {% if comment.state.DELETED -%}
             <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
           {%- else -%}

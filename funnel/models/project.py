@@ -192,6 +192,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
     )
 
+    livestream_urls = db.Column(db.ARRAY(db.UnicodeText, dimensions=1))
+
     venues = db.relationship(
         'Venue',
         cascade='all, delete-orphan',
@@ -248,8 +250,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'location',
                 'calendar_weeks',
                 'primary_venue',
+                'livestream_urls',
             },
-            'call': {'url_for', 'current_sessions'},
+            'call': {'url_for', 'current_sessions', 'is_saved_by'},
         }
     }
 
@@ -503,12 +506,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @cached_property
     def calendar_weeks(self):
+        # session_dates is a list of tuples in this format -
+        # (date, day_start_at, day_end_at, event_count)
         session_dates = list(
-            db.session.query('date', 'count')
+            db.session.query('date', 'day_start_at', 'day_end_at', 'count')
             .from_statement(
                 db.text(
                     '''
-                    SELECT DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date, COUNT(*) AS count
+                    SELECT
+                        DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date,
+                        MIN(start_at) as day_start_at,
+                        MAX(end_at) as day_end_at,
+                        COUNT(*) AS count
                     FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
                     GROUP BY date ORDER BY date;
                     '''
@@ -516,6 +525,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             )
             .params(timezone=self.timezone.zone, project_id=self.id)
         )
+
+        session_dates_dict = {
+            date.date(): {
+                'day_start_at': day_start_at,
+                'day_end_at': day_end_at,
+                'count': count,
+            }
+            for date, day_start_at, day_end_at, count in session_dates
+        }
 
         # FIXME: This doesn't work. This code needs to be tested in isolation
         # session_dates = db.session.query(
@@ -535,16 +553,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             current_week = Week.withdate(now)
             schedule_start_week = Week.withdate(self.schedule_start_at)
 
+            # session_dates is a list of tuples in this format -
+            # (date, day_start_at, day_end_at, event_count)
+            # as these days dont have any event, day_start/end_at are None,
+            # and count is 0.
             if (
                 schedule_start_week > current_week
                 and (schedule_start_week - current_week) <= 2
             ):
                 if (schedule_start_week - current_week) == 2:
-                    session_dates.insert(0, (now + timedelta(days=7), 0))
-                session_dates.insert(0, (now, 0))
+                    # add this so that the next week's dates
+                    # are also included in the calendar.
+                    session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
+                session_dates.insert(0, (now, None, None, 0))
 
         weeks = defaultdict(dict)
-        for project_date, session_count in session_dates:
+        for project_date, day_start_at, day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year
@@ -570,6 +594,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'isoformat': date.isoformat(),
                     'day': format_date(date, 'd', get_locale()),
                     'count': count,
+                    'day_start_at': (
+                        session_dates_dict[date]['day_start_at']
+                        .astimezone(self.timezone)
+                        .strftime("%I:%M %p")
+                        if date in session_dates_dict.keys()
+                        else None
+                    ),
+                    'day_end_at': (
+                        session_dates_dict[date]['day_end_at']
+                        .astimezone(self.timezone)
+                        .strftime("%I:%M %p")
+                        if date in session_dates_dict.keys()
+                        else None
+                    ),
                 }
                 for date, count in week['dates'].items()
             ]
@@ -579,7 +617,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'weeks': weeks_list,
             'today': now.date().isoformat(),
             'days': [
-                format_date(day, 'EEEEE', locale=get_locale())
+                format_date(day, 'EEE', locale=get_locale())
                 for day in Week.thisweek().days()
             ],
         }
