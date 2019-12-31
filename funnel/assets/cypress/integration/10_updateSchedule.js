@@ -8,11 +8,12 @@ describe('Project', function() {
     cy.server();
     cy.route('**/sessions/new').as('add-session');
 
-    cy.relogin('/testcypressproject/');
+    cy.relogin('/testcypressproject');
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
-
-    cy.get('a[data-cy="schedule"').click();
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
+    cy.get('a[data-cy="edit-schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
     var tomorrow = Cypress.moment()
       .add(1, 'days')
@@ -37,14 +38,16 @@ describe('Project', function() {
     cy.wait('@add-session');
 
     cy.get('[data-cy="project-page"]').click();
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
     cy.get('button[data-cy-schedule=publish_schedule]').click();
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
     cy.get('[data-cy="schedule-state"]').contains('Upcoming');
 
-    cy.get('.header__site-title__title')
-      .find('a')
-      .click();
+    cy.get('a[data-cy="home-desktop"]').click();
     cy.get('.upcoming')
-      .find('li.card--upcoming')
+      .find('.card--upcoming')
       .contains(project.title);
 
     // cy.get('.js-unscheduled').then(el => {

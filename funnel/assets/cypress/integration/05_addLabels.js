@@ -5,8 +5,9 @@ describe('Project', function() {
 
   it('Add labels', function() {
     cy.relogin('/testcypressproject/' + project.url);
-
-    cy.get('a[data-cy="labels"').click();
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
+    cy.get('a[data-cy="manage-labels"').click();
     cy.location('pathname').should('contain', '/labels');
 
     cy.fixture('labels').then(labels => {

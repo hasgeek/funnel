@@ -5,7 +5,8 @@ describe('Project', function() {
 
   it('Add CFP', function() {
     cy.relogin('/testcypressproject/' + project.url);
-
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="add-cfp"]').click();
     cy.location('pathname').should('contain', '/cfp');
 
@@ -22,9 +23,12 @@ describe('Project', function() {
     cy.get('#cfp_end_at-time').type(time);
     cy.get('button[data-cy="add-cfp"]').click();
     cy.location('pathname').should('contain', project.url);
-
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
     cy.get('button[data-cy-cfp=open_cfp]').click();
     cy.location('pathname').should('contain', project.url);
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
     cy.get('[data-cy="cfp-state"]').contains('Open');
   });
 });

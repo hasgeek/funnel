@@ -19,6 +19,7 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.get('.form-actions')
     .find('button')
     .click();
+  cy.location('pathname').should('include', route);
 });
 
 Cypress.Commands.add('relogin', route => {
@@ -26,6 +27,7 @@ Cypress.Commands.add('relogin', route => {
     .get('#hgnav')
     .find('.header__button')
     .click();
+  cy.location('pathname').should('include', route);
 });
 
 Cypress.Commands.add('enterlogindetails', (username, password) => {
@@ -42,9 +44,8 @@ Cypress.Commands.add('enterlogindetails', (username, password) => {
 });
 
 Cypress.Commands.add('logout', () => {
-  cy.get('#hgnav')
-    .find('.account-link')
-    .click();
+  cy.get('a[data-cy="account-link"]').click();
+  cy.get('a[data-cy="my-account"]').click();
   cy.get('.card__footer')
     .find('a')
     .contains('Logout')

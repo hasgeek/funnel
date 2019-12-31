@@ -24,7 +24,7 @@
         <div class="grid__col-sm-12 profile-details">
           {%- if project.profile.logo_url.url %}<a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper">
             <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>{% endif %}
-          <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text">{{ project.profile.title|e }}</a>
+          <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link">{{ project.profile.title|e }}</a>
           <span class="mui--text-subhead mui--text-bold profile-details__text">project</span>
         </div>
       {% endif %}
@@ -96,7 +96,7 @@
           <p class="mui--text-light mui--text-subhead project-venue">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</p>
         {%- endif %}
         {% if project.cfp_state.OPEN -%}
-          <p><a class="mui-btn mui-btn--raised mui--d-block propose-btn" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a></p>
+          <p><a class="mui-btn mui-btn--raised mui--d-block propose-btn" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)" data-cy="propose-a-session">{% trans %}Propose a session{% endtrans %}</a></p>
         {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
           <div>
             <a class="mui-btn mui-btn--raised mui--d-block propose-btn strike-text" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>

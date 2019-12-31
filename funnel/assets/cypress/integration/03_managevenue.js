@@ -4,7 +4,8 @@ describe('Project', function() {
 
   it('Add venue', function() {
     cy.relogin('/testcypressproject/' + project.url);
-
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="manage-venues"]').click();
     cy.location('pathname').should('contain', '/venues');
 

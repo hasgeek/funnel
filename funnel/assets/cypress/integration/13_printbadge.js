@@ -9,10 +9,11 @@ describe('Project', function() {
     cy.route('POST', '**/participants/checkin?*').as('checkin');
     cy.route('**/participants/json').as('participant-list');
 
-    cy.relogin('/testcypressproject/');
+    cy.relogin('/testcypressproject');
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
-
+    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="checkin"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[0].title + '"]').click();

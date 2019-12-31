@@ -48,7 +48,7 @@
   {%- if profile %}
     <div class="grid hg-banner mui--bg-accent">
       <div class="grid__col-12">
-        <h2 class="mui--text-display1 mui--text-bold">{{ profile.title }}</h2>
+        <h2 class="mui--text-display1 mui--text-bold" data-cy="profile-title">{{ profile.title }}</h2>
         <div class="mui--text-headline">{{ profile.description.html }}</div>
         <div class="mui-divider mui-divider--banner"></div>
       </div>
@@ -193,7 +193,7 @@
           <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Upcoming{% endtrans %}</h2>
         </div>
       </div>
-      <ul class="mui-list--unstyled grid" role="list">
+      <ul class="mui-list--unstyled grid upcoming" role="list">
       {% for project in upcoming_projects %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
           <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" title="{{ project.title }}" aria-label="{{ project.title }}">

@@ -72,8 +72,8 @@
         </a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}" class="mui--hidden-xs mui--hidden-sm"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
-      <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links-active{% endif %}" aria-label="Home">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#home"></use></svg>{% endassets %}<span class="header__nav-links__text">Home</span></a>
+      <a href="{{ url_for('index') }}" class="mui--hidden-xs mui--hidden-sm" data-cy="home-desktop"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links-active{% endif %}" aria-label="Home" data-cy="home">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#home"></use></svg>{% endassets %}<span class="header__nav-links__text">Home</span></a>
       <form action="/search" class="search-form js-search-form">
         <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
         {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline search-form__field__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %}
@@ -84,12 +84,12 @@
       {% if not current_auth.is_anonymous -%}
         <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links-active{% endif %}" aria-label="Account">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span></a>
         <div class="mui-dropdown mui--hidden-xs mui--hidden-sm">
-          <a href="javascript:void(0)" data-mui-toggle="dropdown" class="header__nav-links">
+          <a href="javascript:void(0)" data-mui-toggle="dropdown" class="header__nav-links" data-cy="account-link">
             {% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span>
             <span class="mui-caret"></span>
           </a>
           <ul class="mui-dropdown__menu header__nav-links__dropdown">
-            <li><a href="{{ url_for('account') }}" class="mui--text-subhead">Account</a></li>
+            <li><a href="{{ url_for('account') }}" class="mui--text-subhead" data-cy="my-account">Account</a></li>
             <li><a href="{{ url_for('saved') }}" class="mui--text-subhead">My saves</a></li>
             <li><a href="{{ url_for('scan_contact') }}" class="mui--text-subhead">Scan badge</a></li>
             <li><a href="{{ url_for('contacts') }}" class="mui--text-subhead">Contacts</a></li>

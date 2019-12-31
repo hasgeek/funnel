@@ -8,13 +8,13 @@ describe('Project', function() {
 
     cy.visit('/');
     cy.get('.upcoming')
-      .find('li.card--upcoming')
+      .find('.card--upcoming')
       .contains(project.title)
-      .click();
+      .click({ force: true });
     cy.get('[data-cy-navbar="schedule"]').click();
     var tomorrow = Cypress.moment()
       .add(1, 'days')
-      .format('dddd, DD MMMM YYYY');
+      .format('dddd, D MMMM YYYY');
     cy.get('.schedule__date').contains(tomorrow);
     cy.fixture('venues').then(venues => {
       venues.forEach(function(venue) {
@@ -26,7 +26,7 @@ describe('Project', function() {
       .click();
     cy.wait('@view-session');
     cy.get('#session-modal').should('be.visible');
-    var tomorrow = Cypress.moment()
+    tomorrow = Cypress.moment()
       .add(1, 'days')
       .format('DD MMMM, YYYY');
     cy.get('[data-cy-session="title"]').contains(session.title);
