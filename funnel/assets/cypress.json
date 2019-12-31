@@ -2,6 +2,5 @@
   "projectId": "o46g8n",
   "chromeWebSecurity": false,
   "baseUrl": "http://funnel.travis.local:3002",
-  "video": false,
-  "pageLoadTimeout": 180000
+  "pageLoadTimeout": 300000
 }
