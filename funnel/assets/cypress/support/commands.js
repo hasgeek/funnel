@@ -9,7 +9,7 @@
 // ***********************************************
 
 Cypress.Commands.add('login', (route, username, password) => {
-  cy.visit(route)
+  cy.visit(route, { failOnStatusCode: false })
     .get('#hgnav')
     .find('.header__button')
     .click();
