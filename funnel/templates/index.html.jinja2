@@ -166,19 +166,21 @@
 
   {%- if not profile %}
     <div class="mui-container">
-      <div class="projects-wrapper projects-wrapper--padding">
-        <div class="grid hg-about mui--bg-primary">
-          <div class="grid__col-xs-12 grid__col-sm-6 hg-about__content">
-            <h2 class="mui--text-display1 mui--text-bold project-headline project-headline--secondary hg-about__content__txt">HasGeek creates discussion spaces for geeks</h2>
-            <p class="mui--text-subhead hg-about__content__txt">Meet like-minded people, learn new things and discover new opportunities</p>
-            <p class="mui--hidden-xs mui--hidden-sm hg-about__content__link"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
+      <div class="projects-wrapper">
+        <div class="grid hg-about">
+          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-3 hg-about__content">
+            <h2 class="mui--text-bold project-headline project-headline--secondary hg-about__content__txt" id="typing"><span>Discover new opportunities</span><span>Learn new things</span><span>Meet like-minded people</span></h2>
+            <p class="mui--text-title mui--text-light">HasGeek creates discussion spaces for geeks</p>
           </div>
-          <div class="grid__col-xs-12 grid__col-sm-6">
-            <img class="hg-banner-img js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
+          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-6">
+            <img class="hg-about__img hg-about__img--main js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
             <noscript>
-              <img src="{{ url_for('static', filename='img/hg-banner-default.png') }}" alt="{{ config['SITE_TITLE'] }}" class="hg-banner-img">
+              <img src="{{ url_for('static', filename='img/hg-banner-default.png') }}" alt="{{ config['SITE_TITLE'] }}" class="hg-about__img">
             </noscript>
-            <p class="mui--hidden-md mui--hidden-lg mui--hidden-xl"><a class="mui--text-subhead mui--text-bold mui--text-uppercase hg-text" href="/about/" title="about HasGeek">Learn more</a></p>
+          </div>
+          <div class="grid__col-md-3 mui--hidden-xs mui--hidden-sm mui--hidden-md">
+            <img class="hg-about__img hg-about__img--top js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
+            <img class="hg-about__img hg-about__img--bottom js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
           </div>
         </div>
       </div>
@@ -476,6 +478,7 @@
       {% endif %}
 
       window.HasGeek.HomeInit(hgBannerConfig);
+
     });
   </script>
 {% endblock %}
