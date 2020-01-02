@@ -2,13 +2,27 @@ import { SaveProject } from './util';
 
 $(() => {
   window.HasGeek.HomeInit = function(config) {
-    // Random display of HasGeek banner
-    if (config.hgBannerImgList && config.hgBannerImgList.length) {
-      let random = Math.floor(
+    function getRandomNumber() {
+      return Math.floor(
         Math.random() * Math.floor(config.hgBannerImgList.length)
       );
-      let bannerFile = config.ImgFolderPath + config.hgBannerImgList[random];
-      $('.js-hg-banner').attr('src', bannerFile);
+    }
+    function getImagePath(num) {
+      return config.ImgFolderPath + config.hgBannerImgList[num];
+    }
+
+    // Random display of HasGeek banner
+    if (config.hgBannerImgList && config.hgBannerImgList.length) {
+      let randomNumList = [];
+      do {
+        let randomNum = getRandomNumber();
+        if (randomNum > 0 && randomNumList.indexOf(randomNum) === -1) {
+          randomNumList.push(randomNum);
+        }
+      } while (randomNumList.length < 4);
+      $('.js-hg-banner').each(function(index) {
+        $(this).attr('src', getImagePath(randomNumList[index]));
+      });
     } else {
       $('.js-hg-banner').attr('src', config.defaultBanner);
     }

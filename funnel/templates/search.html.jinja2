@@ -156,9 +156,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_jquerysuccinct" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('search')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
