@@ -1751,7 +1751,7 @@ html.touch .collapsible__body--disable {
   .calendar__weekdays__dates__date--showtime:before {
   content: '';
   position: absolute;
-  bottom: -13px;
+  bottom: -11px;
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
   border-top: 7px solid #82688d;
