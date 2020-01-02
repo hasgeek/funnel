@@ -27,34 +27,6 @@ $(() => {
       $('.js-hg-banner').attr('src', config.defaultBanner);
     }
 
-    // Alternating HasGeek section headline with typing effect
-    (function alternateHGHeadline() {
-      let headlineList = [];
-      let letter = 0;
-      let counter = 0;
-      let selectedString = '';
-      let text = '';
-
-      // Get all the headline strings
-      $('#typing span').each(function() {
-        headlineList.push($(this).text());
-      });
-      let placeholder = $('#typing');
-      (function type() {
-        if (counter === headlineList.length) {
-          counter = 0;
-        }
-        selectedString = headlineList[counter];
-        text = selectedString.slice(0, (letter += 1));
-        placeholder.text(text);
-        if (text.length === selectedString.length) {
-          counter += 1;
-          letter = 0;
-        }
-        setTimeout(type, 250);
-      })();
-    })();
-
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {
       event.preventDefault();
