@@ -30,6 +30,8 @@
   {% endif -%}
 {%- endblock %}
 
+{%- block font_icons %}{%- endblock %}
+
 {%- block layoutheaders %}
   {%- if not config['LEGACY'] -%}
   <link rel="manifest" href="/manifest.json">
@@ -52,14 +54,15 @@
       {%- if g.profile -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
           <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
-        </a><i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+        </a>
+        {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
         <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
         {%- if project %}
           {%- if project.parent_project %}
-            <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+            {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
             <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title() }}">{{ project.parent_project.short_title() }}</a>
           {%- endif %}
-          <i class="material-icons mui--text-subhead mui--align-center" aria-hidden="true">chevron_right</i>
+          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
           <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title() }}">{{ project.short_title() }}</a>
         {%- endif %}
       {%- else -%}
@@ -69,32 +72,39 @@
         </a>
       {%- endif %}
     {%- else -%}
-      <a href="{{ url_for('index') }}"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <a href="{{ url_for('index') }}" class="mui--hidden-xs mui--hidden-sm"><img src="/static/img/hg-logo.png" class="header__site-title__logo" aria-label="{{ config['SITE_TITLE'] }}"></a>
+      <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links-active{% endif %}" aria-label="Home">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#home"></use></svg>{% endassets %}<span class="header__nav-links__text">Home</span></a>
       <form action="/search" class="search-form js-search-form">
         <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
-        <img src="{{ url_for('static', filename='img/search-icon.svg') }}" class="search-form__field__img" aria-hidden="true"/>
+        {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline search-form__field__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %}
         <input type="text" name="type" value="project" hidden>
-        <button type="submit" class="search-form__submit">
+        <button type="submit" class="search-form__submit"></button>
       </form>
+      <a href="javascript:void(0)" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links-active{% endif %}" aria-label="Search">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %}<span class="header__nav-links__text">Search</span></a>
+      {% if not current_auth.is_anonymous -%}
+        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links-active{% endif %}" aria-label="Account">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span></a>
+        <div class="mui-dropdown mui--hidden-xs mui--hidden-sm">
+          <a href="javascript:void(0)" data-mui-toggle="dropdown" class="header__nav-links">
+            {% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span>
+            <span class="mui-caret"></span>
+          </a>
+          <ul class="mui-dropdown__menu header__nav-links__dropdown">
+            <li><a href="{{ url_for('account') }}" class="mui--text-subhead">Account</a></li>
+            <li><a href="{{ url_for('saved') }}" class="mui--text-subhead">My saves</a></li>
+            <li><a href="{{ url_for('scan_contact') }}" class="mui--text-subhead">Scan badge</a></li>
+            <li><a href="{{ url_for('contacts') }}" class="mui--text-subhead">Contacts</a></li>
+          </ul>
+        </div>
+      {%- else %}
+        <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
+      {%- endif %}
     {%- endif %}
   {% endmacro %}
 
   {%- if config['LEGACY'] -%}
-      {{ hgtopnav(site_title=site_title()) }}
+    {{ hgtopnav(site_title=site_title()) }}
   {%- else %}
-    {% with site_links=[] %}
-      {% if not current_auth.is_anonymous -%}
-        {% set site_links = [
-          {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
-          {'title': 'Account', 'icon': 'account_circle', 'url': url_for('account'), 'name' :'account'}
-          ]%}
-      {%- else %}
-        {% set site_links = [
-           {'title': 'Search', 'icon': 'search', 'url': '', 'name' :'search', 'class': 'js-search-show'},
-          {'title': "Login", 'url': url_for("login"), 'class': 'mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button'},] %}
-      {%- endif %}
-      {{ hgtopnav(site_title=site_title(), site_links=site_links, auth=false, network=false) }}
-    {% endwith %}
+    {{ hgtopnav(site_title=site_title(), site_links=[], auth=false, network=false) }}
   {%- endif %}
 {%- endblock %}
 
@@ -126,60 +136,76 @@
 
 
 {%- block basecontentbox %}
-    {%- block messages %}
-      <div class="mui-container">
-        {{ flash_messages() }}
-      </div>
-    {% endblock %}
-    {%- block baseheadline %}{% endblock %}
-    {% block basecontent %}
-      <div class="mui-container">
-        <div class="page-content">
-          {% block contentwrapper %}
+  {%- block messages %}
+    <div class="mui-container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert--{{category}} alert--dismissable">
+              <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
+              <p class="alert__text">{{ message }}</p>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+  {% endblock %}
+  {%- block baseheadline %}{% endblock %}
+  {% block basecontent %}
+    <div class="mui-container">
+      <div class="page-content">
+        {% block contentwrapper %}
           <div class="grid">
             <div class="grid__col-xs-12">
               {% block content %}{% endblock %}
             </div>
           </div>
-          {% endblock %}
-        </div>
+        {% endblock %}
       </div>
-    {% endblock %}
-  </div>
+    </div>
+  {% endblock %}
 {% endblock %}
 
 {% block footer %}
   {%- if not config['LEGACY'] -%}
-  <div class="mui-container">
-    <div class="grid mui--text-body2">
-      <div class="grid__col-sm-12 mui--text-center">
-        <p>
-          {% trans %}&copy; 2010-19 HasGeek and contributors{% endtrans %} &middot;
-          <a href="/about/" title="about">{% trans %}About us and site policies{% endtrans %}</a>
-        </p>
-      </div>
+    <div class="mui-container">
+      <div class="grid mui--text-body2">
+        <div class="grid__col-sm-12 mui--text-center">
+          <p>
+            {% trans %}&copy; 2010-19 HasGeek and contributors{% endtrans %} &middot;
+            <a href="/about/" title="about">{% trans %}About us and site policies{% endtrans %}</a>
+          </p>
+        </div>
+        </div>
       </div>
     </div>
-  </div>
   {%- else -%}
     <span class="no-print">{% trans %}&copy; 2010-19 HasGeek and contributors{% endtrans %}</span>
   {%- endif -%}
 {% endblock %}
 
 {% block jquery -%}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script type="text/javascript">
-  if (typeof jQuery === 'undefined') {
-    var jqueryScript = document.createElement('script');
-    jqueryScript.setAttribute('type','text/javascript');
-    jqueryScript.setAttribute('src','{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}');
-    document.head.appendChild(jqueryScript);
-  }
-</script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script type="text/javascript">
+    if (typeof jQuery === 'undefined') {
+      var jqueryScript = document.createElement('script');
+      jqueryScript.setAttribute('type','text/javascript');
+      jqueryScript.setAttribute('src','{{ url_for("baseframe.static", filename="js/jquery-2.2.4.min.js") }}');
+      document.head.appendChild(jqueryScript);
+    }
+  </script>
 {%- endblock %}
 
 {% block layoutscripts %}
+  {% assets "js_jquerytruncate" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      window.HasGeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %};
+    });
+  </script>
   {%- if not config['LEGACY'] -%}
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {

@@ -48,13 +48,15 @@
               <div class="collapsible">
                 <div class="collapsible__header">
                   <input type="hidden" name="uuid" value="{{ venue.suuid }}">
-                  <i class="material-icons mui--text-body1 drag-icon" aria-hidden="true">drag_indicator</i>
-                  <span class="h5">{{ venue.title }}</span> <i class="material-icons mui--align-middle collapsible__icon collapsible__icon--disable" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide collapsible__icon collapsible__icon--disable" aria-hidden="true">keyboard_arrow_up</i>
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption mui--text-light drag-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
+                  <span class="mui--text-subhead">{{ venue.title }}</span>
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline mui--text-light collapsible__icon collapsible__icon--disable" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline mui--text-light collapsible__icon collapsible__icon--disable mui--hide" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-up"></use></svg>{% endassets %}
                 </div>
                 <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
                   {% for room in venue.room_list %}
                     <p class="ui-dragable-box" draggable="true">
-                      <i class="material-icons mui--text-body1 drag-icon" aria-hidden="true">drag_indicator</i>
+                      {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption mui--text-light drag-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
                       <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.suuid}}">
                       <label for="room-color-input-{{ room.suuid }}" class="h5">
                         <input type="hidden" name="room-suuid" value="{{ room.suuid }}" data-venue="{{venue.suuid}}">
@@ -77,7 +79,7 @@
   </div>
   <div id="popup" class="modal session-modal">
     <div class="modal__header">
-      <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"><i class="material-icons" aria-hidden="true">clear</i></a>
+      <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
       <h3 class="js-modal-title session-modal__title">{{ session.title }}</h3>
     </div>
     <hr class="mui-divider mui-divider--custom">
