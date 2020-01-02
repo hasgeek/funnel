@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import project_header, admin_panel %}
+{%- from "macros.html.jinja2" import project_header %}
 {% block title %}Proposals{% endblock %}
 {% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
@@ -17,7 +17,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline"><i class="material-icons mui--align-middle mobile-nav__prev" aria-hidden="true">arrow_back</i></a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -40,7 +40,7 @@
                 {%- endif %}
                 {%- if g.user and current_auth.permissions.edit_project %}
                   {%- if proposal.has_outstation_speaker %}
-                    <i class="material-icons mui--text-subhead mui--align-middle" aria-hidden="true">flight</i>
+                    {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plane"></use></svg>{% endassets %}
                     <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>
                   {%- endif %}
                 {%- endif %}
@@ -55,10 +55,14 @@
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
               {% if proposal.preview_video.url %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" class="material-icons icon-middle" aria-hidden="true">play_arrow</i><span class="mui--hide" aria-label="{% trans %}This proposal has a preview video{% endtrans %}"></span></li>
+                <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}
+                </li>
               {% endif %}
               {% if proposal.slides.url %}
-                <li class="no-border"><i data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" class="material-icons icon-middle" aria-hidden="true">slideshow</i><span class="mui--hide" aria-label="{% trans %}This proposal has slides{% endtrans %}"></span></li>
+                <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" aria-label="{% trans %}This proposal has slides{% endtrans %}">
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %}
+                </li>
               {% endif %}
             </ul>
           </td>
@@ -75,14 +79,6 @@
 {% block basecontent %}
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
-      <div class="grid">
-        <div class="grid__col-xs-12">
-          {% if current_auth.is_authenticated and project.current_roles.admin %}
-            {{ admin_panel(project, cfp_transition_form=cfp_transition_form) }}
-          {%- endif %}
-        </div>
-      </div>
-
       <div class="grid">
        {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
@@ -114,8 +110,8 @@
               </div>
               {%- for state, proposal_group in project.proposals_by_state.items() if proposal_group -%}
                 <div class="collapsible">
-                  <p class="mui--text-subhead collapsible__header proposal-list-header">{{ state.label.title }} {% trans %}proposals{% endtrans %} <i class="material-icons mui--align-middle mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_down</i><i class="material-icons mui--align-middle mui--hide mui--pull-right collapsible__icon" aria-hidden="true">keyboard_arrow_up</i></p>
-                  <div class="collapsible__body">{{ proposal_list(project, proposal_group) }}</div>
+                  <p class="mui--text-subhead collapsible__header proposal-list-header" aria-expanded="false" aria-controls="collapse-{{state.label.title}}">{{ state.label.title }} {% trans %}proposals{% endtrans %} {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline collapsible__icon mui--pull-right" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline collapsible__icon mui--hide mui--pull-right" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-up"></use></svg>{% endassets %}</p>
+                  <div class="collapsible__body" id="collapse-{{state.label.title}}">{{ proposal_list(project, proposal_group) }}</div>
                 </div>
               {%- endfor -%}
             {%- else %}

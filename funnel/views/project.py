@@ -413,6 +413,23 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'csrf_form': csrf_form,
         }
 
+    @route('settings', methods=['GET', 'POST'])
+    @render_with('settings.html.jinja2')
+    @lastuser.requires_login
+    @requires_permission('edit_project')
+    def settings(self):
+        transition_form = ProjectTransitionForm(obj=self.obj)
+        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
+        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
+        project_save_form = SavedProjectForm()
+        return {
+            'project': self.obj,
+            'transition_form': transition_form,
+            'cfp_transition_form': cfp_transition_form,
+            'schedule_transition_form': schedule_transition_form,
+            'project_save_form': project_save_form,
+        }
+
 
 @route('/<project>/', subdomain='<profile>')
 class FunnelProjectView(ProjectView):
