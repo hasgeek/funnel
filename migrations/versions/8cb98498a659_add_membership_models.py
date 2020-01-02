@@ -89,6 +89,44 @@ def upgrade():
         postgresql_where=sa.text(u'revoked_at IS NULL'),
     )
 
+    op.create_table(
+        'proposal_membership',
+        sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column('revoked_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('proposal_id', sa.Integer(), nullable=False),
+        sa.Column('user_id', sa.Integer(), nullable=False),
+        sa.Column('is_reviewer', sa.Boolean(), nullable=False),
+        sa.Column('is_speaker', sa.Boolean(), nullable=False),
+        sa.Column('revoked_by_id', sa.Integer(), nullable=True),
+        sa.Column('granted_by_id', sa.Integer(), nullable=True),
+        sa.Column('record_type', sa.Integer(), nullable=False),
+        sa.Column('id', UUIDType(binary=False), nullable=False),
+        sa.CheckConstraint(
+            u'is_reviewer IS TRUE OR is_speaker IS TRUE',
+            name='proposal_membership_has_role',
+        ),
+        sa.ForeignKeyConstraint(['proposal_id'], ['project.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['revoked_by_id'], ['user.id'], ondelete='SET NULL'),
+        sa.ForeignKeyConstraint(['granted_by_id'], ['user.id'], ondelete='SET NULL'),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+        sa.PrimaryKeyConstraint('id'),
+    )
+    op.create_index(
+        op.f('ix_proposal_membership_user_id'),
+        'proposal_membership',
+        ['user_id'],
+        unique=False,
+    )
+    op.create_index(
+        'proposal_membership_active',
+        'proposal_membership',
+        ['proposal_id', 'user_id'],
+        unique=True,
+        postgresql_where=sa.text(u'revoked_at IS NULL'),
+    )
+
 
 def downgrade():
     op.drop_index(

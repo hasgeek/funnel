@@ -43,3 +43,4 @@ from .venue import *  # isort:skip
 from .membership import *  # isort:skip
 from .profile_membership import *  # isort:skip
 from .project_membership import *  # isort:skip
+from .proposal_membership import *  # isort:skip

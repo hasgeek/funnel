@@ -490,21 +490,26 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
+
+        if self.state.DRAFT:
+            if 'reader' in roles:
+                # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
+                roles.remove('reader')
+        else:
+            roles.add('reader')
+
         if self.owner == actor:
-            roles.update({'owner', 'speaker', 'proposer'})
-        if self.user == actor:
-            roles.add('creator')
-        roles.update(self.project.roles_for(actor, anchors))
+            roles.update({'owner'})
 
-        if self.state.DRAFT and 'reader' in roles:
-            roles.remove(
-                'reader'
-            )  # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
+        project_roles = self.project.roles_for(actor, anchors)
+        if 'editor' in project_roles:
+            roles.add('project_editor')
 
-        if actor is not None and self.project.review_team in actor.teams:
-            # this will be replaced by a reviewer role supplied by
-            # membership models when we implement proposal membership.
-            roles.add('reviewer')
+        active_membership = self.active_memberships.filter_by(user=actor).one_or_none()
+        if active_membership is not None:
+            # this grants either `reviewer` or `speaker`
+            roles.update(active_membership.offered_roles())
+
         return roles
 
 

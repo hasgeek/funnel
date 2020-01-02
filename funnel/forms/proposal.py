@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import g
 
 from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
+from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import Profile, Project
+from ..models import Profile, ProfileAdminMembership, Project, ProjectCrewMembership
 
 __all__ = [
     'ProposalForm',
@@ -243,12 +243,17 @@ class ProposalMoveForm(forms.Form):
     )
 
     def set_queries(self):
-        team_ids = [t.id for t in g.user.teams]
         self.target.query = (
-            Project.query.join(Project.profile)
+            Project.query.join(ProjectCrewMembership)
+            .join(Profile)
+            .join(ProfileAdminMembership)
+            .filter(Project.state.DELETABLE)  # all projects except deleted ones
             .filter(
-                (Project.admin_team_id.in_(team_ids))
-                | (Profile.admin_team_id.in_(team_ids))
+                ProjectCrewMembership.user == current_auth.user,
+                ProjectCrewMembership.is_active == True,  # NOQA
+                ProjectCrewMembership.is_editor == True,  # NOQA
+                ProfileAdminMembership.user == current_auth.user,
+                ProfileAdminMembership.is_active == True,  # NOQA
             )
-            .order_by(Project.schedule_start_at.desc())
+            .order_by(Project.created_at.desc())
         )
