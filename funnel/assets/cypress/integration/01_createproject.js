@@ -1,9 +1,13 @@
 describe('Project', function() {
-  const { admin } = require('../fixtures/user.js');
+  const { admin, baseurl } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 
   it('Create a new project', function() {
-    cy.login('/revue/new', admin.username, admin.password);
+    cy.relogin('/testcypressproject');
+
+    cy.get('a[data-cy="new-project"]').click();
+    cy.location('pathname').should('contain', '/new');
+
     cy.get('#name').type(project.url);
     cy.get('#title').type(project.title);
     cy.get('#location').type(project.location);
