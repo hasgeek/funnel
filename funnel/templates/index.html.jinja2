@@ -46,11 +46,13 @@
 
 {% block baseheadline %}
   {%- if profile %}
-    <div class="grid hg-banner mui--bg-accent">
-      <div class="grid__col-12">
-        <h2 class="mui--text-display1 mui--text-bold">{{ profile.title }}</h2>
-        <div class="mui--text-headline">{{ profile.description.html }}</div>
-        <div class="mui-divider mui-divider--banner"></div>
+    <div class="mui-container">
+      <div class="grid hg-banner mui--bg-accent">
+        <div class="grid__col-12">
+          <h2 class="mui--text-display1 mui--text-bold">{{ profile.title }}</h2>
+          <div class="mui--text-headline">{{ profile.description.html }}</div>
+          <div class="mui-divider mui-divider--banner"></div>
+        </div>
       </div>
     </div>
   {% endif %}
@@ -151,9 +153,9 @@
         <div class="grid hg-about">
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-3 hg-about__content">
             <div class="mui--text-bold project-headline project-headline--secondary hg-about__content__txt">
-              <p class="hg-about__content__txt__string">Meet <br> like-minded <br> people</p>
-              <p class="hg-about__content__txt__string">Learn <br> new <br> things</p>
-              <p class="hg-about__content__txt__string">Discover <br> new <br> opportunities</p>
+              <p class="hg-about__content__txt__string">Meet <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> like-minded <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> people</p>
+              <p class="hg-about__content__txt__string">Learn <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> new <br class="mui--hidden-sm"> things</p>
+              <p class="hg-about__content__txt__string">Discover <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> new <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> opportunities</p>
             </div>
             <p class="mui--text-title mui--text-light">HasGeek creates discussion spaces for geeks</p>
           </div>
