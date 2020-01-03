@@ -111,30 +111,6 @@ class ProjectForm(forms.Form):
         allow_blank=True,
         blank_text=__(u"None"),
     )
-
-    admin_team = QuerySelectField(
-        u"Admin team",
-        validators=[forms.validators.DataRequired(__(u"Please select a team"))],
-        get_label='title',
-        allow_blank=False,
-        description=__(u"The administrators of this project"),
-    )
-    review_team = QuerySelectField(
-        u"Review team",
-        validators=[forms.validators.DataRequired(__(u"Please select a team"))],
-        get_label='title',
-        allow_blank=False,
-        description=__(
-            u"Reviewers can see contact details of proposers, but can’t change settings"
-        ),
-    )
-    checkin_team = QuerySelectField(
-        u"Checkin team",
-        validators=[forms.validators.DataRequired(__(u"Please select a team"))],
-        get_label='title',
-        allow_blank=False,
-        description=__(u"Team members can check in users at an event"),
-    )
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
     buy_tickets_url = forms.URLField(
         __("URL to buy tickets"),
@@ -148,10 +124,6 @@ class ProjectForm(forms.Form):
     )
 
     def set_queries(self):
-        profile_teams = self.edit_parent.teams
-        self.admin_team.query = profile_teams
-        self.review_team.query = profile_teams
-        self.checkin_team.query = profile_teams
         if self.edit_obj is None:
             self.parent_project.query = self.edit_parent.projects
         else:

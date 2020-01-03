@@ -156,7 +156,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         )  # FIXME: Remove when the native app switches over
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_roles({'profile_admin'})
+    @requires_roles({'admin'})
     def edit(self):
         form = EditProfileForm(obj=self.obj, model=Profile)
         if form.validate_on_submit():

@@ -86,13 +86,6 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             roles.add('usher')
         return roles
 
-    # def roles_for(self, actor, anchors=()):
-    #     """Roles available to the specified actor and anchors"""
-    #     roles = super(ProjectCrewMembership, self).roles_for(actor, anchors)
-    #     if 'profile_admin' in self.project.profile.roles_for(actor, anchors):
-    #         roles.add('editor')
-    #     return roles
-
 
 # Project relationships: all crew, vs specific roles
 

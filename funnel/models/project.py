@@ -30,7 +30,7 @@ from . import (
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import RESERVED_NAMES, add_search_trigger
 from .profile import Profile
-from .user import Team, User
+from .user import User
 
 __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
@@ -137,21 +137,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False)
-
-    admin_team_id = db.Column(
-        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
-    )
-    admin_team = db.relationship(Team, foreign_keys=[admin_team_id])
-
-    review_team_id = db.Column(
-        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
-    )
-    review_team = db.relationship(Team, foreign_keys=[review_team_id])
-
-    checkin_team_id = db.Column(
-        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
-    )
-    checkin_team = db.relationship(Team, foreign_keys=[checkin_team_id])
 
     parent_id = db.Column(
         None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
@@ -669,11 +654,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if user is not None:
             if self.cfp_state.OPEN:
                 perms.add('new-proposal')
-            if (
-                (self.admin_team and user in self.admin_team.users)
-                or (self.profile.admin_team and user in self.profile.admin_team.users)
-                or user.owner_of(self.profile)
-            ):
+            if 'editor' in self.roles_for(user):
                 perms.update(
                     [
                         'view_contactinfo',
@@ -701,11 +682,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'edit-participant',
                         'view-participant',
                         'new-participant',
-                    ]
-                )
-            if self.review_team and user in self.review_team.users:
-                perms.update(
-                    [
                         'view_contactinfo',
                         'confirm-proposal',
                         'view_voteinfo',
@@ -722,7 +698,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'new-participant',
                     ]
                 )
-            if self.checkin_team and user in self.checkin_team.users:
+            if 'usher' in self.roles_for(user):
                 perms.update(['checkin_event'])
         return perms
 
@@ -761,20 +737,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         roles = super(Project, self).roles_for(actor, anchors)
 
         if actor is not None:
-            if self.review_team in actor.teams:
-                roles.add('reviewer')
             # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
             roles.add('reader')
+
+        profile_membership = self.profile.active_admin_memberships.filter_by(
+            user=actor
+        ).one_or_none()
+        if profile_membership is not None:
+            profile_roles = profile_membership.offered_roles()
+            if 'admin' in profile_roles:
+                roles.add('profile_admin')
 
         crew_membership = self.active_crew_memberships.filter_by(
             user=actor
         ).one_or_none()
         if crew_membership is not None:
             roles.update(crew_membership.offered_roles())
-
-        # Need this role for require_roles() decorator for views
-        if 'editor' in roles:
-            roles.add('project_editor')
 
         return roles
 
