@@ -7,12 +7,15 @@ from flask import Response, g, jsonify, redirect, render_template
 from coaster.views import ClassView, jsonp, load_model, render_with, route
 
 from .. import app, funnelapp, pages
+from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
 from .project import project_data
 
 
 @route('/')
 class IndexView(ClassView):
+    current_section = 'home'
+
     @render_with('index.html.jinja2', json=True)
     def home(self):
         g.profile = None
@@ -45,6 +48,11 @@ class IndexView(ClassView):
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
+        past_projects = (
+            projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
+            .order_by(Project.schedule_start_at.desc())
+            .all()
+        )
 
         return {
             'all_projects': [p.current_access() for p in all_projects],
@@ -53,12 +61,15 @@ class IndexView(ClassView):
             'featured_project': (
                 featured_project.current_access() if featured_project else None
             ),
+            'past_projects': [p.current_access() for p in past_projects],
+            'hg_banner': app.config.get('HG_BANNER_IMG', []),
+            'project_save_form': SavedProjectForm(),
         }
 
 
 @route('/')
 class FunnelIndexView(ClassView):
-    @render_with('funnelindex.html.jinja2', json=True)
+    @render_with('funnelindex.html.jinja2')
     def home(self):
         g.profile = None
         projects = Project.fetch_sorted(legacy=True).all()  # NOQA

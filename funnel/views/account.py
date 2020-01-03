@@ -18,6 +18,12 @@ class AccountView(ClassView):
     def account(self):
         return {'user': current_auth.user.current_access()}
 
+    @route('saved', endpoint='saved')
+    @lastuser.requires_login
+    @render_with('account_saved.html.jinja2')
+    def saved(self):
+        return {'saved_projects': current_auth.user.saved_projects}
+
 
 @route('/account')
 class FunnelAccountView(ClassView):
