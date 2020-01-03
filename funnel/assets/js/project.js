@@ -211,9 +211,5 @@ $(() => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }
-
-    $('.truncate').succinct({
-      size: 150,
-    });
   };
 });

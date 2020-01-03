@@ -78,12 +78,14 @@ baseframe.init_app(
     requires=['funnel'],
     ext_requires=['pygments', 'toastr', 'baseframe-mui'],
     theme='mui',
+    asset_modules=('baseframe_private_assets',),
 )
 baseframe.init_app(
     funnelapp,
     requires=['funnel'],
     ext_requires=['pygments', 'toastr', 'baseframe-mui'],
     theme='mui',
+    asset_modules=('baseframe_private_assets',),
 )
 
 # Register JS and CSS assets on both apps
@@ -137,16 +139,14 @@ app.assets.register(
 app.assets.register(
     'css_screens',
     Bundle(
-        assets.require('screens.css'),
-        output='css/screens.packed.css',
-        filters='cssmin'
+        assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
     ),
 )
 app.assets.register(
-    'js_jquerysuccinct',
+    'js_jquerytruncate',
     Bundle(
-        assets.require('!jquery.js', 'jquery.succinct.js'),
-        output='js/jquerysuccinct.packed.js',
+        assets.require('!jquery.js', 'jquery.truncate8.js'),
+        output='js/jquerytruncate.packed.js',
         filters='uglipyjs',
     ),
 )
@@ -203,7 +203,7 @@ app.assets.register(
     Bundle(
         assets.require('schedule-print.css'),
         output='css/schedule-print.packed.css',
-        filters='cssmin'
+        filters='cssmin',
     ),
 )
 
@@ -261,18 +261,18 @@ funnelapp.assets.register(
     ),
 )
 funnelapp.assets.register(
-    'js_jquerysuccinct',
-    Bundle(
-        assets.require('!jquery.js', 'jquery.succinct.js'),
-        output='js/jquerysuccinct.packed.js',
-        filters='uglipyjs',
-    ),
-)
-funnelapp.assets.register(
     'js_jqueryeasytabs',
     Bundle(
         assets.require('!jquery.js', 'jquery-easytabs.js'),
         output='js/jqueryeasytabs.packed.js',
+        filters='uglipyjs',
+    ),
+)
+funnelapp.assets.register(
+    'js_jquerytruncate',
+    Bundle(
+        assets.require('!jquery.js', 'jquery.truncate8.js'),
+        output='js/jquerytruncate.packed.js',
         filters='uglipyjs',
     ),
 )
@@ -321,7 +321,7 @@ funnelapp.assets.register(
     Bundle(
         assets.require('schedule-print.css'),
         output='css/schedule-print.packed.css',
-        filters='cssmin'
+        filters='cssmin',
     ),
 )
 

@@ -6,13 +6,9 @@
 }
 .search-icon {
   width: 20px;
+  height: 12px;
   display: inline-block;
   position: absolute;
   left: 8px;
-}
-.search-icon:after {
-  content: '🔍';
-  opacity: 0.4;
-  position: relative;
-  top: 1px;
+  top: 13px;
 }

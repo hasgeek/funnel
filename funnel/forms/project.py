@@ -70,6 +70,13 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         description=__("About the project"),
     )
+    livestream_urls = forms.TextListField(
+        __("Livestream URLs. One per line."),
+        validators=[
+            forms.validators.Optional(),
+            forms.ForEach([forms.validators.URL(), forms.validators.ValidUrl()]),
+        ],
+    )
     timezone = forms.SelectField(
         __("Timezone"),
         description=__("The timezone in which this event occurs"),
