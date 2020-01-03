@@ -99,6 +99,7 @@ Profile.active_invitations = db.relationship(
     primaryjoin=db.and_(
         ProfileAdminMembership.profile_id == Profile.id,
         ProfileAdminMembership.is_invite,
+        ~ProfileAdminMembership.is_active,
     ),
 )
 
