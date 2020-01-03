@@ -185,18 +185,40 @@
 
 .hg-about__content__txt {
   width: 100%;
-  height: 165px;
+  height: 100px;
   position: relative;
+  margin-bottom: 30px;
+
   .hg-about__content__txt__string {
     font-size: 38px;
     opacity: 0;
     height: 0px;
+    margin: 0;
     line-height: 1.2;
+  }
+}
+
+@media (min-width: 544px) {
+  .hg-about__content__txt {
+    height: 55px;
+  }
+}
+
+@media (min-width: 768px) {
+  .hg-about__content__txt {
+    height: 92px;
+  }
+}
+
+@media (min-width: 992px) {
+  .hg-about__content__txt {
+    height: 140px;
   }
 }
 
 @media (min-width: 1200px) {
   .hg-about__content__txt {
+    height: 146px;
     .hg-about__content__txt__string {
       font-size: 40px;
     }
