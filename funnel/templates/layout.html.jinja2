@@ -5,8 +5,12 @@
   <title>{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}</title>
   <meta name="DC.title" content="{{ self.title()|e }}" />
   <meta property="og:title" content="{{ self.title()|e }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ url_for('index', _external=true) }}" />
+  <meta name="twitter:title" content="{{ self.title()|e }}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@hasgeek" />
+  <meta property="twitter:description" content="{{ self.description() }}" />
   <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
   <link rel="preconnect" crossorigin href="https://ajax.googleapis.com/">
   <link rel="preconnect" crossorigin href="https://imgee.s3.amazonaws.com/">
@@ -21,12 +25,15 @@
   {%- if project and project.bg_image.url %}
     <link rel="image_src" href="{{ project.bg_image }}" />
     <meta property="og:image" content="{{ project.bg_image }}" />
-  {%- elif not config['LEGACY'] -%}
+    <meta name="twitter:image" content="{{ project.bg_image }}">
+  {%- elif not config['LEGACY'] %}
     <link rel="image_src" href="{{ url_for('static', filename='img/hg-logo.png', _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/hg-logo.png', _external=true) }}" />
-  {%- else  -%}
+    <meta name="twitter:image" content="{{ url_for('static', filename='img/hg-logo.png', _external=true) }}">
+  {%- else  %}
     <link rel="image_src" href="{{ url_for('static', filename='img/funnel-logo.png', _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/funnel-logo.png', _external=true) }}" />
+    <meta name="twitter:image" content="{{ url_for('static', filename='img/funnel-logo.png', _external=true) }}">
   {% endif -%}
 {%- endblock %}
 
