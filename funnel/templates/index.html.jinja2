@@ -132,7 +132,10 @@
                 </div>
                 <div class="card__body">
                   <h3 class="mui--text-headline zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title }}</span>{% if featured_project.tagline %}: <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
-                  {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, featured_project.name) }}</div>{% endif %}
+                  {%- if not current_auth.is_anonymous %}
+                    {% set save_form_id = "featured_" + featured_project.name %}
+                    <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, save_form_id) }}</div>
+                  {% endif %}
                   {% if featured_project.calendar_weeks.weeks and featured_project.calendar_weeks.weeks|length > 0 %}
                     {{ calendarwidget(featured_project) }}
                   {% endif %}
