@@ -65,13 +65,6 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         if membership:
             roles.update(membership.offered_roles())
 
-        # Need these roles for require_roles() decorator for views
-        if 'admin' in roles:
-            roles.add('profile_admin')
-
-        if 'owner' in roles:
-            roles.add('profile_owner')
-
         return roles
 
 
