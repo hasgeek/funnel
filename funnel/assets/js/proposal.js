@@ -228,12 +228,16 @@ export const LabelsWidget = {
   updateLabels(label = '', attr = '', action = true) {
     if (action) {
       if (label !== attr) {
-        $(`.label[data-labeltxt="${attr}"]`).remove();
+        $(`.label[data-labeltxt='${attr}']`).remove();
       }
-      const span = `<span class="label mui--text-caption mui--text-bold" data-labeltxt="${attr}">${label}</span>`;
-      $('#label-select').append(span);
+      let labelSpan = $(
+        '<span class="label mui--text-caption mui--text-bold"></span>'
+      )
+        .attr('data-labeltxt', attr)
+        .text(label);
+      $('#label-select').append(labelSpan);
     } else {
-      $(`.label[data-labeltxt="${attr}"]`).remove();
+      $(`.label[data-labeltxt='${attr}']`).remove();
     }
   },
 };
