@@ -18,6 +18,7 @@ describe('Add session to schedule and publish', function() {
     var tomorrow = Cypress.moment()
       .add(1, 'days')
       .format('YYYY-MM-DD');
+    cy.wait(60000);
     cy.get('#select-date')
       .type(tomorrow)
       .click();

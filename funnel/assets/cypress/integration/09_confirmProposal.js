@@ -6,7 +6,8 @@ describe('Confirm proposal', function() {
 
   before(function() {
     cy.login('/testcypressproject/new', admin.username, admin.password);
-    cy.get('a')
+    cy.wait(120000);
+    cy.get('a.mui-btn')
       .contains('Cancel')
       .click();
   });
