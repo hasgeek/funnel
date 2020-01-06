@@ -26,7 +26,14 @@ Cypress.Commands.add('relogin', route => {
     .get('#hgnav')
     .find('.header__button')
     .click();
-  cy.location('pathname').should('include', route);
+  cy.visit(route)
+    .get('#hgnav')
+    .then($header => {
+      if ($header.find('.header__button')) {
+        $header.find('.header__button').click();
+        cy.location('pathname').should('include', route);
+      }
+    });
 });
 
 Cypress.Commands.add('enterlogindetails', (username, password) => {

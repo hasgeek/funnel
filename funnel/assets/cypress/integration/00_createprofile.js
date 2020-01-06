@@ -3,7 +3,7 @@ describe('Login', function() {
 
   it('Create a new project', function() {
     cy.login('/new', admin.username, admin.password);
-    cy.wait(120000);
+    cy.wait(60000);
 
     cy.get('button')
       .contains('Next')
