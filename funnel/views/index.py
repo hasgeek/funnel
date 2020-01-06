@@ -16,7 +16,7 @@ from .project import project_data
 class IndexView(ClassView):
     current_section = 'home'
 
-    @render_with('index.html.jinja2', json=True)
+    @render_with('index.html.jinja2')
     def home(self):
         g.profile = None
         projects = Project.all_unsorted(legacy=False)
