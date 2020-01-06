@@ -157,18 +157,22 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             .order_by(db.desc('created_at'))
             .all()
         )
-        return jsonp(
-            **{
-                'project': project_data(self.obj),
-                'space': project_data(
-                    self.obj
-                ),  # TODO: Remove when the native app switches over
-                'venues': [venue_data(venue) for venue in self.obj.venues],
-                'rooms': [room_data(room) for room in self.obj.rooms],
-                'proposals': [proposal_data(proposal) for proposal in proposals],
-                'schedule': schedule_data(self.obj),
-            }
-        )
+        # return JSON if project is published
+        if self.obj.state.value == 1:
+            return jsonp(
+                **{
+                    'project': project_data(self.obj),
+                    'space': project_data(
+                        self.obj
+                        ),  # TODO: Remove when the native app switches over
+                        'venues': [venue_data(venue) for venue in self.obj.venues],
+                        'rooms': [room_data(room) for room in self.obj.rooms],
+                        'proposals': [proposal_data(proposal) for proposal in proposals],
+                        'schedule': schedule_data(self.obj),
+                        }
+                        )
+        else:
+            abort(410)
 
     @route('csv')
     @requires_permission('view')
@@ -184,16 +188,20 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         for proposal in proposals:
             out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
-        return Response(
-            six.text_type(outfile.getvalue(), 'utf-8'),
-            content_type='text/csv',
-            headers=[
-                (
-                    'Content-Disposition',
-                    'attachment;filename="{project}.csv"'.format(project=self.obj.name),
-                )
-            ],
-        )
+        # return CSV if project is published
+        if self.obj.state.value == 1:
+            return Response(
+                six.text_type(outfile.getvalue(), 'utf-8'),
+                content_type='text/csv',
+                headers=[
+                    (
+                        'Content-Disposition',
+                        'attachment;filename="{project}.csv"'.format(project=self.obj.name),
+                        )
+                        ],
+                        )
+        else:
+            abort(410)
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
