@@ -231,7 +231,7 @@ export const LabelsWidget = {
         $(`.label[data-labeltxt='${attr}']`).remove();
       }
       let labelSpan = $(
-        '<span class="label mui--text-caption mui--text-bold"></span'
+        '<span class="label mui--text-caption mui--text-bold"></span>'
       )
         .attr('data-labeltxt', attr)
         .text(label);
