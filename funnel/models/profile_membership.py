@@ -25,7 +25,7 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
 
     __roles__ = {
         'all': {'read': {'user', 'is_owner', 'profile'}},
-        'editor': {'read': {'edit_url', 'delete_url'}},
+        'profile_admin': {'read': {'edit_url', 'delete_url'}},
     }
 
     #: Profile that this membership is being granted on
@@ -64,12 +64,12 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
             roles.add('owner')
         return roles
 
-    # def roles_for(self, actor, anchors=()):
-    #     """Roles available to the specified actor and anchors"""
-    #     roles = super(ProfileAdminMembership, self).roles_for(actor, anchors)
-    #     if 'profile_admin' in self.profile.roles_for(actor, anchors):
-    #         roles.add('editor')
-    #     return roles
+    def roles_for(self, actor, anchors=()):
+        """Roles available to the specified actor and anchors"""
+        roles = super(ProfileAdminMembership, self).roles_for(actor, anchors)
+        if 'admin' in self.profile.roles_for(actor, anchors):
+            roles.add('profile_admin')
+        return roles
 
 
 # Add active membership relationships to Profile and User

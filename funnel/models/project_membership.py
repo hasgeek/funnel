@@ -24,7 +24,8 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     __roles__ = {
         'all': {'read': {'user', 'is_editor', 'is_concierge', 'is_usher', 'project'}},
-        'editor': {'read': {'edit_url', 'delete_url'}},
+        'profile_admin': {'read': {'edit_url', 'delete_url'}},
+        'project_editor': {'read': {'edit_url', 'delete_url'}},
     }
 
     project_id = immutable(
@@ -84,6 +85,14 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             roles.add('concierge')
         if self.is_usher:
             roles.add('usher')
+        return roles
+
+    def roles_for(self, actor=None, anchors=()):
+        roles = super(ProjectCrewMembership, self).roles_for(actor, anchors)
+        if 'editor' in self.project.roles_for(actor, anchors):
+            roles.add('project_editor')
+        if 'admin' in self.project.profile.roles_for(actor, anchors):
+            roles.add('profile_admin')
         return roles
 
 
