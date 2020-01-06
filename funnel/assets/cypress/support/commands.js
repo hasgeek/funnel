@@ -24,10 +24,6 @@ Cypress.Commands.add('login', (route, username, password) => {
 Cypress.Commands.add('relogin', route => {
   cy.visit(route)
     .get('#hgnav')
-    .find('.header__button')
-    .click();
-  cy.visit(route)
-    .get('#hgnav')
     .then($header => {
       if ($header.find('.header__button')) {
         $header.find('.header__button').click();
