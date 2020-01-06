@@ -25,7 +25,7 @@ Cypress.Commands.add('relogin', route => {
   cy.visit(route)
     .get('#hgnav')
     .then($header => {
-      if ($header.find('.header__button')) {
+      if ($header.find('.header__button').length > 0) {
         $header.find('.header__button').click();
         cy.location('pathname').should('include', route);
       }
