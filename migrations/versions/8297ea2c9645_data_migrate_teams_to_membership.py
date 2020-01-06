@@ -83,7 +83,7 @@ profile_admin_membership = table(
 )
 
 proposal_membership = table(
-    'profile_crew_membership',
+    'profile_admin_membership',
     column('id', UUIDType(binary=False)),
     column('proposal_id', sa.Integer()),
     column('user_id', sa.Integer()),
