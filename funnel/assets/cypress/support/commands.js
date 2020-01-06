@@ -19,7 +19,6 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.get('.form-actions')
     .find('button')
     .click();
-  // cy.location('href').should('include', route);
 });
 
 Cypress.Commands.add('relogin', route => {
