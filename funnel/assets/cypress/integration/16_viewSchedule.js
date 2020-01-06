@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('View schedule of p roject', function() {
   const project = require('../fixtures/project.json');
   const session = require('../fixtures/session.json');
 

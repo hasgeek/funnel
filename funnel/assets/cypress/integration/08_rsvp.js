@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('RSVP yes to project', function() {
   const { user } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 

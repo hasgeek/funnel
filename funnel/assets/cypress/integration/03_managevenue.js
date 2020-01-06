@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Manage project venue', function() {
   const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 

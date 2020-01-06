@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Add a new proposal', function() {
   const { user } = require('../fixtures/user.js');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');

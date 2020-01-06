@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Confirm propose button', function() {
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');

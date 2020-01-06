@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Test search feature', function() {
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
   const session = require('../fixtures/session.json');

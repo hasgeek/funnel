@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Add session to schedule and publish', function() {
   const { admin } = require('../fixtures/user.js');
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');

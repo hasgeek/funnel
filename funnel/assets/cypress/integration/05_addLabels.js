@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Add labels to project', function() {
   const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');

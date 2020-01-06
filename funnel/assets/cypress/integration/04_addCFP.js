@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Add CFP to project', function() {
   const { admin } = require('../fixtures/user.js');
   const cfp = require('../fixtures/cfp.json');
   const project = require('../fixtures/project.json');

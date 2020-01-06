@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('View and update print status of badge', function() {
   const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');

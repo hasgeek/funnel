@@ -1,4 +1,4 @@
-describe('Project', function() {
+describe('Publish project', function() {
   const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 
