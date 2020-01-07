@@ -157,22 +157,18 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             .order_by(db.desc('created_at'))
             .all()
         )
-        # return JSON if project is published
-        if self.obj.state.value == 1:
-            return jsonp(
-                **{
-                    'project': project_data(self.obj),
-                    'space': project_data(
-                        self.obj
-                        ),  # TODO: Remove when the native app switches over
-                        'venues': [venue_data(venue) for venue in self.obj.venues],
-                        'rooms': [room_data(room) for room in self.obj.rooms],
-                        'proposals': [proposal_data(proposal) for proposal in proposals],
-                        'schedule': schedule_data(self.obj),
-                        }
-                        )
-        else:
-            abort(410)
+        return jsonp(
+            **{
+                'project': project_data(self.obj),
+                'space': project_data(
+                    self.obj
+                ),  # TODO: Remove when the native app switches over
+                'venues': [venue_data(venue) for venue in self.obj.venues],
+                'rooms': [room_data(room) for room in self.obj.rooms],
+                'proposals': [proposal_data(proposal) for proposal in proposals],
+                'schedule': schedule_data(self.obj),
+            }
+        )
 
     @route('csv')
     @requires_permission('view')
@@ -188,20 +184,16 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         for proposal in proposals:
             out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
-        # return CSV if project is published
-        if self.obj.state.value == 1:
-            return Response(
-                six.text_type(outfile.getvalue(), 'utf-8'),
-                content_type='text/csv',
-                headers=[
-                    (
-                        'Content-Disposition',
-                        'attachment;filename="{project}.csv"'.format(project=self.obj.name),
-                        )
-                        ],
-                        )
-        else:
-            abort(410)
+        return Response(
+            six.text_type(outfile.getvalue(), 'utf-8'),
+            content_type='text/csv',
+            headers=[
+                (
+                    'Content-Disposition',
+                    'attachment;filename="{project}.csv"'.format(project=self.obj.name),
+                )
+            ],
+        )
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
@@ -419,23 +411,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'events': self.obj.events,
             'csrf_form': csrf_form,
-        }
-
-    @route('settings', methods=['GET', 'POST'])
-    @render_with('settings.html.jinja2')
-    @lastuser.requires_login
-    @requires_permission('edit_project')
-    def settings(self):
-        transition_form = ProjectTransitionForm(obj=self.obj)
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
-        return {
-            'project': self.obj,
-            'transition_form': transition_form,
-            'cfp_transition_form': cfp_transition_form,
-            'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
         }
 
 
