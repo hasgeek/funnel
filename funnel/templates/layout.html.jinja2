@@ -91,7 +91,7 @@
       {% if not current_auth.is_anonymous -%}
         <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links-active{% endif %}" aria-label="Account">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span></a>
         <div class="mui-dropdown mui--hidden-xs mui--hidden-sm">
-          <a href="javascript:void(0)" data-mui-toggle="dropdown" class="header__nav-links" data-cy="account-link">
+          <a href="javascript:void(0)" data-mui-toggle="dropdown" class="header__nav-links js-account-dropdown" data-cy="account-link">
             {% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span>
             <span class="mui-caret"></span>
           </a>
@@ -101,6 +101,9 @@
             <li><a href="{{ url_for('scan_contact') }}" class="mui--text-subhead">Scan badge</a></li>
             <li><a href="{{ url_for('contacts') }}" class="mui--text-subhead">Contacts</a></li>
           </ul>
+          <noscript>
+            <a href="{{ url_for('account') }}" class="header__nav-links" aria-label="Account">{% assets "fa5-sprite" %}<svg class="fa5-icon header__nav-links__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#user"></use></svg>{% endassets %}<span class="header__nav-links__text">Account</span></a>
+          </noscript>
         </div>
       {%- else %}
         <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
