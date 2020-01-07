@@ -45,10 +45,6 @@
   display: none;
 }
 
-.no-js .js-lazyload-img {
-  display: none;
-}
-
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -383,5 +379,13 @@ html.touch .collapsible__body--disable {
   70% {
     -webkit-transform: scale(1);
     transform: scale(1);
+  }
+}
+
+.no-js {
+  .js-lazyload-img,
+  .js-hg-banner,
+  .js-account-dropdown {
+    display: none;
   }
 }
