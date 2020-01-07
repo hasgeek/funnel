@@ -45,10 +45,6 @@
   display: none;
 }
 
-.no-js .js-lazyload-img {
-  display: none;
-}
-
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -368,6 +364,12 @@ html.touch .collapsible__body--disable {
     transform: scale(1);
   }
 }
+.no-js .js-lazyload-img,
+.no-js .js-hg-banner,
+.no-js .js-account-dropdown {
+  display: none;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
