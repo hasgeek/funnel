@@ -223,7 +223,10 @@ export const LabelsWidget = {
     });
   },
   getLabelTxt(labelTxt) {
-    return labelTxt.trim().replace(/\*$/, '');
+    return labelTxt
+      .trim()
+      .replace(/\*$/, '')
+      .replace(/script/g, '');
   },
   updateLabels(label = '', attr = '', action = true) {
     if (action) {
