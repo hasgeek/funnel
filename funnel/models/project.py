@@ -704,6 +704,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def permissions(self, user, inherited=None):
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
+        if self.state.WITHDRAWN:
+            if user not in self.admin_team.users:
+                abort(410)
+            elif user not in self.review_team.users:
+                abort(410)
+            elif user not in self.checkin_team.users:
+                abort(410)
         if user is not None:
             if self.cfp_state.OPEN:
                 perms.add('new-proposal')
