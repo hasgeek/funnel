@@ -2556,7 +2556,7 @@ html.touch .collapsible__body--disable {
 }
 .add-label-form fieldset.active {
   top: 0;
-  z-index: 1;
+  z-index: 1000;
   opacity: 1;
   -webkit-transition: top 0.25s linear, z-index 0.25s step-end,
     opacity 0.25s linear;
