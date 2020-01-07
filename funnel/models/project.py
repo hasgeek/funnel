@@ -271,9 +271,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def title_inline(self):
+        """Suffix a colon if the title does not end in ASCII sentence punctuation"""
         title = self.title.strip()
         if title:
-            if not title[-1] in {'?', '!', ':', ';', '.', ','}:
+            if not title[-1] in ('?', '!', ':', ';', '.', ','):
                 return title + ':'
         return title
 
