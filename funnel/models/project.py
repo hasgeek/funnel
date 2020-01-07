@@ -236,6 +236,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'id',
                 'name',
                 'title',
+                'title_inline',
                 'datelocation',
                 'timezone',
                 'schedule_start_at',
@@ -267,6 +268,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             self.name,
             self.title,
         )
+
+    @property
+    def title_inline(self):
+        title = self.title.strip()
+        if title:
+            if not title[-1] in {'?', '!', ':', ';', '.', ','}:
+                return title + ':'
+        return title
 
     @property
     def datelocation(self):
