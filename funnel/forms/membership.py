@@ -4,6 +4,16 @@ from baseframe import _, __
 import baseframe.forms as forms
 
 
+class ProfileAdminMembershipForm(forms.Form):
+    # add a member to a project
+    user = forms.UserSelectField(
+        __("User"),
+        validators=[forms.validators.DataRequired(_(u"Please select a user"))],
+        description=__("Find a user by their name or email address"),
+    )
+    is_owner = forms.BooleanField(__("Owner"), default=False)
+
+
 class ProjectCrewMembershipForm(forms.Form):
     # add a member to a project
     user = forms.UserSelectField(

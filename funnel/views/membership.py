@@ -16,14 +16,235 @@ from coaster.views import (
 
 from .. import app, funnelapp, lastuser
 from ..forms import (
+    ProfileAdminMembershipForm,
     ProjectCrewMembershipForm,
     ProjectCrewMembershipInviteForm,
     SavedProjectForm,
 )
 from ..jobs import send_mail_async
-from ..models import Profile, Project, ProjectCrewMembership, db
+from ..models import Profile, ProfileAdminMembership, Project, ProjectCrewMembership, db
 from .decorators import legacy_redirect
-from .mixins import ProjectViewMixin
+from .mixins import ProfileViewMixin, ProjectViewMixin
+
+
+@route('/<profile>/membership')
+class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
+    @route('', methods=['GET', 'POST'])
+    @render_with('profile_membership.html.jinja2')
+    @requires_roles({'admin'})
+    def membership(self):
+        return {
+            'profile': self.obj,
+            'memberships': [
+                membership.current_access()
+                for membership in self.obj.active_admin_memberships
+            ],
+        }
+
+    @route('new', methods=['GET', 'POST'])
+    @render_with(json=True)
+    @lastuser.requires_login
+    @requires_roles({'admin'})
+    def new_member(self):
+        membership_form = ProfileAdminMembershipForm()
+
+        if request.method == 'POST':
+            if membership_form.validate_on_submit():
+                previous_membership = (
+                    ProfileAdminMembership.query.filter(
+                        ProfileAdminMembership.is_active
+                    )
+                    .filter_by(project=self.obj, user=membership_form.user.data)
+                    .one_or_none()
+                )
+                if previous_membership is not None:
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _("Member already exists in the project"),
+                            'errors': membership_form.errors,
+                        },
+                        400,
+                    )
+                else:
+                    new_membership = ProfileAdminMembership(
+                        parent_id=self.obj.id, granted_by=current_auth.user
+                    )
+                    membership_form.populate_obj(new_membership)
+                    db.session.add(new_membership)
+                    db.session.commit()
+
+                    send_mail_async.queue(
+                        sender=None,
+                        to=new_membership.user.email,
+                        body=render_template(
+                            'profile_membership_add_email.md',
+                            granted_by=new_membership.granted_by,
+                            project=self.obj,
+                            profile_membership_link=self.obj.url_for(
+                                'membership', _external=True
+                            ),
+                        ),
+                        subject=_("You have been added to {} as a admin").format(
+                            self.obj.title
+                        ),
+                    )
+                    return {
+                        'status': 'ok',
+                        'message': _("The user has been added as an admin"),
+                        'memberships': [
+                            membership.current_access()
+                            for membership in self.obj.active_crew_memberships
+                        ],
+                    }
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'message': _("The new member could not be added"),
+                        'errors': membership_form.errors,
+                    },
+                    400,
+                )
+
+        membership_form_html = render_form(
+            form=membership_form,
+            title='',
+            submit=u'Add member',
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': membership_form_html}
+
+
+@route('/membership', subdomain='<profile>')
+class FunnelProfileMembershipView(ProfileMembershipView):
+    pass
+
+
+ProfileMembershipView.init_app(app)
+FunnelProfileMembershipView.init_app(funnelapp)
+
+
+@route('/<profile>/membership/<suuid>')
+class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
+    model = ProfileAdminMembership
+    __decorators__ = [legacy_redirect]
+
+    route_model_map = {'profile': 'profile.name', 'suuid': 'suuid'}
+
+    def loader(self, profile, suuid):
+        membership = (
+            self.model.query.join(Profile)
+            .filter(Profile.name == profile, ProfileAdminMembership.suuid == suuid)
+            .first_or_404()
+        )
+        return membership
+
+    def after_loader(self):
+        g.profile = self.obj.profile
+        super(ProfileAdminMembershipView, self).after_loader()
+
+    @route('edit', methods=['GET', 'POST'])
+    @render_with(json=True)
+    @lastuser.requires_login
+    @requires_roles({'profile_admin'})
+    def edit(self):
+        previous_membership = self.obj
+        membership_form = ProfileAdminMembershipForm(obj=previous_membership)
+
+        if request.method == 'POST':
+            if membership_form.validate_on_submit():
+                previous_membership.replace(
+                    actor=current_auth.user, is_owner=membership_form.is_owner.data
+                )
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'memberships': [
+                        membership.current_access()
+                        for membership in self.obj.profile.active_admin_memberships
+                    ],
+                }
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'message': _("At lease one role must be chosen"),
+                        'errors': membership_form.errors,
+                    },
+                    400,
+                )
+
+        membership_form_html = render_form(
+            form=membership_form,
+            title='',
+            submit=u'Edit membership',
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': membership_form_html}
+
+    @route('delete', methods=['GET', 'POST'])
+    @render_with(json=True)
+    @lastuser.requires_login
+    @requires_roles({'profile_admin'})
+    def delete(self):
+        form = Form()
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                previous_membership = self.obj
+                if previous_membership.is_active:
+                    previous_membership.revoke(actor=current_auth.user)
+                    db.session.commit()
+
+                    send_mail_async.queue(
+                        sender=None,
+                        to=previous_membership.user.email,
+                        body=render_template(
+                            'profile_membership_revoke_notification_email.md',
+                            revoked_by=current_auth.user,
+                            profile=self.obj.profile,
+                        ),
+                        subject=_("You have been removed from {} as a member").format(
+                            self.obj.profile.title
+                        ),
+                    )
+                return {
+                    'status': 'ok',
+                    'memberships': [
+                        membership.current_access()
+                        for membership in self.obj.profile.active_admin_memberships
+                    ],
+                }
+            else:
+                return ({'status': 'error', 'errors': form.errors}, 400)
+
+        form_html = render_form(
+            form=form,
+            title=_("Delete member"),
+            message=_(
+                "Are you sure you want to remove {member} from {profile} as an admin?"
+            ).format(member=self.obj.user.fullname, profile=self.obj.profile.title),
+            submit=_("Delete"),
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': form_html}
+
+
+@route('/membership/<suuid>', subdomain='<profile>')
+class FunnelProfileAdminMembershipView(ProfileAdminMembershipView):
+    pass
+
+
+ProfileAdminMembershipView.init_app(app)
+FunnelProfileAdminMembershipView.init_app(funnelapp)
+
+
+#: Project Membership views
 
 
 @route('/<profile>/<project>/membership')
@@ -79,8 +300,8 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         sender=None,
                         to=new_membership.user.email,
                         body=render_template(
-                            'membership_add_email.md',
-                            # 'membership_add_invite_email.md',
+                            'project_membership_add_email.md',
+                            # 'project_membership_add_invite_email.md',
                             granted_by=new_membership.granted_by,
                             project=self.obj,
                             project_membership_link=self.obj.url_for(
@@ -264,7 +485,7 @@ class ProjectCrewMembershipView(
                         sender=None,
                         to=previous_membership.user.email,
                         body=render_template(
-                            'membership_revoke_notification_email.md',
+                            'project_membership_revoke_notification_email.md',
                             revoked_by=current_auth.user,
                             project=self.obj.project,
                         ),
