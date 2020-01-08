@@ -103,6 +103,9 @@ Profile.active_invitations = db.relationship(
     ),
 )
 
+Profile.admins = association_proxy('active_admin_memberships', 'user')
+Profile.owners = association_proxy('active_owner_memberships', 'user')
+
 User.active_profile_admin_memberships = db.relationship(
     ProfileAdminMembership,
     lazy='dynamic',
