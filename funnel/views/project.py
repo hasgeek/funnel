@@ -84,7 +84,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'admin'})
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
         if request.method == 'GET':
@@ -262,7 +262,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_roles({'editor'})
+    @requires_roles({'concierge'})
     def edit_boxoffice_data(self):
         form = ProjectBoxofficeForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
@@ -334,7 +334,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('rsvp', methods=['POST'])
     @lastuser.requires_login
-    @requires_roles({'editor'})
+    @requires_roles({'reader'})
     def rsvp_transition(self):
         form = RsvpTransitionForm()
         if form.validate_on_submit():
@@ -350,7 +350,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
     @lastuser.requires_login
-    @requires_roles({'editor'})
+    @requires_roles({'concierge'})
     def rsvp_list(self):
         return {'project': self.obj, 'statuses': RSVP_STATUS}
 
@@ -390,7 +390,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
     @lastuser.requires_login
-    @requires_roles({'editor'})
+    @requires_roles({'concierge'})
     def admin(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
@@ -417,7 +417,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('settings', methods=['GET', 'POST'])
     @render_with('settings.html.jinja2')
     @lastuser.requires_login
-    @requires_roles({'editor'})
+    @requires_roles({'editor', 'concierge'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)

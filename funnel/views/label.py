@@ -20,7 +20,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
     @lastuser.requires_login
-    @requires_roles({'project_editor'})
+    @requires_roles({'editor'})
     def labels(self):
         form = forms.Form()
         if form.validate_on_submit():
@@ -36,7 +36,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @render_with('labels_form.html.jinja2')
-    @requires_roles({'project_editor'})
+    @requires_roles({'editor'})
     def new_label(self):
         form = LabelForm(model=Label, parent=self.obj.parent)
         emptysubform = LabelOptionForm(MultiDict({}))

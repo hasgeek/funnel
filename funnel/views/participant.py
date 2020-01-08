@@ -7,7 +7,7 @@ from flask import flash, jsonify, make_response, redirect, render_template, requ
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.utils import getbool
-from coaster.views import ModelView, UrlForView, load_models, requires_permission, route
+from coaster.views import ModelView, UrlForView, load_models, requires_roles, route
 from funnel.util import format_twitter_handle, make_qrcode, split_name
 
 from .. import app, funnelapp, lastuser
@@ -91,7 +91,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('json')
     @lastuser.requires_login
-    @requires_permission('view')
+    @requires_roles({'editor', 'usher'})
     def participants_json(self):
         return jsonify(
             participants=[
@@ -102,7 +102,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_permission('new-participant')
+    @requires_roles({'editor', 'usher'})
     def new_participant(self):
         form = ParticipantForm()
         form.events.query = self.obj.events

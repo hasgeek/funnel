@@ -207,7 +207,7 @@ class ProjectCrewMembershipView(
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_roles({'editor'})
+    @requires_roles({'profile_admin'})
     def edit(self):
         previous_membership = self.obj
         membership_form = ProjectCrewMembershipForm(obj=previous_membership)
@@ -250,7 +250,7 @@ class ProjectCrewMembershipView(
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_roles({'editor'})
+    @requires_roles({'profile_admin'})
     def delete(self):
         form = Form()
         if request.method == 'POST':
