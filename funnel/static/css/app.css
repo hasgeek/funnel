@@ -2064,6 +2064,11 @@ html.touch .collapsible__body--disable {
   margin-left: 0;
 }
 
+@media (min-width: 768px) {
+  .project-banner .project-banner__box {
+    padding: 0 15px;
+  }
+}
 @media (min-width: 992px) {
   .project-banner .profile-details .profile-details__logo-wrapper {
     height: 50px;
