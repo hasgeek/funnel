@@ -150,33 +150,6 @@
     </div>
   {% endif %}
 
-  {%- if not profile %}
-    <div class="mui-container">
-      <div class="projects-wrapper">
-        <div class="grid hg-about">
-          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-3 hg-about__content">
-            <div class="mui--text-bold project-headline project-headline--secondary hg-about__content__txt">
-              <p class="hg-about__content__txt__string">Meet <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> like-minded <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> people</p>
-              <p class="hg-about__content__txt__string">Learn <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> new <br class="mui--hidden-sm"> things</p>
-              <p class="hg-about__content__txt__string">Discover <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> new <br class="mui--hidden-xs mui--hidden-sm mui--hidden-md"> opportunities</p>
-            </div>
-            <p class="mui--text-title mui--text-light">HasGeek creates discussion spaces for geeks</p>
-          </div>
-          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-6">
-            <img class="hg-about__img hg-about__img--main js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
-            <noscript>
-              <img src="{{ url_for('static', filename='img/hg-banner-default.png') }}" alt="{{ config['SITE_TITLE'] }}" class="hg-about__img">
-            </noscript>
-          </div>
-          <div class="grid__col-md-3 mui--hidden-xs mui--hidden-sm mui--hidden-md">
-            <img class="hg-about__img hg-about__img--top js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
-            <img class="hg-about__img hg-about__img--bottom js-hg-banner" src="" alt="{{ config['SITE_TITLE'] }}"/>
-          </div>
-        </div>
-      </div>
-    </div>
-  {% endif %}
-
   {% if upcoming_projects|length > 0 %}
   <div class="projects-wrapper">
     <div class="mui-container">
@@ -400,19 +373,7 @@
   <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-
-      var hgBannerConfig = {
-        hgBannerImgList: [],
-        ImgFolderPath: "{{ url_for('static', filename='img/') }}",
-        defaultBanner: "{{ url_for('static', filename='img/hg-banner-default.png') }}",
-      };
-
-      {% if hg_banner %}
-        hgBannerConfig.hgBannerImgList = {{ hg_banner|tojson }};
-      {% endif %}
-
-      window.HasGeek.HomeInit(hgBannerConfig);
-
+      window.HasGeek.HomeInit();
     });
   </script>
 {% endblock %}
