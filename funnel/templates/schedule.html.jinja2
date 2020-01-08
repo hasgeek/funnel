@@ -132,6 +132,7 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script src="{{ url_for('static', filename=asset_path('schedule_view')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     var scheduleConfig = {
@@ -156,12 +157,13 @@
   </script>
   <script type="text/javascript">
     $(document).ready( function() {
-      saveProjectConfig = {
+      var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: {{ project.url_for('save')|tojson }},
+        postUrl: {{ project.url_for('save')|tojson }}
       }
 
-      window.HasGeek.ScheduleInit(scheduleConfig, saveProjectConfig);
+      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
+      window.HasGeek.ScheduleInit(scheduleConfig);
     });
   </script>
 {% endblock %}
