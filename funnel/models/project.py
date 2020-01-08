@@ -3,6 +3,7 @@
 from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 
@@ -771,20 +772,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
         return currently_listed_projects
 
+    profile_owners = with_roles(
+        association_proxy('profile', 'owners'), grants={'profile_owner'}
+    )
+    profile_admins = with_roles(
+        association_proxy('profile', 'admins'), grants={'profile_admin'}
+    )
+
     def roles_for(self, actor=None, anchors=()):
         roles = super(Project, self).roles_for(actor, anchors)
 
         if actor is not None:
             # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
             roles.add('reader')
-
-        profile_membership = self.profile.active_admin_memberships.filter_by(
-            user=actor
-        ).one_or_none()
-        if profile_membership is not None:
-            profile_roles = profile_membership.offered_roles()
-            if 'admin' in profile_roles:
-                roles.add('profile_admin')
 
         crew_membership = self.active_crew_memberships.filter_by(
             user=actor
