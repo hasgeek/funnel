@@ -56,7 +56,7 @@
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
       {% if project.livestream_urls %}
-        <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">
+        <div role="tabpanel" class="grid__col-sm-12 livestream-box" id="livestream">
           <ul class="mui-tabs__bar project-banner__box" role="tablist">
             {%- for stream in project.livestream_urls %}
               <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
@@ -68,8 +68,11 @@
           {%- for stream in project.livestream_urls %}
             <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
               <div class="project-banner__box">
-                <div class="project-banner__box__16_9">
-                  <iframe id="iframe-stream{{ loop.index }}" src="{{ stream }}" frameborder="0" allowfullscreen></iframe>
+                <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
+                  <p class="video_txt">
+                    {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
+                    <a href="{{ stream }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                  </p>
                 </div>
               </div>
             </div>
@@ -78,7 +81,7 @@
       {% endif %}
       {% if project.banner_video_url.url or project.bg_image.url %}
         <div class="grid__col-md-8 project-banner__box">
-          <div class="project-banner__box__16_9">
+          <div class="embed-video-wrapper">
             {% if project.banner_video_url.url %}
               {{ project.banner_video_url|safe }}
             {%- elif project.bg_image.url %}
