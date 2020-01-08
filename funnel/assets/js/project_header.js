@@ -10,7 +10,6 @@ $(() => {
     if ($('.js-embed-video').length > 0) {
       $('.js-embed-video').each(function() {
         let videoUrl = $(this).data('video-src');
-        console.log('embedIframe', this, videoUrl);
         Video.embedIframe(this, videoUrl);
       });
     }
