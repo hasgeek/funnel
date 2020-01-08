@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
+
+from coaster.sqlalchemy import with_roles
 
 from . import BaseScopedNameMixin, TSVectorType, db
 from .helpers import add_search_trigger
@@ -105,6 +108,16 @@ class Label(BaseScopedNameMixin, db.Model):
 
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
+
+    project_editors = with_roles(
+        association_proxy('project', 'editors'), grants={'project_editor'}
+    )
+    project_concierges = with_roles(
+        association_proxy('project', 'concierges'), grants={'project_concierge'}
+    )
+    project_ushers = with_roles(
+        association_proxy('project', 'ushers'), grants={'project_usher'}
+    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
@@ -238,12 +251,6 @@ class Label(BaseScopedNameMixin, db.Model):
             return "<Label %s/%s>" % (self.main_label.name, self.name)
         else:
             return "<Label %s>" % self.name
-
-    def roles_for(self, actor=None, anchors=()):
-        roles = super(Label, self).roles_for(actor, anchors)
-        if self.project.current_roles.editor:
-            roles.add('project_editor')
-        return roles
 
     def apply_to(self, proposal):
         if self.has_options:

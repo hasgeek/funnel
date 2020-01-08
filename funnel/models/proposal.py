@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from werkzeug.utils import cached_property
@@ -100,10 +101,13 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'proposal'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('proposals', cascade="all, delete-orphan"),
+    user = with_roles(
+        db.relationship(
+            User,
+            primaryjoin=user_id == User.id,
+            backref=db.backref('proposals', cascade="all, delete-orphan"),
+        ),
+        grants={'creator'},
     )
 
     speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
@@ -199,6 +203,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         )
     )
 
+    project_editors = with_roles(
+        association_proxy('project', 'editors'), grants={'project_editors'}
+    )
+
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
         db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
@@ -265,7 +273,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         label=('scheduled', __("Confirmed & Scheduled")),
     )
 
-    @with_roles(call={'owner'})
+    @with_roles(call={'creator'})
     @state.transition(
         state.AWAITING_DETAILS,
         state.DRAFT,
@@ -276,7 +284,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def withdraw(self):
         pass
 
-    @with_roles(call={'owner'})
+    @with_roles(call={'creator'})
     @state.transition(
         state.DRAFT,
         state.SUBMITTED,
@@ -344,7 +352,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def reject(self):
         pass
 
-    @with_roles(call={'owner'})
+    @with_roles(call={'creator'})
     @state.transition(
         state.CANCELLABLE,
         state.CANCELLED,
@@ -377,7 +385,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     def under_evaluation(self):
         pass
 
-    @with_roles(call={'owner'})
+    @with_roles(call={'creator'})
     @state.transition(
         state.DELETABLE,
         state.DELETED,
@@ -500,13 +508,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
                 roles.remove('reader')
         else:
             roles.add('reader')
-
-        if self.owner == actor:
-            roles.update({'owner'})
-
-        project_roles = self.project.roles_for(actor, anchors)
-        if 'editor' in project_roles:
-            roles.add('project_editor')
 
         active_membership = self.active_memberships.filter_by(user=actor).one_or_none()
         if active_membership is not None:
