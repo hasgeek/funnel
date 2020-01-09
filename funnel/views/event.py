@@ -51,7 +51,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_roles({'editor', 'concierge'})
+    @requires_roles({'concierge'})
     def new_event(self):
         form = EventForm()
         if form.validate_on_submit():
