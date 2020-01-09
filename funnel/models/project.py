@@ -395,7 +395,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")),
     )
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
         cfp_state.PUBLIC,
@@ -406,7 +406,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def open_cfp(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
@@ -417,7 +417,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def close_cfp(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @schedule_state.transition(
         schedule_state.DRAFT,
         schedule_state.PUBLISHED,
@@ -428,7 +428,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def publish_schedule(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @schedule_state.transition(
         schedule_state.PUBLISHED,
         schedule_state.DRAFT,
@@ -439,7 +439,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def unpublish_schedule(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @state.transition(
         state.PUBLISHABLE,
         state.PUBLISHED,
@@ -450,7 +450,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def publish(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @state.transition(
         state.PUBLISHED,
         state.WITHDRAWN,
@@ -462,7 +462,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         pass
 
     # Removing Delete feature till we figure out siteadmin feature
-    # @with_roles(call={'admin'})
+    # @with_roles(call={'editor'})
     # @state.transition(
     #     state.DELETABLE, state.DELETED, title=__("Delete project"),
     #     message=__("The project has been deleted"), type='success')
