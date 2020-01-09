@@ -56,14 +56,14 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
                     ProfileAdminMembership.query.filter(
                         ProfileAdminMembership.is_active
                     )
-                    .filter_by(project=self.obj, user=membership_form.user.data)
+                    .filter_by(profile=self.obj, user=membership_form.user.data)
                     .one_or_none()
                 )
                 if previous_membership is not None:
                     return (
                         {
                             'status': 'error',
-                            'message': _("Member already exists in the project"),
+                            'message': _("Member already exists in the profile"),
                             'errors': membership_form.errors,
                         },
                         400,
@@ -82,7 +82,7 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
                         body=render_template(
                             'profile_membership_add_email.md',
                             granted_by=new_membership.granted_by,
-                            project=self.obj,
+                            profile=self.obj,
                             profile_membership_link=self.obj.url_for(
                                 'membership', _external=True
                             ),
