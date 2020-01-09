@@ -32,7 +32,7 @@
   }
 
   .livestream-box {
-    margin: 15px 0 30px;
+    margin: 0;
     padding: 0;
   }
   .profile-text {
@@ -130,6 +130,9 @@
     }
     .project-banner__box {
       padding: 0 15px;
+    }
+    .project-details__box--topmargin {
+      margin-top: 50px;
     }
     .profile-text {
       margin: 0 0 5px;

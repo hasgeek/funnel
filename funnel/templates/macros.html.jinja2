@@ -56,7 +56,7 @@
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
       {% if project.livestream_urls %}
-        <div role="tabpanel" class="grid__col-sm-12 livestream-box" id="livestream">
+        <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">
           <ul class="mui-tabs__bar project-banner__box" role="tablist">
             {%- for stream in project.livestream_urls %}
               <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
@@ -78,9 +78,8 @@
             </div>
           {%- endfor %}
         </div>
-      {% endif %}
-      {% if project.banner_video_url.url or project.bg_image.url %}
-        <div class="grid__col-md-8 project-banner__box">
+      {% elif project.banner_video_url.url or project.bg_image.url %}
+        <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
           <div class="embed-video-wrapper">
             {% if project.banner_video_url.url %}
               {{ project.banner_video_url|safe }}
@@ -90,7 +89,7 @@
           </div>
         </div>
       {% endif %}
-      <div class="grid__col-md-4">
+      <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
         <div class="mui--text-body1 mui--text-light profile-text js-truncate-readmore" data-truncate-lines="2">{{ project.profile.description|safe|striptags }}</div>
         <div class="bookmark-icon">{{ saveprojectform(project, project_save_form) }}</div>
         {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
@@ -99,7 +98,6 @@
         {%- if project.start_at %}
         <p class="mui--text-light mui--text-subhead project-time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} <span>{{ project.start_at }}</span>{%- if project.end_at %} <span>–{{ project.end_at }}</span>{%- endif %}</p>
         {%- endif %}
-        <!-- <p class="mui--text-light mui--text-subhead project-time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} <span>8:00 AM</span><span>–5:30 PM</span></p> -->
         {%- if project.primary_venue %}
           <p class="mui--text-light mui--text-subhead project-venue">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</p>
         {%- endif %}

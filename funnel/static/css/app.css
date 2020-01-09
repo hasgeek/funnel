@@ -1993,7 +1993,7 @@ html.touch .collapsible__body--disable {
   padding: 0 15px;
 }
 .project-banner .livestream-box {
-  margin: 15px 0 30px;
+  margin: 0;
   padding: 0;
 }
 .project-banner .profile-text {
@@ -2078,6 +2078,9 @@ html.touch .collapsible__body--disable {
   }
   .project-banner .project-banner__box {
     padding: 0 15px;
+  }
+  .project-banner .project-details__box--topmargin {
+    margin-top: 50px;
   }
   .project-banner .profile-text {
     margin: 0 0 5px;
