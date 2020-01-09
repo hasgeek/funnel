@@ -39,10 +39,6 @@ project = table(
     column('admin_team_id', sa.Integer()),
 )
 
-proposal = table(
-    'proposal', column('id', sa.Integer()), column('project_id', sa.Integer())
-)
-
 users_teams = table(
     'users_teams',
     column('user_id', sa.Integer()),
@@ -73,22 +69,6 @@ profile_admin_membership = table(
     column('profile_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_owner', sa.Boolean()),
-    column('granted_by_id', sa.Integer()),
-    column('revoked_by_id', sa.Integer()),
-    column('granted_at', sa.TIMESTAMP(timezone=True)),
-    column('record_type', sa.Integer()),
-    column('created_at', sa.TIMESTAMP(timezone=True)),
-    column('updated_at', sa.TIMESTAMP(timezone=True)),
-    column('revoked_at', sa.TIMESTAMP(timezone=True)),
-)
-
-proposal_membership = table(
-    'profile_admin_membership',
-    column('id', UUIDType(binary=False)),
-    column('proposal_id', sa.Integer()),
-    column('user_id', sa.Integer()),
-    column('is_reviewer', sa.Boolean()),
-    column('is_speaker', sa.Boolean()),
     column('granted_by_id', sa.Integer()),
     column('revoked_by_id', sa.Integer()),
     column('granted_at', sa.TIMESTAMP(timezone=True)),
@@ -191,35 +171,8 @@ def upgrade():
                 )
             )
 
-        #: Create ProposalMembership record for review_team members of the parent Project
-        proposals = conn.execute(
-            sa.select([proposal.c.id]).where(proposal.c.project_id == project_id)
-        )
-        for proposal_id in proposals:
-            for user_id, created_at in review_team_users:
-                conn.execute(
-                    proposal_membership.insert().values(
-                        {
-                            'id': uuid4(),
-                            'proposal_id': proposal_id,
-                            'user_id': user_id,
-                            #: is_reviewer = yes
-                            'is_reviewer': True,
-                            #: fill is_speaker up in the future PR when we
-                            # deprecate proposal speaker with membership
-                            'is_speaker': False,
-                            'granted_by_id': None,
-                            'granted_at': created_at,
-                            'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
-                            'created_at': sa.func.now(),
-                            'updated_at': sa.func.now(),
-                        }
-                    )
-                )
-
 
 def downgrade():
     conn = op.get_bind()
     conn.execute(project_crew_membership.delete())
     conn.execute(profile_admin_membership.delete())
-    conn.execute(proposal_membership.delete())
