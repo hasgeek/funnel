@@ -39,7 +39,15 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..jobs import import_tickets, tag_locations
-from ..models import RSVP_STATUS, Project, Proposal, Rsvp, SavedProject, db
+from ..models import (
+    RSVP_STATUS,
+    Project,
+    ProjectCrewMembership,
+    Proposal,
+    Rsvp,
+    SavedProject,
+    db,
+)
 from .decorators import legacy_redirect
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
@@ -93,9 +101,23 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
             project = Project(user=current_auth.user, profile=self.obj)
             form.populate_obj(project)
             db.session.add(project)
+
+            # Add the creator as editor and concierge
+            new_membership = ProjectCrewMembership(
+                parent=project,
+                user=current_auth.user,
+                granted_by=current_auth.user,
+                is_editor=True,
+                is_concierge=True,
+            )
+            db.session.add(new_membership)
             db.session.commit()
+
             flash(_("Your new project has been created"), 'info')
+
+            # tag locations
             tag_locations.queue(project.id)
+
             return redirect(project.url_for(), code=303)
         return render_form(
             form=form,
