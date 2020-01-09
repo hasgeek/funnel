@@ -190,7 +190,7 @@ class EventView(UrlForView, ModelView):
         return render_form(form=form, title=_(u"Edit event"), submit=_(u"Save changes"))
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_permission('edit_event')
+    @requires_permission('delete_event')
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -282,7 +282,7 @@ class TicketTypeView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_permission('edit_event')
+    @requires_permission('delete_ticket_type')
     def delete(self):
         return render_delete_sqla(
             self.obj,
