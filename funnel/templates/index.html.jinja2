@@ -49,7 +49,12 @@
     <div class="mui-container">
       <div class="grid hg-banner mui--bg-accent">
         <div class="grid__col-12">
-          <h2 class="mui--text-display1 mui--text-bold">{{ profile.title }}</h2>
+          <div class="profile-details profile-details--center">
+            {%- if profile.logo_url.url %}
+              <span class="profile-details__logo-wrapper"><img class="profile-details__logo_wrapper__logo" src="{{ profile.logo_url }}" alt="{{ profile.title }}"/></span>
+            {% endif %}
+            <h2 class="mui--text-display1 mui--text-bold">{{ profile.title }}</h2>
+          </div>
           <div class="mui--text-headline">{{ profile.description.html }}</div>
           <div class="mui-divider mui-divider--banner"></div>
         </div>

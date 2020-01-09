@@ -44,11 +44,16 @@
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       {%- if project.profile %}
-        <div class="grid__col-sm-12 profile-details">
-          {%- if project.profile.logo_url.url %}<a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper">
-            <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></a>{% endif %}
-          <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text">{{ project.profile.title|e }}</a>
-          <span class="mui--text-subhead mui--text-bold profile-details__text">project</span>
+        <div class="grid__col-sm-12">
+          <div class="profile-details">
+            {%- if project.profile.logo_url.url %}
+              <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper">
+                <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+              </a>
+            {% endif %}
+            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text">{{ project.profile.title|e }}</a>&nbsp;
+            <span class="mui--text-subhead mui--text-bold profile-details__text">project</span>
+          </div>
         </div>
       {% endif %}
       <div class="grid__col-sm-12 project-banner__headline">
