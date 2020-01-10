@@ -100,13 +100,13 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     )
 
     project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
+        association_proxy('venue', 'project_editors'), grants={'project_editor'}
     )
     project_concierges = with_roles(
-        association_proxy('project', 'concierges'), grants={'project_concierge'}
+        association_proxy('venue', 'project_concierges'), grants={'project_concierge'}
     )
     project_ushers = with_roles(
-        association_proxy('project', 'ushers'), grants={'project_usher'}
+        association_proxy('venue', 'project_ushers'), grants={'project_usher'}
     )
 
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
