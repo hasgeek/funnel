@@ -43,9 +43,9 @@ class EditProfileForm(forms.Form):
         validators=[forms.validators.DataRequired(_(u"Please select a team"))],
         get_label='title',
         allow_blank=True,
-        blank_text=__("Choose a team…"),
+        blank_text=__(u"Choose a team…"),
         description=__(
-            "The team of users with administrative rights to this Profile (owners always have admin access)"
+            u"The team of users with administrative rights to this Profile (owners always have admin access)"
         ),
     )
 
