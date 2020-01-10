@@ -96,7 +96,7 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
                         'message': _("The user has been added as an admin"),
                         'memberships': [
                             membership.current_access()
-                            for membership in self.obj.active_crew_memberships
+                            for membership in self.obj.active_admin_memberships
                         ],
                     }
             else:
@@ -252,7 +252,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET', 'POST'])
-    @render_with('membership.html.jinja2')
+    @render_with('project_membership.html.jinja2')
     def membership(self):
         project_save_form = SavedProjectForm()
         return {
