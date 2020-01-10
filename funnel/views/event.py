@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from flask import flash, g, jsonify, redirect
 
 from baseframe import _, forms
-from baseframe.forms import render_form
+from baseframe.forms import render_form, render_delete_sqla, render_redirect
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
@@ -189,6 +189,22 @@ class EventView(UrlForView, ModelView):
             return redirect(self.obj.project.url_for('admin'), code=303)
         return render_form(form=form, title=_(u"Edit event"), submit=_(u"Save changes"))
 
+    @route('delete', methods=['GET', 'POST'])
+    @requires_permission('delete_event')
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete your event ‘{title}’? "
+                u"This operation is permanent and cannot be undone."
+            ).format(title=self.obj.title),
+            success=_("This event has been deleted"),
+            next=self.obj.project.url_for('admin'),
+            cancel_url=self.obj.url_for(),
+        )
+
     @route('scan_badge')
     @render_with('scan_badge.html.jinja2')
     @requires_permission('checkin_event')
@@ -263,6 +279,22 @@ class TicketTypeView(UrlForView, ModelView):
             return redirect(self.obj.project.url_for('admin'), code=303)
         return render_form(
             form=form, title=_(u"Edit ticket type"), submit=_(u"Save changes")
+        )
+
+    @route('delete', methods=['GET', 'POST'])
+    @requires_permission('delete_ticket_type')
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete the ticket type ‘{title}’? "
+                u"This operation is permanent and cannot be undone."
+            ).format(title=self.obj.title),
+            success=_("This ticket type has been deleted"),
+            next=self.obj.project.url_for('admin'),
+            cancel_url=self.obj.url_for(),
         )
 
 
