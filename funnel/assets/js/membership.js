@@ -1,11 +1,12 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
-import { Utils, SaveProject } from './util';
+import { Utils } from './util';
 
 const Membership = {
   init({
     newMemberUrl,
     members = '',
+    roles = [],
     divElem,
     memberTemplate,
     isUserProfileAdmin,
@@ -37,29 +38,14 @@ const Membership = {
           newMemberUrl,
           members: members.length > 0 ? members : '',
           isUserProfileAdmin,
-          roles: [
-            {
-              roleKey: 'is_editor',
-              roleName: 'Editor',
-              showMembers: false,
-            },
-            {
-              roleKey: 'is_concierge',
-              roleName: 'Concierge',
-              showMembers: false,
-            },
-            {
-              roleKey: 'is_usher',
-              roleName: 'Usher',
-              showMembers: false,
-            },
-          ],
+          roles: roles,
           memberForm: '',
           activeMember: '',
           errorMsg: '',
           view: 'name',
           search: '',
           showInfo: false,
+          svgIconUrl: window.HasGeek.config.svgIconUrl,
         };
       },
       methods: {
@@ -161,11 +147,7 @@ const Membership = {
 };
 
 $(() => {
-  window.HasGeek.Membership = function(config, saveProjectConfig = '') {
+  window.HasGeek.Membership = function(config) {
     Membership.init(config);
-
-    if (saveProjectConfig) {
-      SaveProject(saveProjectConfig);
-    }
   };
 });

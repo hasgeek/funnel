@@ -49,13 +49,19 @@
     <div class="mui-container">
       <div class="grid hg-banner mui--bg-accent">
         <div class="grid__col-12">
-          <div class="profile-details profile-details--center">
+          <a class="profile-details profile-details--center" href="{{ g.profile.url_for() }}">
             {%- if profile.logo_url.url %}
               <span class="profile-details__logo-wrapper"><img class="profile-details__logo_wrapper__logo" src="{{ profile.logo_url }}" alt="{{ profile.title }}"/></span>
             {% endif %}
             <h2 class="mui--text-display1 mui--text-bold">{{ profile.title }}</h2>
-          </div>
+          </a>
           <div class="mui--text-headline">{{ profile.description.html }}</div>
+          {%- if profile.current_roles.admin %}
+            <p>
+              <a class="mui-btn mui-btn--primary mui-btn--raised" data-action="Add crew" href="{{ g.profile.url_for('membership') }}">{% trans %}Add crew{% endtrans %}</a>
+              <a class="mui-btn mui-btn--secondary mui-btn--raised" data-action="Edit details" href="{{ g.profile.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
+            </p>
+          {% endif %}
           <div class="mui-divider mui-divider--banner"></div>
         </div>
       </div>
