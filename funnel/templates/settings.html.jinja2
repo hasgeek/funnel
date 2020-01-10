@@ -76,55 +76,57 @@
                   </div>
                 {%- endif %}
                 <hr class="mui-divider">
-                <div>
-                  <ul class="mui-list--inline list-item-rgborder">
-                    {% if project.view_for('edit').is_available() %}
-                    <li>
-                      <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ project.url_for('edit') }}#field-livestream_urls" title="Add livestream url">{% trans %}Add livestream url{% endtrans %}</a>
-                    </li>
-                    {% endif %}
-                    {% if project.view_for('venues').is_available() %}
-                    <li>
-                      <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
-                    </li>
-                    {% endif %}
-                    {% if project.view_for('cfp').is_available() %}
-                      {% if project.cfp_state.NONE -%}
-                        <li>
-                          <a href="{{ project.url_for('cfp') }}" title="Add a CfP">{% trans %}Add a CfP{% endtrans %}</a>
-                        </li>
-                      {% else -%}
-                        <li>
-                          <a href="{{ project.url_for('cfp') }}" title="Modify the CfP">{% trans %}Modify the CfP{% endtrans %}</a>
-                        </li>
-                      {%- endif %}
-                    {% endif %}
-                    {% if project.view_for('edit_schedule').is_available() %}
-                    <li>
-                      <a href="{{ project.url_for('edit_schedule') }}" title="Edit schedule">{% trans %}Edit schedule{% endtrans %}</a>
-                    </li>
-                    {% endif %}
-                    {% if project.view_for('labels').is_available() %}
-                    <li>
-                      <a href="{{ project.url_for('labels') }}" title="Manage labels">{% trans %}Manage labels{% endtrans %}</a>
-                    </li>
-                    {% endif %}
-                    {% if project.view_for('admin').is_available() %}
-                    <li>
-                      <a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% trans %}Setup events for check-in{% endtrans %}</a>
-                    </li>
-                    {% endif %}
-                    {% if project.view_for('events').is_available() %}
-                    <li>
-                      <a href="{{ project.url_for('events') }}" title="Scan badges to check-in">{% trans %}Scan badges to check-in{% endtrans %}</a>
-                    </li>
-                    {% endif %}
-                  </ul>
-                </div>
-                <hr class="mui-divider">
+              {% endif %}
+              <div>
+                <ul class="mui-list--inline list-item-rgborder">
+                  {% if project.view_for('edit').is_available() %}
+                  <li>
+                    <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
+                  </li>
+                  <li>
+                    <a href="{{ project.url_for('edit') }}#field-livestream_urls" title="Add livestream url">{% trans %}Add livestream url{% endtrans %}</a>
+                  </li>
+                  {% endif %}
+                  {% if project.view_for('venues').is_available() %}
+                  <li>
+                    <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
+                  </li>
+                  {% endif %}
+                  {% if project.view_for('cfp').is_available() %}
+                    {% if project.cfp_state.NONE -%}
+                      <li>
+                        <a href="{{ project.url_for('cfp') }}" title="Add a CfP">{% trans %}Add a CfP{% endtrans %}</a>
+                      </li>
+                    {% else -%}
+                      <li>
+                        <a href="{{ project.url_for('cfp') }}" title="Modify the CfP">{% trans %}Modify the CfP{% endtrans %}</a>
+                      </li>
+                    {%- endif %}
+                  {% endif %}
+                  {% if project.view_for('edit_schedule').is_available() %}
+                  <li>
+                    <a href="{{ project.url_for('edit_schedule') }}" title="Edit schedule">{% trans %}Edit schedule{% endtrans %}</a>
+                  </li>
+                  {% endif %}
+                  {% if project.view_for('labels').is_available() %}
+                  <li>
+                    <a href="{{ project.url_for('labels') }}" title="Manage labels">{% trans %}Manage labels{% endtrans %}</a>
+                  </li>
+                  {% endif %}
+                  {% if project.view_for('admin').is_available() %}
+                  <li>
+                    <a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% trans %}Setup events for check-in{% endtrans %}</a>
+                  </li>
+                  {% endif %}
+                  {% if project.view_for('events').is_available() %}
+                  <li>
+                    <a href="{{ project.url_for('events') }}" title="Scan badges to check-in">{% trans %}Scan badges to check-in{% endtrans %}</a>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+              <hr class="mui-divider">
+              {%- if project.current_roles.concierge %}
                 <div>
                   <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Downloads</p>
                   <p class="btn-group">
@@ -132,17 +134,6 @@
                     <a href="{{ project.url_for('json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="JSON">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#download"></use></svg>{% endassets %} {% trans %}JSON{% endtrans %}</a>
                     <a href="{{ project.url_for('schedule_json') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" title="Schedule JSON">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#download"></use></svg>{% endassets %} {% trans %}Schedule JSON{% endtrans %}</a>
                   </p>
-                </div>
-              {% elif project.current_roles.usher %}
-                <div>
-                  <ul class="mui-list--inline list-item-rgborder">
-                    <li>
-                      <a href="{{ project.url_for('admin') }}" title="Manual check-in">{% trans %}Manual check-in{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ project.url_for('events') }}" title="Scan badges to check-in">{% trans %}Scan badges to check-in{% endtrans %}</a>
-                    </li>
-                  </ul>
                 </div>
               {% endif %}
             </div>

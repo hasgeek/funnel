@@ -36,11 +36,6 @@
   display: block;
 }
 
-.svg-icon {
-  position: relative;
-  top: 2px;
-}
-
 .material-icons {
   display: none;
 }
@@ -63,20 +58,11 @@
   top: 7px;
 }
 
-.material-icons.mui--align-middle {
-  position: relative;
-  top: -1px;
-}
-
 .mui-divider--custom {
   margin: 5px 0 20px;
 }
 
 .btn-group .mui-btn {
-  margin-right: 5px;
-}
-
-.mui-btn .material-icons.mui--align-middle {
   margin-right: 5px;
 }
 
