@@ -50,6 +50,7 @@ module.exports = {
   entry: {
     app: path.resolve(__dirname, 'js/app.js'),
     index: path.resolve(__dirname, 'js/index.js'),
+    project_header: path.resolve(__dirname, 'js/project_header.js'),
     project: path.resolve(__dirname, 'js/project.js'),
     proposals: path.resolve(__dirname, 'js/proposals.js'),
     proposal: path.resolve(__dirname, 'js/proposal.js'),
@@ -60,7 +61,6 @@ module.exports = {
     contact: path.resolve(__dirname, 'js/contact.js'),
     search: path.resolve(__dirname, 'js/search.js'),
     membership: path.resolve(__dirname, 'js/membership.js'),
-    settings: path.resolve(__dirname, 'js/settings.js'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),

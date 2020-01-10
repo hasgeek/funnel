@@ -213,7 +213,7 @@
         {%- endif %}
       </div>
       {%- if project.primary_venue.has_coordinates -%}
-        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>{% trans %}Loading...{% endtrans %}</h2></div>
+        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title|striptags }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>{% trans %}Loading...{% endtrans %}</h2></div>
       {%- endif %}
     </div>
   </div>
@@ -221,6 +221,7 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
@@ -248,11 +249,13 @@
         };
       {%- endif %}
 
-      projectConfig.saveProjectConfig = {
+      var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: "{{ project.url_for('save') }}"
-      }
+        postUrl: {{ project.url_for('save')|tojson }}
+      };
 
+
+      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
       window.HasGeek.ProjectInit(projectConfig);
 
     });
