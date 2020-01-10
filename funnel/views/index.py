@@ -16,7 +16,7 @@ from .project import project_data
 class IndexView(ClassView):
     current_section = 'home'
 
-    @render_with('index.html.jinja2', json=True)
+    @render_with('index.html.jinja2')
     def home(self):
         g.profile = None
         projects = Project.all_unsorted(legacy=False)
@@ -62,7 +62,6 @@ class IndexView(ClassView):
                 featured_project.current_access() if featured_project else None
             ),
             'past_projects': [p.current_access() for p in past_projects],
-            'hg_banner': app.config.get('HG_BANNER_IMG', []),
             'project_save_form': SavedProjectForm(),
         }
 

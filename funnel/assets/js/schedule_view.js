@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils, SaveProject } from './util';
+import { Utils } from './util';
 
 const Schedule = {
   renderScheduleTable() {
@@ -350,11 +350,7 @@ const Schedule = {
 };
 
 $(() => {
-  window.HasGeek.ScheduleInit = (config, saveProjectConfig) => {
+  window.HasGeek.ScheduleInit = config => {
     Schedule.init(config);
-
-    if (saveProjectConfig) {
-      SaveProject(saveProjectConfig);
-    }
   };
 });

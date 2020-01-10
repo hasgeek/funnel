@@ -140,6 +140,7 @@ export const Utils = {
     return $(`#${formId}`).attr('action');
   },
 };
+
 export const ScrollActiveMenu = {
   init(navId, navItemsClassName, activeMenuClassName) {
     this.navId = navId;
@@ -287,6 +288,45 @@ export const SaveProject = function({ formId, postUrl, config = {} }) {
     config
   );
 };
+
+export const Video = {
+  /* Takes argument
+     `videoWrapper`: video container element,
+     'videoUrl': video url
+    Video id is extracted from the video url (getVideoTypeAndId).
+    The videoID is then used to generate the iframe html.
+    The generated iframe is added to the video container element.
+  */
+  getVideoTypeAndId(url) {
+    const regexMatch = url.match(
+      /(http:|https:|)\/\/(player.|www.)?(y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
+    );
+    let type = '';
+    if (
+      regexMatch[3].indexOf('youtu') > -1 ||
+      regexMatch[3].indexOf('y2u') > -1
+    ) {
+      type = 'youtube';
+    } else if (regexMatch[3].indexOf('vimeo') > -1) {
+      type = 'vimeo';
+    }
+    return {
+      type,
+      videoId: regexMatch[6],
+    };
+  },
+  embedIframe(videoWrapper, videoUrl) {
+    let videoEmbedUrl;
+    const { type, videoId } = this.getVideoTypeAndId(videoUrl);
+    if (type === 'youtube') {
+      videoEmbedUrl = `<iframe src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
+    } else if (type === 'vimeo') {
+      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}' frameborder='0' allowfullscreen></iframe>`;
+    }
+    videoWrapper.innerHTML = videoEmbedUrl;
+  },
+};
+
 export const TableSearch = function(tableId) {
   // a little library that takes a table id
   // and provides a method to search the table's rows for a given query.

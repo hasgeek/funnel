@@ -45,10 +45,6 @@
   display: none;
 }
 
-.no-js .js-lazyload-img {
-  display: none;
-}
-
 .list-item-rgborder li {
   border-right: 1px solid;
   border-radius: 0;
@@ -396,5 +392,46 @@ html.touch .collapsible__body--disable {
   70% {
     -webkit-transform: scale(1);
     transform: scale(1);
+  }
+}
+
+.no-js {
+  .js-lazyload-img,
+  .js-hg-banner,
+  .js-account-dropdown {
+    display: none;
+  }
+}
+
+.embed-video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56%;
+
+  .video_txt {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    left: 50%;
+  }
+
+  iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    display: block;
+  }
+
+  .no-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: #8492a6;
   }
 }

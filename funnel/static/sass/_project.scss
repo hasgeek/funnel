@@ -1,43 +1,17 @@
 .project-banner {
   margin-top: 15px;
 
-  .profile-details {
-    display: block;
-
-    .profile-details__logo-wrapper {
-      display: inline-block;
-      height: 30px;
-      margin-right: 5px;
-
-      .profile-details__logo_wrapper__logo {
-        height: 100%;
-      }
-    }
-  }
   .project-banner__headline {
     margin-bottom: 8px;
   }
   .project-banner__box {
     padding: 0;
 
-    .project-banner__box__16_9 {
-      padding-bottom: 56%;
-      position: relative;
-
-      iframe {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        left: 0;
-        top: 0;
-        display: block;
-      }
-      .project-banner__box__image {
-        position: absolute;
-        object-fit: cover;
-        width: 100%;
-        height: 100%;
-      }
+    .project-banner__box__image {
+      position: absolute;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
     }
     .project-banner__headline {
       padding: 0 15px;
@@ -45,7 +19,7 @@
   }
 
   .livestream-box {
-    margin: 15px 0 30px;
+    margin: 0;
     padding: 0;
   }
   .profile-text {
@@ -123,18 +97,24 @@
   }
 }
 
+@media (min-width: 768px) {
+  .project-banner {
+    .project-banner__box {
+      padding: 0 15px;
+    }
+  }
+}
+
 @media (min-width: 992px) {
   .project-banner {
-    .profile-details {
-      .profile-details__logo-wrapper {
-        height: 50px;
-      }
-    }
     .project-banner__headline {
       margin-bottom: 16px;
     }
     .project-banner__box {
       padding: 0 15px;
+    }
+    .project-details__box--topmargin {
+      margin-top: 50px;
     }
     .profile-text {
       margin: 0 0 5px;

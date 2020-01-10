@@ -50,7 +50,7 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         db.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
-    __roles__ = {'all': {'read': {'id', 'name', 'title', 'description'}}}
+    __roles__ = {'all': {'read': {'id', 'name', 'title', 'description', 'logo_url'}}}
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)

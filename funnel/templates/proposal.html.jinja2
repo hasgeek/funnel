@@ -76,19 +76,19 @@
       <div class="mui--clearfix">
         <div class="proposal-details proposal-details--left">
           {% if proposal.preview_video.url %}
-            <div class="proposal-video mui--bg-primary-light" data-href="{{ proposal.preview_video }}" id="js-embed">
+            <div class="proposal-video mui--bg-primary-light embed-video-wrapper" data-video-src="{{ proposal.preview_video }}" id="js-embed">
               <p class="video_txt">
                 {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
                 <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
               </p>
             </div>
           {%- elif proposal.current_roles.owner %}
-            <div class="proposal-video proposal-video--novideo">
+            <div class="proposal-video proposal-video--novideo embed-video-wrapper">
               <p class="proposal-video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
               <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-preview_video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
             </div>
           {%- else %}
-            <div class="proposal-video mui--bg-primary-light">
+            <div class="proposal-video mui--bg-primary-light embed-video-wrapper">
               {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline no-video" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video-slash"></use></svg>{% endassets %}
             </div>
           {% endif %}
@@ -275,7 +275,7 @@
     proposalConfig.pageUrl = {{ request.base_url|tojson }};
     proposalConfig.videoWrapper = document.getElementById('js-embed');
     if(proposalConfig.videoWrapper) {
-      proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-href');
+      proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-video-src');
     }
     HasGeek.ProposalInit(proposalConfig);
 
