@@ -62,9 +62,12 @@
                                         {{#obj.calendar_weeks.weeks}}{{# { week: . } }}
                                           <div class="calendar__weekdays__dates">
                                             {{#each week.dates: date}}
-                                              <p class="calendar__weekdays__dates__date {{#if week.dates[date].count > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif week.dates[date].isoformat == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}}">
+                                              <p class="calendar__weekdays__dates__date {{#if week.dates[date].count > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif week.dates[date].isoformat == obj.calendar_weeks.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}} {{#if week.dates[date].day_start_at }} calendar__weekdays__dates__date--showtime{{/if}}">
                                                 <span class="calendar__weekdays__dates__date__text">{{ week.dates[date].day }}</span><br>
                                                 <span class="calendar__weekdays__name mui--text-title {{#if week.dates[date].count > 0 }} calendar__weekdays__name--active {{elseif week.dates[date].isoformat == obj.calendar_weeks.today }}  calendar__weekdays__name--today{{/if}}">{{ obj.calendar_weeks.days[date] }}</span>
+                                                {{#if week.dates[date].day_start_at }}
+                                                  <span class="calendar__weekdays__dates__time">{{ week.dates[date].day_start_at }} - {{ week.dates[date].day_end_at }}</span>
+                                                {{/if}}
                                               </p>
                                             {{/each}}
                                           </div>
@@ -74,7 +77,7 @@
                                   </div>
                                 </div>
                               {{/if}}
-                              <div class="card__body__title js-truncate {{#if !obj.calendar_weeks.weeks }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
+                              <div class="card__body__title js-truncate {{#if !obj.calendar_weeks.weeks.length }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
                               <p class="mui--text-subhead card__body__location">
                               {{#if obj.location }}
                                 <svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}
