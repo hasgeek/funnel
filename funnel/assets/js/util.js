@@ -8,7 +8,6 @@ export const Utils = {
     });
     return hashMap;
   },
-
   findLoopIndex(objectArray, key, search) {
     let index;
 
@@ -20,7 +19,6 @@ export const Utils = {
 
     return index;
   },
-
   collapse() {
     $('.collapsible__header').on('click', function collapseContent() {
       $(this)
@@ -31,7 +29,6 @@ export const Utils = {
         .slideToggle();
     });
   },
-
   animateScrollTo(offsetY) {
     $('html,body').animate(
       {
@@ -40,14 +37,12 @@ export const Utils = {
       'slow'
     );
   },
-
   smoothScroll() {
     $('a.js-smooth-scroll').on('click', function clickHandler(event) {
       event.preventDefault();
       Utils.animateScrollTo($(this.hash).offset().top);
     });
   },
-
   scrollTabs() {
     if (document.getElementById('jquery-scroll-tabs')) {
       // Horizontal scroll to active tab
@@ -79,7 +74,6 @@ export const Utils = {
       });
     }
   },
-
   navSearchForm() {
     $('.js-search-show').on('click', function toggleSearchForm(event) {
       event.preventDefault();
@@ -91,16 +85,12 @@ export const Utils = {
       if (
         $('.js-search-form').hasClass('search-form--show') &&
         !$(event.target).is('.js-search-field') &&
-        !$.contains(
-          $('.js-search-show').parent('.header__nav-list__item')[0],
-          event.target
-        )
+        !$.contains($('.js-search-show')[0], event.target)
       ) {
         $('.js-search-form').removeClass('search-form--show');
       }
     });
   },
-
   sendToGA(category, action, label, value = '') {
     if (typeof ga !== 'undefined') {
       ga('send', {
@@ -113,6 +103,7 @@ export const Utils = {
     }
   },
 };
+
 export const ScrollActiveMenu = {
   init(navId, navItemsClassName, activeMenuClassName) {
     this.navId = navId;
@@ -260,6 +251,45 @@ export const SaveProject = function({ formId, postUrl, config = {} }) {
     config
   );
 };
+
+export const Video = {
+  /* Takes argument
+     `videoWrapper`: video container element,
+     'videoUrl': video url
+    Video id is extracted from the video url (getVideoTypeAndId).
+    The videoID is then used to generate the iframe html.
+    The generated iframe is added to the video container element.
+  */
+  getVideoTypeAndId(url) {
+    const regexMatch = url.match(
+      /(http:|https:|)\/\/(player.|www.)?(y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
+    );
+    let type = '';
+    if (
+      regexMatch[3].indexOf('youtu') > -1 ||
+      regexMatch[3].indexOf('y2u') > -1
+    ) {
+      type = 'youtube';
+    } else if (regexMatch[3].indexOf('vimeo') > -1) {
+      type = 'vimeo';
+    }
+    return {
+      type,
+      videoId: regexMatch[6],
+    };
+  },
+  embedIframe(videoWrapper, videoUrl) {
+    let videoEmbedUrl;
+    const { type, videoId } = this.getVideoTypeAndId(videoUrl);
+    if (type === 'youtube') {
+      videoEmbedUrl = `<iframe src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
+    } else if (type === 'vimeo') {
+      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}' frameborder='0' allowfullscreen></iframe>`;
+    }
+    videoWrapper.innerHTML = videoEmbedUrl;
+  },
+};
+
 export const TableSearch = function(tableId) {
   // a little library that takes a table id
   // and provides a method to search the table's rows for a given query.

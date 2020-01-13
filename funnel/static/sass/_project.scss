@@ -1,43 +1,17 @@
 .project-banner {
   margin-top: 15px;
 
-  .profile-details {
-    display: block;
-
-    .profile-details__logo-wrapper {
-      display: inline-block;
-      height: 30px;
-      margin-right: 5px;
-
-      .profile-details__logo_wrapper__logo {
-        height: 100%;
-      }
-    }
-  }
   .project-banner__headline {
     margin-bottom: 8px;
   }
   .project-banner__box {
     padding: 0;
 
-    .project-banner__box__16_9 {
-      padding-bottom: 56%;
-      position: relative;
-
-      iframe {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        left: 0;
-        top: 0;
-        display: block;
-      }
-      .project-banner__box__image {
-        position: absolute;
-        object-fit: cover;
-        width: 100%;
-        height: 100%;
-      }
+    .project-banner__box__image {
+      position: absolute;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
     }
     .project-banner__headline {
       padding: 0 15px;
@@ -45,7 +19,7 @@
   }
 
   .livestream-box {
-    margin: 15px 0 30px;
+    margin: 0;
     padding: 0;
   }
   .profile-text {
@@ -66,11 +40,14 @@
     text-align: right;
     height: 0;
   }
+  .bookmark-icon--height {
+    height: auto;
+    top: 0;
+  }
   .card__calendar {
-    padding: 0 0 15px;
     margin-right: -15px;
     margin-left: -15px;
-    padding: 0 15px;
+    padding: 0 15px 10px;
     margin-bottom: 15px;
   }
   .project-time {
@@ -123,18 +100,24 @@
   }
 }
 
+@media (min-width: 768px) {
+  .project-banner {
+    .project-banner__box {
+      padding: 0 15px;
+    }
+  }
+}
+
 @media (min-width: 992px) {
   .project-banner {
-    .profile-details {
-      .profile-details__logo-wrapper {
-        height: 50px;
-      }
-    }
     .project-banner__headline {
       margin-bottom: 16px;
     }
     .project-banner__box {
       padding: 0 15px;
+    }
+    .project-details__box--topmargin {
+      margin-top: 50px;
     }
     .profile-text {
       margin: 0 0 5px;
@@ -146,9 +129,12 @@
     .bookmark-icon {
       top: 15px;
     }
+    .bookmark-icon--height {
+      top: 0;
+    }
     .card__calendar {
       margin: 0 0 15px;
-      padding: 10px 0 0;
+      padding: 10px 0 8px;
     }
     .project-banner__action {
       .project-banner__action__social {
@@ -205,7 +191,6 @@
     padding: 15px;
     z-index: 100001;
     bottom: 0;
-    height: 100%;
     overflow: auto;
 
     .about__participate__back-nav {
@@ -272,9 +257,13 @@
 }
 
 .about #boxoffice-widget {
-  padding-top: 0;
+  padding: 10px 0;
   max-width: 100%;
   margin: 0;
+
+  .category-heading:after {
+    border-width: 23px;
+  }
 
   .ticket-booking {
     border-bottom: 1px solid #ccc;

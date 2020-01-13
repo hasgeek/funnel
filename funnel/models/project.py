@@ -236,6 +236,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'id',
                 'name',
                 'title',
+                'title_inline',
                 'datelocation',
                 'timezone',
                 'schedule_start_at',
@@ -267,6 +268,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             self.name,
             self.title,
         )
+
+    @property
+    def title_inline(self):
+        """Suffix a colon if the title does not end in ASCII sentence punctuation"""
+        if self.title and self.tagline:
+            if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
+                return self.title + ':'
+        return self.title
 
     @property
     def datelocation(self):
@@ -732,10 +741,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'new_ticket_client',
                         'edit_ticket_client',
                         'edit_event',
+                        'delete_event',
                         'admin',
                         'checkin_event',
                         'view-event',
                         'view_ticket_type',
+                        'delete_ticket_type',
                         'edit-participant',
                         'view-participant',
                         'new-participant',

@@ -8,7 +8,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ url_for('index', _external=true) }}" />
   <meta name="twitter:title" content="{{ self.title()|e }}" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@hasgeek" />
   <meta property="twitter:description" content="{{ self.description() }}" />
   <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
@@ -26,6 +26,14 @@
     <link rel="image_src" href="{{ project.bg_image }}" />
     <meta property="og:image" content="{{ project.bg_image }}" />
     <meta name="twitter:image" content="{{ project.bg_image }}">
+  {%- elif project and project.profile and project.profile.logo_url.url %}
+    <link rel="image_src" href="{{ project.profile.logo_url }}" />
+    <meta property="og:image" content="{{ project.profile.logo_url }}" />
+    <meta name="twitter:image" content="{{ project.profile.logo_url }}">
+  {%- elif profile and profile.logo_url.url %}
+    <link rel="image_src" href="{{ profile.logo_url }}" />
+    <meta property="og:image" content="{{ profile.logo_url }}" />
+    <meta name="twitter:image" content="{{ profile.logo_url }}">
   {%- elif not config['LEGACY'] %}
     <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png', _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png', _external=true) }}" />

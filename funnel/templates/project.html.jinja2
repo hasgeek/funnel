@@ -112,19 +112,17 @@
           {% for subproject in project.subprojects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
               <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" title="{{ subproject.title }}">
-                <div class="card">
-                  <div class="card__header">
-                    <div class="card__header__title">
-                      <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
-                      <h4 class="mui--text-subhead card__title__heading">{{ subproject.datelocation }}</h4>
-                    </div>
+                <div class="card__header">
+                  <div class="card__header__title">
+                    <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
+                    <h4 class="mui--text-subhead card__title__heading">{{ subproject.datelocation }}</h4>
                   </div>
-                  {% if subproject.tagline %}
-                    <div class="card__body">
-                      <p>{{ subproject.tagline }}</p>
-                    </div>
-                  {% endif %}
                 </div>
+                {% if subproject.tagline %}
+                  <div class="card__body">
+                    <p>{{ subproject.tagline }}</p>
+                  </div>
+                {% endif %}
               </a>
             </li>
           {%- endfor -%}
@@ -213,7 +211,7 @@
         {%- endif %}
       </div>
       {%- if project.primary_venue.has_coordinates -%}
-        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>{% trans %}Loading...{% endtrans %}</h2></div>
+        <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title|striptags }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>{% trans %}Loading...{% endtrans %}</h2></div>
       {%- endif %}
     </div>
   </div>
@@ -221,6 +219,7 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
@@ -248,11 +247,13 @@
         };
       {%- endif %}
 
-      projectConfig.saveProjectConfig = {
+      var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: "{{ project.url_for('save') }}"
-      }
+        postUrl: {{ project.url_for('save')|tojson }}
+      };
 
+
+      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
       window.HasGeek.ProjectInit(projectConfig);
 
     });

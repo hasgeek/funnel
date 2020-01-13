@@ -109,39 +109,6 @@
   margin-top: 15px;
 }
 
-.proposal-video {
-  position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 56%;
-
-  .video_txt {
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    left: 50%;
-  }
-
-  iframe {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    display: block;
-  }
-
-  .no-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 32px;
-    color: #8492a6;
-  }
-}
-
 .proposal-video--novideo {
   padding-left: 10px;
   padding-right: 10px;

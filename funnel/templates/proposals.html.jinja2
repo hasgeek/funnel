@@ -133,6 +133,7 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
@@ -142,11 +143,12 @@
         inputId: 'search'
       };
 
-      proposalsConfig.saveProjectConfig = {
+      var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: "{{ project.url_for('save') }}"
+        postUrl: {{ project.url_for('save')|tojson }}
       }
 
+      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
       window.HasGeek.ProposalsInit(proposalsConfig);
     });
   </script>

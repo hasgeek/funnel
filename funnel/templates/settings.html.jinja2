@@ -139,14 +139,14 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('settings')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var saveProjectConfig = {
         formId: 'save-form',
         postUrl: "{{ project.url_for('save') }}"
       }
-      HasGeek.Settings(saveProjectConfig);
+      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
     });
   </script>
 {% endblock %}
