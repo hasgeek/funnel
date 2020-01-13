@@ -10,7 +10,7 @@ describe('Setup event for checkin', function() {
     cy.route('**/participants/json').as('participant-list');
 
     cy.relogin('/testcypressproject');
-    cy.get('a[data-cy-project="' + project.title + '"]').click();
+    cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
