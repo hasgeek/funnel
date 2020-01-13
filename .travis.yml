@@ -10,8 +10,8 @@ install:
   - pip install -r test_requirements.txt
   - make
 script:
-  - ./runfrontendtests.sh
   - ./runtests.sh
+  - ./runfrontendtests.sh
 after_success:
   - coveralls
 addons:
