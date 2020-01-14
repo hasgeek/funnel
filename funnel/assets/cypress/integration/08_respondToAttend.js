@@ -1,8 +1,8 @@
-describe('RSVP yes to project', function() {
+describe('Responding yes to attend a project', function() {
   const { user } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 
-  it('RSVP', function() {
+  it('Respond to attend a project', function() {
     cy.relogin('/testcypressproject');
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);

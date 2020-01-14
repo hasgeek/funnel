@@ -107,7 +107,8 @@
               {%- endif %}
             {%- endfor %}
           {% endif %}
-          <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">Status: {{ proposal.state.label.title }}</span>
+          <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">
+          {% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
           </p>
           {% if proposal.state.SCHEDULED %}
             <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></p>

@@ -38,7 +38,7 @@
               {%- if project.current_roles.admin %}
                 {%- if transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="project-state">Status: {{ project.state.label.title }}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="project-state">{% trans status=project.state.label.title %}Status: {{ status }}{% endtrans %}</p>
                     <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
                       {{ transition_form.hidden_tag() }}
                       <p class="btn-group">
@@ -51,7 +51,7 @@
                 {%- endif %}
                 {%- if cfp_transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans %}CfP status{% endtrans %}: {{ project.cfp_state.label.title }}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}CfP status: {{ status }}{% endtrans %}</p>
                     <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
                       {{ cfp_transition_form.hidden_tag() }}
                       <p class="btn-group">

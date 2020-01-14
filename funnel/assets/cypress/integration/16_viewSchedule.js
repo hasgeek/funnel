@@ -33,6 +33,6 @@ describe('View schedule of p roject', function() {
     cy.get('[data-cy-session="speaker"]').contains(session.speaker);
     cy.get('[data-cy-session="time"]').contains(session.time);
     cy.get('[data-cy-session="time"]').contains(tomorrow);
-    cy.get('[data-cy-session="room"]').contains(session.room);
+    cy.get('[data-cy-session="room"]').should('have.text', session.venue_room);
   });
 });
