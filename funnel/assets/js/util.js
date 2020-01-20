@@ -102,6 +102,47 @@ export const Utils = {
       });
     }
   },
+  truncate() {
+    $('.js-truncate').each(function() {
+      let linesLimit = $(this).data('truncate-lines');
+      $(this).trunk8({
+        lines: linesLimit,
+      });
+    });
+
+    $('.js-truncate-readmore').each(function() {
+      let linesLimit = $(this).data('truncate-lines');
+      $(this).trunk8({
+        lines: linesLimit,
+        fill:
+          '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+      });
+    });
+
+    $('.js-read-more').click(function() {
+      $(this)
+        .parent('.js-truncate-readmore')
+        .trunk8('revert');
+    });
+  },
+  showTimeOnCalendar() {
+    $('.calendar__weekdays')
+      .find('.calendar__weekdays__dates__date--showtime:first')
+      .addClass('calendar__weekdays__dates__date--display');
+
+    $('.calendar__weekdays__dates__date--showtime').hover(function() {
+      $(this)
+        .parents('.calendar__weekdays')
+        .find('.calendar__weekdays__dates__date--showtime')
+        .removeClass('calendar__weekdays__dates__date--display');
+    });
+
+    $('.calendar__weekdays__dates__date--showtime').mouseleave(function() {
+      $('.calendar__weekdays')
+        .find('.calendar__weekdays__dates__date--showtime:first')
+        .addClass('calendar__weekdays__dates__date--display');
+    });
+  },
 };
 
 export const ScrollActiveMenu = {

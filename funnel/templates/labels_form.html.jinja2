@@ -39,7 +39,7 @@
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
       <a class="alert__close" href="javascript:void(0);" aria-label="close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
-      <p class="alert__text">{% assets "fa5-sprite" %}<svg class="fa5-icon alert__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#exclamation-circle"></use></svg>{% endassets %} {% trans %}Please review the indicated issues{% endtrans %}</p>
+      <p class="alert__text">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#exclamation-circle"></use></svg>{% endassets %} {% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}
   {%- if message %}
