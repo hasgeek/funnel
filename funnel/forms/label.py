@@ -18,9 +18,7 @@ class LabelForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
     )
-    icon_emoji = forms.StringField(
-        "", validators=[forms.validators.IsEmoji()]
-    )
+    icon_emoji = forms.StringField("")
     required = forms.BooleanField(
         __("Make this label mandatory in proposal forms"),
         default=False,
@@ -47,7 +45,5 @@ class LabelOptionForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
     )
-    icon_emoji = forms.StringField(
-        "", validators=[forms.validators.IsEmoji()]
-    )
+    icon_emoji = forms.StringField("")
     seq = forms.IntegerField("", widget=forms.HiddenInput())
