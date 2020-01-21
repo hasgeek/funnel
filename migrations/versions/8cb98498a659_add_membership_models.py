@@ -145,3 +145,7 @@ def downgrade():
         table_name='profile_admin_membership',
     )
     op.drop_table('profile_admin_membership')
+
+    op.drop_index('proposal_membership_active', table_name='proposal_membership')
+    op.drop_index('ix_proposal_membership_user_id', table_name='proposal_membership')
+    op.drop_table('proposal_membership')
