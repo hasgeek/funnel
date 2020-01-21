@@ -346,7 +346,23 @@ class TicketClientView(UrlForView, ModelView):
             form=form, title=_(u"Edit ticket client"), submit=_(u"Save changes")
         )
 
+    @route('delete', methods=['GET', 'POST'])
+    @requires_permission('delete_ticket_client')
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete the ticket client ‘{title}’? "
+                u"This operation is permanent and cannot be undone."
+            ).format(title=self.obj.name),
+            success=_("This event has been deleted"),
+            next=self.obj.project.url_for('admin'),
+            cancel_url=self.obj.project.url_for(),
+        )
 
+    
 @route('/<project>/ticket_client/<client_id>', subdomain='<profile>')
 class FunnelTicketClientView(TicketClientView):
     pass
