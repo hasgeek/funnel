@@ -53,12 +53,14 @@ def profile_new():
         form.profile.data = new_profiles[0][0]
     if form.validate_on_submit():
         # Step 4: Make a profile
-        org = [
+        user_org = [
             org
             for org in g.user.organizations_owned()
             if org['userid'] == form.profile.data
         ][0]
-        profile = Profile(name=org['name'], title=org['title'], userid=org['userid'])
+        profile = Profile(
+            name=user_org['name'], title=user_org['title'], userid=user_org['userid']
+        )
         db.session.add(profile)
         db.session.commit()
         flash(
