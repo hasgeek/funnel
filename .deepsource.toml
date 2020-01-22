@@ -1,5 +1,9 @@
 version = 1
 
+exclude_patterns = [
+  "runcypressserver.py"
+]
+
 [[analyzers]]
 name = "python"
 enabled = true

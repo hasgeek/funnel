@@ -7,7 +7,7 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
-  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#arrow-left"></use></svg>{% endassets %} {% trans %}Back to setup events{% endtrans %}</a></p>
+  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in" data-cy="back-to-setup">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#arrow-left"></use></svg>{% endassets %} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -45,9 +45,9 @@
     </div>
     <div class="grid__col-xs-12 grid__col-md-9">
       <ul class="mui-list--inline">
-        <li><a href={{ url_for('event_badges', profile=project.profile.name, project=project.name, name=event.name) }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Badges to be printed</a></li>
-         <li><a href={{ url_for('event_label_badges', profile=project.profile.name, project=project.name, name=event.name) }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Label badges to be printed</a></li>
-        <li><a href={{ url_for('event_badges', profile=project.profile.name, project=project.name, name=event.name, badge_printed='t') }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Badges printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=project.profile.name, project=project.name, name=event.name) }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
+         <li><a href={{ url_for('event_label_badges', profile=project.profile.name, project=project.name, name=event.name) }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
+        <li><a href={{ url_for('event_badges', profile=project.profile.name, project=project.name, name=event.name, badge_printed='t') }} target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
@@ -75,7 +75,7 @@
           <script id='participant-row' type='text/ractive'>
           {{#each participants}}
             <tr id="p-{{ pid }}">
-              <td class='js-searchable' data-th="Name">{{ fullname }}</td>
+              <td class='js-searchable' data-th="Name" data-cy="participant">{{ fullname }}</td>
               <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
               <td class='js-searchable' data-th="Email">{{ email }}</td>
               <td class='js-searchable' data-th="Company">{{ company }}</td>
@@ -83,10 +83,10 @@
                 <ul class="mui-list--unstyled">
                   {{#if isAdmin || isConcierge}}
                   <li>
-                    <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show badge</a>
+                    <a href="{{ getBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" data-cy="show-badge">Show badge</a>
                   </li>
                   <li>
-                    <a href="{{ getLabelBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank">Show Label Badge</a>
+                    <a href="{{ getLabelBadgeUrl(pid) }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" data-cy="show-label-badge">Show Label Badge</a>
                   </li>
                   {{/if}}
                   <li>
@@ -96,9 +96,9 @@
                       </div>
                       <input type="hidden" name="pid" value="{{ pid }}">
                       {{#if checked_in}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="Cancel check-in">Cancel Check-in  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="Cancel check-in" data-cy="cancel-checkin">Cancel Check-in  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                       {{else}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="Check-in">Check-in {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="Check-in" data-cy="checkin">Check-in {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                       {{/if}}
                       {{#if submitting}}
                         {{#if checked_in}}
@@ -111,7 +111,7 @@
                   </li>
                   {{#if isAdmin}}
                   <li>
-                    <a href="{{ getEditUrl(pid) }}" class="mui--text-hyperlink" target="_blank">Edit attendee details</a>
+                    <a href="{{ getEditUrl(pid) }}" class="mui--text-hyperlink" target="_blank" data-cy="edit-attendee-details">Edit attendee details</a>
                   </li>
                   {{/if}}
                 </ul>
