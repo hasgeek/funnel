@@ -13,7 +13,7 @@
   <div class="grid__col-xs-12">
     <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}" title="New label">
       <div class="card__body mui--text-center">
-        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
+        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset" data-cy="add-labels">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
       </div>
     </div>
   </div>
@@ -48,7 +48,7 @@
       {%- endfor %}
       <div class="mui-form form-actions mui--clearfix">
         <div>
-          <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject">{% trans %}Save{% endtrans %}</button>
+          <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject" data-cy="save-label-seq">{% trans %}Save{% endtrans %}</button>
           <span class="loading mui--hide"></span>
         </div>
       </div>

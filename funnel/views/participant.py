@@ -117,7 +117,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
                 flash(_(u"This participant already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"New Participant"), submit=_(u"Add Participant")
+            form=form, title=_(u"New Participant"), submit=_(u"Add participant")
         )
 
 
