@@ -138,7 +138,7 @@
                 <div class="card__body">
                   <h3 class="mui--text-headline zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title_inline }}</span>{% if featured_project.tagline %} <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
                   {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "featured_" + featured_project.name %}
+                    {% set save_form_id = "featured_" + featured_project.suuid %}
                     <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, save_form_id) }}</div>
                   {% endif %}
                   {% if featured_project.calendar_weeks.weeks and featured_project.calendar_weeks.weeks|length > 0 %}
@@ -179,7 +179,10 @@
               {% endif %}
             </div>
             <div class="card__body">
-              {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>{% endif %}
+              {%- if not current_auth.is_anonymous %}
+                {% set save_form_id = "upcoming_" + project.suuid %}
+                <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+              {% endif %}
               {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                 {{ calendarwidget(project) }}
               {% endif %}
@@ -322,7 +325,10 @@
                   {% endif %}
                 </div>
                 <div class="card__body">
-                  {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>{% endif %}
+                  {%- if not current_auth.is_anonymous %}
+                    {% set save_form_id = "all_" + project.suuid %}
+                    <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+                  {% endif %}
                   {% if project.calendar_weeks.weeks and project.calendar_weeks.weeks|length > 0 %}
                     {{ calendarwidget(project) }}
                   {% endif %}
