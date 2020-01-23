@@ -1,23 +1,24 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
 
-{% macro calendarwidget(project) %}
-  <div aria-label="{{ project.datelocation }}">
-    <div class="card__calendar" aria-hidden="true">
-      <div class="calendar">
-        <p class="calendar__month-name">{{ project.calendar_weeks_full.weeks[0].month }} {{ project.calendar_weeks_full.weeks[0].year }}</p>
-        <div class="calendar__weekdays mui--bg-accent">
-          {% for week in project.calendar_weeks_full.weeks|sort(attribute='year') %}
-            <div class="calendar__weekdays__dates">
-              {% for date in week.dates %}
-                <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == project.calendar_weeks_full.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}">
-                  <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
-                  <span class="calendar__weekdays__dates__date__name">{{ project.calendar_weeks_full.days[loop.index-1] }}</span>
-                  {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
-                </p>
-              {% endfor %}
-            </div>
-          {% endfor %}
-        </div>
+{% macro calendarwidget(calendar, compact=true) %}
+  <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
+    <div class="calendar">
+      <p class="calendar__month-name">{{ calendar.weeks[0].month }} {{ calendar.weeks[0].year }}&nbsp;<span class="calendar__counting"></span></p>
+      <div class="calendar__weekdays mui--bg-accent {% if calendar.weeks|length > 1 %} calendar__weekdays--rows {% endif %}">
+        {% for week in calendar.weeks|sort(attribute='year') %}
+          <div class="calendar__weekdays__dates">
+            {% for date in week.dates %}
+              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %}>
+                <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
+                <span class="calendar__weekdays__dates__date__name">{{ calendar.days[loop.index-1] }}</span>
+                {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
+              </p>
+            {% endfor %}
+            {% if calendar.weeks|length > 1 %}
+              {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline calendar__weekdays__dates__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
+            {% endif %}
+          </div>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -98,7 +99,9 @@
         <div class="mui--text-body1 mui--text-light profile-text js-truncate-readmore" data-truncate-lines="2">{{ project.profile.description|safe|striptags }}</div>
         <div class="bookmark-icon  {% if not project.calendar_weeks_full.weeks %} bookmark-icon--height {% endif %}">{{ saveprojectform(project, project_save_form) }}</div>
         {% if project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
-          {{ calendarwidget(project) }}
+          <div aria-label="{{ project.datelocation }}">
+            {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
+          </div>
         {% endif %}
         {%- if project.start_at %}
         <p class="mui--text-light mui--text-subhead project-time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} <span>{{ project.start_at }}</span>{%- if project.end_at %} <span>–{{ project.end_at }}</span>{%- endif %}</p>

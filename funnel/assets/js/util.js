@@ -142,6 +142,31 @@ export const Utils = {
         .find('.calendar__weekdays__dates__date--showtime:first')
         .addClass('calendar__weekdays__dates__date--display');
     });
+
+    const singleDay = 24 * 60 * 60 * 1000;
+    const today = Date.parse(new Date().toISOString());
+    console.log('today', today);
+
+    $('.card__calendar').each(function() {
+      let event = $(this)
+        .find('.calendar__weekdays__dates__date--active')
+        .first()
+        .data('event-date');
+      let eventDay = Date.parse(event);
+      console.log('eventDay', eventDay);
+      let counting = Math.round((eventDay - today) / singleDay);
+      console.log('counting', counting);
+      if (counting > 0 && counting < 32) {
+        let daysRemainingTxt = `In ${counting} days`;
+        $(this)
+          .find('.calendar__counting')
+          .text(daysRemainingTxt);
+      } else if (counting === 0) {
+        $(this)
+          .find('.calendar__counting')
+          .text('Today');
+      }
+    });
   },
 };
 
