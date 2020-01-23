@@ -748,6 +748,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'new-ticket-type',
                         'new_ticket_client',
                         'edit_ticket_client',
+                        'delete_ticket_client',
                         'edit_event',
                         'delete_event',
                         'admin',

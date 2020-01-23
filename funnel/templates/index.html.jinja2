@@ -53,7 +53,7 @@
             {%- if profile.logo_url.url %}
               <span class="profile-details__logo-wrapper"><img class="profile-details__logo_wrapper__logo" src="{{ profile.logo_url }}" alt="{{ profile.title }}"/></span>
             {% endif %}
-            <h2 class="mui--text-display1 mui--text-bold">{{ profile.title }}</h2>
+            <h2 class="mui--text-display1 mui--text-bold" data-cy="profile-title">{{ profile.title }}</h2>
           </div>
           <div class="mui--text-headline">{{ profile.description.html }}</div>
           <div class="mui-divider mui-divider--banner"></div>
@@ -126,7 +126,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}">
+              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy-project="{{ featured_project.title }}">
                 <div class="card__image-wrapper">
                   {% if featured_project.bg_image.url %}
                     <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
@@ -138,7 +138,7 @@
                 <div class="card__body">
                   <h3 class="mui--text-headline zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title_inline }}</span>{% if featured_project.tagline %} <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
                   {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "featured_" + featured_project.name %}
+                    {% set save_form_id = "featured_" + featured_project.suuid %}
                     <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, save_form_id) }}</div>
                   {% endif %}
                   {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
@@ -165,10 +165,10 @@
           <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Upcoming{% endtrans %}</h2>
         </div>
       </div>
-      <ul class="mui-list--unstyled grid" role="list">
+      <ul class="mui-list--unstyled grid upcoming" role="list">
       {% for project in upcoming_projects %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+          <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}">
             <div class="card__image-wrapper">
               {% if project.bg_image.url %}
                 <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -181,11 +181,12 @@
               {% endif %}
             </div>
             <div class="card__body">
-              {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>{% endif %}
+              {%- if not current_auth.is_anonymous %}
+                {% set save_form_id = "upcoming_" + project.suuid %}
+                <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+              {% endif %}
               {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
-                <div aria-label="{{ project.datelocation }}">
-                  {{ calendarwidget(project.calendar_weeks_compact) }}
-                </div>
+                {{ calendarwidget(project.calendar_weeks_compact) }}
               {% endif %}
               <h3 class="card__body__title js-truncate {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light">{{ project.tagline }}</span></h3>
               <p class="card__body__location">{% if project.primary_venue %}{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
@@ -210,7 +211,7 @@
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-lg-6 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">
               <div class="card card--cfp">
-                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}">
                   <div class="card__image-wrapper__overlay"></div>
                   <div class="card__image-wrapper__text">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#microphone-alt"></use></svg>{% endassets %} <div class="mui--d-inlineblock mui--align-middle"><p class="mui--text-menu zero-bottom-margin">CFP</p> <p class="mui--text-menu zero-bottom-margin">{% trans %}Now open{% endtrans %}</p></div></div>
                   {% if project.bg_image.url %}
@@ -251,7 +252,7 @@
         </div>
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="Create new project">
+            <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="Create new project" data-cy="new-project">
               <div class="card__image-wrapper">
                 <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
                 <p class="card__image-wrapper__icon-wrapper">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 mui--align-middle card__image-wrapper__icon-wrapper__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %}</p>
@@ -269,7 +270,7 @@
         {% if draft_projects %}
           {% for project in draft_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-              <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+              <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}">
                 <div class="card__image-wrapper">
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -315,7 +316,7 @@
         <ul class="grid projects" role="list">
           {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              <a class="card clickable-card card--upcoming" href="{{ project.url_for() }}" aria-label="{{ project.title }}">
+              <a class="card clickable-card card--upcoming" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}">
                 <div class="card__image-wrapper">
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -328,11 +329,12 @@
                   {% endif %}
                 </div>
                 <div class="card__body">
-                  {%- if not current_auth.is_anonymous %}<div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, project.name) }}</div>{% endif %}
+                  {%- if not current_auth.is_anonymous %}
+                    {% set save_form_id = "all_" + project.suuid %}
+                    <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+                  {% endif %}
                   {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
-                    <div aria-label="{{ project.datelocation }}">
-                      {{ calendarwidget(project.calendar_weeks_compact) }}
-                    </div>
+                    {{ calendarwidget(project.calendar_weeks_compact) }}
                   {% endif %}
                   <h3 class="card__body__title {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %} js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light">{{ project.tagline }}</span></h3>
                   <p class="card__body__location">{% if project.primary_venue %}{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>

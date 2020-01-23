@@ -1,7 +1,9 @@
-{% from "baseframe/forms.html.jinja2" import renderform_inner, rendersubmit %}
+{% from "baseframe/forms.html.jinja2" import renderform_inner, rendersubmit, ajaxform %}
 
 {% block content %}
 	<form id="{{ formid }}" method="POST" accept-charset="UTF-8" class="mui-form">
+    {{ form.hidden_tag() }}
 	  {{ renderform_inner(form, formid or None) }}
 	</form>
+  {{ ajaxform(ref_id=formid, request=request, force=false) }}
 {% endblock %}

@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from flask import flash, g, jsonify, redirect
 
 from baseframe import _, forms
-from baseframe.forms import render_form, render_delete_sqla, render_redirect
+from baseframe.forms import render_delete_sqla, render_form
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
@@ -65,7 +65,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.rollback()
                 flash(_(u"This event already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
-        return render_form(form=form, title=_(u"New Event"), submit=_(u"Add Event"))
+        return render_form(form=form, title=_(u"New Event"), submit=_(u"Add event"))
 
     @route('ticket_type/new', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -104,7 +104,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
                 flash(_(u"This ticket client already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"New Ticket Client"), submit=_(u"Add Ticket Client")
+            form=form, title=_(u"New Ticket Client"), submit=_(u"Add ticket client")
         )
 
 
@@ -346,7 +346,23 @@ class TicketClientView(UrlForView, ModelView):
             form=form, title=_(u"Edit ticket client"), submit=_(u"Save changes")
         )
 
+    @route('delete', methods=['GET', 'POST'])
+    @requires_permission('delete_ticket_client')
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete the ticket client ‘{title}’? "
+                u"This operation is permanent and cannot be undone."
+            ).format(title=self.obj.name),
+            success=_("This event has been deleted"),
+            next=self.obj.project.url_for('admin'),
+            cancel_url=self.obj.project.url_for(),
+        )
 
+    
 @route('/<project>/ticket_client/<client_id>', subdomain='<profile>')
 class FunnelTicketClientView(TicketClientView):
     pass
