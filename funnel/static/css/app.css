@@ -1891,6 +1891,7 @@ html.touch .collapsible__body--disable {
   margin: 12px 0 6.5px;
 }
 
+.card--spotlight:hover,
 .card--upcoming:hover {
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }

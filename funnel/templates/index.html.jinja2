@@ -183,7 +183,7 @@
             <div class="card__body">
               {%- if not current_auth.is_anonymous %}
                 {% set save_form_id = "upcoming_" + project.suuid %}
-                <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+                <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
               {% endif %}
               {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
                 {{ calendarwidget(project.calendar_weeks_compact) }}
@@ -331,7 +331,7 @@
                 <div class="card__body">
                   {%- if not current_auth.is_anonymous %}
                     {% set save_form_id = "all_" + project.suuid %}
-                    <div class="card__body__bookmark {% if not project.calendar_weeks.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+                    <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
                   {% endif %}
                   {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
                     {{ calendarwidget(project.calendar_weeks_compact) }}
