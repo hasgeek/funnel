@@ -1606,6 +1606,7 @@ html.touch .collapsible__body--disable {
   width: calc(100% / 7);
   text-align: center;
   margin: 0;
+  opacity: 0.6;
 }
 .card__calendar
   .calendar
@@ -1640,6 +1641,13 @@ html.touch .collapsible__body--disable {
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
+  .calendar__weekdays__dates__date--today {
+  opacity: 1;
+}
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
   .calendar__weekdays__dates__date--today
   .calendar__weekdays__dates__date__day {
   color: #82688d;
@@ -1659,6 +1667,7 @@ html.touch .collapsible__body--disable {
   .calendar__weekdays
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date--active {
+  opacity: 1;
   color: #fff;
 }
 .card__calendar

@@ -157,6 +157,7 @@
           width: calc(100% / 7);
           text-align: center;
           margin: 0;
+          opacity: 0.6;
 
           .calendar__weekdays__dates__date__day {
             position: relative;
@@ -181,6 +182,7 @@
         }
 
         .calendar__weekdays__dates__date--today {
+          opacity: 1;
           .calendar__weekdays__dates__date__day {
             color: #82688d;
             font-weight: 600;
@@ -192,6 +194,7 @@
         }
 
         .calendar__weekdays__dates__date--active {
+          opacity: 1;
           color: #fff;
 
           .calendar__weekdays__dates__date__day {
