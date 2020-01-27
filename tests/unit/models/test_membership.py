@@ -103,3 +103,16 @@ class TestMembership(object):
         # can't replace with an unknown role
         with pytest.raises(AttributeError):
             new_membership4.replace(actor=new_user2, is_foobar=True)
+
+    def test_lazy_proxy(
+        self, test_client, test_db, new_user, new_user2, new_profile2, new_project2
+    ):
+        assert len(new_profile2.admins) > 0
+        assert new_user2 in new_profile2.admins
+        assert 'admin' in new_profile2.roles_for(new_user2)
+        assert 'admin' not in new_profile2.roles_for(new_user)
+
+        assert len(new_project2.profile_admins) > 0
+        assert new_user2 in new_project2.profile_admins
+        assert 'profile_admin' in new_project2.roles_for(new_user2)
+        assert 'profile_admin' not in new_project2.roles_for(new_user)

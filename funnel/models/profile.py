@@ -57,13 +57,12 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
 
         if actor is not None:
             roles.add('reader')
-            # TODO: remove this after adding profile membership UI
-            if self.admin_team in actor.teams:
-                roles.add('admin')
 
-        membership = self.active_admin_memberships.filter_by(user=actor).one_or_none()
-        if membership:
-            roles.update(membership.offered_roles())
+            membership = self.active_admin_memberships.filter_by(
+                user=actor
+            ).one_or_none()
+            if membership is not None:
+                roles.update(membership.offered_roles())
 
         return roles
 
