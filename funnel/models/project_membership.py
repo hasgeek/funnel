@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 
-from coaster.sqlalchemy import immutable
+from coaster.sqlalchemy import LazyAssociationProxy, immutable
 
 from . import db
 from .membership import ImmutableMembershipMixin
@@ -136,7 +135,7 @@ Project.active_usher_memberships = db.relationship(
     ),
 )
 
-Project.crew = association_proxy('active_crew_memberships', 'user')
-Project.editors = association_proxy('active_editor_memberships', 'user')
-Project.concierges = association_proxy('active_concierge_memberships', 'user')
-Project.ushers = association_proxy('active_usher_memberships', 'user')
+Project.crew = LazyAssociationProxy('active_crew_memberships', 'user')
+Project.editors = LazyAssociationProxy('active_editor_memberships', 'user')
+Project.concierges = LazyAssociationProxy('active_concierge_memberships', 'user')
+Project.ushers = LazyAssociationProxy('active_usher_memberships', 'user')
