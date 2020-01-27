@@ -150,14 +150,15 @@
         width: 100%;
         display: flex;
         flex-wrap: wrap;
-        padding: 10px 0;
+        padding: 0;
 
         .calendar__weekdays__dates__date {
           position: relative;
           width: calc(100% / 7);
           text-align: center;
           margin: 0;
-          opacity: 0.6;
+          padding: 10px 0;
+          background: #f9fafc;
 
           .calendar__weekdays__dates__date__day {
             position: relative;
@@ -167,6 +168,7 @@
             font-weight: 600;
             font-size: 14px;
             line-height: 18px;
+            opacity: 0.6;
           }
 
           .calendar__weekdays__dates__date__name {
@@ -178,46 +180,51 @@
             font-variant: all-small-caps;
             font-size: 10px;
             line-height: 12px;
+            opacity: 0.6;
           }
         }
 
         .calendar__weekdays__dates__date--today {
-          opacity: 1;
           .calendar__weekdays__dates__date__day {
             color: #82688d;
             font-weight: 600;
+            opacity: 1;
           }
           .calendar__weekdays__dates__date__name {
             color: #82688d;
             font-weight: 600;
+            opacity: 1;
           }
         }
 
-        .calendar__weekdays__dates__date--active {
-          opacity: 1;
-          color: #fff;
+        .calendar__weekdays__dates__date--eventweek {
+          background-color: #eff2f6;
+        }
 
+        .calendar__weekdays__dates__date--active {
           .calendar__weekdays__dates__date__day {
             color: #fff;
             font-weight: 600;
             font-size: 18px;
+            opacity: 1;
           }
           .calendar__weekdays__dates__date__name {
             color: #fff;
             font-weight: 600;
             font-size: 12px;
+            opacity: 1;
           }
         }
 
         .calendar__weekdays__dates__date--active:after {
           content: '';
           font-weight: bold;
-          border-radius: 2px;
-          width: 36px;
+          border-radius: 4px;
+          width: 35px;
           height: 46px;
           text-align: center;
           position: absolute;
-          top: -8px;
+          top: 2px;
           left: 0;
           right: 0;
           margin: auto;
@@ -229,7 +236,7 @@
         .calendar__weekdays__dates__date--showtime:before {
           content: '';
           position: absolute;
-          bottom: -13px;
+          bottom: -5px;
           left: 0;
           right: 0;
           margin: auto;
@@ -247,7 +254,7 @@
           display: block;
           opacity: 0;
           position: absolute;
-          bottom: -33px;
+          bottom: -25px;
           border-radius: 2px;
           background-color: #f6e2c5;
           color: #906b37;
@@ -291,9 +298,6 @@
           display: none;
         }
       }
-      .calendar__weekdays__dates:not(:first-child) {
-        margin-top: 25px;
-      }
     }
   }
 }
@@ -312,8 +316,12 @@
         }
         .calendar__weekdays__dates__icon {
           display: block;
+          width: calc(0.5 * calc(100% / 7.5));
+        }
+        .calendar__weekdays__dates__icon__next {
           position: relative;
           top: 7px;
+          background-color: #eff2f6;
         }
       }
     }
