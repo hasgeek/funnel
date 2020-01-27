@@ -27,4 +27,4 @@ funnel/static/build
 funnel/static/service-worker.js
 console.py
 funnel/assets/cypress/screenshots
-funnel/assets/cypress/video
+funnel/assets/cypress/videos
