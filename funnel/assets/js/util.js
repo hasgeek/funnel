@@ -85,10 +85,7 @@ export const Utils = {
       if (
         $('.js-search-form').hasClass('search-form--show') &&
         !$(event.target).is('.js-search-field') &&
-        !$.contains(
-          $('.js-search-show').parent('.header__nav-list__item')[0],
-          event.target
-        )
+        !$.contains($('.js-search-show')[0], event.target)
       ) {
         $('.js-search-form').removeClass('search-form--show');
       }

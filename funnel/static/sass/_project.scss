@@ -40,11 +40,14 @@
     text-align: right;
     height: 0;
   }
+  .bookmark-icon--height {
+    height: auto;
+    top: 0;
+  }
   .card__calendar {
-    padding: 0 0 15px;
     margin-right: -15px;
     margin-left: -15px;
-    padding: 0 15px;
+    padding: 0 15px 10px;
     margin-bottom: 15px;
   }
   .project-time {
@@ -126,9 +129,12 @@
     .bookmark-icon {
       top: 15px;
     }
+    .bookmark-icon--height {
+      top: 0;
+    }
     .card__calendar {
       margin: 0 0 15px;
-      padding: 10px 0 0;
+      padding: 10px 0 8px;
     }
     .project-banner__action {
       .project-banner__action__social {
@@ -185,7 +191,6 @@
     padding: 15px;
     z-index: 100001;
     bottom: 0;
-    height: 100%;
     overflow: auto;
 
     .about__participate__back-nav {
@@ -252,9 +257,13 @@
 }
 
 .about #boxoffice-widget {
-  padding-top: 0;
+  padding: 10px 0;
   max-width: 100%;
   margin: 0;
+
+  .category-heading:after {
+    border-width: 23px;
+  }
 
   .ticket-booking {
     border-bottom: 1px solid #ccc;

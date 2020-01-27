@@ -38,12 +38,12 @@
               {%- if project.current_roles.editor %}
                 {%- if transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase">Status: {{ project.state.label.title }}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="project-state">{% trans status=project.state.label.title %}Status: {{ status }}{% endtrans %}</p>
                     <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
                       {{ transition_form.hidden_tag() }}
                       <p class="btn-group">
                         {% for name, transition in transition_form.transition.choices %}
-                          <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                          <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}"  data-cy-state="{{ name }}">{{ transition.data['title'] }}</button>
                         {% endfor %}
                       </p>
                     </form>
@@ -51,12 +51,12 @@
                 {%- endif %}
                 {%- if cfp_transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase">{% trans %}CfP status{% endtrans %}: {{ project.cfp_state.label.title }}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}CfP status: {{ status }}{% endtrans %}</p>
                     <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
                       {{ cfp_transition_form.hidden_tag() }}
                       <p class="btn-group">
                         {% for name, transition in cfp_transition_form.cfp_transition.choices %}
-                          <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                          <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}" data-cy-cfp="{{ name }}">{{ transition.data['title'] }}</button>
                         {% endfor %}
                       </p>
                     </form>
@@ -64,12 +64,12 @@
                 {%- endif %}
                 {%- if schedule_transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase">{% trans %}Schedule status{% endtrans %}: {{ project.schedule_state.label.title }}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="schedule-state">{% trans %}Schedule status{% endtrans %}: {{ project.schedule_state.label.title }}</p>
                     <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
                       {{ schedule_transition_form.hidden_tag() }}
                       <p class="btn-group">
                         {% for name, transition in schedule_transition_form.schedule_transition.choices %}
-                          <button name="schedule_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}">{{ transition.data['title'] }}</button>
+                          <button name="schedule_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}"  data-cy-schedule="{{ name }}">{{ transition.data['title'] }}</button>
                         {% endfor %}
                       </p>
                     </form>
@@ -81,41 +81,41 @@
                 <ul class="mui-list--inline list-item-rgborder">
                   {% if project.view_for('edit').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('edit') }}" title="Edit details">{% trans %}Edit details{% endtrans %}</a>
+                    <a href="{{ project.url_for('edit') }}" title="Edit details" data-cy="edit">{% trans %}Edit details{% endtrans %}</a>
                   </li>
                   <li>
-                    <a href="{{ project.url_for('edit') }}#field-livestream_urls" title="Add livestream url">{% trans %}Add livestream url{% endtrans %}</a>
+                    <a href="{{ project.url_for('edit') }}#field-livestream_urls" title="Add livestream url" data-cy="add-livestream">{% trans %}Add livestream url{% endtrans %}</a>
                   </li>
                   {% endif %}
                   {% if project.view_for('venues').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('venues') }}" title="Manage venues">{% trans %}Manage venues{% endtrans %}</a>
+                    <a href="{{ project.url_for('venues') }}" title="Manage venues" data-cy="manage-venues">{% trans %}Manage venues{% endtrans %}</a>
                   </li>
                   {% endif %}
                   {% if project.view_for('cfp').is_available() %}
                     {% if project.cfp_state.NONE -%}
                       <li>
-                        <a href="{{ project.url_for('cfp') }}" title="Add a CfP">{% trans %}Add a CfP{% endtrans %}</a>
+                        <a href="{{ project.url_for('cfp') }}" title="Add a CfP" data-cy="add-cfp">{% trans %}Add a CfP{% endtrans %}</a>
                       </li>
                     {% else -%}
                       <li>
-                        <a href="{{ project.url_for('cfp') }}" title="Modify the CfP">{% trans %}Modify the CfP{% endtrans %}</a>
+                        <a href="{{ project.url_for('cfp') }}" title="Modify the CfP" data-cy="modify-cfp">{% trans %}Modify the CfP{% endtrans %}</a>
                       </li>
                     {%- endif %}
                   {% endif %}
                   {% if project.view_for('edit_schedule').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('edit_schedule') }}" title="Edit schedule">{% trans %}Edit schedule{% endtrans %}</a>
+                    <a href="{{ project.url_for('edit_schedule') }}" title="Edit schedule" data-cy="edit-schedule">{% trans %}Edit schedule{% endtrans %}</a>
                   </li>
                   {% endif %}
                   {% if project.view_for('labels').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('labels') }}" title="Manage labels">{% trans %}Manage labels{% endtrans %}</a>
+                    <a href="{{ project.url_for('labels') }}" title="Manage labels" data-cy="manage-labels">{% trans %}Manage labels{% endtrans %}</a>
                   </li>
                   {% endif %}
                   {% if project.view_for('admin').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{% trans %}Setup events for check-in{% endtrans %}</a>
+                    <a href="{{ project.url_for('admin') }}" title="Setup events for check-in" data-cy="checkin">{% trans %}Setup events for check-in{% endtrans %}</a>
                   </li>
                   {% endif %}
                   {% if project.view_for('events').is_available() %}
@@ -126,7 +126,6 @@
                 </ul>
               </div>
               <hr class="mui-divider">
-              {%- if project.current_roles.concierge %}
                 <div>
                   <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Downloads</p>
                   <p class="btn-group">
