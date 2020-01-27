@@ -24,7 +24,7 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ event.url_for('view') }}" class="mui--text-subhead">{{ event.title }}</a>{%- if project.current_roles.editor %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+              <a href="{{ event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ event.title }}">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -32,9 +32,9 @@
       {%- if project.current_roles.editor %}
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href={{ project.url_for('new_event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}New event{% endtrans %}</a>
+        <a href={{ project.url_for('new_event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-event">{% trans %}New event{% endtrans %}</a>
         {%- if project.events %}
-          <a href={{ project.url_for('new_participant') }} title="{% trans %}Add participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}Add participant{% endtrans %}</a>
+          <a href={{ project.url_for('new_participant') }} title="{% trans %}Add participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-participant">{% trans %}Add participant{% endtrans %}</a>
         {%- endif %}
       </div>
       {%- endif %}

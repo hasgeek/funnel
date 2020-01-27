@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from flask import flash, g, jsonify, redirect
 
 from baseframe import _, forms
-from baseframe.forms import render_form
+from baseframe.forms import render_delete_sqla, render_form
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
@@ -65,7 +65,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.rollback()
                 flash(_(u"This event already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
-        return render_form(form=form, title=_(u"New Event"), submit=_(u"Add Event"))
+        return render_form(form=form, title=_(u"New Event"), submit=_(u"Add event"))
 
     @route('ticket_type/new', methods=['GET', 'POST'])
     @lastuser.requires_login
@@ -104,7 +104,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
                 flash(_(u"This ticket client already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"New Ticket Client"), submit=_(u"Add Ticket Client")
+            form=form, title=_(u"New Ticket Client"), submit=_(u"Add ticket client")
         )
 
 
@@ -189,6 +189,22 @@ class EventView(UrlForView, ModelView):
             return redirect(self.obj.project.url_for('admin'), code=303)
         return render_form(form=form, title=_(u"Edit event"), submit=_(u"Save changes"))
 
+    @route('delete', methods=['GET', 'POST'])
+    @requires_roles({'project_concierge'})
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete your event ‘{title}’? "
+                u"This operation is permanent and cannot be undone."
+            ).format(title=self.obj.title),
+            success=_("This event has been deleted"),
+            next=self.obj.project.url_for('admin'),
+            cancel_url=self.obj.url_for(),
+        )
+
     @route('scan_badge')
     @render_with('scan_badge.html.jinja2')
     @requires_roles({'project_usher'})
@@ -265,6 +281,22 @@ class TicketTypeView(UrlForView, ModelView):
             form=form, title=_(u"Edit ticket type"), submit=_(u"Save changes")
         )
 
+    @route('delete', methods=['GET', 'POST'])
+    @requires_roles({'project_concierge'})
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete the ticket type ‘{title}’? "
+                u"This operation is permanent and cannot be undone."
+            ).format(title=self.obj.title),
+            success=_("This ticket type has been deleted"),
+            next=self.obj.project.url_for('admin'),
+            cancel_url=self.obj.url_for(),
+        )
+
 
 @route('/<project>/ticket_type/<name>', subdomain='<profile>', methods=['GET'])
 class FunnelTicketTypeView(TicketTypeView):
@@ -312,6 +344,22 @@ class TicketClientView(UrlForView, ModelView):
             return redirect(self.obj.project.url_for('admin'), code=303)
         return render_form(
             form=form, title=_(u"Edit ticket client"), submit=_(u"Save changes")
+        )
+
+    @route('delete', methods=['GET', 'POST'])
+    @requires_roles({'project_concierge'})
+    def delete(self):
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_(u"Confirm delete"),
+            message=_(
+                u"Do you really wish to delete the ticket client ‘{title}’? "
+                u"This operation is permanent and cannot be undone."
+            ).format(title=self.obj.name),
+            success=_("This event has been deleted"),
+            next=self.obj.project.url_for('admin'),
+            cancel_url=self.obj.project.url_for(),
         )
 
 
