@@ -90,13 +90,15 @@
             </div>
           {%- endfor %}
         </div>
-      {% elif project.banner_video_url.url or project.bg_image.url %}
+      {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
           <div class="embed-video-wrapper">
             {% if project.banner_video_url.url %}
               {{ project.banner_video_url|safe }}
             {%- elif project.bg_image.url %}
               <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}" data-cy="bg_image"/>
+            {%- else %}
+              <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
             {% endif %}
           </div>
         </div>

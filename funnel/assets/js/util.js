@@ -290,6 +290,7 @@ export const SaveProject = function({ formId, postUrl, config = {} }) {
           $(this).addClass('animate-btn--show');
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
+            window.toastr.success('Project added to Account > My saves');
           }
         }
       });
