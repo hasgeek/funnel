@@ -16,20 +16,14 @@
       {{ renderfield(lform.seq, css_class="seq-input") }}
   {%- endif %}
   {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
-  {%- for error in lform.icon_emoji.errors %}
-    <div><p class="mui-form__error">{{ error }}</p></div>
-  {%- endfor %}
   {%- if not empty %}
     {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field") }}
   {%- else -%}
     {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field label-form__title-field--close") }}
   {%- endif %}
-  {%- for error in lform.title.errors %}
-    <div><p class="mui-form__error">{{ error }}</p></div>
-  {%- endfor %}
-    {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon mui--text-light  mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</button>
-    {%- endif %}
-    <!-- Add archive button for existing sublabels -->
+  {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon mui--text-light  mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</button>
+  {%- endif %}
+  <!-- Add archive button for existing sublabels -->
   {%- if subform %}
     </div>
   {%- endif %}
@@ -39,7 +33,7 @@
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
       <a class="alert__close" href="javascript:void(0);" aria-label="close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
-      <p class="alert__text">{% assets "fa5-sprite" %}<svg class="fa5-icon alert__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#exclamation-circle"></use></svg>{% endassets %} {% trans %}Please review the indicated issues{% endtrans %}</p>
+      <p class="alert__text">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#exclamation-circle"></use></svg>{% endassets %} {% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}
   {%- if message %}
