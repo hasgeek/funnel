@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from coaster.sqlalchemy import LazyAssociationProxy, immutable
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable
 
 from . import db
 from .membership import ImmutableMembershipMixin
@@ -102,8 +102,8 @@ Profile.active_invitations = db.relationship(
 )
 
 
-Profile.admins = LazyAssociationProxy('active_admin_memberships', 'user')
-Profile.owners = LazyAssociationProxy('active_owner_memberships', 'user')
+Profile.admins = DynamicAssociationProxy('active_admin_memberships', 'user')
+Profile.owners = DynamicAssociationProxy('active_owner_memberships', 'user')
 
 
 User.active_profile_admin_memberships = db.relationship(
