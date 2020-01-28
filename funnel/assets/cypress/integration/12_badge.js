@@ -10,7 +10,9 @@ describe('View participant badge', function() {
     cy.route('**/participants/json').as('participant-list');
 
     cy.relogin('/testcypressproject');
-    cy.get('a[data-cy-project="' + project.title + '"]').click();
+    cy.get('[data-cy-project="' + project.title + '"]')
+      .first()
+      .click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
