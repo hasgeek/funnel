@@ -40,10 +40,11 @@ describe('Add labels to project', function() {
             .eq(0)
             .find('.emojionearea-picker')
             .should('be.visible');
+          // Emoji Relaxed is throwing not a valid emoji error
           cy.get('#child-form > .ui-dragable-box')
             .eq(0)
             .find(
-              '.emojionearea-category[name="smileys_people"] i[title="Relaxed"]'
+              '.emojionearea-category[name="smileys_people"] i[title="Joy"]'
             )
             .click();
           cy.get('#child-form > .ui-dragable-box')
