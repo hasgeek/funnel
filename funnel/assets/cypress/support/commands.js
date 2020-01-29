@@ -43,3 +43,32 @@ Cypress.Commands.add('logout', () => {
     .click();
   cy.clearCookies();
 });
+
+Cypress.Commands.add('add_member', (username, role) => {
+  cy.server();
+  cy.route('**/membership/new').as('member-form');
+  cy.route('POST', '**/membership/new').as('add-member');
+
+  cy.get('button[data-cy-btn="add-member"]').click();
+  cy.wait('@member-form');
+  cy.get('.select2-selection__arrow').click({ multiple: true });
+  cy.get('.select2-search__field').type(username, {
+    force: true,
+  });
+  cy.get('.select2-results__message', { timeout: 10000 }).should('not.visible');
+  cy.get('.select2-results__option')
+    .contains(username)
+    .click();
+  cy.get('.select2-results__options', { timeout: 10000 }).should('not.visible');
+  cy.get(`#is_${role}`).click();
+  cy.get('button')
+    .contains('Add member')
+    .click();
+  cy.wait('@add-member');
+  var roleString = role[0].toUpperCase() + role.slice(1);
+  cy.get('[data-cy="member"]')
+    .contains(username)
+    .parents('.user-box')
+    .find('[data-cy="role"]')
+    .contains(roleString);
+});
