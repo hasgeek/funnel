@@ -1,5 +1,5 @@
-describe('Project', function() {
-  const { admin, baseurl } = require('../fixtures/user.js');
+describe('Project creation', function() {
+  const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
 
   it('Create a new project', function() {

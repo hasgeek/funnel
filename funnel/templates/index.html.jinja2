@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 {%- from "macros.html.jinja2" import calendarwidget, saveprojectform %}
-{% block description %}{% if profile %}{{ profile.description.html|firstline }}{% else %}{% trans %}HasGeek creates discussion spaces for geeks. Meet like-minded people, learn new things and discover new opportunities.{% endtrans %}{% endif %}{% endblock %}
+
 
 {%- block pageheaders %}
 <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
@@ -56,11 +56,11 @@
             <h2 class="mui--text-display1 mui--text-bold" data-cy="profile-title">{{ profile.title }}</h2>
           </a>
           <div class="mui--text-headline">{{ profile.description.html }}</div>
-          {%- if profile.current_roles.admin %}
-            <p>
-              <a class="mui-btn mui-btn--primary mui-btn--raised" data-action="Add crew" href="{{ g.profile.url_for('membership') }}">{% trans %}Add crew{% endtrans %}</a>
-              <a class="mui-btn mui-btn--secondary mui-btn--raised" data-action="Edit details" href="{{ g.profile.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
-            </p>
+          {%- if profile.current_roles.owner or  profile.current_roles.admin %}
+          <p>
+            <a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="profile-crew" href="{{ g.profile.url_for('membership') }}">{%- if profile.current_roles.owner %}{% trans %}Add crew{% endtrans %}{% elif profile.current_roles.admin %}{% trans %}View crew{% endtrans %}{% endif %}</a>
+            <a class="mui-btn mui-btn--secondary mui-btn--raised" data-cy-btn="edit-details" href="{{ g.profile.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
+          </p>
           {% endif %}
           <div class="mui-divider mui-divider--banner"></div>
         </div>

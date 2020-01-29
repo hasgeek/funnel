@@ -272,7 +272,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('cfp', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_roles({'reader'})
+    @requires_roles({'editor'})
     def cfp(self):
         form = CfpForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
@@ -439,7 +439,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @route('settings', methods=['GET', 'POST'])
     @render_with('settings.html.jinja2')
     @lastuser.requires_login
-    @requires_roles({'editor', 'concierge'})
+    @requires_roles({'editor', 'concierge', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)

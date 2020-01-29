@@ -5,8 +5,10 @@ describe('Confirm proposal', function() {
   const labels = require('../fixtures/labels.json');
 
   before(function() {
+    cy.server();
+    cy.route('POST', '**/login').as('login');
     cy.login('/testcypressproject/new', admin.username, admin.password);
-    cy.wait(120000);
+    cy.wait('@login', { timeout: 20000 });
     cy.get('a.mui-btn')
       .contains('Cancel')
       .click();
