@@ -211,8 +211,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Comment, self).roles_for(actor, anchors)
+        roles.add('reader')
         if actor is not None:
-            roles.add('reader')
             if actor == self.user:
                 roles.add('author')
         return roles

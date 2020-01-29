@@ -67,6 +67,8 @@ class ProfileAdminMembership(ImmutableMembershipMixin, db.Model):
         roles = super(ProfileAdminMembership, self).roles_for(actor, anchors)
         if 'admin' in self.profile.roles_for(actor, anchors):
             roles.add('profile_admin')
+        if 'owner' in self.profile.roles_for(actor, anchors):
+            roles.add('profile_owner')
         return roles
 
 
@@ -79,6 +81,7 @@ Profile.active_admin_memberships = db.relationship(
         ProfileAdminMembership.profile_id == Profile.id,
         ProfileAdminMembership.is_active,
     ),
+    order_by=lambda: ProfileAdminMembership.granted_at.asc(),
 )
 
 Profile.active_owner_memberships = db.relationship(

@@ -27,7 +27,10 @@ class MEMBERSHIP_RECORD_TYPE:  # NOQA: N801
 
 
 profile = table(
-    'profile', column('id', sa.Integer()), column('admin_team_id', sa.Integer())
+    'profile',
+    column('id', sa.Integer()),
+    column('admin_team_id', sa.Integer()),
+    column('uuid', UUIDType(binary=False)),
 )
 
 project = table(
@@ -37,6 +40,14 @@ project = table(
     column('checkin_team_id', sa.Integer()),
     column('review_team_id', sa.Integer()),
     column('admin_team_id', sa.Integer()),
+)
+
+team = table(
+    'team',
+    column('id', sa.Integer()),
+    column('owners', sa.Boolean()),
+    column('org_uuid', UUIDType(binary=False)),
+    column('created_at', sa.TIMESTAMP(timezone=True)),
 )
 
 users_teams = table(
@@ -83,23 +94,39 @@ def upgrade():
     conn = op.get_bind()
 
     #: Create ProfileAdminMembership record for admin_team members of Profiles
-    profiles = conn.execute(sa.select([profile.c.id, profile.c.admin_team_id]))
-    for profile_id, profile_admin_team_id in profiles:
+    profiles = conn.execute(
+        sa.select([profile.c.id, profile.c.admin_team_id, profile.c.uuid])
+    )
+    for profile_id, profile_admin_team_id, profile_uuid in profiles:
+        owner_team_users = conn.execute(
+            sa.select([users_teams.c.user_id, users_teams.c.created_at])
+            .where(team.c.org_uuid == profile_uuid)
+            .where(team.c.owners == 't')
+            .where(users_teams.c.team_id == team.c.id)
+        )
+        owners_dict = {user_id: created_at for user_id, created_at in owner_team_users}
         admin_team_users = conn.execute(
             sa.select([users_teams.c.user_id, users_teams.c.created_at]).where(
                 users_teams.c.team_id == profile_admin_team_id
             )
         )
-        for user_id, created_at in admin_team_users:
+        admins_dict = {user_id: created_at for user_id, created_at in admin_team_users}
+        all_profile_admins = set(owners_dict.keys() + admins_dict.keys())
+
+        for user_id in all_profile_admins:
             conn.execute(
                 profile_admin_membership.insert().values(
                     {
                         'id': uuid4(),
                         'profile_id': profile_id,
                         'user_id': user_id,
-                        'is_owner': False,
+                        'is_owner': user_id in owners_dict,
                         'granted_by_id': None,
-                        'granted_at': created_at,
+                        'granted_at': (
+                            owners_dict[user_id]
+                            if user_id in owners_dict
+                            else admins_dict[user_id]
+                        ),
                         'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
                         'created_at': sa.func.now(),
                         'updated_at': sa.func.now(),
