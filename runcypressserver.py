@@ -6,13 +6,14 @@ from flask import Markup, flash, g, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_form, render_message, render_redirect
+from coaster.auth import current_auth
 from funnel import app, lastuser
 from funnel.forms import NewProfileForm
-from funnel.models import Profile, Team, db
+from funnel.models import Profile, ProfileAdminMembership, Team, db
 
 
 @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018
-@lastuser.requires_scope('teams')
+@lastuser.requires_login
 def profile_new():
     # Step 1: Get a list of organizations this user owns
     existing = Profile.query.filter(
@@ -62,6 +63,13 @@ def profile_new():
             name=user_org['name'], title=user_org['title'], userid=user_org['userid']
         )
         db.session.add(profile)
+        new_membership = ProfileAdminMembership(
+            parent=profile,
+            user=current_auth.user,
+            granted_by=current_auth.user,
+            is_owner=True,
+        )
+        db.session.add(new_membership)
         db.session.commit()
         flash(
             _(u"Created a profile for {profile}").format(profile=profile.title),

@@ -154,12 +154,9 @@
       {%- if project.schedule_state.PUBLISHED %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
-      {%- if project.current_roles.admin or current_auth.permissions.checkin_event -%}
+      <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.url_for('membership') }}" title="Crew" data-action="Crew(navbar)" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
+      {%- if project.current_roles.editor or project.current_roles.usher or project.current_roles.concierge -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" title="Settings" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
-      {%- endif %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.url_for('membership') }}" title="Crew" data-action="Crew(navbar)">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
-      {%- if project.current_roles.editor %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.url_for('settings') }}" title="Crew" data-action="Settings(navbar)">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right"><i class="material-icons mui--align-middle">chevron_right</i></span></a>
       {%- endif %}
     </nav>
   </div>

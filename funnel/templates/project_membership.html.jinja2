@@ -47,20 +47,23 @@
 
                   <p class="mui--text-title mui--text-uppercase">Editor</p>
                   <ul class="mui-list--unstyled">
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can edit project details</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can add and publish the CFP</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can add and edit sessions to the schedule and publsh it</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can add and edit labels</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can add and edit venues</span></li>
                   </ul>
                   <hr>
                   <p class="mui--text-title mui--text-uppercase">Concierge</p>
                   <ul class="mui-list--unstyled">
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can add and edit events for checkin</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Add ticket clients</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Add and view attendees</span></li>
                   </ul>
                   <hr>
                   <p class="mui--text-title mui--text-uppercase">Usher</p>
                   <ul class="mui-list--unstyled">
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can checkin attendees</span></li>
                   </ul>
                   <hr>
                 </div>
@@ -70,7 +73,7 @@
           <div class="membership-wrapper--right">
             <div class="mui--clearfix">
               <div class="mui--text-center btn-wrapper membership-wrapper--left" v-if="isUserProfileAdmin">
-                <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#plus'"></use></svg> Add new member</p></button>
+                <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#plus'"></use></svg> Add new member</p></button>
                 <hr class="mui--hidden-xl">
               </div>
               <div class="mui--text-center" v-if="members" :class="[isUserProfileAdmin? 'membership-wrapper--right': '']">
@@ -144,13 +147,13 @@
     <img class="user-gravatar" :src=member.user_avatar :alt=member.user.fullname :aria-label=member.user.fullname v-if="member.user_avatar"/>
     <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" :alt=member.user.fullname :aria-label=member.user.fullname v-else/>
     <div class="mui--d-inlineblock">
-    <h3 class="mui--text-title zero-top-margin zero-bottom-margin">{{ member.user.fullname }}</h3>
+    <h3 class="mui--text-title zero-top-margin zero-bottom-margin" data-cy="member">{{ member.user.fullname }}</h3>
     <h3 v-if="member.user.username" class="mui--text-subhead zero-top-margin zero-bottom-margin"><span>@{{ member.user.username }}</span></h3>
     </div>
     <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
-      <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body1">Editor</li>
-      <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body1">Concierge</li>
-      <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body1">Usher</li>
+      <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Editor</li>
+      <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Concierge</li>
+      <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Usher</li>
       <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
     </ul>
   </div>

@@ -53,7 +53,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('venues.html.jinja2')
     @lastuser.requires_login
-    @requires_roles({'reader'})
+    @requires_roles({'editor'})
     def venues(self):
         return {
             'project': self.obj,
