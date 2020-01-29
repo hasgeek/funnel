@@ -46,7 +46,7 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_roles({'admin'})
+    @requires_roles({'owner'})
     def new_member(self):
         membership_form = ProfileAdminMembershipForm()
 
@@ -150,13 +150,27 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'profile_owner'})
     def edit(self):
         previous_membership = self.obj
         membership_form = ProfileAdminMembershipForm(obj=previous_membership)
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                primary_owner_membership = self.obj.profile.active_admin_memberships.order_by(
+                    ProfileAdminMembership.granted_at.asc()
+                ).first()
+
+                if (
+                    membership_form.user.data == primary_owner_membership.user
+                    and current_auth.user != primary_owner_membership.user
+                ):
+                    # the primary(first) owner membership can't be modified by others
+                    return {
+                        'status': 'error',
+                        'message': _("Cannot modify the primary owner of the profile"),
+                    }
+
                 previous_membership.replace(
                     actor=current_auth.user, is_owner=membership_form.is_owner.data
                 )
@@ -190,11 +204,25 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
     @lastuser.requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'profile_owner'})
     def delete(self):
         form = Form()
         if request.method == 'POST':
             if form.validate_on_submit():
+                primary_owner_membership = self.obj.profile.active_admin_memberships.order_by(
+                    ProfileAdminMembership.granted_at.asc()
+                ).first()
+
+                if (
+                    self.obj.user == primary_owner_membership.user
+                    and current_auth.user != primary_owner_membership.user
+                ):
+                    # the primary(first) owner membership can't be deleted by others
+                    return {
+                        'status': 'error',
+                        'message': _("Cannot delete the primary owner of the profile"),
+                    }
+
                 previous_membership = self.obj
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
