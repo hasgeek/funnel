@@ -56,7 +56,7 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
                     ProfileAdminMembership.query.filter(
                         ProfileAdminMembership.is_active
                     )
-                    .filter_by(profile=self.obj, user=membership_form.user.data)
+                    .filter_by(profile=self.obj, user_id=membership_form.user.data.id)
                     .one_or_none()
                 )
                 if previous_membership is not None:
@@ -275,7 +275,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
             if membership_form.validate_on_submit():
                 previous_membership = (
                     ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
-                    .filter_by(project=self.obj, user=membership_form.user.data)
+                    .filter_by(project=self.obj, user_id=membership_form.user.data.id)
                     .one_or_none()
                 )
                 if previous_membership is not None:
