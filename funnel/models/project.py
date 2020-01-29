@@ -793,10 +793,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Project, self).roles_for(actor, anchors)
-
-        if actor is not None:
-            # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
-            roles.add('reader')
+        # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
+        roles.add('reader')
 
         crew_membership = self.active_crew_memberships.filter_by(
             user=actor

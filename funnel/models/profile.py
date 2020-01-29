@@ -54,10 +54,9 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Profile, self).roles_for(actor, anchors)
+        roles.add('reader')
 
         if actor is not None:
-            roles.add('reader')
-
             membership = self.active_admin_memberships.filter_by(
                 user=actor
             ).one_or_none()
