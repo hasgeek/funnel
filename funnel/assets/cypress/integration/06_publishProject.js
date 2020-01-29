@@ -4,7 +4,6 @@ describe('Publish project', function() {
 
   it('Publish project', function() {
     cy.relogin('/testcypressproject');
-
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();

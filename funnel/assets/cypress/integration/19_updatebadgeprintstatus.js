@@ -14,7 +14,7 @@ describe('View and update print status of badge', function() {
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
 
-    cy.get('a[data-cy="checkin"').click();
+    cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[0].title + '"]').click();
     cy.get('select#badge_printed').select('Printed', { force: true });
@@ -27,7 +27,7 @@ describe('View and update print status of badge', function() {
   });
 
   after(function() {
-    cy.visit('/testcypressproject');
+    cy.relogin('/testcypressproject');
     cy.logout();
   });
 });

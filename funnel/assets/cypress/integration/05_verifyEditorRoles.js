@@ -4,7 +4,6 @@ describe('Verify roles of editor', function() {
 
   it('Access available for editor in project settings', function() {
     cy.relogin('/testcypressproject');
-
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();

@@ -11,7 +11,7 @@ describe('Verify roles of concierge', function() {
       concierge.password
     );
     cy.wait('@login', { timeout: 20000 });
-    cy.get('a.home-desktop').click();
+    cy.get('a[data-cy="home-desktop"]').click();
   });
 
   it('Access available for concierge in project settings', function() {

@@ -11,7 +11,7 @@ describe('Verify roles of usher', function() {
       usher.password
     );
     cy.wait('@login', { timeout: 20000 });
-    cy.get('a.home-desktop').click();
+    cy.get('a[data-cy="home-desktop"]').click();
   });
 
   it('Access available for usher in project settings', function() {
@@ -35,7 +35,6 @@ describe('Verify roles of usher', function() {
   });
 
   after(function() {
-    cy.visit('/testcypressproject');
     cy.logout();
   });
 });

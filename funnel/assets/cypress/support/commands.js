@@ -55,7 +55,9 @@ Cypress.Commands.add('add_member', (username, role) => {
   cy.get('.select2-search__field').type(username, {
     force: true,
   });
-  cy.get('.select2-results__message', { timeout: 10000 }).should('not.visible');
+  cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
+    'be.visible'
+  );
   cy.get('.select2-results__option')
     .contains(username)
     .click();
