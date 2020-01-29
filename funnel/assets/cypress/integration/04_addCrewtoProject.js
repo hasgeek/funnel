@@ -8,7 +8,6 @@ describe('Adding crew', function() {
 
   it('Add crew to project', function() {
     cy.relogin('/testcypressproject');
-
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();

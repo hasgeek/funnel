@@ -13,7 +13,7 @@ describe('Setup event for checkin', function() {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="checkin"').click();
+    cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
 
     cy.fixture('events').then(events => {

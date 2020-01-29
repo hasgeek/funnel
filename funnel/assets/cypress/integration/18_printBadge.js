@@ -13,7 +13,7 @@ describe('View badges to be printed', function() {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="checkin"').click();
+    cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[0].title + '"]').click();
     var firstname1 = participants[0].fullname.split(' ')[0];
