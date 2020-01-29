@@ -1,10 +1,9 @@
-describe('View and update print status of badge', function() {
-  const { admin } = require('../fixtures/user.js');
+describe('View participant badge', function() {
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
-  it('View badges to be printed', function() {
+  it('View participant badge', function() {
     cy.server();
     cy.route('POST', '**/participants/checkin?*').as('checkin');
     cy.route('**/participants/json').as('participant-list');
@@ -14,21 +13,16 @@ describe('View and update print status of badge', function() {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
-
     cy.get('a[data-cy="checkin"').click();
     cy.location('pathname').should('contain', '/admin');
-    cy.get('a[data-cy="' + events[0].title + '"]').click();
-    cy.get('select#badge_printed').select('Printed', { force: true });
-    cy.get('#badge-form-submit').click();
-    cy.get('a[data-cy="badges-to-printed"]')
+    cy.get('a[data-cy="' + events[1].title + '"]').click();
+    cy.get('td[data-cy="participant"]').contains(participants[2].fullname);
+    var firstname = participants[2].fullname.split(' ')[0];
+    cy.get('a[data-cy="show-badge"]')
       .invoke('removeAttr', 'target')
       .click();
-    cy.url().should('contain', 'badges');
-    cy.get('.first-name').should('not.exist');
-  });
-
-  after(function() {
-    cy.visit('/testcypressproject');
-    cy.logout();
+    cy.url().should('contain', 'badge');
+    cy.get('.first-name').should('contain', firstname);
+    cy.screenshot('badge');
   });
 });

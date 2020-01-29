@@ -1,5 +1,4 @@
 describe('Setup event for checkin', function() {
-  const { admin } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');

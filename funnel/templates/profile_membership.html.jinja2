@@ -20,22 +20,17 @@
                 <div class="membership-wrapper__info" v-if="showInfo">
                   <p><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#user-circle'"></use></svg> <span class="mui--text-headline mui--text-bold mui--text-center">Member roles</span></p>
 
-                  <p class="mui--text-title mui--text-uppercase">Editor</p>
+                  <p class="mui--text-title mui--text-uppercase">Owner</p>
                   <ul class="mui-list--unstyled">
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can add members and revoke members </span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can edit profile</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can create projects</span></li>
                   </ul>
                   <hr>
-                  <p class="mui--text-title mui--text-uppercase">Concierge</p>
+                  <p class="mui--text-title mui--text-uppercase">Admin</p>
                   <ul class="mui-list--unstyled">
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-                  </ul>
-                  <hr>
-                  <p class="mui--text-title mui--text-uppercase">Usher</p>
-                  <ul class="mui-list--unstyled">
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
-                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Lorem ipsum dolor sit amet</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can edit profile</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can create projects</span></li>
                   </ul>
                   <hr>
                 </div>
@@ -45,7 +40,7 @@
           <div class="membership-wrapper--right">
             <div class="mui--clearfix">
               <div class="mui--text-center btn-wrapper membership-wrapper--left" v-if="isUserProfileAdmin">
-                <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#plus'"></use></svg> Add new member</p></button>
+                <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#plus'"></use></svg> Add new member</p></button>
                 <hr class="mui--hidden-xl">
               </div>
               <div class="mui--text-center" v-if="members" :class="[isUserProfileAdmin? 'membership-wrapper--right': '']">
@@ -104,7 +99,7 @@
                 <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
               </div>
               <div v-if="activeMember" class="modal-form__action-box--revoke mui--text-center">
-                <button @click="fetchForm($event, deleteURL)" title="Delete" class="mui-btn mui-btn--nostyle mui--text-subhead"><span class="mui--text-light">Revoke this membership - </span><span class="mui--text-bold">Revoke</span></button>
+                <button @click="fetchForm($event, deleteURL)" title="Delete" class="mui-btn mui-btn--nostyle mui--text-subhead" data-cy-btn="revoke"><span class="mui--text-light">Revoke this membership - </span><span class="mui--text-bold">Revoke</span></button>
               </div>
             </div>
           </div>
@@ -119,12 +114,12 @@
     <img class="user-gravatar" :src=member.user_avatar :alt=member.user.fullname :aria-label=member.user.fullname v-if="member.user_avatar"/>
     <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" :alt=member.user.fullname :aria-label=member.user.fullname v-else/>
     <div class="mui--d-inlineblock">
-    <h3 class="mui--text-title zero-top-margin zero-bottom-margin">{{ member.user.fullname }}</h3>
+    <h3 class="mui--text-title zero-top-margin zero-bottom-margin" data-cy="member">{{ member.user.fullname }}</h3>
     <h3 v-if="member.user.username" class="mui--text-subhead zero-top-margin zero-bottom-margin"><span>@{{ member.user.username }}</span></h3>
     </div>
     <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
-      <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body1">Owner</li>
-      <li v-else class="membership-wrapper__members__list__roles__role mui--text-body1">Admin</li>
+      <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Owner</li>
+      <li v-else class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Admin</li>
       <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
     </ul>
   </div>
@@ -149,7 +144,7 @@
         ],
         divElem: "#manage-membership",
         memberTemplate: '#member-template',
-        isUserProfileAdmin: {%- if profile.current_roles.admin %} true {% else %} false {%- endif %},
+        isUserProfileAdmin: {%- if profile.current_roles.owner %} true {% else %} false {%- endif %},
       };
 
       HasGeek.Membership(membershipConfig);
