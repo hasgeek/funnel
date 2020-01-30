@@ -51,10 +51,10 @@
               {% endif %}
             </div>
             <div class="card__body">
-              {% if saved.project.calendar_weeks_full.weeks and saved.project.calendar_weeks_full.weeks|length > 0 %}
-                {{ calendarwidget(saved.project) }}
+              {% if saved.project.calendar_weeks_compact.weeks and saved.project.calendar_weeks_compact.weeks|length > 0 %}
+                {{ calendarwidget(saved.project.calendar_weeks_compact) }}
               {% endif %}
-              <div class="card__body__title js-truncate {% if not saved.project.calendar_weeks_full.weeks %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ saved.project.title }}</span> <span class="mui--text-light">{{ saved.project.tagline }}</span></div>
+              <div class="card__body__title js-truncate {% if not saved.project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ saved.project.title }}</span> <span class="mui--text-light">{{ saved.project.tagline }}</span></div>
               {% if saved.project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if saved.project.primary_venue.city %}{{ saved.project.primary_venue.city }}{% else %}{{ saved.project.primary_venue.title }}{% endif %}</p>{% endif %}
             </div>
           </a>
