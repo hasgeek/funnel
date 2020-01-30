@@ -2,11 +2,12 @@
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import flash, g, jsonify, make_response, redirect, request
+from flask import flash, g, jsonify, make_response, redirect, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.utils import getbool
+from coaster.auth import current_auth
+from coaster.utils import getbool, uuid2suuid
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -55,34 +56,29 @@ def participant_badge_data(participants, project):
 
 
 def participant_data(participant, project_id, full=False):
+    data = {
+        '_id': participant.id,
+        'puk': participant.puk,
+        'fullname': participant.fullname,
+        'job_title': participant.job_title,
+        'company': participant.company,
+        'project_id': project_id,
+    }
     if full:
-        return {
-            '_id': participant.id,
-            'puk': participant.puk,
-            'fullname': participant.fullname,
-            'job_title': participant.job_title,
-            'company': participant.company,
-            'email': participant.email,
-            'twitter': participant.twitter,
-            'phone': participant.phone,
-            'project_id': project_id,
-            'space_id': project_id,  # FIXME: Remove when the native app switches over
-        }
-    else:
-        return {
-            '_id': participant.id,
-            'puk': participant.puk,
-            'fullname': participant.fullname,
-            'job_title': participant.job_title,
-            'company': participant.company,
-            'project_id': project_id,
-            'space_id': project_id,  # FIXME: Remove when the native app switches over
-        }
+        data.update(
+            {
+                'email': participant.email,
+                'twitter': participant.twitter,
+                'phone': participant.phone,
+            }
+        )
+    return data
 
 
 def participant_checkin_data(participant, project, event):
-    return {
-        'pid': participant.id,
+    psuuid = uuid2suuid(participant.uuid)
+    data = {
+        'psuuid': psuuid,
         'fullname': participant.fullname,
         'company': participant.company,
         'email': mask_email(participant.email),
@@ -90,6 +86,24 @@ def participant_checkin_data(participant, project, event):
         'checked_in': participant.checked_in,
         'ticket_type_titles': participant.ticket_type_titles,
     }
+    if 'checkin_event' in current_auth.user.current_permissions:
+        data.update(
+            {
+                'badge_url': url_for(
+                    'ParticipantView_badge',
+                    profile=project.profile.name,
+                    project=project.name,
+                    suuid=psuuid,
+                ),
+                'label_badge_url': url_for(
+                    'ParticipantView_label_badge',
+                    profile=project.profile.name,
+                    project=project.name,
+                    suuid=psuuid,
+                ),
+            }
+        )
+    return data
 
 
 @route('/<profile>/<project>/participants')
@@ -204,13 +218,13 @@ FunnelParticipantView.init_app(funnelapp)
 class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, lastuser.requires_login]
 
-    @route('participants/checkin')
+    @route('participants/checkin', methods=['GET', 'POST'])
     @requires_permission('checkin_event')
     def checkin(self):
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
-            participant_ids = request.form.getlist('pid')
+            participant_ids = request.form.getlist('psuuid')
             for participant_id in participant_ids:
                 attendee = Attendee.get(self.obj, participant_id)
                 attendee.checked_in = checked_in
