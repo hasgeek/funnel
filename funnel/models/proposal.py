@@ -204,7 +204,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     )
 
     project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editors'}
+        association_proxy('project', 'editors'), grants={'project_editor'}
     )
 
     __table_args__ = (

@@ -91,7 +91,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('json')
     @lastuser.requires_login
-    @requires_roles({'editor', 'usher'})
+    @requires_roles({'concierge'})
     def participants_json(self):
         return jsonify(
             participants=[
@@ -102,7 +102,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
-    @requires_roles({'editor', 'usher'})
+    @requires_roles({'concierge'})
     def new_participant(self):
         form = ParticipantForm()
         form.events.query = self.obj.events
