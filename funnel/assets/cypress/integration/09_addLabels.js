@@ -97,8 +97,8 @@ describe('Add labels to project', function() {
       .trigger('mouseover', { which: 1, force: true, view: window })
       .trigger('mousedown', { which: 1, force: true, view: window })
       .trigger('mousemove', {
-        pageX: 230,
-        pageY: 550,
+        pageX: 500,
+        pageY: 610,
         force: true,
         view: window,
       })

@@ -11,9 +11,9 @@
 {% block contentwrapper %}
 <div class="grid">
   <div class="grid__col-xs-12">
-    <a class="clickable-card card card--new mui--z2" href="{{ project.url_for('new_label') }}" title="New label">
+    <a class="clickable-card card card--new card--new--padding mui--z2" href="{{ project.url_for('new_label') }}" title="New label" data-action="New label" data-cy="add-labels">
       <div class="card__body mui--text-center">
-        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" title="New labelset" data-action="New labelset" data-cy="add-labels">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
+        {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span>
       </div>
     </a>
   </div>
