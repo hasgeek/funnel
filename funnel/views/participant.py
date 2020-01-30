@@ -101,6 +101,12 @@ def participant_checkin_data(participant, project, event):
                     project=project.name,
                     suuid=psuuid,
                 ),
+                'edit_url': url_for(
+                    'ParticipantView_edit',
+                    profile=project.profile.name,
+                    project=project.name,
+                    suuid=psuuid,
+                ),
             }
         )
     return data
