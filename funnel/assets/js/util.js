@@ -126,18 +126,18 @@ export const Utils = {
     });
   },
   showTimeOnCalendar() {
-    $('.calendar__weekdays')
+    $('body .calendar__weekdays')
       .find('.calendar__weekdays__dates__date--showtime:first')
       .addClass('calendar__weekdays__dates__date--display');
 
-    $('.calendar__weekdays__dates__date--showtime').hover(function() {
+    $('body .calendar__weekdays__dates__date--showtime').hover(function() {
       $(this)
         .parents('.calendar__weekdays')
         .find('.calendar__weekdays__dates__date--showtime')
         .removeClass('calendar__weekdays__dates__date--display');
     });
 
-    $('.calendar__weekdays__dates__date--showtime').mouseleave(function() {
+    $('body .calendar__weekdays__dates__date--showtime').mouseleave(function() {
       $('.calendar__weekdays')
         .find('.calendar__weekdays__dates__date--showtime:first')
         .addClass('calendar__weekdays__dates__date--display');
@@ -148,7 +148,7 @@ export const Utils = {
     // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
     const today = Date.parse(new Date().toISOString());
 
-    $('.card__calendar').each(function() {
+    $('body .card__calendar').each(function() {
       let event = $(this)
         .find('.calendar__weekdays__dates__date--active')
         .first()
