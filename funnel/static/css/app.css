@@ -1831,6 +1831,10 @@ html.touch .collapsible__body--disable {
   text-decoration: none;
 }
 
+.card--new--padding {
+  padding: 10px;
+}
+
 .card--small {
   max-width: 400px;
 }
