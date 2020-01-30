@@ -6,7 +6,6 @@ from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, route
 
 from .. import app, funnelapp, lastuser
-from ..models import SavedProject
 
 
 @route('/account')
@@ -23,11 +22,7 @@ class AccountView(ClassView):
     @lastuser.requires_login
     @render_with('account_saved.html.jinja2')
     def saved(self):
-        return {
-            'saved_projects': current_auth.user.saved_projects.order_by(
-                SavedProject.saved_at.desc()
-            )
-        }
+        return {'saved_projects': current_auth.user.saved_projects}
 
 
 @route('/account')
