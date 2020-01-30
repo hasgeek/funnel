@@ -3,7 +3,7 @@
 import base64
 import os
 
-from . import BaseMixin, BaseScopedNameMixin, db, with_roles
+from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
 from .project import Project
 from .user import User
 
@@ -119,7 +119,7 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     )
 
 
-class Participant(BaseMixin, db.Model):
+class Participant(UuidMixin, BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
