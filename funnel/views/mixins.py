@@ -11,6 +11,7 @@ from coaster.utils import require_one_of
 
 from ..models import (
     Draft,
+    Event,
     Profile,
     Project,
     ProjectRedirect,
@@ -196,6 +197,29 @@ class VenueRoomViewMixin(object):
         )
         g.profile = room.venue.project.profile
         return room
+
+
+class EventViewMixin(object):
+    model = Event
+    route_model_map = {
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'name': 'name',
+    }
+
+    def loader(self, profile, project, name):
+        event = (
+            self.model.query.join(Project, Profile)
+            .filter(
+                Profile.name == profile, Project.name == project, Event.name == name
+            )
+            .first_or_404()
+        )
+        return event
+
+    def after_loader(self):
+        g.profile = self.obj.project.profile
+        super(EventViewMixin, self).after_loader()
 
 
 class DraftViewMixin(object):
