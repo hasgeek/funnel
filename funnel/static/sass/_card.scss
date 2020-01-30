@@ -197,10 +197,6 @@
           }
         }
 
-        .calendar__weekdays__dates__date--eventweek {
-          background-color: #eff2f6;
-        }
-
         .calendar__weekdays__dates__date--active {
           .calendar__weekdays__dates__date__day {
             color: #fff;
@@ -258,7 +254,9 @@
           border-radius: 2px;
           background-color: #f6e2c5;
           color: #906b37;
-          left: 5px;
+          left: 50%;
+          transform: translateX(-50%);
+          -webkit-transform: translateX(-50%);
           margin: auto;
           padding: 4px;
           width: 135px;
@@ -281,13 +279,19 @@
           opacity: 1;
         }
 
-        .calendar__weekdays__dates__date:nth-child(5)
-          .calendar__weekdays__dates__time,
-        .calendar__weekdays__dates__date:nth-child(6)
-          .calendar__weekdays__dates__time,
+        .calendar__weekdays__dates__date:nth-child(1)
+          .calendar__weekdays__dates__time {
+          left: 0;
+          transform: translateX(0);
+          -webkit-transform: translateX(0);
+        }
+
         .calendar__weekdays__dates__date:nth-child(7)
           .calendar__weekdays__dates__time {
-          left: -89px;
+          left: unset;
+          right: 0;
+          transform: translateX(0);
+          -webkit-transform: translateX(0);
         }
 
         .calendar__weekdays__dates__date--year {
@@ -321,7 +325,6 @@
         .calendar__weekdays__dates__icon__next {
           position: relative;
           top: 7px;
-          background-color: #eff2f6;
         }
       }
     }

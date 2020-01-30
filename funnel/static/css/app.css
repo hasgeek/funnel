@@ -306,6 +306,9 @@ html.touch .collapsible__body--disable {
 .animate-btn {
   display: none;
 }
+.animate-btn .bookmarked {
+  fill: #e05f26;
+}
 
 .animate-btn--show {
   display: inline-block;
@@ -1664,13 +1667,6 @@ html.touch .collapsible__body--disable {
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date--eventweek {
-  background-color: #eff2f6;
-}
-.card__calendar
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates
   .calendar__weekdays__dates__date--active
   .calendar__weekdays__dates__date__day {
   color: #fff;
@@ -1741,7 +1737,9 @@ html.touch .collapsible__body--disable {
   border-radius: 2px;
   background-color: #f6e2c5;
   color: #906b37;
-  left: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
   margin: auto;
   padding: 4px;
   width: 135px;
@@ -1781,21 +1779,22 @@ html.touch .collapsible__body--disable {
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date:nth-child(5)
-  .calendar__weekdays__dates__time,
-.card__calendar
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates
-  .calendar__weekdays__dates__date:nth-child(6)
-  .calendar__weekdays__dates__time,
+  .calendar__weekdays__dates__date:nth-child(1)
+  .calendar__weekdays__dates__time {
+  left: 0;
+  transform: translateX(0);
+  -webkit-transform: translateX(0);
+}
 .card__calendar
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date:nth-child(7)
   .calendar__weekdays__dates__time {
-  left: -89px;
+  left: unset;
+  right: 0;
+  transform: translateX(0);
+  -webkit-transform: translateX(0);
 }
 .card__calendar
   .calendar
@@ -1840,7 +1839,6 @@ html.touch .collapsible__body--disable {
   .calendar__weekdays__dates__icon__next {
   position: relative;
   top: 7px;
-  background-color: #eff2f6;
 }
 
 .card--upcoming {
@@ -2141,7 +2139,7 @@ html.touch .collapsible__body--disable {
   margin-bottom: 15px;
 }
 .project-banner .project-venue {
-  margin-bottom: 15px;
+  margin: 10px 0;
 }
 .project-banner .propose-btn {
   background-color: #202d3c;
