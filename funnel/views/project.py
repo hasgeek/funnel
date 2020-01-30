@@ -395,13 +395,13 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         if csrf_form.validate_on_submit():
             for ticket_client in self.obj.ticket_clients:
                 if ticket_client and ticket_client.name.lower() in [
-                    u'explara',
-                    u'boxoffice',
+                    'explara',
+                    'boxoffice',
                 ]:
                     import_tickets.queue(ticket_client.id)
             flash(
                 _(
-                    u"Importing tickets from vendors...Refresh the page in about 30 seconds..."
+                    "Importing tickets from vendors...Refresh the page in about 30 seconds..."
                 ),
                 'info',
             )

@@ -24,17 +24,17 @@ class TestProjectViews(object):
                 new_project.url_for('new_label'),
                 data=MultiDict(
                     {
-                        'title': u"Label V1",
-                        'icon_emoji': u"👍",
+                        'title': "Label V1",
+                        'icon_emoji': "👍",
                         'required': False,
                         'restricted': False,
                     }
                 ),
                 follow_redirects=True,
             )
-            assert u"Manage labels" in resp_post.data.decode('utf-8')
+            assert "Manage labels" in resp_post.data.decode('utf-8')
             label_v1 = Label.query.filter_by(
-                title=u"Label V1", icon_emoji=u"👍", project=new_project
+                title="Label V1", icon_emoji="👍", project=new_project
             ).first()
             assert label_v1 is not None
 
@@ -46,17 +46,17 @@ class TestProjectViews(object):
                 new_project.url_for('new_label'),
                 data=MultiDict(
                     {
-                        'title': [u"Label V2", "Option V21", "Option V22"],
-                        'icon_emoji': [u"👍", "", ""],
+                        'title': ["Label V2", "Option V21", "Option V22"],
+                        'icon_emoji': ["👍", "", ""],
                         'required': False,
                         'restricted': False,
                     }
                 ),
                 follow_redirects=True,
             )
-            assert u"Manage labels" in resp_post.data.decode('utf-8')
+            assert "Manage labels" in resp_post.data.decode('utf-8')
             label_v2 = Label.query.filter_by(
-                title=u"Label V2", icon_emoji=u"👍", project=new_project
+                title="Label V2", icon_emoji="👍", project=new_project
             ).first()
             assert label_v2 is not None
             assert label_v2.has_options

@@ -20,7 +20,7 @@ def upgrade():
     op.add_column(
         'proposal_space',
         sa.Column(
-            'timezone', sa.Unicode(length=40), nullable=False, server_default=u'UTC'
+            'timezone', sa.Unicode(length=40), nullable=False, server_default='UTC'
         ),
     )
     op.alter_column('proposal_space', 'timezone', server_default=None)

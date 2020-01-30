@@ -82,11 +82,11 @@ class ProjectForm(forms.Form):
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()],
         choices=sorted_timezones(),
-        default=u'UTC',
+        default='UTC',
     )
     bg_image = forms.URLField(
         __("Banner image URL"),
-        description=u"Banner image for project cards on the homepage",
+        description="Banner image for project cards on the homepage",
         validators=[
             forms.validators.Optional(),
             forms.validators.ValidUrl(),
@@ -99,12 +99,12 @@ class ProjectForm(forms.Form):
             "RGB color for the project. Enter without the '#'. E.g. CCCCCC."
         ),
         validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
-        default=u"CCCCCC",
+        default="CCCCCC",
     )
     explore_url = forms.URLField(
         __("Explore tab URL"),
         description=__(
-            u"Page containing the explore tab’s contents, for the mobile app"
+            "Page containing the explore tab’s contents, for the mobile app"
         ),
         validators=[
             forms.validators.Optional(),
@@ -113,39 +113,36 @@ class ProjectForm(forms.Form):
         ],
     )
     parent_project = QuerySelectField(
-        __(u"Parent project"),
-        get_label='title',
-        allow_blank=True,
-        blank_text=__(u"None"),
+        __("Parent project"), get_label='title', allow_blank=True, blank_text=__("None")
     )
 
     admin_team = QuerySelectField(
-        u"Admin team",
-        validators=[forms.validators.DataRequired(__(u"Please select a team"))],
+        "Admin team",
+        validators=[forms.validators.DataRequired(__("Please select a team"))],
         get_label='title',
         allow_blank=False,
-        description=__(u"The administrators of this project"),
+        description=__("The administrators of this project"),
     )
     review_team = QuerySelectField(
-        u"Review team",
-        validators=[forms.validators.DataRequired(__(u"Please select a team"))],
+        "Review team",
+        validators=[forms.validators.DataRequired(__("Please select a team"))],
         get_label='title',
         allow_blank=False,
         description=__(
-            u"Reviewers can see contact details of proposers, but can’t change settings"
+            "Reviewers can see contact details of proposers, but can’t change settings"
         ),
     )
     checkin_team = QuerySelectField(
-        u"Checkin team",
-        validators=[forms.validators.DataRequired(__(u"Please select a team"))],
+        "Checkin team",
+        validators=[forms.validators.DataRequired(__("Please select a team"))],
         get_label='title',
         allow_blank=False,
-        description=__(u"Team members can check in users at an event"),
+        description=__("Team members can check in users at an event"),
     )
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
     buy_tickets_url = forms.URLField(
         __("URL to buy tickets"),
-        description=__(u"Eg: Explara, Instamojo"),
+        description=__("Eg: Explara, Instamojo"),
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
@@ -177,7 +174,7 @@ class CfpForm(forms.Form):
     instructions = forms.MarkdownField(
         __("Call for proposals"),
         validators=[forms.validators.DataRequired()],
-        default=u'',
+        default='',
     )
     cfp_start_at = forms.DateTimeField(
         __("Submissions open at"), validators=[forms.validators.Optional()], naive=False
@@ -205,7 +202,7 @@ class ProjectTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        self.transition.choices = self.edit_obj.state.transitions().items()
+        self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
 class ProjectScheduleTransitionForm(forms.Form):
@@ -214,7 +211,7 @@ class ProjectScheduleTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        self.schedule_transition.choices = (
+        self.schedule_transition.choices = list(
             self.edit_obj.schedule_state.transitions().items()
         )
 
@@ -225,7 +222,9 @@ class ProjectCfpTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        self.cfp_transition.choices = self.edit_obj.cfp_state.transitions().items()
+        self.cfp_transition.choices = list(
+            self.edit_obj.cfp_state.transitions().items()
+        )
 
 
 class SavedProjectForm(forms.Form):
@@ -260,7 +259,7 @@ class EventForm(forms.Form):
     )
     badge_template = forms.URLField(
         __("Badge template URL"),
-        description=u"URL of background image for the badge",
+        description="URL of background image for the badge",
         validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
     )
 

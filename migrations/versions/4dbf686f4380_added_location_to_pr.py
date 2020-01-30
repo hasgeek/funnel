@@ -22,7 +22,7 @@ def upgrade():
         sa.Column(
             'location',
             sa.Unicode(length=80),
-            server_default=sa.text(u"''"),
+            server_default=sa.text("''"),
             nullable=False,
         ),
     )

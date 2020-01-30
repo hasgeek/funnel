@@ -22,7 +22,7 @@ from coaster.sqlalchemy import JsonDict
 def upgrade():
     proposal_space = table('proposal_space', column('labels'))
     op.add_column(
-        u'proposal_space',
+        'proposal_space',
         sa.Column('labels', JsonDict(), server_default='{}', nullable=False),
     )
     op.execute(
@@ -35,4 +35,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_column(u'proposal_space', 'labels')
+    op.drop_column('proposal_space', 'labels')

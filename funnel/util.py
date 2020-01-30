@@ -2,7 +2,7 @@
 
 import six
 
-from urlparse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse
 
 from flask import current_app
 
@@ -65,7 +65,7 @@ def extract_twitter_handle(handle):
     ):
         return None
 
-    return unicode([part for part in parsed_handle.path.split('/') if part][0]).replace(
+    return str([part for part in parsed_handle.path.split('/') if part][0]).replace(
         '@', ''
     )
 
@@ -83,7 +83,7 @@ def split_name(fullname):
     if not fullname:
         return fullname
     name_splits = fullname.split()
-    return unicode(name_splits[0]), unicode(" ".join([s for s in name_splits[1:]]))
+    return str(name_splits[0]), str(" ".join([s for s in name_splits[1:]]))
 
 
 # TODO: Added tests for this

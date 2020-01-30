@@ -62,7 +62,7 @@ class TestProject(object):
         assert new_project.sessions.count() == 0
         assert new_project.schedule_start_at is None
         assert new_project.schedule_end_at is None
-        assert new_project.datelocation == u"Test Location"
+        assert new_project.datelocation == "Test Location"
 
         # let's add some sessions
         start_time_a = datetime(2019, 6, 12, 12, 15, 0).replace(
@@ -70,11 +70,11 @@ class TestProject(object):
         )
         end_time_a = start_time_a + timedelta(hours=3)
         new_session_a = Session(
-            name=u"test-session-a",
-            title=u"Test Session A",
+            name="test-session-a",
+            title="Test Session A",
             project=new_project,
-            description=u"Test description",
-            speaker_bio=u"Test speaker bio",
+            description="Test description",
+            speaker_bio="Test speaker bio",
             is_break=False,
             featured=False,
             start_at=start_time_a,
@@ -83,11 +83,11 @@ class TestProject(object):
         start_time_b = start_time_a + timedelta(days=2)
         end_time_b = end_time_a + timedelta(days=2)
         new_session_b = Session(
-            name=u"test-session-b",
-            title=u"Test Session B",
+            name="test-session-b",
+            title="Test Session B",
             project=new_project,
-            description=u"Test description",
-            speaker_bio=u"Test speaker bio",
+            description="Test description",
+            speaker_bio="Test speaker bio",
             is_break=False,
             featured=False,
             start_at=start_time_b,
@@ -106,7 +106,7 @@ class TestProject(object):
         # both session dates are in same month, hence the format below.
         assert (
             new_project.datelocation
-            == u"{start_at}–{end_at} {month} {year}, {location}".format(
+            == "{start_at}–{end_at} {month} {year}, {location}".format(
                 start_at=start_time_a.day,
                 end_at=end_time_b.day,
                 month=start_time_a.strftime("%b"),
@@ -132,7 +132,7 @@ class TestProject(object):
 
         assert (
             new_project.datelocation
-            == u"{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
+            == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
                 start_date=new_session_a.start_at.strftime("%d"),
                 start_month=new_session_a.start_at.strftime("%b"),
                 end_date=new_session_b.end_at.strftime("%d"),
@@ -159,7 +159,7 @@ class TestProject(object):
 
         assert (
             new_project.datelocation
-            == u"{start_date} {end_month} {year}, {location}".format(
+            == "{start_date} {end_month} {year}, {location}".format(
                 start_date=new_session_a.start_at.strftime("%d"),
                 end_month=new_session_b.end_at.strftime("%b"),
                 year=new_session_b.end_at.year,
@@ -184,7 +184,7 @@ class TestProject(object):
 
         assert (
             new_project.datelocation
-            == u"{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
+            == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
                 start_date=new_session_a.start_at.strftime("%d"),
                 start_month=new_session_a.start_at.strftime("%b"),
                 end_date=new_session_b.end_at.strftime("%d"),

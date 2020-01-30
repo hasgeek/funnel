@@ -18,10 +18,10 @@ from alembic import op
 
 def upgrade():
     op.drop_constraint(
-        u'sync_ticket_proposal_space_id_ticket_no_key', 'sync_ticket', type_='unique'
+        'sync_ticket_proposal_space_id_ticket_no_key', 'sync_ticket', type_='unique'
     )
     op.create_unique_constraint(
-        u'sync_ticket_proposal_space_id_order_no_ticket_no',
+        'sync_ticket_proposal_space_id_order_no_ticket_no',
         'sync_ticket',
         ['proposal_space_id', 'order_no', 'ticket_no'],
     )
@@ -29,12 +29,12 @@ def upgrade():
 
 def downgrade():
     op.drop_constraint(
-        u'sync_ticket_proposal_space_id_order_no_ticket_no',
+        'sync_ticket_proposal_space_id_order_no_ticket_no',
         'sync_ticket',
         type_='unique',
     )
     op.create_unique_constraint(
-        u'sync_ticket_proposal_space_id_ticket_no_key',
+        'sync_ticket_proposal_space_id_ticket_no_key',
         'sync_ticket',
         ['proposal_space_id', 'ticket_no'],
     )

@@ -18,32 +18,32 @@ import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.drop_table(u'proposal_tags')
-    op.drop_table(u'tag')
+    op.drop_table('proposal_tags')
+    op.drop_table('tag')
 
 
 def downgrade():
     op.create_table(
-        u'tag',
+        'tag',
         sa.Column(
-            u'id',
+            'id',
             sa.INTEGER(),
             server_default="nextval('tag_id_seq'::regclass)",
             nullable=False,
         ),
         sa.Column(
-            u'created_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
+            'created_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
         ),
         sa.Column(
-            u'updated_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
+            'updated_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=False
         ),
-        sa.Column(u'name', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
-        sa.Column(u'title', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
-        sa.PrimaryKeyConstraint(u'id', name=u'tag_pkey'),
+        sa.Column('name', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
+        sa.Column('title', sa.VARCHAR(length=80), autoincrement=False, nullable=False),
+        sa.PrimaryKeyConstraint('id', name='tag_pkey'),
     )
     op.create_table(
-        u'proposal_tags',
-        sa.Column(u'tag_id', sa.INTEGER(), autoincrement=False, nullable=True),
-        sa.Column(u'proposal_id', sa.INTEGER(), autoincrement=False, nullable=True),
+        'proposal_tags',
+        sa.Column('tag_id', sa.INTEGER(), autoincrement=False, nullable=True),
+        sa.Column('proposal_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.PrimaryKeyConstraint(),
     )

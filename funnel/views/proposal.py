@@ -188,7 +188,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         delcommentform = DeleteCommentForm()
 
         links = [
-            Markup(linkify(unicode(escape(l))))
+            Markup(linkify(escape(l)))
             for l in self.obj.links.replace('\r\n', '\n').split('\n')
             if l
         ]
@@ -255,11 +255,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return render_delete_sqla(
             self.obj,
             db,
-            title=_(u"Confirm delete"),
+            title=_("Confirm delete"),
             message=_(
-                u"Do you really wish to delete your proposal ‘{title}’? "
-                u"This will remove all votes and comments as well. This operation "
-                u"is permanent and cannot be undone."
+                "Do you really wish to delete your proposal ‘{title}’? "
+                "This will remove all votes and comments as well. This operation "
+                "is permanent and cannot be undone."
             ).format(title=self.obj.title),
             success=_("Your proposal has been deleted"),
             next=self.obj.project.url_for(),

@@ -95,7 +95,8 @@ def all_projects_json():
     g.profile = None
     projects = Project.fetch_sorted(legacy=False).all()  # NOQA
     return jsonp(
-        projects=map(project_data, projects), spaces=map(project_data, projects)
+        projects=list(map(project_data, projects)),
+        spaces=list(map(project_data, projects)),
     )  # FIXME: Remove when the native app switches over
 
 
@@ -104,7 +105,8 @@ def funnelapp_all_projects_json():
     g.profile = None
     projects = Project.fetch_sorted().all()  # NOQA
     return jsonp(
-        projects=map(project_data, projects), spaces=map(project_data, projects)
+        projects=list(map(project_data, projects)),
+        spaces=list(map(project_data, projects)),
     )  # FIXME: Remove when the native app switches over
 
 

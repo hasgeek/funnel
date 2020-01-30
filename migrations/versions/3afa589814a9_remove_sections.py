@@ -18,7 +18,7 @@ import sqlalchemy as sa  # NOQA
 
 
 def upgrade():
-    op.drop_constraint(u'proposal_section_id_fkey', 'proposal', type_='foreignkey')
+    op.drop_constraint('proposal_section_id_fkey', 'proposal', type_='foreignkey')
     op.drop_column('proposal', 'section_id')
     op.drop_table('section')
     op.drop_column('project', 'inherit_sections')
@@ -58,23 +58,23 @@ def downgrade():
         sa.Column('commentset_id', sa.INTEGER(), autoincrement=False, nullable=False),
         sa.Column('name', sa.VARCHAR(length=250), autoincrement=False, nullable=False),
         sa.Column('title', sa.VARCHAR(length=250), autoincrement=False, nullable=False),
-        sa.CheckConstraint(u"(name)::text <> ''::text", name=u'section_name_check'),
+        sa.CheckConstraint("(name)::text <> ''::text", name='section_name_check'),
         sa.ForeignKeyConstraint(
-            ['commentset_id'], [u'commentset.id'], name=u'section_commentset_id_fkey'
+            ['commentset_id'], ['commentset.id'], name='section_commentset_id_fkey'
         ),
         sa.ForeignKeyConstraint(
-            ['project_id'], [u'project.id'], name=u'section_project_id_fkey'
+            ['project_id'], ['project.id'], name='section_project_id_fkey'
         ),
         sa.ForeignKeyConstraint(
-            ['voteset_id'], [u'voteset.id'], name=u'section_voteset_id_fkey'
+            ['voteset_id'], ['voteset.id'], name='section_voteset_id_fkey'
         ),
-        sa.PrimaryKeyConstraint('id', name=u'section_pkey'),
-        sa.UniqueConstraint('project_id', 'name', name=u'section_project_id_name_key'),
+        sa.PrimaryKeyConstraint('id', name='section_pkey'),
+        sa.UniqueConstraint('project_id', 'name', name='section_project_id_name_key'),
     )
     op.add_column(
         'proposal',
         sa.Column('section_id', sa.INTEGER(), autoincrement=False, nullable=True),
     )
     op.create_foreign_key(
-        u'proposal_section_id_fkey', 'proposal', 'section', ['section_id'], ['id']
+        'proposal_section_id_fkey', 'proposal', 'section', ['section_id'], ['id']
     )
