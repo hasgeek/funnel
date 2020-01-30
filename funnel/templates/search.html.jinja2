@@ -62,7 +62,7 @@
                                         {{#obj.calendar_weeks_compact.weeks}}{{# { week: . } }}
                                           <div class="calendar__weekdays__dates">
                                             {{#each week.dates: date}}
-                                              <p class="calendar__weekdays__dates__date {{#if week.dates[date].count > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif week.dates[date].isoformat == obj.calendar_weeks_compact.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}} {{#if week.dates[date].day_start_at }} calendar__weekdays__dates__date--showtime{{/if}}">
+                                              <p class="calendar__weekdays__dates__date {{#if week.dates[date].count > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif week.dates[date].isoformat == obj.calendar_weeks_compact.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}} {{#if week.dates[date].day_start_at }} calendar__weekdays__dates__date--showtime{{/if}}" {{#if week.dates[date].count > 0 }} data-event-date="{{ week.dates[date].isoformat }}"{{/if}}>
                                                 <span class="calendar__weekdays__dates__date__day">{{ week.dates[date].day }}</span>
                                                 <span class="calendar__weekdays__dates__date__name">{{ obj.calendar_weeks_compact.days[date] }}</span>
                                                 {{#if week.dates[date].day_start_at }}

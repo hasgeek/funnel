@@ -166,7 +166,7 @@ const Search = {
       onrender() {
         this.initTab();
         this.observe(
-          'results',
+          'activeTab',
           function() {
             Utils.showTimeOnCalendar();
           },
