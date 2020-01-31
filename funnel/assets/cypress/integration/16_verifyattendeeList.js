@@ -13,4 +13,9 @@ describe('Verify attendee list', function() {
     cy.get('[data-cy-status="yes"]').click();
     cy.get('[data-cy="user"]').should('contain', user.username);
   });
+
+  after(function() {
+    cy.visit('/testcypressproject');
+    cy.logout();
+  });
 });
