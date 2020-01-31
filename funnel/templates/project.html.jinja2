@@ -95,7 +95,7 @@
               </p>
             {%- endif %}
             {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
-              <a href="{{ project.url_for('rsvp_list') }}">{% trans %}See responses{% endtrans %}</a>
+              <a href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{% trans %}See responses{% endtrans %}</a>
             {% endif %}
           {%- endif %}
         </div>
