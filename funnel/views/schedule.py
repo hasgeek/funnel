@@ -33,65 +33,50 @@ from .venue import room_data
 
 
 def session_data(session, with_modal_url=False, with_delete_url=False):
-    return dict(
-        list(
-            {  # list required
-                'id': session.url_id,
-                'title': session.title,
-                'start_at': (
-                    localize_timezone(session.start_at, tz=session.project.timezone)
-                    if session.scheduled
-                    else None
-                ),
-                'end_at': (
-                    localize_timezone(session.end_at, tz=session.project.timezone)
-                    if session.scheduled
-                    else None
-                ),
-                'timezone': session.project.timezone.zone,
-                'speaker': session.speaker if session.speaker else None,
-                'room_scoped_name': (
-                    session.venue_room.scoped_name if session.venue_room else None
-                ),
-                'is_break': session.is_break,
-                'url_name_suuid': session.url_name_suuid,
-                'url_name': session.url_name,
-                'proposal_id': session.proposal_id,
-                'description': session.description,
-                'speaker_bio': session.speaker_bio,
-                'url': session.url_for(_external=True),
-                'json_url': (
-                    session.proposal.url_for('json', _external=True)
-                    if session.proposal
-                    else None
-                ),
-                'proposal_url': (
-                    session.proposal.url_for(_external=True)
-                    if session.proposal
-                    else None
-                ),
-                'proposal': session.proposal.suuid if session.proposal else None,
-                'feedback_url': (
-                    session.url_for('feedback', _external=True)
-                    if session.proposal
-                    else None
-                ),
-                'room': (
-                    session.venue_room.scoped_name if session.venue_room else None
-                ),
-            }.items()
-        )
-        + list(
-            dict(
-                {'modal_url': session.url_for(with_modal_url)} if with_modal_url else {}
-            ).items()
-        )
-        + list(
-            dict(
-                {'delete_url': session.url_for('delete')} if with_delete_url else {}
-            ).items()
-        )
-    )
+    data = {
+        'id': session.url_id,
+        'title': session.title,
+        'start_at': (
+            localize_timezone(session.start_at, tz=session.project.timezone)
+            if session.scheduled
+            else None
+        ),
+        'end_at': (
+            localize_timezone(session.end_at, tz=session.project.timezone)
+            if session.scheduled
+            else None
+        ),
+        'timezone': session.project.timezone.zone,
+        'speaker': session.speaker if session.speaker else None,
+        'room_scoped_name': (
+            session.venue_room.scoped_name if session.venue_room else None
+        ),
+        'is_break': session.is_break,
+        'url_name_suuid': session.url_name_suuid,
+        'url_name': session.url_name,
+        'proposal_id': session.proposal_id,
+        'description': session.description,
+        'speaker_bio': session.speaker_bio,
+        'url': session.url_for(_external=True),
+        'json_url': (
+            session.proposal.url_for('json', _external=True)
+            if session.proposal
+            else None
+        ),
+        'proposal_url': (
+            session.proposal.url_for(_external=True) if session.proposal else None
+        ),
+        'proposal': session.proposal.suuid if session.proposal else None,
+        'feedback_url': (
+            session.url_for('feedback', _external=True) if session.proposal else None
+        ),
+        'room': (session.venue_room.scoped_name if session.venue_room else None),
+    }
+    if with_modal_url:
+        data.update({'modal_url': session.url_for(with_modal_url)})
+    if with_delete_url:
+        data.update({'delete_url': session.url_for('delete')})
+    return data
 
 
 def session_list_data(sessions, with_modal_url=False, with_delete_url=False):

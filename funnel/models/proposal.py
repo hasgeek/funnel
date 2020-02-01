@@ -532,7 +532,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
         likely never be called directly on an instance. It exists for the SQL
         comparator that will be called to load the instance.
         """
-        return self.url_id
+        return str(self.url_id)
 
     @url_id_name.comparator
     def url_id_name(cls):  # NOQA: N805

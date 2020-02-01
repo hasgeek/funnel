@@ -188,7 +188,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         delcommentform = DeleteCommentForm()
 
         links = [
-            Markup(linkify(escape(l)))
+            Markup(linkify(str(escape(l))))
             for l in self.obj.links.replace('\r\n', '\n').split('\n')
             if l
         ]
