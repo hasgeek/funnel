@@ -14,7 +14,7 @@ class TestProjectViews(object):
             resp = c.get(new_project.url_for('new_label'))
             label_form = LabelForm(parent=new_project, model=Label)
             for field in label_form:
-                assert field.name in resp.data
+                assert field.name in resp.data.decode('utf-8')
 
     def test_new_label_without_option(self, test_client, new_user, new_project):
         with test_client.session_transaction() as session:
