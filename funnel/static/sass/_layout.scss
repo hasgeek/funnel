@@ -313,6 +313,10 @@ html.touch .collapsible__body--disable {
 
 .animate-btn {
   display: none;
+
+  .bookmarked {
+    fill: #e05f26;
+  }
 }
 
 .animate-btn--show {

@@ -28,9 +28,4 @@ describe('View and update print status of badge', function() {
     cy.url().should('contain', 'badges');
     cy.get('.first-name').should('not.exist');
   });
-
-  after(function() {
-    cy.visit('/testcypressproject');
-    cy.logout();
-  });
 });

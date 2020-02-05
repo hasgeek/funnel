@@ -74,7 +74,8 @@ def project_data(project):
         'explore_url': (
             project.explore_url.url if project.explore_url is not None else ""
         ),
-        'calendar_weeks': project.calendar_weeks,
+        'calendar_weeks_full': project.calendar_weeks_full,
+        'calendar_weeks_compact': project.calendar_weeks_compact,
     }
 
 
