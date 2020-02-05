@@ -13,6 +13,8 @@ $(() => {
   Utils.smoothScroll();
   Utils.scrollTabs();
   Utils.navSearchForm();
+  Utils.truncate();
+  Utils.showTimeOnCalendar();
 
   const intersectionObserverComponents = function() {
     if (document.querySelector('#page-navbar')) {
@@ -68,27 +70,5 @@ $(() => {
       $(this).attr('data-action') || $(this).attr('title') || $(this).html();
     const target = $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
-  });
-
-  $('.js-truncate').each(function() {
-    let linesLimit = $(this).data('truncate-lines');
-    $(this).trunk8({
-      lines: linesLimit,
-    });
-  });
-
-  $('.js-truncate-readmore').each(function() {
-    let linesLimit = $(this).data('truncate-lines');
-    $(this).trunk8({
-      lines: linesLimit,
-      fill:
-        '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
-    });
-  });
-
-  $('.js-read-more').click(function() {
-    $(this)
-      .parent('.js-truncate-readmore')
-      .trunk8('revert');
   });
 });

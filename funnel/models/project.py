@@ -249,7 +249,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'tagline',
                 'absolute_url',
                 'location',
-                'calendar_weeks',
+                'calendar_weeks_full',
+                'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
             },
@@ -513,8 +514,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 redirect.project = self
         return value
 
-    @cached_property
-    def calendar_weeks(self):
+    def calendar_weeks(self, leading_weeks=True):
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
         session_dates = list(
@@ -558,7 +558,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         # if the project's week is within next 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
 
-        if self.schedule_start_at is not None:
+        if leading_weeks and self.schedule_start_at is not None:
             current_week = Week.withdate(now)
             schedule_start_week = Week.withdate(self.schedule_start_at)
 
@@ -630,6 +630,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 for day in Week.thisweek().days()
             ],
         }
+
+    @cached_property
+    def calendar_weeks_full(self):
+        return self.calendar_weeks(leading_weeks=True)
+
+    @cached_property
+    def calendar_weeks_compact(self):
+        return self.calendar_weeks(leading_weeks=False)
 
     def current_sessions(self):
         now = utcnow().astimezone(self.timezone)
