@@ -132,8 +132,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     @lastuser.requires_login
     @requires_permission('new-participant')
     def new_participant(self):
-        form = ParticipantForm()
-        form.events.query = self.obj.events
+        form = ParticipantForm(parent=self.obj)
         if form.validate_on_submit():
             participant = Participant(project=self.obj)
             form.populate_obj(participant)
