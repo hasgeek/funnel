@@ -1,6 +1,8 @@
 describe('View schedule of p roject', function() {
   const project = require('../fixtures/project.json');
   const session = require('../fixtures/session.json');
+  const proposal = require('../fixtures/proposal.json');
+  const { user } = require('../fixtures/user.js');
 
   it('View schedule', function() {
     cy.server();
@@ -34,5 +36,19 @@ describe('View schedule of p roject', function() {
     cy.get('[data-cy-session="time"]').contains(session.time);
     cy.get('[data-cy-session="time"]').contains(tomorrow);
     cy.get('[data-cy-session="room"]').should('have.text', session.venue_room);
+    cy.get('#session-modal')
+      .find('a.modal__close')
+      .click();
+
+    cy.get('.schedule__row__column--talks')
+      .contains(proposal.title)
+      .click();
+    cy.wait('@view-session');
+    cy.get('#session-modal').should('be.visible');
+    cy.get('[data-cy-session="title"]').contains(proposal.title);
+    cy.get('[data-cy-session="speaker"]').contains(user.username);
+    cy.get('[data-cy-session="time"]').contains(tomorrow);
+    cy.get('[data-cy-session="room"]').should('have.text', proposal.venue_room);
+    cy.get('[data-cy="view-proposal"]').should('have.exist');
   });
 });
