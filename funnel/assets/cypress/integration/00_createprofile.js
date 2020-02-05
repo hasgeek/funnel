@@ -2,8 +2,10 @@ describe('Login', function() {
   const { admin } = require('../fixtures/user.js');
 
   it('Create a new project', function() {
+    cy.server();
+    cy.route('POST', '**/login').as('login');
     cy.login('/new', admin.username, admin.password);
-    cy.wait(120000);
+    cy.wait('@login', { timeout: 20000 });
 
     cy.get('button')
       .contains('Next')

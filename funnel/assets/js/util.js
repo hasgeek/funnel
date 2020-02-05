@@ -102,6 +102,74 @@ export const Utils = {
       });
     }
   },
+  truncate() {
+    $('.js-truncate').each(function() {
+      let linesLimit = $(this).data('truncate-lines');
+      $(this).trunk8({
+        lines: linesLimit,
+      });
+    });
+
+    $('.js-truncate-readmore').each(function() {
+      let linesLimit = $(this).data('truncate-lines');
+      $(this).trunk8({
+        lines: linesLimit,
+        fill:
+          '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+      });
+    });
+
+    $('.js-read-more').click(function() {
+      $(this)
+        .parent('.js-truncate-readmore')
+        .trunk8('revert');
+    });
+  },
+  showTimeOnCalendar() {
+    $('body .calendar__weekdays')
+      .find('.calendar__weekdays__dates__date--showtime:first')
+      .addClass('calendar__weekdays__dates__date--display');
+
+    $('body .calendar__weekdays__dates__date--showtime').hover(function() {
+      $(this)
+        .parents('.calendar__weekdays')
+        .find('.calendar__weekdays__dates__date--showtime')
+        .removeClass('calendar__weekdays__dates__date--display');
+    });
+
+    $('body .calendar__weekdays__dates__date--showtime').mouseleave(function() {
+      $('.calendar__weekdays')
+        .find('.calendar__weekdays__dates__date--showtime:first')
+        .addClass('calendar__weekdays__dates__date--display');
+    });
+
+    const singleDay = 24 * 60 * 60 * 1000;
+    // toISOString() returns date in UTC
+    // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
+    const today = Date.parse(new Date().toISOString());
+
+    $('body .card__calendar').each(function() {
+      let event = $(this)
+        .find('.calendar__weekdays__dates__date--active')
+        .first()
+        .data('event-date');
+      // Event date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
+      let eventDay = Date.parse(event);
+      // Find the difference between event and today's date in UTC
+      let counting = Math.round((eventDay - today) / singleDay);
+      // Show number of days on the widget only if it is less than 32 days
+      if (counting > 0 && counting < 32) {
+        let daysRemainingTxt = `In ${counting} days`;
+        $(this)
+          .find('.calendar__counting')
+          .text(daysRemainingTxt);
+      } else if (counting === 0) {
+        $(this)
+          .find('.calendar__counting')
+          .text('Today');
+      }
+    });
+  },
 };
 
 export const ScrollActiveMenu = {
@@ -222,6 +290,7 @@ export const SaveProject = function({ formId, postUrl, config = {} }) {
           $(this).addClass('animate-btn--show');
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
+            window.toastr.success('Project added to Account > My saves');
           }
         }
       });
