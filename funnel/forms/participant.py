@@ -55,7 +55,8 @@ class ParticipantForm(forms.Form):
     )
 
     def set_queries(self):
-        self.events.query = self.edit_parent.events
+        if self.edit_parent is not None:
+            self.events.query = self.edit_parent.events
 
 
 class ParticipantBadgeForm(forms.Form):
