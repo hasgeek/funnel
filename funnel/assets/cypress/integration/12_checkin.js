@@ -6,7 +6,7 @@ describe('Setup event for checkin', function() {
 
   it('Setup event for checkin', function() {
     cy.server();
-    cy.route('POST', '**/participants/checkin?*').as('checkin');
+    cy.route('POST', '**/participants/checkin').as('checkin');
     cy.route('**/participants/json').as('participant-list');
 
     cy.relogin('/testcypressproject');
