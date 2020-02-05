@@ -263,7 +263,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     @render_with('badge.html.jinja2')
     @requires_permission('checkin_event')
     def badges(self):
-        badge_printed = getbool(request.args.get('badge_printed'))
+        badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
             Participant.query.join(Attendee)
             .filter(Attendee.event_id == self.obj.id)
@@ -279,11 +279,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     @render_with('label_badge.html.jinja2')
     @requires_permission('checkin_event')
     def label_badges(self):
-        badge_printed = (
-            getbool(request.args.get('badge_printed'))
-            if 'badge_printed' in request.args
-            else False
-        )
+        badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
             Participant.query.join(Attendee)
             .filter(Attendee.event_id == self.obj.id)
