@@ -18,7 +18,7 @@
     </ul>
 
     {%- for value, status in statuses.items() %}
-      <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ status.name }}">
+      <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ status.name }}" data-cy-status="{{ status.name }}">
         <table class="mui-table mui-table--bordered">
           <thead>
             <tr>
@@ -29,7 +29,7 @@
           <tbody>
             {%- for rsvp in project.rsvps_with(value) %}
               <tr>
-                <td>{{rsvp.user.fullname}}</td>
+                <td data-cy="user">{{rsvp.user.fullname}}</td>
                 <td>{{rsvp.user.email}}</td>
               </tr>
             {%- else %}
