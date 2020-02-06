@@ -95,4 +95,4 @@ def make_qrcode(data):
     img.save(stream)
     qrcode_svg = stream.getvalue()
     stream.close()
-    return qrcode_svg
+    return qrcode_svg.decode('utf-8')
