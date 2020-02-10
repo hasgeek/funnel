@@ -7,7 +7,6 @@ Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.2
 pytz==2019.3
 icalendar==4.0.3
-git+https://github.com/hasgeek/flask-babel2.git
 git+https://github.com/hasgeek/coaster.git
 git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
