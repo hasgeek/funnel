@@ -13,7 +13,7 @@ class LabelForm(forms.Form):
     title = forms.StringField(
         __("Label"),
         validators=[
-            forms.validators.DataRequired(__(u"This can’t be empty")),
+            forms.validators.DataRequired(__("This can’t be empty")),
             forms.validators.Length(max=250),
         ],
         filters=[forms.filters.strip()],
@@ -42,7 +42,7 @@ class LabelOptionForm(forms.Form):
     title = forms.StringField(
         __("Option"),
         validators=[
-            forms.validators.DataRequired(__(u"This can’t be empty")),
+            forms.validators.DataRequired(__("This can’t be empty")),
             forms.validators.Length(max=250),
         ],
         filters=[forms.filters.strip()],

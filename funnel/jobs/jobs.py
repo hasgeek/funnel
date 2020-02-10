@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 import requests
 
@@ -16,12 +16,12 @@ def import_tickets(ticket_client_id):
     with funnelapp.app_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
         if ticket_client:
-            if ticket_client.name.lower() == u'explara':
+            if ticket_client.name.lower() == 'explara':
                 ticket_list = ExplaraAPI(
                     access_token=ticket_client.client_access_token
                 ).get_tickets(ticket_client.client_eventid)
                 ticket_client.import_from_list(ticket_list)
-            elif ticket_client.name.lower() == u'boxoffice':
+            elif ticket_client.name.lower() == 'boxoffice':
                 ticket_list = Boxoffice(
                     access_token=ticket_client.client_access_token
                 ).get_tickets(ticket_client.client_eventid)

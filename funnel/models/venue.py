@@ -16,13 +16,13 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = db.relationship(Project)
     parent = db.synonym('project')
-    description = MarkdownColumn('description', default=u'', nullable=False)
-    address1 = db.Column(db.Unicode(160), default=u'', nullable=False)
-    address2 = db.Column(db.Unicode(160), default=u'', nullable=False)
-    city = db.Column(db.Unicode(30), default=u'', nullable=False)
-    state = db.Column(db.Unicode(30), default=u'', nullable=False)
-    postcode = db.Column(db.Unicode(20), default=u'', nullable=False)
-    country = db.Column(db.Unicode(2), default=u'', nullable=False)
+    description = MarkdownColumn('description', default='', nullable=False)
+    address1 = db.Column(db.Unicode(160), default='', nullable=False)
+    address2 = db.Column(db.Unicode(160), default='', nullable=False)
+    city = db.Column(db.Unicode(30), default='', nullable=False)
+    state = db.Column(db.Unicode(30), default='', nullable=False)
+    postcode = db.Column(db.Unicode(20), default='', nullable=False)
+    country = db.Column(db.Unicode(2), default='', nullable=False)
 
     rooms = db.relationship(
         'VenueRoom',
@@ -78,8 +78,8 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     venue_id = db.Column(None, db.ForeignKey('venue.id'), nullable=False)
     venue = db.relationship(Venue)
     parent = db.synonym('venue')
-    description = MarkdownColumn('description', default=u'', nullable=False)
-    bgcolor = db.Column(db.Unicode(6), nullable=False, default=u'229922')
+    description = MarkdownColumn('description', default='', nullable=False)
+    bgcolor = db.Column(db.Unicode(6), nullable=False, default='229922')
 
     seq = db.Column(db.Integer, nullable=False)
 
@@ -116,7 +116,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def scoped_name(self):
-        return u'{parent}/{name}'.format(parent=self.parent.name, name=self.name)
+        return '{parent}/{name}'.format(parent=self.parent.name, name=self.name)
 
 
 add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')

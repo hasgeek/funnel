@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
 
 import uuid
 
@@ -19,9 +18,9 @@ def user_test():
 
 TEST_DATA = {
     'users': {
-        'testuser': {'username': u"testuser", 'email': u"testuser@example.com"},
-        'testuser2': {'username': u"testuser2", 'email': u"testuser2@example.com"},
-        'testuser3': {'username': u"testuser3", 'email': u"testuser3@example.com"},
+        'testuser': {'username': "testuser", 'email': "testuser@example.com"},
+        'testuser2': {'username': "testuser2", 'email': "testuser2@example.com"},
+        'testuser3': {'username': "testuser3", 'email': "testuser3@example.com"},
     }
 }
 # Scope: session
@@ -83,7 +82,7 @@ def new_user3(test_db):
 
 @pytest.fixture(scope='session')
 def new_team(test_db, new_user):
-    team = Team(title=u"Owners", owners=True, org_uuid=uuid.uuid4())
+    team = Team(title="Owners", owners=True, org_uuid=uuid.uuid4())
     test_db.session.add(team)
     team.users.append(new_user)
     test_db.session.commit()
@@ -93,7 +92,7 @@ def new_team(test_db, new_user):
 @pytest.fixture(scope='session')
 def new_profile(test_db, new_team):
     profile = Profile(
-        title=u"Test Profile", description=u"Test Description", admin_team=new_team
+        title="Test Profile", description="Test Description", admin_team=new_team
     )
     test_db.session.add(profile)
     test_db.session.commit()
@@ -105,10 +104,10 @@ def new_project(test_db, new_profile, new_user, new_team):
     project = Project(
         profile=new_profile,
         user=new_user,
-        title=u"Test Project",
-        tagline=u"Test tagline",
-        description=u"Test description",
-        location=u"Test Location",
+        title="Test Project",
+        tagline="Test tagline",
+        description="Test description",
+        location="Test Location",
         admin_team=new_team,
         review_team=new_team,
         checkin_team=new_team,
@@ -121,15 +120,15 @@ def new_project(test_db, new_profile, new_user, new_team):
 @pytest.fixture(scope='class')
 def new_main_label(test_db, new_project):
     main_label_a = Label(
-        title=u"Parent Label A", project=new_project, description=u"A test parent label"
+        title="Parent Label A", project=new_project, description="A test parent label"
     )
     new_project.labels.append(main_label_a)
     test_db.session.add(main_label_a)
 
-    label_a1 = Label(title=u"Label A1", icon_emoji=u"👍", project=new_project)
+    label_a1 = Label(title="Label A1", icon_emoji="👍", project=new_project)
     test_db.session.add(label_a1)
 
-    label_a2 = Label(title=u"Label A2", project=new_project)
+    label_a2 = Label(title="Label A2", project=new_project)
     test_db.session.add(label_a2)
 
     main_label_a.options.append(label_a1)
@@ -144,15 +143,15 @@ def new_main_label(test_db, new_project):
 @pytest.fixture(scope='class')
 def new_main_label_unrestricted(test_db, new_project):
     main_label_b = Label(
-        title=u"Parent Label B", project=new_project, description=u"A test parent label"
+        title="Parent Label B", project=new_project, description="A test parent label"
     )
     new_project.labels.append(main_label_b)
     test_db.session.add(main_label_b)
 
-    label_b1 = Label(title=u"Label B1", icon_emoji=u"👍", project=new_project)
+    label_b1 = Label(title="Label B1", icon_emoji="👍", project=new_project)
     test_db.session.add(label_b1)
 
-    label_b2 = Label(title=u"Label B2", project=new_project)
+    label_b2 = Label(title="Label B2", project=new_project)
     test_db.session.add(label_b2)
 
     main_label_b.options.append(label_b1)
@@ -166,7 +165,7 @@ def new_main_label_unrestricted(test_db, new_project):
 
 @pytest.fixture(scope='class')
 def new_label(test_db, new_project):
-    label_b = Label(title=u"Label B", icon_emoji=u"🔟", project=new_project)
+    label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.labels.append(label_b)
     test_db.session.add(label_b)
     test_db.session.commit()
@@ -179,9 +178,9 @@ def new_proposal(test_db, new_user, new_project):
         user=new_user,
         speaker=new_user,
         project=new_project,
-        title=u"Test Proposal",
-        outline=u"Test proposal description",
-        location=u"Bangalore",
+        title="Test Proposal",
+        outline="Test proposal description",
+        location="Bangalore",
     )
     test_db.session.add(proposal)
     test_db.session.commit()

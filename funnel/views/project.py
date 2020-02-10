@@ -2,6 +2,8 @@
 
 import six
 
+import csv
+
 from flask import (
     Response,
     abort,
@@ -11,8 +13,6 @@ from flask import (
     render_template,
     request,
 )
-
-import unicodecsv
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -179,19 +179,21 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             .order_by(db.desc('created_at'))
             .all()
         )
-        outfile = six.BytesIO()
-        out = unicodecsv.writer(outfile, encoding='utf-8')
+        outfile = six.StringIO()
+        out = csv.writer(outfile)
         out.writerow(proposal_headers + ['status'])
         for proposal in proposals:
             out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
         return Response(
-            six.text_type(outfile.getvalue(), 'utf-8'),
+            outfile.getvalue(),
             content_type='text/csv',
             headers=[
                 (
                     'Content-Disposition',
-                    'attachment;filename="{project}.csv"'.format(project=self.obj.name),
+                    'attachment;filename="{profile}-{project}.csv"'.format(
+                        profile=self.obj.profile.name, project=self.obj.name
+                    ),
                 )
             ],
         )
@@ -396,13 +398,13 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         if csrf_form.validate_on_submit():
             for ticket_client in self.obj.ticket_clients:
                 if ticket_client and ticket_client.name.lower() in [
-                    u'explara',
-                    u'boxoffice',
+                    'explara',
+                    'boxoffice',
                 ]:
                     import_tickets.queue(ticket_client.id)
             flash(
                 _(
-                    u"Importing tickets from vendors...Refresh the page in about 30 seconds..."
+                    "Importing tickets from vendors...Refresh the page in about 30 seconds..."
                 ),
                 'info',
             )

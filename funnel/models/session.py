@@ -27,8 +27,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         backref=db.backref('sessions', cascade='all, delete-orphan', lazy='dynamic'),
     )
     parent = db.synonym('project')
-    description = MarkdownColumn('description', default=u'', nullable=False)
-    speaker_bio = MarkdownColumn('speaker_bio', default=u'', nullable=False)
+    description = MarkdownColumn('description', default='', nullable=False)
+    speaker_bio = MarkdownColumn('speaker_bio', default='', nullable=False)
     proposal_id = db.Column(
         None, db.ForeignKey('proposal.id'), nullable=True, unique=True
     )

@@ -39,7 +39,7 @@ def participant_badge_data(participants, project):
                 'twitter': format_twitter_handle(participant.twitter),
                 'company': participant.company,
                 'qrcode_content': make_qrcode(
-                    u"{puk}{key}".format(puk=participant.puk, key=participant.key)
+                    "{puk}{key}".format(puk=participant.puk, key=participant.key)
                 ),
                 'order_no': ticket.order_no if ticket else '',
             }
@@ -114,10 +114,10 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_(u"This participant already exists."), 'info')
+                flash(_("This participant already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"New Participant"), submit=_(u"Add participant")
+            form=form, title=_("New Participant"), submit=_("Add participant")
         )
 
 
@@ -151,11 +151,9 @@ def participant_edit(profile, project, participant):
     if form.validate_on_submit():
         form.populate_obj(participant)
         db.session.commit()
-        flash(_(u"Your changes have been saved"), 'info')
+        flash(_("Your changes have been saved"), 'info')
         return redirect(project.url_for('admin'), code=303)
-    return render_form(
-        form=form, title=_(u"Edit Participant"), submit=_(u"Save changes")
-    )
+    return render_form(form=form, title=_("Edit Participant"), submit=_("Save changes"))
 
 
 @app.route('/<profile>/<project>/participant/<participant_id>/badge')

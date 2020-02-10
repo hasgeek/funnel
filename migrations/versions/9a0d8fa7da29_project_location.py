@@ -35,16 +35,16 @@ def upgrade():
         unique=False,
     )
     op.add_column(
-        u'project', sa.Column('location', sa.Unicode(length=50), nullable=True)
+        'project', sa.Column('location', sa.Unicode(length=50), nullable=True)
     )
     op.add_column(
-        u'project',
+        'project',
         sa.Column('parsed_location', JsonDict(), server_default='{}', nullable=False),
     )
 
 
 def downgrade():
-    op.drop_column(u'project', 'parsed_location')
-    op.drop_column(u'project', 'location')
+    op.drop_column('project', 'parsed_location')
+    op.drop_column('project', 'location')
     op.drop_index(op.f('ix_project_location_geonameid'), table_name='project_location')
     op.drop_table('project_location')

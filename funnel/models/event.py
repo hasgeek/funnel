@@ -18,7 +18,7 @@ __all__ = [
 
 
 def make_key():
-    return unicode(base64.urlsafe_b64encode(os.urandom(128)))
+    return base64.urlsafe_b64encode(os.urandom(128)).decode('utf-8')
 
 
 def make_public_key():
@@ -317,13 +317,13 @@ class TicketClient(BaseMixin, db.Model):
             )
             if ticket and (
                 ticket.participant is not participant
-                or ticket_dict.get('status') == u'cancelled'
+                or ticket_dict.get('status') == 'cancelled'
             ):
                 # Ensure that the participant of a transferred or cancelled ticket does not have access to
                 # this ticket's events
                 ticket.participant.remove_events(ticket_type.events)
 
-            if ticket_dict.get('status') == u'confirmed':
+            if ticket_dict.get('status') == 'confirmed':
                 ticket = SyncTicket.upsert(
                     self,
                     ticket_dict.get('order_no'),
