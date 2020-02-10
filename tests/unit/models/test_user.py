@@ -7,5 +7,5 @@ class TestUser(object):
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
             rv = c.get('/usertest')
-            assert rv.data == new_user.username
+            assert rv.data.decode('utf-8') == new_user.username
             assert new_profile.current_roles.admin

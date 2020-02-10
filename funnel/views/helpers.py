@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from flask import request
 from flask_mail import Message
@@ -24,9 +24,9 @@ def localize_timestamp(timestamp, from_tz=utc, to_tz=utc):
 
 def localize_date(date, from_tz=utc, to_tz=utc):
     if from_tz and to_tz:
-        if isinstance(from_tz, basestring):
+        if isinstance(from_tz, str):
             from_tz = pytz_timezone(from_tz)
-        if isinstance(to_tz, basestring):
+        if isinstance(to_tz, str):
             to_tz = pytz_timezone(to_tz)
         if date.tzinfo is None:
             date = from_tz.localize(date)
@@ -57,9 +57,9 @@ def mask_email(email):
     u'not-em***'
     """
     if '@' not in email:
-        return u'{e}***'.format(e=email[:-3])
+        return '{e}***'.format(e=email[:-3])
     username, domain = email.split('@')
-    return u'{u}***@{d}'.format(u=username[:-3], d=domain)
+    return '{u}***@{d}'.format(u=username[:-3], d=domain)
 
 
 def clear_old_session(response):

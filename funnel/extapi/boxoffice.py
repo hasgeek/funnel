@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from flask import current_app
 
@@ -35,7 +35,7 @@ class Boxoffice(object):
         for order in self.get_orders(ic):
             for line_item in order.get('line_items'):
                 if line_item.get('assignee'):
-                    status = unicode(line_item.get('line_item_status'))
+                    status = line_item.get('line_item_status')
                     tickets.append(
                         {
                             'fullname': line_item.get('assignee').get('fullname', ''),
@@ -47,11 +47,11 @@ class Boxoffice(object):
                             'company': line_item.get('assignee').get('company'),
                             'city': line_item.get('assignee').get('city', ''),
                             'job_title': line_item.get('assignee').get('jobtitle', ''),
-                            'ticket_no': unicode(line_item.get('line_item_seq')),
+                            'ticket_no': line_item.get('line_item_seq'),
                             'ticket_type': line_item.get('item', {}).get('title', '')[
                                 :80
                             ],
-                            'order_no': unicode(order.get('invoice_no')),
+                            'order_no': order.get('invoice_no'),
                             'status': status,
                         }
                     )

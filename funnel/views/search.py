@@ -18,7 +18,7 @@ from ..models import Comment, Profile, Project, Proposal, Session, User, db
 # PostgreSQL ts_headline markers, picked for low probability of conflict with db content
 pg_startsel = '<b>'
 pg_stopsel = '</b>'
-pg_delimiter = u' … '
+pg_delimiter = ' … '
 
 # TODO: extend SearchModel to include profile_query_factory and project_query_factory
 # for scoped search

@@ -24,22 +24,22 @@ def upgrade():
     connection = op.get_bind()
     proposal_space = table(
         'proposal_space',
-        column(u'id', sa.INTEGER()),
-        column(u'description_text', sa.TEXT()),
-        column(u'description_html', sa.TEXT()),
-        column(u'content', JsonDict()),
+        column('id', sa.INTEGER()),
+        column('description_text', sa.TEXT()),
+        column('description_html', sa.TEXT()),
+        column('content', JsonDict()),
     )
 
     results = connection.execute(proposal_space.select())
     for space in results:
         if space['content']:
             for (section, title) in [
-                ('format', u"Format"),
-                ('criteria', u"Criteria for proposals"),
-                ('panel', u"Editorial panel"),
-                ('dates', u"Important dates"),
-                ('open_source', u"Commitment to Open Source"),
-                ('themes', u"Theme"),
+                ('format', "Format"),
+                ('criteria', "Criteria for proposals"),
+                ('panel', "Editorial panel"),
+                ('dates', "Important dates"),
+                ('open_source', "Commitment to Open Source"),
+                ('themes', "Theme"),
             ]:
                 modified = False
                 text = space['description_text']
@@ -48,7 +48,7 @@ def upgrade():
                     text = (
                         text
                         + '\r\n\r\n'
-                        + u"## "
+                        + "## "
                         + title
                         + '\r\n\r\n'
                         + space['content'][section]

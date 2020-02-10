@@ -69,12 +69,12 @@ def downgrade():
     )
     op.alter_column('contact_exchange', 'project_id', nullable=False)
     op.create_foreign_key(
-        u'contact_exchange_project_id_fkey',
+        'contact_exchange_project_id_fkey',
         'contact_exchange',
         'project',
         ['project_id'],
         ['id'],
-        ondelete=u'CASCADE',
+        ondelete='CASCADE',
     )
     # Recreate primary key to include project id
     op.drop_constraint('contact_exchange_pkey', 'contact_exchange', type_='primary')

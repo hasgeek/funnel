@@ -74,7 +74,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             if not self.obj.primary_venue:
                 self.obj.primary_venue = venue
             db.session.commit()
-            flash(_(u"You have added a new venue to the event"), 'success')
+            flash(_("You have added a new venue to the event"), 'success')
             return render_redirect(self.obj.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -150,7 +150,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             self.obj.make_name(reserved=RESERVED_VENUE)
             db.session.commit()
-            flash(_(u"Saved changes to this venue"), 'success')
+            flash(_("Saved changes to this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -165,18 +165,18 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
     @requires_permission('delete-venue')
     def delete(self):
         if self.obj == self.obj.project.primary_venue:
-            flash(_(u"You can not delete the primary venue"), 'danger')
+            flash(_("You can not delete the primary venue"), 'danger')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
         return render_delete_sqla(
             self.obj,
             db,
-            title=u"Confirm delete",
+            title="Confirm delete",
             message=_(
-                u"Delete venue “{title}”? This cannot be undone".format(
+                "Delete venue “{title}”? This cannot be undone".format(
                     title=self.obj.title
                 )
             ),
-            success=_(u"You have deleted venue “{title}”".format(title=self.obj.title)),
+            success=_("You have deleted venue “{title}”".format(title=self.obj.title)),
             next=self.obj.project.url_for('venues'),
         )
 
@@ -191,7 +191,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             room.make_name(reserved=RESERVED_VENUEROOM)
             self.obj.rooms.append(room)
             db.session.commit()
-            flash(_(u"You have added a room at this venue"), 'success')
+            flash(_("You have added a room at this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -224,7 +224,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             self.obj.make_name(reserved=RESERVED_VENUEROOM)
             db.session.commit()
-            flash(_(u"Saved changes to this room"), 'success')
+            flash(_("Saved changes to this room"), 'success')
             return render_redirect(self.obj.venue.project.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -241,13 +241,13 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         return render_delete_sqla(
             self.obj,
             db,
-            title=u"Confirm delete",
+            title="Confirm delete",
             message=_(
-                u"Delete room “{title}”? This cannot be undone".format(
+                "Delete room “{title}”? This cannot be undone".format(
                     title=self.obj.title
                 )
             ),
-            success=_(u"You have deleted room “{title}”".format(title=self.obj.title)),
+            success=_("You have deleted room “{title}”".format(title=self.obj.title)),
             next=self.obj.venue.project.url_for('venues'),
         )
 

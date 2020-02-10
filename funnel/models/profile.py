@@ -18,7 +18,7 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
     )
     admin_team = db.relationship(Team)
 
-    description = MarkdownColumn('description', default=u'', nullable=False)
+    description = MarkdownColumn('description', default='', nullable=False)
     logo_url = db.Column(UrlType, nullable=True)
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)

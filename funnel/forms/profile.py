@@ -11,9 +11,7 @@ class NewProfileForm(forms.Form):
     profile = forms.RadioField(
         __("Organization"),
         validators=[forms.validators.DataRequired("Select an organization")],
-        description=__(
-            u"Select the organization you’d like to create a Talkfunnel for"
-        ),
+        description=__("Select the organization you’d like to create a Talkfunnel for"),
     )
 
 
@@ -24,7 +22,7 @@ class EditProfileForm(forms.Form):
         __("Welcome message"),
         validators=[
             forms.validators.DataRequired(
-                _(u"Please write a message for the landing page")
+                _("Please write a message for the landing page")
             )
         ],
         description=__("This welcome message will be shown on the landing page."),
@@ -39,8 +37,8 @@ class EditProfileForm(forms.Form):
         ],
     )
     admin_team = QuerySelectField(
-        u"Admin Team",
-        validators=[forms.validators.DataRequired(_(u"Please select a team"))],
+        "Admin Team",
+        validators=[forms.validators.DataRequired(_("Please select a team"))],
         get_label='title',
         allow_blank=True,
         blank_text=__("Choose a team..."),
