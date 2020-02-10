@@ -39,25 +39,25 @@ __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 class PROJECT_STATE(LabeledEnum):  # NOQA: N801
-    DRAFT = (0, 'draft', __(u"Draft"))
-    PUBLISHED = (1, 'published', __(u"Published"))
-    WITHDRAWN = (2, 'withdrawn', __(u"Withdrawn"))
+    DRAFT = (0, 'draft', __("Draft"))
+    PUBLISHED = (1, 'published', __("Published"))
+    WITHDRAWN = (2, 'withdrawn', __("Withdrawn"))
     DELETED = (3, 'deleted', __("Deleted"))
     DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):  # NOQA: N801
-    NONE = (0, 'none', __(u"None"))
-    PUBLIC = (1, 'public', __(u"Public"))
-    CLOSED = (2, 'closed', __(u"Closed"))
+    NONE = (0, 'none', __("None"))
+    PUBLIC = (1, 'public', __("Public"))
+    CLOSED = (2, 'closed', __("Closed"))
     OPENABLE = {NONE, CLOSED}
     EXISTS = {PUBLIC, CLOSED}
 
 
 class SCHEDULE_STATE(LabeledEnum):  # NOQA: N801
-    DRAFT = (0, 'draft', __(u"Draft"))
-    PUBLISHED = (1, 'published', __(u"Published"))
+    DRAFT = (0, 'draft', __("Draft"))
+    PUBLISHED = (1, 'published', __("Published"))
 
 
 # --- Models ------------------------------------------------------------------
@@ -80,10 +80,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
-    description = MarkdownColumn('description', default=u'', nullable=False)
-    instructions = MarkdownColumn('instructions', default=u'', nullable=True)
+    description = MarkdownColumn('description', default='', nullable=False)
+    instructions = MarkdownColumn('instructions', default='', nullable=True)
 
-    location = db.Column(db.Unicode(50), default=u'', nullable=True)
+    location = db.Column(db.Unicode(50), default='', nullable=True)
     parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
 
     website = db.Column(UrlType, nullable=True)
@@ -300,17 +300,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
         Only ``schedule_start_at`` format changes.
         """
-        daterange = u""
+        daterange = ""
         if self.schedule_start_at is not None and self.schedule_end_at is not None:
             schedule_start_at_date = self.schedule_start_at.astimezone(
                 self.timezone
             ).date()
             schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
-            daterange_format = u"{start_date}–{end_date} {year}"
+            daterange_format = "{start_date}–{end_date} {year}"
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
                 strf_date = ""
-                daterange_format = u"{end_date} {year}"
+                daterange_format = "{end_date} {year}"
             elif schedule_start_at_date.year != schedule_end_at_date.year:
                 # if the start date and end dates are in different years,
                 strf_date = "%d %b %Y"
@@ -325,7 +325,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 end_date=schedule_end_at_date.strftime("%d %b"),
                 year=schedule_end_at_date.year,
             )
-        return u', '.join(filter(None, [daterange, self.location]))
+        return ', '.join([_f for _f in [daterange, self.location] if _f])
 
     schedule_state.add_conditional_state(
         'PAST',
@@ -499,7 +499,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @db.validates('name')
     def _validate_name(self, key, value):
-        value = unicode(value).strip() if value is not None else None
+        value = value.strip() if value is not None else None
         if not value or not valid_username(value):
             raise ValueError(value)
 

@@ -32,7 +32,7 @@ class PROPOSALSTATUS:  # NOQA
 def upgrade():
     connection = op.get_bind()
     proposal = table(
-        'proposal', column(u'confirmed', sa.BOOLEAN()), column(u'status', sa.Integer)
+        'proposal', column('confirmed', sa.BOOLEAN()), column('status', sa.Integer)
     )
     connection.execute(
         proposal.update()
@@ -44,17 +44,17 @@ def upgrade():
         .where(proposal.c.confirmed == False)
         .values({proposal.c.status: PROPOSALSTATUS.SUBMITTED})
     )  # NOQA
-    op.drop_column('proposal', u'confirmed')
+    op.drop_column('proposal', 'confirmed')
 
 
 def downgrade():
     connection = op.get_bind()
     proposal = table(
-        'proposal', column(u'confirmed', sa.BOOLEAN()), column(u'status', sa.Integer)
+        'proposal', column('confirmed', sa.BOOLEAN()), column('status', sa.Integer)
     )
     op.add_column(
         'proposal',
-        sa.Column(u'confirmed', sa.BOOLEAN(), server_default="False", nullable=False),
+        sa.Column('confirmed', sa.BOOLEAN(), server_default="False", nullable=False),
     )
     connection.execute(
         proposal.update()
@@ -62,4 +62,4 @@ def downgrade():
         .values({proposal.c.confirmed: True})
     )
     connection.execute(proposal.update().values({proposal.c.status: 0}))
-    op.alter_column('proposal', u'confirmed', server_default=None)
+    op.alter_column('proposal', 'confirmed', server_default=None)

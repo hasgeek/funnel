@@ -129,8 +129,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(UrlType, nullable=True)
-    preview_video = db.Column(UrlType, default=u'', nullable=True)
-    links = db.Column(db.Text, default=u'', nullable=True)
+    preview_video = db.Column(UrlType, default='', nullable=True)
+    links = db.Column(db.Text, default='', nullable=True)
 
     _state = db.Column(
         'state',
@@ -236,7 +236,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
 
     def __repr__(self):
-        return u'<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
+        return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
             proposal=self.title, project=self.project.title, user=self.owner.fullname
         )
 
@@ -532,7 +532,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
         likely never be called directly on an instance. It exists for the SQL
         comparator that will be called to load the instance.
         """
-        return unicode(self.url_id)
+        return str(self.url_id)
 
     @url_id_name.comparator
     def url_id_name(cls):  # NOQA: N805

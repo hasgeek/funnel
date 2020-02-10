@@ -39,23 +39,23 @@ def upgrade():
     )
 
     op.drop_constraint(
-        u'contact_exchange_user_id_proposal_space_id_participant_id_pk',
+        'contact_exchange_user_id_proposal_space_id_participant_id_pk',
         'contact_exchange',
         type_='unique',
     )
     op.create_primary_key(
-        u'contact_exchange_user_id_proposal_space_id_participant_id_key',
+        'contact_exchange_user_id_proposal_space_id_participant_id_key',
         'contact_exchange',
         ['user_id', 'proposal_space_id', 'participant_id'],
     )
 
     op.drop_constraint(
-        u'sync_ticket_proposal_space_id_order_no_ticket_no',
+        'sync_ticket_proposal_space_id_order_no_ticket_no',
         'sync_ticket',
         type_='unique',
     )
     op.create_unique_constraint(
-        u'sync_ticket_proposal_space_id_order_no_ticket_no_key',
+        'sync_ticket_proposal_space_id_order_no_ticket_no_key',
         'sync_ticket',
         ['proposal_space_id', 'order_no', 'ticket_no'],
     )
@@ -86,23 +86,23 @@ def downgrade():
     )
 
     op.drop_constraint(
-        u'contact_exchange_user_id_proposal_space_id_participant_id_key',
+        'contact_exchange_user_id_proposal_space_id_participant_id_key',
         'contact_exchange',
         type_='unique',
     )
     op.create_primary_key(
-        u'contact_exchange_user_id_proposal_space_id_participant_id_pk',
+        'contact_exchange_user_id_proposal_space_id_participant_id_pk',
         'contact_exchange',
         ['user_id', 'proposal_space_id', 'participant_id'],
     )
 
     op.drop_constraint(
-        u'sync_ticket_proposal_space_id_order_no_ticket_no_key',
+        'sync_ticket_proposal_space_id_order_no_ticket_no_key',
         'sync_ticket',
         type_='unique',
     )
     op.create_unique_constraint(
-        u'sync_ticket_proposal_space_id_order_no_ticket_no',
+        'sync_ticket_proposal_space_id_order_no_ticket_no',
         'sync_ticket',
         ['proposal_space_id', 'order_no', 'ticket_no'],
     )

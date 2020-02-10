@@ -36,11 +36,11 @@ def profile_new():
             new_profiles.append((org['userid'], org['title']))
     if not new_profiles:
         return render_message(
-            title=_(u"No organizations found"),
+            title=_("No organizations found"),
             message=Markup(
                 _(
-                    u"You do not have any organizations that do not already have a Talkfunnel. "
-                    u'Would you like to <a href="{link}">create a new organization</a>?'
+                    "You do not have any organizations that do not already have a Talkfunnel. "
+                    'Would you like to <a href="{link}">create a new organization</a>?'
                 ).format(link=lastuser.endpoint_url('/organizations/new'))
             ),
         )
@@ -50,9 +50,9 @@ def profile_new():
             eligible_profiles.append((orgid, title))
     if not eligible_profiles:
         return render_message(
-            title=_(u"No organizations available"),
+            title=_("No organizations available"),
             message=_(
-                u"To create a Talkfunnel for an organization, you must be the owner of the organization."
+                "To create a Talkfunnel for an organization, you must be the owner of the organization."
             ),
         )
 
@@ -72,15 +72,15 @@ def profile_new():
         db.session.add(profile)
         db.session.commit()
         flash(
-            _(u"Created a profile for {profile}").format(profile=profile.title),
+            _("Created a profile for {profile}").format(profile=profile.title),
             "success",
         )
         return render_redirect(profile.url_for('edit'), code=303)
     return render_form(
         form=form,
-        title=_(u"Create a Talkfunnel for your organization..."),
+        title=_("Create a Talkfunnel for your organization..."),
         message=_(
-            u"Talkfunnel is a free service while in beta. Sign up now to help us test the service."
+            "Talkfunnel is a free service while in beta. Sign up now to help us test the service."
         ),
         submit="Next",
         formid="profile_new",
@@ -154,7 +154,8 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     def json(self):
         projects = Project.fetch_sorted().filter_by(profile=self.obj).all()
         return jsonp(
-            projects=map(project_data, projects), spaces=map(project_data, projects)
+            projects=list(map(project_data, projects)),
+            spaces=list(map(project_data, projects)),
         )  # FIXME: Remove when the native app switches over
 
     @route('edit', methods=['GET', 'POST'])

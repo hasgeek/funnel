@@ -51,7 +51,7 @@ class ParticipantForm(forms.Form):
         widget=ListWidget(),
         option_widget=CheckboxInput(),
         get_label='title',
-        validators=[forms.validators.DataRequired(u"Select at least one event")],
+        validators=[forms.validators.DataRequired("Select at least one event")],
     )
 
 

@@ -54,7 +54,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
     #: Note recorded by the user (plain text)
-    description = db.Column(db.UnicodeText, nullable=False, default=u'')
+    description = db.Column(db.UnicodeText, nullable=False, default='')
     #: Archived flag
     archived = db.Column(db.Boolean, nullable=False, default=False)
 

@@ -3,6 +3,7 @@
 import six
 
 from datetime import datetime, timedelta
+import csv
 
 from sqlalchemy.exc import IntegrityError
 
@@ -15,8 +16,6 @@ from flask import (
     request,
     url_for,
 )
-
-import unicodecsv
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -66,8 +65,8 @@ class ContactView(ClassView):
         """
         Returns a CSV of given contacts
         """
-        outfile = six.BytesIO()
-        out = unicodecsv.writer(outfile, encoding='utf-8')
+        outfile = six.StringIO()
+        out = csv.writer(outfile)
         out.writerow(
             [
                 'scanned_at',
@@ -100,7 +99,7 @@ class ContactView(ClassView):
 
         outfile.seek(0)
         return Response(
-            six.text_type(outfile.getvalue(), 'utf-8'),
+            outfile.getvalue(),
             content_type='text/csv',
             headers=[
                 (
@@ -160,7 +159,7 @@ class ContactView(ClassView):
         participant = Participant.query.filter_by(puk=puk, key=key).first()
         if not participant:
             return make_response(
-                jsonify(status='error', message=u"Attendee details not found"), 404
+                jsonify(status='error', message="Attendee details not found"), 404
             )
         project = participant.project
         if project.schedule_end_at:
@@ -171,7 +170,7 @@ class ContactView(ClassView):
                 < utcnow()
             ):
                 return make_response(
-                    jsonify(status='error', message=_(u"This project has concluded")),
+                    jsonify(status='error', message=_("This project has concluded")),
                     403,
                 )
 
@@ -182,12 +181,12 @@ class ContactView(ClassView):
                 db.session.add(contact_exchange)
                 db.session.commit()
             except IntegrityError:
-                current_app.logger.warning(u"Contact already scanned")
+                current_app.logger.warning("Contact already scanned")
                 db.session.rollback()
             return jsonify(contact=contact_details(participant))
         else:
             return make_response(
-                jsonify(status='error', message=u"Unauthorized contact exchange"), 403
+                jsonify(status='error', message="Unauthorized contact exchange"), 403
             )
 
 
