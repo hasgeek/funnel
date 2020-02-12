@@ -72,7 +72,7 @@
     $(function() {
 
       var eventConfig = {
-        checkinApiUrl: "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}",
+        checkinApiUrl: "{{ url_for('EventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, event=event.name, puk='puk') }}",
         wrapperId: 'scan-badge-wrapper',
         templateId: 'scan-badge-template',
         projectTitle:  {{ project.title|tojson }},

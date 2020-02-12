@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
+
 from sqlalchemy.exc import IntegrityError
 
-from flask import flash, g, jsonify, make_response, redirect, request, url_for
+from flask import flash, g, jsonify, redirect, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, uuid2suuid
 from coaster.views import (
+    ClassView,
     ModelView,
     UrlForView,
-    load_models,
     render_with,
     requires_permission,
     route,
@@ -20,19 +22,12 @@ from funnel.util import format_twitter_handle, make_qrcode, split_name
 
 from .. import app, funnelapp, lastuser
 from ..forms import ParticipantForm
-from ..models import (
-    Attendee,
-    Event,
-    Participant,
-    Profile,
-    Project,
-    ProjectRedirect,
-    SyncTicket,
-    db,
-)
+from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
 from .mixins import EventViewMixin, ProjectViewMixin
+
+EventParticipant = namedtuple('EventParticipant', ['event', 'participant'])
 
 
 def participant_badge_data(participants, project):
@@ -301,29 +296,37 @@ EventParticipantView.init_app(app)
 FunnelEventParticipantView.init_app(funnelapp)
 
 
-@app.route(
-    '/<profile>/<project>/event/<name>/participant/<puk>/checkin', methods=['POST']
-)
-@funnelapp.route(
-    '/<project>/event/<name>/participant/<puk>/checkin',
-    methods=['POST'],
-    subdomain='<profile>',
-)
-@lastuser.requires_login
-@load_models(
-    (Profile, {'name': 'profile'}, 'g.profile'),
-    ((Project, ProjectRedirect), {'name': 'project', 'profile': 'profile'}, 'project'),
-    (Event, {'name': 'name', 'project': 'project'}, 'event'),
-    (Participant, {'puk': 'puk'}, 'participant'),
-    permission='checkin_event',
-)
-def checkin_puk(profile, project, event, participant):
-    checked_in = getbool(request.form.get('checkin'))
-    attendee = Attendee.get(event, participant.id)
-    if not attendee:
-        return make_response(
-            jsonify(error='not_found', error_description="Attendee not found"), 404
+@route('/<profile>/<project>/event/<event>/participant/<puk>')
+class EventParticipantCheckinView(ClassView):
+    __decorators__ = [lastuser.requires_login]
+
+    @route('checkin', methods=['POST'])
+    @render_with(json=True)
+    def checkin_puk(self, profile, project, event, puk):
+        checked_in = getbool(request.form.get('checkin', 't'))
+        event = (
+            Event.query.join(Project, Profile)
+            .filter(
+                Profile.name == profile, Project.name == project, Event.name == event
+            )
+            .first_or_404()
         )
-    attendee.checked_in = checked_in
-    db.session.commit()
-    return jsonify(attendee={'fullname': participant.fullname})
+        participant = (
+            Participant.query.join(Project, Profile)
+            .filter(
+                Profile.name == profile, Project.name == project, Participant.puk == puk
+            )
+            .first_or_404()
+        )
+        attendee = Attendee.get(event, participant.suuid)
+        if not attendee:
+            return (
+                {'error': 'not_found', 'error_description': "Attendee not found"},
+                404,
+            )
+        attendee.checked_in = checked_in
+        db.session.commit()
+        return {'attendee': {'fullname': participant.fullname}}
+
+
+EventParticipantCheckinView.init_app(app)
