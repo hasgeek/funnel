@@ -47,7 +47,7 @@ class Boxoffice(object):
                             'company': line_item.get('assignee').get('company'),
                             'city': line_item.get('assignee').get('city', ''),
                             'job_title': line_item.get('assignee').get('jobtitle', ''),
-                            'ticket_no': line_item.get('line_item_seq'),
+                            'ticket_no': str(line_item.get('line_item_seq')),
                             'ticket_type': line_item.get('item', {}).get('title', '')[
                                 :80
                             ],
