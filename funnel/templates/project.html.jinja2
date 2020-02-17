@@ -128,7 +128,7 @@
         </ul>
       {%- endif %}
       {% if project.buy_tickets_url.url -%}
-        <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Buy Tickets url">
+        <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Buy Tickets url" target="_blank">
           {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
             {{ project.boxoffice_data.buy_btn_text }}
           {% else %}
