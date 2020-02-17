@@ -69,7 +69,7 @@
             <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
-        <div id="tickets" {% if project.allow_rsvp and not project.boxoffice_data -%}class="rsvp-wrapper"{%- endif %}>
+        <div id="tickets" {% if project.allow_rsvp and not project.boxoffice_data.item_collection_id -%}class="rsvp-wrapper"{%- endif %}>
           {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
             <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
             <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
@@ -101,7 +101,6 @@
         </div>
       </div>
     {%- endif %}
-
     <div class="about__details" id="about">
       <h2 class="mui--text-display1 mui--text-left about__details__headline">{% trans %}About{% endtrans %}</h2>
       <div class="about__details__description">{{ project.description }}</div>
@@ -128,6 +127,16 @@
           {%- endfor -%}
         </ul>
       {%- endif %}
+      {% if project.buy_tickets_url.url -%}
+        <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Buy Tickets url" target="_blank">
+          {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
+            {{ project.boxoffice_data.buy_btn_text }}
+          {% else %}
+            {% trans %}Tickets{% endtrans %}
+          {% endif %}
+        </a></p>
+      {%- endif %}
+
       {% if project.featured_sessions  %}
         <div id="talks" class="mui--clearfix">
           <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Talks{% endtrans %}</h2>
