@@ -101,10 +101,6 @@
         </div>
       </div>
     {%- endif %}
-    {% if project.boxoffice_data and project.boxoffice_data.razorpay_id -%}
-      <div class="razorpay-embed-btn" data-url="https://rzp.io/l/{{ project.boxoffice_data.razorpay_id }}" data-text="{{ project.boxoffice_data.razorpay_text }}" data-color="#528FF0" data-size="large">
-      </div>
-    {%- endif %}
     <div class="about__details" id="about">
       <h2 class="mui--text-display1 mui--text-left about__details__headline">{% trans %}About{% endtrans %}</h2>
       <div class="about__details__description">{{ project.description }}</div>
@@ -130,6 +126,15 @@
             </li>
           {%- endfor -%}
         </ul>
+      {%- endif %}
+      {% if project.buy_tickets_url.url -%}
+        <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Buy Tickets url">
+          {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
+            {{ project.boxoffice_data.buy_btn_text }}
+          {% else %}
+            {% trans %}Tickets{% endtrans %}
+          {% endif %}
+        </a></p>
       {%- endif %}
 
       {% if project.featured_sessions  %}
@@ -262,13 +267,4 @@
 
     });
   </script>
-  {% if project.boxoffice_data and project.boxoffice_data.razorpay_id -%}
-    <script>
-      (function(){
-        var d=document; var x=!d.getElementById('razorpay-embed-btn-js')
-        if(x){ var s=d.createElement('script'); s.defer=!0;s.id='razorpay-embed-btn-js';
-        s.src='https://cdn.razorpay.com/static/embed_btn/bundle.js';d.body.appendChild(s);} else{var rzp=window['__rzp__'];
-        rzp && rzp.init && rzp.init()}})();
-    </script>
-  {%- endif %}
 {% endblock %}
