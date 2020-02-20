@@ -40,7 +40,13 @@ export const Utils = {
   smoothScroll() {
     $('a.js-smooth-scroll').on('click', function clickHandler(event) {
       event.preventDefault();
-      window.location.hash = $(this).attr('href');
+      window.history.pushState(
+        {
+          openModal: true,
+        },
+        '',
+        $(this).attr('href')
+      );
       Utils.animateScrollTo($(this.hash).offset().top);
     });
   },
