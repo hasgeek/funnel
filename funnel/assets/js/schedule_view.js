@@ -26,6 +26,7 @@ const Schedule = {
             projectTitle: schedule.config.projectTitle,
             pageTitle: 'Schedule',
             description: schedule.config.pageDescription,
+            projectUrl: schedule.config.projectUrl,
           },
           view: 'agenda',
           svgIconUrl: schedule.config.svgIconUrl,
@@ -94,20 +95,16 @@ const Schedule = {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            window.history.pushState('', '', this.pageDetails.url);
+            window.history.replaceState('', '', this.pageDetails.url);
             this.updateMetaTags(this.pageDetails);
           });
           // Event listener for back key press since opening modal update browser history
           $(window).on('popstate', () => {
+            console.log('back');
             if (this.modalHtml) {
               $.modal.close();
-            } else if (window.history.state) {
-              // Open the modal with previous session viewed
-              this.openModal(
-                window.history.state.html,
-                window.history.state.backPage,
-                window.history.state.pageDetails
-              );
+            } else if (!window.history.state) {
+              window.location.href = this.pageDetails.projectUrl;
             }
           });
         },
