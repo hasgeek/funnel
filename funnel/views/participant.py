@@ -284,6 +284,7 @@ EventParticipantView.init_app(app)
 FunnelEventParticipantView.init_app(funnelapp)
 
 
+# FIXME: make this endpoint use suuid instead of puk, along with badge generation
 @route('/<profile>/<project>/event/<event>/participant/<puk>')
 class EventParticipantCheckinView(ClassView):
     __decorators__ = [lastuser.requires_login]
