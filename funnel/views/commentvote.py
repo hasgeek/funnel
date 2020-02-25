@@ -233,7 +233,7 @@ class ProposalCommentViewMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.proposal.project.profile
-        super(ProposalCommentViewMixin, self).after_loader()
+        return super(ProposalCommentViewMixin, self).after_loader()
 
 
 @route('/<profile>/<project>/proposals/<url_name_suuid>/comments/<suuid>')

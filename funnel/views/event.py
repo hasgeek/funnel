@@ -229,7 +229,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(TicketTypeView, self).after_loader()
+        return super(TicketTypeView, self).after_loader()
 
     @route('')
     @render_with('ticket_type.html.jinja2')
@@ -311,7 +311,7 @@ class TicketClientView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(TicketClientView, self).after_loader()
+        return super(TicketClientView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_permission('edit_ticket_client')

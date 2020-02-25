@@ -111,18 +111,6 @@ def participant_checkin_data(participant, project, event):
 class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
-    @route('json')
-    @render_with(json=True)
-    @lastuser.requires_login
-    @requires_permission('view')
-    def participants_json(self):
-        return {
-            'participants': [
-                participant_data(participant, self.obj.id)
-                for participant in self.obj.participants
-            ]
-        }
-
     @route('new', methods=['GET', 'POST'])
     @lastuser.requires_login
     @requires_permission('new-participant')
@@ -152,7 +140,7 @@ ProjectParticipantView.init_app(app)
 FunnelProjectParticipantView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/participant/<suuid>')
+@route('/<profile>/<project>/participant/<participant>')
 class ParticipantView(UrlForView, ModelView):
     __decorators__ = [legacy_redirect, lastuser.requires_login]
 
@@ -160,16 +148,16 @@ class ParticipantView(UrlForView, ModelView):
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'suuid': 'suuid',
+        'participant': 'suuid',
     }
 
-    def loader(self, profile, project, suuid):
+    def loader(self, profile, project, participant):
         participant = (
             self.model.query.join(Project, Profile)
             .filter(
                 Profile.name == profile,
                 Project.name == project,
-                Participant.suuid == suuid,
+                Participant.suuid == participant,
             )
             .first_or_404()
         )
@@ -177,7 +165,7 @@ class ParticipantView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(ParticipantView, self).after_loader()
+        return super(ParticipantView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_permission('edit-participant')

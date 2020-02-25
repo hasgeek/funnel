@@ -123,7 +123,7 @@ class ProposalViewMixin(object):
             else:
                 abort(410)
         g.profile = self.obj.project.profile
-        super(ProposalViewMixin, self).after_loader()
+        return super(ProposalViewMixin, self).after_loader()
 
 
 class SessionViewMixin(object):
@@ -148,7 +148,7 @@ class SessionViewMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(SessionViewMixin, self).after_loader()
+        return super(SessionViewMixin, self).after_loader()
 
     @property
     def project_currently_saved(self):
@@ -219,7 +219,7 @@ class EventViewMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(EventViewMixin, self).after_loader()
+        return super(EventViewMixin, self).after_loader()
 
 
 class DraftViewMixin(object):
