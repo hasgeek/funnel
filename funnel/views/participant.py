@@ -88,19 +88,19 @@ def participant_checkin_data(participant, project, event):
                     'ParticipantView_badge',
                     profile=project.profile.name,
                     project=project.name,
-                    suuid=psuuid,
+                    participant=psuuid,
                 ),
                 'label_badge_url': url_for(
                     'ParticipantView_label_badge',
                     profile=project.profile.name,
                     project=project.name,
-                    suuid=psuuid,
+                    participant=psuuid,
                 ),
                 'edit_url': url_for(
                     'ParticipantView_edit',
                     profile=project.profile.name,
                     project=project.name,
-                    suuid=psuuid,
+                    participant=psuuid,
                 ),
             }
         )
