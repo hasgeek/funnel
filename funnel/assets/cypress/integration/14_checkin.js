@@ -1,14 +1,10 @@
-describe('Setup event for checkin', function() {
-  const { admin } = require('../fixtures/user.js');
+describe('Checkin of attendees', function() {
+  const { admin, user } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
-  it('Setup event for checkin', function() {
-    cy.server();
-    cy.route('POST', '**/participants/checkin?*').as('checkin');
-    cy.route('**/participants/json').as('participant-list');
-
+  it('Checkin of attendees', function() {
     cy.relogin('/testcypressproject');
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
@@ -18,17 +14,6 @@ describe('Setup event for checkin', function() {
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="checkin"').click();
     cy.location('pathname').should('contain', '/admin');
-
-    cy.fixture('events').then(events => {
-      events.forEach(function(event) {
-        cy.get('a[data-cy="new-event"]').click();
-        cy.get('#title').type(event.title);
-        cy.get('#badge_template').type(event.badge_template);
-        cy.get('button')
-          .contains('Add event')
-          .click();
-      });
-    });
 
     cy.fixture('participants').then(participants => {
       participants.forEach(function(participant) {
@@ -49,15 +34,17 @@ describe('Setup event for checkin', function() {
     });
 
     cy.get('a[data-cy="' + events[0].title + '"]').click();
-    cy.get('td[data-th="Name"]').contains(participants[0].fullname);
-    cy.get('td[data-th="Name"]').contains(participants[1].fullname);
+    cy.get('td[data-cy="participant"]').contains(participants[0].fullname);
+    cy.get('td[data-cy="participant"]').contains(participants[1].fullname);
+    cy.checkin(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
 
     cy.get('a[data-cy="' + events[1].title + '"]').click();
-    cy.get('td[data-th="Name"]').contains(participants[2].fullname);
-
     // Test failing
-    // cy.get('a[data-cy="edit-attendee-details"]')
+    // cy.get('td[data-cy="participant"]')
+    //   .contains(participants[2].fullname)
+    //   .parent()
+    //   .find('a[data-cy="edit-attendee-details"]')
     //   .invoke('removeAttr', 'target')
     //   .click();
     // cy.url().should('contain', 'edit');
@@ -68,13 +55,7 @@ describe('Setup event for checkin', function() {
     //   .contains('Save changes')
     //   .click();
 
-    cy.get('button[data-cy="checkin"]').click();
-    cy.wait('@checkin', { timeout: 15000 });
-
-    cy.wait('@participant-list', { timeout: 15000 });
-    cy.wait('@participant-list', { timeout: 15000 });
-    cy.wait('@participant-list', { timeout: 15000 }).then(xhr => {
-      cy.get('button[data-cy="cancel-checkin"]').should('exist');
-    });
+    cy.checkin(participants[2].fullname);
+    cy.get('a[data-cy="back-to-setup"]').click();
   });
 });
