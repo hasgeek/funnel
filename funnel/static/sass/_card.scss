@@ -64,6 +64,9 @@
   }
   .card--spotlight--live {
     min-height: auto;
+    .card__image-wrapper {
+      flex: auto;
+    }
   }
 }
 
