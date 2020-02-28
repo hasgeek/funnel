@@ -50,8 +50,8 @@
       <div class="card__body">
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
-            <li>
-              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+            <li data-cy-ticket="{{ ticket_type.title }}">
+              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" data-cy="ticket-edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -82,13 +82,13 @@
       </div>
       <div class="mui-divider"></div>
         <div class="card__footer">
-          <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}New ticket client{% endtrans %}</a>
+          <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-client">{% trans %}New ticket client{% endtrans %}</a>
           {%- if project.ticket_clients %}
             <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form inline-form">
               <div class="form-group">
                 {{ csrf_form.hidden_tag() }}
               </div>
-              <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" title="{% trans %}Sync tickets{% endtrans %}">{% trans %}Sync tickets{% endtrans %}</button>
+              <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" title="{% trans %}Sync tickets{% endtrans %}" data-cy="sync-tickets">{% trans %}Sync tickets{% endtrans %}</button>
             </form>
           {%- endif %}
         </div>
