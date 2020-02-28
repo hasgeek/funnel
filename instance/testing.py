@@ -17,6 +17,7 @@ RQ_LOW_URL = 'redis://localhost:6379/0'
 ASSET_BASE_PATH = "build"
 HASCORE_SERVER = 'https://api.hasgeek.com'
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
+BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
 
 ASSET_MANIFEST_PATH = "static/build/manifest.json"
 ASSET_BASE_PATH = "build"

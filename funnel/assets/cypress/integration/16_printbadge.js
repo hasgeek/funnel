@@ -1,5 +1,5 @@
 describe('View badges to be printed', function() {
-  const { admin } = require('../fixtures/user.js');
+  const { admin, user } = require('../fixtures/user.js');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
@@ -27,5 +27,6 @@ describe('View badges to be printed', function() {
     cy.url().should('contain', 'badges');
     cy.get('.first-name').should('contain', firstname1);
     cy.get('.first-name').should('contain', firstname2);
+    cy.get('.first-name').should('contain', user.username);
   });
 });
