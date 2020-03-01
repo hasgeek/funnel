@@ -12,7 +12,7 @@ git+https://github.com/hasgeek/flask-lastuser.git
 git+https://github.com/hasgeek/baseframe.git
 alembic==1.4.0
 qrcode==6.1
-rq==1.1.0
+rq==1.2.2
 psycopg2==2.8.4
 Flask-Migrate==2.5.2
 git+https://github.com/hasgeek/Flask-FlatPages.git
