@@ -51,7 +51,7 @@
                 {%- endif %}
                 {%- if cfp_transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}CfP status: {{ status }}{% endtrans %}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Proposal submission status: {{ status }}{% endtrans %}</p>
                     <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
                       {{ cfp_transition_form.hidden_tag() }}
                       <p class="btn-group">
@@ -79,7 +79,7 @@
                 <div>
                   <ul class="mui-list--inline list-item-rgborder">
                     <li>
-                      <a href="{{ project.url_for('edit') }}" title="Edit details" data-cy="edit">{% trans %}Edit details{% endtrans %}</a>
+                      <a href="{{ project.url_for('edit') }}" title="Edit details" data-cy="edit">{% trans %}Edit project details{% endtrans %}</a>
                     </li>
                     <li>
                       <a href="{{ project.url_for('edit') }}#field-livestream_urls" title="Add livestream url" data-cy="add-livestream">{% trans %}Add livestream url{% endtrans %}</a>
@@ -89,11 +89,11 @@
                     </li>
                     {% if project.cfp_state.NONE -%}
                       <li>
-                        <a href="{{ project.url_for('cfp') }}" title="Add a CfP" data-cy="add-cfp">{% trans %}Add a CfP{% endtrans %}</a>
+                        <a href="{{ project.url_for('cfp') }}" title="Add proposal guidelines and timing" data-cy="add-cfp">{% trans %}Add proposal guidelines and timing{% endtrans %}</a>
                       </li>
                     {% else -%}
                       <li>
-                        <a href="{{ project.url_for('cfp') }}" title="Modify the CfP" data-cy="modify-cfp">{% trans %}Modify the CfP{% endtrans %}</a>
+                        <a href="{{ project.url_for('cfp') }}" title="Modify proposal guidelines and timing" data-cy="modify-cfp">{% trans %}Modify proposal guidelines and timing{% endtrans %}</a>
                       </li>
                     {%- endif %}
                     <li>

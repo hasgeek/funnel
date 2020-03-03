@@ -172,15 +172,20 @@ class ProjectForm(forms.Form):
 
 class CfpForm(forms.Form):
     instructions = forms.MarkdownField(
-        __("Call for proposals"),
+        __("Proposal guidelines"),
         validators=[forms.validators.DataRequired()],
         default='',
+        description=__(
+            "Set guidelines for the type of sessions (talks, workshops, other format) your project is accepting, your review process and any other info for participants"
+        ),
     )
     cfp_start_at = forms.DateTimeField(
-        __("Submissions open at"), validators=[forms.validators.Optional()], naive=False
+        __("Proposal submissions open at"),
+        validators=[forms.validators.Optional()],
+        naive=False,
     )
     cfp_end_at = forms.DateTimeField(
-        __("Submissions close at"),
+        __("Proposal submissions close at"),
         validators=[
             forms.validators.AllowedIf(
                 'cfp_start_at',
