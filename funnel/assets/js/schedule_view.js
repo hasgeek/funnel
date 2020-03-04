@@ -99,11 +99,11 @@ const Schedule = {
           });
           // Event listener for back key press since opening modal update browser history
           $(window).on('popstate', () => {
-            console.log('back');
+            console.log('back', this.modalHtml);
             if (this.modalHtml) {
               $.modal.close();
             } else if (!window.history.state) {
-              history.back(-1);
+              window.history.back(-1);
             }
           });
         },
