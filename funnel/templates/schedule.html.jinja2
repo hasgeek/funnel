@@ -149,8 +149,7 @@
       active_session: '',
       projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
       pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
-      svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %},
-      projectUrl: {{ project.url_for()|tojson }}
+      svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %}
     };
     {%- if active_session -%}
       scheduleConfig['active_session'] = {{ active_session|tojson }};

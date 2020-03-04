@@ -26,7 +26,6 @@ const Schedule = {
             projectTitle: schedule.config.projectTitle,
             pageTitle: 'Schedule',
             description: schedule.config.pageDescription,
-            projectUrl: schedule.config.projectUrl,
           },
           view: 'agenda',
           svgIconUrl: schedule.config.svgIconUrl,
@@ -104,7 +103,7 @@ const Schedule = {
             if (this.modalHtml) {
               $.modal.close();
             } else if (!window.history.state) {
-              window.location.href = this.pageDetails.projectUrl;
+              history.back(-1);
             }
           });
         },
