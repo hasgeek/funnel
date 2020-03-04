@@ -19,9 +19,11 @@ describe('View participant badge', function() {
     cy.get('a[data-cy="checkin"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[1].title + '"]').click();
-    cy.get('td[data-cy="participant"]').contains(participants[2].fullname);
     var firstname = participants[2].fullname.split(' ')[0];
-    cy.get('a[data-cy="show-badge"]')
+    cy.get('td[data-cy="participant"]')
+      .contains(participants[2].fullname)
+      .parent()
+      .find('a[data-cy="show-badge"]')
       .invoke('removeAttr', 'target')
       .click();
     cy.url().should('contain', 'badge');

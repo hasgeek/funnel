@@ -43,3 +43,21 @@ Cypress.Commands.add('logout', () => {
     .click();
   cy.clearCookies();
 });
+
+Cypress.Commands.add('checkin', participant => {
+  cy.server();
+  cy.route('POST', '**/participants/checkin?*').as('checkin');
+  cy.route('**/participants/json').as('participant-list');
+
+  cy.get('td[data-cy="participant"]')
+    .contains(participant)
+    .parent()
+    .find('button[data-cy="checkin"]')
+    .click();
+  cy.wait('@checkin', { timeout: 15000 });
+  cy.wait('@participant-list', { timeout: 20000 });
+  cy.wait('@participant-list', { timeout: 20000 });
+  cy.wait('@participant-list', { timeout: 20000 }).then(xhr => {
+    cy.get('button[data-cy="cancel-checkin"]').should('exist');
+  });
+});

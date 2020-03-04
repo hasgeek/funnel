@@ -1520,6 +1520,9 @@ html.touch .collapsible__body--disable {
   .card--spotlight--live {
     min-height: auto;
   }
+  .card--spotlight--live .card__image-wrapper {
+    flex: auto;
+  }
 }
 .clickable-card,
 .card-wrapper {
