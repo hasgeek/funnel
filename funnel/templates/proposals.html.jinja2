@@ -87,6 +87,10 @@
             <div class="about__details__description">{{ project.instructions }}</div>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
+              {% if project.cfp_end_at %}
+              <p class="mui--text-left">
+              Proposal submission will close on <strong> {{ project.cfp_end_at|longdate }}.</strong>
+              {% endif %}
             <p class="mui--text-left">
               <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
             </p>
