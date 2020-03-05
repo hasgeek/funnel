@@ -2,12 +2,6 @@
 {% from "baseframe/forms.html.jinja2" import renderfield, rendersubmit, ajaxform %}
 {% block title %}Add a call for proposals{% endblock %}
 
-{% block pageheaders %}
-  {% assets "css_jquerytimepicker" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
-{% endblock %}
-
 {% block content %}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
@@ -50,9 +44,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_timepicker" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script type="text/javascript">
     $(function() {
       function addZero(i) {
