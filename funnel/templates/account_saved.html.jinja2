@@ -38,7 +38,7 @@
       <ul class="mui-list--unstyled grid" role="list">
       {% for saved in saved_projects %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          <a class="card card--upcoming clickable-card" href="{{ saved.project.url_for() }}" title="{{ saved.project.title }}" aria-label="{{ saved.project.title }}">
+          <a class="card card--upcoming clickable-card" href="{{ saved.project.url_for() }}" aria-label="{{ saved.project.title }}">
             <div class="card__image-wrapper">
               {% if saved.project.bg_image.url %}
                 <img class="card__image js-lazyload-img" data-src="{{ saved.project.bg_image }}" alt="{{ saved.project.title }}"/>

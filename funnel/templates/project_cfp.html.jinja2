@@ -26,8 +26,8 @@
     {%- endfor %}
     {% if not form.cfp_end_at.data %}
       <div id="cfp-publish-actions" class="btn-wrapper hide">
-        <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open proposal submissions now{% endtrans %}</button>
-        <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open proposal submissions later{% endtrans %}</button>
+        <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open now{% endtrans %}</button>
+        <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open later{% endtrans %}</button>
       </div>
     {% endif %}
     {% if form.cfp_start_at.data or form.cfp_start_at.errors or form.cfp_end_at.data or form.cfp_end_at.errors %}

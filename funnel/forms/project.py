@@ -176,7 +176,9 @@ class CfpForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         default='',
         description=__(
-            "Set guidelines for the type of sessions (talks, workshops, other format) your project is accepting, your review process and any other info for participants"
+            "Set guidelines for the type of sessions"
+            "(talks, workshops, other format) your project is accepting, "
+            "your review process and any other info for participants"
         ),
     )
     cfp_start_at = forms.DateTimeField(
