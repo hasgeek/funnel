@@ -59,11 +59,11 @@
         <div class="grid__col-sm-12">
           <div class="profile-details">
             {%- if project.profile.logo_url.url %}
-              <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper">
+              <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
                 <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
               </a>
             {% endif %}
-            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link">{{ project.profile.title|e }}</a>&nbsp;
+            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title|e }}</a>&nbsp;
             <span class="mui--text-subhead mui--text-bold profile-details__text">project</span>
           </div>
         </div>
@@ -120,13 +120,13 @@
           <p class="mui--text-light mui--text-subhead project-time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} <span>{{ project.start_at }}</span>{%- if project.end_at %} <span>–{{ project.end_at }}</span>{%- endif %}</p>
         {%- endif %}
         {%- if project.primary_venue %}
-          <a class="mui--text-hyperlink mui--text-subhead project-venue {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a>
+          <a class="mui--text-hyperlink mui--text-subhead project-venue {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a>
         {%- endif %}
         {% if project.cfp_state.OPEN -%}
           <p><a class="mui-btn mui-btn--raised mui--d-block propose-btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
         {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
           <div>
-            <a class="mui-btn mui-btn--raised mui--d-block propose-btn strike-text" data-cy="Submit a session proposal">{% trans %}Propose a session{% endtrans %}</a>
+            <a class="mui-btn mui-btn--raised mui--d-block propose-btn strike-text" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Propose a session{% endtrans %}</a>
             <p class="mui--text-light mui--text-caption mui--text-center">Submissions are closed for this project</p>
           </div>
         {%- endif %}

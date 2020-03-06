@@ -43,7 +43,7 @@
                       <div class="tab-content__results">
                         {{#if result == 'project'}}
                           <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming  clickable-card">
-                            <div class="card__image-wrapper">
+                            <div class="card__image-wrapper" data-action="View {{ title }}(search project)">
                               {{#if obj.bg_image }}
                                 <img class="card__image" src="{{ obj.bg_image }}" alt="{{ title }}"/>
                               {{else}}
@@ -90,7 +90,7 @@
                             </div>
                           </a>
                         {{elseif result == 'profile'}}
-                          <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming  clickable-card">
+                          <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming  clickable-card" data-action="View {{ title }}(search profile)">
                             <div class="card__image-wrapper">
                               {{#if obj.logo_url }}
                                 <img class="card__image" src="{{ obj.logo_url }}" alt="{{ title }}"/>
