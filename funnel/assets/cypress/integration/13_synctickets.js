@@ -29,6 +29,7 @@ describe('Sync tickets from Boxoffice', function() {
 
     cy.get('button[data-cy="sync-tickets"').click();
     cy.wait(120000);
+    cy.get('button[data-cy="sync-tickets"').click();
 
     cy.fixture('events').then(events => {
       events.forEach(function(event) {
