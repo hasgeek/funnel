@@ -24,7 +24,7 @@
         <ol class="mui-list--aligned">
           {%- for event in events %}
             <li>
-              <a href="{{ event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ event.title }}">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+              <a href="{{ event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ event.title }}">{{ event.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -32,9 +32,9 @@
       {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href={{ project.url_for('new_event') }} title="{% trans %}New event {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-event">{% trans %}New event{% endtrans %}</a>
+        <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-event">{% trans %}New event{% endtrans %}</a>
         {%- if project.events %}
-          <a href={{ project.url_for('new_participant') }} title="{% trans %}Add participant {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-participant">{% trans %}Add participant{% endtrans %}</a>
+          <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-participant">{% trans %}Add participant{% endtrans %}</a>
         {%- endif %}
       </div>
       {%- endif %}
@@ -51,7 +51,7 @@
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
             <li data-cy-ticket="{{ ticket_type.title }}">
-              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit" data-cy="ticket-edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead">{{ ticket_type.title }}</a>{%- if project.current_roles.admin %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -59,7 +59,7 @@
       {%- if project.current_roles.admin %}
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href={{ project.url_for('new_ticket_type') }} title="{% trans %}New ticket type {% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}New ticket{% endtrans %}</a>
+        <a href="{{ project.url_for('new_ticket_type') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}New ticket{% endtrans %}</a>
       </div>
       {%- endif %}
     </div>
@@ -75,20 +75,20 @@
         <ol class="mui-list--aligned">
           {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" title="Edit">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
+              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.admin %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
       </div>
       <div class="mui-divider"></div>
         <div class="card__footer">
-          <a href="{{ project.url_for('new_ticket_client') }}" title="{% trans %}New ticket client{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-client">{% trans %}New ticket client{% endtrans %}</a>
+          <a href="{{ project.url_for('new_ticket_client') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-client">{% trans %}New ticket client{% endtrans %}</a>
           {%- if project.ticket_clients %}
             <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form inline-form">
               <div class="form-group">
                 {{ csrf_form.hidden_tag() }}
               </div>
-              <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" title="{% trans %}Sync tickets{% endtrans %}" data-cy="sync-tickets">{% trans %}Sync tickets{% endtrans %}</button>
+              <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" data-cy="sync-tickets">{% trans %}Sync tickets{% endtrans %}</button>
             </form>
           {%- endif %}
         </div>

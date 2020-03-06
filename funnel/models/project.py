@@ -423,8 +423,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cfp_state.transition(
         cfp_state.OPENABLE,
         cfp_state.PUBLIC,
-        title=__("Open CfP"),
-        message=__("The call for proposals is now open"),
+        title=__("Enable proposal submissions"),
+        message=__("Proposals can be now submitted"),
         type='success',
     )
     def open_cfp(self):
@@ -434,8 +434,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
-        title=__("Close CFP"),
-        message=__("The call for proposals is now closed"),
+        title=__("Disable proposal submissions"),
+        message=__("Proposals will no longer be accepted"),
         type='success',
     )
     def close_cfp(self):

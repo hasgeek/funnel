@@ -1,12 +1,6 @@
 {% extends "formlayout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import renderfield, rendersubmit, ajaxform %}
-{% block title %}Add a call for proposals{% endblock %}
-
-{% block pageheaders %}
-  {% assets "css_jquerytimepicker" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
-{% endblock %}
+{% block title %}Add proposal guidelines and timing{% endblock %}
 
 {% block content %}
   {%- if form.errors %}
@@ -26,8 +20,8 @@
     {%- endfor %}
     {% if not form.cfp_end_at.data %}
       <div id="cfp-publish-actions" class="btn-wrapper hide">
-        <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open CfP now{% endtrans %}</button>
-        <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open CfP later{% endtrans %}</button>
+        <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open now{% endtrans %}</button>
+        <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open later{% endtrans %}</button>
       </div>
     {% endif %}
     {% if form.cfp_start_at.data or form.cfp_start_at.errors or form.cfp_end_at.data or form.cfp_end_at.errors %}
@@ -50,9 +44,6 @@
 {% endblock %}
 
 {% block footerscripts %}
-  {% assets "js_timepicker" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script type="text/javascript">
     $(function() {
       function addZero(i) {

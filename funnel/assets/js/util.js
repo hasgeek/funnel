@@ -98,7 +98,7 @@ export const Utils = {
       }
     });
   },
-  sendToGA(category, action, label, value = '') {
+  sendToGA(category, action, label, value = 0) {
     if (typeof ga !== 'undefined') {
       ga('send', {
         hitType: 'event',
