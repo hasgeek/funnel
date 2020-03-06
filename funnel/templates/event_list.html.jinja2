@@ -20,7 +20,7 @@
           <ol class="mui-list--aligned">
             {%- for event in events %}
               <li class="mui--text-title">
-                <a href="{{ event.url_for('scan_badge') }}" title="Check-in"><strong>{{ event.title }}</strong></a>
+                <a href="{{ event.url_for('scan_badge') }}" aria-label=" {% trans title=event.title %} View {{title}} attendees{% endtrans %}"><strong>{{ event.title }}</strong></a>
               </li>
             {%- endfor %}
           </ol>

@@ -82,17 +82,17 @@
       <div class="grid">
        {% if project.current_roles.admin or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
-          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Call for proposals{% endtrans %}</h2>
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
           {%- if project.instructions and project.instructions != "None" %}
             <div class="about__details__description">{{ project.instructions }}</div>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <p class="mui--text-left">
-              <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
             </p>
           {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
-            <div class="project-banner">
-              <a class="mui-btn mui-btn--raised mui--d-block propose-btn strike-text" title="Propose a session" data-action="Propose a session(page)" data-cy="propose-a-session">{% trans %}Propose a session{% endtrans %}</a>
+            <div class="project-banner mui--hidden-md mui--hidden-lg mui--hidden-xl">
+              <a class="mui-btn mui-btn--raised propose-btn strike-text" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
               <p class="mui--text-light mui--text-caption mui--text-center">Submissions are closed for this project</p>
             </div>
           {%- endif %}
