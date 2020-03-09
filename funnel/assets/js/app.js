@@ -68,7 +68,7 @@ $(() => {
   $('.mui-btn, a').click(function gaHandler() {
     const action =
       $(this).attr('data-action') || $(this).attr('title') || $(this).html();
-    const target = $(this).attr('href') || '';
+    const target = $(this).attr('data-target') || $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });
   $('.search-form__submit').click(function gaHandler() {

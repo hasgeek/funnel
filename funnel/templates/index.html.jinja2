@@ -235,7 +235,7 @@
         </ul>
         {% if open_cfp_projects|length > 4 %}
           <div class="mui--text-center">
-            <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="javascript:void(0)"  data-target="show all cfp projects" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -297,7 +297,7 @@
           </ul>
           {% if draft_projects|length > 3 %}
             <div class="mui--text-center">
-              <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" data-action="Show all drafts projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" data-action="Show all drafts projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         {% endif %}
