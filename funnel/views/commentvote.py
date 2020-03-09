@@ -2,9 +2,9 @@
 
 from collections import namedtuple
 
-from flask import abort, flash, g, jsonify, redirect, render_template, request
+from flask import abort, flash, g, jsonify, redirect, render_template
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
 from coaster.utils import require_one_of, utcnow
 from coaster.views import ModelView, UrlForView, jsonp, requires_permission, route
@@ -33,7 +33,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         self.obj.voteset.vote(current_auth.user, votedown=False)
         db.session.commit()
         message = _("Your vote has been recorded")
-        if request.is_xhr:
+        if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
         return redirect(self.obj.url_for(), code=303)
@@ -48,7 +48,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         self.obj.voteset.vote(current_auth.user, votedown=True)
         db.session.commit()
         message = _("Your vote has been recorded")
-        if request.is_xhr:
+        if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
         return redirect(self.obj.url_for(), code=303)
@@ -63,7 +63,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         self.obj.voteset.cancelvote(current_auth.user)
         db.session.commit()
         message = _("Your vote has been withdrawn")
-        if request.is_xhr:
+        if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
         return redirect(self.obj.url_for(), code=303)
@@ -269,7 +269,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         self.obj.comment.voteset.vote(current_auth.user, votedown=False)
         db.session.commit()
         message = _("Your vote has been recorded")
-        if request.is_xhr:
+        if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
         return redirect(self.obj.proposal.url_for(), code=303)
@@ -284,7 +284,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         self.obj.comment.voteset.vote(current_auth.user, votedown=True)
         db.session.commit()
         message = _("Your vote has been recorded")
-        if request.is_xhr:
+        if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
         return redirect(self.obj.proposal.url_for(), code=303)
@@ -299,7 +299,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         self.obj.comment.voteset.cancelvote(current_auth.user)
         db.session.commit()
         message = _("Your vote has been withdrawn")
-        if request.is_xhr:
+        if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
         return redirect(self.obj.proposal.url_for(), code=303)
