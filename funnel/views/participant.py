@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from flask import flash, jsonify, make_response, redirect, render_template, request
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, load_models, requires_permission, route
@@ -208,7 +208,7 @@ def event_checkin(profile, project, event):
             attendee = Attendee.get(event, participant_id)
             attendee.checked_in = checked_in
         db.session.commit()
-        if request.is_xhr:
+        if request_is_xhr():
             return jsonify(
                 status=True, participant_ids=participant_ids, checked_in=checked_in
             )
