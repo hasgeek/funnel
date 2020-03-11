@@ -2132,7 +2132,7 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .bookmark-icon {
   position: relative;
-  top: 6px;
+  top: 1px;
   text-align: right;
   height: 0;
 }
@@ -2144,7 +2144,7 @@ html.touch .collapsible__body--disable {
   margin-right: -15px;
   margin-left: -15px;
   padding: 0 15px 10px;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
 .project-banner .project-time {
   margin-bottom: 15px;
@@ -2153,7 +2153,8 @@ html.touch .collapsible__body--disable {
   margin: 10px 0;
 }
 .project-banner .propose {
-  padding: 15px 0;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 .project-banner .propose .propose__btn {
   background-color: #202d3c;
@@ -2182,13 +2183,7 @@ html.touch .collapsible__body--disable {
   align-items: baseline;
   margin-bottom: 10px;
   padding: 10px;
-  border: 1px dashed #4d5763;
-}
-.project-banner .project-banner__action .share-by-email {
-  background: #4d5763;
-  color: #fff;
-  border-radius: 3px;
-  padding: 3px;
+  border: 2px dashed #eff2f6;
 }
 .project-banner .project-banner__action .mui-btn + .mui-btn {
   margin-left: 0;
@@ -2213,22 +2208,34 @@ html.touch .collapsible__body--disable {
     margin: 0;
   }
   .project-banner .bookmark-icon {
-    top: 15px;
+    top: 9px;
   }
   .project-banner .bookmark-icon--height {
     top: 0;
   }
   .project-banner .card__calendar {
-    margin: 5px 0 15px;
+    margin: 5px 0 35px;
     padding: 0 0 8px;
   }
   .project-banner .propose {
-    padding: 15px 0;
-    margin-left: 15px;
     align-items: baseline;
+    margin-left: 15px;
+    width: calc(100% - 15px);
+  }
+  .project-banner .propose--lessmargin {
+    margin: 10px 0 0;
+    padding: 0;
+    width: 100%;
+  }
+  .project-banner .propose--lessmargin.mui--d-inlineblock {
+    width: auto;
   }
   .project-banner .project-details__box--ticketbox {
-    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 15px;
   }
   .project-banner .project-banner__action .project-banner__action__social {
     width: 100%;

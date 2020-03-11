@@ -36,7 +36,7 @@
   }
   .bookmark-icon {
     position: relative;
-    top: 6px;
+    top: 1px;
     text-align: right;
     height: 0;
   }
@@ -48,7 +48,7 @@
     margin-right: -15px;
     margin-left: -15px;
     padding: 0 15px 10px;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
   }
   .project-time {
     margin-bottom: 15px;
@@ -57,7 +57,8 @@
     margin: 10px 0;
   }
   .propose {
-    padding: 15px 0;
+    padding-top: 15px;
+    padding-bottom: 15px;
     .propose__btn {
       background-color: #202d3c;
       color: #fff;
@@ -87,14 +88,7 @@
       align-items: baseline;
       margin-bottom: 10px;
       padding: 10px;
-      border: 1px dashed #4d5763;
-    }
-
-    .share-by-email {
-      background: #4d5763;
-      color: #fff;
-      border-radius: 3px;
-      padding: 3px;
+      border: 2px dashed #eff2f6;
     }
 
     .mui-btn + .mui-btn {
@@ -127,22 +121,34 @@
       }
     }
     .bookmark-icon {
-      top: 15px;
+      top: 9px;
     }
     .bookmark-icon--height {
       top: 0;
     }
     .card__calendar {
-      margin: 5px 0 15px;
+      margin: 5px 0 35px;
       padding: 0 0 8px;
     }
     .propose {
-      padding: 15px 0;
-      margin-left: 15px;
       align-items: baseline;
+      margin-left: 15px;
+      width: calc(100% - 15px);
+    }
+    .propose--lessmargin {
+      margin: 10px 0 0;
+      padding: 0;
+      width: 100%;
+    }
+    .propose--lessmargin.mui--d-inlineblock {
+      width: auto;
     }
     .project-details__box--ticketbox {
-      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 15px;
     }
     .project-banner__action {
       .project-banner__action__social {

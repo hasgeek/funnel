@@ -87,10 +87,17 @@
             <div class="about__details__description">{{ project.instructions }}</div>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
-            <p class="mui--text-left">
+            <div class="mui--text-left">
               {% if project.cfp_end_at -%}<p class="mui--text-subhead zero-bottom-margin"><em>Proposal submission closes on {{ project.cfp_end_at|longdate }}, submit a session now.</em></p>{%- endif %}
               <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
-            </p>
+            </div>
+          {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
+            <div class="project-banner">
+              <div class="propose propose--lessmargin mui--d-inlineblock">
+                <a class="mui-btn mui-btn--raised propose__btn propose__btn--strike" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+                <p class="mui--text-light mui--text-caption mui--text-center">Submissions are closed for this project</p>
+              </div>
+            </div>
           {%- endif %}
         </div>
       {%- endif %}
