@@ -88,13 +88,9 @@
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <p class="mui--text-left">
-              <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+              {% if project.cfp_end_at -%}<p class="mui--text-subhead zero-bottom-margin"><em>Proposal submission closes on {{ project.cfp_end_at|longdate }}, submit a session now.</em></p>{%- endif %}
+              <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
             </p>
-          {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
-            <div class="project-banner mui--hidden-md mui--hidden-lg mui--hidden-xl">
-              <a class="mui-btn mui-btn--raised propose-btn strike-text" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
-              <p class="mui--text-light mui--text-caption mui--text-center">Submissions are closed for this project</p>
-            </div>
           {%- endif %}
         </div>
       {%- endif %}

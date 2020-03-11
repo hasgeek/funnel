@@ -28,7 +28,7 @@
 }
 
 .separator {
-  padding: 0 5px;
+  margin: 10px 0;
 }
 
 .image-wrapper img {
@@ -43,6 +43,14 @@
 
 .material-icons {
   display: none;
+}
+
+.primary-color-txt {
+  color: #e05f26;
+}
+
+.secondary-color-txt {
+  color: #82688d;
 }
 
 .list-item-rgborder li {

@@ -253,6 +253,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
+                'cfp_end_at',
             },
             'call': {'url_for', 'current_sessions', 'is_saved_by'},
         }

@@ -122,34 +122,38 @@
         {%- if project.primary_venue %}
           <a class="mui--text-hyperlink mui--text-subhead project-venue {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a>
         {%- endif %}
-        {% if project.cfp_state.OPEN -%}
-          <p><a class="mui-btn mui-btn--raised mui--d-block propose-btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
-        {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
-          <div>
-            <a class="mui-btn mui-btn--raised mui--d-block propose-btn strike-text" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Propose a session{% endtrans %}</a>
-            <p class="mui--text-light mui--text-caption mui--text-center">Submissions are closed for this project</p>
-          </div>
-        {%- endif %}
-        <div class="mui--hidden-xs mui--hidden-sm">
-          {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-            <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.allow_rsvp %}{% trans %}Attend{% endtrans %}{% else %}{% trans %} Get tickets{% endtrans %}{% endif %}</a>
-          {%- elif project.buy_tickets_url.url %}
-            <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
-            {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
-              {{ project.boxoffice_data.buy_btn_text }}
-            {% else %}
-              {% trans %}Get tickets{% endtrans %}
-            {% endif %}
-            </a>
-          {%- endif %}
-        </div>
         <div class="project-banner__action">
           <div class="project-banner__action__social">
-            <a class="list-group-item share-popup  mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" data-action="Tweet this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#twitter-square"></use></svg>{% endassets %}</a>
-            <a class="list-group-item share-popup  mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" data-action="Share on Facebook(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#facebook-square"></use></svg>{% endassets %}</a>
-            <a class="list-group-item share-popup  mui--text-headline mui--text-light" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" data-action="Email this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#envelope"></use></svg>{% endassets %}</a>
+            <p class="mui--text-light zero-bottom-margin">Share this project</p>
+            <a class="mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" data-action="Tweet this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#twitter-square"></use></svg>{% endassets %}</a>
+            <a class="mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" data-action="Share on Facebook(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#facebook-square"></use></svg>{% endassets %}</a>
+            <a class="share-by-email mui--text-caption" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" data-action="Email this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#envelope"></use></svg>{% endassets %}</a>
           </div>
         </div>
+        <div class="project-details__box--ticketbox">
+          <div class="mui--hidden-xs mui--hidden-sm">
+            {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+              <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.allow_rsvp %}{% trans %}Attend{% endtrans %}{% else %}{% trans %} Get tickets{% endtrans %}{% endif %}</a>
+            {%- elif project.buy_tickets_url.url %}
+              <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
+              {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
+                {{ project.boxoffice_data.buy_btn_text }}
+              {% else %}
+                {% trans %}Get tickets{% endtrans %}
+              {% endif %}
+              </a>
+            {%- endif %}
+          </div>
+        </div>
+      </div>
+      <div class="grid mui--bg-accent propose">
+        {% if project.cfp_state.OPEN -%}
+          {% if project.cfp_end_at -%}<p class="mui--text-subhead grid__col-md-8 propose__txt zero-bottom-margin"><em>Proposal submission closes on {{ project.cfp_end_at|longdate }}, submit a session now.</em></p>{% endif %}
+          <p class="grid__col-md-4 zero-bottom-margin"><a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
+        {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
+          <p class="mui--text-subhead grid__col-md-8 propose__txt zero-bottom-margin"><em>Submissions are closed for this project.</em></p>
+          <p class="grid__col-md-4 zero-bottom-margin"><a class="mui-btn mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Propose a session{% endtrans %}</a></p>
+        {%- endif %}
       </div>
     </div>
   </div>

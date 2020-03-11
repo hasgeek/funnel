@@ -28,7 +28,7 @@
 }
 
 .separator {
-  padding: 0 5px;
+  margin: 10px 0;
 }
 
 .image-wrapper img {
@@ -43,6 +43,14 @@
 
 .material-icons {
   display: none;
+}
+
+.primary-color-txt {
+  color: #e05f26;
+}
+
+.secondary-color-txt {
+  color: #82688d;
 }
 
 .list-item-rgborder li {
@@ -2144,15 +2152,18 @@ html.touch .collapsible__body--disable {
 .project-banner .project-venue {
   margin: 10px 0;
 }
-.project-banner .propose-btn {
+.project-banner .propose {
+  padding: 15px 0;
+}
+.project-banner .propose .propose__btn {
   background-color: #202d3c;
   color: #fff;
   margin-bottom: 0;
 }
-.project-banner .propose-btn.strike-text {
+.project-banner .propose .propose__btn--strike {
   text-decoration: line-through;
 }
-.project-banner .propose-btn.strike-text:hover {
+.project-banner .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
 .project-banner .project-banner__action {
@@ -2168,16 +2179,16 @@ html.touch .collapsible__body--disable {
   justify-content: space-between;
   width: 50%;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: 10px;
+  padding: 10px;
+  border: 1px dashed #4d5763;
 }
-.project-banner .project-banner__action .project-banner__action__button {
-  display: inline-block;
-  width: 165px;
-  box-shadow: none;
-  text-align: left;
-  padding: 0;
-  margin: 0;
+.project-banner .project-banner__action .share-by-email {
+  background: #4d5763;
+  color: #fff;
+  border-radius: 3px;
+  padding: 3px;
 }
 .project-banner .project-banner__action .mui-btn + .mui-btn {
   margin-left: 0;
@@ -2189,9 +2200,6 @@ html.touch .collapsible__body--disable {
   }
 }
 @media (min-width: 992px) {
-  .project-banner .project-banner__headline {
-    margin-bottom: 16px;
-  }
   .project-banner .project-banner__box {
     padding: 0 15px;
   }
@@ -2211,8 +2219,16 @@ html.touch .collapsible__body--disable {
     top: 0;
   }
   .project-banner .card__calendar {
-    margin: 0 0 15px;
-    padding: 10px 0 8px;
+    margin: 5px 0 15px;
+    padding: 0 0 8px;
+  }
+  .project-banner .propose {
+    padding: 15px 0;
+    margin-left: 15px;
+    align-items: baseline;
+  }
+  .project-banner .project-details__box--ticketbox {
+    width: 100%;
   }
   .project-banner .project-banner__action .project-banner__action__social {
     width: 100%;

@@ -56,16 +56,19 @@
   .project-venue {
     margin: 10px 0;
   }
-  .propose-btn {
-    background-color: #202d3c;
-    color: #fff;
-    margin-bottom: 0;
-  }
-  .propose-btn.strike-text {
-    text-decoration: line-through;
-  }
-  .propose-btn.strike-text:hover {
-    text-decoration: line-through;
+  .propose {
+    padding: 15px 0;
+    .propose__btn {
+      background-color: #202d3c;
+      color: #fff;
+      margin-bottom: 0;
+    }
+    .propose__btn--strike {
+      text-decoration: line-through;
+    }
+    .propose-btn--strike:hover {
+      text-decoration: line-through;
+    }
   }
   .project-banner__action {
     display: flex;
@@ -81,17 +84,17 @@
       justify-content: space-between;
       width: 50%;
       display: flex;
-      align-items: center;
+      align-items: baseline;
       margin-bottom: 10px;
+      padding: 10px;
+      border: 1px dashed #4d5763;
     }
 
-    .project-banner__action__button {
-      display: inline-block;
-      width: 165px;
-      box-shadow: none;
-      text-align: left;
-      padding: 0;
-      margin: 0;
+    .share-by-email {
+      background: #4d5763;
+      color: #fff;
+      border-radius: 3px;
+      padding: 3px;
     }
 
     .mui-btn + .mui-btn {
@@ -110,9 +113,6 @@
 
 @media (min-width: 992px) {
   .project-banner {
-    .project-banner__headline {
-      margin-bottom: 16px;
-    }
     .project-banner__box {
       padding: 0 15px;
     }
@@ -133,8 +133,16 @@
       top: 0;
     }
     .card__calendar {
-      margin: 0 0 15px;
-      padding: 10px 0 8px;
+      margin: 5px 0 15px;
+      padding: 0 0 8px;
+    }
+    .propose {
+      padding: 15px 0;
+      margin-left: 15px;
+      align-items: baseline;
+    }
+    .project-details__box--ticketbox {
+      width: 100%;
     }
     .project-banner__action {
       .project-banner__action__social {
