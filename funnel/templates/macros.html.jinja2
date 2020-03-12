@@ -156,7 +156,7 @@
     {% if project.cfp_state.OPEN -%}
       <div class="grid mui--bg-accent propose">
         {% if project.cfp_end_at -%}<p class="mui--text-subhead grid__col-md-8 propose__txt zero-bottom-margin"><em>Proposal submission closes on {{ project.cfp_end_at|longdate }}, submit a session now.</em></p>{% endif %}
-        <p class="grid__col-md-4 zero-bottom-margin"><a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
+        <p class="grid__col-md-4 zero-bottom-margin propose__btn-wrapper"><a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
       </div>
     {%- endif %}
 

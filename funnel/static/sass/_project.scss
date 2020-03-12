@@ -57,6 +57,7 @@
     margin: 10px 0;
   }
   .propose {
+    margin: 8px 0 0;
     padding-top: 15px;
     padding-bottom: 15px;
     .propose__btn {
@@ -83,7 +84,7 @@
 
     .project-banner__action__social {
       justify-content: space-between;
-      width: 50%;
+      width: 100%;
       display: flex;
       align-items: baseline;
       margin-bottom: 10px;
@@ -143,17 +144,20 @@
     .propose--lessmargin.mui--d-inlineblock {
       width: auto;
     }
+    .propose__btn-wrapper {
+      padding-left: 10px;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .project-banner {
     .project-details__box--ticketbox {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
       padding: 0 15px;
-    }
-    .project-banner__action {
-      .project-banner__action__social {
-        width: 100%;
-      }
     }
   }
 }
