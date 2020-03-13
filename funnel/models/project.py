@@ -12,7 +12,7 @@ from babel.dates import format_date
 from isoweek import Week
 from pytz import utc
 
-from baseframe import __, get_locale
+from baseframe import __, get_locale, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow, valid_username
 
@@ -253,7 +253,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
-                'cfp_end_at',
+                'from_date_localized',
+                'to_date_localized',
+                'cfp_start_at_localized',
+                'cfp_end_at_localized',
             },
             'call': {'url_for', 'current_sessions', 'is_saved_by'},
         }
@@ -639,6 +642,38 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cached_property
     def calendar_weeks_compact(self):
         return self.calendar_weeks(leading_weeks=False)
+
+    @cached_property
+    def from_date_localized(self):
+        return (
+            localize_timezone(self.schedule_start_at, tz=self.timezone)
+            if self.schedule_start_at
+            else None
+        )
+
+    @cached_property
+    def to_date_localized(self):
+        return (
+            localize_timezone(self.schedule_end_at, tz=self.timezone)
+            if self.schedule_end_at
+            else None
+        )
+
+    @cached_property
+    def cfp_start_at_localized(self):
+        return (
+            localize_timezone(self.cfp_start_at, tz=self.timezone)
+            if self.cfp_start_at
+            else None
+        )
+
+    @cached_property
+    def cfp_end_at_localized(self):
+        return (
+            localize_timezone(self.cfp_end_at, tz=self.timezone)
+            if self.cfp_end_at
+            else None
+        )
 
     def current_sessions(self):
         now = utcnow().astimezone(self.timezone)
