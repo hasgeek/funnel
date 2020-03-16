@@ -253,8 +253,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
-                'from_date_localized',
-                'to_date_localized',
+                'schedule_state_at_localized',
+                'schedule_end_at_localized',
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
             },
@@ -644,7 +644,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return self.calendar_weeks(leading_weeks=False)
 
     @cached_property
-    def from_date_localized(self):
+    def schedule_start_at_localized(self):
         return (
             localize_timezone(self.schedule_start_at, tz=self.timezone)
             if self.schedule_start_at
@@ -652,7 +652,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     @cached_property
-    def to_date_localized(self):
+    def schedule_end_at_localized(self):
         return (
             localize_timezone(self.schedule_end_at, tz=self.timezone)
             if self.schedule_end_at
