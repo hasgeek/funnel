@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from flask import Markup
+
 from . import db
 
 
@@ -27,6 +29,23 @@ class VideoMixin:
         elif self.video_source == 'vimeo':
             return '//player.vimeo.com/video/{video_id}?api=1&player_id=vimeoplayer'.format(
                 video_id=self.video_id
+            )
+        else:
+            return None
+
+    @property
+    def video_iframe(self):
+        if self.video_source == 'youtube':
+            return Markup(
+                '<iframe id="youtube_player" src="{embeddable_video_url}" frameborder="0" allowfullscreen></iframe>'.format(
+                    embeddable_video_url=self.embeddable_video_url
+                )
+            )
+        elif self.video_source == 'vimeo':
+            return Markup(
+                '<iframe id="vimeo_player" src="{embeddable_video_url}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'.format(
+                    embeddable_video_url=self.embeddable_video_url
+                )
             )
         else:
             return None
