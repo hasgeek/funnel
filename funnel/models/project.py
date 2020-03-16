@@ -253,7 +253,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
-                'schedule_state_at_localized',
+                'schedule_start_at_localized',
                 'schedule_end_at_localized',
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
