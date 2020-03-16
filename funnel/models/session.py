@@ -11,6 +11,7 @@ from . import (
     db,
 )
 from .helpers import add_search_trigger
+from .mixins import VideoMixin
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
@@ -18,7 +19,7 @@ from .venue import VenueRoom
 __all__ = ['Session']
 
 
-class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
+class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     __tablename__ = 'session'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
