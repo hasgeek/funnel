@@ -91,7 +91,7 @@
               {% if project.cfp_end_at_localized -%}<p class="mui--text-subhead zero-bottom-margin"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}, submit a session now.{% endtrans %}</em></p>{%- endif %}
               <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
             </div>
-          {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
+          {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="project-banner">
               <div class="propose propose--lessmargin mui--d-inlineblock">
                 <a class="mui-btn mui-btn--raised propose__btn propose__btn--strike" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>

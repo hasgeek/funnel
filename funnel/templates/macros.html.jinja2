@@ -144,7 +144,7 @@
               </a>
             {%- endif %}
           </div>
-          {%- if project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
+          {%- if project.cfp_state.UNAVAILABLE %}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Propose a session{% endtrans %}</a>
               <p class="mui--text-light mui--text-caption mui--text-center zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>

@@ -423,6 +423,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")),
     )
 
+    cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
+
     @with_roles(call={'admin'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
