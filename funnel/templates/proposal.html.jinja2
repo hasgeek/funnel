@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
+{%- from "macros.html.jinja2" import embed_video_player %}
 {% from "comments.html.jinja2" import commenttree %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
@@ -79,52 +80,85 @@
           </p>
         {%- endif -%}
       </p>
-      <div class="mui--clearfix">
-        <div class="proposal-details proposal-details--left">
+      <div class="details">
+        <div class="details__box details__box--left mui-tabs__bar">
           {% if proposal.preview_video.url %}
-            <div class="proposal-video mui--bg-primary-light embed-video-wrapper" data-video-src="{{ proposal.preview_video }}" id="js-embed">
-              <p class="video_txt">
-                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
-                <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
-              </p>
+            <div class="proposal-video mui--bg-primary-light embed-video-wrapper mui--is-active mui-tabs__pane" id="pane-justified-1">
+              {{ embed_video_player({'video_source':'youtube', 'video_id':'71JdaRofCgA'}) }}
             </div>
           {%- elif proposal.current_roles.owner %}
-            <div class="proposal-video proposal-video--novideo embed-video-wrapper">
+            <div class="proposal-video proposal-video--novideo embed-video-wrapper" id="pane-justified-1">
               <p class="proposal-video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
               <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-preview_video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
             </div>
           {%- else %}
-            <div class="proposal-video mui--bg-primary-light embed-video-wrapper">
+            <div class="proposal-video mui--bg-primary-light embed-video-wrapper" id="pane-justified-1">
               {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline no-video" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video-slash"></use></svg>{% endassets %}
             </div>
           {% endif %}
+          <div class="proposal-video mui--bg-primary-light embed-video-wrapper mui-tabs__pane" id="pane-justified-2">
+            {{ embed_video_player({'video_source':'youtube', 'video_id':'AS9CMVU4XhI'}) }}
+            <iframe src="//www.youtube.com/embed/AS9CMVU4XhI" frameborder="0" allowfullscreen=""></iframe>
+          </div>
+          <div class="proposal-video mui--bg-primary-light embed-video-wrapper mui-tabs__pane" id="pane-justified-3">
+            {{ embed_video_player({'video_source':'vimeo', 'video_id':'72168762'}) }}
+          </div>
         </div>
-        <div class="proposal-details proposal-details--right">
-          <p>
-          {%- for label in proposal.labels %}
-            {% if not label.restricted %}
-              <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
-            {%- endif %}
-          {%- endfor %}
-          {%- if proposal.current_roles.admin %}
-            {%- for label in proposal.labels %}
-              {%- if label.restricted %}
-                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
-              {%- endif %}
-            {%- endfor %}
-          {% endif %}
-          <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">
-          {% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
-          </p>
-          {% if proposal.state.SCHEDULED %}
-            <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></p>
-          {% endif %}
+        <div class="details__box details__box--right">
+          <div class="gallery mui-tabs__bar">
+            <a class="gallery-control gallery-control--prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
+            </a>
+            <div class="mui--is-active gallery__thumbnail tabs__item">
+              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-1">
+                <img src="https://hasgeek.tv/static/thumbnails/Demystifying_Web_Components_as_the_Weapon_for_Web_Convergence_-_Rahat_Khanna_Apple_2.jpeg" class="img-responsive">
+                <div class="overlay"></div>
+                <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+              </a>
+            </div>
+            <div class="gallery__thumbnail tabs__item">
+              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-2">
+                <img src="https://hasgeek.tv/static/thumbnails/Building_a_PWA_using_Polymer_-_Ashrith_Kulai_OlaCabs_2.jpeg" class="img-responsive">
+                <div class="overlay"></div>
+                <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+              </a>
+            </div>
+            <div class="gallery__thumbnail tabs__item">
+              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-3">
+                <img src="https://hasgeek.tv/static/thumbnails/Progressive_Web_Games_-_Prateek_Bhatnagar_Google_2.jpeg" class="img-responsive">
+                <div class="overlay"></div>
+                <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+              </a>
+            </div>
+            <a class="gallery-control gallery-control--next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button" data-action="Next(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
+            </a>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="proposal__section--border">
+    <section class="proposal__section proposal__section--border">
+      <div>
+        {%- for label in proposal.labels %}
+          {% if not label.restricted %}
+            <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+          {%- endif %}
+        {%- endfor %}
+        {%- if proposal.current_roles.admin %}
+          {%- for label in proposal.labels %}
+            {%- if label.restricted %}
+              <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+            {%- endif %}
+          {%- endfor %}
+        {% endif %}
+        <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">
+        {% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
+      </div>
+      {% if proposal.state.SCHEDULED %}
+        <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></p>
+      {% endif %}
+    </section>
 
+    <section class="proposal__section--border">
       <div class="proposal__admin-panel sticky-admin-panel">
         {%- if proposal.current_roles.owner or proposal.current_roles.admin %}
           <div class="card">

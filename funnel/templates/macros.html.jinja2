@@ -190,3 +190,16 @@
     </nav>
   </div>
 {% endmacro %}
+
+{% macro embed_video_player(video) %}
+  {%- if video.video_source == 'youtube' -%}
+    <iframe src="//www.youtube.com/embed/{{video.video_id}}" frameborder="0" allowfullscreen></iframe>
+  {% elif video.video_source == 'vimeo' %}
+    <iframe src="//player.vimeo.com/video/{{video.video_id}}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+  {% else %}
+    <p class="video_txt">
+      {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
+      <a href="{{ video.preview_video }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+    </p>
+  {%- endif %}
+{% endmacro %}
