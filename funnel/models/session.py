@@ -124,7 +124,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     def start_at_localized(self):
         return (
             localize_timezone(self.start_at, tz=self.project.timezone)
-            if self.start_at and self.scheduled
+            if self.start_at
             else None
         )
 
@@ -132,7 +132,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     def end_at_localized(self):
         return (
             localize_timezone(self.end_at, tz=self.project.timezone)
-            if self.end_at and self.scheduled
+            if self.end_at
             else None
         )
 
