@@ -976,6 +976,14 @@ html.touch .collapsible__body--disable {
   margin-bottom: 1em;
 }
 
+.mui-btn--strike {
+  text-decoration: line-through;
+}
+
+.mui-btn--strike:hover {
+  text-decoration: line-through;
+}
+
 .projects-wrapper {
   padding: 15px 0;
 }
@@ -2130,54 +2138,72 @@ html.touch .collapsible__body--disable {
   margin: 0;
   display: block;
 }
-.project-banner .bookmark-icon {
+.project-banner .project-details__box {
+  margin-top: 15px;
   position: relative;
-  top: 1px;
-  text-align: right;
-  height: 0;
 }
-.project-banner .bookmark-icon--height {
-  height: auto;
+.project-banner .project-details__box .bookmark-icon {
+  position: absolute;
   top: 0;
+  right: 0;
 }
-.project-banner .card__calendar {
-  margin-right: -15px;
-  margin-left: -15px;
+.project-banner .project-details__box .card__calendar {
   padding: 0 15px 10px;
-  margin-bottom: 25px;
+  margin: 0 -15px 25px;
 }
-.project-banner .project-time {
+.project-banner .project-details__box .project-time {
   margin-bottom: 15px;
 }
-.project-banner .project-venue {
+.project-banner .project-details__box .project-venue {
   margin: 10px 0;
 }
-.project-banner .propose {
+.project-banner .project-details__box .propose {
   margin: 8px 0 0;
   padding-top: 15px;
   padding-bottom: 15px;
 }
-.project-banner .propose .propose__btn {
+.project-banner .project-details__box .propose .propose__btn {
   background-color: #202d3c;
   color: #fff;
   margin-bottom: 0;
 }
-.project-banner .propose .propose__btn--strike {
+.project-banner .project-details__box .propose .propose__btn--strike {
   text-decoration: line-through;
 }
-.project-banner .propose .propose-btn--strike:hover {
+.project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
-.project-banner .project-banner__action {
+.project-banner .project-details__box .propose .propose__txt {
+  margin-top: 5px;
+}
+.project-banner
+  .project-details__box
+  .propose
+  .propose__txt
+  .propose__txt__badge {
+  margin-right: 10px;
+  padding: 5px;
+  float: left;
+  position: relative;
+  top: 8px;
+  border-radius: 2px;
+}
+.project-banner .project-details__box .project-banner__action {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
 }
-.project-banner .project-banner__action .project-banner__action__icon {
+.project-banner
+  .project-details__box
+  .project-banner__action
+  .project-banner__action__icon {
   height: 24px;
   vertical-align: middle;
 }
-.project-banner .project-banner__action .project-banner__action__social {
+.project-banner
+  .project-details__box
+  .project-banner__action
+  .project-banner__action__social {
   justify-content: space-between;
   width: 100%;
   display: flex;
@@ -2186,7 +2212,11 @@ html.touch .collapsible__body--disable {
   padding: 10px;
   border: 2px dashed #eff2f6;
 }
-.project-banner .project-banner__action .mui-btn + .mui-btn {
+.project-banner
+  .project-details__box
+  .project-banner__action
+  .mui-btn
+  + .mui-btn {
   margin-left: 0;
 }
 
@@ -2208,30 +2238,34 @@ html.touch .collapsible__body--disable {
   .project-banner .profile-text p {
     margin: 0;
   }
-  .project-banner .bookmark-icon {
-    top: 9px;
+  .project-banner .project-details__box {
+    margin: 0;
+    margin-top: -7px;
   }
-  .project-banner .bookmark-icon--height {
-    top: 0;
+  .project-banner .project-details__box .bookmark-icon {
+    top: 5px;
+    right: 10px;
   }
-  .project-banner .card__calendar {
-    margin: 5px 0 35px;
+  .project-banner .project-details__box .card__calendar {
+    margin: 0 0 25px;
     padding: 0 0 8px;
   }
-  .project-banner .propose {
+  .project-banner .project-details__box .propose {
     align-items: baseline;
     margin-left: 15px;
     width: calc(100% - 15px);
   }
-  .project-banner .propose--lessmargin {
+  .project-banner .project-details__box .propose--lessmargin {
     margin: 10px 0 0;
     padding: 0;
     width: 100%;
   }
-  .project-banner .propose--lessmargin.mui--d-inlineblock {
+  .project-banner
+    .project-details__box
+    .propose--lessmargin.mui--d-inlineblock {
     width: auto;
   }
-  .project-banner .propose__btn-wrapper {
+  .project-banner .project-details__box .propose__btn-wrapper {
     padding-left: 10px;
   }
 }

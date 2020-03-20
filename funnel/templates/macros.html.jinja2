@@ -55,22 +55,19 @@
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
-      {%- if project.profile %}
-        <div class="grid__col-sm-12">
+      <div class="grid__col-sm-12 project-banner__headline">
+        <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
+        <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
+        {%- if project.profile %}
           <div class="profile-details">
             {%- if project.profile.logo_url.url %}
               <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
                 <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
               </a>
             {% endif %}
-            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title|e }}</a>&nbsp;
-            <span class="mui--text-subhead mui--text-bold profile-details__text">project</span>
+            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title|e }}</a>
           </div>
-        </div>
-      {% endif %}
-      <div class="grid__col-sm-12 project-banner__headline">
-        <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
-        <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
+        {% endif %}
       </div>
       {% if project.livestream_urls %}
         <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">
@@ -109,8 +106,7 @@
         </div>
       {% endif %}
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
-        <div class="mui--text-body1 mui--text-light profile-text js-truncate-readmore" data-truncate-lines="2">{{ project.profile.description|safe|striptags }}</div>
-        <div class="bookmark-icon  {% if not project.calendar_weeks_full.weeks %} bookmark-icon--height {% endif %}">{{ saveprojectform(project, project_save_form) }}</div>
+        <div class="bookmark-icon">{{ saveprojectform(project, project_save_form) }}</div>
         {% if project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
@@ -144,22 +140,20 @@
               </a>
             {%- endif %}
           </div>
-          {%- if project.cfp_state.UNAVAILABLE %}
+          {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
-              <a class="mui-btn mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Propose a session{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+              {% if project.cfp_end_at_localized -%}<p class="mui--text-subhead propose__txt zero-bottom-margin"><span class="propose__txt__badge alert--warning mui--d-inlineblock">Note</span> <em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+            </div>
+          {%- elif project.cfp_state.UNAVAILABLE %}
+            <div class="propose propose--lessmargin">
+              <a class="mui-btn mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
               <p class="mui--text-light mui--text-caption mui--text-center zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
             </div>
           {%- endif %}
         </div>
       </div>
     </div>
-    {% if project.cfp_state.OPEN -%}
-      <div class="grid mui--bg-accent propose">
-        {% if project.cfp_end_at_localized -%}<p class="mui--text-subhead grid__col-md-8 propose__txt zero-bottom-margin"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}, submit a session now.{% endtrans %}</em></p>{% endif %}
-        <p class="grid__col-md-4 zero-bottom-margin propose__btn-wrapper"><a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a></p>
-      </div>
-    {%- endif %}
-
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
