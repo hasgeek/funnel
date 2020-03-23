@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from flask import abort, jsonify, redirect, render_template, request
 
 from baseframe import _, localize_timezone
@@ -50,7 +49,10 @@ def session_form(project, proposal=None, session=None):
         if not (session or proposal):
             form.is_break.data = True
         return render_template(
-            'session_form.html.jinja2', form=form, formid='session_form'
+            'session_form.html.jinja2',
+            form=form,
+            formid='session_form',
+            title=_("Edit session"),
         )
     if form.validate_on_submit():
         new = False
@@ -81,7 +83,10 @@ def session_form(project, proposal=None, session=None):
     return jsonify(
         status=False,
         form=render_template(
-            'session_form.html.jinja2', form=form, formid='session_new'
+            'session_form.html.jinja2',
+            form=form,
+            formid='session_new',
+            title=_("Edit session"),
         ),
     )
 

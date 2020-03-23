@@ -187,7 +187,8 @@
 
 {% macro embed_video_player(video) %}
   {%- if video.video_source == 'youtube' -%}
-    <iframe src="//www.youtube.com/embed/{{video.video_id}}" frameborder="0" allowfullscreen></iframe>
+    <iframe id="youtube_player" src="//videoken.com/embed/?videoID={{video.video_id}}&wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=1&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>
+    <p><a href="https://videoken.com" target="_blank" class="mui--text-caption mui--text-light">Powered by VideoKen</a></p>
   {% elif video.video_source == 'vimeo' %}
     <iframe src="//player.vimeo.com/video/{{video.video_id}}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
   {% else %}
@@ -196,4 +197,23 @@
       <a href="{{ video.preview_video }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
     </p>
   {%- endif %}
+{% endmacro %}
+
+{% macro video_action_bar(video, proposal) %}
+  {%- if video.video_source == 'youtube' -%}
+    <p><a href="https://videoken.com" target="_blank" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
+  {%- endif %}
+  {%- if proposal.current_roles.owner %}
+    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit_schedule') }}" data-cy-admin="edit" aria-label="{% trans %}Edit proposal video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
+  {% elif proposal.current_roles.admin and proposal.state.SCHEDULED %}
+    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Edit session video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
+  {%- endif %}
+  <div class="mui-dropdown">
+    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead" data-mui-toggle="dropdown" data-action="Share dropdown">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#share-square"></use></svg>{% endassets %}</a>
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+      <li><a class="details__box__control__link mui--text-title" target="_blank" href="//twitter.com/share?url={{ proposal.url_for(_external=true) }}&amp;via=HasGeek&amp;{{ proposal.title }}" data-url="{{ proposal.url_for(_external=true) }}" data-via="HasGeek" data-text="{{proposal_title}}" data-action="Tweet video">Twitter</a></li>
+      <li><a class="details__box__control__link mui--text-title" target="_blank" href="//www.facebook.com/sharer.php?u={{proposal_url}}&amp;t={{proposal_title}}" data-href="{{ proposal.url_for(_external=true) }}" data-action="Share video on facebook">Facebook</a></li>
+      <li><a class="details__box__control__link mui--text-title" href="mailto:?subject={{ proposal.title }}&amp;body={{ proposal.url_for(_external=true) }}" data-action="Email video">Email</a></li>
+    </ul>
+  </div>
 {% endmacro %}
