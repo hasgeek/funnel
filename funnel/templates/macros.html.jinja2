@@ -56,7 +56,7 @@
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       <div class="grid__col-sm-12 project-banner__headline">
-        <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
+        <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}</h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
         {%- if project.profile %}
           <div class="profile-details">
@@ -65,7 +65,7 @@
                 <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
               </a>
             {% endif %}
-            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title|e }}</a>
+            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
           </div>
         {% endif %}
       </div>
@@ -113,15 +113,12 @@
           </div>
         {% endif %}
         <div class="project-details__box--ticketbox">
-          {%- if project.start_at %}
-            <p class="mui--text-light mui--text-subhead project-time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} <span>{{ project.start_at }}</span>{%- if project.end_at %} <span>–{{ project.end_at }}</span>{%- endif %}</p>
-          {%- endif %}
           {%- if project.primary_venue %}
             <p><a class="mui--text-hyperlink mui--text-subhead project-venue {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
           {%- endif %}
           <div class="project-banner__action">
             <div class="project-banner__action__social">
-              <p class="mui--text-light zero-bottom-margin">Share this project</p>
+              <p class="mui--text-light zero-bottom-margin">{% trans %}Share this project{% endtrans %}</p>
               <a class="mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" data-action="Tweet this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#twitter-square"></use></svg>{% endassets %}</a>
               <a class="mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" data-action="Share on Facebook(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#facebook-square"></use></svg>{% endassets %}</a>
               <a class="mui--text-headline mui--text-light" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" data-action="Email this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#envelope-square"></use></svg>{% endassets %}</a>

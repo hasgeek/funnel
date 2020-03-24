@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#arrow-left"></use></svg>{% endassets %} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
