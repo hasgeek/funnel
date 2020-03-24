@@ -111,7 +111,7 @@
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
         <div class="mui--text-body1 mui--text-light profile-text js-truncate-readmore" data-truncate-lines="2">{{ project.profile.description|safe|striptags }}</div>
         <div class="bookmark-icon  {% if not project.calendar_weeks_full.weeks %} bookmark-icon--height {% endif %}">{{ saveprojectform(project, project_save_form) }}</div>
-        {% if project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+        {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
