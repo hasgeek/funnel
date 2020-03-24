@@ -8,6 +8,6 @@ SERVER_PID=$!
 ./rq.sh &
 RQ_PID=$!
 cd funnel/assets
-npx cypress run --browser chrome
+npx cypress run --browser chrome --record --key $RECORD_KEY
 kill $SERVER_PID
 kill $RQ_PID
