@@ -96,7 +96,7 @@
                 <h3 class="mui--text-headline zero-top-margin"><a class="clickable-card" href="{{ featured_project.url_for() }}">{{ featured_project.title }}</a></h3>
                 <p class="mui--text-title mui--text-bold hg-text">Live</p>
                 {% if current_sessions.sessions|length > 0 %}
-                  <p class="mui--text-title mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} Session starts at {{ current_sessions.sessions[0].start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
+                  <p class="mui--text-title mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} Session starts at {{ current_sessions.sessions[0].start_at_localized.strftime('%I:%M %p') }}</p>
                 {% endif %}
                 <div>
                   {%- if featured_project.livestream_urls %}
@@ -228,8 +228,9 @@
                 </a>
                 <div class="card__body card__body--cfp">
                   <h3 class="card--cfp__title mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="js-truncate" data-truncate-lines="2">{{ project.title }}</a></h3>
-                  {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
                   <p class="mui--text-subhead mui--text-light zero-top-margin card--cfp__tagline js-truncate-readmore" data-truncate-lines="2">{{ project.tagline }}</p>
+                  <hr class="separator">
+                  {% if project.cfp_end_at_localized %}<p class="mui--text-body1 zero-top-margin mui--text-light"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
                 </div>
               </div>
             </li>
@@ -371,7 +372,7 @@
               <tbody>
                 {% for project in past_projects %}
                   <tr>
-                    <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.schedule_start_at|longdate }}</p></td>
+                    <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.schedule_start_at_localized.strftime('%d %B %Y')}}</p></td>
                     <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
                     <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
                   </tr>
