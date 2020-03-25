@@ -2,9 +2,12 @@
 
 import urllib.parse
 
+import dateutil.parser
 import requests
 
-from .. import redis_store
+from coaster.utils import parse_duration
+
+from .. import app, redis_store
 from . import db
 
 
@@ -12,16 +15,66 @@ class VideoMixin:
     video_id = db.Column(db.UnicodeText, nullable=True)
     video_source = db.Column(db.UnicodeText, nullable=True)
 
+    _video_duration = 0
+    _video_uploaded_at = None
+
     @property
     def video(self):
         data = None
-        if self.video_source:
-            data = {
-                'source': self.video_source,
-                'id': self.video_id,
-                'url': self.video_url,
-                'thumbnail': self.thumbnail_url,
-            }
+        if self.video_source and self.video_id:
+            data = redis_store.hgetall(self.cache_key)
+            if not data:
+                data = {
+                    'source': self.video_source,
+                    'id': self.video_id,
+                    'url': self.video_url,
+                }
+                if self.video_source == 'youtube':
+                    youtube_video = requests.get(
+                        'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={video_id}&key={api_key}'.format(
+                            video_id=self.video_id,
+                            api_key=app.config['YOUTUBE_API_KEY'],
+                        )
+                    ).json()
+                    if youtube_video is None or len(youtube_video['items']) == 0:
+                        raise Exception(
+                            "Unable to fetch data, please check the youtube url"
+                        )
+                    else:
+                        youtube_video = youtube_video['items'][0]
+
+                        data['duration'] = int(
+                            parse_duration(
+                                youtube_video['contentDetails']['duration']
+                            ).total_seconds()
+                        )
+                        data['uploaded_at'] = dateutil.parser.parse(
+                            youtube_video['snippet']['publishedAt']
+                        )
+                        data['thumbnail'] = youtube_video['snippet']['thumbnails'][
+                            'medium'
+                        ]['url']
+                elif self.video_source == 'vimeo':
+                    vimeo_video = requests.get(
+                        "https://vimeo.com/api/v2/video/%s.json" % (self.video_id)
+                    ).json()
+                    if len(vimeo_video) > 0:
+                        vimeo_video = vimeo_video[0]
+
+                        data['duration'] = vimeo_video['duration']
+                        data['uploaded_at'] = dateutil.parser.parse(
+                            vimeo_video['upload_date']
+                        )
+                        data['thumbnail'] = vimeo_video['thumbnail_medium']
+                else:
+                    # source = raw
+                    data['duration'] = 0
+                    data['uploaded_at'] = None
+                    data['thumbnail'] = None
+                redis_store.hmset(self.cache_key, data)
+                redis_store.expire(
+                    self.cache_key, 60 * 60 * 24 * 2
+                )  # caching for 2 days
         return data
 
     @property
@@ -93,29 +146,8 @@ class VideoMixin:
         return None
 
     @property
-    def thumbnail_key(self):
+    def cache_key(self):
         if self.video_source and self.video_id:
             return self.video_source + "/" + self.video_id
-        return None
-
-    @property
-    def thumbnail_url(self):
-        if self.video_source:
-            if self.video_source == 'youtube':
-                return '//i.ytimg.com/vi/{video_id}/mqdefault.jpg'.format(
-                    video_id=self.video_id
-                )
-            elif self.video_source == 'vimeo':
-                cache_thumbnail_key = self.thumbnail_key
-                cached_url = redis_store.get(cache_thumbnail_key)
-                if cached_url is not None:
-                    return cached_url
-                else:
-                    vimeo_video = requests.get(
-                        "https://vimeo.com/api/v2/video/%s.json" % (self.video_id)
-                    ).json()
-                    if len(vimeo_video) > 0:
-                        thumbnail_medium = vimeo_video[0]['thumbnail_medium']
-                        redis_store.set(cache_thumbnail_key, thumbnail_medium)
-                        return thumbnail_medium
-        return None
+        else:
+            raise Exception("No video source or ID to create a cache key")
