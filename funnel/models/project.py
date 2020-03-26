@@ -258,7 +258,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
             },
-            'call': {'url_for', 'current_sessions', 'is_saved_by'},
+            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
         }
     }
 
