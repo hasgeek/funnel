@@ -15,8 +15,12 @@ class VideoMixin:
     video_id = db.Column(db.UnicodeText, nullable=True)
     video_source = db.Column(db.UnicodeText, nullable=True)
 
-    _video_duration = 0
-    _video_uploaded_at = None
+    @property
+    def cache_key(self):
+        if self.video_source and self.video_id:
+            return self.video_source + "/" + self.video_id
+        else:
+            raise Exception("No video source or ID to create a cache key")
 
     @property
     def video(self):
@@ -144,10 +148,3 @@ class VideoMixin:
             elif self.video_source == 'raw':
                 return self.video_id
         return None
-
-    @property
-    def cache_key(self):
-        if self.video_source and self.video_id:
-            return self.video_source + "/" + self.video_id
-        else:
-            raise Exception("No video source or ID to create a cache key")
