@@ -52,7 +52,7 @@
                               {{/if}}
                             </div>
                             <div class="card__body">
-                              {{#if obj.schedule_state.PUBLISHED && obj.calendar_weeks_compact.weeks && obj.calendar_weeks_compact.weeks.length > 0 }}
+                              {{#if obj.calendar_weeks_compact.weeks && obj.calendar_weeks_compact.weeks.length > 0 }}
                                 <div aria-label="{{ project.datelocation }}">
                                   <div class="card__calendar card__calendar--compact" aria-hidden="true">
                                     <div class="calendar">
@@ -80,7 +80,7 @@
                                   </div>
                                 </div>
                               {{/if}}
-                              <div class="card__body__title js-truncate {{#if !(obj.schedule_state.PUBLISHED && obj.calendar_weeks_full.weeks.length) }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
+                              <div class="card__body__title js-truncate {{#if !obj.calendar_weeks_full.weeks.length }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
                               <p class="mui--text-subhead card__body__location">
                               {{#if obj.location }}
                                 <svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}
