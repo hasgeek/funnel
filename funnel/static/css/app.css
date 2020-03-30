@@ -2133,6 +2133,12 @@ html.touch .collapsible__body--disable {
     right: 0;
   }
 }
+.project-page .main-content--with-sidebar {
+  margin-left: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .js-mob-drawer {
   display: none;
   position: fixed;
