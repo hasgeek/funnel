@@ -43,7 +43,7 @@ class VideoMixin:
                             api_key=app.config['YOUTUBE_API_KEY'],
                         )
                     ).json()
-                    if youtube_video is None or len(youtube_video['items']) == 0:
+                    if youtube_video is None or not youtube_video['items']:
                         raise VideoException(
                             "Unable to fetch data, please check the youtube url"
                         )
@@ -65,7 +65,7 @@ class VideoMixin:
                     vimeo_video = requests.get(
                         "https://vimeo.com/api/v2/video/%s.json" % (self.video_id)
                     ).json()
-                    if len(vimeo_video) > 0:
+                    if vimeo_video:
                         vimeo_video = vimeo_video[0]
 
                         data['duration'] = vimeo_video['duration']
@@ -105,7 +105,7 @@ class VideoMixin:
 
         if parsed.netloc in ['youtube.com', 'www.youtube.com']:
             queries = urllib.parse.parse_qs(parsed.query)
-            if 'v' in queries and len(queries['v']) > 0:
+            if 'v' in queries and queries['v']:
                 self.video_id = queries['v'][0]
                 self.video_source = 'youtube'
             else:
