@@ -2,13 +2,16 @@
 
 import urllib.parse
 
-import dateutil.parser
 import requests
 
-from coaster.utils import parse_duration
+from coaster.utils import parse_duration, parse_isoformat
 
 from .. import app, redis_store
 from . import db
+
+
+class VideoException(Exception):
+    pass
 
 
 class VideoMixin:
@@ -16,17 +19,17 @@ class VideoMixin:
     video_source = db.Column(db.UnicodeText, nullable=True)
 
     @property
-    def cache_key(self):
+    def video_cache_key(self):
         if self.video_source and self.video_id:
-            return self.video_source + "/" + self.video_id
+            return "video_cache/" + self.video_source + "/" + self.video_id
         else:
-            raise Exception("No video source or ID to create a cache key")
+            raise VideoException("No video source or ID to create a cache key")
 
     @property
     def video(self):
         data = None
         if self.video_source and self.video_id:
-            data = redis_store.hgetall(self.cache_key)
+            data = redis_store.hgetall(self.video_cache_key)
             if not data:
                 data = {
                     'source': self.video_source,
@@ -41,7 +44,7 @@ class VideoMixin:
                         )
                     ).json()
                     if youtube_video is None or len(youtube_video['items']) == 0:
-                        raise Exception(
+                        raise VideoException(
                             "Unable to fetch data, please check the youtube url"
                         )
                     else:
@@ -52,7 +55,7 @@ class VideoMixin:
                                 youtube_video['contentDetails']['duration']
                             ).total_seconds()
                         )
-                        data['uploaded_at'] = dateutil.parser.parse(
+                        data['uploaded_at'] = parse_isoformat(
                             youtube_video['snippet']['publishedAt']
                         )
                         data['thumbnail'] = youtube_video['snippet']['thumbnails'][
@@ -66,8 +69,8 @@ class VideoMixin:
                         vimeo_video = vimeo_video[0]
 
                         data['duration'] = vimeo_video['duration']
-                        data['uploaded_at'] = dateutil.parser.parse(
-                            vimeo_video['upload_date']
+                        data['uploaded_at'] = parse_isoformat(
+                            vimeo_video['upload_date'], naive=True, delimiter=' '
                         )
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
                 else:
@@ -75,9 +78,9 @@ class VideoMixin:
                     data['duration'] = 0
                     data['uploaded_at'] = None
                     data['thumbnail'] = None
-                redis_store.hmset(self.cache_key, data)
+                redis_store.hmset(self.video_cache_key, data)
                 redis_store.expire(
-                    self.cache_key, 60 * 60 * 24 * 2
+                    self.video_cache_key, 60 * 60 * 24 * 2
                 )  # caching for 2 days
         return data
 

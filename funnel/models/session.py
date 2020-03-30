@@ -11,10 +11,10 @@ from . import (
     db,
 )
 from .helpers import add_search_trigger
-from .mixins import VideoMixin
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
+from .video import VideoMixin
 
 __all__ = ['Session']
 

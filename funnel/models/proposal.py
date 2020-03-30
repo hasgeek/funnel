@@ -21,9 +21,9 @@ from . import (
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import add_search_trigger
-from .mixins import VideoMixin
 from .project import Project
 from .user import User
+from .video import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
