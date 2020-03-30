@@ -55,19 +55,35 @@
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
-      <div class="grid__col-sm-12">
-        <div class="profile-details">
-          {%- if project.profile.logo_url.url %}
-            <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
-              <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
-            </a>
-          {% endif %}
-          <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
-        </div>
-      </div>
       <div class="grid__col-sm-12 project-banner__headline">
         <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}</h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
+      </div>
+      <div class="grid__col-sm-12">
+        <div class="profile-details js-show-project">
+          {%- if project.profile.logo_url.url %}
+            <a href="{{project.profile.url_for()}}" class="mui--hidden-xs mui--hidden-sm mui--hidden-md profile-details__logo-wrapper profile-details__logo-wrapper--small" data-action="View {{ project.profile.title }}(project page)">
+              <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            </a>
+            <a href="javascript:void(0)" class="js-slide-drawer mui--hidden-lg mui--hidden-xl profile-details__logo-wrapper profile-details__logo-wrapper--small" data-action="View {{ project.profile.title }}(project page)">
+              <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            </a>
+          {% endif %}
+          <a href="{{project.profile.url_for()}}" class="mui--hidden-xs mui--hidden-sm mui--hidden-md mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
+          <a href="javascript:void(0)" class="js-slide-drawer mui--hidden-lg mui--hidden-xl mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
+          <div class="js-on-hover">
+            <div class="profile-details">
+              {%- if project.profile.logo_url.url %}
+                <span class="profile-details__logo-wrapper profile-details__logo-wrapper--small"><img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></span>
+              {% endif %}
+              <div class="profile-details__desc">
+                <h2 class="mui--text-display1 mui--text-bold">{{ project.profile.title }}</h2>
+              </div>
+            </div>
+            <div class="mui--text-subhead">{{ project.profile.description.html }}</div>
+            <a class="mui--pull-right mui--text-bold mui--text-title" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
+          </div>
+        </div>
       </div>
       {% if project.livestream_urls %}
         <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">

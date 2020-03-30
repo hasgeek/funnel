@@ -1,9 +1,28 @@
+.js-mob-drawer {
+  display: none;
+  position: fixed;
+  z-index: 999999999;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  background: #fff;
+  border-radius: 4px;
+  word-break: break-word;
+
+  .profile-details {
+    margin: -15px -15px 15px;
+    padding: 15px;
+  }
+}
+
 .project-banner {
   margin-top: 15px;
 
-  .project-banner__headline {
-    margin-bottom: 16px;
+  .js-on-hover {
+    display: none;
   }
+
   .project-banner__box {
     padding: 0;
 
@@ -117,7 +136,29 @@
 }
 
 @media (min-width: 992px) {
+  .js-mob-drawer {
+    display: none;
+  }
   .project-banner {
+    .js-show-project {
+      position: relative;
+    }
+    .js-on-hover {
+      display: none;
+      position: absolute;
+      top: 62px;
+      z-index: 10000;
+      left: 0px;
+      width: 500px;
+      background: #fff;
+      padding: 15px;
+      word-break: break-word;
+      border-radius: 4px;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+    }
+    .js-show-project:hover .js-on-hover {
+      display: block;
+    }
     .project-banner__box {
       padding: 0 15px;
     }

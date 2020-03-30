@@ -54,6 +54,21 @@
   {%- endif %}
 {% endblock %}
 
+{% block sidedrawer -%}
+  <div class="js-mob-drawer">
+    <div class="profile-details mui--bg-accent">
+      {%- if project.profile.logo_url.url %}
+        <span class="profile-details__logo-wrapper profile-details__logo-wrapper--small"><img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></span>
+      {% endif %}
+      <div class="profile-details__desc">
+        <h2 class="mui--text-display1 mui--text-bold">{{ project.profile.title }}</h2>
+      </div>
+    </div>
+    <div class="mui--text-subhead">{{ project.profile.description.html }}</div>
+    <a class="mui--pull-right mui--text-bold mui--text-title" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
+  </div>
+{% endblock %}
+
 {% block contenthead %}{% endblock %}
 
 {% block baseheadline %}
@@ -260,6 +275,31 @@
         formId: 'save-form',
         postUrl: {{ project.url_for('save')|tojson }}
       };
+
+      function closeDrawer() {
+                  $('.js-mob-drawer').removeClass('open');
+          $('.js-mob-drawer').slideUp();
+          mui.overlay('off');
+      }
+
+      $('.js-slide-drawer').on('click', function() {
+        if (!$('.js-mob-drawer').hasClass('open')) {
+          $('.js-mob-drawer').addClass('open');
+          $('.js-mob-drawer').slideDown();
+          mui.overlay('on');
+        }
+      })
+
+      $('body').on('click', function(e) {
+        console.log(e);
+        if ($('.js-mob-drawer').hasClass('open') &&
+          !$(e.target).is('.js-slide-drawer') &&
+          !$(e.target).is('.profile-details__logo_wrapper__logo') &&
+          !$.contains($('.js-mob-drawer')[0], e.target)
+        ) {
+          closeDrawer();
+        }
+      });
 
 
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);

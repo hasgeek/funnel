@@ -353,6 +353,11 @@
     z-index: 1000;
   }
 
+  .sub-navbar-container--profile {
+    margin-top: 0;
+    border-top: none;
+  }
+
   .sub-navbar {
     overflow: scroll;
     display: flex;
