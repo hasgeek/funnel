@@ -1294,6 +1294,9 @@ html.touch .collapsible__body--disable {
 .profile-details .profile-details__desc {
   width: calc(100% - 100px);
 }
+.profile-details .profile-details__desc .profile-details__desc__title {
+  margin-bottom: 0;
+}
 .profile-details .profile-details__logo-wrapper--small {
   width: 60px;
   height: 60px;

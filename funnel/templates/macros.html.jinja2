@@ -77,7 +77,7 @@
                 <span class="profile-details__logo-wrapper profile-details__logo-wrapper--small"><img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></span>
               {% endif %}
               <div class="profile-details__desc">
-                <h2 class="mui--text-title mui--text-bold">{{ project.profile.title }}</h2>
+                <h2 class="mui--text-title mui--text-bold profile-details__desc__title">{{ project.profile.title }}</h2>
                 <p>{% if project.profile.listed_projects.count() > 0 %}{{ project.profile.listed_projects.count() }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}Upcoming</p>
               </div>
             </div>

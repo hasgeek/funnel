@@ -22,6 +22,10 @@
   }
   .profile-details__desc {
     width: calc(100% - 100px);
+
+    .profile-details__desc__title {
+      margin-bottom: 0;
+    }
   }
   .profile-details__logo-wrapper--small {
     width: 60px;
