@@ -40,7 +40,7 @@
 
 {% block top_title %}
   {%- if current_auth.permissions.new_project %}
-    <div><a class="mui--pull-right" href="{{ g.profile.url_for('edit') }}" aria-label="{% trans %}Edit profile details{% endtrans %}">{% trans %}Edit this section{% endtrans %} {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a></div>
+    <div><a class="mui--pull-right mui--text-subhead" href="{{ g.profile.url_for('edit') }}" aria-label="{% trans %}Edit profile details{% endtrans %}">{% trans %}Edit this section{% endtrans %} {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a></div>
   {% endif %}
   <div class="profile-details">
     {%- if profile.logo_url.url %}
@@ -48,7 +48,7 @@
     {% endif %}
     <div class="profile-details__desc">
       <h2 class="mui--text-headline mui--text-bold" data-cy="profile-title">{{ profile.title }}</h2>
-      <!-- <p>Total&nbsp;&nbsp;&nbsp;&nbsp;Upcoming</p> -->
+      <p>{% if profile.listed_projects|length > 0 %}{{ profile.listed_projects|length }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}Upcoming</p>
     </div>
   </div>
   <div class="mui--text-subhead word-break">{{ profile.description.html }}</div>

@@ -59,7 +59,8 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
                 'description',
                 'logo_url',
                 'listed_projects',
-            }
+            },
+            'call': {'listed_projects'},
         }
     }
 

@@ -61,12 +61,12 @@
         <span class="profile-details__logo-wrapper profile-details__logo-wrapper--small"><img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></span>
       {% endif %}
       <div class="profile-details__desc">
-        <h2 class="mui--text-title mui--text-bold">{{ project.profile.title }}</h2>
-        <!-- <p>Total&nbsp;&nbsp;&nbsp;&nbsp;Upcoming</p> -->
+        <h2 class="mui--text-title mui--text-bold profile-details__desc__title">{{ project.profile.title }}</h2>
+        <p>{% if project.profile.listed_projects.count() > 0 %}{{ project.profile.listed_projects.count() }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}Upcoming</p>
       </div>
     </div>
     <div class="mui--text-subhead">{{ project.profile.description.html }}</div>
-    <a class="mui--pull-right mui--text-bold mui--text-caption secondary-color-txt" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
+    <a class="mui--pull-right mui--text-bold mui--text-caption secondary-color-txt mui--text-capitalize" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
   </div>
 {% endblock %}
 
