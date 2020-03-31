@@ -115,7 +115,7 @@ class VideoMixin:
                 )
         elif parsed.netloc == 'youtu.be':
             video_id = parsed.path.lstrip('/')
-            if video_id is not None:
+            if video_id:
                 self.video_id = video_id
                 self.video_source = 'youtube'
             else:
@@ -125,7 +125,7 @@ class VideoMixin:
                 )
         elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
             video_id = parsed.path.lstrip('/')
-            if video_id is not None:
+            if video_id:
                 self.video_id = video_id
                 self.video_source = 'vimeo'
             else:
