@@ -66,7 +66,7 @@
       </div>
     </div>
     <div class="mui--text-subhead">{{ project.profile.description.html }}</div>
-    <a class="mui--pull-right mui--text-bold mui--text-title" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
+    <a class="mui--pull-right mui--text-bold mui--text-caption secondary-color-txt" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
   </div>
 {% endblock %}
 
@@ -278,21 +278,20 @@
       };
 
       function closeDrawer() {
-                  $('.js-mob-drawer').removeClass('open');
-          $('.js-mob-drawer').slideUp();
+          $('.js-mob-drawer').removeClass('open');
+          $('.js-mob-drawer').slideUp(200);
           mui.overlay('off');
       }
 
       $('.js-slide-drawer').on('click', function() {
         if (!$('.js-mob-drawer').hasClass('open')) {
           $('.js-mob-drawer').addClass('open');
-          $('.js-mob-drawer').slideDown();
+          $('.js-mob-drawer').slideDown(200);
           mui.overlay('on');
         }
       })
 
       $('body').on('click', function(e) {
-        console.log(e);
         if ($('.js-mob-drawer').hasClass('open') &&
           !$(e.target).is('.js-slide-drawer') &&
           !$(e.target).is('.profile-details__logo_wrapper__logo') &&

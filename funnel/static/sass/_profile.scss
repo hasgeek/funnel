@@ -5,8 +5,8 @@
 
   .profile-details__logo-wrapper {
     margin-right: 15px;
-    width: 94px;
-    height: 94px;
+    width: 60px;
+    height: 60px;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
     background-color: #ffffff;
     border-radius: 50%;
@@ -24,8 +24,19 @@
     width: calc(100% - 100px);
   }
   .profile-details__logo-wrapper--small {
-    width: 55px;
-    height: 55px;
+    width: 60px;
+    height: 60px;
     margin-right: 8px;
+  }
+}
+
+@media (min-width: 992px) {
+  .profile-details {
+    .profile-details__logo-wrapper {
+      width: 94px;
+      height: 94px;
+    }
+    .profile-details__logo-wrapper--small {
+    }
   }
 }

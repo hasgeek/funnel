@@ -39,6 +39,9 @@
 {%- endblock %}
 
 {% block top_title %}
+  {%- if current_auth.permissions.new_project %}
+    <div><a class="mui--pull-right" href="{{ g.profile.url_for('edit') }}" aria-label="{% trans %}Edit profile details{% endtrans %}">{% trans %}Edit this section{% endtrans %} {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a></div>
+  {% endif %}
   <div class="profile-details">
     {%- if profile.logo_url.url %}
       <span class="profile-details__logo-wrapper"><img class="profile-details__logo_wrapper__logo" src="{{ profile.logo_url }}" alt="{{ profile.title }}"/></span>
@@ -49,9 +52,6 @@
     </div>
   </div>
   <div class="mui--text-subhead word-break">{{ profile.description.html }}</div>
-  {%- if current_auth.permissions.new_project %}
-    <div><a class="mui-btn mui-btn--small mui-btn--dark mui-btn--raised" href="{{ g.profile.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></div>
-  {% endif %}
 {% endblock %}
 
 {% block basecontent %}
