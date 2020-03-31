@@ -52,15 +52,8 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {
-                'id',
-                'name',
-                'title',
-                'description',
-                'logo_url',
-                'listed_projects',
-            },
-            'call': {'listed_projects'},
+            'read': {'id', 'name', 'title', 'description', 'logo_url'},
+            'call': {'listed_projects', 'upcoming_projects'},
         }
     }
 

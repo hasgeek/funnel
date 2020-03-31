@@ -16,7 +16,15 @@ from coaster.views import (
 
 from .. import app, funnelapp, lastuser
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
-from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
+from ..models import (
+    FEEDBACK_AUTH_TYPE,
+    Profile,
+    Project,
+    ProposalFeedback,
+    SavedSession,
+    Session,
+    db,
+)
 from .decorators import legacy_redirect
 from .helpers import localize_date
 from .mixins import ProjectViewMixin, SessionViewMixin
@@ -256,6 +264,17 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 400,
             )
         return redirect(self.obj.url_for(), code=303)
+
+
+Profile.upcoming_projects = db.relationship(
+    Project,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        Profile.id == Project.profile_id,
+        Project.parent_id.is_(None),
+        db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
+    ),
+)
 
 
 @route('/<project>/schedule/<session>', subdomain='<profile>')

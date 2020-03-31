@@ -48,7 +48,7 @@
     {% endif %}
     <div class="profile-details__desc">
       <h2 class="mui--text-headline mui--text-bold profile-details__desc__title" data-cy="profile-title">{{ profile.title }}</h2>
-      <p>{% if profile.listed_projects|length > 0 %}{{ profile.listed_projects|length }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}Upcoming</p>
+      <p>{% if profile.listed_projects|length > 0 %}{{ profile.listed_projects|length }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}{% if profile.upcoming_projects|length > 0 %}{{ profile.upcoming_projects|length }} Upcoming{% endif %}</p>
     </div>
   </div>
   <div class="mui--text-subhead word-break">{{ profile.description.html }}</div>
