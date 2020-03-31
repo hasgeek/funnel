@@ -1290,22 +1290,12 @@ html.touch .collapsible__body--disable {
 .profile-details .profile-details__desc {
   width: calc(100% - 100px);
 }
-
-@media (min-width: 992px) {
-  .profile-details .profile-details__logo-wrapper {
-    width: 94px;
-    height: 94px;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
-    background-color: #ffffff;
-    border-radius: 50%;
-    position: relative;
-  }
-  .profile-details .profile-details__logo-wrapper--small {
-    width: 55px;
-    height: 55px;
-    margin-right: 8px;
-  }
+.profile-details .profile-details__logo-wrapper--small {
+  width: 55px;
+  height: 55px;
+  margin-right: 8px;
 }
+
 .cfp-action-btn {
   padding: 10px 0;
   cursor: pointer;
@@ -2295,6 +2285,10 @@ html.touch .collapsible__body--disable {
     word-break: break-word;
     border-radius: 4px;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+  }
+  .project-banner .js-on-hover .profile-details {
+    margin: -15px -15px 15px;
+    padding: 15px;
   }
   .project-banner .js-show-project:hover .js-on-hover {
     display: block;

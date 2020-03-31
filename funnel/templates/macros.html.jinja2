@@ -72,16 +72,16 @@
           <a href="{{project.profile.url_for()}}" class="mui--hidden-xs mui--hidden-sm mui--hidden-md mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
           <a href="javascript:void(0)" class="js-slide-drawer mui--hidden-lg mui--hidden-xl mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
           <div class="js-on-hover">
-            <div class="profile-details">
+            <div class="profile-details mui--bg-accent">
               {%- if project.profile.logo_url.url %}
                 <span class="profile-details__logo-wrapper profile-details__logo-wrapper--small"><img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></span>
               {% endif %}
               <div class="profile-details__desc">
-                <h2 class="mui--text-display1 mui--text-bold">{{ project.profile.title }}</h2>
+                <h2 class="mui--text-title mui--text-bold">{{ project.profile.title }}</h2>
+                <!-- <p>Total&nbsp;&nbsp;&nbsp;&nbsp;Upcoming</p> -->
               </div>
             </div>
             <div class="mui--text-subhead">{{ project.profile.description.html }}</div>
-            <a class="mui--pull-right mui--text-bold mui--text-title" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
           </div>
         </div>
       </div>

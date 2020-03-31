@@ -113,7 +113,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
-        count = len(all_projects)
         upcoming_projects = all_projects[:3]
         all_projects = all_projects[3:]
         featured_project = (
@@ -133,7 +132,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
-        count += len(open_cfp_projects)
         draft_projects = [
             proj for proj in self.obj.draft_projects if proj.current_roles.admin
         ]
@@ -148,7 +146,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
                 featured_project.current_access() if featured_project else None
             ),
             'project_save_form': SavedProjectForm(),
-            'project_count': count,
         }
 
     @route('json')

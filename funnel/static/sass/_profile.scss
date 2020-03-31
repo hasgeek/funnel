@@ -23,22 +23,9 @@
   .profile-details__desc {
     width: calc(100% - 100px);
   }
-}
-
-@media (min-width: 992px) {
-  .profile-details {
-    .profile-details__logo-wrapper {
-      width: 94px;
-      height: 94px;
-      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
-      background-color: #ffffff;
-      border-radius: 50%;
-      position: relative;
-    }
-    .profile-details__logo-wrapper--small {
-      width: 55px;
-      height: 55px;
-      margin-right: 8px;
-    }
+  .profile-details__logo-wrapper--small {
+    width: 55px;
+    height: 55px;
+    margin-right: 8px;
   }
 }

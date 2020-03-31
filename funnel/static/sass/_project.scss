@@ -160,6 +160,11 @@
       word-break: break-word;
       border-radius: 4px;
       box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+
+      .profile-details {
+        margin: -15px -15px 15px;
+        padding: 15px;
+      }
     }
     .js-show-project:hover .js-on-hover {
       display: block;
