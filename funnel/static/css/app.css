@@ -467,6 +467,7 @@ html.touch .collapsible__body--disable {
   min-width: calc(100% - 60px);
   color: #79818b;
   font-size: 16px;
+  outline: none;
 }
 .hg-app
   .header--fixed
