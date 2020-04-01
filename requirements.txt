@@ -16,7 +16,7 @@ rq==1.3.0
 psycopg2==2.8.4
 Flask-Migrate==2.5.3
 git+https://github.com/hasgeek/Flask-FlatPages.git
-progressbar2==3.47.0
+progressbar2==3.50.1
 pycountry==19.8.18
 Babel==2.7.0
 six==1.12.0
