@@ -94,7 +94,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('index.html.jinja2', json=True)
+    @render_with('profile.html.jinja2', json=True)
     @requires_permission('view')
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.
@@ -169,7 +169,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             return redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
-            title=_("Edit project details"),
+            title=_("Edit profile details"),
             submit=_("Save changes"),
             cancel_url=self.obj.url_for(),
             ajax=False,

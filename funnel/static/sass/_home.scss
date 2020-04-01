@@ -114,34 +114,6 @@
   }
 }
 
-.profile-details {
-  display: flex;
-  align-items: center;
-
-  .profile-details__logo-wrapper {
-    display: inline-block;
-    height: 30px;
-    margin-right: 10px;
-
-    .profile-details__logo_wrapper__logo {
-      height: 100%;
-    }
-  }
-}
-
-.profile-details--center {
-  justify-content: center;
-  margin-bottom: 15px;
-}
-
-@media (min-width: 992px) {
-  .profile-details {
-    .profile-details__logo-wrapper {
-      height: 50px;
-    }
-  }
-}
-
 .project-headline {
   margin-bottom: 40px;
   position: relative;

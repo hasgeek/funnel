@@ -2,6 +2,10 @@
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from werkzeug.utils import cached_property
+
+from baseframe import localize_timezone
+
 from . import (
     BaseScopedIdNameMixin,
     MarkdownColumn,
@@ -95,6 +99,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
                 'venue_room',
                 'is_break',
                 'banner_image_url',
+                'start_at_localized',
+                'end_at_localized',
             },
             'call': {'url_for'},
         }
@@ -113,6 +119,22 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     @scheduled.expression
     def scheduled(self):
         return (self.start_at != None) & (self.end_at != None)  # NOQA
+
+    @cached_property
+    def start_at_localized(self):
+        return (
+            localize_timezone(self.start_at, tz=self.project.timezone)
+            if self.start_at
+            else None
+        )
+
+    @cached_property
+    def end_at_localized(self):
+        return (
+            localize_timezone(self.end_at, tz=self.project.timezone)
+            if self.end_at
+            else None
+        )
 
     @classmethod
     def for_proposal(cls, proposal, create=False):

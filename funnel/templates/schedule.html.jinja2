@@ -26,7 +26,7 @@
       "@type": "Event",
       "name": {{ project.title|tojson }},
       "url": {{ project.url_for(_external=true)|tojson }},
-      "startDate": {{ project.schedule_start_at.astimezone(project.timezone).isoformat()|tojson }},
+      "startDate": {{ project.schedule_start_at_localized|tojson }},
       {% if project.primary_venue -%}
       "location": {
         "@type": "Place",
@@ -47,7 +47,7 @@
        ],
       {% endif -%}
       "description": {{ project.tagline|tojson }},
-      "endDate": {{ project.schedule_end_at.astimezone(project.timezone).isoformat()|tojson }},
+      "endDate": {{ project.schedule_end_at_localized|tojson }},
       "offers": {
         "@type": "Offer",
         "url": {{ project.url_for(_external=true)|tojson }}
