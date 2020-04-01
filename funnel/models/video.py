@@ -30,7 +30,12 @@ class VideoMixin:
         data = None
         if self.video_source and self.video_id:
             data = redis_store.hgetall(self.video_cache_key)
-            if not data:
+            if data:
+                if 'uploaded_at' in data:
+                    data['uploaded_at'] = parse_isoformat(data['uploaded_at'])
+                if 'duration' in data:
+                    data['duration'] = int(data['duration'])
+            else:
                 data = {
                     'source': self.video_source,
                     'id': self.video_id,
@@ -57,7 +62,7 @@ class VideoMixin:
                         )
                         data['uploaded_at'] = parse_isoformat(
                             youtube_video['snippet']['publishedAt']
-                        )
+                        ).isoformat()
                         data['thumbnail'] = youtube_video['snippet']['thumbnails'][
                             'medium'
                         ]['url']
@@ -71,7 +76,7 @@ class VideoMixin:
                         data['duration'] = vimeo_video['duration']
                         data['uploaded_at'] = parse_isoformat(
                             vimeo_video['upload_date'], naive=True, delimiter=' '
-                        )
+                        ).isoformat()
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
                 else:
                     # source = raw
@@ -88,7 +93,7 @@ class VideoMixin:
     def video_url(self):
         if self.video_source:
             if self.video_source == 'youtube':
-                return f'https://www.youtube.com/watch/?v={self.video_id}'
+                return f'https://www.youtube.com/watch?v={self.video_id}'
             elif self.video_source == 'vimeo':
                 return f'https://vimeo.com/{self.video_id}'
             elif self.video_source == 'raw':

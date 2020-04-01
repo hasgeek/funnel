@@ -22,7 +22,7 @@ funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=Tr
 mail = Mail()
 lastuser = Lastuser()
 pages = FlatPages()
-redis_store = FlaskRedis()
+redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
 
 
