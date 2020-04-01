@@ -28,7 +28,7 @@
 }
 
 .separator {
-  margin: 10px 0;
+  padding: 0 5px;
 }
 
 .image-wrapper img {
@@ -43,14 +43,6 @@
 
 .material-icons {
   display: none;
-}
-
-.primary-color-txt {
-  color: #e05f26;
-}
-
-.secondary-color-txt {
-  color: #82688d;
 }
 
 .list-item-rgborder li {
@@ -433,12 +425,4 @@ html.touch .collapsible__body--disable {
     font-size: 32px;
     color: #8492a6;
   }
-}
-
-.word-break {
-  word-break: break-word;
-}
-
-#mui-overlay {
-  background: rgba(31, 46, 61, 0.5);
 }

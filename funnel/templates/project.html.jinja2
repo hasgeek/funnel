@@ -15,7 +15,7 @@
       "@type": "Event",
       "name": {{ project.title|tojson }},
       "url": {{ project.url_for(_external=true)|tojson }},
-      "startDate": {{ project.schedule_start_at_localized|tojson }},
+      "startDate": {{ project.schedule_start_at.astimezone(project.timezone).isoformat()|tojson }},
       {% if project.primary_venue -%}
       "location": {
         "@type": "Place",
@@ -36,7 +36,7 @@
        ],
       {% endif -%}
       "description": {{ project.tagline|tojson }},
-      "endDate": {{ project.schedule_end_at_localized|tojson }},
+      "endDate": {{ project.schedule_end_at.astimezone(project.timezone).isoformat()|tojson }},
       "offers": {
         "@type": "Offer",
         "url": {{ project.url_for(_external=true)|tojson }}
@@ -48,26 +48,10 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app project-page">
+    <body class="mui--bg-primary hg-app">
   {%- else %}
     <body class="mui--bg-primary">
   {%- endif %}
-{% endblock %}
-
-{% block sidedrawer -%}
-  <div class="js-mob-drawer">
-    <div class="profile-details mui--bg-accent">
-      {%- if project.profile.logo_url.url %}
-        <span class="profile-details__logo-wrapper profile-details__logo-wrapper--small"><img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/></span>
-      {% endif %}
-      <div class="profile-details__desc">
-        <h2 class="mui--text-title mui--text-bold profile-details__desc__title">{{ project.profile.title }}</h2>
-        <p>{% if project.profile.listed_projects.count() > 0 %}{{ project.profile.listed_projects.count() }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}{% if project.profile.upcoming_projects.count() > 0 %}{{ project.profile.upcoming_projects.count() }} Upcoming{% endif %}</p>
-      </div>
-    </div>
-    <div class="mui--text-subhead">{{ project.profile.description.html }}</div>
-    <a class="mui--pull-right mui--text-bold mui--text-body1 secondary-color-txt mui--text-capitalize" href="{{ project.profile.url_for() }}">{% trans %}More{% endtrans %}</a>
-  </div>
 {% endblock %}
 
 {% block contenthead %}{% endblock %}
@@ -276,30 +260,6 @@
         formId: 'save-form',
         postUrl: {{ project.url_for('save')|tojson }}
       };
-
-      function closeDrawer() {
-          $('.js-mob-drawer').removeClass('open');
-          $('.js-mob-drawer').slideUp(200);
-          mui.overlay('off');
-      }
-
-      $('.js-slide-drawer').on('click', function() {
-        if (!$('.js-mob-drawer').hasClass('open')) {
-          $('.js-mob-drawer').addClass('open');
-          $('.js-mob-drawer').slideDown(200);
-          mui.overlay('on');
-        }
-      })
-
-      $('body').on('click', function(e) {
-        if ($('.js-mob-drawer').hasClass('open') &&
-          !$(e.target).is('.js-slide-drawer') &&
-          !$(e.target).is('.profile-details__logo_wrapper__logo') &&
-          !$.contains($('.js-mob-drawer')[0], e.target)
-        ) {
-          closeDrawer();
-        }
-      });
 
 
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);

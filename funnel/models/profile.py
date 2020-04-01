@@ -50,12 +50,7 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         db.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
-    __roles__ = {
-        'all': {
-            'read': {'id', 'name', 'title', 'description', 'logo_url'},
-            'call': {'listed_projects', 'upcoming_projects'},
-        }
-    }
+    __roles__ = {'all': {'read': {'id', 'name', 'title', 'description', 'logo_url'}}}
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)

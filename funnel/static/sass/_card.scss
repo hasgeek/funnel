@@ -373,14 +373,13 @@
     }
 
     .card__body__title {
-      margin: 10px 0 0;
+      margin: 0;
       font-size: 20px;
       line-height: 28px;
     }
 
     .card__body__title--smaller {
-      margin: 0;
-      padding-top: 15px;
+      margin: 15px 0 0;
       width: calc(100% - 20px);
     }
     .card__body__location {
