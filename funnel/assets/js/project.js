@@ -138,7 +138,7 @@ const Ticketing = {
   },
 
   hideTicketModal() {
-    window.history.pushState(
+    window.history.replaceState(
       '',
       '',
       window.location.pathname + window.location.search
