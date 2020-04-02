@@ -263,6 +263,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_end_at_localized',
                 'proposals_by_state',
                 'proposals_by_confirmation',
+                'allow_rsvp',
+                'boxoffice_data',
             },
             'call': {
                 'url_for',

@@ -69,8 +69,8 @@
               <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
             </a>
           {% endif %}
-          <a href="{{project.profile.url_for()}}" class="mui--hidden-xs mui--hidden-sm mui--hidden-md mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
-          <a href="javascript:void(0)" class="js-slide-drawer mui--hidden-lg mui--hidden-xl mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
+          <a href="{{project.profile.url_for()}}" class="mui--hidden-xs mui--hidden-sm mui--hidden-md mui--text-subhead mui--text-bold profile-details__text" data-action="View {{ project.profile.title }}(project page)" data-cy="profile-link">{{ project.profile.title }}</a>
+          <a href="javascript:void(0)" class="js-slide-drawer mui--hidden-lg mui--hidden-xl mui--text-subhead mui--text-bold profile-details__text" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
           <div class="js-on-hover">
             <div class="profile-details mui--bg-accent">
               {%- if project.profile.logo_url.url %}
