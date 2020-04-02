@@ -129,7 +129,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
@@ -144,7 +144,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
         }
@@ -426,7 +426,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,

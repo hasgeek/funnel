@@ -272,6 +272,7 @@ Profile.upcoming_projects = db.relationship(
     primaryjoin=db.and_(
         Profile.id == Project.profile_id,
         Project.parent_id.is_(None),
+        Project.schedule_state.PUBLISHED,
         db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
     ),
 )

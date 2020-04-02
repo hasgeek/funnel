@@ -62,7 +62,7 @@
       {% endif %}
       <div class="profile-details__desc">
         <h2 class="mui--text-title mui--text-bold profile-details__desc__title">{{ project.profile.title }}</h2>
-        <p>{% if project.profile.listed_projects.count() > 0 %}{{ project.profile.listed_projects.count() }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}{% if project.profile.upcoming_projects.count() > 0 %}{{ project.profile.upcoming_projects.count() }} Upcoming{% endif %}</p>
+        <p>{% if project.profile.listed_projects|length > 0 %}{{ project.profile.listed_projects|length }} Total&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}{% if project.profile.upcoming_projects|length > 0 %}{{ project.profile.upcoming_projects|length }} Upcoming{% endif %}</p>
       </div>
     </div>
     <div class="mui--text-subhead">{{ project.profile.description.html }}</div>

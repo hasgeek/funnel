@@ -190,7 +190,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             for room in self.obj.rooms
         }
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
             'from_date': (
                 localize_timezone(
                     self.obj.schedule_start_at, tz=self.obj.timezone

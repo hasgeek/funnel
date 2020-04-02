@@ -235,6 +235,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'id',
                 'name',
+                'profile',
                 'title',
                 'title_inline',
                 'datelocation',
@@ -253,12 +254,24 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
+                'banner_video_url',
+                'buy_tickets_url',
+                'hasjob_embed_url',
                 'schedule_start_at_localized',
                 'schedule_end_at_localized',
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
+                'proposals_by_state',
+                'proposals_by_confirmation',
             },
-            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
+            'call': {
+                'url_for',
+                'current_sessions',
+                'is_saved_by',
+                'state',
+                'cfp_state',
+                'schedule_state',
+            },
         }
     }
 
