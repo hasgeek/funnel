@@ -101,9 +101,9 @@
         </div>
       </div>
     {%- endif %}
-    <div class="about__details" id="about">
+    <div class="about__details">
       <h2 class="mui--text-display1 mui--text-left about__details__headline">{% trans %}About{% endtrans %}</h2>
-      <div class="about__details__description">{{ project.description }}</div>
+      <div class="about__details__description" id="about">{{ project.description }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
         <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Related events{% endtrans %}</h2>
