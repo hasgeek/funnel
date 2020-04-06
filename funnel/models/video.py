@@ -2,6 +2,7 @@
 
 import urllib.parse
 
+from pytz import UTC
 import requests
 
 from coaster.utils import parse_duration, parse_isoformat
@@ -21,7 +22,7 @@ class VideoMixin:
     @property
     def video_cache_key(self):
         if self.video_source and self.video_id:
-            return "video_cache/" + self.video_source + "/" + self.video_id
+            return 'video_cache/' + self.video_source + '/' + self.video_id
         else:
             raise VideoException("No video source or ID to create a cache key")
 
@@ -58,10 +59,7 @@ class VideoMixin:
                 }
                 if self.video_source == 'youtube':
                     youtube_video = requests.get(
-                        'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={video_id}&key={api_key}'.format(
-                            video_id=self.video_id,
-                            api_key=app.config['YOUTUBE_API_KEY'],
-                        )
+                        f'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={self.video_id}&key={app.config["YOUTUBE_API_KEY"]}'
                     ).json()
                     if not youtube_video or not youtube_video['items']:
                         raise VideoException(
@@ -81,7 +79,7 @@ class VideoMixin:
                         ]['url']
                 elif self.video_source == 'vimeo':
                     vimeo_video = requests.get(
-                        "https://vimeo.com/api/v2/video/%s.json" % (self.video_id)
+                        f'https://vimeo.com/api/v2/video/{self.video_id}.json'
                     ).json()
                     if not vimeo_video:
                         raise VideoException(
@@ -91,9 +89,10 @@ class VideoMixin:
                         vimeo_video = vimeo_video[0]
 
                         data['duration'] = vimeo_video['duration']
+                        # Vimeo returns naive datetime, we will add UTC timezone to it
                         data['uploaded_at'] = parse_isoformat(
-                            vimeo_video['upload_date'], naive=False, delimiter=' '
-                        )
+                            vimeo_video['upload_date'], delimiter=' '
+                        ).replace(tzinfo=UTC)
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
                 else:
                     # source = raw
