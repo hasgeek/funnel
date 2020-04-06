@@ -54,6 +54,10 @@ class ParticipantForm(forms.Form):
         validators=[forms.validators.DataRequired("Select at least one event")],
     )
 
+    def set_queries(self):
+        if self.edit_parent is not None:
+            self.events.query = self.edit_parent.events
+
 
 class ParticipantBadgeForm(forms.Form):
     choices = [('', "Badge printing status"), ('t', "Printed"), ('f', "Not printed")]

@@ -23,7 +23,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .project import ProjectViewMixin
+from .mixins import EventViewMixin, ProjectViewMixin
 
 
 @route('/<profile>/<project>/events')
@@ -118,28 +118,8 @@ FunnelProjectEventView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/event/<name>')
-class EventView(UrlForView, ModelView):
+class EventView(EventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, lastuser.requires_login]
-    model = Event
-    route_model_map = {
-        'profile': 'project.profile.name',
-        'project': 'project.name',
-        'name': 'name',
-    }
-
-    def loader(self, profile, project, name):
-        event = (
-            self.model.query.join(Project, Profile)
-            .filter(
-                Profile.name == profile, Project.name == project, Event.name == name
-            )
-            .first_or_404()
-        )
-        return event
-
-    def after_loader(self):
-        g.profile = self.obj.project.profile
-        super(EventView, self).after_loader()
 
     @route('', methods=['GET', 'POST'])
     @render_with('event.html.jinja2')
@@ -249,7 +229,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(TicketTypeView, self).after_loader()
+        return super(TicketTypeView, self).after_loader()
 
     @route('')
     @render_with('ticket_type.html.jinja2')
@@ -331,7 +311,7 @@ class TicketClientView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(TicketClientView, self).after_loader()
+        return super(TicketClientView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_permission('edit_ticket_client')

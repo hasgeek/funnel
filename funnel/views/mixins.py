@@ -11,6 +11,7 @@ from coaster.utils import require_one_of
 
 from ..models import (
     Draft,
+    Event,
     Profile,
     Project,
     ProjectRedirect,
@@ -122,7 +123,7 @@ class ProposalViewMixin(object):
             else:
                 abort(410)
         g.profile = self.obj.project.profile
-        super(ProposalViewMixin, self).after_loader()
+        return super(ProposalViewMixin, self).after_loader()
 
 
 class SessionViewMixin(object):
@@ -147,7 +148,7 @@ class SessionViewMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(SessionViewMixin, self).after_loader()
+        return super(SessionViewMixin, self).after_loader()
 
     @property
     def project_currently_saved(self):
@@ -196,6 +197,29 @@ class VenueRoomViewMixin(object):
         )
         g.profile = room.venue.project.profile
         return room
+
+
+class EventViewMixin(object):
+    model = Event
+    route_model_map = {
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'name': 'name',
+    }
+
+    def loader(self, profile, project, name):
+        event = (
+            self.model.query.join(Project, Profile)
+            .filter(
+                Profile.name == profile, Project.name == project, Event.name == name
+            )
+            .one_or_404()
+        )
+        return event
+
+    def after_loader(self):
+        g.profile = self.obj.project.profile
+        return super(EventViewMixin, self).after_loader()
 
 
 class DraftViewMixin(object):
