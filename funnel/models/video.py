@@ -61,9 +61,13 @@ class VideoMixin:
                     youtube_video = requests.get(
                         f'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={self.video_id}&key={app.config["YOUTUBE_API_KEY"]}'
                     ).json()
-                    if not youtube_video or not youtube_video['items']:
+                    if (
+                        not youtube_video
+                        or 'items' not in youtube_video
+                        or not youtube_video['items']
+                    ):
                         raise VideoException(
-                            "Unable to fetch data, please check the youtube url"
+                            "Unable to fetch data, please check the youtube url or API key"
                         )
                     else:
                         youtube_video = youtube_video['items'][0]
