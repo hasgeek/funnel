@@ -2,14 +2,14 @@
 """add participant uuid field
 
 Revision ID: 321b11b6a413
-Revises: 20c10335b553
+Revises: 664141d5ec56
 Create Date: 2020-01-30 09:35:52.565945
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '321b11b6a413'
-down_revision = '20c10335b553'
+down_revision = '664141d5ec56'
 
 from uuid import uuid4
 
