@@ -542,7 +542,7 @@ def upgrade():
     )
     op.add_column('vote', sa.Column('user_id', sa.Integer(), nullable=True))
     op.create_unique_constraint(
-        'vote_user_id_voteset_id_fkey', 'vote', ['user_id', 'voteset_id']
+        'vote_user_id_voteset_id_key', 'vote', ['user_id', 'voteset_id']
     )
     op.create_foreign_key('vote_user_id_fkey', 'vote', 'user', ['user_id'], ['id'])
 
@@ -558,7 +558,7 @@ def upgrade():
     )
     op.execute(
         sa.DDL(
-            "CREATE INDEX ix_user_email_email_lower ON user_email (lower(email) varchar_pattern_ops);"
+            "CREATE UNIQUE INDEX ix_user_email_email_lower ON user_email (lower(email) varchar_pattern_ops);"
         )
     )
     op.execute(
@@ -582,7 +582,7 @@ def downgrade():
     op.drop_index('ix_account_name_name_lower', table_name='account_name')
 
     op.drop_constraint('vote_user_id_fkey', 'vote', type_='foreignkey')
-    op.drop_constraint('vote_user_id_voteset_id_fkey', 'vote', type_='unique')
+    op.drop_constraint('vote_user_id_voteset_id_key', 'vote', type_='unique')
     op.drop_column('vote', 'user_id')
     op.drop_constraint(
         'saved_session_user_id_fkey', 'saved_session', type_='foreignkey'
