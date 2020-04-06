@@ -213,7 +213,7 @@ class EventViewMixin(object):
             .filter(
                 Profile.name == profile, Project.name == project, Event.name == name
             )
-            .first_or_404()
+            .one_or_404()
         )
         return event
 
