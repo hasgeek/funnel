@@ -46,7 +46,7 @@ Cypress.Commands.add('logout', () => {
 
 Cypress.Commands.add('checkin', participant => {
   cy.server();
-  cy.route('POST', '**/participants/checkin?*').as('checkin');
+  cy.route('POST', '**/participants/checkin').as('checkin');
   cy.route('**/participants/json').as('participant-list');
 
   cy.get('td[data-cy="participant"]')
