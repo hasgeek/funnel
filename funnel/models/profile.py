@@ -1,12 +1,33 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from flask_lastuser.sqlalchemy import ProfileBase
+
+from coaster.sqlalchemy import SqlBuidComparator
+from coaster.utils import buid2uuid, uuid2buid
 
 from . import MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
 from .helpers import RESERVED_NAMES, add_search_trigger
-from .user import Team, UseridMixin
+from .user import Team
 
 __all__ = ['Profile']
+
+
+# This overrides the `userid` column inherited from Flask-Lastuser. We've
+# switched to UUIDs in Funnel.
+class UseridMixin(object):
+    @hybrid_property
+    def userid(self):
+        return uuid2buid(self.uuid)
+
+    @userid.setter
+    def userid(self, value):
+        self.uuid = buid2uuid(value)
+
+    @userid.comparator
+    def userid(cls):  # NOQA: N805
+        return SqlBuidComparator(cls.uuid)
 
 
 class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
@@ -39,12 +60,12 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         )
     )
 
-    teams = db.relationship(
-        Team,
-        primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
-        backref='profile',
-        lazy='dynamic',
-    )
+    # teams = db.relationship(
+    #     Team,
+    #     primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
+    #     backref='profile',
+    #     lazy='dynamic',
+    # )
 
     __table_args__ = (
         db.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
