@@ -1,3 +1,7 @@
+git+https://github.com/hasgeek/Flask-FlatPages.git
+git+https://github.com/hasgeek/flask-lastuser.git
+git+https://github.com/hasgeek/baseframe.git
+git+https://github.com/hasgeek/coaster.git
 alembic==1.4.2
 Babel==2.8.0
 bcrypt>=2.0.0
@@ -12,10 +16,6 @@ Flask-RQ2==18.3
 Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.3
 Flask==1.1.1
-git+https://github.com/hasgeek/baseframe.git
-git+https://github.com/hasgeek/coaster.git
-git+https://github.com/hasgeek/Flask-FlatPages.git
-git+https://github.com/hasgeek/flask-lastuser.git
 icalendar==4.0.5
 itsdangerous==1.1.0
 jsmin==2.2.2
