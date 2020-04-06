@@ -15,7 +15,7 @@
       "@type": "Event",
       "name": {{ project.title|tojson }},
       "url": {{ project.url_for(_external=true)|tojson }},
-      "startDate": {{ project.schedule_start_at.astimezone(project.timezone).isoformat()|tojson }},
+      "startDate": {{ project.schedule_start_at_localized|tojson }},
       {% if project.primary_venue -%}
       "location": {
         "@type": "Place",
@@ -36,7 +36,7 @@
        ],
       {% endif -%}
       "description": {{ project.tagline|tojson }},
-      "endDate": {{ project.schedule_end_at.astimezone(project.timezone).isoformat()|tojson }},
+      "endDate": {{ project.schedule_end_at_localized|tojson }},
       "offers": {
         "@type": "Offer",
         "url": {{ project.url_for(_external=true)|tojson }}
@@ -91,7 +91,7 @@
               </form>
             {%- else %}
               <p>
-                <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary' data-action="Login to respond">{% trans %}Login to respond{% endtrans %}</a>
+                <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary'>{% trans %}Login to respond{% endtrans %}</a>
               </p>
             {%- endif %}
             {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
@@ -110,7 +110,7 @@
         <ul class="grid">
           {% for subproject in project.subprojects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
-              <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" title="{{ subproject.title }}">
+              <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-action="View {{ subproject.title }}">
                 <div class="card__header">
                   <div class="card__header__title">
                     <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
@@ -128,7 +128,7 @@
         </ul>
       {%- endif %}
       {% if project.buy_tickets_url.url -%}
-        <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Buy Tickets url" target="_blank">
+        <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets url" target="_blank">
           {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
             {{ project.boxoffice_data.buy_btn_text }}
           {% else %}
@@ -148,7 +148,7 @@
                     <div class="card session-card">
                       {% if session.banner_image_url.url %}
                         {% if session.proposal %}
-                          <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} title="{{ session.speaker }}" {% else %} title="{{ session.title }}" {% endif %} {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %}>
+                          <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-action="View featured talk {{ session.title }}">
                         {% else %}
                           <div class="card__header session-card__header">
                         {% endif %}
@@ -165,7 +165,7 @@
                         {% if session.proposal %}</a>{% else %}</div>{% endif %}
                       {% else %}
                         {% if session.proposal %}
-                          <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                          <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-action="View featured talk {{ session.title }}">
                         {% else %}
                           <div class="card__header">
                         {% endif %}
@@ -177,7 +177,7 @@
                       {% endif %}
                       {% if session.description %}
                         {% if session.proposal %}
-                          <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" title="{{ session.title }}" aria-label="{{ session.title }}">
+                          <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-action="View featured talk {{ session.title }}">
                         {% else %}
                           <div class="card__body">
                         {% endif %}
@@ -190,7 +190,7 @@
               {%- endfor -%}
             </ul>
           </div>
-          {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule (page)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
+          {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(talks section)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
         </div>
       {%- endif %}
     </div>

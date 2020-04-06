@@ -12,7 +12,7 @@ from babel.dates import format_date
 from isoweek import Week
 from pytz import utc
 
-from baseframe import __, get_locale
+from baseframe import __, get_locale, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow, valid_username
 
@@ -253,8 +253,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
+                'schedule_start_at_localized',
+                'schedule_end_at_localized',
+                'cfp_start_at_localized',
+                'cfp_end_at_localized',
             },
-            'call': {'url_for', 'current_sessions', 'is_saved_by'},
+            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
         }
     }
 
@@ -419,12 +423,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")),
     )
 
+    cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
+
     @with_roles(call={'admin'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
         cfp_state.PUBLIC,
-        title=__("Open CfP"),
-        message=__("The call for proposals is now open"),
+        title=__("Enable proposal submissions"),
+        message=__("Proposals can be now submitted"),
         type='success',
     )
     def open_cfp(self):
@@ -434,8 +440,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
-        title=__("Close CFP"),
-        message=__("The call for proposals is now closed"),
+        title=__("Disable proposal submissions"),
+        message=__("Proposals will no longer be accepted"),
         type='success',
     )
     def close_cfp(self):
@@ -638,6 +644,38 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cached_property
     def calendar_weeks_compact(self):
         return self.calendar_weeks(leading_weeks=False)
+
+    @cached_property
+    def schedule_start_at_localized(self):
+        return (
+            localize_timezone(self.schedule_start_at, tz=self.timezone)
+            if self.schedule_start_at
+            else None
+        )
+
+    @cached_property
+    def schedule_end_at_localized(self):
+        return (
+            localize_timezone(self.schedule_end_at, tz=self.timezone)
+            if self.schedule_end_at
+            else None
+        )
+
+    @cached_property
+    def cfp_start_at_localized(self):
+        return (
+            localize_timezone(self.cfp_start_at, tz=self.timezone)
+            if self.cfp_start_at
+            else None
+        )
+
+    @cached_property
+    def cfp_end_at_localized(self):
+        return (
+            localize_timezone(self.cfp_end_at, tz=self.timezone)
+            if self.cfp_end_at
+            else None
+        )
 
     def current_sessions(self):
         now = utcnow().astimezone(self.timezone)

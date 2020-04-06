@@ -43,7 +43,7 @@ class IndexView(ClassView):
         )
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
-            upcoming_projects.insert(all_projects.pop(0))
+            upcoming_projects.append(all_projects.pop(0))
         open_cfp_projects = (
             projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
             .order_by(Project.schedule_start_at.asc())

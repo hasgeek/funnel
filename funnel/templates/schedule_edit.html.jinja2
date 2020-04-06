@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title|e }}</a></h1>
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
   <p class="mui--text-headline">{% trans %}Edit schedule{% endtrans %}</p>
 {% endblock %}
 
@@ -79,7 +79,7 @@
   </div>
   <div id="popup" class="modal session-modal">
     <div class="modal__header">
-      <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
+      <a class="modal__close" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
       <h3 class="js-modal-title session-modal__title">{{ session.title }}</h3>
     </div>
     <hr class="mui-divider mui-divider--custom">

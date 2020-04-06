@@ -42,7 +42,9 @@
   <body class="mui--bg-accent hg-app">
 {% endblock %}
 
-{% block contenthead %}{% endblock %}
+{% block top_title %}
+  <h3 class="mui--text-title">Due to the COVID-19 pandemic, HasGeek Media will not be hosting any in-person events until May 2020. Some events will be online-only, if not cancelled or postponed. Stay safe, everyone!</h3>
+{% endblock %}
 
 {% block baseheadline %}
   {%- if profile %}
@@ -94,14 +96,14 @@
                 <h3 class="mui--text-headline zero-top-margin"><a class="clickable-card" href="{{ featured_project.url_for() }}">{{ featured_project.title }}</a></h3>
                 <p class="mui--text-title mui--text-bold hg-text">Live</p>
                 {% if current_sessions.sessions|length > 0 %}
-                  <p class="mui--text-title mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} Session starts at {{ current_sessions.sessions[0].start_at.astimezone(featured_project.timezone).strftime('%I:%M %p') }}</p>
+                  <p class="mui--text-title mui--text-light">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} Session starts at {{ current_sessions.sessions[0].start_at_localized.strftime('%I:%M %p') }}</p>
                 {% endif %}
                 <div>
                   {%- if featured_project.livestream_urls %}
-                    <a class="mui-btn mui-btn--primary mui-btn--raised" title="Watch LiveStream" data-action="Watch LiveStream(homepage)" href="{{ featured_project.url_for() }}">{% trans %}Livestream{% endtrans %}</a>
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" aria-label="{% trans %}Watch livestream{% endtrans %}" href="{{ featured_project.url_for() }}">{% trans %}Livestream{% endtrans %}</a>
                   {%- endif %}
                   {%- if current_sessions.sessions|length > 0 %}
-                    <a class="mui-btn mui-btn--primary mui-btn--raised" title="Schedule" data-action="Schedule(homepage)" href="{{ featured_project.url_for('schedule') }}">{% trans %}Schedule{% endtrans %}</a>
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" data-action="View Schedule(live event card)" href="{{ featured_project.url_for('schedule') }}">{% trans %}Schedule{% endtrans %}</a>
                   {%- endif %}
                 </div>
               </div>
@@ -126,7 +128,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy-project="{{ featured_project.title }}">
+              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy-project="{{ featured_project.title }}" data-action="View {{ featured_project.title }}(spotlight)">
                 <div class="card__image-wrapper">
                   {% if featured_project.bg_image.url %}
                     <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
@@ -168,7 +170,7 @@
       <ul class="mui-list--unstyled grid upcoming" role="list">
       {% for project in upcoming_projects %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}">
+          <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
             <div class="card__image-wrapper">
               {% if project.bg_image.url %}
                 <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -204,14 +206,14 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Call for proposals open now{% endtrans %}</h2>
+            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Accepting proposal submissions{% endtrans %}</h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-lg-6 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">
               <div class="card card--cfp">
-                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}">
+                <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}" data-action="View {{ project.title }}(cfp)">
                   <div class="card__image-wrapper__overlay"></div>
                   <div class="card__image-wrapper__text">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#microphone-alt"></use></svg>{% endassets %} <div class="mui--d-inlineblock mui--align-middle"><p class="mui--text-menu zero-bottom-margin">CFP</p> <p class="mui--text-menu zero-bottom-margin">{% trans %}Now open{% endtrans %}</p></div></div>
                   {% if project.bg_image.url %}
@@ -226,8 +228,9 @@
                 </a>
                 <div class="card__body card__body--cfp">
                   <h3 class="card--cfp__title mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="js-truncate" data-truncate-lines="2">{{ project.title }}</a></h3>
-                  {% if project.cfp_end_at %}<p class="mui--text-caption zero-top-margin mui--text-danger">Last date of submission - {{ project.cfp_end_at|longdate }}</p>{% endif %}
                   <p class="mui--text-subhead mui--text-light zero-top-margin card--cfp__tagline js-truncate-readmore" data-truncate-lines="2">{{ project.tagline }}</p>
+                  <hr class="separator">
+                  {% if project.cfp_end_at_localized %}<p class="mui--text-body1 zero-top-margin mui--text-light"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
                 </div>
               </div>
             </li>
@@ -235,7 +238,7 @@
         </ul>
         {% if open_cfp_projects|length > 4 %}
           <div class="mui--text-center">
-            <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page card)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="javascript:void(0)"  data-target="show all cfp projects" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-action="Show all cfp projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -252,7 +255,7 @@
         </div>
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="Create new project" data-cy="new-project">
+            <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="Create new project" data-cy="new-project" data-action="Add new project">
               <div class="card__image-wrapper">
                 <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
                 <p class="card__image-wrapper__icon-wrapper">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 mui--align-middle card__image-wrapper__icon-wrapper__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %}</p>
@@ -270,7 +273,7 @@
         {% if draft_projects %}
           {% for project in draft_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-              <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}">
+              <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}" data-action="View {{ project.title }}(drafts)">
                 <div class="card__image-wrapper">
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -297,7 +300,7 @@
           </ul>
           {% if draft_projects|length > 3 %}
             <div class="mui--text-center">
-              <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" title="show all cfp projects" data-projects="js-draft-projects" data-action="Show all cfp projects(index page card)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" data-action="Show all drafts projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         {% endif %}
@@ -316,7 +319,7 @@
         <ul class="grid projects" role="list">
           {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              <a class="card clickable-card card--upcoming" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}">
+              <a class="card clickable-card card--upcoming" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}" data-action="View {{ project.title }}(all projects)">
                 <div class="card__image-wrapper">
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
@@ -369,7 +372,7 @@
               <tbody>
                 {% for project in past_projects %}
                   <tr>
-                    <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.schedule_start_at|longdate }}</p></td>
+                    <td data-th="Date"><p class="mui--text-subhead zero-bottom-margin">{{ project.schedule_start_at_localized.strftime('%d %B %Y')}}</p></td>
                     <td data-th="Event name"><p class="mui--text-subhead zero-bottom-margin"><a href="{{ project.url_for() }}" data-action="past-event(index page list)">{{ project.title }}</a></p></td>
                     <td data-th="Location">{% if project.primary_venue %}<p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>{% endif %}</td>
                   </tr>

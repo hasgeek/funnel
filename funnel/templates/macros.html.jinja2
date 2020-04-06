@@ -55,21 +55,18 @@
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
-      {%- if project.profile %}
-        <div class="grid__col-sm-12">
-          <div class="profile-details">
-            {%- if project.profile.logo_url.url %}
-              <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper">
-                <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
-              </a>
-            {% endif %}
-            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link">{{ project.profile.title|e }}</a>&nbsp;
-            <span class="mui--text-subhead mui--text-bold profile-details__text">project</span>
-          </div>
+      <div class="grid__col-sm-12">
+        <div class="profile-details">
+          {%- if project.profile.logo_url.url %}
+            <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
+              <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            </a>
+          {% endif %}
+          <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
         </div>
-      {% endif %}
+      </div>
       <div class="grid__col-sm-12 project-banner__headline">
-        <h1 class="mui--text-display1 mui--text-bold">{{ project.title|e }}</h1>
+        <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}</h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
       {% if project.livestream_urls %}
@@ -109,75 +106,77 @@
         </div>
       {% endif %}
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
-        <div class="mui--text-body1 mui--text-light profile-text js-truncate-readmore" data-truncate-lines="2">{{ project.profile.description|safe|striptags }}</div>
         <div class="bookmark-icon  {% if not project.calendar_weeks_full.weeks %} bookmark-icon--height {% endif %}">{{ saveprojectform(project, project_save_form) }}</div>
-        {% if project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+        {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
         {% endif %}
-        {%- if project.start_at %}
-          <p class="mui--text-light mui--text-subhead project-time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#clock"></use></svg>{% endassets %} <span>{{ project.start_at }}</span>{%- if project.end_at %} <span>–{{ project.end_at }}</span>{%- endif %}</p>
-        {%- endif %}
-        {%- if project.primary_venue %}
-          <a class="mui--text-hyperlink mui--text-subhead project-venue {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a>
-        {%- endif %}
-        {% if project.cfp_state.OPEN -%}
-          <p><a class="mui-btn mui-btn--raised mui--d-block propose-btn" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)" data-cy="propose-a-session">{% trans %}Propose a session{% endtrans %}</a></p>
-        {%- elif project.cfp_state.CLOSED or project.cfp_state.EXPIRED %}
-          <div>
-            <a class="mui-btn mui-btn--raised mui--d-block propose-btn strike-text" title="Propose a session" data-action="Propose a session(page)" data-cy="propose-a-session">{% trans %}Propose a session{% endtrans %}</a>
-            <p class="mui--text-light mui--text-caption mui--text-center">Submissions are closed for this project</p>
-          </div>
-        {%- endif %}
-        <div class="mui--hidden-xs mui--hidden-sm">
-          {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-            <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" title="Tickets" data-action="Buy Tickets" id="ticket-btn">{%- if project.allow_rsvp %}{% trans %}Attend{% endtrans %}{% else %}{% trans %}Tickets{% endtrans %}{% endif %}</a>
-          {%- elif project.buy_tickets_url.url %}
-            <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Buy Tickets">
-            {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
-              {{ project.boxoffice_data.buy_btn_text }}
-            {% else %}
-              {% trans %}Tickets{% endtrans %}
-            {% endif %}
-            </a>
+        <div class="project-details__box--ticketbox">
+          {%- if project.primary_venue %}
+            <p><a class="mui--text-hyperlink mui--text-subhead project-venue {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
           {%- endif %}
-        </div>
-        <div class="project-banner__action">
-          <div class="project-banner__action__social">
-            <a class="list-group-item share-popup  mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" title="{% trans %}Tweet this{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#twitter-square"></use></svg>{% endassets %}</a>
-            <a class="list-group-item share-popup  mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" title="{% trans %}Share on Facebook{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#facebook-square"></use></svg>{% endassets %}</a>
-            <a class="list-group-item share-popup  mui--text-headline mui--text-light" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" title="Email this">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#envelope"></use></svg>{% endassets %}</a>
+          <div class="project-banner__action">
+            <div class="project-banner__action__social">
+              <p class="mui--text-light zero-bottom-margin">{% trans %}Share this project{% endtrans %}</p>
+              <a class="mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" data-action="Tweet this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#twitter-square"></use></svg>{% endassets %}</a>
+              <a class="mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" data-action="Share on Facebook(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#facebook-square"></use></svg>{% endassets %}</a>
+              <a class="mui--text-headline mui--text-light" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" data-action="Email this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#envelope-square"></use></svg>{% endassets %}</a>
+            </div>
           </div>
+          <div class="mui--hidden-xs mui--hidden-sm">
+            {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+              <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %}</a>
+            {%- elif project.buy_tickets_url.url %}
+              <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
+              {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
+                {{ project.boxoffice_data.buy_btn_text }}
+              {% else %}
+                {% trans %}Get tickets{% endtrans %}
+              {% endif %}
+              </a>
+            {%- endif %}
+          </div>
+          {% if project.cfp_state.OPEN -%}
+            <div class="propose propose--lessmargin">
+              <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+              {% if project.cfp_end_at_localized -%}<p class="mui--text-subhead propose__txt zero-bottom-margin"><span class="propose__txt__badge alert--warning mui--d-inlineblock">Note</span> <em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+            </div>
+          {%- elif project.cfp_state.UNAVAILABLE %}
+            <div class="propose propose--lessmargin">
+              <a class="mui-btn mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <p class="mui--text-light mui--text-caption mui--text-center zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
+            </div>
+          {%- endif %}
         </div>
       </div>
     </div>
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" title="About" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
       {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" title="Tickets" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.allow_rsvp %}{% trans %}Attend{% endtrans %}{% else %}{% trans %}Tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a></div>
+        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a></div>
       {%- elif project.buy_tickets_url.url %}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" title="Tickets" data-action="Tickets(navbar)" id="ticket-btn"> {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}{{ project.boxoffice_data.buy_btn_text }}{% else %}{% trans %}Tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a></div>
+        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" data-action="Tickets(navbar)" id="ticket-btn"> {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}{{ project.boxoffice_data.buy_btn_text }}{% else %}{% trans %}Get tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" title="Talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
       {%- if project.hasjob_embed_url.url -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" title="Jobs" data-action="Jobs(navbar)" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-action="Jobs(navbar)" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
       {%- if project.primary_venue -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" title="Venue" data-action="Venue(navbar)" data-cy-navbar="venue">{% trans %}Venue{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(navbar)" data-cy-navbar="venue">{% trans %}Venue{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
       {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" title="Proposals" data-action="Proposals(navbar)" data-cy-navbar="proposals">{% trans %}Proposals{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" data-action="Proposals(navbar)" data-cy-navbar="proposals">{% trans %}Proposals{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
       {%- if project.schedule_state.PUBLISHED %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" title="Schedule" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" title="Settings" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
     </nav>
   </div>

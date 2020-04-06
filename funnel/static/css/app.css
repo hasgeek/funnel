@@ -28,7 +28,7 @@
 }
 
 .separator {
-  padding: 0 5px;
+  margin: 10px 0;
 }
 
 .image-wrapper img {
@@ -43,6 +43,14 @@
 
 .material-icons {
   display: none;
+}
+
+.primary-color-txt {
+  color: #e05f26;
+}
+
+.secondary-color-txt {
+  color: #82688d;
 }
 
 .list-item-rgborder li {
@@ -459,6 +467,7 @@ html.touch .collapsible__body--disable {
   min-width: calc(100% - 60px);
   color: #79818b;
   font-size: 16px;
+  outline: none;
 }
 .hg-app
   .header--fixed
@@ -966,6 +975,14 @@ html.touch .collapsible__body--disable {
 }
 .tab-content .tab-content__results {
   margin-bottom: 1em;
+}
+
+.mui-btn--strike {
+  text-decoration: line-through;
+}
+
+.mui-btn--strike:hover {
+  text-decoration: line-through;
 }
 
 .projects-wrapper {
@@ -1519,6 +1536,9 @@ html.touch .collapsible__body--disable {
   .card--spotlight--live {
     min-height: auto;
   }
+  .card--spotlight--live .card__image-wrapper {
+    flex: auto;
+  }
 }
 .clickable-card,
 .card-wrapper {
@@ -1878,12 +1898,13 @@ html.touch .collapsible__body--disable {
   top: 4px;
 }
 .card--upcoming .card__body .card__body__title {
-  margin: 0;
+  margin: 10px 0 0;
   font-size: 20px;
   line-height: 28px;
 }
 .card--upcoming .card__body .card__body__title--smaller {
-  margin: 15px 0 0;
+  margin: 0;
+  padding-top: 15px;
   width: calc(100% - 20px);
 }
 .card--upcoming .card__body .card__body__location {
@@ -2091,7 +2112,7 @@ html.touch .collapsible__body--disable {
   margin-top: 15px;
 }
 .project-banner .project-banner__headline {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 .project-banner .project-banner__box {
   padding: 0;
@@ -2119,64 +2140,85 @@ html.touch .collapsible__body--disable {
   margin: 0;
   display: block;
 }
-.project-banner .bookmark-icon {
+.project-banner .project-details__box {
+  margin-top: 15px;
   position: relative;
-  top: 6px;
-  text-align: right;
-  height: 0;
 }
-.project-banner .bookmark-icon--height {
-  height: auto;
+.project-banner .project-details__box .bookmark-icon {
+  position: absolute;
   top: 0;
+  right: 0;
 }
-.project-banner .card__calendar {
-  margin-right: -15px;
-  margin-left: -15px;
+.project-banner .project-details__box .card__calendar {
   padding: 0 15px 10px;
+  margin: 0 -15px 25px;
+}
+.project-banner .project-details__box .project-time {
   margin-bottom: 15px;
 }
-.project-banner .project-time {
-  margin-bottom: 15px;
-}
-.project-banner .project-venue {
+.project-banner .project-details__box .project-venue {
   margin: 10px 0;
 }
-.project-banner .propose-btn {
+.project-banner .project-details__box .propose {
+  margin: 8px 0 0;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.project-banner .project-details__box .propose .propose__btn {
   background-color: #202d3c;
   color: #fff;
   margin-bottom: 0;
 }
-.project-banner .propose-btn.strike-text {
+.project-banner .project-details__box .propose .propose__btn--strike {
   text-decoration: line-through;
 }
-.project-banner .propose-btn.strike-text:hover {
+.project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
-.project-banner .project-banner__action {
+.project-banner .project-details__box .propose .propose__txt {
+  margin-top: 5px;
+}
+.project-banner
+  .project-details__box
+  .propose
+  .propose__txt
+  .propose__txt__badge {
+  margin-right: 10px;
+  padding: 5px;
+  float: left;
+  position: relative;
+  top: 8px;
+  border-radius: 2px;
+}
+.project-banner .project-details__box .project-banner__action {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
 }
-.project-banner .project-banner__action .project-banner__action__icon {
+.project-banner
+  .project-details__box
+  .project-banner__action
+  .project-banner__action__icon {
   height: 24px;
   vertical-align: middle;
 }
-.project-banner .project-banner__action .project-banner__action__social {
+.project-banner
+  .project-details__box
+  .project-banner__action
+  .project-banner__action__social {
   justify-content: space-between;
-  width: 50%;
+  width: 100%;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: 10px;
+  padding: 10px;
+  border: 2px dashed #eff2f6;
 }
-.project-banner .project-banner__action .project-banner__action__button {
-  display: inline-block;
-  width: 165px;
-  box-shadow: none;
-  text-align: left;
-  padding: 0;
-  margin: 0;
-}
-.project-banner .project-banner__action .mui-btn + .mui-btn {
+.project-banner
+  .project-details__box
+  .project-banner__action
+  .mui-btn
+  + .mui-btn {
   margin-left: 0;
 }
 
@@ -2186,14 +2228,8 @@ html.touch .collapsible__body--disable {
   }
 }
 @media (min-width: 992px) {
-  .project-banner .project-banner__headline {
-    margin-bottom: 16px;
-  }
   .project-banner .project-banner__box {
     padding: 0 15px;
-  }
-  .project-banner .project-details__box--topmargin {
-    margin-top: 50px;
   }
   .project-banner .profile-text {
     margin: 0 0 5px;
@@ -2201,18 +2237,38 @@ html.touch .collapsible__body--disable {
   .project-banner .profile-text p {
     margin: 0;
   }
-  .project-banner .bookmark-icon {
-    top: 15px;
+  .project-banner .project-details__box {
+    margin: 0;
+    margin-top: -7px;
   }
-  .project-banner .bookmark-icon--height {
-    top: 0;
+  .project-banner .project-details__box .bookmark-icon {
+    top: 5px;
+    right: 10px;
   }
-  .project-banner .card__calendar {
-    margin: 0 0 15px;
-    padding: 10px 0 8px;
+  .project-banner .project-details__box .card__calendar {
+    margin: 0 0 25px;
+    padding: 0 0 8px;
   }
-  .project-banner .project-banner__action .project-banner__action__social {
+  .project-banner .project-details__box .propose {
+    align-items: baseline;
+    margin-left: 15px;
+    width: calc(100% - 15px);
+  }
+  .project-banner .project-details__box .propose--lessmargin {
+    margin: 10px 0 0;
+    padding: 0;
     width: 100%;
+  }
+  .project-banner
+    .project-details__box
+    .propose--lessmargin.mui--d-inlineblock {
+    width: auto;
+  }
+  .project-banner .project-details__box .propose__btn-wrapper {
+    padding-left: 10px;
+  }
+  .project-banner .project-details__box--topmargin {
+    margin-top: 42px;
   }
 }
 .about {
