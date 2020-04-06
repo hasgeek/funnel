@@ -1,6 +1,11 @@
 language: python
 python:
   - 3.7
+addons:
+  postgresql: '9.6'
+services:
+  - redis-server
+  - postgresql
 install:
   - pip install -U pip wheel
   - pip install git+https://github.com/hasgeek/flask-babelhg.git
@@ -17,10 +22,6 @@ script:
   - ./runfrontendtests.sh
 after_success:
   - coveralls
-addons:
-  postgresql: '9.6'
-services:
-  - redis-server
 notifications:
   email: false
   slack:
