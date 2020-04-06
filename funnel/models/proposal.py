@@ -23,6 +23,7 @@ from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import add_search_trigger
 from .project import Project
 from .user import User
+from .video import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
@@ -96,7 +97,9 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
+class Proposal(
+    UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, VideoMixin, db.Model
+):
     __tablename__ = 'proposal'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
