@@ -26,16 +26,31 @@ class VideoMixin:
             raise VideoException("No video source or ID to create a cache key")
 
     @property
+    def _video_cache(self):
+        data = redis_store.hgetall(self.video_cache_key)
+        if data:
+            if 'uploaded_at' in data:
+                data['uploaded_at'] = parse_isoformat(data['uploaded_at'], naive=False)
+            if 'duration' in data:
+                data['duration'] = int(data['duration'])
+        return data
+
+    @_video_cache.setter
+    def _video_cache(self, data):
+        copied_data = data.copy()
+        copied_data['uploaded_at'] = copied_data['uploaded_at'].isoformat()
+        if copied_data['duration'] and not isinstance(copied_data['duration'], int):
+            copied_data['duration'] = int(copied_data['duration'])
+        redis_store.hmset(self.video_cache_key, copied_data)
+        redis_store.expire(self.video_cache_key, 60 * 60 * 24 * 2)  # caching for 2 days
+
+    @property
     def video(self):
         data = None
         if self.video_source and self.video_id:
-            data = redis_store.hgetall(self.video_cache_key)
-            if data:
-                if 'uploaded_at' in data:
-                    data['uploaded_at'] = parse_isoformat(data['uploaded_at'])
-                if 'duration' in data:
-                    data['duration'] = int(data['duration'])
-            else:
+            data = self._video_cache
+
+            if not data:
                 data = {
                     'source': self.video_source,
                     'id': self.video_id,
@@ -48,21 +63,19 @@ class VideoMixin:
                             api_key=app.config['YOUTUBE_API_KEY'],
                         )
                     ).json()
-                    if youtube_video is None or not youtube_video['items']:
+                    if not youtube_video or not youtube_video['items']:
                         raise VideoException(
                             "Unable to fetch data, please check the youtube url"
                         )
                     else:
                         youtube_video = youtube_video['items'][0]
 
-                        data['duration'] = int(
-                            parse_duration(
-                                youtube_video['contentDetails']['duration']
-                            ).total_seconds()
-                        )
+                        data['duration'] = parse_duration(
+                            youtube_video['contentDetails']['duration']
+                        ).total_seconds()
                         data['uploaded_at'] = parse_isoformat(
-                            youtube_video['snippet']['publishedAt']
-                        ).isoformat()
+                            youtube_video['snippet']['publishedAt'], naive=False
+                        )
                         data['thumbnail'] = youtube_video['snippet']['thumbnails'][
                             'medium'
                         ]['url']
@@ -70,23 +83,24 @@ class VideoMixin:
                     vimeo_video = requests.get(
                         "https://vimeo.com/api/v2/video/%s.json" % (self.video_id)
                     ).json()
-                    if vimeo_video:
+                    if not vimeo_video:
+                        raise VideoException(
+                            "Unable to fetch data, please check the vimeo url"
+                        )
+                    else:
                         vimeo_video = vimeo_video[0]
 
                         data['duration'] = vimeo_video['duration']
                         data['uploaded_at'] = parse_isoformat(
-                            vimeo_video['upload_date'], naive=True, delimiter=' '
-                        ).isoformat()
+                            vimeo_video['upload_date'], naive=False, delimiter=' '
+                        )
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
                 else:
                     # source = raw
                     data['duration'] = 0
                     data['uploaded_at'] = None
                     data['thumbnail'] = None
-                redis_store.hmset(self.video_cache_key, data)
-                redis_store.expire(
-                    self.video_cache_key, 60 * 60 * 24 * 2
-                )  # caching for 2 days
+                self._video_cache = data  # using _video_cache setter to set cache
         return data
 
     @property
