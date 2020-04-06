@@ -192,7 +192,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
     )
 
-    livestream_urls = db.Column(db.ARRAY(db.UnicodeText, dimensions=1))
+    livestream_urls = db.Column(
+        db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'
+    )
 
     venues = db.relationship(
         'Venue',
