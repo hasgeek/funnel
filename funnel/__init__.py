@@ -67,7 +67,7 @@ mail.init_app(funnelapp)
 lastuser.init_app(app)
 lastuser.init_app(funnelapp)
 
-lastuser.init_usermanager(UserManager(db, models.User, models.Team))
+lastuser.init_usermanager(UserManager(db, models.User))
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
 pages.init_app(app)
 
