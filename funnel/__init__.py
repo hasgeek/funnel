@@ -6,6 +6,7 @@ from flask import Flask
 from flask_flatpages import FlatPages
 from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 
 from flask_lastuser import Lastuser
@@ -21,6 +22,7 @@ funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=Tr
 mail = Mail()
 lastuser = Lastuser()
 pages = FlatPages()
+redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
 
 
@@ -68,6 +70,8 @@ lastuser.init_app(funnelapp)
 lastuser.init_usermanager(UserManager(db, models.User, models.Team))
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
 pages.init_app(app)
+
+redis_store.init_app(app)
 
 rq.init_app(app)
 rq.init_app(funnelapp)
