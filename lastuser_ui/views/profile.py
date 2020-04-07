@@ -52,7 +52,7 @@ def account():
         if provider.at_login and provider.form is not None:
             service_forms[service] = provider.get_form()
     return render_template(
-        'account.html.jinja2',
+        'account_lastuser.html.jinja2',
         primary_email_form=primary_email_form,
         primary_phone_form=primary_phone_form,
         service_forms=service_forms,

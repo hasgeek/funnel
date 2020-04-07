@@ -52,7 +52,7 @@ def dashboard():
         .scalar()
     )
 
-    return render_template('dashboard.html.jinja2', user_count=user_count, mau=mau)
+    return render_template('auth_dashboard.html.jinja2', user_count=user_count, mau=mau)
 
 
 @lastuser_ui.route('/dashboard/data/users_by_month.csv')
