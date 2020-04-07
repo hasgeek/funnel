@@ -12,7 +12,7 @@
   min-width: 200px;
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
   .card--limited {
     min-width: 300px;
   }
@@ -62,7 +62,7 @@ a.loginbutton.hidden,
   word-break: break-all;
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
   .infobox dt {
     width: 10em;
     float: left;
@@ -80,7 +80,7 @@ a.loginbutton.hidden,
     padding: 4px 0 0 0.75em;
   }
   .infobox dd:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
   }
