@@ -318,7 +318,7 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         return '<User {username} "{fullname}">'.format(
-            username=self.username or self.buid, fullname=self.fullname.encode('utf-8')
+            username=self.username or self.buid, fullname=self.fullname
         )
 
     def profileid(self):
@@ -704,7 +704,7 @@ class Organization(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         return '<Organization {name} "{title}">'.format(
-            name=self.name or self.buid, title=self.title.encode('utf-8')
+            name=self.name or self.buid, title=self.title
         )
 
     @property
@@ -784,7 +784,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         return '<Team {team} of {organization}>'.format(
-            team=self.title.encode('utf-8'), organization=repr(self.organization)[1:-1]
+            team=self.title, organization=repr(self.organization)[1:-1]
         )
 
     @property
