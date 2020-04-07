@@ -21,8 +21,8 @@ from lastuser_core.signals import user_data_changed
 
 from .. import lastuser_oauth
 from ..forms.profile import ProfileMergeForm
-from ..mailclient import send_email_verify_link
-from ..views.helpers import (
+from .email import send_email_verify_link
+from .helpers import (
     login_internal,
     register_internal,
     requires_login,

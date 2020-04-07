@@ -42,7 +42,6 @@ baseframe.init_app(
 )
 
 lastuser_oauth.lastuser_oauth.init_app(app)
-lastuser_oauth.mailclient.mail.init_app(app)
 lastuser_oauth.views.login.oid.init_app(app)
 
 # Register some login providers
