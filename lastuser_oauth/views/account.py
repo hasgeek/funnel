@@ -248,7 +248,7 @@ def account_merge():
             session.pop('merge_buid', None)
             return redirect(get_next_url(), code=303)
     return render_template(
-        'merge.html.jinja2',
+        'account_merge.html.jinja2',
         form=form,
         user=current_auth.user,
         other_user=other_user,

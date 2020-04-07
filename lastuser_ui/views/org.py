@@ -33,7 +33,7 @@ class OrgView(UrlForView, ModelView):
     @route('')
     def index(self):
         return render_template(
-            'org_list.html.jinja2',
+            'organization_index.html.jinja2',
             organizations=current_auth.user.organizations_owned(),
         )
 
@@ -62,7 +62,7 @@ class OrgView(UrlForView, ModelView):
     @route('<name>')
     @requires_permission('view')
     def view(self):
-        return render_template('org_info.html.jinja2', org=self.obj)
+        return render_template('organization.html.jinja2', org=self.obj)
 
     @route('<name>/edit', methods=['GET', 'POST'])
     @requires_permission('edit')

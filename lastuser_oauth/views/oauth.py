@@ -124,7 +124,7 @@ def oauth_auth_403(reason):
     """
     Returns 403 errors for /auth
     """
-    return render_template('oauth403.html.jinja2', reason=reason), 403
+    return render_template('oauth_403.html.jinja2', reason=reason), 403
 
 
 def oauth_make_auth_code(auth_client, scope, redirect_uri):
@@ -362,7 +362,7 @@ def oauth_authorize():
     # GET request or POST with invalid CSRF
     return (
         render_template(
-            'authorize.html.jinja2',
+            'oauth_authorize.html.jinja2',
             form=form,
             auth_client=auth_client,
             redirect_uri=redirect_uri,

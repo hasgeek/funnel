@@ -34,7 +34,7 @@ from ..forms import (
 def client_list():
     if current_auth.is_authenticated:
         return render_template(
-            'client_list.html.jinja2',
+            'auth_client_index.html.jinja2',
             auth_clients=AuthClient.all_for(current_auth.user),
         )
     else:
@@ -45,7 +45,7 @@ def client_list():
 @lastuser_ui.route('/apps/all')
 def client_list_all():
     return render_template(
-        'client_list.html.jinja2', auth_clients=AuthClient.all_for(None)
+        'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
     )
 
 
@@ -96,7 +96,7 @@ def client_info(auth_client):
     else:
         permassignments = AuthClientTeamPermissions.all_forclient(auth_client).all()
     return render_template(
-        'client_info.html.jinja2',
+        'auth_client.html.jinja2',
         auth_client=auth_client,
         permassignments=permassignments,
     )
@@ -180,7 +180,10 @@ def client_cred_new(auth_client):
         cred.title = form.title.data
         db.session.commit()
         return render_template(
-            'client_cred.html.jinja2', name=cred.name, secret=secret, cred=cred
+            'auth_client_credential.html.jinja2',
+            name=cred.name,
+            secret=secret,
+            cred=cred,
         )
     return render_form(
         form=form,

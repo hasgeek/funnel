@@ -520,12 +520,12 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     # Only one assignment per user and client
     __table_args__ = (db.UniqueConstraint('user_id', 'auth_client_id'), {})
 
-    # Used by lastuser_ui/client_info.html
+    # Used by auth_client_info.html
     @property
     def pickername(self):
         return self.user.pickername
 
-    # Used by lastuser_ui/client_info.html for url_for
+    # Used by auth_client_info.html for url_for
     @property
     def buid(self):
         return self.user.buid
@@ -584,12 +584,12 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     # Only one assignment per team and client
     __table_args__ = (db.UniqueConstraint('team_id', 'auth_client_id'), {})
 
-    # Used by lastuser_ui/client_info.html
+    # Used by auth_client_info.html
     @property
     def pickername(self):
         return self.team.pickername
 
-    # Used by lastuser_ui/client_info.html for url_for
+    # Used by auth_client_info.html for url_for
     @property
     def buid(self):
         return self.team.buid
