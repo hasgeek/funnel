@@ -42,7 +42,7 @@ from ..forms import (
     PasswordResetRequestForm,
     RegisterForm,
 )
-from ..mailclient import send_email_verify_link, send_password_reset_link
+from .email import send_email_verify_link, send_password_reset_link
 from .helpers import (
     login_internal,
     logout_internal,

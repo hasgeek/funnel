@@ -17,7 +17,6 @@ from lastuser_core.models import (
 )
 from lastuser_core.signals import user_data_changed
 from lastuser_oauth.forms import PasswordChangeForm, PasswordResetForm
-from lastuser_oauth.mailclient import send_email_verify_link
 from lastuser_oauth.views.helpers import requires_login
 
 from .. import lastuser_ui
@@ -29,6 +28,7 @@ from ..forms import (
     VerifyEmailForm,
     VerifyPhoneForm,
 )
+from .email import send_email_verify_link
 from .sms import send_phone_verify_code
 
 

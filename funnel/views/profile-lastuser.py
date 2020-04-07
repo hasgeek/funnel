@@ -11,7 +11,7 @@ from lastuser_core.signals import user_data_changed
 
 from .. import lastuser_oauth
 from ..forms import ProfileForm
-from ..mailclient import send_email_verify_link
+from .email import send_email_verify_link
 from .helpers import requires_login
 
 
