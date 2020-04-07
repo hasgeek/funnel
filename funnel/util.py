@@ -80,10 +80,7 @@ def split_name(fullname):
 
     Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
     """
-    if not fullname:
-        return fullname
-    name_splits = fullname.split()
-    return str(name_splits[0]), str(" ".join([s for s in name_splits[1:]]))
+    return fullname.split(None, 1)
 
 
 # TODO: Added tests for this
