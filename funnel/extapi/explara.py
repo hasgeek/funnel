@@ -2,7 +2,7 @@
 
 import requests
 
-from ..util import extract_twitter_handle
+from ..utils import extract_twitter_handle
 
 __all__ = ['ExplaraAPI']
 

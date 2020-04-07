@@ -8,7 +8,7 @@ from baseframe import __
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..util import geonameid_from_location
+from ..utils import geonameid_from_location
 from . import (
     BaseScopedIdNameMixin,
     CoordinatesMixin,

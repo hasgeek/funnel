@@ -18,11 +18,11 @@ from coaster.views import (
     requires_permission,
     route,
 )
-from funnel.util import format_twitter_handle, make_qrcode, split_name
 
 from .. import app, funnelapp, lastuser
 from ..forms import ParticipantForm
 from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
+from ..utils import format_twitter_handle, make_qrcode, split_name
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
 from .mixins import EventViewMixin, ProjectViewMixin
