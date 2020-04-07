@@ -32,7 +32,6 @@ class TestUtils(object):
 
     def test_split_name(self):
         assert split_name("ABC DEF EFG") == ("ABC", "DEF EFG")
-        assert split_name("") == ""
 
     def test_format_twitter_handle(self):
         assert format_twitter_handle("testusername") == "@testusername"
