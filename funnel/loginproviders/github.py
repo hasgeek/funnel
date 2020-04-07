@@ -7,7 +7,8 @@ from flask import redirect, request
 import requests
 
 from baseframe import _
-from lastuser_core.registry import LoginCallbackError, LoginProvider
+
+from ..registry import LoginCallbackError, LoginProvider
 
 __all__ = ['GitHubProvider']
 

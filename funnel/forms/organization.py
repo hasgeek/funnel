@@ -4,8 +4,9 @@ from flask import Markup, current_app, url_for
 
 from baseframe import _, __
 from coaster.auth import current_auth
-from lastuser_core.models import AccountName, Organization, Team, User
 import baseframe.forms as forms
+
+from ..models import AccountName, Organization, Team, User
 
 __all__ = ['OrganizationForm', 'TeamForm']
 

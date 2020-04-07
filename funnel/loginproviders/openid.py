@@ -4,9 +4,9 @@
 from flask import Markup, session
 
 from baseframe import _, __
-from lastuser_core.registry import LoginInitError, LoginProvider
 import baseframe.forms as forms
 
+from ..registry import LoginInitError, LoginProvider
 from ..views.account import login_service_postcallback
 from ..views.login import oid
 

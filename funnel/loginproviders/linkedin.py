@@ -5,10 +5,11 @@ from uuid import uuid4
 
 from flask import redirect, request, session
 
-from lastuser_core.registry import LoginCallbackError, LoginProvider
 import requests
 
 from baseframe import _
+
+from ..registry import LoginCallbackError, LoginProvider
 
 __all__ = ['LinkedInProvider']
 

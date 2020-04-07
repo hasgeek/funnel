@@ -6,8 +6,9 @@ from flask import Markup, url_for
 
 from baseframe import _, __
 from coaster.utils import domain_namespace_match, getbool, valid_username
-from lastuser_core.models import User
 import baseframe.forms as forms
+
+from ..models import User
 
 __all__ = [
     'ClientCredentialForm',
