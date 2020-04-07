@@ -12,7 +12,7 @@
           {% endif %}
         {% endfor %}
       {% endfor %}
-      <p class="calendar__month-name">{{ event.month }} {{ event.year }}&nbsp;<span class="calendar__counting"></span></p>
+      <p class="calendar__month-name">{{ event.month }} {{ event.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}"></span></p>
       <div class="calendar__weekdays mui--bg-accent {% if calendar.weeks|length > 1 %} calendar__weekdays--rows {% endif %}">
         {% for week in calendar.weeks|sort(attribute='year') %}
           <div class="calendar__weekdays__dates">
