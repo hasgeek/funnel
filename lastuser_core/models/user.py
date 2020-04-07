@@ -228,6 +228,10 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
 
+    #: Temporary values for Flask-Lastuser compatibility
+    lastuser_token = lastuser_token_scope = lastuser_token_type = None
+    userinfo = {}
+
     __table_args__ = (
         db.Index(
             'ix_user_fullname_lower',
@@ -428,6 +432,14 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
             }
         )
 
+    def user_organizations_owned_ids(self):
+        # Temp function for Flask-Lastuser
+        return [self.buid] + [o.buid for o in self.organizations_owned()]
+
+    def owner_of(self, profile):
+        # Temp function for Flask-Lastuser
+        return profile.buid in self.user_organizations_owned_ids()
+
     def organizations_memberof(self):
         """
         Return the organizations this user is a member of.
@@ -459,7 +471,7 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
         ]
 
     @classmethod
-    def get(cls, username=None, buid=None, defercols=False):
+    def get(cls, username=None, buid=None, userid=None, defercols=False):
         """
         Return a User with the given username or buid.
 
@@ -467,7 +479,11 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
         :param str buid: Buid to lookup
         :param bool defercols: Defer loading non-critical columns
         """
-        require_one_of(username=username, buid=buid)
+        require_one_of(username=username, buid=buid, userid=userid)
+
+        # userid parameter is temporary for Flask-Lastuser compatibility
+        if userid:
+            buid = userid
 
         if username is not None:
             query = cls.query.join(AccountName).filter(AccountName.name == username)
