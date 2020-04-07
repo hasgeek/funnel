@@ -58,13 +58,13 @@ You may also be required to submit additional information about yourself, includ
 
 We collect and store information from our Users for the following purposes including but not limited to:
 
-* To render the page or service the User requested
-* For internal record keeping
-* To improve our products and services
-* To contact the User with regards to the services they have availed of
-* To contact you for promotional offers or market research purposes, with the User’s consent
-* To syndicate User’s publicly available data
-* To syndicate User’s pesonally identifiable information with HasGeek and it’s partners
+-   To render the page or service the User requested
+-   For internal record keeping
+-   To improve our products and services
+-   To contact the User with regards to the services they have availed of
+-   To contact you for promotional offers or market research purposes, with the User’s consent
+-   To syndicate User’s publicly available data
+-   To syndicate User’s pesonally identifiable information with HasGeek and it’s partners
 
 ### Disclosure
 
@@ -72,42 +72,42 @@ Any subpoena or attempts by government agencies or private sector organizations 
 
 ### Information ownership
 
- We claim no intellectual property rights over the material the User provides to this Service.
+We claim no intellectual property rights over the material the User provides to this Service.
 
 ### Information control
 
-__Retention__
+**Retention**
 
 We retain User’s searches and other identifiable User information for an undefined period of time.
 
-__Conservation__
+**Conservation**
 
 We are committed to ensuring that User’s information is secure. In order to prevent unauthorised access or disclosure we have put in place suitable physical, electronic and managerial procedures to safeguard and secure the information we collect online.
 
-__Retrieval__
+**Retrieval**
 
-* The User may request a copy of their data
-* The User cannot request a copy of this Service’s representation of User’s data
+-   The User may request a copy of their data
+-   The User cannot request a copy of this Service’s representation of User’s data
 
-__Opt-out and Deletion__
+**Opt-out and Deletion**
 
-* If User no longer wishes to receive marketing email from us, then they can unsubscribe using the unsubscribe link included in the email.
+-   If User no longer wishes to receive marketing email from us, then they can unsubscribe using the unsubscribe link included in the email.
 
-* Complete withdrawal of information is not always possible as some information may persist in database backups, in messages the User has sent to other Users via our Services, or in public pages that have been reproduced by third parties without our involvement. A request for closing an Account refers to the Account being deactivated.
+-   Complete withdrawal of information is not always possible as some information may persist in database backups, in messages the User has sent to other Users via our Services, or in public pages that have been reproduced by third parties without our involvement. A request for closing an Account refers to the Account being deactivated.
 
-* If a User would like to close their account, they must write to us on our [support channels](/about/contact).
+-   If a User would like to close their account, they must write to us on our [support channels](/about/contact).
 
-__Transfer__
+**Transfer**
 
 User’s Personal Data may be disclosed to a third party in case of business transfer or insolvency.
 
 ## Cookies, third-party analytics and logging
 
-__Cookies and logging__
+**Cookies and logging**
 
 We use cookies to log traffic on our website, that is, to identify which pages are being used. This helps us analyse and improve our website in order to tailor it to fit our customers’ needs. We only use this information for statistical analysis purposes. Overall, cookies help us provide User with a better website, by enabling us to monitor which pages User may find useful and which they do not. A cookie in no way gives us access to User’s computer or any information about User, other than the data the User chooses to share with us. User can choose to accept or decline cookies. Most web browsers automatically accept cookies, but User can usually modify their browser setting to decline cookies if they prefer. This may prevent the User from taking full advantage of the website as several aspects of it require cookies to function normally.
 
-__Third-party analytics__
+**Third-party analytics**
 
 We use analytics tools and other third party technologies, such as Google Analytics, to collect non-personal information in the form of various usage metrics when the User uses our services. These tools and technologies collect and analyse certain types of information, including cookies, IP addresses, device and software identifiers, referring and exit URLs, onsite behavior and usage information, feature use metrics and statistics, usage and purchase history, MAC Address, mobile unique device ID, and other similar information. The third party analytics companies who collect information on our services and other online products and/or services may combine the information collected with other information they have independently collected from other websites and/or other online or mobile products and services relating to User’s activities across their network of websites as well as online and/or mobile products and services. Many of these companies collect and use information under their own privacy policies.
 

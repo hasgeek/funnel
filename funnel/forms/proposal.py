@@ -82,7 +82,7 @@ def proposal_label_admin_form(project, proposal):
                         if label.required
                         else []
                     ),
-                    **form_kwargs
+                    **form_kwargs,
                 ),
             )
 
