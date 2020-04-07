@@ -24,7 +24,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, funnelapp, lastuser
 from ..models import ContactExchange, Participant, Project, db
-from ..util import format_twitter_handle
+from ..utils import format_twitter_handle
 
 
 def contact_details(participant):
