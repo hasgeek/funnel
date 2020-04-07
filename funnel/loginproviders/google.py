@@ -7,7 +7,8 @@ from oauth2client import client
 import requests
 
 from baseframe import _
-from lastuser_core.registry import LoginCallbackError, LoginProvider
+
+from ..registry import LoginCallbackError, LoginProvider
 
 __all__ = ['GoogleProvider']
 

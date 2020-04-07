@@ -4,8 +4,9 @@ from flask import current_app
 
 from baseframe import _, __
 from coaster.utils import sorted_timezones
-from lastuser_core.models import AccountName, User, UserEmail, getuser
 import baseframe.forms as forms
+
+from ..models import AccountName, User, UserEmail, getuser
 
 timezones = sorted_timezones()
 

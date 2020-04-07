@@ -3,8 +3,9 @@
 from flask import Markup, escape, url_for
 
 from baseframe import _, __
-from lastuser_core.models import UserEmail, getuser
 import baseframe.forms as forms
+
+from ..models import UserEmail, getuser
 
 
 class LoginPasswordResetException(Exception):

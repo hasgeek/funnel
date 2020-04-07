@@ -3,9 +3,10 @@
 from baseframe import _, __
 from coaster.auth import current_auth
 from coaster.utils import nullstr
-from lastuser_core.models import UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim
-from lastuser_core.utils import strip_phone, valid_phone
 import baseframe.forms as forms
+
+from ..models import UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim
+from ..utils import strip_phone, valid_phone
 
 __all__ = [
     'EmailPrimaryForm',
