@@ -2,7 +2,7 @@
   margin-top: 15px;
 
   .project-banner__headline {
-    margin-bottom: 8px;
+    margin-bottom: 16px;
   }
   .project-banner__box {
     padding: 0;
@@ -121,9 +121,6 @@
     .project-banner__box {
       padding: 0 15px;
     }
-    .project-details__box--topmargin {
-      margin-top: 50px;
-    }
     .profile-text {
       margin: 0 0 5px;
 
@@ -159,6 +156,9 @@
       .propose__btn-wrapper {
         padding-left: 10px;
       }
+    }
+    .project-details__box--topmargin {
+      margin-top: 42px;
     }
   }
 }

@@ -37,6 +37,9 @@ repos:
       - id: check-merge-conflict
       - id: check-xml
       - id: fix-encoding-pragma
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.7.9
+    hooks:
       - id: flake8
         additional_dependencies:
           - toml

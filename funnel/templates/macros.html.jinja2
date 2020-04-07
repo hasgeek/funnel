@@ -55,19 +55,19 @@
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
+      <div class="grid__col-sm-12">
+        <div class="profile-details">
+          {%- if project.profile.logo_url.url %}
+            <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
+              <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            </a>
+          {% endif %}
+          <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
+        </div>
+      </div>
       <div class="grid__col-sm-12 project-banner__headline">
         <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}</h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
-        {%- if project.profile %}
-          <div class="profile-details">
-            {%- if project.profile.logo_url.url %}
-              <a href="{{project.profile.url_for()}}" class="profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
-                <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
-              </a>
-            {% endif %}
-            <a href="{{project.profile.url_for()}}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
-          </div>
-        {% endif %}
       </div>
       {% if project.livestream_urls %}
         <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">
@@ -106,8 +106,8 @@
         </div>
       {% endif %}
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
-        <div class="bookmark-icon">{{ saveprojectform(project, project_save_form) }}</div>
-        {% if project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+        <div class="bookmark-icon  {% if not project.calendar_weeks_full.weeks %} bookmark-icon--height {% endif %}">{{ saveprojectform(project, project_save_form) }}</div>
+        {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
