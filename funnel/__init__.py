@@ -17,8 +17,11 @@ import coaster.app
 
 from ._version import __version__
 
+# Three apps
 app = Flask(__name__, instance_relative_config=True)
 funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=True)
+lastuserapp = Flask(__name__, instance_relative_config=True)
+
 mail = Mail()
 lastuser = Lastuser()
 pages = FlatPages()
@@ -37,15 +40,17 @@ assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
+
 # --- Import rest of the app --------------------------------------------------
 
-from . import models, forms, views  # NOQA  # isort:skip
+from . import models, signals, forms, views  # NOQA  # isort:skip
 from .models import db  # isort:skip
 
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
 coaster.app.init_app(funnelapp)
+coaster.app.init_app(lastuserapp)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
@@ -58,11 +63,14 @@ funnelapp.config['LEGACY'] = True
 
 db.init_app(app)
 db.init_app(funnelapp)
+db.init_app(lastuserapp)
+db.app = app
 
 migrate = Migrate(app, db)
 
 mail.init_app(app)
 mail.init_app(funnelapp)
+mail.init_app(lastuserapp)
 
 lastuser.init_app(app)
 lastuser.init_app(funnelapp)
@@ -75,6 +83,7 @@ redis_store.init_app(app)
 
 rq.init_app(app)
 rq.init_app(funnelapp)
+rq.init_app(lastuserapp)
 
 baseframe.init_app(
     app,
@@ -85,6 +94,13 @@ baseframe.init_app(
 )
 baseframe.init_app(
     funnelapp,
+    requires=['funnel'],
+    ext_requires=['pygments', 'toastr', 'baseframe-mui'],
+    theme='mui',
+    asset_modules=('baseframe_private_assets',),
+)
+baseframe.init_app(
+    lastuserapp,
     requires=['funnel'],
     ext_requires=['pygments', 'toastr', 'baseframe-mui'],
     theme='mui',
