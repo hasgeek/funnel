@@ -26,6 +26,7 @@ from coaster.utils import (
 )
 
 from . import BaseMixin, UuidMixin, db
+from .helpers import RESERVED_NAMES
 
 __all__ = [
     'AccountName',
@@ -133,6 +134,8 @@ class AccountName(UuidMixin, BaseMixin, db.Model):
         """
         if not name:
             return 'blank'
+        elif name in RESERVED_NAMES:
+            return 'reserved'
         elif not valid_username(name):
             return 'invalid'
         elif len(name) > cls.__name_length__:
@@ -157,8 +160,8 @@ class AccountName(UuidMixin, BaseMixin, db.Model):
 
     @db.validates('name')
     def validate_name(self, key, value):
-        if not valid_username(value):
-            raise ValueError("Invalid username: " + value)
+        if value in RESERVED_NAMES or not valid_username(value):
+            raise ValueError("Invalid account name: " + value)
         # We don't check for existence in the db since this validator only
         # checks for valid syntax. To confirm the name is actually available,
         # the caller must call :meth:`is_available_name` or attempt to commit
@@ -375,7 +378,7 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
             self.primary_email = useremail
             return useremail
         # This user has no email address. Return a blank string instead of None
-        # to support the common use case, where the caller will use unicode(user.email)
+        # to support the common use case, where the caller will use str(user.email)
         # to get the email address as a string.
         return ''
 
@@ -396,7 +399,7 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
             self.primary_phone = userphone
             return userphone
         # This user has no phone number. Return a blank string instead of None
-        # to support the common use case, where the caller will use unicode(user.phone)
+        # to support the common use case, where the caller will use str(user.phone)
         # to get the phone number as a string.
         return ''
 
@@ -1195,7 +1198,7 @@ class UserExternalId(BaseMixin, db.Model):
         backref=db.backref('externalids', cascade='all, delete-orphan'),
     )
     service = db.Column(db.UnicodeText, nullable=False)
-    userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or OpenID)
+    userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)
     username = db.Column(db.UnicodeText, nullable=True)  # LinkedIn returns full URLs
     oauth_token = db.Column(db.UnicodeText, nullable=True)
     oauth_token_secret = db.Column(db.UnicodeText, nullable=True)

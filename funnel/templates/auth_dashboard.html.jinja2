@@ -24,7 +24,7 @@
         height: 600
       },
       data: {
-        url: {{ url_for('.dashboard_data_users_by_client')|tojson }},
+        url: {{ url_for('dashboard_data_users_by_client')|tojson }},
         keys: {
           value: ['hour', 'day', 'week', 'month', 'quarter', 'halfyear', 'year']
         },
@@ -55,7 +55,7 @@
     c3.generate({
       bindto: '#total-users',
       data: {
-        url: {{ url_for('.dashboard_data_users_by_month')|tojson }},
+        url: {{ url_for('dashboard_data_users_by_month')|tojson }},
         x: 'month',
         type: 'bar',
         names: {

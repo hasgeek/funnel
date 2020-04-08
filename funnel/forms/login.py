@@ -43,10 +43,14 @@ class LoginForm(forms.Form):
 class RegisterForm(forms.RecaptchaForm):
     fullname = forms.StringField(
         __("Full name"),
+        description=__(
+            "This is your name. We will make an account for your organization later"
+        ),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
     )
     email = forms.EmailField(
         __("Email address"),
+        description=__("Required for sending you tickets, invoices and notifications"),
         validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -69,6 +73,6 @@ class RegisterForm(forms.RecaptchaForm):
                 Markup(
                     _(
                         "This email address is already registered. Do you want to <a href=\"{loginurl}\">login</a> instead?"
-                    ).format(loginurl=escape(url_for('.login')))
+                    ).format(loginurl=escape(url_for('login')))
                 )
             )

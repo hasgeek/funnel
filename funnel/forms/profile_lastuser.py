@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from flask import current_app
 
 from baseframe import _, __
 from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
-from ..models import AccountName, User, UserEmail, getuser
+from ..models import RESERVED_NAMES, AccountName, User, UserEmail, getuser
 
 timezones = sorted_timezones()
 
@@ -78,6 +77,9 @@ class PasswordChangeForm(forms.Form):
 class ProfileForm(forms.Form):
     fullname = forms.StringField(
         __("Full name"),
+        description=__(
+            "This is your name. We will make an account for your organization later"
+        ),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=User.__title_length__),
@@ -85,11 +87,16 @@ class ProfileForm(forms.Form):
     )
     email = forms.EmailField(
         __("Email address"),
+        description=__("Required for sending you tickets, invoices and notifications"),
         validators=[forms.validators.DataRequired(), forms.ValidEmail()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
         __("Username"),
+        description=__(
+            "Single word that can contain letters, numbers and dashes. "
+            "You need a username to have a public profile"
+        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=AccountName.__name_length__),
@@ -99,11 +106,16 @@ class ProfileForm(forms.Form):
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     timezone = forms.SelectField(
-        __("Timezone"), validators=[forms.validators.DataRequired()], choices=timezones
+        __("Timezone"),
+        description=__(
+            "Where in the world are you? Dates and times will be shown in your local timezone"
+        ),
+        validators=[forms.validators.DataRequired()],
+        choices=timezones,
     )
 
     def validate_username(self, field):
-        if field.data.lower() in current_app.config['RESERVED_USERNAMES']:
+        if field.data.lower() in RESERVED_NAMES:
             raise forms.ValidationError(
                 _("This name is reserved")
             )  # To be deprecated in favour of one below

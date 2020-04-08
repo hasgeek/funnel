@@ -9,7 +9,8 @@ from flask import current_app, flash
 import requests
 
 from baseframe import _
-from lastuser_core.models import SMSMessage, db
+
+from ..models import SMSMessage, db
 
 
 def send_message(msg):

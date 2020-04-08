@@ -9,11 +9,12 @@ from coaster.auth import current_auth
 from coaster.utils import require_one_of, utcnow
 from coaster.views import ModelView, UrlForView, jsonp, requires_permission, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import CommentForm, DeleteCommentForm
 from ..models import Comment, Profile, Project, Proposal, db
 from .decorators import legacy_redirect
 from .helpers import send_mail
+from .helpers_lastuser import requires_login
 from .mixins import ProposalViewMixin
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
@@ -24,7 +25,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('voteup', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('vote_proposal')
     def voteup(self):
         csrf_form = forms.Form()
@@ -39,7 +40,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for(), code=303)
 
     @route('votedown', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('vote_proposal')
     def votedown(self):
         csrf_form = forms.Form()
@@ -54,7 +55,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for(), code=303)
 
     @route('delete_vote', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('vote_proposal')
     def delete_vote(self):
         csrf_form = forms.Form()
@@ -69,7 +70,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for(), code=303)
 
     @route('comments/new', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new_comment')
     def new_comment(self):
         # TODO: Make this endpoint support AJAX.
@@ -246,7 +247,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         return jsonp(message=self.obj.comment.message.text)
 
     @route('delete', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('delete_comment')
     def delete_comment(self):
         delcommentform = DeleteCommentForm(comment_id=self.obj.comment.id)
@@ -260,7 +261,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         return redirect(self.obj.proposal.url_for(), code=303)
 
     @route('voteup', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('vote_comment')
     def voteup_comment(self):
         csrf_form = forms.Form()
@@ -275,7 +276,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         return redirect(self.obj.proposal.url_for(), code=303)
 
     @route('votedown', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('vote_comment')
     def votedown_comment(self):
         csrf_form = forms.Form()
@@ -290,7 +291,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         return redirect(self.obj.proposal.url_for(), code=303)
 
     @route('delete_vote', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('vote_comment')
     def delete_comment_vote(self):
         csrf_form = forms.Form()

@@ -216,8 +216,8 @@ class UserPermissionAssignForm(forms.Form):
         description=__("Lookup a user by their username or email address"),
         lastuser=None,
         usermodel=User,
-        autocomplete_endpoint=lambda: url_for('lastuser_oauth.user_autocomplete'),
-        getuser_endpoint=lambda: url_for('lastuser_oauth.user_get_by_userids'),
+        autocomplete_endpoint=lambda: url_for('user_autocomplete'),
+        getuser_endpoint=lambda: url_for('user_get_by_userids'),
     )
     perms = forms.StringField(
         __("Permissions"),

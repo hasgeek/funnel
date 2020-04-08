@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, current_app, url_for
+from flask import Markup, url_for
 
 from baseframe import _, __
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import AccountName, Organization, Team, User
+from ..models import RESERVED_NAMES, AccountName, Organization, Team, User
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -14,6 +14,9 @@ __all__ = ['OrganizationForm', 'TeamForm']
 class OrganizationForm(forms.Form):
     title = forms.StringField(
         __("Organization name"),
+        description=__(
+            "Your organization’s given name, without legal suffixes such as Pvt Ltd"
+        ),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=Organization.__title_length__),
@@ -21,6 +24,10 @@ class OrganizationForm(forms.Form):
     )
     name = forms.AnnotatedTextField(
         __("Username"),
+        description=__(
+            "A short name for your organization’s profile page. "
+            "Single word containing letters, numbers and dashes only"
+        ),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=AccountName.__name_length__),
@@ -30,7 +37,7 @@ class OrganizationForm(forms.Form):
     )
 
     def validate_name(self, field):
-        if field.data.lower() in current_app.config['RESERVED_USERNAMES']:
+        if field.data.lower() in RESERVED_NAMES:
             # To be deprecated in favour of one below
             raise forms.ValidationError(_("This name is reserved"))
 
@@ -85,6 +92,6 @@ class TeamForm(forms.Form):
         description=__("Lookup a user by their username or email address"),
         lastuser=None,
         usermodel=User,
-        autocomplete_endpoint=lambda: url_for('lastuser_oauth.user_autocomplete'),
-        getuser_endpoint=lambda: url_for('lastuser_oauth.user_get_by_userids'),
+        autocomplete_endpoint=lambda: url_for('user_autocomplete'),
+        getuser_endpoint=lambda: url_for('user_get_by_userids'),
     )

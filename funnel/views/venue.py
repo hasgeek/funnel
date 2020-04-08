@@ -6,10 +6,11 @@ from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 from ..models import Venue, VenueRoom, db
 from .decorators import legacy_redirect
+from .helpers_lastuser import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 
 RESERVED_VENUE = ['new']
@@ -52,7 +53,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('venues.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('view')
     def venues(self):
         return {
@@ -62,7 +63,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         }
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new-venue')
     def new_venue(self):
         form = VenueForm()
@@ -86,7 +87,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('update_venue_settings', methods=['POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-venue')
     def update_venue_settings(self):
         if request.json is None:
@@ -111,7 +112,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             return {'error': str(e)}, 400
 
     @route('makeprimary', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-venue')
     def makeprimary_venue(self):
         form = VenuePrimaryForm(parent=self.obj)
@@ -142,7 +143,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('edit', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-venue')
     def edit(self):
         form = VenueForm(obj=self.obj)
@@ -161,7 +162,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('delete-venue')
     def delete(self):
         if self.obj == self.obj.project.primary_venue:
@@ -181,7 +182,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         )
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new-venue')
     def new_venueroom(self):
         form = VenueRoomForm()
@@ -216,7 +217,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('edit', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-venue')
     def edit(self):
         form = VenueRoomForm(obj=self.obj)
@@ -235,7 +236,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('delete-venue')
     def delete(self):
         return render_delete_sqla(

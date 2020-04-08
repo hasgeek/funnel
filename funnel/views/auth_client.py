@@ -6,7 +6,16 @@ from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.views import load_model, load_models
-from lastuser_core.models import (
+
+from .. import app
+from ..forms import (
+    ClientCredentialForm,
+    PermissionEditForm,
+    RegisterClientForm,
+    TeamPermissionAssignForm,
+    UserPermissionAssignForm,
+)
+from ..models import (
     AuthClient,
     AuthClientCredential,
     AuthClientTeamPermissions,
@@ -15,21 +24,12 @@ from lastuser_core.models import (
     User,
     db,
 )
-from lastuser_oauth.views.helpers import requires_login
-
-from .. import lastuser_ui
-from ..forms import (
-    ClientCredentialForm,
-    PermissionEditForm,
-    RegisterClientForm,
-    TeamPermissionAssignForm,
-    UserPermissionAssignForm,
-)
+from .helpers_lastuser import requires_login
 
 # --- Routes: client apps -----------------------------------------------------
 
 
-@lastuser_ui.route('/apps')
+@app.route('/account/apps')
 @requires_login
 def client_list():
     if current_auth.is_authenticated:
@@ -42,7 +42,7 @@ def client_list():
         return render_template('client_list.html.jinja2', clients=[])
 
 
-@lastuser_ui.route('/apps/all')
+@app.route('/account/apps/all')
 def client_list_all():
     return render_template(
         'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
@@ -60,7 +60,7 @@ def available_client_owners():
     return choices
 
 
-@lastuser_ui.route('/apps/new', methods=['GET', 'POST'])
+@app.route('/apps/new', methods=['GET', 'POST'])
 @requires_login
 def client_new():
     form = RegisterClientForm(model=AuthClient)
@@ -77,7 +77,7 @@ def client_new():
         auth_client.trusted = False
         db.session.add(auth_client)
         db.session.commit()
-        return render_redirect(url_for('.client_info', key=auth_client.buid), code=303)
+        return render_redirect(url_for('client_info', key=auth_client.buid), code=303)
 
     return render_form(
         form=form,
@@ -88,7 +88,7 @@ def client_new():
     )
 
 
-@lastuser_ui.route('/apps/<key>')
+@app.route('/apps/<key>')
 @load_model(AuthClient, {'buid': 'key'}, 'auth_client', permission='view')
 def client_info(auth_client):
     if auth_client.user:
@@ -102,7 +102,7 @@ def client_info(auth_client):
     )
 
 
-@lastuser_ui.route('/apps/<key>/edit', methods=['GET', 'POST'])
+@app.route('/apps/<key>/edit', methods=['GET', 'POST'])
 @requires_login
 @load_model(AuthClient, {'buid': 'key'}, 'auth_client', permission='edit')
 def client_edit(auth_client):
@@ -138,7 +138,7 @@ def client_edit(auth_client):
         auth_client.user = form.user
         auth_client.organization = form.organization
         db.session.commit()
-        return render_redirect(url_for('.client_info', key=auth_client.buid), code=303)
+        return render_redirect(url_for('client_info', key=auth_client.buid), code=303)
 
     return render_form(
         form=form,
@@ -149,7 +149,7 @@ def client_edit(auth_client):
     )
 
 
-@lastuser_ui.route('/apps/<key>/delete', methods=['GET', 'POST'])
+@app.route('/apps/<key>/delete', methods=['GET', 'POST'])
 @requires_login
 @load_model(AuthClient, {'buid': 'key'}, 'auth_client', permission='delete')
 def client_delete(auth_client):
@@ -161,14 +161,14 @@ def client_delete(auth_client):
         success=_(
             "You have deleted application ‘{title}’ and all its associated resources and permission assignments"
         ).format(title=auth_client.title),
-        next=url_for('.client_list'),
+        next=url_for('client_list'),
     )
 
 
 # --- Routes: client credentials ----------------------------------------------
 
 
-@lastuser_ui.route('/apps/<key>/cred', methods=['GET', 'POST'])
+@app.route('/apps/<key>/cred', methods=['GET', 'POST'])
 @requires_login
 @load_model(AuthClient, {'buid': 'key'}, 'auth_client', permission='edit')
 def client_cred_new(auth_client):
@@ -194,7 +194,7 @@ def client_cred_new(auth_client):
     )
 
 
-@lastuser_ui.route('/apps/<key>/cred/<name>/delete', methods=['GET', 'POST'])
+@app.route('/apps/<key>/cred/<name>/delete', methods=['GET', 'POST'])
 @requires_login
 @load_models(
     (AuthClient, {'buid': 'key'}, 'auth_client'),
@@ -208,14 +208,14 @@ def client_cred_delete(auth_client, cred):
         title=_("Confirm delete"),
         message=_("Delete access key ‘{title}’? ").format(title=cred.title),
         success=_("You have deleted access key ‘{title}’").format(title=cred.title),
-        next=url_for('.client_info', key=auth_client.buid),
+        next=url_for('client_info', key=auth_client.buid),
     )
 
 
 # --- Routes: client app permissions ------------------------------------------
 
 
-@lastuser_ui.route('/apps/<key>/perms/new', methods=['GET', 'POST'])
+@app.route('/apps/<key>/perms/new', methods=['GET', 'POST'])
 @requires_login
 @load_model(AuthClient, {'buid': 'key'}, 'auth_client', permission='assign-permissions')
 def permission_user_new(auth_client):
@@ -270,7 +270,7 @@ def permission_user_new(auth_client):
                 ),
                 'success',
             )
-        return render_redirect(url_for('.client_info', key=auth_client.buid), code=303)
+        return render_redirect(url_for('client_info', key=auth_client.buid), code=303)
     return render_form(
         form=form,
         title=_("Assign permissions"),
@@ -279,7 +279,7 @@ def permission_user_new(auth_client):
     )
 
 
-@lastuser_ui.route('/apps/<key>/perms/<buid>/edit', methods=['GET', 'POST'])
+@app.route('/apps/<key>/perms/<buid>/edit', methods=['GET', 'POST'])
 @requires_login
 @load_model(
     AuthClient,
@@ -344,7 +344,7 @@ def permission_user_edit(auth_client, kwargs):
                     ),
                     'success',
                 )
-        return render_redirect(url_for('.client_info', key=auth_client.buid), code=303)
+        return render_redirect(url_for('client_info', key=auth_client.buid), code=303)
     return render_form(
         form=form,
         title=_("Edit permissions"),
@@ -354,7 +354,7 @@ def permission_user_edit(auth_client, kwargs):
     )
 
 
-@lastuser_ui.route('/apps/<key>/perms/<buid>/delete', methods=['GET', 'POST'])
+@app.route('/apps/<key>/perms/<buid>/delete', methods=['GET', 'POST'])
 @requires_login
 @load_model(
     AuthClient,
@@ -381,7 +381,7 @@ def permission_user_delete(auth_client, kwargs):
             success=_("You have revoked permisions for user {pname}").format(
                 pname=user.pickername
             ),
-            next=url_for('.client_info', key=auth_client.buid),
+            next=url_for('client_info', key=auth_client.buid),
         )
     else:
         team = Team.get(buid=kwargs['buid'])
@@ -400,5 +400,5 @@ def permission_user_delete(auth_client, kwargs):
             success=_("You have revoked permisions for team {title}").format(
                 title=team.title
             ),
-            next=url_for('.client_info', key=auth_client.buid),
+            next=url_for('client_info', key=auth_client.buid),
         )

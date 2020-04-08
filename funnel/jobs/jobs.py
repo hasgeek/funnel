@@ -88,3 +88,8 @@ def tag_locations(project_id):
                     if location.geonameid not in geonames:
                         db.session.delete(location)
                 db.session.commit()
+
+
+@rq.job('funnel')
+def send_auth_client_notice(url, params=None, data=None, method='POST'):
+    requests.request(method, url, params=params, data=data)

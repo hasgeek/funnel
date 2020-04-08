@@ -9,7 +9,7 @@ from baseframe.forms import render_delete_sqla, render_form
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import EventForm, ParticipantBadgeForm, TicketClientForm, TicketTypeForm
 from ..jobs import import_tickets
 from ..models import (
@@ -23,6 +23,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
+from .helpers_lastuser import requires_login
 from .mixins import EventViewMixin, ProjectViewMixin
 
 
@@ -32,7 +33,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('event_list.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('checkin_event')
     def events(self):
         return {
@@ -42,7 +43,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
         }
 
     @route('json')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('admin')
     def events_json(self):
         return jsonify(
@@ -50,7 +51,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
         )
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new-event')
     def new_event(self):
         form = EventForm()
@@ -68,7 +69,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
         return render_form(form=form, title=_("New Event"), submit=_("Add event"))
 
     @route('ticket_type/new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new-ticket-type')
     def new_ticket_type(self):
         form = TicketTypeForm()
@@ -89,7 +90,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
         )
 
     @route('ticket_client/new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new_ticket_client')
     def new_ticket_client(self):
         form = TicketClientForm()
@@ -119,7 +120,7 @@ FunnelProjectEventView.init_app(funnelapp)
 
 @route('/<profile>/<project>/event/<name>')
 class EventView(EventViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
+    __decorators__ = [legacy_redirect, requires_login]
 
     @route('', methods=['GET', 'POST'])
     @render_with('event.html.jinja2')
@@ -207,7 +208,7 @@ FunnelEventView.init_app(funnelapp)
 
 @route('/<profile>/<project>/ticket_type/<name>')
 class TicketTypeView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
+    __decorators__ = [legacy_redirect, requires_login]
     model = TicketType
     route_model_map = {
         'profile': 'project.profile.name',
@@ -289,7 +290,7 @@ FunnelTicketTypeView.init_app(funnelapp)
 
 @route('/<profile>/<project>/ticket_client/<client_id>')
 class TicketClientView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
+    __decorators__ = [legacy_redirect, requires_login]
     model = TicketClient
     route_model_map = {
         'profile': 'project.profile.name',
