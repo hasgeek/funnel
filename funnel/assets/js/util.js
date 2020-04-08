@@ -144,22 +144,27 @@ export const Utils = {
     });
 
     const singleDay = 24 * 60 * 60 * 1000;
-    // toISOString() returns date in UTC
-    // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
-    const today = Date.parse(new Date().toISOString());
 
     $('body .card__calendar').each(function() {
-      let event = $(this)
+      let todayDate = $(this)
+        .find('.calendar__counting')
+        .data('today');
+      let eventDate = $(this)
         .find('.calendar__weekdays__dates__date--active')
         .first()
         .data('event-date');
+      // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
+      let today = Date.parse(todayDate);
       // Event date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
-      let eventDay = Date.parse(event);
+      let eventDay = Date.parse(eventDate);
       // Find the difference between event and today's date in UTC
       let counting = Math.round((eventDay - today) / singleDay);
       // Show number of days on the widget only if it is less than 32 days
       if (counting > 0 && counting < 32) {
-        let daysRemainingTxt = `In ${counting} days`;
+        let daysRemainingTxt = `In ${counting} day`;
+        if (counting > 1) {
+          daysRemainingTxt += 's';
+        }
         $(this)
           .find('.calendar__counting')
           .text(daysRemainingTxt);
