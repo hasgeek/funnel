@@ -2271,6 +2271,10 @@ html.touch .collapsible__body--disable {
     margin-top: 42px;
   }
 }
+.project-section__headline {
+  margin-bottom: 15px;
+}
+
 .about {
   padding: 0 15px;
   word-break: break-word;
@@ -2864,6 +2868,26 @@ html.touch .collapsible__body--disable {
 }
 .add-label-form .mui-checkbox {
   margin-bottom: 0;
+}
+
+.video .video__thumbnail {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-bottom: 3px;
+}
+.video .video__thumbnail .video__thumbnail__img {
+  display: block;
+}
+.video .video__thumbnail .video__thumbnail__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: #fff;
+  transform: translate(-50%, -50%);
+}
+.video .video__txt {
+  margin-bottom: 3px;
 }
 
 .proposal-list-header {
