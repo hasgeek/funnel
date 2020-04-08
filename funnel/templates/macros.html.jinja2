@@ -202,7 +202,7 @@
     <p><a href="https://videoken.com" target="_blank" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
   {%- endif %}
   {%- if proposal.current_roles.owner %}
-    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit_schedule') }}" data-cy-admin="edit" aria-label="{% trans %}Edit proposal video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
+    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-preview_video" data-cy-admin="edit" aria-label="{% trans %}Edit proposal video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
   {% elif proposal.current_roles.admin and proposal.state.SCHEDULED %}
     <a class="details__box__control__link mui--text-subhead" href="{{ proposal.session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Edit session video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
   {%- endif %}
