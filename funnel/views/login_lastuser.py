@@ -15,26 +15,13 @@ from flask import (
     url_for,
 )
 
-from flask_openid import OpenID
-from openid import oidutil
-
 from baseframe import _, __, request_is_xhr
 from baseframe.forms import render_form, render_message, render_redirect
 from coaster.auth import current_auth
 from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, load_model
-from lastuser_core import login_registry
-from lastuser_core.models import (
-    AuthClientCredential,
-    AuthPasswordResetRequest,
-    User,
-    UserEmailClaim,
-    UserSession,
-    db,
-)
-from lastuser_core.utils import mask_email
 
-from .. import lastuser_oauth
+from .. import app, lastuserapp
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
@@ -42,28 +29,27 @@ from ..forms import (
     PasswordResetRequestForm,
     RegisterForm,
 )
+from ..models import (
+    AuthClientCredential,
+    AuthPasswordResetRequest,
+    User,
+    UserEmailClaim,
+    UserSession,
+    db,
+)
+from ..registry import login_registry
+from ..utils import mask_email
 from .email import send_email_verify_link, send_password_reset_link
-from .helpers import (
+from .helpers_lastuser import (
     login_internal,
     logout_internal,
     register_internal,
     set_loginmethod_cookie,
 )
 
-oid = OpenID()
 
-
-def openid_log(message, level=0):
-    # FIXME: deprecate this along with Flask-OAuth
-    if current_app.debug:
-        print(message)  # noqa: T001
-
-
-oidutil.log = openid_log
-
-
-@lastuser_oauth.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
+@app.route('/login', methods=['GET', 'POST'])
+@lastuserapp.route('/login', methods=['GET', 'POST'])
 def login():
     # If user is already logged in, send them back
     if current_auth.is_authenticated:
@@ -98,7 +84,7 @@ def login():
                 ),
                 category='danger',
             )
-            return render_redirect(url_for('.reset', username=loginform.username.data))
+            return render_redirect(url_for('reset', username=loginform.username.data))
     elif request.method == 'POST' and formid in service_forms:
         form = service_forms[formid]['form']
         if form.validate():
@@ -129,10 +115,7 @@ def login():
         )
 
 
-logout_errormsg = __(
-    "We detected a possibly unauthorized attempt to log you out. "
-    "If you really did intend to logout, please click on the logout link again"
-)
+logout_errormsg = __("Are you trying to logout? Please try again to confirm")
 
 
 def logout_user():
@@ -144,10 +127,7 @@ def logout_user():
         != urllib.parse.urlsplit(request.url).netloc
     ):
         # TODO: present a logout form
-        flash(
-            current_app.config.get('LOGOUT_UNAUTHORIZED_MESSAGE') or logout_errormsg,
-            'danger',
-        )
+        flash(logout_errormsg, 'danger')
         return redirect(url_for('index'))
     else:
         logout_internal()
@@ -170,21 +150,14 @@ def logout_client():
     ):
         # No referrer or such client, or request didn't come from the client website.
         # Possible CSRF. Don't logout and don't send them back
-        flash(
-            current_app.config.get('LOGOUT_UNAUTHORIZED_MESSAGE') or logout_errormsg,
-            'danger',
-        )
+        flash(logout_errormsg, 'danger')
         return redirect(url_for('index'))
 
     # If there is a next destination, is it in the same domain as the client?
     if 'next' in request.args:
         if not auth_client.host_matches(request.args['next']):
             # Host doesn't match. Assume CSRF and redirect to index without logout
-            flash(
-                current_app.config.get('LOGOUT_UNAUTHORIZED_MESSAGE')
-                or logout_errormsg,
-                'danger',
-            )
+            flash(logout_errormsg, 'danger')
             return redirect(url_for('index'))
     # All good. Log them out and send them back
     logout_internal()
@@ -192,7 +165,8 @@ def logout_client():
     return redirect(get_next_url(external=True))
 
 
-@lastuser_oauth.route('/logout')
+@app.route('/logout')
+@lastuserapp.route('/logout')
 def logout():
 
     # Logout, but protect from CSRF attempts
@@ -203,7 +177,8 @@ def logout():
         return logout_user()
 
 
-@lastuser_oauth.route('/logout/<user_session>')
+@app.route('/logout/<user_session>')
+@lastuserapp.route('/logout/<user_session>')
 @load_model(UserSession, {'buid': 'user_session'}, 'user_session')
 def logout_session(user_session):
     if (
@@ -225,13 +200,12 @@ def logout_session(user_session):
     return redirect(get_next_url(referrer=True), code=303)
 
 
-@lastuser_oauth.route('/register', methods=['GET', 'POST'])
+@app.route('/account/register', methods=['GET', 'POST'])
+@lastuserapp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_auth.is_authenticated:
         return redirect(url_for('index'))
     form = RegisterForm()
-    form.fullname.description = current_app.config.get('FULLNAME_REASON')
-    form.email.description = current_app.config.get('EMAIL_REASON')
     if form.validate_on_submit():
         user = register_internal(None, form.fullname.data, form.password.data)
         useremail = UserEmailClaim(user=user, email=form.email.data)
@@ -246,11 +220,14 @@ def register():
         title=_("Create an account"),
         formid='register',
         submit=_("Register"),
-        message=current_app.config.get('CREATE_ACCOUNT_MESSAGE'),
+        message=_(
+            "This account is for you as an individual. We’ll make one for your organization later"
+        ),
     )
 
 
-@lastuser_oauth.route('/reset', methods=['GET', 'POST'])
+@app.route('/account/reset', methods=['GET', 'POST'])
+@lastuserapp.route('/reset', methods=['GET', 'POST'])
 def reset():
     # User wants to reset password
     # Ask for username or email, verify it, and send a reset code
@@ -337,7 +314,8 @@ def reset():
     )
 
 
-@lastuser_oauth.route('/reset/<buid>/<secret>', methods=['GET', 'POST'])
+@app.route('/account/reset/<buid>/<secret>', methods=['GET', 'POST'])
+@lastuserapp.route('/reset/<buid>/<secret>', methods=['GET', 'POST'])
 @load_model(User, {'buid': 'buid'}, 'user', kwargs=True)
 def reset_email(user, kwargs):
     resetreq = AuthPasswordResetRequest.get(user, kwargs['secret'])
@@ -370,7 +348,7 @@ def reset_email(user, kwargs):
             message=Markup(
                 _(
                     "Your password has been reset. You may now <a href=\"{loginurl}\">login</a> with your new password."
-                ).format(loginurl=escape(url_for('.login')))
+                ).format(loginurl=escape(url_for('login')))
             ),
         )
     return render_form(

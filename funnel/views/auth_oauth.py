@@ -6,8 +6,10 @@ from baseframe import _
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import newsecret
-from lastuser_core import resource_registry
-from lastuser_core.models import (
+
+from .. import app, lastuserapp
+from ..forms import AuthorizeForm
+from ..models import (
     AuthClient,
     AuthClientCredential,
     AuthCode,
@@ -16,12 +18,10 @@ from lastuser_core.models import (
     db,
     getuser,
 )
-from lastuser_core.utils import make_redirect_url
-
-from .. import lastuser_oauth
-from ..forms import AuthorizeForm
-from .helpers import requires_client_login, requires_login_no_message
-from .resource import get_userinfo
+from ..registry import resource_registry
+from ..utils import make_redirect_url
+from .auth_resource import get_userinfo
+from .helpers_lastuser import requires_client_login, requires_login_no_message
 
 
 class ScopeException(Exception):
@@ -212,7 +212,8 @@ def oauth_auth_error(
     return response
 
 
-@lastuser_oauth.route('/auth', methods=['GET', 'POST'])
+@app.route('/api/1/auth', methods=['GET', 'POST'])
+@lastuserapp.route('/auth', methods=['GET', 'POST'])
 @requires_login_no_message
 def oauth_authorize():
     """
@@ -434,7 +435,8 @@ def oauth_token_success(token, **params):
     return response
 
 
-@lastuser_oauth.route('/token', methods=['POST'])
+@app.route('/api/1/token', methods=['POST'])
+@lastuserapp.route('/token', methods=['POST'])
 @requires_client_login
 def oauth_token():
     """

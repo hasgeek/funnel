@@ -6,8 +6,10 @@ from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import valid_username
 from coaster.views import get_next_url
-from lastuser_core import login_registry
-from lastuser_core.models import (
+
+from .. import app, lastuserapp
+from ..forms import ProfileMergeForm
+from ..models import (
     User,
     UserEmail,
     UserEmailClaim,
@@ -16,13 +18,10 @@ from lastuser_core.models import (
     getextid,
     merge_users,
 )
-from lastuser_core.registry import LoginCallbackError, LoginInitError
-from lastuser_core.signals import user_data_changed
-
-from .. import lastuser_oauth
-from ..forms.profile import ProfileMergeForm
+from ..registry import LoginCallbackError, LoginInitError, login_registry
+from ..signals import user_data_changed
 from .email import send_email_verify_link
-from .helpers import (
+from .helpers_lastuser import (
     login_internal,
     register_internal,
     requires_login,
@@ -30,7 +29,8 @@ from .helpers import (
 )
 
 
-@lastuser_oauth.route('/login/<service>', methods=['GET', 'POST'])
+@app.route('/login/<service>', methods=['GET', 'POST'])
+@lastuserapp.route('/login/<service>', methods=['GET', 'POST'])
 def login_service(service):
     """
     Handle login with a registered service.
@@ -53,7 +53,8 @@ def login_service(service):
         return redirect(next_url or get_next_url(referrer=True))
 
 
-@lastuser_oauth.route('/login/<service>/callback', methods=['GET', 'POST'])
+@app.route('/login/<service>/callback', methods=['GET', 'POST'])
+@lastuserapp.route('/login/<service>/callback', methods=['GET', 'POST'])
 def login_service_callback(service):
     """
     Callback handler for a login service.
@@ -72,7 +73,7 @@ def login_service_callback(service):
         if current_auth.is_authenticated:
             return redirect(get_next_url(referrer=False))
         else:
-            return redirect(url_for('.login'))
+            return redirect(url_for('login'))
     return login_service_postcallback(service, userdata)
 
 
@@ -213,19 +214,20 @@ def login_service_postcallback(service, userdata):
 
     # Finally: set a login method cookie and send user on their way
     if not current_auth.user.is_profile_complete():
-        login_next = url_for('.account_new', next=next_url)
+        login_next = url_for('account_new', next=next_url)
     else:
         login_next = next_url
 
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            redirect(url_for('.account_merge', next=login_next), code=303), service
+            redirect(url_for('account_merge', next=login_next), code=303), service
         )
     else:
         return set_loginmethod_cookie(redirect(login_next, code=303), service)
 
 
-@lastuser_oauth.route('/account/merge', methods=['GET', 'POST'])
+@app.route('/account/merge', methods=['GET', 'POST'])
+@lastuserapp.route('/account/merge', methods=['GET', 'POST'])
 @requires_login
 def account_merge():
     if 'merge_buid' not in session:

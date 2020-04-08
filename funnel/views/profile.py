@@ -13,16 +13,17 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import EditProfileForm, NewProfileForm, SavedProjectForm
 from ..models import Profile, Project, Team, db
 from .decorators import legacy_redirect
+from .helpers_lastuser import requires_login
 from .mixins import ProfileViewMixin
 from .project import project_data
 
 
 # @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018
-@lastuser.requires_scope('teams')
+@requires_login
 def profile_new():
     # Step 1: Get a list of organizations this user owns
     existing = Profile.query.filter(
@@ -41,7 +42,7 @@ def profile_new():
                 _(
                     "You do not have any organizations that do not already have a Talkfunnel. "
                     'Would you like to <a href="{link}">create a new organization</a>?'
-                ).format(link=lastuser.endpoint_url('/organizations/new'))
+                ).format(link=url_for('OrgView_new'))
             ),
         )
     eligible_profiles = []

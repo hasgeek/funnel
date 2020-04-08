@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import requests
-
-from lastuser_core.models import AuthToken
-from lastuser_core.signals import (
+from ..jobs import send_auth_client_notice
+from ..models import AuthToken
+from ..signals import (
     org_data_changed,
     session_revoked,
     team_data_changed,
     user_data_changed,
 )
-from lastuser_oauth import rq
 
 user_changes_to_notify = {
     'merge',
@@ -29,7 +27,7 @@ user_changes_to_notify = {
 def notify_session_revoked(session):
     for auth_client in session.auth_clients:
         if auth_client.notification_uri:
-            send_notice.queue(
+            send_auth_client_notice.queue(
                 auth_client.notification_uri,
                 data={
                     'userid': session.user.buid,  # XXX: Deprecated parameter
@@ -82,7 +80,7 @@ def notify_user_data_changed(user, changes):
                         }.intersection(tokenscope):
                             notify_changes.append(change)
                 if notify_changes:
-                    send_notice.queue(
+                    send_auth_client_notice.queue(
                         token.auth_client.notification_uri,
                         data={
                             'userid': user.buid,  # XXX: Deprecated parameter
@@ -115,7 +113,7 @@ def notify_org_data_changed(org, user, changes, team=None):
             notify_user = user
         else:
             notify_user = users[0]  # First user available
-        send_notice.queue(
+        send_auth_client_notice.queue(
             auth_client.notification_uri,
             data={
                 'userid': notify_user.buid,  # XXX: Deprecated parameter
@@ -136,8 +134,3 @@ def notify_team_data_changed(team, user, changes):
     notify_org_data_changed(
         team.organization, user=user, changes=['team-' + c for c in changes], team=team
     )
-
-
-@rq.job('lastuser')
-def send_notice(url, params=None, data=None, method='POST'):
-    requests.request(method, url, params=params, data=data)

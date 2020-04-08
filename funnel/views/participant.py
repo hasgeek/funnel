@@ -19,12 +19,13 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import ParticipantForm
 from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
 from ..utils import format_twitter_handle, make_qrcode, split_name
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
+from .helpers_lastuser import requires_login
 from .mixins import EventViewMixin, ProjectViewMixin
 
 EventParticipant = namedtuple('EventParticipant', ['event', 'participant'])
@@ -112,7 +113,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new-participant')
     def new_participant(self):
         form = ParticipantForm(parent=self.obj)
@@ -142,7 +143,7 @@ FunnelProjectParticipantView.init_app(funnelapp)
 
 @route('/<profile>/<project>/participant/<participant>')
 class ParticipantView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
+    __decorators__ = [legacy_redirect, requires_login]
 
     model = Participant
     route_model_map = {
@@ -204,7 +205,7 @@ FunnelParticipantView.init_app(funnelapp)
 
 @route('/<profile>/<project>/event/<name>')
 class EventParticipantView(EventViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
+    __decorators__ = [legacy_redirect, requires_login]
 
     @route('participants/checkin', methods=['GET', 'POST'])
     @requires_permission('checkin_event')
@@ -287,7 +288,7 @@ FunnelEventParticipantView.init_app(funnelapp)
 # FIXME: make this endpoint use suuid instead of puk, along with badge generation
 @route('/<profile>/<project>/event/<event>/participant/<puk>')
 class EventParticipantCheckinView(ClassView):
-    __decorators__ = [lastuser.requires_login]
+    __decorators__ = [requires_login]
 
     @route('checkin', methods=['POST'])
     @render_with(json=True)

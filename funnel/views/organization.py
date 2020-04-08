@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from flask import abort, current_app, redirect, render_template, request, url_for
+from flask import abort, redirect, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.views import ModelView, UrlForView, requires_permission, route
-from lastuser_core.models import Organization, Team, db
-from lastuser_core.signals import org_data_changed, team_data_changed
-from lastuser_oauth.views.helpers import requires_login
 
-from .. import lastuser_ui
-from ..forms.org import OrganizationForm, TeamForm
+from .. import app
+from ..forms import OrganizationForm, TeamForm
+from ..models import Organization, Team, db
+from ..signals import org_data_changed, team_data_changed
+from .helpers_lastuser import requires_login
 
 # --- Routes: Organizations ---------------------------------------------------
 
@@ -40,8 +40,6 @@ class OrgView(UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     def new(self):
         form = OrganizationForm()
-        form.name.description = current_app.config.get('ORG_NAME_REASON')
-        form.title.description = current_app.config.get('ORG_TITLE_REASON')
         if form.validate_on_submit():
             org = Organization()
             form.populate_obj(org)
@@ -68,8 +66,6 @@ class OrgView(UrlForView, ModelView):
     @requires_permission('edit')
     def edit(self):
         form = OrganizationForm(obj=self.obj)
-        form.name.description = current_app.config.get('ORG_NAME_REASON')
-        form.title.description = current_app.config.get('ORG_TITLE_REASON')
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -97,7 +93,7 @@ class OrgView(UrlForView, ModelView):
             success=_(
                 "You have deleted organization ‘{title}’ and all its associated teams"
             ).format(title=self.obj.title),
-            next=url_for('.OrgView_index'),
+            next=url_for('OrgView_index'),
         )
 
     @route('<name>/teams')
@@ -122,7 +118,7 @@ class OrgView(UrlForView, ModelView):
         )
 
 
-OrgView.init_app(lastuser_ui)
+OrgView.init_app(app)
 
 
 @route('/organizations/<name>/teams/<buid>')
@@ -176,4 +172,4 @@ class TeamView(UrlForView, ModelView):
         )
 
 
-TeamView.init_app(lastuser_ui)
+TeamView.init_app(app)

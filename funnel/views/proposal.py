@@ -18,7 +18,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import (
     CommentForm,
     DeleteCommentForm,
@@ -30,6 +30,7 @@ from ..forms import (
 )
 from ..models import Comment, Proposal, db
 from .decorators import legacy_redirect
+from .helpers_lastuser import requires_login
 from .mixins import ProjectViewMixin, ProposalViewMixin
 
 proposal_headers = [
@@ -121,7 +122,7 @@ def proposal_data_flat(proposal):
 class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new-proposal')
     def new_proposal(self):
         form = ProposalForm(model=Proposal, parent=self.obj)
@@ -224,7 +225,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return jsonp(proposal_data(self.obj))
 
     @route('edit', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_proposal')
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
@@ -249,7 +250,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('delete-proposal')
     def delete(self):
         return render_delete_sqla(
@@ -267,7 +268,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('transition', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('confirm-proposal')
     def transition(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
@@ -310,7 +311,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return redirect(self.obj.project.url_for())
 
     @route('move', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('move-proposal')
     def moveto(self):
         proposal_move_form = ProposalMoveForm()
@@ -335,7 +336,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return redirect(self.obj.url_for(), 303)
 
     @route('transfer', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('move-proposal')
     def transfer_to(self):
         proposal_transfer_form = ProposalTransferForm()
@@ -352,7 +353,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return redirect(self.obj.url_for(), 303)
 
     @route('schedule', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new-session')
     def schedule(self):
         from .session import session_form
@@ -360,7 +361,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return session_form(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('admin')
     def edit_labels(self):
         form = ProposalLabelsAdminForm(

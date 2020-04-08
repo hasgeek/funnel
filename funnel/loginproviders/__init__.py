@@ -3,6 +3,6 @@
 
 from .github import *
 from .google import *
+from .init_app import *
 from .linkedin import *
-from .openid import *
 from .twitter import *

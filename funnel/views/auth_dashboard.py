@@ -8,9 +8,9 @@ import csv
 from flask import abort, current_app, render_template
 
 from coaster.auth import current_auth
-from lastuser_core.models import USER_STATUS, User, db
 
-from .. import lastuser_ui
+from .. import app
+from ..models import USER_STATUS, User, db
 
 
 def requires_dashboard(f):
@@ -23,6 +23,7 @@ def requires_dashboard(f):
         if (
             not current_auth.is_authenticated
             or current_auth.user.buid
+            # TODO: Replace this with site membership
             not in current_app.config.get('DASHBOARD_USERS', [])
         ):
             abort(403)
@@ -31,7 +32,7 @@ def requires_dashboard(f):
     return decorated_function
 
 
-@lastuser_ui.route('/dashboard')
+@app.route('/dashboard')
 @requires_dashboard
 def dashboard():
     user_count = User.active_user_count()
@@ -55,7 +56,7 @@ def dashboard():
     return render_template('auth_dashboard.html.jinja2', user_count=user_count, mau=mau)
 
 
-@lastuser_ui.route('/dashboard/data/users_by_month.csv')
+@app.route('/dashboard/data/users_by_month.csv')
 @requires_dashboard
 def dashboard_data_users_by_month():
     users_by_month = (
@@ -83,7 +84,7 @@ def dashboard_data_users_by_month():
     return outfile.getvalue(), 200, {'Content-Type': 'text/plain'}
 
 
-@lastuser_ui.route('/dashboard/data/users_by_client.csv')
+@app.route('/dashboard/data/users_by_client.csv')
 @requires_dashboard
 def dashboard_data_users_by_client():
     client_users = defaultdict(

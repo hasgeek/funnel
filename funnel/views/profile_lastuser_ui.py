@@ -6,8 +6,19 @@ from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.views import load_model
-from lastuser_core import login_registry
-from lastuser_core.models import (
+
+from .. import app
+from ..forms import (
+    EmailPrimaryForm,
+    NewEmailAddressForm,
+    NewPhoneForm,
+    PasswordChangeForm,
+    PasswordResetForm,
+    PhonePrimaryForm,
+    VerifyEmailForm,
+    VerifyPhoneForm,
+)
+from ..models import (
     UserEmail,
     UserEmailClaim,
     UserExternalId,
@@ -15,36 +26,17 @@ from lastuser_core.models import (
     UserPhoneClaim,
     db,
 )
-from lastuser_core.signals import user_data_changed
-from lastuser_oauth.forms import PasswordChangeForm, PasswordResetForm
-from lastuser_oauth.views.helpers import requires_login
-
-from .. import lastuser_ui
-from ..forms import (
-    EmailPrimaryForm,
-    NewEmailAddressForm,
-    NewPhoneForm,
-    PhonePrimaryForm,
-    VerifyEmailForm,
-    VerifyPhoneForm,
-)
+from ..registry import login_registry
+from ..signals import user_data_changed
 from .email import send_email_verify_link
+from .helpers_lastuser import requires_login
 from .sms import send_phone_verify_code
 
 
-@lastuser_ui.route('/profile', defaults={'path': None})
-@lastuser_ui.route('/profile/<path:path>')
+# TODO: Lastuser: Merge this into Funnel's account view
+@app.route('/account/lastuser')
 @requires_login
-def profile(path=None):
-    if path is not None:
-        return redirect('/account/%s' % path)
-    else:
-        return redirect('/account')
-
-
-@lastuser_ui.route('/account')
-@requires_login
-def account():
+def account_lastuser():
     primary_email_form = EmailPrimaryForm()
     primary_phone_form = PhonePrimaryForm()
     service_forms = {}
@@ -60,7 +52,7 @@ def account():
     )
 
 
-@lastuser_ui.route('/account/password', methods=['GET', 'POST'])
+@app.route('/account/password', methods=['GET', 'POST'])
 @requires_login
 def change_password():
     if not current_auth.user.pw_hash:
@@ -74,7 +66,7 @@ def change_password():
         current_auth.user.password = form.password.data
         db.session.commit()
         flash(_("Your new password has been saved"), category='success')
-        return render_redirect(url_for('.account'), code=303)
+        return render_redirect(url_for('account'), code=303)
     return render_form(
         form=form,
         title=_("Change password"),
@@ -84,7 +76,7 @@ def change_password():
     )
 
 
-@lastuser_ui.route('/account/email/new', methods=['GET', 'POST'])
+@app.route('/account/email/new', methods=['GET', 'POST'])
 @requires_login
 def add_email():
     form = NewEmailAddressForm()
@@ -101,7 +93,7 @@ def add_email():
         send_email_verify_link(useremail)
         flash(_("We sent you an email to confirm your address"), 'success')
         user_data_changed.send(current_auth.user, changes=['email-claim'])
-        return render_redirect(url_for('.account'), code=303)
+        return render_redirect(url_for('account'), code=303)
     return render_form(
         form=form,
         title=_("Add an email address"),
@@ -111,7 +103,7 @@ def add_email():
     )
 
 
-@lastuser_ui.route('/account/email/makeprimary', methods=['POST'])
+@app.route('/account/email/makeprimary', methods=['POST'])
 @requires_login
 def make_email_primary():
     form = EmailPrimaryForm()
@@ -131,10 +123,10 @@ def make_email_primary():
             flash(_("No such email address is linked to this user account"), 'danger')
     else:
         flash(_("Please select an email address"), 'danger')
-    return render_redirect(url_for('.account'), code=303)
+    return render_redirect(url_for('account'), code=303)
 
 
-@lastuser_ui.route('/account/phone/makeprimary', methods=['POST'])
+@app.route('/account/phone/makeprimary', methods=['POST'])
 @requires_login
 def make_phone_primary():
     form = PhonePrimaryForm()
@@ -154,10 +146,10 @@ def make_phone_primary():
             flash(_("No such phone number is linked to this user account"), 'danger')
     else:
         flash(_("Please select a phone number"), 'danger')
-    return render_redirect(url_for('.account'), code=303)
+    return render_redirect(url_for('account'), code=303)
 
 
-@lastuser_ui.route('/account/email/<md5sum>/remove', methods=['GET', 'POST'])
+@app.route('/account/email/<md5sum>/remove', methods=['GET', 'POST'])
 @requires_login
 def remove_email(md5sum):
     useremail = UserEmail.get_for(user=current_auth.user, md5sum=md5sum)
@@ -167,7 +159,7 @@ def remove_email(md5sum):
             abort(404)
     if isinstance(useremail, UserEmail) and useremail.primary:
         flash(_("You cannot remove your primary email address"), 'danger')
-        return render_redirect(url_for('.account'), code=303)
+        return render_redirect(url_for('account'), code=303)
     if request.method == 'POST':
         # FIXME: Confirm validation success
         user_data_changed.send(current_auth.user, changes=['email-delete'])
@@ -181,18 +173,18 @@ def remove_email(md5sum):
         success=_("You have removed your email address {email}").format(
             email=useremail.email
         ),
-        next=url_for('.account'),
+        next=url_for('account'),
         delete_text=_("Remove"),
     )
 
 
 # Redirect from old URL in previously sent out verification emails
-@lastuser_ui.route('/profile/email/<md5sum>/verify')
+@app.route('/profile/email/<md5sum>/verify')
 def verify_email_old(md5sum):
     return redirect(url_for('verify_email', md5sum=md5sum), code=301)
 
 
-@lastuser_ui.route('/account/email/<md5sum>/verify', methods=['GET', 'POST'])
+@app.route('/account/email/<md5sum>/verify', methods=['GET', 'POST'])
 @requires_login
 def verify_email(md5sum):
     """
@@ -207,7 +199,7 @@ def verify_email(md5sum):
         # address belongs to this user, to prevent this endpoint from being used as a
         # probe for email addresses in the database.
         flash(_("This email address is already verified"), 'danger')
-        return render_redirect(url_for('.account'), code=303)
+        return render_redirect(url_for('account'), code=303)
 
     # Get the existing email claim that we're resending a verification link for
     emailclaim = UserEmailClaim.get_for(user=current_auth.user, md5sum=md5sum)
@@ -217,7 +209,7 @@ def verify_email(md5sum):
     if verify_form.validate_on_submit():
         send_email_verify_link(emailclaim)
         flash(_("The verification email has been sent to this address"), 'success')
-        return render_redirect(url_for('.account'), code=303)
+        return render_redirect(url_for('account'), code=303)
     return render_form(
         form=verify_form,
         title=_("Resend the verification email?"),
@@ -228,11 +220,11 @@ def verify_email(md5sum):
         ),
         formid="email_verify",
         submit=_("Send"),
-        cancel_url=url_for('.account'),
+        cancel_url=url_for('account'),
     )
 
 
-@lastuser_ui.route('/account/phone/new', methods=['GET', 'POST'])
+@app.route('/account/phone/new', methods=['GET', 'POST'])
 @requires_login
 def add_phone():
     form = NewPhoneForm()
@@ -249,7 +241,7 @@ def add_phone():
             flash(_("We sent a verification code to your phone number"), 'success')
             user_data_changed.send(current_auth.user, changes=['phone-claim'])
             return render_redirect(
-                url_for('.verify_phone', number=userphone.phone), code=303
+                url_for('verify_phone', number=userphone.phone), code=303
             )
         except ValueError as e:
             db.session.rollback()
@@ -263,7 +255,7 @@ def add_phone():
     )
 
 
-@lastuser_ui.route('/account/phone/<number>/remove', methods=['GET', 'POST'])
+@app.route('/account/phone/<number>/remove', methods=['GET', 'POST'])
 @requires_login
 def remove_phone(number):
     userphone = UserPhone.get(phone=number)
@@ -280,7 +272,7 @@ def remove_phone(number):
             )
             # Block attempts to delete this number if verification failed.
             # It needs to be deleted in a background sweep.
-            return render_redirect(url_for('.account'), code=303)
+            return render_redirect(url_for('account'), code=303)
 
     if request.method == 'POST':
         # FIXME: Confirm validation success
@@ -293,12 +285,12 @@ def remove_phone(number):
             phone=userphone.phone
         ),
         success=_("You have removed your number {phone}").format(phone=userphone.phone),
-        next=url_for('.account'),
+        next=url_for('account'),
         delete_text=_("Remove"),
     )
 
 
-@lastuser_ui.route('/account/phone/<number>/verify', methods=['GET', 'POST'])
+@app.route('/account/phone/<number>/verify', methods=['GET', 'POST'])
 @requires_login
 @load_model(UserPhoneClaim, {'phone': 'number'}, 'phoneclaim', permission='verify')
 def verify_phone(phoneclaim):
@@ -306,7 +298,7 @@ def verify_phone(phoneclaim):
         flash(_("You provided an incorrect verification code too many times"), 'danger')
         # Block attempts to verify this number, but also keep the claim so that a new
         # claim cannot be made. A periodic sweep to delete old claims is needed.
-        return render_redirect(url_for('.account'), code=303)
+        return render_redirect(url_for('account'), code=303)
 
     form = VerifyPhoneForm()
     form.phoneclaim = phoneclaim
@@ -325,7 +317,7 @@ def verify_phone(phoneclaim):
             db.session.commit()
             flash(_("Your phone number has been verified"), 'success')
             user_data_changed.send(current_auth.user, changes=['phone'])
-            return render_redirect(url_for('.account'), code=303)
+            return render_redirect(url_for('account'), code=303)
         else:
             db.session.delete(phoneclaim)
             db.session.commit()
@@ -346,9 +338,7 @@ def verify_phone(phoneclaim):
 
 
 # Userid is a path here because obsolete OpenID ids are URLs (both direct and via Google)
-@lastuser_ui.route(
-    '/account/extid/<service>/<path:userid>/remove', methods=['GET', 'POST']
-)
+@app.route('/account/extid/<service>/<path:userid>/remove', methods=['GET', 'POST'])
 @requires_login
 @load_model(
     UserExternalId,
@@ -366,7 +356,7 @@ def remove_extid(extid):
             ),
             'danger',
         )
-        return render_redirect(url_for('.account'), code=303)
+        return render_redirect(url_for('account'), code=303)
     return render_delete_sqla(
         extid,
         db,
@@ -377,6 +367,6 @@ def remove_extid(extid):
         success=_("You have removed the {service} account ‘{username}’").format(
             service=login_registry[extid.service].title, username=extid.username
         ),
-        next=url_for('.account'),
+        next=url_for('account'),
         delete_text=_("Remove"),
     )

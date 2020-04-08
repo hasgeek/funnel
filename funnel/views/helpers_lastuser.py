@@ -14,10 +14,10 @@ from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import utcnow
 from coaster.views import get_current_url
-from lastuser_core.models import AuthClientCredential, User, UserSession, db
-from lastuser_core.signals import user_login, user_registered
 
-from .. import lastuser_oauth
+from .. import app, lastuserapp
+from ..models import AuthClientCredential, User, UserSession, db
+from ..signals import user_login, user_registered
 
 valid_timezones = set(common_timezones)
 
@@ -45,7 +45,7 @@ class LoginManager(object):
                 (
                     lastuser_cookie,
                     lastuser_cookie_headers,
-                ) = lastuser_oauth.serializer.loads(
+                ) = current_app.cookie_serializer.loads(
                     request.cookies['lastuser'], return_header=True
                 )
             except itsdangerous.BadSignature:
@@ -84,7 +84,8 @@ class LoginManager(object):
         add_auth_attribute('login_required', False)
 
 
-@lastuser_oauth.after_app_request
+@app.after_request
+@lastuserapp.after_request
 def lastuser_cookie(response):
     """
     Save lastuser login cookie and hasuser JS-readable flag cookie.
@@ -93,7 +94,7 @@ def lastuser_cookie(response):
         expires = utcnow() + timedelta(days=365)
         response.set_cookie(
             'lastuser',
-            value=lastuser_oauth.serializer.dumps(
+            value=current_app.cookie_serializer.dumps(
                 current_auth.cookie, header_fields={'v': 1}
             ),
             # Keep this cookie for a year.
@@ -122,7 +123,8 @@ def lastuser_cookie(response):
     return response
 
 
-@lastuser_oauth.after_app_request
+@app.after_request
+@lastuserapp.after_request
 def cache_expiry_headers(response):
     if 'Expires' not in response.headers:
         response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'

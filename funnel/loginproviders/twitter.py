@@ -12,7 +12,7 @@ from tweepy import TweepError
 
 from baseframe import _
 
-from ...registry import LoginCallbackError, LoginInitError, LoginProvider
+from ..registry import LoginCallbackError, LoginInitError, LoginProvider
 from .flask_oauth import OAuth, OAuthException  # OAuth 1.0a
 
 __all__ = ['TwitterProvider']

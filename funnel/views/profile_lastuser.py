@@ -1,27 +1,39 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, current_app, escape, flash, url_for
+from flask import Markup, escape, flash, url_for
 
 from baseframe import _
 from baseframe.forms import render_form, render_message, render_redirect
 from coaster.auth import current_auth
 from coaster.views import get_next_url
-from lastuser_core.models import UserEmail, UserEmailClaim, db
-from lastuser_core.signals import user_data_changed
 
-from .. import lastuser_oauth
+from .. import app, lastuserapp
 from ..forms import ProfileForm
+from ..models import UserEmail, UserEmailClaim, db
+from ..signals import user_data_changed
 from .email import send_email_verify_link
-from .helpers import requires_login
+from .helpers_lastuser import requires_login
 
 
-@lastuser_oauth.route(
+@app.route(
     '/account/edit',
     methods=['GET', 'POST'],
     defaults={'newprofile': False},
     endpoint='account_edit',
 )
-@lastuser_oauth.route(
+@app.route(
+    '/account/new',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': True},
+    endpoint='account_new',
+)
+@lastuserapp.route(
+    '/account/edit',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': False},
+    endpoint='account_edit',
+)
+@lastuserapp.route(
     '/account/new',
     methods=['GET', 'POST'],
     defaults={'newprofile': True},
@@ -31,10 +43,6 @@ from .helpers import requires_login
 def account_edit(newprofile=False):
     form = ProfileForm(obj=current_auth.user)
     form.edit_user = current_auth.user
-    form.fullname.description = current_app.config.get('FULLNAME_REASON')
-    form.email.description = current_app.config.get('EMAIL_REASON')
-    form.username.description = current_app.config.get('USERNAME_REASON')
-    form.timezone.description = current_app.config.get('TIMEZONE_REASON')
     if current_auth.user.email or newprofile is False:
         del form.email
 
@@ -97,7 +105,8 @@ def account_edit(newprofile=False):
 
 
 # FIXME: Don't modify db on GET. Autosubmit via JS and process on POST
-@lastuser_oauth.route('/confirm/<md5sum>/<secret>')
+@app.route('/account/confirm/<md5sum>/<secret>')
+@lastuserapp.route('/confirm/<md5sum>/<secret>')
 @requires_login
 def confirm_email(md5sum, secret):
     emailclaim = UserEmailClaim.get_by(md5sum=md5sum, verification_code=secret)

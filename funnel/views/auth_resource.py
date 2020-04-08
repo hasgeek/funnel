@@ -9,8 +9,9 @@ from baseframe import _, __
 from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, requestargs
-from lastuser_core import resource_registry
-from lastuser_core.models import (
+
+from .. import app, lastuserapp
+from ..models import (
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
@@ -21,9 +22,8 @@ from lastuser_core.models import (
     db,
     getuser,
 )
-
-from .. import lastuser_oauth
-from .helpers import (
+from ..registry import resource_registry
+from .helpers_lastuser import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
     requires_user_or_client_login,
@@ -185,7 +185,8 @@ def api_result(status, _jsonp=False, **params):
 # seen this token before, so it calls token/verify to validate it. Lastuser confirms
 # the token is indeed valid for the resource being requested. However, with the
 # removal of client resources, the only valid resource now is the '*' wildcard.
-@lastuser_oauth.route('/api/1/token/verify', methods=['POST'])
+@app.route('/api/1/token/verify', methods=['POST'])
+@lastuserapp.route('/api/1/token/verify', methods=['POST'])
 @requires_client_login
 def token_verify():
     token = request.form.get('access_token')
@@ -237,7 +238,8 @@ def token_verify():
     return api_result('ok', **params)
 
 
-@lastuser_oauth.route('/api/1/token/get_scope', methods=['POST'])
+@app.route('/api/1/token/get_scope', methods=['POST'])
+@lastuserapp.route('/api/1/token/get_scope', methods=['POST'])
 @requires_client_login
 def token_get_scope():
     token = request.form.get('access_token')
@@ -286,7 +288,8 @@ def token_get_scope():
     return api_result('ok', **params)
 
 
-@lastuser_oauth.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
+@app.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
+@lastuserapp.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
 @requires_user_or_client_login
 def user_get_by_userid():
     """
@@ -328,7 +331,8 @@ def user_get_by_userid():
     return api_result('error', error='not_found', _jsonp=True)
 
 
-@lastuser_oauth.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
+@app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
+@lastuserapp.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
 @requestargs('userid[]')
 def user_get_by_userids(userid):
@@ -374,7 +378,8 @@ def user_get_by_userids(userid):
     )
 
 
-@lastuser_oauth.route('/api/1/user/get', methods=['GET', 'POST'])
+@app.route('/api/1/user/get', methods=['GET', 'POST'])
+@lastuserapp.route('/api/1/user/get', methods=['GET', 'POST'])
 @requires_user_or_client_login
 @requestargs('name')
 def user_get(name):
@@ -402,7 +407,8 @@ def user_get(name):
         return api_result('error', error='not_found')
 
 
-@lastuser_oauth.route('/api/1/user/getusers', methods=['GET', 'POST'])
+@app.route('/api/1/user/getusers', methods=['GET', 'POST'])
+@lastuserapp.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
 @requestargs('name[]')
 def user_getall(name):
@@ -438,7 +444,8 @@ def user_getall(name):
         return api_result('ok', results=results)
 
 
-@lastuser_oauth.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
+@app.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
+@lastuserapp.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
 def user_autocomplete():
     """
@@ -465,7 +472,8 @@ def user_autocomplete():
 # --- Public endpoints --------------------------------------------------------
 
 
-@lastuser_oauth.route('/api/1/login/beacon.html')
+@app.route('/api/1/login/beacon.html')
+@lastuserapp.route('/api/1/login/beacon.html')
 @requestargs('client_id', 'login_url')
 def login_beacon_iframe(client_id, login_url):
     cred = AuthClientCredential.get(client_id)
@@ -486,7 +494,8 @@ def login_beacon_iframe(client_id, login_url):
     )
 
 
-@lastuser_oauth.route('/api/1/login/beacon.json')
+@app.route('/api/1/login/beacon.json')
+@lastuserapp.route('/api/1/login/beacon.json')
 @requestargs('client_id')
 def login_beacon_json(client_id):
     cred = AuthClientCredential.get(client_id)
@@ -506,7 +515,8 @@ def login_beacon_json(client_id):
 # --- Token-based resource endpoints ------------------------------------------
 
 
-@lastuser_oauth.route('/api/1/id')
+@app.route('/api/1/id')
+@lastuserapp.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic profile data"))
 def resource_id(authtoken, args, files=None):
     """
@@ -525,7 +535,8 @@ def resource_id(authtoken, args, files=None):
         )
 
 
-@lastuser_oauth.route('/api/1/session/verify', methods=['POST'])
+@app.route('/api/1/session/verify', methods=['POST'])
+@lastuserapp.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(authtoken, args, files=None):
     sessionid = args['sessionid']
@@ -545,7 +556,8 @@ def session_verify(authtoken, args, files=None):
         return {'active': False}
 
 
-@lastuser_oauth.route('/api/1/avatar/edit', methods=['POST'])
+@app.route('/api/1/avatar/edit', methods=['POST'])
+@lastuserapp.route('/api/1/avatar/edit', methods=['POST'])
 @resource_registry.resource('avatar/edit', __("Update your profile picture"))
 def resource_avatar_edit(authtoken, args, files=None):
     """
@@ -562,7 +574,8 @@ def resource_avatar_edit(authtoken, args, files=None):
         raise BadRequest(_("Invalid avatar URL"))
 
 
-@lastuser_oauth.route('/api/1/email')
+@app.route('/api/1/email')
+@lastuserapp.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
 def resource_email(authtoken, args, files=None):
     """
@@ -577,7 +590,8 @@ def resource_email(authtoken, args, files=None):
         return {'email': str(authtoken.user.email)}
 
 
-@lastuser_oauth.route('/api/1/phone')
+@app.route('/api/1/phone')
+@lastuserapp.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
 def resource_phone(authtoken, args, files=None):
     """
@@ -592,7 +606,8 @@ def resource_phone(authtoken, args, files=None):
         return {'phone': str(authtoken.user.phone)}
 
 
-@lastuser_oauth.route('/api/1/user/externalids')
+@app.route('/api/1/user/externalids')
+@lastuserapp.route('/api/1/user/externalids')
 @resource_registry.resource(
     'user/externalids',
     __("Access your external account information such as Twitter and Google"),
@@ -616,7 +631,8 @@ def resource_login_providers(authtoken, args, files=None):
     return response
 
 
-@lastuser_oauth.route('/api/1/organizations')
+@app.route('/api/1/organizations')
+@lastuserapp.route('/api/1/organizations')
 @resource_registry.resource(
     'organizations', __("Read the organizations you are a member of")
 )
@@ -632,23 +648,8 @@ def resource_organizations(authtoken, args, files=None):
     )
 
 
-@lastuser_oauth.route('/api/1/organizations/new', methods=['POST'])
-@resource_registry.resource(
-    'organizations/new', __("Create a new organization"), trusted=True
-)
-def resource_organizations_new(authtoken, args, files=None):
-    pass
-
-
-@lastuser_oauth.route('/api/1/organizations/edit', methods=['POST'])
-@resource_registry.resource(
-    'organizations/edit', __("Edit your organizations"), trusted=True
-)
-def resource_organizations_edit(authtoken, args, files=None):
-    pass
-
-
-@lastuser_oauth.route('/api/1/teams')
+@app.route('/api/1/teams')
+@lastuserapp.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
 def resource_teams(authtoken, args, files=None):
     """
@@ -657,26 +658,3 @@ def resource_teams(authtoken, args, files=None):
     return get_userinfo(
         authtoken.user, authtoken.auth_client, scope=['teams'], get_permissions=False
     )
-
-
-@lastuser_oauth.route('/api/1/teams/new', methods=['POST'])
-@resource_registry.resource(
-    'teams/new', __("Create a new team in your organizations"), trusted=True
-)
-def resource_teams_new(authtoken, args, files=None):
-    pass
-
-
-# GET to read member list, POST to write to it
-@lastuser_oauth.route('/api/1/teams/edit', methods=['GET', 'POST'])
-@resource_registry.resource(
-    'teams/edit', __("Edit your organizations' teams"), trusted=True
-)
-def resource_teams_edit(authtoken, args, files=None):
-    pass
-
-
-@lastuser_oauth.route('/api/1/notice/send')
-@resource_registry.resource('notice/send', __("Send you notifications"))
-def resource_notice_send(authtoken, args, files=None):
-    pass
