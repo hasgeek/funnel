@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # flake8: noqa
 
-from .auth import *
 from .auth_client import *
 from .comment import *
 from .label import *
