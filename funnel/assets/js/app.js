@@ -1,3 +1,5 @@
+/* global jstz */
+
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
