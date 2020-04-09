@@ -14,13 +14,13 @@ from coaster.views import ClassView, get_next_url, load_model, render_with, rout
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
+    AccountForm,
     EmailPrimaryForm,
     NewEmailAddressForm,
     NewPhoneForm,
     PasswordChangeForm,
     PasswordResetForm,
     PhonePrimaryForm,
-    ProfileForm,
     VerifyEmailForm,
     VerifyPhoneForm,
 )
@@ -107,7 +107,7 @@ FunnelAccountView.init_app(funnelapp)
 )
 @requires_login
 def account_edit(newprofile=False):
-    form = ProfileForm(obj=current_auth.user)
+    form = AccountForm(obj=current_auth.user)
     form.edit_user = current_auth.user
     if current_auth.user.email or newprofile is False:
         del form.email

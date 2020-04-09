@@ -16,7 +16,7 @@ from flask import (
     url_for,
 )
 
-from baseframe import _, __, request_is_xhr
+from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import render_form, render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
@@ -29,7 +29,6 @@ from ..forms import (
     LoginPasswordResetException,
     PasswordResetForm,
     PasswordResetRequestForm,
-    ProfileMergeForm,
     RegisterForm,
 )
 from ..models import (
@@ -581,7 +580,7 @@ def account_merge():
     if other_user is None:
         session.pop('merge_buid', None)
         return redirect(get_next_url(), code=302)
-    form = ProfileMergeForm()
+    form = forms.Form()
     if form.validate_on_submit():
         if 'merge' in request.form:
             new_user = merge_users(current_auth.user, other_user)
