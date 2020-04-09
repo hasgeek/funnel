@@ -2,13 +2,12 @@
 
 from flask import get_flashed_messages, jsonify, redirect, render_template, request
 
-from baseframe import _
+from baseframe import _, forms
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import newsecret
 
 from .. import app, lastuserapp
-from ..forms import AuthorizeForm
 from ..models import (
     AuthClient,
     AuthClientCredential,
@@ -213,13 +212,14 @@ def oauth_auth_error(
 
 
 @app.route('/api/1/auth', methods=['GET', 'POST'])
+@lastuserapp.route('/api/1/auth', methods=['GET', 'POST'])
 @lastuserapp.route('/auth', methods=['GET', 'POST'])
 @requires_login_no_message
 def oauth_authorize():
     """
     OAuth2 server -- authorization endpoint
     """
-    form = AuthorizeForm()
+    form = forms.Form()
 
     response_type = request.args.get('response_type')
     client_id = request.args.get('client_id')
@@ -436,6 +436,7 @@ def oauth_token_success(token, **params):
 
 
 @app.route('/api/1/token', methods=['POST'])
+@lastuserapp.route('/api/1/token', methods=['POST'])
 @lastuserapp.route('/token', methods=['POST'])
 @requires_client_login
 def oauth_token():
