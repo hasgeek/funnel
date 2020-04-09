@@ -25,7 +25,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app, funnelapp
 from ..models import ContactExchange, Participant, Project, db
 from ..utils import format_twitter_handle
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 
 
 def contact_details(participant):

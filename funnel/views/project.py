@@ -41,7 +41,7 @@ from ..forms import (
 from ..jobs import import_tickets, tag_locations
 from ..models import RSVP_STATUS, Project, Proposal, Rsvp, SavedProject, db
 from .decorators import legacy_redirect
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data

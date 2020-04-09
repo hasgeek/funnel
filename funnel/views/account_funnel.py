@@ -8,7 +8,7 @@ from coaster.views import ClassView, render_with, route
 from .. import app, funnelapp
 from ..forms import EmailPrimaryForm, PhonePrimaryForm
 from ..registry import login_registry
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 
 
 @route('/account')

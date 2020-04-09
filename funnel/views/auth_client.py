@@ -24,7 +24,7 @@ from ..models import (
     User,
     db,
 )
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 
 # --- Routes: client apps -----------------------------------------------------
 

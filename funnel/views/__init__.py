@@ -2,8 +2,8 @@
 # flake8: noqa
 
 from . import (
-    account,
-    account_lastuser,
+    account_b,
+    account_funnel,
     auth_client,
     auth_dashboard,
     auth_notify,
@@ -15,16 +15,13 @@ from . import (
     email,
     event,
     helpers,
-    helpers_lastuser,
     index,
     label,
-    login_lastuser,
+    login,
     mixins,
     organization,
     participant,
     profile,
-    profile_lastuser,
-    profile_lastuser_ui,
     project,
     proposal,
     schedule,

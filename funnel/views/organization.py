@@ -11,7 +11,7 @@ from .. import app
 from ..forms import OrganizationForm, TeamForm
 from ..models import Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 
 # --- Routes: Organizations ---------------------------------------------------
 

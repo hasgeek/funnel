@@ -72,7 +72,7 @@ lastuserapp.cookie_serializer = JSONWebSignatureSerializer(
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`
-app.login_manager = views.helpers_lastuser.LoginManager()
+app.login_manager = views.helpers.LoginManager()
 funnelapp.login_manager = lastuserapp.login_manager = app.login_manager
 
 db.init_app(app)

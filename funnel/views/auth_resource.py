@@ -23,7 +23,7 @@ from ..models import (
     getuser,
 )
 from ..registry import resource_registry
-from .helpers_lastuser import (
+from .helpers import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
     requires_user_or_client_login,

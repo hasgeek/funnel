@@ -18,8 +18,7 @@ from .. import app, funnelapp
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
 from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
 from .decorators import legacy_redirect
-from .helpers import localize_date
-from .helpers_lastuser import requires_login
+from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
 from .schedule import schedule_data, session_data, session_list_data
 

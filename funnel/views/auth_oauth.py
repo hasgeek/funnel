@@ -20,7 +20,7 @@ from ..models import (
 from ..registry import resource_registry
 from ..utils import make_redirect_url
 from .auth_resource import get_userinfo
-from .helpers_lastuser import requires_client_login, requires_login_no_message
+from .helpers import requires_client_login, requires_login_no_message
 
 
 class ScopeException(Exception):
