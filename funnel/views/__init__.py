@@ -2,8 +2,7 @@
 # flake8: noqa
 
 from . import (
-    account_b,
-    account_funnel,
+    account,
     auth_client,
     auth_dashboard,
     auth_notify,

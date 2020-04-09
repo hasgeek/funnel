@@ -23,7 +23,7 @@
           <div class="tabs" id="jquery-scroll-tabs">
             <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(account)">{{ faicon(icon='chevron-left', icon_size='subhead', baseline=true) }}
             </a>
-            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Profile{% endtrans %}</p>
+            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Account{% endtrans %}</p>
             <a href="{{ url_for('saved') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}My saves{% endtrans %}</a>
             <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
             <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">{% trans %}Contacts{% endtrans %}</a>
@@ -44,16 +44,14 @@
           </div>
           <div class="card__body card__body--lgtext">
             <p class="mui--text-subhead">
-              {{ faicon(icon='user', baseline=true) }}&nbsp;&nbsp;{% if current_auth.user.username %}{{ current_auth.user.username }}{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
+              {{ faicon(icon='address-card')}}&nbsp;&nbsp;{{ current_auth.user.fullname }}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon(icon='envelope', baseline=true) }}&nbsp;&nbsp;{{ current_auth.user.email }}
+              {{ faicon(icon='user') }}&nbsp;&nbsp;{% if current_auth.user.username %}{{ current_auth.user.username }}{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
             </p>
-            {% if current_auth.user.phone %}
-              <p class="mui--text-subhead">
-                {{ faicon(icon='phone-alt', baseline=true) }}&nbsp;&nbsp;{{ current_auth.user.phone }}
-              </p>
-            {% endif %}
+            <p class="mui--text-subhead">
+              {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.timezone }}
+            </p>
           </div>
           <div class="mui-divider"></div>
           <div class="card__footer">

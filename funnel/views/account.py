@@ -1,15 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import (
-    Markup,
-    abort,
-    escape,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Markup, abort, escape, flash, redirect, request, url_for
 
 from baseframe import _
 from baseframe.forms import (
@@ -258,25 +249,6 @@ def confirm_email(md5sum, secret):
         )
 
 
-# TODO: Lastuser: Merge this into Funnel's account view
-@app.route('/account/lastuser')
-@requires_login
-def account_lastuser():
-    primary_email_form = EmailPrimaryForm()
-    primary_phone_form = PhonePrimaryForm()
-    service_forms = {}
-    for service, provider in login_registry.items():
-        if provider.at_login and provider.form is not None:
-            service_forms[service] = provider.get_form()
-    return render_template(
-        'account_lastuser.html.jinja2',
-        primary_email_form=primary_email_form,
-        primary_phone_form=primary_phone_form,
-        service_forms=service_forms,
-        login_registry=login_registry,
-    )
-
-
 @app.route('/account/password', methods=['GET', 'POST'])
 @requires_login
 def change_password():
@@ -401,12 +373,6 @@ def remove_email(md5sum):
         next=url_for('account'),
         delete_text=_("Remove"),
     )
-
-
-# Redirect from old URL in previously sent out verification emails
-@app.route('/profile/email/<md5sum>/verify')
-def verify_email_old(md5sum):
-    return redirect(url_for('verify_email', md5sum=md5sum), code=301)
 
 
 @app.route('/account/email/<md5sum>/verify', methods=['GET', 'POST'])
@@ -595,3 +561,12 @@ def remove_extid(extid):
         next=url_for('account'),
         delete_text=_("Remove"),
     )
+
+
+# --- Lastuserapp legacy routes --------------------------------------------------------
+
+# Redirect from old URL in previously sent out verification emails
+@lastuserapp.route('/profile/email/<md5sum>/verify')
+def verify_email_old(md5sum):
+    with app.test_request_context('/'):
+        return redirect(url_for('verify_email', md5sum=md5sum), code=301)
