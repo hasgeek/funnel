@@ -21,8 +21,7 @@ __all__ = [
     'PasswordResetRequestForm',
     'PasswordResetForm',
     'PasswordChangeForm',
-    'ProfileForm',
-    'ProfileMergeForm',
+    'AccountForm',
     'EmailPrimaryForm',
     'NewEmailAddressForm',
     'NewPhoneForm',
@@ -99,7 +98,7 @@ class PasswordChangeForm(forms.Form):
             raise forms.ValidationError(_("Incorrect password"))
 
 
-class ProfileForm(forms.Form):
+class AccountForm(forms.Form):
     fullname = forms.StringField(
         __("Full name"),
         description=__(
@@ -168,10 +167,6 @@ class ProfileForm(forms.Form):
             raise forms.ValidationError(
                 _("This email address has been claimed by another user")
             )
-
-
-class ProfileMergeForm(forms.Form):
-    pass
 
 
 class NewEmailAddressForm(forms.RecaptchaForm):
