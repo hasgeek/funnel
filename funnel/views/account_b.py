@@ -44,7 +44,7 @@ from ..models import (
 from ..registry import login_registry
 from ..signals import user_data_changed
 from .email import send_email_verify_link
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 from .sms import send_phone_verify_code
 
 

@@ -23,7 +23,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 from .mixins import EventViewMixin, ProjectViewMixin
 
 

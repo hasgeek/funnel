@@ -17,7 +17,7 @@ from .. import app, funnelapp
 from ..forms import EditProfileForm, NewProfileForm, SavedProjectForm
 from ..models import Profile, Project, Team, db
 from .decorators import legacy_redirect
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 from .mixins import ProfileViewMixin
 from .project import project_data
 

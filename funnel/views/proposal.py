@@ -30,7 +30,7 @@ from ..forms import (
 )
 from ..models import Comment, Proposal, db
 from .decorators import legacy_redirect
-from .helpers_lastuser import requires_login
+from .helpers import requires_login
 from .mixins import ProjectViewMixin, ProposalViewMixin
 
 proposal_headers = [

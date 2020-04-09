@@ -48,7 +48,7 @@ from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
 from ..utils import mask_email
 from .email import send_email_verify_link, send_password_reset_link
-from .helpers_lastuser import (
+from .helpers import (
     login_internal,
     logout_internal,
     register_internal,
