@@ -98,7 +98,7 @@ rq.init_app(lastuserapp)
 baseframe.init_app(
     app,
     requires=['funnel'],
-    ext_requires=['pygments', 'toastr', 'baseframe-mui'],
+    ext_requires=['pygments', 'toastr', 'baseframe-mui', 'jquery.cookie', 'timezone'],
     theme='mui',
     asset_modules=('baseframe_private_assets',),
 )
