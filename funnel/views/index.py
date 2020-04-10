@@ -4,6 +4,7 @@ import os.path
 
 from flask import Response, g, jsonify, redirect, render_template, url_for
 
+from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, route
 
 from .. import app, funnelapp, lastuserapp, pages
@@ -85,8 +86,8 @@ FunnelIndexView.init_app(funnelapp)
 @app.route('/api/whoami')
 @funnelapp.route('/api/whoami')
 def whoami():
-    if g.user:
-        return jsonify(message="Hey {0}!".format(g.user.fullname), code=200)
+    if current_auth.user:
+        return jsonify(message="Hey {0}!".format(current_auth.user.fullname), code=200)
     else:
         return jsonify(message="Hmm, so who _are_ you?", code=401)
 

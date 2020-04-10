@@ -235,7 +235,7 @@
           {{ commenttree(comments, proposal, project, csrf_form) }}
         </ul>
       {% endif %}
-      {% if not g.user -%}
+      {% if not current_auth.user -%}
         <p>
           <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}">{% trans %}Login with Twitter or Google to leave a comment{% endtrans %}</a>
         </p>

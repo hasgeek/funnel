@@ -27,6 +27,33 @@ valid_timezones = set(common_timezones)
 
 
 class LoginManager(object):
+    """
+    Compatibility login manager that resembles Flask-Lastuser
+    """
+
+    # Flag for Baseframe to avoid attempting API calls
+    is_master_data_source = True
+
+    @property
+    def autocomplete_endpoint(self):
+        if current_app != app:
+            # Create context only if necessary
+            with app.test_request_context('/'):
+                result = url_for('user_autocomplete', _external=True)
+        else:
+            result = url_for('user_autocomplete')
+        return result
+
+    @property
+    def getuser_endpoint(self):
+        if current_app != app:
+            # Create context only if necessary
+            with app.test_request_context('/'):
+                result = url_for('user_get_by_userids', _external=True)
+        else:
+            result = url_for('user_get_by_userids')
+        return result
+
     def _load_user(self):
         """
         If there's a buid in the session, retrieve the user object and add
@@ -92,6 +119,11 @@ class LoginManager(object):
 
         # This will be set to True downstream by the requires_login decorator
         add_auth_attribute('login_required', False)
+
+
+# For compatibility with baseframe.forms.fields.UserSelectFieldBase
+LoginManager.usermanager = LoginManager
+LoginManager.usermodel = User
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):

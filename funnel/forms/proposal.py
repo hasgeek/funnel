@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from flask import g
-
 from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
+from coaster.auth import current_auth
 import baseframe.forms as forms
 
 from ..models import Profile, Project
@@ -243,7 +242,7 @@ class ProposalMoveForm(forms.Form):
     )
 
     def set_queries(self):
-        team_ids = [t.id for t in g.user.teams]
+        team_ids = [t.id for t in current_auth.user.teams]
         self.target.query = (
             Project.query.join(Project.profile)
             .filter(

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, abort, escape, flash, g, redirect, request
+from flask import Markup, abort, escape, flash, redirect, request
 
 from bleach import linkify
 
@@ -127,14 +127,16 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     def new_proposal(self):
         form = ProposalForm(model=Proposal, parent=self.obj)
         if request.method == 'GET':
-            form.email.data = g.user.email
-            form.phone.data = g.user.phone
+            form.email.data = current_auth.user.email
+            form.phone.data = current_auth.user.phone
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
             form.populate_obj(proposal)
             proposal.name = make_name(proposal.title)
             db.session.add(proposal)
-            proposal.voteset.vote(g.user)  # Vote up your own proposal by default
+            proposal.voteset.vote(
+                current_auth.user
+            )  # Vote up your own proposal by default
             db.session.commit()
             flash(_("Your new session has been saved"), 'info')
             return redirect(proposal.url_for(), code=303)
@@ -229,7 +231,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_permission('edit_proposal')
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
-        if self.obj.user != g.user:
+        if self.obj.user != current_auth.user:
             del form.speaking
         if form.validate_on_submit():
             form.populate_obj(self.obj)
