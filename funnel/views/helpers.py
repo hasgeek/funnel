@@ -52,8 +52,11 @@ class LoginManager(object):
                 ) = current_app.cookie_serializer.loads(
                     request.cookies['lastuser'], return_header=True
                 )
-            except itsdangerous.BadSignature:
+            except itsdangerous.exc.BadSignature:
                 lastuser_cookie = {}
+
+        add_auth_attribute('cookie', lastuser_cookie)
+        # We are dependent on `add_auth_attribute` not making a copy of the dict
 
         if 'sessionid' in lastuser_cookie:
             add_auth_attribute(
@@ -63,6 +66,10 @@ class LoginManager(object):
                 current_auth.session.access()
                 db.session.commit()  # Save access
                 add_auth_attribute('user', current_auth.session.user)
+            else:
+                # Invalid session. Logout the user
+                current_app.logger.info("Got an invalid/expired session; logging out")
+                logout_internal()
 
         # Transition users with 'userid' to 'sessionid'
         if not current_auth.session and 'userid' in lastuser_cookie:
@@ -83,7 +90,6 @@ class LoginManager(object):
 
         lastuser_cookie['updated_at'] = utcnow().isoformat()
 
-        add_auth_attribute('cookie', lastuser_cookie)
         # This will be set to True downstream by the requires_login decorator
         add_auth_attribute('login_required', False)
 
@@ -147,9 +153,12 @@ def clear_old_session(response):
 
 
 app.after_request(clear_old_session)
+funnelapp.after_request(clear_old_session)
+lastuserapp.after_request(clear_old_session)
 
 
 @app.after_request
+@funnelapp.after_request
 @lastuserapp.after_request
 def lastuser_cookie(response):
     """
@@ -189,6 +198,7 @@ def lastuser_cookie(response):
 
 
 @app.after_request
+@funnelapp.after_request
 @lastuserapp.after_request
 def cache_expiry_headers(response):
     if 'Expires' not in response.headers:
@@ -234,8 +244,6 @@ def requires_login_no_message(f):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             session['next'] = get_current_url()
-            if 'message' in request.args and request.args['message']:
-                flash(request.args['message'], 'info')
             return redirect(url_for('login'))
         return f(*args, **kwargs)
 
@@ -342,12 +350,17 @@ def requires_client_id_or_user_or_client_login(f):
     return decorated_function
 
 
-def login_internal(user):
+def login_internal(user, user_session=None):
+    """
+    Login a user and create a session. If the login is from funnelapp, reuse the
+    existing session.
+    """
     add_auth_attribute('user', user)
-    usersession = UserSession(user=user)
-    usersession.access()
-    add_auth_attribute('session', usersession)
-    current_auth.cookie['sessionid'] = usersession.buid
+    if not user_session or user_session.user != user:
+        user_session = UserSession(user=user)
+    user_session.access()
+    add_auth_attribute('session', user_session)
+    current_auth.cookie['sessionid'] = user_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
     autoset_timezone(user)
@@ -374,6 +387,7 @@ def logout_internal():
     session.pop('merge_buid', None)
     session.pop('userid_external', None)
     session.pop('avatar_url', None)
+    session.pop('login_nonce', None)  # Used by funnelapp
     current_auth.cookie.pop('sessionid', None)
     current_auth.cookie.pop('userid', None)
     session.permanent = False

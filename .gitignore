@@ -28,6 +28,7 @@ ghostdriver.log
 instance/development.py
 instance/funnelapp.py
 instance/hasgeekapp.py
+instance/lastuserapp.py
 instance/production.py
 instance/settings.py
 node_modules

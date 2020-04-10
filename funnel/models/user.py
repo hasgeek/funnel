@@ -231,7 +231,7 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
 
-    #: Temporary values for Flask-Lastuser compatibility
+    #: FIXME: Temporary values for Flask-Lastuser compatibility
     lastuser_token = lastuser_token_scope = lastuser_token_type = None
     userinfo = {}
 
@@ -615,6 +615,10 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
     @classmethod
     def active_user_count(cls):
         return cls.query.filter_by(status=USER_STATUS.ACTIVE).count()
+
+    #: FIXME: Temporary values for Baseframe compatibility
+    def organization_links(self):
+        return []
 
 
 class UserOldId(UuidMixin, BaseMixin, db.Model):
