@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 import urllib.parse
+import uuid
 
 from flask import (
     Markup,
@@ -15,15 +16,16 @@ from flask import (
     session,
     url_for,
 )
+import itsdangerous
 
 from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import render_form, render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import getbool, utcnow, valid_username
-from coaster.views import get_next_url, load_model
+from coaster.views import get_next_url, load_model, requestargs
 
-from .. import app, lastuserapp
+from .. import app, funnelapp, lastuserapp
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
@@ -52,6 +54,7 @@ from .helpers import (
     logout_internal,
     register_internal,
     requires_login,
+    requires_login_no_message,
     set_loginmethod_cookie,
 )
 
@@ -81,14 +84,20 @@ def login():
                 login_internal(user)
                 db.session.commit()
                 flash(_("You are now logged in"), category='success')
+                current_app.logger.info(
+                    "Login successful for %r, possible redirect URL is '%s'",
+                    user,
+                    session.get('next', ''),
+                )
                 return set_loginmethod_cookie(
                     render_redirect(get_next_url(session=True), code=303), 'password'
                 )
         except LoginPasswordResetException:
             flash(
                 _(
-                    "Your account does not have a password set. Please enter your username "
-                    "or email address to request a reset code and set a new password"
+                    "Your account does not have a password set. Please enter your "
+                    "username or email address to request a reset code and set a "
+                    "new password"
                 ),
                 category='danger',
             )
@@ -229,7 +238,8 @@ def register():
         formid='register',
         submit=_("Register"),
         message=_(
-            "This account is for you as an individual. We’ll make one for your organization later"
+            "This account is for you as an individual. "
+            "We’ll make one for your organization later"
         ),
     )
 
@@ -273,9 +283,9 @@ def reset():
                     message=Markup(
                         _(
                             """
-                    We do not have an email address for your account. However, your account
-                    is linked to <strong>{service}</strong> with the id <strong>{username}</strong>.
-                    You can use that to login.
+                    We do not have an email address for your account. However, your
+                    account is linked to <strong>{service}</strong> with the id
+                    <strong>{username}</strong>. You can use that to login.
                     """
                         ).format(
                             service=login_registry[extid.service].title,
@@ -289,8 +299,8 @@ def reset():
                     message=Markup(
                         _(
                             """
-                    We do not have an email address for your account and therefore cannot
-                    email you a reset link. Please contact
+                    We do not have an email address for your account and therefore
+                    cannot email you a reset link. Please contact
                     <a href="mailto:{email}">{email}</a> for assistance.
                     """
                         ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
@@ -355,7 +365,9 @@ def reset_email(user, kwargs):
             title=_("Password reset complete"),
             message=Markup(
                 _(
-                    "Your password has been reset. You may now <a href=\"{loginurl}\">login</a> with your new password."
+                    "Your password has been reset. "
+                    "You may now <a href=\"{loginurl}\">login</a> "
+                    "with your new password."
                 ).format(loginurl=escape(url_for('login')))
             ),
         )
@@ -441,8 +453,9 @@ def get_user_extid(service, userdata):
     elif useremail is not None and useremail.user is not None:
         user = useremail.user
     else:
-        # Cross-check with all other instances of the same LoginProvider (if we don't have a user)
-        # This is (for eg) for when we have two Twitter services with different access levels.
+        # Cross-check with all other instances of the same LoginProvider (if we don't
+        # have a user) This is (for eg) for when we have two Twitter services with
+        # different access levels.
         for other_service, other_provider in login_registry.items():
             if (
                 other_service != service
@@ -459,7 +472,8 @@ def get_user_extid(service, userdata):
 
 def login_service_postcallback(service, userdata):
     """
-    Called from :func:login_service_callback after receiving data from the upstream login service
+    Called from :func:`login_service_callback` after receiving data from the upstream
+    login service
     """
     # 1. Check whether we have an existing UserExternalId
     user, extid, useremail = get_user_extid(service, userdata)
@@ -514,7 +528,8 @@ def login_service_postcallback(service, userdata):
             # Always confirm with user before doing an account merger
             session['merge_buid'] = user.buid
         elif useremail and useremail.user != user:
-            # Once again, account merger required since the extid and useremail are linked to different users
+            # Once again, account merger required since the extid and useremail are
+            # linked to different users
             session['merge_buid'] = useremail.user.buid
 
     # Check for new email addresses
@@ -600,3 +615,118 @@ def account_merge():
         other_user=other_user,
         login_registry=login_registry,
     )
+
+
+# --- Talkfunnel login -----------------------------------------------------------------
+
+# Talkfunnel login flow:
+
+# 1. `funnelapp` /login does:
+#     1. Set nonce cookie if not already present
+#     2. Create a signed request code using nonce
+#     3. Redirect user to `app` /login/talkfunnel?code={code}
+
+# 2. `app` /login/talkfunnel does:
+#     1. Ask user to login if required (@requires_login_no_message)
+#     2. Verify signature of code
+#     3. Create a timestamped token using (nonce, user_session.buid)
+#     4. Redirect user to `funnelapp` /login/callback?token={token}
+
+# 3. `funnelapp` /login/callback does:
+#     1. Verify token (signature valid, nonce valid, timestamp < 30s)
+#     2. Loads user session and sets session cookie (calling login_internal)
+#     3. Redirects user back to where they came from, or '/'
+
+
+@funnelapp.route('/login', endpoint='login')
+@requestargs(('cookietest', getbool))
+def funnelapp_login(cookietest=False):
+    # 1. Create a login nonce (single use, unlike CSRF)
+    session['login_nonce'] = str(uuid.uuid4())
+    if not cookietest:
+        # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
+        url_parts = urllib.parse.urlsplit(request.url)
+        if url_parts.query:
+            return redirect(request.url + '&cookietest=1')
+        else:
+            return redirect(request.url + '?cookietest=1')
+    else:
+        if 'login_nonce' not in session:
+            # No support for cookies. Abort login
+            flash(_("Please enable cookies in your browser"), 'error')
+            return redirect(url_for('index'))
+    # 2. Nonce has been set. Create a request code
+    request_code = app.login_serializer.dumps({'nonce': session['login_nonce']})
+    # 3. Redirect user
+    with app.test_request_context('/'):
+        return redirect(url_for('login_talkfunnel', code=request_code, _external=True))
+
+
+@app.route('/login/talkfunnel')
+@requires_login_no_message  # 1. Ensure user login
+@requestargs('code')
+def login_talkfunnel(code):
+    # 2. Verify signature of code
+    try:
+        request_code = app.login_serializer.loads(code)
+    except itsdangerous.exc.BadData:
+        current_app.logger.warning("funnelapp login code is bad: %s", code)
+        return redirect(url_for('index'))
+    # 3. Create token
+    token = app.login_serializer.dumps(
+        {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
+    )
+    # 4. Redirect user
+    with funnelapp.test_request_context('/'):
+        return redirect(url_for('login_callback', token=token, _external=True))
+
+
+@funnelapp.route('/login/callback', endpoint='login_callback')
+@requestargs('token')
+def funnelapp_login_callback(token):
+    nonce = session.pop('login_nonce', None)
+    if not nonce:
+        # Can't proceed if this happens
+        current_app.logger.warning("funnelapp is missing an expected login nonce")
+        return redirect(url_for('index'), code=303)
+    # 1. Verify token
+    try:
+        # Valid up to 30 seconds for slow connections. This is the time gap between
+        # `app` returning a redirect response and user agent loading `funnelapp`'s URL
+        request_token = app.login_serializer.loads(token, max_age=30)
+    except itsdangerous.exc.BadData:
+        current_app.logger.warning("funnelapp received bad login token: %s", token)
+        flash(_("Your attempt to login failed. Please try again"), 'error')
+        return redirect(url_for('index'), code=303)
+    if request_token['nonce'] != nonce:
+        current_app.logger.warning(
+            "funnelapp received invalid nonce in %r", request_token
+        )
+        flash(_("If you were attempting to login, please try again"), 'error')
+        return redirect(url_for('index'), code=303)
+
+    # 2. Load user session and 3. Redirect user back to where they came from
+    user_session = UserSession.get(request_token['sessionid'])
+    if not user_session:
+        # No user session? That shouldn't happen. Log it
+        current_app.logger.warning(
+            "User session is unexpectedly invalid in %r", request_token
+        )
+    else:
+        user = user_session.user
+        login_internal(user, user_session)
+        db.session.commit()
+        flash(_("You are now logged in"), category='success')
+        current_app.logger.debug(
+            "funnelapp login succeeded for %r, %r", user, user_session
+        )
+        return redirect(get_next_url(session=True), code=303)
+    return redirect(url_for('index'))
+
+
+@funnelapp.route('/logout', endpoint='logout')
+def funnelapp_logout():
+    # Revoke session and redirect to homepage. Don't bother to ask `app` to logout
+    # as well since the session is revoked. `app` will notice and drop cookies on
+    # the next request there
+    return logout_user()

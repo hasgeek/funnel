@@ -74,6 +74,9 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         if not self.buid:
             self.buid = make_buid()
 
+    def __repr__(self):
+        return f'<UserSession {self.buid}>'
+
     def access(self, auth_client=None):
         """
         Mark a session as currently active.
