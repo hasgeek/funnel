@@ -98,6 +98,9 @@ class AccountName(UuidMixin, BaseMixin, db.Model):
         ),
     )
 
+    def __repr__(self):
+        return f'<AccountName "{self.name}">'
+
     @property
     def owner(self):
         return self.user or self.organization

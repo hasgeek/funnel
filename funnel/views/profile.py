@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, flash, g, redirect, request, url_for
+from flask import Markup, flash, redirect, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_form, render_message, render_redirect
+from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -27,12 +28,12 @@ from .project import project_data
 def profile_new():
     # Step 1: Get a list of organizations this user owns
     existing = Profile.query.filter(
-        Profile.userid.in_(g.user.organizations_owned_ids())
+        Profile.userid.in_(current_auth.user.organizations_owned_ids())
     ).all()
     existing_ids = [e.userid for e in existing]
     # Step 2: Prune list to organizations without a profile
     new_profiles = []
-    for org in g.user.organizations_owned():
+    for org in current_auth.user.organizations_owned():
         if org['userid'] not in existing_ids:
             new_profiles.append((org['userid'], org['title']))
     if not new_profiles:
@@ -66,7 +67,7 @@ def profile_new():
         # Step 4: Make a profile
         org = [
             org
-            for org in g.user.organizations_owned()
+            for org in current_auth.user.organizations_owned()
             if org['userid'] == form.profile.data
         ][0]
         profile = Profile(name=org['name'], title=org['title'], userid=org['userid'])
