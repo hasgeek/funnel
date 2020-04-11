@@ -2,13 +2,11 @@
 
 from urllib.parse import urlparse
 
-from flask import Markup, url_for
+from flask import Markup
 
 from baseframe import _, __
 from coaster.utils import domain_namespace_match, getbool, valid_username
 import baseframe.forms as forms
-
-from ..models import User
 
 __all__ = [
     'ClientCredentialForm',
@@ -214,10 +212,6 @@ class UserPermissionAssignForm(forms.Form):
         __("User"),
         validators=[forms.validators.DataRequired()],
         description=__("Lookup a user by their username or email address"),
-        lastuser=None,
-        usermodel=User,
-        autocomplete_endpoint=lambda: url_for('user_autocomplete'),
-        getuser_endpoint=lambda: url_for('user_get_by_userids'),
     )
     perms = forms.StringField(
         __("Permissions"),
