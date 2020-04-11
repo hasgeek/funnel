@@ -21,6 +21,11 @@ PHONE_VALID_RE = re.compile(r'^\+[0-9]+$')
 # --- Utilities ---------------------------------------------------------------
 
 
+def strip_null(text):
+    # Removes null byte from given text
+    return text.replace('\x00', '')
+
+
 def make_redirect_url(url, use_fragment=False, **params):
     urlparts = list(urllib.parse.urlsplit(url))
     # URL parts:
