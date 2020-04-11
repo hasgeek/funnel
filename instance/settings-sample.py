@@ -40,8 +40,6 @@ ADMINS = []
 #: Log file
 LOGFILE = 'error.log'
 
-#: Messages (text or HTML)
-WELCOME_MESSAGE = "The funnel is a space for proposals and voting on events. Pick an event to get started."
 HASCORE_SERVER = 'https://api.hasgeek.com/'
 CACHE_TYPE = 'redis'
 RQ_REDIS_URL = 'redis://localhost:6379/0'
