@@ -47,7 +47,7 @@ from ..models import (
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
-from ..utils import mask_email
+from ..utils import mask_email, strip_null
 from .email import send_email_verify_link, send_password_reset_link
 from .helpers import (
     app_url_for,
@@ -158,7 +158,7 @@ def logout_client():
     """
     Client-initiated logout
     """
-    cred = AuthClientCredential.get(request.args['client_id'])
+    cred = AuthClientCredential.get(strip_null(request.args['client_id']))
     auth_client = cred.auth_client if cred else None
 
     if (

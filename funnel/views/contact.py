@@ -16,7 +16,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, funnelapp
 from ..models import ContactExchange, Participant, Project, db
-from ..utils import format_twitter_handle
+from ..utils import format_twitter_handle, strip_null
 from .helpers import app_url_for, requires_login
 
 
@@ -146,7 +146,7 @@ class ContactView(ClassView):
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
-    @requestargs('puk', 'key')
+    @requestargs(('puk', strip_null), ('key', strip_null))
     def connect(self, puk, key):
         """Scan verification"""
         participant = Participant.query.filter_by(puk=puk, key=key).first()

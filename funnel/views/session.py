@@ -17,6 +17,7 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
 from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
+from ..utils import strip_null
 from .decorators import legacy_redirect
 from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
@@ -178,8 +179,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('feedback', methods=['POST'])
     @requires_permission('view')
     @requestargs(
-        'id_type',
-        'userid',
+        ('id_type', strip_null),
+        ('userid', strip_null),
         ('content', int),
         ('presentation', int),
         ('min_scale', int),
