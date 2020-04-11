@@ -49,18 +49,13 @@ search_types = OrderedDict(
                 __("Proposals"),
                 Proposal,
                 True,
-                lambda: Proposal.query.join(User, Proposal.speaker).options(
-                    db.undefer('user.userinfo')
-                ),
+                lambda: Proposal.query.join(User, Proposal.speaker),
             ),
         ),
         (
             'comment',
             SearchModel(
-                __("Comments"),
-                Comment,
-                False,
-                lambda: Comment.query.join(User).options(db.undefer('user.userinfo')),
+                __("Comments"), Comment, False, lambda: Comment.query.join(User)
             ),
         ),
     ]
