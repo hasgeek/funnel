@@ -2,14 +2,13 @@
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from flask_lastuser.sqlalchemy import ProfileBase
-
 from coaster.sqlalchemy import SqlBuidComparator
 from coaster.utils import buid2uuid, uuid2buid
+from flask_lastuser.sqlalchemy import ProfileBase
 
 from . import MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
 from .helpers import RESERVED_NAMES, add_search_trigger
-from .user import Team
+from .user import Organization, Team, User
 
 __all__ = ['Profile']
 
@@ -60,18 +59,27 @@ class Profile(UseridMixin, UuidMixin, ProfileBase, db.Model):
         )
     )
 
-    # teams = db.relationship(
-    #     Team,
-    #     primaryjoin='Profile.uuid == foreign(Team.org_uuid)',
-    #     backref='profile',
-    #     lazy='dynamic',
-    # )
+    user = db.relationship(
+        User, primaryjoin='Profile.uuid == foreign(User.uuid)', uselist=False
+    )
+    organization = db.relationship(
+        Organization,
+        primaryjoin='Profile.uuid == foreign(Organization.uuid)',
+        uselist=False,
+    )
 
     __table_args__ = (
         db.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
     __roles__ = {'all': {'read': {'id', 'name', 'title', 'description', 'logo_url'}}}
+
+    @property
+    def teams(self):
+        if self.organization:
+            return self.organization.teams
+        else:
+            return []
 
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
