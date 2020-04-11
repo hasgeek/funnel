@@ -8,9 +8,9 @@ The terms “**HasGeek Learning Private Limited**”, “**HasGeek**”, “**us
 
 Definition of other terms used in this document:
 
-* “**Application**”, “**App**”, “**Service**”, “**Website**”, “**Event**” or “**Product**”: Any application, service, website, event or product provided by HasGeek
-* “**User**”: The individual using this Service
-* “**Account**”: A collection of User-provided information held by HasGeek on behalf of the User
+-   “**Application**”, “**App**”, “**Service**”, “**Website**”, “**Event**” or “**Product**”: Any application, service, website, event or product provided by HasGeek
+-   “**User**”: The individual using this Service
+-   “**Account**”: A collection of User-provided information held by HasGeek on behalf of the User
 
 ## Acceptance of terms of service and breach
 

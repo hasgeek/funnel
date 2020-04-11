@@ -2,26 +2,28 @@
 
 import sys
 
-from flask import Markup, flash, g, request, url_for
+from flask import Markup, flash, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_form, render_message, render_redirect
-from funnel import app, lastuser
+from coaster.auth import current_auth
+from funnel import app
 from funnel.forms import NewProfileForm
 from funnel.models import Profile, Team, db
+from funnel.views.helpers_lastuser import requires_login
 
 
 @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018
-@lastuser.requires_scope('teams')
+@requires_login
 def profile_new():
     # Step 1: Get a list of organizations this user owns
     existing = Profile.query.filter(
-        Profile.userid.in_(g.user.organizations_owned_ids())
+        Profile.userid.in_(current_auth.user.organizations_owned_ids())
     ).all()
     existing_ids = [e.userid for e in existing]
     # Step 2: Prune list to organizations without a profile
     new_profiles = []
-    for org in g.user.organizations_owned():
+    for org in current_auth.user.organizations_owned():
         if org['userid'] not in existing_ids:
             new_profiles.append((org['userid'], org['title']))
     if not new_profiles:
@@ -31,7 +33,7 @@ def profile_new():
                 _(
                     "You do not have any organizations that do not already have a Talkfunnel. "
                     'Would you like to <a href="{link}">create a new organization</a>?'
-                ).format(link=lastuser.endpoint_url('/organizations/new'))
+                ).format(link=url_for('OrgView_new'))
             ),
         )
     eligible_profiles = []
@@ -55,7 +57,7 @@ def profile_new():
         # Step 4: Make a profile
         user_org = [
             org
-            for org in g.user.organizations_owned()
+            for org in current_auth.user.organizations_owned()
             if org['userid'] == form.profile.data
         ][0]
         profile = Profile(

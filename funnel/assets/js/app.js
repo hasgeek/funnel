@@ -1,3 +1,5 @@
+/* global jstz */
+
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
@@ -75,4 +77,9 @@ $(() => {
     const target = $('.js-search-field').val();
     Utils.sendToGA('search', target, target);
   });
+
+  // Detect timezone for login
+  if ($.cookie('timezone') === null) {
+    $.cookie('timezone', jstz.determine().name(), { path: '/' });
+  }
 });

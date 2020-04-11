@@ -397,7 +397,7 @@ class SyncTicket(BaseMixin, db.Model):
                 ticket_client=ticket_client,
                 order_no=order_no,
                 ticket_no=ticket_no,
-                **fields
+                **fields,
             )
 
             db.session.add(ticket)

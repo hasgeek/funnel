@@ -8,19 +8,19 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
-
-from flask_lastuser import Lastuser
-from flask_lastuser.sqlalchemy import UserManager
+import itsdangerous
 
 from baseframe import Bundle, Version, assets, baseframe
 import coaster.app
 
 from ._version import __version__
 
+# Three apps
 app = Flask(__name__, instance_relative_config=True)
 funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=True)
+lastuserapp = Flask(__name__, instance_relative_config=True)
+
 mail = Mail()
-lastuser = Lastuser()
 pages = FlatPages()
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
@@ -37,37 +37,60 @@ assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
+
 # --- Import rest of the app --------------------------------------------------
 
-from . import models, forms, views  # NOQA  # isort:skip
+from . import models, signals, loginproviders, forms, views  # NOQA  # isort:skip
 from .models import db  # isort:skip
 
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
 coaster.app.init_app(funnelapp)
+coaster.app.init_app(lastuserapp)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
 # provided as example.
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
 coaster.app.load_config_from_file(funnelapp, 'funnelapp.py')
+coaster.app.load_config_from_file(lastuserapp, 'lastuserapp.py')
 
 app.config['LEGACY'] = False
 funnelapp.config['LEGACY'] = True
+lastuserapp.config['LEGACY'] = True
+
+app.cookie_serializer = itsdangerous.JSONWebSignatureSerializer(
+    app.config.get('LASTUSER_SECRET_KEY') or app.config['SECRET_KEY']
+)
+funnelapp.cookie_serializer = itsdangerous.JSONWebSignatureSerializer(
+    funnelapp.config.get('LASTUSER_SECRET_KEY') or funnelapp.config['SECRET_KEY']
+)
+lastuserapp.cookie_serializer = itsdangerous.JSONWebSignatureSerializer(
+    lastuserapp.config.get('LASTUSER_SECRET_KEY') or lastuserapp.config['SECRET_KEY']
+)
+
+# Talkfunnel login support
+app.login_serializer = itsdangerous.URLSafeTimedSerializer(
+    app.config.get('LASTUSER_SECRET_KEY') or app.config['SECRET_KEY']
+)
+
+# TODO: Replace this with something cleaner. The `login_manager` attr expectation is
+# from coaster.auth. It attempts to call `current_app.login_manager._load_user`
+app.login_manager = views.helpers.LoginManager()
+funnelapp.login_manager = lastuserapp.login_manager = app.login_manager
 
 db.init_app(app)
 db.init_app(funnelapp)
+db.init_app(lastuserapp)
+db.app = app
 
 migrate = Migrate(app, db)
 
 mail.init_app(app)
 mail.init_app(funnelapp)
+mail.init_app(lastuserapp)
 
-lastuser.init_app(app)
-lastuser.init_app(funnelapp)
-
-lastuser.init_usermanager(UserManager(db, models.User, models.Team))
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
 pages.init_app(app)
 
@@ -75,11 +98,12 @@ redis_store.init_app(app)
 
 rq.init_app(app)
 rq.init_app(funnelapp)
+rq.init_app(lastuserapp)
 
 baseframe.init_app(
     app,
     requires=['funnel'],
-    ext_requires=['pygments', 'toastr', 'baseframe-mui'],
+    ext_requires=['pygments', 'toastr', 'baseframe-mui', 'jquery.cookie', 'timezone'],
     theme='mui',
     asset_modules=('baseframe_private_assets',),
 )
@@ -90,6 +114,16 @@ baseframe.init_app(
     theme='mui',
     asset_modules=('baseframe_private_assets',),
 )
+baseframe.init_app(
+    lastuserapp,
+    requires=['funnel'],
+    ext_requires=['pygments', 'toastr', 'baseframe-mui'],
+    theme='mui',
+    asset_modules=('baseframe_private_assets',),
+)
+
+loginproviders.init_app(app)
+loginproviders.init_app(lastuserapp)
 
 # Register JS and CSS assets on both apps
 app.assets.register(
