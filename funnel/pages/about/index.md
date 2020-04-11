@@ -2,12 +2,12 @@ title: About HasGeek
 
 HasGeek creates discussion spaces for geeks. We host [Hasjob](https://hasjob.co/), the HasGeek Job Board, and several well regarded technology conferences:
 
-* [Fifth Elephant](https://hasgeek.com/fifthelephant), on data and analytics
-* [Rootconf](https://hasgeek.com/rootconf), on infrastructure
-* [JSFoo](https://hasgeek.com/jsfoo/), on JavaScript
-* [Meta Refresh](https://hasgeek.com/metarefresh), on front-end engineering and product design
-* [droidconIN](https://droidcon.in/), on Android
-* [50p](https://hasgeek.com/50p), on payments infrastructure
+-   [Fifth Elephant](https://hasgeek.com/fifthelephant), on data and analytics
+-   [Rootconf](https://hasgeek.com/rootconf), on infrastructure
+-   [JSFoo](https://hasgeek.com/jsfoo/), on JavaScript
+-   [Meta Refresh](https://hasgeek.com/metarefresh), on front-end engineering and product design
+-   [droidconIN](https://droidcon.in/), on Android
+-   [50p](https://hasgeek.com/50p), on payments infrastructure
 
 You may also know us for our past events [DocType HTML5](http://www.doctypehtml5.in/), [AndroidCamp](https://androidcamp.hasgeek.com/), [Scaling PHP in the Cloud](https://phpcloud.hasgeek.com/) and the [Cartonama Conference](https://cartonama.com/).
 

@@ -7,24 +7,17 @@ import csv
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import (
-    Response,
-    current_app,
-    jsonify,
-    make_response,
-    redirect,
-    request,
-    url_for,
-)
+from flask import Response, current_app, jsonify, make_response, redirect, request
 
 from baseframe import _
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..models import ContactExchange, Participant, Project, db
-from ..util import format_twitter_handle
+from ..utils import format_twitter_handle
+from .helpers import app_url_for, requires_login
 
 
 def contact_details(participant):
@@ -50,7 +43,7 @@ class ContactView(ClassView):
         )
 
     @route('', endpoint='contacts')
-    @lastuser.requires_login
+    @requires_login
     @render_with('contacts.html.jinja2')
     def contacts(self):
         """Grouped list of contacts"""
@@ -110,7 +103,7 @@ class ContactView(ClassView):
         )
 
     @route('<suuid>/<datestr>.csv', endpoint='contacts_project_date_csv')
-    @lastuser.requires_login
+    @requires_login
     def project_date_csv(self, suuid, datestr):
         """Contacts for a given project and date in CSV format"""
         archived = getbool(request.args.get('archived'))
@@ -129,7 +122,7 @@ class ContactView(ClassView):
         )
 
     @route('<suuid>.csv', endpoint='contacts_project_csv')
-    @lastuser.requires_login
+    @requires_login
     def project_csv(self, suuid):
         """Contacts for a given project in CSV format"""
         archived = getbool(request.args.get('archived'))
@@ -145,14 +138,14 @@ class ContactView(ClassView):
         )
 
     @route('scan', endpoint='scan_contact')
-    @lastuser.requires_login
+    @requires_login
     @render_with('scan_contact.html.jinja2')
     def scan(self):
         """Scan a badge"""
         return {}
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requestargs('puk', 'key')
     def connect(self, puk, key):
         """Scan verification"""
@@ -194,13 +187,11 @@ class ContactView(ClassView):
 class FunnelContactView(ClassView):
     @route('', endpoint='contacts')
     def contacts(self):
-        with app.app_context(), app.test_request_context():
-            return redirect(url_for('contacts', _external=True))
+        return redirect(app_url_for(app, 'contacts', _external=True))
 
     @route('', endpoint='scan_contact')
     def scan(self):
-        with app.app_context(), app.test_request_context():
-            return redirect(url_for('scan_contact', _external=True))
+        return redirect(app_url_for(app, 'scan_contact', _external=True))
 
 
 ContactView.init_app(app)

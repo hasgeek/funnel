@@ -5,7 +5,6 @@ from funnel.models import db
 
 def init_models():
     with app.app_context():
-        db.drop_all()
         db.create_all()
 
 

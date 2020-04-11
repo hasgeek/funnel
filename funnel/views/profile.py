@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, flash, g, redirect, request, url_for
+from flask import Markup, flash, redirect, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_form, render_message, render_redirect
+from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -13,25 +14,26 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import EditProfileForm, NewProfileForm, SavedProjectForm
 from ..models import Profile, Project, Team, db
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import ProfileViewMixin
 from .project import project_data
 
 
 # @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018
-@lastuser.requires_scope('teams')
+@requires_login
 def profile_new():
     # Step 1: Get a list of organizations this user owns
     existing = Profile.query.filter(
-        Profile.userid.in_(g.user.organizations_owned_ids())
+        Profile.userid.in_(current_auth.user.organizations_owned_ids())
     ).all()
     existing_ids = [e.userid for e in existing]
     # Step 2: Prune list to organizations without a profile
     new_profiles = []
-    for org in g.user.organizations_owned():
+    for org in current_auth.user.organizations_owned():
         if org['userid'] not in existing_ids:
             new_profiles.append((org['userid'], org['title']))
     if not new_profiles:
@@ -41,7 +43,7 @@ def profile_new():
                 _(
                     "You do not have any organizations that do not already have a Talkfunnel. "
                     'Would you like to <a href="{link}">create a new organization</a>?'
-                ).format(link=lastuser.endpoint_url('/organizations/new'))
+                ).format(link=url_for('OrgView_new'))
             ),
         )
     eligible_profiles = []
@@ -65,7 +67,7 @@ def profile_new():
         # Step 4: Make a profile
         org = [
             org
-            for org in g.user.organizations_owned()
+            for org in current_auth.user.organizations_owned()
             if org['userid'] == form.profile.data
         ][0]
         profile = Profile(name=org['name'], title=org['title'], userid=org['userid'])

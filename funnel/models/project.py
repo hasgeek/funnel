@@ -16,7 +16,7 @@ from baseframe import __, get_locale, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow, valid_username
 
-from ..util import geonameid_from_location
+from ..utils import geonameid_from_location
 from . import (
     BaseScopedNameMixin,
     JsonDict,
@@ -192,7 +192,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
     )
 
-    livestream_urls = db.Column(db.ARRAY(db.UnicodeText, dimensions=1))
+    livestream_urls = db.Column(
+        db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'
+    )
 
     venues = db.relationship(
         'Venue',
