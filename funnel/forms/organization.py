@@ -6,7 +6,7 @@ from baseframe import _, __
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import RESERVED_NAMES, AccountName, Organization, Team, User
+from ..models import RESERVED_NAMES, AccountName, Organization, Team
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -90,8 +90,4 @@ class TeamForm(forms.Form):
         __("Users"),
         validators=[forms.validators.DataRequired()],
         description=__("Lookup a user by their username or email address"),
-        lastuser=None,
-        usermodel=User,
-        autocomplete_endpoint=lambda: url_for('user_autocomplete'),
-        getuser_endpoint=lambda: url_for('user_get_by_userids'),
     )
