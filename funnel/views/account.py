@@ -35,7 +35,7 @@ from ..models import (
 from ..registry import login_registry
 from ..signals import user_data_changed
 from .email import send_email_verify_link
-from .helpers import requires_login
+from .helpers import app_url_for, requires_login
 from .sms import send_phone_verify_code
 
 
@@ -73,8 +73,7 @@ class FunnelAccountView(ClassView):
     @route('', endpoint='account')
     @requires_login
     def account(self):
-        with app.app_context(), app.test_request_context():
-            return redirect(url_for('account', _external=True))
+        return redirect(app_url_for(app, 'account', _external=True))
 
 
 AccountView.init_app(app)
@@ -568,5 +567,4 @@ def remove_extid(extid):
 # Redirect from old URL in previously sent out verification emails
 @lastuserapp.route('/profile/email/<md5sum>/verify')
 def verify_email_old(md5sum):
-    with app.test_request_context('/'):
-        return redirect(url_for('verify_email', md5sum=md5sum), code=301)
+    return redirect(app_url_for(app, 'verify_email', md5sum=md5sum), code=301)
