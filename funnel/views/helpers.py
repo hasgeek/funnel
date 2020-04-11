@@ -6,6 +6,7 @@ from urllib.parse import unquote, urljoin, urlparse
 
 from flask import Response, current_app, flash, redirect, request, session, url_for
 from flask_mail import Message
+from werkzeug.urls import url_quote
 import itsdangerous
 
 from pytz import common_timezones
@@ -26,6 +27,32 @@ from ..signals import user_login, user_registered
 valid_timezones = set(common_timezones)
 
 
+def app_url_for(
+    app, endpoint, _external=True, _method='GET', _anchor=None, _scheme=None, **values
+):
+    """
+    Equivalent of calling :func:`url_for` in another app's context. Notable differences:
+
+    - Does not support blueprints as this repo does not use them
+    - Does not defer to a :exc:`BuildError` handler. Caller is responsible for handling
+    """
+    url_adapter = app.create_url_adapter(None)
+    old_scheme = None
+    if _scheme is not None:
+        old_scheme = url_adapter.url_scheme
+        url_adapter.url_scheme = _scheme
+    try:
+        result = url_adapter.build(
+            endpoint, values, method=_method, force_external=_external
+        )
+    finally:
+        if old_scheme is not None:
+            url_adapter.url_scheme = old_scheme
+    if _anchor:
+        result += f'#{url_quote(_anchor)}'
+    return result
+
+
 class LoginManager(object):
     """
     Compatibility login manager that resembles Flask-Lastuser
@@ -37,9 +64,7 @@ class LoginManager(object):
     @property
     def autocomplete_endpoint(self):
         if current_app != app:
-            # Create context only if necessary
-            with app.test_request_context('/'):
-                result = url_for('user_autocomplete', _external=True)
+            return app_url_for(app, 'user_autocomplete')
         else:
             result = url_for('user_autocomplete')
         return result
@@ -47,9 +72,7 @@ class LoginManager(object):
     @property
     def getuser_endpoint(self):
         if current_app != app:
-            # Create context only if necessary
-            with app.test_request_context('/'):
-                result = url_for('user_get_by_userids', _external=True)
+            return app_url_for(app, 'user_get_by_userids')
         else:
             result = url_for('user_get_by_userids')
         return result

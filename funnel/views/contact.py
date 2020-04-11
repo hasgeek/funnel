@@ -7,15 +7,7 @@ import csv
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import (
-    Response,
-    current_app,
-    jsonify,
-    make_response,
-    redirect,
-    request,
-    url_for,
-)
+from flask import Response, current_app, jsonify, make_response, redirect, request
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -25,7 +17,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app, funnelapp
 from ..models import ContactExchange, Participant, Project, db
 from ..utils import format_twitter_handle
-from .helpers import requires_login
+from .helpers import app_url_for, requires_login
 
 
 def contact_details(participant):
@@ -195,13 +187,11 @@ class ContactView(ClassView):
 class FunnelContactView(ClassView):
     @route('', endpoint='contacts')
     def contacts(self):
-        with app.app_context(), app.test_request_context():
-            return redirect(url_for('contacts', _external=True))
+        return redirect(app_url_for(app, 'contacts', _external=True))
 
     @route('', endpoint='scan_contact')
     def scan(self):
-        with app.app_context(), app.test_request_context():
-            return redirect(url_for('scan_contact', _external=True))
+        return redirect(app_url_for(app, 'scan_contact', _external=True))
 
 
 ContactView.init_app(app)

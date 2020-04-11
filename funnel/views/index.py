@@ -2,7 +2,7 @@
 
 import os.path
 
-from flask import Response, g, jsonify, redirect, render_template, url_for
+from flask import Response, g, jsonify, redirect, render_template
 
 from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, route
@@ -10,6 +10,7 @@ from coaster.views import ClassView, jsonp, load_model, render_with, route
 from .. import app, funnelapp, lastuserapp, pages
 from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
+from .helpers import app_url_for
 from .project import project_data
 
 
@@ -155,6 +156,4 @@ def opensearch():
 
 @lastuserapp.route('/', endpoint='index')
 def lastuser_index():
-    with app.test_request_context('/'):
-        homepage = url_for('index', _external=True)
-    return redirect(homepage)
+    return redirect(app_url_for(app, 'index'))

@@ -50,6 +50,7 @@ from ..signals import user_data_changed
 from ..utils import mask_email
 from .email import send_email_verify_link, send_password_reset_link
 from .helpers import (
+    app_url_for,
     login_internal,
     logout_internal,
     register_internal,
@@ -658,8 +659,7 @@ def funnelapp_login(cookietest=False):
     # 2. Nonce has been set. Create a request code
     request_code = app.login_serializer.dumps({'nonce': session['login_nonce']})
     # 3. Redirect user
-    with app.test_request_context('/'):
-        return redirect(url_for('login_talkfunnel', code=request_code, _external=True))
+    return redirect(app_url_for(app, 'login_talkfunnel', code=request_code))
 
 
 @app.route('/login/talkfunnel')
@@ -677,8 +677,7 @@ def login_talkfunnel(code):
         {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
     )
     # 4. Redirect user
-    with funnelapp.test_request_context('/'):
-        return redirect(url_for('login_callback', token=token, _external=True))
+    return redirect(app_url_for(funnelapp, 'login_callback', token=token))
 
 
 @funnelapp.route('/login/callback', endpoint='login_callback')
