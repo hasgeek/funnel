@@ -23,6 +23,7 @@ from ..models import (
     getuser,
 )
 from ..registry import resource_registry
+from ..utils import strip_null
 from .helpers import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
@@ -295,7 +296,7 @@ def user_get_by_userid():
     """
     Returns user or organization with the given userid (Lastuser internal buid)
     """
-    buid = request.values.get('userid')
+    buid = strip_null(request.values.get('userid'))
     if not buid:
         return api_result('error', error='no_userid_provided')
     user = User.get(buid=buid, defercols=True)
@@ -334,7 +335,7 @@ def user_get_by_userid():
 @app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @lastuserapp.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
-@requestargs('userid[]')
+@requestargs(('userid[]', strip_null))
 def user_get_by_userids(userid):
     """
     Returns users and organizations with the given userids (Lastuser internal userid).
@@ -381,7 +382,7 @@ def user_get_by_userids(userid):
 @app.route('/api/1/user/get', methods=['GET', 'POST'])
 @lastuserapp.route('/api/1/user/get', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs('name')
+@requestargs(('name', strip_null))
 def user_get(name):
     """
     Returns user with the given username, email address or Twitter id
@@ -410,7 +411,7 @@ def user_get(name):
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @lastuserapp.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs('name[]')
+@requestargs(('name[]', strip_null))
 def user_getall(name):
     """
     Returns users with the given username, email address or Twitter id
@@ -451,7 +452,7 @@ def user_autocomplete():
     """
     Returns users (buid, username, fullname, twitter, github or email) matching the search term.
     """
-    q = request.values.get('q', '')
+    q = strip_null(request.values.get('q', ''))
     if not q:
         return api_result('error', error='no_query_provided')
     users = User.autocomplete(q)
@@ -474,7 +475,7 @@ def user_autocomplete():
 
 @app.route('/api/1/login/beacon.html')
 @lastuserapp.route('/api/1/login/beacon.html')
-@requestargs('client_id', 'login_url')
+@requestargs(('client_id', strip_null), ('login_url', strip_null))
 def login_beacon_iframe(client_id, login_url):
     cred = AuthClientCredential.get(client_id)
     auth_client = cred.auth_client if cred else None
@@ -496,7 +497,7 @@ def login_beacon_iframe(client_id, login_url):
 
 @app.route('/api/1/login/beacon.json')
 @lastuserapp.route('/api/1/login/beacon.json')
-@requestargs('client_id')
+@requestargs(('client_id', strip_null))
 def login_beacon_json(client_id):
     cred = AuthClientCredential.get(client_id)
     auth_client = cred.auth_client if cred else None
