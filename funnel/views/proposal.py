@@ -127,8 +127,8 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     def new_proposal(self):
         form = ProposalForm(model=Proposal, parent=self.obj)
         if request.method == 'GET':
-            form.email.data = current_auth.user.email
-            form.phone.data = current_auth.user.phone
+            form.email.data = str(current_auth.user.email)
+            form.phone.data = str(current_auth.user.phone)
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
             form.populate_obj(proposal)

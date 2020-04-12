@@ -108,7 +108,8 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                 # parent comment is not by the curernt user
                                 send_mail_info.append(
                                     {
-                                        'to': self.obj.owner.email or self.obj.email,
+                                        'to': str(self.obj.owner.email)
+                                        or str(self.obj.email),
                                         'subject': "💬 {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
@@ -121,7 +122,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                 # send mail to parent comment owner
                                 send_mail_info.append(
                                     {
-                                        'to': parent.user.email,
+                                        'to': str(parent.user.email),
                                         'subject': "💬 {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
@@ -133,7 +134,8 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                 # send mail to proposal owner
                                 send_mail_info.append(
                                     {
-                                        'to': self.obj.owner.email or self.obj.email,
+                                        'to': str(self.obj.owner.email)
+                                        or str(self.obj.email),
                                         'subject': "💬 {project}: {proposal}".format(
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
@@ -148,7 +150,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     if not self.obj.owner == current_auth.user:
                         send_mail_info.append(
                             {
-                                'to': self.obj.owner.email or self.obj.email,
+                                'to': str(self.obj.owner.email) or str(self.obj.email),
                                 'subject': "💬 {project}: {proposal}".format(
                                     project=self.obj.project.title,
                                     proposal=self.obj.title,
