@@ -77,7 +77,7 @@ def login():
     if request.method == 'GET':
         loginmethod = request.cookies.get('login')
 
-    formid = request.form.get('form.id')
+    formid = strip_null(request.form.get('form.id'))
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
             if loginform.validate():
@@ -260,7 +260,7 @@ def reset():
         message = None
 
     if request.method == 'GET':
-        form.username.data = request.args.get('username')
+        form.username.data = strip_null(request.args.get('username'))
 
     if form.validate_on_submit():
         username = form.username.data
