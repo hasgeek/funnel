@@ -18,7 +18,7 @@ from ..models import (
     getuser,
 )
 from ..registry import resource_registry
-from ..utils import make_redirect_url
+from ..utils import make_redirect_url, strip_null
 from .auth_resource import get_userinfo
 from .helpers import requires_client_login, requires_login_no_message
 
@@ -444,18 +444,18 @@ def oauth_token():
     OAuth2 server -- token endpoint (confidential clients only)
     """
     # Always required parameters
-    grant_type = request.form.get('grant_type')
+    grant_type = strip_null(request.form.get('grant_type'))
     auth_client = current_auth.auth_client  # Provided by @requires_client_login
-    scope = request.form.get('scope', '').split(' ')
+    scope = strip_null(request.form.get('scope', '').split(' '))
     # if grant_type == 'authorization_code' (POST)
-    code = request.form.get('code')
-    redirect_uri = request.form.get('redirect_uri')
+    code = strip_null(request.form.get('code'))
+    redirect_uri = strip_null(request.form.get('redirect_uri'))
     # if grant_type == 'password' (POST)
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = strip_null(request.form.get('username'))
+    password = strip_null(request.form.get('password'))
     # if grant_type == 'client_credentials'
-    buid = request.form.get('buid') or request.form.get(
-        'userid'
+    buid = strip_null(
+        request.form.get('buid') or request.form.get('userid')
     )  # XXX: Deprecated userid parameter
 
     # Validations 1: Required parameters

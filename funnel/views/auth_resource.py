@@ -190,8 +190,10 @@ def api_result(status, _jsonp=False, **params):
 @lastuserapp.route('/api/1/token/verify', methods=['POST'])
 @requires_client_login
 def token_verify():
-    token = request.form.get('access_token')
-    client_resource = request.form.get('resource')  # Can only be a single resource
+    token = strip_null(request.form.get('access_token'))
+    client_resource = strip_null(
+        request.form.get('resource')
+    )  # Can only be a single resource
     if not client_resource:
         # No resource specified by caller
         return resource_error('no_resource')
@@ -243,7 +245,7 @@ def token_verify():
 @lastuserapp.route('/api/1/token/get_scope', methods=['POST'])
 @requires_client_login
 def token_get_scope():
-    token = request.form.get('access_token')
+    token = strip_null(request.form.get('access_token'))
     if not token:
         # No token specified by caller
         return resource_error('no_token')
@@ -540,7 +542,7 @@ def resource_id(authtoken, args, files=None):
 @lastuserapp.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(authtoken, args, files=None):
-    sessionid = args['sessionid']
+    sessionid = strip_null(args['sessionid'])
     session = UserSession.authenticate(buid=sessionid)
     if session and session.user == authtoken.user:
         session.access(auth_client=authtoken.auth_client)
@@ -564,7 +566,7 @@ def resource_avatar_edit(authtoken, args, files=None):
     """
     Set a user's avatar image
     """
-    avatar = args['avatar']
+    avatar = strip_null(args['avatar'])
     parsed = urlparse(avatar)
     if parsed.scheme == 'https' and parsed.netloc:
         # Accept any properly formatted URL.
@@ -618,7 +620,7 @@ def resource_login_providers(authtoken, args, files=None):
     """
     Return user's login providers' data.
     """
-    service = args.get('service')
+    service = strip_null(args.get('service'))
     response = {}
     for extid in authtoken.user.externalids:
         if service is None or extid.service == service:

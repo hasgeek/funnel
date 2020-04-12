@@ -23,6 +23,7 @@ from coaster.views import get_current_url
 from .. import app, funnelapp, lastuserapp, mail
 from ..models import AuthClientCredential, User, UserSession, db
 from ..signals import user_login, user_registered
+from ..utils import strip_null
 
 valid_timezones = set(common_timezones)
 
@@ -383,11 +384,16 @@ def requires_client_id_or_user_or_client_login(f):
             and 'session' in request.values
             and request.referrer
         ):
-            client_cred = AuthClientCredential.get(request.values['client_id'])
+            client_cred = AuthClientCredential.get(
+                strip_null(request.values['client_id'])
+            )
             if client_cred is not None and get_scheme_netloc(
                 client_cred.auth_client.website
             ) == get_scheme_netloc(request.referrer):
-                if UserSession.authenticate(buid=request.values['session']) is not None:
+                if (
+                    UserSession.authenticate(buid=strip_null(request.values['session']))
+                    is not None
+                ):
                     return f(*args, **kwargs)
 
         # If we didn't get a valid client_id and session, maybe there's a user?
