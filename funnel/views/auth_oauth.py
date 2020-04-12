@@ -446,7 +446,7 @@ def oauth_token():
     # Always required parameters
     grant_type = strip_null(request.form.get('grant_type'))
     auth_client = current_auth.auth_client  # Provided by @requires_client_login
-    scope = strip_null(request.form.get('scope', '').split(' '))
+    scope = strip_null(request.form.get('scope', '')).split(' ')
     # if grant_type == 'authorization_code' (POST)
     code = strip_null(request.form.get('code'))
     redirect_uri = strip_null(request.form.get('redirect_uri'))
