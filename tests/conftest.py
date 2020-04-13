@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
 
 import uuid
 
@@ -29,19 +28,19 @@ def user_test():
 TEST_DATA = {
     'users': {
         'testuser': {
-            'username': u"testuser",
-            'fullname': u"Test User",
-            'email': u"testuser@example.com",
+            'username': "testuser",
+            'fullname': "Test User",
+            'email': "testuser@example.com",
         },
         'testuser2': {
-            'username': u"testuser2",
-            'fullname': u"Test User 2",
-            'email': u"testuser2@example.com",
+            'username': "testuser2",
+            'fullname': "Test User 2",
+            'email': "testuser2@example.com",
         },
         'testuser3': {
-            'username': u"testuser3",
-            'fullname': u"Test User 3",
-            'email': u"testuser3@example.com",
+            'username': "testuser3",
+            'fullname': "Test User 3",
+            'email': "testuser3@example.com",
         },
     }
 }
@@ -104,7 +103,7 @@ def new_user3(test_db):
 
 @pytest.fixture(scope='session')
 def new_team(test_db, new_user):
-    team = Team(title=u"Owners", owners=True, org_uuid=uuid.uuid4())
+    team = Team(title="Owners", owners=True, org_uuid=uuid.uuid4())
     test_db.session.add(team)
     team.users.append(new_user)
     test_db.session.commit()
@@ -122,7 +121,7 @@ def new_team2(test_db, new_user2):
 
 @pytest.fixture(scope='session')
 def new_profile(test_db, new_team):
-    profile = Profile(title=u"Test Profile", description=u"Test Description")
+    profile = Profile(title="Test Profile", description="Test Description")
     test_db.session.add(profile)
 
     for u in new_team.users:
@@ -151,10 +150,10 @@ def new_project(test_db, new_profile, new_user, new_team):
     project = Project(
         profile=new_profile,
         user=new_user,
-        title=u"Test Project",
-        tagline=u"Test tagline",
-        description=u"Test description",
-        location=u"Test Location",
+        title="Test Project",
+        tagline="Test tagline",
+        description="Test description",
+        location="Test Location",
     )
     test_db.session.add(project)
     test_db.session.commit()
@@ -166,10 +165,10 @@ def new_project2(test_db, new_profile2, new_user2, new_team2):
     project = Project(
         profile=new_profile2,
         user=new_user2,
-        title=u"Test Project",
-        tagline=u"Test tagline",
-        description=u"Test description",
-        location=u"Test Location",
+        title="Test Project",
+        tagline="Test tagline",
+        description="Test description",
+        location="Test Location",
     )
     test_db.session.add(project)
     test_db.session.commit()
@@ -179,15 +178,15 @@ def new_project2(test_db, new_profile2, new_user2, new_team2):
 @pytest.fixture(scope='class')
 def new_main_label(test_db, new_project):
     main_label_a = Label(
-        title=u"Parent Label A", project=new_project, description=u"A test parent label"
+        title="Parent Label A", project=new_project, description="A test parent label"
     )
     new_project.labels.append(main_label_a)
     test_db.session.add(main_label_a)
 
-    label_a1 = Label(title=u"Label A1", icon_emoji=u"👍", project=new_project)
+    label_a1 = Label(title="Label A1", icon_emoji="👍", project=new_project)
     test_db.session.add(label_a1)
 
-    label_a2 = Label(title=u"Label A2", project=new_project)
+    label_a2 = Label(title="Label A2", project=new_project)
     test_db.session.add(label_a2)
 
     main_label_a.options.append(label_a1)
@@ -202,15 +201,15 @@ def new_main_label(test_db, new_project):
 @pytest.fixture(scope='class')
 def new_main_label_unrestricted(test_db, new_project):
     main_label_b = Label(
-        title=u"Parent Label B", project=new_project, description=u"A test parent label"
+        title="Parent Label B", project=new_project, description="A test parent label"
     )
     new_project.labels.append(main_label_b)
     test_db.session.add(main_label_b)
 
-    label_b1 = Label(title=u"Label B1", icon_emoji=u"👍", project=new_project)
+    label_b1 = Label(title="Label B1", icon_emoji="👍", project=new_project)
     test_db.session.add(label_b1)
 
-    label_b2 = Label(title=u"Label B2", project=new_project)
+    label_b2 = Label(title="Label B2", project=new_project)
     test_db.session.add(label_b2)
 
     main_label_b.options.append(label_b1)
@@ -224,7 +223,7 @@ def new_main_label_unrestricted(test_db, new_project):
 
 @pytest.fixture(scope='class')
 def new_label(test_db, new_project):
-    label_b = Label(title=u"Label B", icon_emoji=u"🔟", project=new_project)
+    label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.labels.append(label_b)
     test_db.session.add(label_b)
     test_db.session.commit()
@@ -237,9 +236,9 @@ def new_proposal(test_db, new_user, new_project):
         user=new_user,
         speaker=new_user,
         project=new_project,
-        title=u"Test Proposal",
-        outline=u"Test proposal description",
-        location=u"Bangalore",
+        title="Test Proposal",
+        outline="Test proposal description",
+        location="Bangalore",
     )
     test_db.session.add(proposal)
     test_db.session.commit()

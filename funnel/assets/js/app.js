@@ -1,3 +1,5 @@
+/* global jstz */
+
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
@@ -13,6 +15,8 @@ $(() => {
   Utils.smoothScroll();
   Utils.scrollTabs();
   Utils.navSearchForm();
+  Utils.truncate();
+  Utils.showTimeOnCalendar();
 
   const intersectionObserverComponents = function() {
     if (document.querySelector('#page-navbar')) {
@@ -66,29 +70,16 @@ $(() => {
   $('.mui-btn, a').click(function gaHandler() {
     const action =
       $(this).attr('data-action') || $(this).attr('title') || $(this).html();
-    const target = $(this).attr('href') || '';
+    const target = $(this).attr('data-target') || $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });
-
-  $('.js-truncate').each(function() {
-    let linesLimit = $(this).data('truncate-lines');
-    $(this).trunk8({
-      lines: linesLimit,
-    });
+  $('.search-form__submit').click(function gaHandler() {
+    const target = $('.js-search-field').val();
+    Utils.sendToGA('search', target, target);
   });
 
-  $('.js-truncate-readmore').each(function() {
-    let linesLimit = $(this).data('truncate-lines');
-    $(this).trunk8({
-      lines: linesLimit,
-      fill:
-        '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
-    });
-  });
-
-  $('.js-read-more').click(function() {
-    $(this)
-      .parent('.js-truncate-readmore')
-      .trunk8('revert');
-  });
+  // Detect timezone for login
+  if ($.cookie('timezone') === null) {
+    $.cookie('timezone', jstz.determine().name(), { path: '/' });
+  }
 });

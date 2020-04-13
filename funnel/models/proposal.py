@@ -9,7 +9,7 @@ from baseframe import __
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..util import geonameid_from_location
+from ..utils import geonameid_from_location
 from . import (
     BaseScopedIdNameMixin,
     CoordinatesMixin,
@@ -24,6 +24,7 @@ from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import add_search_trigger
 from .project import Project
 from .user import User
+from .video import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
 
@@ -97,7 +98,9 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
+class Proposal(
+    UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, VideoMixin, db.Model
+):
     __tablename__ = 'proposal'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -133,8 +136,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
     outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(UrlType, nullable=True)
-    preview_video = db.Column(UrlType, default=u'', nullable=True)
-    links = db.Column(db.Text, default=u'', nullable=True)
+    preview_video = db.Column(UrlType, default='', nullable=True)
+    links = db.Column(db.Text, default='', nullable=True)
 
     _state = db.Column(
         'state',
@@ -245,7 +248,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, db.Model):
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
 
     def __repr__(self):
-        return u'<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
+        return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
             proposal=self.title, project=self.project.title, user=self.owner.fullname
         )
 
@@ -547,7 +550,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
         likely never be called directly on an instance. It exists for the SQL
         comparator that will be called to load the instance.
         """
-        return unicode(self.url_id)
+        return str(self.url_id)
 
     @url_id_name.comparator
     def url_id_name(cls):  # NOQA: N805

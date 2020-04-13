@@ -3,7 +3,7 @@
 {% block title %}Attendee Responses{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title|e }}</a></h1>
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-headline">{% trans %}Attendee Responses{% endtrans %}</p>
 {% endblock %}
 
@@ -18,7 +18,7 @@
     </ul>
 
     {%- for value, status in statuses.items() %}
-      <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ status.name }}">
+      <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ status.name }}" data-cy-status="{{ status.name }}">
         <table class="mui-table mui-table--bordered">
           <thead>
             <tr>
@@ -29,8 +29,16 @@
           <tbody>
             {%- for rsvp in project.rsvps_with(value) %}
               <tr>
-                <td>{{rsvp.user.fullname}}</td>
-                <td>{{rsvp.user.email}}</td>
+                <td data-cy="user">{{rsvp.user.fullname}}</td>
+                <td>
+                  {%- if rsvp.user.email %}
+                    {{ rsvp.user.email }}
+                  {%- elif rsvp.user.emailclaims %}
+                    {{ rsvp.user.emailclaims[0] }} <em>(unverified)</em>
+                  {%- elif rsvp.user.phone %}
+                    {{ rsvp.user.phone }}
+                  {%- endif %}
+                </td>
               </tr>
             {%- else %}
               <tr><td colspan="2"><em>No users</em></td></tr>

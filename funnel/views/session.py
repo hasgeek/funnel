@@ -15,18 +15,19 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
 from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
+from ..utils import strip_null
 from .decorators import legacy_redirect
-from .helpers import localize_date
+from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
 from .schedule import schedule_data, session_data, session_list_data
 
 
 def rooms_list(project):
-    return [(u"", _("Select Room"))] + [
-        (room.id, u"{venue} – {room}".format(venue=room.venue.title, room=room.title))
+    return [("", _("Select Room"))] + [
+        (room.id, "{venue} – {room}".format(venue=room.venue.title, room=room.title))
         for room in project.rooms
     ]
 
@@ -92,7 +93,7 @@ class ProjectSessionView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def new_session(self):
         return session_form(self.obj)
@@ -159,13 +160,13 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
         }
 
     @route('editsession', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-session')
     def edit(self):
         return session_form(self.obj.project, session=self.obj)
 
     @route('deletesession', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-session')
     def delete(self):
         modal_url = self.obj.proposal.url_for('schedule') if self.obj.proposal else None
@@ -179,8 +180,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('feedback', methods=['POST'])
     @requires_permission('view')
     @requestargs(
-        'id_type',
-        'userid',
+        ('id_type', strip_null),
+        ('userid', strip_null),
         ('content', int),
         ('presentation', int),
         ('min_scale', int),
@@ -225,7 +226,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
 
     @route('save', methods=['POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('view')
     def save(self):
         form = SavedSessionForm()

@@ -12,8 +12,8 @@ class TestLabelForms(object):
             form = LabelForm(
                 MultiDict(
                     {
-                        'title': u"Test label title",
-                        'icon_emoji': u"🔟",
+                        'title': "Test label title",
+                        'icon_emoji': "🔟",
                         'required': False,
                         'restricted': False,
                     }
@@ -25,7 +25,7 @@ class TestLabelForms(object):
     def test_label_form_invalid(self, test_client):
         with current_app.test_request_context('/'):
             form = LabelForm(
-                MultiDict({'icon_emoji': u"🔟", 'required': False, 'restricted': False}),
+                MultiDict({'icon_emoji': "🔟", 'required': False, 'restricted': False}),
                 meta={'csrf': False},
             )
             # title is required

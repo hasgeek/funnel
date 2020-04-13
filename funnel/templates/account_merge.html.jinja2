@@ -1,0 +1,60 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderfield, renderform_inner, rendersubmit, ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+
+{% block title %}{% trans %}Merge accounts{% endtrans %}{% endblock %}
+
+{% macro accountinfo(user) %}
+  <ul class="mui-list--aligned mui--text-subhead">
+    <li><strong>{% trans name=user.fullname %}Name:</strong> {{ name }}{% endtrans %}</li>
+    <li><strong>{% trans username=user.username or '' %}Username:</strong> {{ username }}{% endtrans %}</li>
+    <li>
+      <ul>
+        {%- for useremail in user.emails %}
+          <li><strong>{% trans email=useremail.email %}Email addresses:</strong>{{ email }}{% endtrans %}</li>
+        {%- else %}
+          <li><strong>{% trans %}Email addresses:</strong><em>(none)</em>{% endtrans %}</li>
+        {%- endfor %}
+      </ul>
+    </li>
+    <li><strong>{% trans %}External ids:{% endtrans %}</strong>
+      <ul>
+        {%- for extid in user.externalids %}
+          <li><strong>{{ login_registry[extid.service].title }}:</strong> {{ extid.username }}</li>
+        {%- else %}
+          <li><em>(none)</em></li>
+        {%- endfor %}
+      </ul>
+    </li>
+  </ul>
+{% endmacro %}
+
+{% block contentwrapper %}
+  <div class="alert alert--error cookies-required-alert alert--dismissable">
+    <a class="alert__close" href="javascript:void(0);" aria-label="close">{{ faicon(icon='times', icon_size='subhead', baseline=true) }}</a>
+    <p class="alert__text">{% trans %}Cookies are required to perform this operation. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
+  </div>
+  <p class="cookies-required">{% trans %}You appear to have two accounts. Would you like to merge them?{% endtrans %}</p>
+  <div class="cookies-required grid">
+    <div class="grid__col-xs-12 grid__col-sm-4">
+      <h2 class="htile">{% trans %}Logged in account{% endtrans %}</h2>
+      <div class="mui--text-subhead">{{ accountinfo(user) }}</div>
+    </div>
+    <div class="grid__col-xs-12 grid__col-sm-4">
+      <h2 class="htile">{% trans %}Other account{% endtrans %}</h2>
+      <div class="mui--text-subhead">{{ accountinfo(other_user) }}</div>
+    </div>
+  </div>
+  <form class="cookies-required mui-form mui-form--margins" id="merge-accounts" method="POST" accept-charset="UTF-8">
+    <input type="hidden" name="form.id" value="authorize"/>
+    {{ form.hidden_tag() }}
+    {% if form.csrf_token.errors %}
+      {% for error in form.csrf_token.errors %}<div class="error">{{ error }}</div>{% endfor %}
+    {% endif %}
+    <div class="form-actions">
+      <input class="mui-btn mui-btn--raised mui-btn--primary" type="submit" name="merge" value="{% trans %}Merge accounts{% endtrans %}"/>
+      <input class="mui-btn mui-btn--raised mui-btn--accent" type="submit" name="skip" value="{% trans %}Skip{% endtrans %}"/>
+      <span class="loading mui--hide"></span>
+    </div>
+  </form>
+{% endblock %}

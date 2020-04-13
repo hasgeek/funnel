@@ -86,7 +86,7 @@ class VenueRoomForm(forms.Form):
         __("Event Color"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
         description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."),
-        default=u"CCCCCC",
+        default="CCCCCC",
     )
 
     def validate_bgcolor(self, field):

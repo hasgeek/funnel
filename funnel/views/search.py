@@ -12,13 +12,14 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, funnelapp
 from ..models import Comment, Profile, Project, Proposal, Session, User, db
+from ..utils import strip_null
 
 # --- Definitions -------------------------------------------------------------
 
 # PostgreSQL ts_headline markers, picked for low probability of conflict with db content
 pg_startsel = '<b>'
 pg_stopsel = '</b>'
-pg_delimiter = u' … '
+pg_delimiter = ' … '
 
 # TODO: extend SearchModel to include profile_query_factory and project_query_factory
 # for scoped search
@@ -49,18 +50,13 @@ search_types = OrderedDict(
                 __("Proposals"),
                 Proposal,
                 True,
-                lambda: Proposal.query.join(User, Proposal.speaker).options(
-                    db.undefer('user.userinfo')
-                ),
+                lambda: Proposal.query.join(User, Proposal.speaker),
             ),
         ),
         (
             'comment',
             SearchModel(
-                __("Comments"),
-                Comment,
-                False,
-                lambda: Comment.query.join(User).options(db.undefer('user.userinfo')),
+                __("Comments"), Comment, False, lambda: Comment.query.join(User)
             ),
         ),
     ]
@@ -177,11 +173,11 @@ def search_results(squery, stype, page=1, per_page=20):
 class SearchView(ClassView):
     @route('/search')
     @render_with('search.html.jinja2', json=True)
-    @requestargs('q', ('page', int), ('per_page', int))
+    @requestargs(('q', strip_null), ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
         squery = for_tsquery(q or '')
-        stype = request.args.get(
-            'type'
+        stype = strip_null(
+            request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:
             return redirect(url_for('index'))

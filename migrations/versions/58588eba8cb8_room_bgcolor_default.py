@@ -22,7 +22,7 @@ def upgrade():
     connection = op.get_bind()
     room = VenueRoom.__table__
     updt_stmt = (
-        room.update().where(room.c.bgcolor == None).values(bgcolor=u'229922')
+        room.update().where(room.c.bgcolor == None).values(bgcolor='229922')
     )  # NOQA
     connection.execute(updt_stmt)
     op.alter_column(

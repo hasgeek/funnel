@@ -2,6 +2,8 @@
 
 import six
 
+import csv
+
 from flask import (
     Response,
     abort,
@@ -11,8 +13,6 @@ from flask import (
     render_template,
     request,
 )
-
-import unicodecsv
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -27,7 +27,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import (
     CfpForm,
     ProjectBoxofficeForm,
@@ -49,6 +49,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
@@ -82,7 +83,8 @@ def project_data(project):
         'explore_url': (
             project.explore_url.url if project.explore_url is not None else ""
         ),
-        'calendar_weeks': project.calendar_weeks,
+        'calendar_weeks_full': project.calendar_weeks_full,
+        'calendar_weeks_compact': project.calendar_weeks_compact,
     }
 
 
@@ -91,7 +93,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'admin'})
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
@@ -200,26 +202,28 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             .order_by(db.desc('created_at'))
             .all()
         )
-        outfile = six.BytesIO()
-        out = unicodecsv.writer(outfile, encoding='utf-8')
+        outfile = six.StringIO()
+        out = csv.writer(outfile)
         out.writerow(proposal_headers + ['status'])
         for proposal in proposals:
             out.writerow(proposal_data_flat(proposal))
         outfile.seek(0)
         return Response(
-            six.text_type(outfile.getvalue(), 'utf-8'),
+            outfile.getvalue(),
             content_type='text/csv',
             headers=[
                 (
                     'Content-Disposition',
-                    'attachment;filename="{project}.csv"'.format(project=self.obj.name),
+                    'attachment;filename="{profile}-{project}.csv"'.format(
+                        profile=self.obj.profile.name, project=self.obj.name
+                    ),
                 )
             ],
         )
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def edit(self):
         if request.method == 'GET':
@@ -271,7 +275,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     )
 
     @route('cfp', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def cfp(self):
         form = CfpForm(obj=self.obj, model=Project)
@@ -283,7 +287,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return render_template('project_cfp.html.jinja2', form=form, project=self.obj)
 
     @route('boxoffice_data', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'concierge'})
     def edit_boxoffice_data(self):
         form = ProjectBoxofficeForm(obj=self.obj, model=Project)
@@ -297,7 +301,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         )
 
     @route('transition', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def transition(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
@@ -316,7 +320,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for())
 
     @route('cfp_transition', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
@@ -335,7 +339,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for('view_proposals'))
 
     @route('schedule_transition', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def schedule_transition(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
@@ -355,7 +359,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for())
 
     @route('rsvp', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'reader'})
     def rsvp_transition(self):
         form = RsvpTransitionForm()
@@ -371,14 +375,14 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'concierge'})
     def rsvp_list(self):
         return {'project': self.obj, 'statuses': RSVP_STATUS}
 
     @route('save', methods=['POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'reader'})
     def save(self):
         form = SavedProjectForm()
@@ -411,20 +415,20 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'concierge'})
     def admin(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
             for ticket_client in self.obj.ticket_clients:
                 if ticket_client and ticket_client.name.lower() in [
-                    u'explara',
-                    u'boxoffice',
+                    'explara',
+                    'boxoffice',
                 ]:
                     import_tickets.queue(ticket_client.id)
             flash(
                 _(
-                    u"Importing tickets from vendors...Refresh the page in about 30 seconds..."
+                    "Importing tickets from vendors...Refresh the page in about 30 seconds..."
                 ),
                 'info',
             )
@@ -438,7 +442,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('settings', methods=['GET', 'POST'])
     @render_with('settings.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor', 'concierge', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)

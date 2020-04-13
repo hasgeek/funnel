@@ -36,6 +36,7 @@
               min-width: calc(100% - 60px);
               color: #79818b;
               font-size: 16px;
+              outline: none;
             }
             .search-form__field__icon {
               position: absolute;
@@ -521,4 +522,10 @@
   .tab-content__results {
     margin-bottom: 1em;
   }
+}
+.mui-btn--strike {
+  text-decoration: line-through;
+}
+.mui-btn--strike:hover {
+  text-decoration: line-through;
 }

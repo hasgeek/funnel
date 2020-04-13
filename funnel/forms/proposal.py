@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
 from coaster.auth import current_auth
@@ -82,7 +81,7 @@ def proposal_label_admin_form(project, proposal):
                         if label.required
                         else []
                     ),
-                    **form_kwargs
+                    **form_kwargs,
                 ),
             )
 
@@ -122,8 +121,8 @@ class ProposalForm(forms.Form):
         __("Are you speaking?"),
         coerce=int,
         choices=[
-            (1, __(u"I will be speaking")),
-            (0, __(u"I’m proposing a topic for someone to speak on")),
+            (1, __("I will be speaking")),
+            (0, __("I’m proposing a topic for someone to speak on")),
         ],
     )
     title = forms.StringField(
@@ -231,7 +230,7 @@ class ProposalTransitionForm(forms.Form):
         label: transition object itself
         We need the whole object to get the additional metadata in templates
         """
-        self.transition.choices = self.edit_obj.state.transitions().items()
+        self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
 class ProposalMoveForm(forms.Form):

@@ -9,7 +9,7 @@ from baseframe.forms import render_delete_sqla, render_form
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import EventForm, ParticipantBadgeForm, TicketClientForm, TicketTypeForm
 from ..jobs import import_tickets
 from ..models import (
@@ -23,7 +23,8 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .project import ProjectViewMixin
+from .helpers import requires_login
+from .mixins import EventViewMixin, ProjectViewMixin
 
 
 @route('/<profile>/<project>/events')
@@ -32,7 +33,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('event_list.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'usher'})
     def events(self):
         return {
@@ -42,7 +43,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
         }
 
     @route('json')
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor', 'concierge'})
     def events_json(self):
         return jsonify(
@@ -50,7 +51,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
         )
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'concierge'})
     def new_event(self):
         form = EventForm()
@@ -63,12 +64,12 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_(u"This event already exists."), 'info')
+                flash(_("This event already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
-        return render_form(form=form, title=_(u"New Event"), submit=_(u"Add event"))
+        return render_form(form=form, title=_("New Event"), submit=_("Add event"))
 
     @route('ticket_type/new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'concierge'})
     def new_ticket_type(self):
         form = TicketTypeForm()
@@ -82,14 +83,14 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_(u"This ticket type already exists."), 'info')
+                flash(_("This ticket type already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"New Ticket Type"), submit=_(u"Add ticket type")
+            form=form, title=_("New Ticket Type"), submit=_("Add ticket type")
         )
 
     @route('ticket_client/new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'concierge'})
     def new_ticket_client(self):
         form = TicketClientForm()
@@ -101,10 +102,10 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_(u"This ticket client already exists."), 'info')
+                flash(_("This ticket client already exists."), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"New Ticket Client"), submit=_(u"Add ticket client")
+            form=form, title=_("New Ticket Client"), submit=_("Add ticket client")
         )
 
 
@@ -118,28 +119,8 @@ FunnelProjectEventView.init_app(funnelapp)
 
 
 @route('/<profile>/<project>/event/<name>')
-class EventView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
-    model = Event
-    route_model_map = {
-        'profile': 'project.profile.name',
-        'project': 'project.name',
-        'name': 'name',
-    }
-
-    def loader(self, profile, project, name):
-        event = (
-            self.model.query.join(Project, Profile)
-            .filter(
-                Profile.name == profile, Project.name == project, Event.name == name
-            )
-            .first_or_404()
-        )
-        return event
-
-    def after_loader(self):
-        g.profile = self.obj.project.profile
-        super(EventView, self).after_loader()
+class EventView(EventViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect, requires_login]
 
     @route('', methods=['GET', 'POST'])
     @render_with('event.html.jinja2')
@@ -149,13 +130,13 @@ class EventView(UrlForView, ModelView):
         if csrf_form.validate_on_submit():
             for ticket_client in self.obj.project.ticket_clients:
                 if ticket_client and ticket_client.name.lower() in [
-                    u'explara',
-                    u'boxoffice',
+                    'explara',
+                    'boxoffice',
                 ]:
                     import_tickets.queue(ticket_client.id)
             flash(
                 _(
-                    u"Importing tickets from vendors... Refresh the page in about 30 seconds..."
+                    "Importing tickets from vendors... Refresh the page in about 30 seconds..."
                 ),
                 'info',
             )
@@ -185,9 +166,9 @@ class EventView(UrlForView, ModelView):
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            flash(_(u"Your changes have been saved"), 'info')
+            flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.project.url_for('admin'), code=303)
-        return render_form(form=form, title=_(u"Edit event"), submit=_(u"Save changes"))
+        return render_form(form=form, title=_("Edit event"), submit=_("Save changes"))
 
     @route('delete', methods=['GET', 'POST'])
     @requires_roles({'project_concierge'})
@@ -195,10 +176,10 @@ class EventView(UrlForView, ModelView):
         return render_delete_sqla(
             self.obj,
             db,
-            title=_(u"Confirm delete"),
+            title=_("Confirm delete"),
             message=_(
-                u"Do you really wish to delete your event ‘{title}’? "
-                u"This operation is permanent and cannot be undone."
+                "Do you really wish to delete your event ‘{title}’? "
+                "This operation is permanent and cannot be undone."
             ).format(title=self.obj.title),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -227,7 +208,7 @@ FunnelEventView.init_app(funnelapp)
 
 @route('/<profile>/<project>/ticket_type/<name>')
 class TicketTypeView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
+    __decorators__ = [legacy_redirect, requires_login]
     model = TicketType
     route_model_map = {
         'profile': 'project.profile.name',
@@ -249,7 +230,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(TicketTypeView, self).after_loader()
+        return super(TicketTypeView, self).after_loader()
 
     @route('')
     @render_with('ticket_type.html.jinja2')
@@ -275,10 +256,10 @@ class TicketTypeView(UrlForView, ModelView):
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            flash(_(u"Your changes have been saved"), 'info')
+            flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.project.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"Edit ticket type"), submit=_(u"Save changes")
+            form=form, title=_("Edit ticket type"), submit=_("Save changes")
         )
 
     @route('delete', methods=['GET', 'POST'])
@@ -287,10 +268,10 @@ class TicketTypeView(UrlForView, ModelView):
         return render_delete_sqla(
             self.obj,
             db,
-            title=_(u"Confirm delete"),
+            title=_("Confirm delete"),
             message=_(
-                u"Do you really wish to delete the ticket type ‘{title}’? "
-                u"This operation is permanent and cannot be undone."
+                "Do you really wish to delete the ticket type ‘{title}’? "
+                "This operation is permanent and cannot be undone."
             ).format(title=self.obj.title),
             success=_("This ticket type has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -309,7 +290,7 @@ FunnelTicketTypeView.init_app(funnelapp)
 
 @route('/<profile>/<project>/ticket_client/<client_id>')
 class TicketClientView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, lastuser.requires_login]
+    __decorators__ = [legacy_redirect, requires_login]
     model = TicketClient
     route_model_map = {
         'profile': 'project.profile.name',
@@ -331,7 +312,7 @@ class TicketClientView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(TicketClientView, self).after_loader()
+        return super(TicketClientView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_concierge'})
@@ -340,10 +321,10 @@ class TicketClientView(UrlForView, ModelView):
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            flash(_(u"Your changes have been saved"), 'info')
+            flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.project.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"Edit ticket client"), submit=_(u"Save changes")
+            form=form, title=_("Edit ticket client"), submit=_("Save changes")
         )
 
     @route('delete', methods=['GET', 'POST'])
@@ -352,10 +333,10 @@ class TicketClientView(UrlForView, ModelView):
         return render_delete_sqla(
             self.obj,
             db,
-            title=_(u"Confirm delete"),
+            title=_("Confirm delete"),
             message=_(
-                u"Do you really wish to delete the ticket client ‘{title}’? "
-                u"This operation is permanent and cannot be undone."
+                "Do you really wish to delete the ticket client ‘{title}’? "
+                "This operation is permanent and cannot be undone."
             ).format(title=self.obj.name),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),

@@ -5,7 +5,7 @@ import os
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from . import BaseMixin, BaseScopedNameMixin, db, with_roles
+from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
 from .project import Project
 from .user import User
 
@@ -20,7 +20,7 @@ __all__ = [
 
 
 def make_key():
-    return unicode(base64.urlsafe_b64encode(os.urandom(128)))
+    return base64.urlsafe_b64encode(os.urandom(128)).decode('utf-8')
 
 
 def make_public_key():
@@ -143,7 +143,7 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     )
 
 
-class Participant(BaseMixin, db.Model):
+class Participant(UuidMixin, BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
@@ -225,6 +225,12 @@ class Participant(BaseMixin, db.Model):
             roles.add('scanner')
         return roles
 
+    def permissions(self, user, inherited=None):
+        perms = super(Participant, self).permissions(user, inherited)
+        if self.project is not None:
+            return self.project.permissions(user) | perms
+        return perms
+
     @classmethod
     def get(cls, current_project, current_email):
         return cls.query.filter_by(
@@ -258,7 +264,7 @@ class Participant(BaseMixin, db.Model):
         """
         participant_list = (
             db.session.query(
-                'id',
+                'uuid',
                 'fullname',
                 'email',
                 'company',
@@ -272,7 +278,7 @@ class Participant(BaseMixin, db.Model):
             .from_statement(
                 db.text(
                     '''
-                    SELECT distinct(participant.id), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
+                    SELECT distinct(participant.uuid), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
                     (SELECT string_agg(title, ',') FROM sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
                     FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
                     WHERE attendee.event_id = :event_id
@@ -307,10 +313,12 @@ class Attendee(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('event_id', 'participant_id'),)
 
     @classmethod
-    def get(cls, event, participant_id):
-        return cls.query.filter_by(
-            event=event, participant_id=participant_id
-        ).one_or_none()
+    def get(cls, event, participant_suuid):
+        return (
+            cls.query.join(Participant)
+            .filter(Attendee.event == event, Participant.suuid == participant_suuid)
+            .one_or_none()
+        )
 
 
 class TicketClient(BaseMixin, db.Model):
@@ -361,13 +369,13 @@ class TicketClient(BaseMixin, db.Model):
             )
             if ticket and (
                 ticket.participant is not participant
-                or ticket_dict.get('status') == u'cancelled'
+                or ticket_dict.get('status') == 'cancelled'
             ):
                 # Ensure that the participant of a transferred or cancelled ticket does not have access to
                 # this ticket's events
                 ticket.participant.remove_events(ticket_type.events)
 
-            if ticket_dict.get('status') == u'confirmed':
+            if ticket_dict.get('status') == 'confirmed':
                 ticket = SyncTicket.upsert(
                     self,
                     ticket_dict.get('order_no'),
@@ -433,7 +441,7 @@ class SyncTicket(BaseMixin, db.Model):
                 ticket_client=ticket_client,
                 order_no=order_no,
                 ticket_no=ticket_no,
-                **fields
+                **fields,
             )
 
             db.session.add(ticket)

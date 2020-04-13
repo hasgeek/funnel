@@ -31,7 +31,7 @@ def upgrade():
         sa.PrimaryKeyConstraint('id'),
     )
     op.add_column(
-        u'sync_ticket', sa.Column('ticket_client_id', sa.Integer(), nullable=True)
+        'sync_ticket', sa.Column('ticket_client_id', sa.Integer(), nullable=True)
     )
     op.create_foreign_key(
         'sync_ticket_ticket_client_id',
@@ -46,5 +46,5 @@ def downgrade():
     op.drop_constraint(
         'sync_ticket_ticket_client_id', 'sync_ticket', type_='foreignkey'
     )
-    op.drop_column(u'sync_ticket', 'ticket_client_id')
+    op.drop_column('sync_ticket', 'ticket_client_id')
     op.drop_table('ticket_client')

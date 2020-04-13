@@ -17,7 +17,7 @@ from alembic import op
 
 def upgrade():
     op.create_unique_constraint(
-        u'attendee_event_id_participant_id_key',
+        'attendee_event_id_participant_id_key',
         'attendee',
         ['event_id', 'participant_id'],
     )
@@ -25,5 +25,5 @@ def upgrade():
 
 def downgrade():
     op.drop_constraint(
-        u'attendee_event_id_participant_id_key', 'attendee', type_='unique'
+        'attendee_event_id_participant_id_key', 'attendee', type_='unique'
     )

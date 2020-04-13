@@ -14,12 +14,10 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
 SECRET_KEY = 'make this something random'
 #: Timezone
 TIMEZONE = 'Asia/Kolkata'
-#: LastUser server
-LASTUSER_SERVER = 'https://auth.hasgeek.com/'
-#: LastUser client id
-LASTUSER_CLIENT_ID = ''
-#: LastUser client secret
-LASTUSER_CLIENT_SECRET = ''
+#: Lastuser secret key (for the auth cookie)
+LASTUSER_SECRET_KEY = 'make this something random'
+#: Lastuser cookie domain
+LASTUSER_COOKIE_DOMAIN = '.mydomain.tld'
 #: Used for attribution when shared a proposal on twitter
 TWITTER_ID = "hasgeek"
 #: Mail settings
@@ -42,10 +40,47 @@ ADMINS = []
 #: Log file
 LOGFILE = 'error.log'
 
-#: Messages (text or HTML)
-WELCOME_MESSAGE = "The funnel is a space for proposals and voting on events. Pick an event to get started."
 HASCORE_SERVER = 'https://api.hasgeek.com/'
 CACHE_TYPE = 'redis'
 RQ_REDIS_URL = 'redis://localhost:6379/0'
 RQ_SCHEDULER_INTERVAL = 1
 DEBUG = True
+SMS_VERIFICATION_TEMPLATE = "Hello from HasGeek. Your verification code is {code}."
+
+#: Twitter integration
+OAUTH_TWITTER_KEY = ''
+OAUTH_TWITTER_SECRET = ''
+
+#: GitHub integration
+OAUTH_GITHUB_KEY = ''
+OAUTH_GITHUB_SECRET = ''
+
+#: Google integration. Get an app here: https://console.developers.google.com/
+OAUTH_GOOGLE_KEY = ''
+OAUTH_GOOGLE_SECRET = ''
+#: Default is ['email', 'profile']
+OAUTH_GOOGLE_SCOPE = ['email', 'profile']
+
+#: LinkedIn integration
+OAUTH_LINKEDIN_KEY = ''
+OAUTH_LINKEDIN_SECRET = ''
+
+#: Recaptcha for the registration form
+RECAPTCHA_USE_SSL = True
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+RECAPTCHA_OPTIONS = ''
+
+#: SMS gateways
+#: SMSGupShup support is deprecated
+SMS_SMSGUPSHUP_MASK = ''
+SMS_SMSGUPSHUP_USER = ''
+SMS_SMSGUPSHUP_PASS = ''
+#: Exotel support is active
+SMS_EXOTEL_SID = ''
+SMS_EXOTEL_TOKEN = ''
+SMS_EXOTEL_FROM = ''
+#: Twilio support for non-indian numbers
+SMS_TWILIO_SID = ''
+SMS_TWILIO_TOKEN = ''
+SMS_TWILIO_FROM = ''

@@ -6,10 +6,11 @@ from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 from ..models import Venue, VenueRoom, db
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 
 RESERVED_VENUE = ['new']
@@ -52,7 +53,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('venues.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def venues(self):
         return {
@@ -62,7 +63,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         }
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def new_venue(self):
         form = VenueForm()
@@ -74,7 +75,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             if not self.obj.primary_venue:
                 self.obj.primary_venue = venue
             db.session.commit()
-            flash(_(u"You have added a new venue to the event"), 'success')
+            flash(_("You have added a new venue to the event"), 'success')
             return render_redirect(self.obj.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -86,7 +87,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('update_venue_settings', methods=['POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def update_venue_settings(self):
         if request.json is None:
@@ -111,7 +112,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             return {'error': str(e)}, 400
 
     @route('makeprimary', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'editor'})
     def makeprimary_venue(self):
         form = VenuePrimaryForm(parent=self.obj)
@@ -142,7 +143,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('edit', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'project_editor'})
     def edit(self):
         form = VenueForm(obj=self.obj)
@@ -150,7 +151,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             self.obj.make_name(reserved=RESERVED_VENUE)
             db.session.commit()
-            flash(_(u"Saved changes to this venue"), 'success')
+            flash(_("Saved changes to this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -161,27 +162,27 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'project_editor'})
     def delete(self):
         if self.obj == self.obj.project.primary_venue:
-            flash(_(u"You can not delete the primary venue"), 'danger')
+            flash(_("You can not delete the primary venue"), 'danger')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
         return render_delete_sqla(
             self.obj,
             db,
-            title=u"Confirm delete",
+            title="Confirm delete",
             message=_(
-                u"Delete venue “{title}”? This cannot be undone".format(
+                "Delete venue “{title}”? This cannot be undone".format(
                     title=self.obj.title
                 )
             ),
-            success=_(u"You have deleted venue “{title}”".format(title=self.obj.title)),
+            success=_("You have deleted venue “{title}”".format(title=self.obj.title)),
             next=self.obj.project.url_for('venues'),
         )
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'project_editor'})
     def new_venueroom(self):
         form = VenueRoomForm()
@@ -191,7 +192,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             room.make_name(reserved=RESERVED_VENUEROOM)
             self.obj.rooms.append(room)
             db.session.commit()
-            flash(_(u"You have added a room at this venue"), 'success')
+            flash(_("You have added a room at this venue"), 'success')
             return render_redirect(self.obj.project.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -216,7 +217,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('edit', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'project_editor'})
     def edit(self):
         form = VenueRoomForm(obj=self.obj)
@@ -224,7 +225,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             self.obj.make_name(reserved=RESERVED_VENUEROOM)
             db.session.commit()
-            flash(_(u"Saved changes to this room"), 'success')
+            flash(_("Saved changes to this room"), 'success')
             return render_redirect(self.obj.venue.project.url_for('venues'), code=303)
         return render_form(
             form=form,
@@ -235,19 +236,19 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'project_editor'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
             db,
-            title=u"Confirm delete",
+            title="Confirm delete",
             message=_(
-                u"Delete room “{title}”? This cannot be undone".format(
+                "Delete room “{title}”? This cannot be undone".format(
                     title=self.obj.title
                 )
             ),
-            success=_(u"You have deleted room “{title}”".format(title=self.obj.title)),
+            success=_("You have deleted room “{title}”".format(title=self.obj.title)),
             next=self.obj.venue.project.url_for('venues'),
         )
 

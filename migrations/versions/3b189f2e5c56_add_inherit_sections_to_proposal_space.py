@@ -18,7 +18,7 @@ import sqlalchemy as sa  # NOQA
 
 def upgrade():
     op.add_column(
-        u'proposal_space',
+        'proposal_space',
         sa.Column(
             'inherit_sections', sa.Boolean(), nullable=False, server_default='True'
         ),
@@ -26,4 +26,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_column(u'proposal_space', 'inherit_sections')
+    op.drop_column('proposal_space', 'inherit_sections')

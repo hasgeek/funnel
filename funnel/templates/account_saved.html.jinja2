@@ -19,13 +19,13 @@
       <div class="grid">
         <div class="grid__col-12">
           <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
+            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
             </a>
-            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Profile{% endtrans %}</a>
+            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Account{% endtrans %}</a>
             <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}My saves{% endtrans %}</p>
             <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
             <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">{% trans %}Contacts{% endtrans %}</a>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)" role="button">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
+            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button"  data-action="Next(My saves)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
             </a>
           </div>
         </div>
@@ -38,7 +38,7 @@
       <ul class="mui-list--unstyled grid" role="list">
       {% for saved in saved_projects %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          <a class="card card--upcoming clickable-card" href="{{ saved.project.url_for() }}" title="{{ saved.project.title }}" aria-label="{{ saved.project.title }}">
+          <a class="card card--upcoming clickable-card" href="{{ saved.project.url_for() }}" aria-label="{{ saved.project.title }}" data-action="View {{ saved.project.title }}(My save)">
             <div class="card__image-wrapper">
               {% if saved.project.bg_image.url %}
                 <img class="card__image js-lazyload-img" data-src="{{ saved.project.bg_image }}" alt="{{ saved.project.title }}"/>
@@ -51,10 +51,10 @@
               {% endif %}
             </div>
             <div class="card__body">
-              {% if saved.project.calendar_weeks.weeks and saved.project.calendar_weeks.weeks|length > 0 %}
-                {{ calendarwidget(saved.project) }}
+              {% if saved.project.schedule_state.PUBLISHED and saved.project.calendar_weeks_compact.weeks and saved.project.calendar_weeks_compact.weeks|length > 0 %}
+                {{ calendarwidget(saved.project.calendar_weeks_compact) }}
               {% endif %}
-              <div class="card__body__title js-truncate {% if not saved.project.calendar_weeks.weeks %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ saved.project.title }}</span> <span class="mui--text-light">{{ saved.project.tagline }}</span></div>
+              <div class="card__body__title js-truncate {% if not (saved.project.schedule_state.PUBLISHED and saved.project.calendar_weeks_compact.weeks) %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ saved.project.title }}</span> <span class="mui--text-light">{{ saved.project.tagline }}</span></div>
               {% if saved.project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if saved.project.primary_venue.city %}{{ saved.project.primary_venue.city }}{% else %}{{ saved.project.primary_venue.title }}{% endif %}</p>{% endif %}
             </div>
           </a>

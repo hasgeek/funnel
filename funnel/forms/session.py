@@ -29,7 +29,7 @@ class SessionForm(forms.Form):
     )
     banner_image_url = forms.URLField(
         __("Banner image URL"),
-        description=u"Banner image for session card",
+        description="Banner image for session card",
         validators=[
             forms.validators.Optional(),
             forms.validators.ValidUrl(),

@@ -14,7 +14,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import (
     ProfileAdminMembershipForm,
     ProjectCrewMembershipForm,
@@ -24,6 +24,7 @@ from ..forms import (
 from ..jobs import send_mail_async
 from ..models import Profile, ProfileAdminMembership, Project, ProjectCrewMembership, db
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 
@@ -45,7 +46,7 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'owner'})
     def new_member(self):
         membership_form = ProfileAdminMembershipForm()
@@ -149,7 +150,7 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'profile_owner'})
     def edit(self):
         previous_membership = self.obj
@@ -203,7 +204,7 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'profile_owner'})
     def delete(self):
         form = Form()
@@ -294,7 +295,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'profile_admin'})
     def new_member(self):
         membership_form = ProjectCrewMembershipForm()
@@ -421,12 +422,12 @@ class ProjectCrewMembershipInviteView(
 
     @route('', methods=['GET'])
     @render_with('membership_invite_actions.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     def invite(self):
         return {'membership': self.obj.current_access(), 'form': Form()}
 
     @route('action', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     def invite_action(self):
         membership_invite_form = ProjectCrewMembershipInviteForm()
         if membership_invite_form.validate_on_submit():
@@ -455,7 +456,7 @@ class ProjectCrewMembershipView(
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'profile_admin'})
     def edit(self):
         previous_membership = self.obj
@@ -498,7 +499,7 @@ class ProjectCrewMembershipView(
 
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_roles({'profile_admin'})
     def delete(self):
         form = Form()

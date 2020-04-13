@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title|e }}</a></h1>
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
   <p class="mui--text-headline">{% trans %}Edit schedule{% endtrans %}</p>
 {% endblock %}
 
@@ -31,8 +31,8 @@
     </div>
     <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
       <ul class="tab-container">
-        <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
-        <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab">{% trans %}Settings{% endtrans %}</a></li>
+        <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab" data-cy-tab="proposals">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
+        <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab" data-cy-tab="settings">{% trans %}Settings{% endtrans %}</a></li>
       </ul>
       <div id="list" class="schedule-settings">
         {%- for proposal in proposals['unscheduled'] %}
@@ -50,7 +50,7 @@
                   <input type="hidden" name="uuid" value="{{ venue.suuid }}">
                   {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption mui--text-light drag-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
                   <span class="mui--text-subhead">{{ venue.title }}</span>
-                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline mui--text-light collapsible__icon collapsible__icon--disable" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}
+                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline mui--text-light collapsible__icon collapsible__icon--disable" aria-hidden="true" role="img"data-cy-collapsible="open"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}
                   {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline mui--text-light collapsible__icon collapsible__icon--disable mui--hide" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-up"></use></svg>{% endassets %}
                 </div>
                 <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
@@ -79,7 +79,7 @@
   </div>
   <div id="popup" class="modal session-modal">
     <div class="modal__header">
-      <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
+      <a class="modal__close" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
       <h3 class="js-modal-title session-modal__title">{{ session.title }}</h3>
     </div>
     <hr class="mui-divider mui-divider--custom">

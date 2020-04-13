@@ -1,3 +1,4 @@
+import { Utils } from './util';
 import Ractive from 'ractive';
 
 const Search = {
@@ -164,6 +165,13 @@ const Search = {
       },
       onrender() {
         this.initTab();
+        this.observe(
+          'activeTab',
+          function() {
+            Utils.showTimeOnCalendar();
+          },
+          { defer: true }
+        );
       },
     });
   },
