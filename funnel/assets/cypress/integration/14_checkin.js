@@ -5,7 +5,8 @@ describe('Checkin of attendees', function() {
   const participants = require('../fixtures/participants.json');
 
   it('Checkin of attendees', function() {
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', admin.username, admin.password);
+
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();

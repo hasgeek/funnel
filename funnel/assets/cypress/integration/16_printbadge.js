@@ -9,7 +9,8 @@ describe('View badges to be printed', function() {
     cy.route('POST', '**/participants/checkin?*').as('checkin');
     cy.route('**/participants/json').as('participant-list');
 
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', admin.username, admin.password);
+
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();

@@ -8,7 +8,6 @@ SERVER_PID=$!
 ./rq.sh &
 RQ_PID=$!
 cd funnel/assets
-npx cypress run --browser electron
+npx cypress run --browser chrome
 kill $SERVER_PID
 kill $RQ_PID
-python -m tests.e2e.frontend_tests_dropdb
