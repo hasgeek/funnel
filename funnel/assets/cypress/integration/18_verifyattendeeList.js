@@ -1,5 +1,6 @@
 describe('Verify attendee list', function() {
-  const { admin, user } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
+  const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
 
   it('Verify list of attendees who have responded yes to attending a project', function() {

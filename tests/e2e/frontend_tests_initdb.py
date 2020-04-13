@@ -6,9 +6,9 @@ from funnel.models import Organization, Profile, User, db
 def init_models():
     with app.test_request_context():
         db.create_all()
-        profile_admin = User(username='profile-admin', fullname="profile-admin")
+        profile_admin = User(username='admin-cypress', fullname='admin-cypress')
         profile_admin._set_password('cypress129')
-        user = User(username='cypress-user', fullname="cypress-user")
+        user = User(username='member-user', fullname='member-user')
         user._set_password('cypress341')
         db.session.add_all([profile_admin, user])
         test_profile = Organization(
