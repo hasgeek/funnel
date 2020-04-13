@@ -28,7 +28,7 @@
 }
 
 .separator {
-  padding: 0 5px;
+  margin: 10px 0;
 }
 
 .image-wrapper img {
@@ -38,6 +38,14 @@
 
 .material-icons {
   display: none;
+}
+
+.primary-color-txt {
+  color: #e05f26;
+}
+
+.secondary-color-txt {
+  color: #82688d;
 }
 
 .list-item-rgborder li {
@@ -312,6 +320,10 @@ html.touch .collapsible__body--disable {
 
 .animate-btn {
   display: none;
+
+  .bookmarked {
+    fill: #e05f26;
+  }
 }
 
 .animate-btn--show {

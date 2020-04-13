@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-
 from textwrap import dedent
 
 from sqlalchemy import DDL, event
@@ -28,6 +26,7 @@ RESERVED_NAMES = {
     'confirm',
     'contact',
     'contacts',
+    'dashboard',
     'delete',
     'edit',
     'email',

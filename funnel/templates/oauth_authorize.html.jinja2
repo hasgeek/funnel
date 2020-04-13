@@ -1,0 +1,54 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/mui/forms.html.jinja2" import ajaxform %}
+
+{% block title %}{% trans %}Authorization Required{% endtrans %}{% endblock %}
+
+{% block content %}
+<p class="mui--text-subhead">{% trans %}An application is requesting access to your data.{% endtrans %}</p>
+<table class="mui-table mui-table--bordered grid__col--bleed-y">
+  <tbody class="mui--text-subhead mui-panel">
+    <tr>
+      <td>{% trans %}Application name{% endtrans %}</td>
+      <td>{{ auth_client.title }}</td>
+    </tr>
+    <tr>
+      <td>{% trans %}Description{% endtrans %}</td>
+      <td>{{ auth_client.description }}</td>
+    </tr>
+    <tr>
+      <td>{% trans %}Owner{% endtrans %}</td>
+      <td>{{ auth_client.owner.pickername }}</td>
+    </tr>
+    <tr>
+      <td>{% trans %}Website{% endtrans %}</td>
+      <td><a rel="nofollow" href="{{ auth_client.website }}" target="_blank">{{ auth_client.website }}</a></td>
+    </tr>
+    <tr>
+      <td>{% trans %}Access scope{% endtrans %}</td>
+      <td>
+        <ol>
+          {% for key in internal_resources -%}
+            <li>{{ resource_registry[key]['description'] }}</li>
+          {%- endfor %}
+          {% for auth_client in full_client_access -%}
+            <li>{% trans title=auth_client.title, website=auth_client.website %}Full access to all your data in {{ title }} ({{ website }}){% endtrans %}</li>
+          {%- endfor %}
+        </ol>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="mui--text-subhead">{% trans %}You should authorize this only if you initiated the request and trust the application with your data.{% endtrans %}</p>
+<form id="authorize" method="POST" class="mui-form mui-form--margins" accept-charset="UTF-8">
+  <input type="hidden" name="form.id" value="authorize"/>
+  {{ form.hidden_tag() }}
+  <p>
+    <input class="mui-btn mui-btn--small mui-btn--primary" type="submit" name="accept" value="Authorize"/>
+    <input class="mui-btn mui-btn--small mui-btn--danger" type="submit" name="deny" value="Deny"/>
+    <span class="loading mui--hide"></span>
+  </p>
+  {%- if form.csrf_token.errors %}
+    <p class="mui-form--error">{% trans -%}This form has timed out. Please submit again to confirm{%- endtrans %}</p>
+  {%- endif %}
+</form>
+{% endblock %}

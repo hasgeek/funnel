@@ -17,7 +17,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" data-action="Back to the {{ project.title }}(proposal page)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -82,14 +82,20 @@
       <div class="grid">
        {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
-          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Call for proposals{% endtrans %}</h2>
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
           {%- if project.instructions and project.instructions != "None" %}
             <div class="about__details__description">{{ project.instructions }}</div>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
-            <p class="mui--text-left">
-              <a class="mui-btn mui-btn--raised mui-btn--primary mui--hidden-xs mui--hidden-sm mui--hidden-md" href="{{ project.url_for('new_proposal') }}" title="Propose a session" data-action="Propose a session(page)">{% trans %}Propose a session{% endtrans %}</a>
-            </p>
+            <div>
+              <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+              {% if project.cfp_end_at_localized -%}<p class="mui--text-light mui--text-subhead"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+            </div>
+          {%- elif project.cfp_state.UNAVAILABLE %}
+            <div class="mui-d--inlineblock">
+              <a class="mui-btn mui-btn--raised mui-btn--dark mui-btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <p class="mui--text-light mui--text-caption">{% trans %}Submissions are closed for this project{% endtrans %}</p>
+            </div>
           {%- endif %}
         </div>
       {%- endif %}

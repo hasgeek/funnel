@@ -4,11 +4,13 @@ import os.path
 
 from flask import Response, g, jsonify, redirect, render_template
 
+from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, route
 
-from .. import app, funnelapp, pages
+from .. import app, funnelapp, lastuserapp, pages
 from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
+from .helpers import app_url_for
 from .project import project_data
 
 
@@ -43,6 +45,7 @@ class IndexView(ClassView):
         )
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
+            upcoming_projects.append(all_projects.pop(0))
         open_cfp_projects = (
             projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
             .order_by(Project.schedule_start_at.asc())
@@ -84,8 +87,8 @@ FunnelIndexView.init_app(funnelapp)
 @app.route('/api/whoami')
 @funnelapp.route('/api/whoami')
 def whoami():
-    if g.user:
-        return jsonify(message="Hey {0}!".format(g.user.fullname), code=200)
+    if current_auth.user:
+        return jsonify(message="Hey {0}!".format(current_auth.user.fullname), code=200)
     else:
         return jsonify(message="Hmm, so who _are_ you?", code=401)
 
@@ -95,7 +98,8 @@ def all_projects_json():
     g.profile = None
     projects = Project.fetch_sorted(legacy=False).all()  # NOQA
     return jsonp(
-        projects=map(project_data, projects), spaces=map(project_data, projects)
+        projects=list(map(project_data, projects)),
+        spaces=list(map(project_data, projects)),
     )  # FIXME: Remove when the native app switches over
 
 
@@ -104,7 +108,8 @@ def funnelapp_all_projects_json():
     g.profile = None
     projects = Project.fetch_sorted().all()  # NOQA
     return jsonp(
-        projects=map(project_data, projects), spaces=map(project_data, projects)
+        projects=list(map(project_data, projects)),
+        spaces=list(map(project_data, projects)),
     )  # FIXME: Remove when the native app switches over
 
 
@@ -144,3 +149,11 @@ def manifest():
 @app.route('/opensearch.xml')
 def opensearch():
     return render_template('opensearch.xml.jinja2')
+
+
+# --- Lastuser legacy routes -----------------------------------------------------------
+
+
+@lastuserapp.route('/', endpoint='index')
+def lastuser_index():
+    return redirect(app_url_for(app, 'index'))

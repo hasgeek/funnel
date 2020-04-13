@@ -53,22 +53,22 @@ class TestEventModels(unittest.TestCase):
         # Initial Setup
         random_user_id = buid()
         self.user = User(
-            userid=unicode(random_user_id),
-            username=u'lukes{userid}'.format(userid=random_user_id),
-            fullname=u"Luke Skywalker",
-            email=u'luke{userid}@dagobah.org'.format(userid=random_user_id),
+            userid=random_user_id,
+            username='lukes{userid}'.format(userid=random_user_id),
+            fullname="Luke Skywalker",
+            email='luke{userid}@dagobah.org'.format(userid=random_user_id),
         )
 
         db.session.add(self.user)
         db.session.commit()
 
-        self.profile = Profile(title=u"SpaceCon", userid=self.user.userid)
+        self.profile = Profile(title="SpaceCon", userid=self.user.userid)
         db.session.add(self.profile)
         db.session.commit()
 
         self.project = Project(
-            title=u"20000 AD",
-            tagline=u"In a galaxy far far away...",
+            title="20000 AD",
+            tagline="In a galaxy far far away...",
             profile=self.profile,
             user=self.user,
         )
@@ -77,11 +77,11 @@ class TestEventModels(unittest.TestCase):
         db.session.commit()
 
         self.ticket_client = TicketClient(
-            name=u"test client",
-            client_eventid=u'123',
-            clientid=u'123',
-            client_secret=u'123',
-            client_access_token=u'123',
+            name="test client",
+            client_eventid='123',
+            clientid='123',
+            client_secret='123',
+            client_access_token='123',
             project=self.project,
         )
         db.session.add(self.ticket_client)
@@ -101,32 +101,32 @@ class TestEventModels(unittest.TestCase):
         # test bookings
         self.ticket_client.import_from_list(ticket_list)
         p1 = Participant.query.filter_by(
-            email=u'participant1@gmail.com', project=self.project
+            email='participant1@gmail.com', project=self.project
         ).one_or_none()
         p2 = Participant.query.filter_by(
-            email=u'participant2@gmail.com', project=self.project
+            email='participant2@gmail.com', project=self.project
         ).one_or_none()
         p3 = Participant.query.filter_by(
-            email=u'participant3@gmail.com', project=self.project
+            email='participant3@gmail.com', project=self.project
         ).one_or_none()
-        self.assertEquals(SyncTicket.query.count(), 3)
-        self.assertEquals(Participant.query.count(), 3)
-        self.assertEquals(len(p1.events), 2)
-        self.assertEquals(len(p2.events), 1)
-        self.assertEquals(len(p3.events), 1)
+        self.assertEqual(SyncTicket.query.count(), 3)
+        self.assertEqual(Participant.query.count(), 3)
+        self.assertEqual(len(p1.events), 2)
+        self.assertEqual(len(p2.events), 1)
+        self.assertEqual(len(p3.events), 1)
 
         # test cancellations
         self.ticket_client.import_from_list(ticket_list2)
-        self.assertEquals(len(p1.events), 2)
-        self.assertEquals(len(p2.events), 0)
-        self.assertEquals(len(p3.events), 1)
+        self.assertEqual(len(p1.events), 2)
+        self.assertEqual(len(p2.events), 0)
+        self.assertEqual(len(p3.events), 1)
 
         # test_transfers
         self.ticket_client.import_from_list(ticket_list3)
         p4 = Participant.query.filter_by(
-            email=u'participant4@gmail.com', project=self.project
+            email='participant4@gmail.com', project=self.project
         ).one_or_none()
-        self.assertEquals(len(p1.events), 2)
-        self.assertEquals(len(p2.events), 0)
-        self.assertEquals(len(p3.events), 0)
-        self.assertEquals(len(p4.events), 1)
+        self.assertEqual(len(p1.events), 2)
+        self.assertEqual(len(p2.events), 0)
+        self.assertEqual(len(p3.events), 0)
+        self.assertEqual(len(p4.events), 1)

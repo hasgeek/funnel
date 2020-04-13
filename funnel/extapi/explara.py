@@ -2,7 +2,7 @@
 
 import requests
 
-from ..util import extract_twitter_handle
+from ..utils import extract_twitter_handle
 
 __all__ = ['ExplaraAPI']
 
@@ -20,7 +20,7 @@ class ExplaraAPI(object):
 
     def __init__(self, access_token):
         self.access_token = access_token
-        self.headers = {'Authorization': u'Bearer ' + self.access_token}
+        self.headers = {'Authorization': 'Bearer ' + self.access_token}
         self.base_url = 'https://www.explara.com/api/e/{0}'
 
     def url_for(self, endpoint):
@@ -53,7 +53,7 @@ class ExplaraAPI(object):
                 ticket_orders.extend(attendee_response['attendee'])
             # after the first batch, subsequent batches are dicts with batch no. as key.
             elif isinstance(attendee_response.get('attendee'), dict):
-                ticket_orders.extend(attendee_response['attendee'].values())
+                ticket_orders.extend(list(attendee_response['attendee'].values()))
             from_record = to_record
             to_record += 50
 
@@ -65,11 +65,11 @@ class ExplaraAPI(object):
             for attendee in order.get('attendee'):
                 # cancelled tickets are in this list too, hence the check
                 if attendee.get('status') == 'attending':
-                    status = u'confirmed'
-                elif attendee.get('status') in [u'cancelled', u'lcancelled']:
-                    status = u'cancelled'
+                    status = 'confirmed'
+                elif attendee.get('status') in ['cancelled', 'lcancelled']:
+                    status = 'cancelled'
                 else:
-                    status = unicode(attendee.get('status'))
+                    status = attendee.get('status')
                 # we sometimes get an empty array for details
                 details = attendee.get('details') or {}
                 tickets.append(

@@ -82,11 +82,11 @@ class ProjectForm(forms.Form):
         description=__("The timezone in which this event occurs"),
         validators=[forms.validators.DataRequired()],
         choices=sorted_timezones(),
-        default=u'UTC',
+        default='UTC',
     )
     bg_image = forms.URLField(
         __("Banner image URL"),
-        description=u"Banner image for project cards on the homepage",
+        description="Banner image for project cards on the homepage",
         validators=[
             forms.validators.Optional(),
             forms.validators.ValidUrl(),
@@ -99,12 +99,12 @@ class ProjectForm(forms.Form):
             "RGB color for the project. Enter without the '#'. E.g. CCCCCC."
         ),
         validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
-        default=u"CCCCCC",
+        default="CCCCCC",
     )
     explore_url = forms.URLField(
         __("Explore tab URL"),
         description=__(
-            u"Page containing the explore tab’s contents, for the mobile app"
+            "Page containing the explore tab’s contents, for the mobile app"
         ),
         validators=[
             forms.validators.Optional(),
@@ -113,15 +113,12 @@ class ProjectForm(forms.Form):
         ],
     )
     parent_project = QuerySelectField(
-        __(u"Parent project"),
-        get_label='title',
-        allow_blank=True,
-        blank_text=__(u"None"),
+        __("Parent project"), get_label='title', allow_blank=True, blank_text=__("None")
     )
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
     buy_tickets_url = forms.URLField(
         __("URL to buy tickets"),
-        description=__(u"Eg: Explara, Instamojo"),
+        description=__("Eg: Explara, Instamojo"),
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
@@ -147,15 +144,22 @@ class ProjectForm(forms.Form):
 
 class CfpForm(forms.Form):
     instructions = forms.MarkdownField(
-        __("Call for proposals"),
+        __("Proposal guidelines"),
         validators=[forms.validators.DataRequired()],
-        default=u'',
+        default='',
+        description=__(
+            "Set guidelines for the type of sessions"
+            "(talks, workshops, other format) your project is accepting, "
+            "your review process and any other info for participants"
+        ),
     )
     cfp_start_at = forms.DateTimeField(
-        __("Submissions open at"), validators=[forms.validators.Optional()], naive=False
+        __("Proposal submissions open at"),
+        validators=[forms.validators.Optional()],
+        naive=False,
     )
     cfp_end_at = forms.DateTimeField(
-        __("Submissions close at"),
+        __("Proposal submissions close at"),
         validators=[
             forms.validators.AllowedIf(
                 'cfp_start_at',
@@ -177,7 +181,7 @@ class ProjectTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        self.transition.choices = self.edit_obj.state.transitions().items()
+        self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
 class ProjectScheduleTransitionForm(forms.Form):
@@ -186,7 +190,7 @@ class ProjectScheduleTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        self.schedule_transition.choices = (
+        self.schedule_transition.choices = list(
             self.edit_obj.schedule_state.transitions().items()
         )
 
@@ -197,7 +201,9 @@ class ProjectCfpTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        self.cfp_transition.choices = self.edit_obj.cfp_state.transitions().items()
+        self.cfp_transition.choices = list(
+            self.edit_obj.cfp_state.transitions().items()
+        )
 
 
 class SavedProjectForm(forms.Form):
@@ -232,7 +238,7 @@ class EventForm(forms.Form):
     )
     badge_template = forms.URLField(
         __("Badge template URL"),
-        description=u"URL of background image for the badge",
+        description="URL of background image for the badge",
         validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
     )
 

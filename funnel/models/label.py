@@ -71,7 +71,7 @@ class Label(BaseScopedNameMixin, db.Model):
     seq = db.Column(db.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = db.Column(db.UnicodeText, nullable=False, default=u"")
+    description = db.Column(db.UnicodeText, nullable=False, default="")
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
@@ -141,7 +141,7 @@ class Label(BaseScopedNameMixin, db.Model):
     @property
     def title_for_name(self):
         if self.main_label:
-            return u"%s/%s" % (self.main_label.title, self.title)
+            return "%s/%s" % (self.main_label.title, self.title)
         else:
             return self.title
 

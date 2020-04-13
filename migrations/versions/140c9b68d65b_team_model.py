@@ -46,7 +46,7 @@ def downgrade():
     op.add_column(
         'user',
         sa.Column(
-            'description', sa.TEXT(), nullable=False, server_default=sa.text(u"''")
+            'description', sa.TEXT(), nullable=False, server_default=sa.text("''")
         ),
     )
     op.alter_column('user', 'description', server_default=None)

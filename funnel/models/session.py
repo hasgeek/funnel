@@ -2,6 +2,10 @@
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from werkzeug.utils import cached_property
+
+from baseframe import localize_timezone
+
 from . import (
     BaseScopedIdNameMixin,
     MarkdownColumn,
@@ -14,11 +18,12 @@ from .helpers import add_search_trigger
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
+from .video import VideoMixin
 
 __all__ = ['Session']
 
 
-class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
+class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     __tablename__ = 'session'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
@@ -27,8 +32,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
         backref=db.backref('sessions', cascade='all, delete-orphan', lazy='dynamic'),
     )
     parent = db.synonym('project')
-    description = MarkdownColumn('description', default=u'', nullable=False)
-    speaker_bio = MarkdownColumn('speaker_bio', default=u'', nullable=False)
+    description = MarkdownColumn('description', default='', nullable=False)
+    speaker_bio = MarkdownColumn('speaker_bio', default='', nullable=False)
     proposal_id = db.Column(
         None, db.ForeignKey('proposal.id'), nullable=True, unique=True
     )
@@ -95,6 +100,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
                 'venue_room',
                 'is_break',
                 'banner_image_url',
+                'start_at_localized',
+                'end_at_localized',
             },
             'call': {'url_for'},
         }
@@ -113,6 +120,22 @@ class Session(UuidMixin, BaseScopedIdNameMixin, db.Model):
     @scheduled.expression
     def scheduled(self):
         return (self.start_at != None) & (self.end_at != None)  # NOQA
+
+    @cached_property
+    def start_at_localized(self):
+        return (
+            localize_timezone(self.start_at, tz=self.project.timezone)
+            if self.start_at
+            else None
+        )
+
+    @cached_property
+    def end_at_localized(self):
+        return (
+            localize_timezone(self.end_at, tz=self.project.timezone)
+            if self.end_at
+            else None
+        )
 
     @classmethod
     def for_proposal(cls, proposal, create=False):

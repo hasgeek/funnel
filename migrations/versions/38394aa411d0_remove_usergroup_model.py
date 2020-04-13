@@ -35,13 +35,13 @@ def downgrade():
         sa.Column('project_id', sa.INTEGER(), autoincrement=False, nullable=False),
         sa.Column('name', sa.VARCHAR(length=250), autoincrement=False, nullable=False),
         sa.Column('title', sa.VARCHAR(length=250), autoincrement=False, nullable=False),
-        sa.CheckConstraint(u"(name)::text <> ''::text", name=u'user_group_name_check'),
+        sa.CheckConstraint("(name)::text <> ''::text", name='user_group_name_check'),
         sa.ForeignKeyConstraint(
-            ['project_id'], [u'project.id'], name=u'user_group_project_id_fkey'
+            ['project_id'], ['project.id'], name='user_group_project_id_fkey'
         ),
-        sa.PrimaryKeyConstraint('id', name=u'user_group_pkey'),
+        sa.PrimaryKeyConstraint('id', name='user_group_pkey'),
         sa.UniqueConstraint(
-            'project_id', 'name', name=u'user_group_project_id_name_key'
+            'project_id', 'name', name='user_group_project_id_name_key'
         ),
     )
     op.create_table(
@@ -49,9 +49,9 @@ def downgrade():
         sa.Column('group_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column('user_id', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.ForeignKeyConstraint(
-            ['group_id'], [u'user_group.id'], name=u'group_members_group_id_fkey'
+            ['group_id'], ['user_group.id'], name='group_members_group_id_fkey'
         ),
         sa.ForeignKeyConstraint(
-            ['user_id'], [u'user.id'], name=u'group_members_user_id_fkey'
+            ['user_id'], ['user.id'], name='group_members_user_id_fkey'
         ),
     )

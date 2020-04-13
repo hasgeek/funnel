@@ -13,11 +13,11 @@ from babel.dates import format_date
 from isoweek import Week
 from pytz import utc
 
-from baseframe import __, get_locale
+from baseframe import __, get_locale, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, utcnow, valid_username
 
-from ..util import geonameid_from_location
+from ..utils import geonameid_from_location
 from . import (
     BaseScopedNameMixin,
     JsonDict,
@@ -40,25 +40,25 @@ __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 class PROJECT_STATE(LabeledEnum):  # NOQA: N801
-    DRAFT = (0, 'draft', __(u"Draft"))
-    PUBLISHED = (1, 'published', __(u"Published"))
-    WITHDRAWN = (2, 'withdrawn', __(u"Withdrawn"))
+    DRAFT = (0, 'draft', __("Draft"))
+    PUBLISHED = (1, 'published', __("Published"))
+    WITHDRAWN = (2, 'withdrawn', __("Withdrawn"))
     DELETED = (3, 'deleted', __("Deleted"))
     DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):  # NOQA: N801
-    NONE = (0, 'none', __(u"None"))
-    PUBLIC = (1, 'public', __(u"Public"))
-    CLOSED = (2, 'closed', __(u"Closed"))
+    NONE = (0, 'none', __("None"))
+    PUBLIC = (1, 'public', __("Public"))
+    CLOSED = (2, 'closed', __("Closed"))
     OPENABLE = {NONE, CLOSED}
     EXISTS = {PUBLIC, CLOSED}
 
 
 class SCHEDULE_STATE(LabeledEnum):  # NOQA: N801
-    DRAFT = (0, 'draft', __(u"Draft"))
-    PUBLISHED = (1, 'published', __(u"Published"))
+    DRAFT = (0, 'draft', __("Draft"))
+    PUBLISHED = (1, 'published', __("Published"))
 
 
 # --- Models ------------------------------------------------------------------
@@ -81,10 +81,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
-    description = MarkdownColumn('description', default=u'', nullable=False)
-    instructions = MarkdownColumn('instructions', default=u'', nullable=True)
+    description = MarkdownColumn('description', default='', nullable=False)
+    instructions = MarkdownColumn('instructions', default='', nullable=True)
 
-    location = db.Column(db.Unicode(50), default=u'', nullable=True)
+    location = db.Column(db.Unicode(50), default='', nullable=True)
     parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
 
     website = db.Column(UrlType, nullable=True)
@@ -178,7 +178,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
     )
 
-    livestream_urls = db.Column(db.ARRAY(db.UnicodeText, dimensions=1))
+    livestream_urls = db.Column(
+        db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'
+    )
 
     venues = db.relationship(
         'Venue',
@@ -235,11 +237,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'tagline',
                 'absolute_url',
                 'location',
-                'calendar_weeks',
+                'calendar_weeks_full',
+                'calendar_weeks_compact',
                 'primary_venue',
                 'livestream_urls',
+                'schedule_start_at_localized',
+                'schedule_end_at_localized',
+                'cfp_start_at_localized',
+                'cfp_end_at_localized',
             },
-            'call': {'url_for', 'current_sessions', 'is_saved_by'},
+            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
         }
     }
 
@@ -285,17 +292,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
         Only ``schedule_start_at`` format changes.
         """
-        daterange = u""
+        daterange = ""
         if self.schedule_start_at is not None and self.schedule_end_at is not None:
             schedule_start_at_date = self.schedule_start_at.astimezone(
                 self.timezone
             ).date()
             schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
-            daterange_format = u"{start_date}–{end_date} {year}"
+            daterange_format = "{start_date}–{end_date} {year}"
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
                 strf_date = ""
-                daterange_format = u"{end_date} {year}"
+                daterange_format = "{end_date} {year}"
             elif schedule_start_at_date.year != schedule_end_at_date.year:
                 # if the start date and end dates are in different years,
                 strf_date = "%d %b %Y"
@@ -310,7 +317,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 end_date=schedule_end_at_date.strftime("%d %b"),
                 year=schedule_end_at_date.year,
             )
-        return u', '.join(filter(None, [daterange, self.location]))
+        return ', '.join([_f for _f in [daterange, self.location] if _f])
 
     schedule_state.add_conditional_state(
         'PAST',
@@ -404,12 +411,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")),
     )
 
+    cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
+
     @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
         cfp_state.PUBLIC,
-        title=__("Open CfP"),
-        message=__("The call for proposals is now open"),
+        title=__("Enable proposal submissions"),
+        message=__("Proposals can be now submitted"),
         type='success',
     )
     def open_cfp(self):
@@ -419,8 +428,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
-        title=__("Close CFP"),
-        message=__("The call for proposals is now closed"),
+        title=__("Disable proposal submissions"),
+        message=__("Proposals will no longer be accepted"),
         type='success',
     )
     def close_cfp(self):
@@ -484,7 +493,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @db.validates('name')
     def _validate_name(self, key, value):
-        value = unicode(value).strip() if value is not None else None
+        value = value.strip() if value is not None else None
         if not value or not valid_username(value):
             raise ValueError(value)
 
@@ -499,8 +508,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 redirect.project = self
         return value
 
-    @cached_property
-    def calendar_weeks(self):
+    def calendar_weeks(self, leading_weeks=True):
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
         session_dates = list(
@@ -544,7 +552,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         # if the project's week is within next 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
 
-        if self.schedule_start_at is not None:
+        if leading_weeks and self.schedule_start_at is not None:
             current_week = Week.withdate(now)
             schedule_start_week = Week.withdate(self.schedule_start_at)
 
@@ -616,6 +624,46 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 for day in Week.thisweek().days()
             ],
         }
+
+    @cached_property
+    def calendar_weeks_full(self):
+        return self.calendar_weeks(leading_weeks=True)
+
+    @cached_property
+    def calendar_weeks_compact(self):
+        return self.calendar_weeks(leading_weeks=False)
+
+    @cached_property
+    def schedule_start_at_localized(self):
+        return (
+            localize_timezone(self.schedule_start_at, tz=self.timezone)
+            if self.schedule_start_at
+            else None
+        )
+
+    @cached_property
+    def schedule_end_at_localized(self):
+        return (
+            localize_timezone(self.schedule_end_at, tz=self.timezone)
+            if self.schedule_end_at
+            else None
+        )
+
+    @cached_property
+    def cfp_start_at_localized(self):
+        return (
+            localize_timezone(self.cfp_start_at, tz=self.timezone)
+            if self.cfp_start_at
+            else None
+        )
+
+    @cached_property
+    def cfp_end_at_localized(self):
+        return (
+            localize_timezone(self.cfp_end_at, tz=self.timezone)
+            if self.cfp_end_at
+            else None
+        )
 
     def current_sessions(self):
         now = utcnow().astimezone(self.timezone)

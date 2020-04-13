@@ -81,10 +81,10 @@ def upgrade():
                 .values(
                     {
                         'project_id': proj['id'],
-                        'name': u"section",
-                        'title': u"Section",
+                        'name': "section",
+                        'title': "Section",
                         'seq': 1,
-                        'description': u"",
+                        'description': "",
                         'restricted': False,
                         'archived': False,
                         'required': True,
@@ -108,7 +108,7 @@ def upgrade():
                             'name': sec['name'],
                             'title': sec['title'],
                             'seq': index,
-                            'description': u"",
+                            'description': "",
                             'restricted': False,
                             'archived': False,
                             'required': True,
@@ -143,10 +143,10 @@ def upgrade():
             .values(
                 {
                     'project_id': proj['id'],
-                    'name': u"technical-level",
-                    'title': u"Technical level",
+                    'name': "technical-level",
+                    'title': "Technical level",
                     'seq': 2,
-                    'description': u"",
+                    'description': "",
                     'restricted': False,
                     'archived': False,
                     'required': True,
@@ -157,9 +157,9 @@ def upgrade():
             .returning(label.c.id)
         ).first()
         tl_list = [
-            (u'beginner', u"Beginner"),
-            (u'intermediate', u"Intermediate"),
-            (u'advanced', u"Advanced"),
+            ('beginner', "Beginner"),
+            ('intermediate', "Intermediate"),
+            ('advanced', "Advanced"),
         ]
         for index, tl in enumerate(tl_list, start=1):
             tl_name, tl_title = tl
@@ -172,7 +172,7 @@ def upgrade():
                         'title': tl_title,
                         'main_label_id': techlevel_label[0],
                         'seq': index,
-                        'description': u"",
+                        'description': "",
                         'restricted': False,
                         'archived': False,
                         'required': True,
@@ -205,10 +205,10 @@ def upgrade():
             .values(
                 {
                     'project_id': proj['id'],
-                    'name': u"session-type",
-                    'title': u"Session type",
+                    'name': "session-type",
+                    'title': "Session type",
                     'seq': 3,
-                    'description': u"",
+                    'description': "",
                     'restricted': False,
                     'archived': False,
                     'required': False,
@@ -220,12 +220,12 @@ def upgrade():
         ).first()
 
         st_list = [
-            (u'lecture', u"Lecture"),
-            (u'demo', u"Demo"),
-            (u'tutorial', u"Tutorial"),
-            (u'workshop', u"Workshop"),
-            (u'discussion', u"Discussion"),
-            (u'panel', u"Panel"),
+            ('lecture', "Lecture"),
+            ('demo', "Demo"),
+            ('tutorial', "Tutorial"),
+            ('workshop', "Workshop"),
+            ('discussion', "Discussion"),
+            ('panel', "Panel"),
         ]
 
         for index, st in enumerate(st_list, start=1):
@@ -247,7 +247,7 @@ def upgrade():
                         'title': st_title,
                         'main_label_id': sessiontype_label[0],
                         'seq': index,
-                        'description': u"",
+                        'description': "",
                         'restricted': False,
                         'archived': False,
                         'required': True,

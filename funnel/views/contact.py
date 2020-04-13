@@ -3,29 +3,21 @@
 import six
 
 from datetime import datetime, timedelta
+import csv
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import (
-    Response,
-    current_app,
-    jsonify,
-    make_response,
-    redirect,
-    request,
-    url_for,
-)
-
-import unicodecsv
+from flask import Response, current_app, jsonify, make_response, redirect, request
 
 from baseframe import _
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..models import ContactExchange, Participant, Project, db
-from ..util import format_twitter_handle
+from ..utils import format_twitter_handle, strip_null
+from .helpers import app_url_for, requires_login
 
 
 def contact_details(participant):
@@ -51,7 +43,7 @@ class ContactView(ClassView):
         )
 
     @route('', endpoint='contacts')
-    @lastuser.requires_login
+    @requires_login
     @render_with('contacts.html.jinja2')
     def contacts(self):
         """Grouped list of contacts"""
@@ -66,8 +58,8 @@ class ContactView(ClassView):
         """
         Returns a CSV of given contacts
         """
-        outfile = six.BytesIO()
-        out = unicodecsv.writer(outfile, encoding='utf-8')
+        outfile = six.StringIO()
+        out = csv.writer(outfile)
         out.writerow(
             [
                 'scanned_at',
@@ -100,7 +92,7 @@ class ContactView(ClassView):
 
         outfile.seek(0)
         return Response(
-            six.text_type(outfile.getvalue(), 'utf-8'),
+            outfile.getvalue(),
             content_type='text/csv',
             headers=[
                 (
@@ -111,7 +103,7 @@ class ContactView(ClassView):
         )
 
     @route('<suuid>/<datestr>.csv', endpoint='contacts_project_date_csv')
-    @lastuser.requires_login
+    @requires_login
     def project_date_csv(self, suuid, datestr):
         """Contacts for a given project and date in CSV format"""
         archived = getbool(request.args.get('archived'))
@@ -130,7 +122,7 @@ class ContactView(ClassView):
         )
 
     @route('<suuid>.csv', endpoint='contacts_project_csv')
-    @lastuser.requires_login
+    @requires_login
     def project_csv(self, suuid):
         """Contacts for a given project in CSV format"""
         archived = getbool(request.args.get('archived'))
@@ -146,21 +138,21 @@ class ContactView(ClassView):
         )
 
     @route('scan', endpoint='scan_contact')
-    @lastuser.requires_login
+    @requires_login
     @render_with('scan_contact.html.jinja2')
     def scan(self):
         """Scan a badge"""
         return {}
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
-    @lastuser.requires_login
-    @requestargs('puk', 'key')
+    @requires_login
+    @requestargs(('puk', strip_null), ('key', strip_null))
     def connect(self, puk, key):
         """Scan verification"""
         participant = Participant.query.filter_by(puk=puk, key=key).first()
         if not participant:
             return make_response(
-                jsonify(status='error', message=u"Attendee details not found"), 404
+                jsonify(status='error', message="Attendee details not found"), 404
             )
         project = participant.project
         if project.schedule_end_at:
@@ -171,7 +163,7 @@ class ContactView(ClassView):
                 < utcnow()
             ):
                 return make_response(
-                    jsonify(status='error', message=_(u"This project has concluded")),
+                    jsonify(status='error', message=_("This project has concluded")),
                     403,
                 )
 
@@ -182,12 +174,12 @@ class ContactView(ClassView):
                 db.session.add(contact_exchange)
                 db.session.commit()
             except IntegrityError:
-                current_app.logger.warning(u"Contact already scanned")
+                current_app.logger.warning("Contact already scanned")
                 db.session.rollback()
             return jsonify(contact=contact_details(participant))
         else:
             return make_response(
-                jsonify(status='error', message=u"Unauthorized contact exchange"), 403
+                jsonify(status='error', message="Unauthorized contact exchange"), 403
             )
 
 
@@ -195,13 +187,11 @@ class ContactView(ClassView):
 class FunnelContactView(ClassView):
     @route('', endpoint='contacts')
     def contacts(self):
-        with app.app_context(), app.test_request_context():
-            return redirect(url_for('contacts', _external=True))
+        return redirect(app_url_for(app, 'contacts', _external=True))
 
     @route('', endpoint='scan_contact')
     def scan(self):
-        with app.app_context(), app.test_request_context():
-            return redirect(url_for('scan_contact', _external=True))
+        return redirect(app_url_for(app, 'scan_contact', _external=True))
 
 
 ContactView.init_app(app)

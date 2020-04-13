@@ -51,8 +51,12 @@ class ParticipantForm(forms.Form):
         widget=ListWidget(),
         option_widget=CheckboxInput(),
         get_label='title',
-        validators=[forms.validators.DataRequired(u"Select at least one event")],
+        validators=[forms.validators.DataRequired("Select at least one event")],
     )
+
+    def set_queries(self):
+        if self.edit_parent is not None:
+            self.events.query = self.edit_parent.events
 
 
 class ParticipantBadgeForm(forms.Form):

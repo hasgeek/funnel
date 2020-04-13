@@ -44,7 +44,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
+            <a class="modal__close" href="javascript:void(0);"  data-target="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
             <h3 class="mui--text-title">Check in status</h3>
           </div>
           <div class="modal__body">
@@ -57,7 +57,7 @@
             {{else}}
               <h4>Attendee details not found</h4>
             {{/if}}
-            <a href="javascript:void(0);" on-click="closeModal(event)" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Close</a>
+            <a href="javascript:void(0);"  data-target="close modal" on-click="closeModal(event)" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">Close</a>
           </div>
         </div>
         {{/if}}
@@ -72,7 +72,7 @@
     $(function() {
 
       var eventConfig = {
-        checkinApiUrl: "{{ url_for('checkin_puk', profile=project.profile.name, project=project.name, name=event.name, puk='puk') }}",
+        checkinApiUrl: "{{ url_for('EventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, event=event.name, puk='puk') }}",
         wrapperId: 'scan-badge-wrapper',
         templateId: 'scan-badge-template',
         projectTitle:  {{ project.title|tojson }},

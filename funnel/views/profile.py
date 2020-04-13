@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, flash, g, redirect, request, url_for
+from flask import Markup, flash, redirect, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_form, render_message, render_redirect
+from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -13,35 +14,36 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import EditProfileForm, NewProfileForm, SavedProjectForm
 from ..models import Profile, Project, Team, db
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import ProfileViewMixin
 from .project import project_data
 
 
 # @app.route('/new', methods=['GET', 'POST'])  # Disabled on 8 Dec, 2018
-@lastuser.requires_scope('teams')
+@requires_login
 def profile_new():
     # Step 1: Get a list of organizations this user owns
     existing = Profile.query.filter(
-        Profile.userid.in_(g.user.organizations_owned_ids())
+        Profile.userid.in_(current_auth.user.organizations_owned_ids())
     ).all()
     existing_ids = [e.userid for e in existing]
     # Step 2: Prune list to organizations without a profile
     new_profiles = []
-    for org in g.user.organizations_owned():
+    for org in current_auth.user.organizations_owned():
         if org['userid'] not in existing_ids:
             new_profiles.append((org['userid'], org['title']))
     if not new_profiles:
         return render_message(
-            title=_(u"No organizations found"),
+            title=_("No organizations found"),
             message=Markup(
                 _(
-                    u"You do not have any organizations that do not already have a Talkfunnel. "
-                    u'Would you like to <a href="{link}">create a new organization</a>?'
-                ).format(link=lastuser.endpoint_url('/organizations/new'))
+                    "You do not have any organizations that do not already have a Talkfunnel. "
+                    'Would you like to <a href="{link}">create a new organization</a>?'
+                ).format(link=url_for('OrgView_new'))
             ),
         )
     eligible_profiles = []
@@ -50,9 +52,9 @@ def profile_new():
             eligible_profiles.append((orgid, title))
     if not eligible_profiles:
         return render_message(
-            title=_(u"No organizations available"),
+            title=_("No organizations available"),
             message=_(
-                u"To create a Talkfunnel for an organization, you must be the owner of the organization."
+                "To create a Talkfunnel for an organization, you must be the owner of the organization."
             ),
         )
 
@@ -65,22 +67,22 @@ def profile_new():
         # Step 4: Make a profile
         org = [
             org
-            for org in g.user.organizations_owned()
+            for org in current_auth.user.organizations_owned()
             if org['userid'] == form.profile.data
         ][0]
         profile = Profile(name=org['name'], title=org['title'], userid=org['userid'])
         db.session.add(profile)
         db.session.commit()
         flash(
-            _(u"Created a profile for {profile}").format(profile=profile.title),
+            _("Created a profile for {profile}").format(profile=profile.title),
             "success",
         )
         return render_redirect(profile.url_for('edit'), code=303)
     return render_form(
         form=form,
-        title=_(u"Create a Talkfunnel for your organization..."),
+        title=_("Create a Talkfunnel for your organization..."),
         message=_(
-            u"Talkfunnel is a free service while in beta. Sign up now to help us test the service."
+            "Talkfunnel is a free service while in beta. Sign up now to help us test the service."
         ),
         submit="Next",
         formid="profile_new",
@@ -153,7 +155,8 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     def json(self):
         projects = Project.fetch_sorted().filter_by(profile=self.obj).all()
         return jsonp(
-            projects=map(project_data, projects), spaces=map(project_data, projects)
+            projects=list(map(project_data, projects)),
+            spaces=list(map(project_data, projects)),
         )  # FIXME: Remove when the native app switches over
 
     @route('edit', methods=['GET', 'POST'])
