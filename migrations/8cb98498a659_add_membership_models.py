@@ -2,14 +2,14 @@
 """add membership models
 
 Revision ID: 8cb98498a659
-Revises: 20c10335b553
+Revises: d50c3d8e3f33
 Create Date: 2019-05-07 00:15:33.384995
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '8cb98498a659'
-down_revision = '20c10335b553'
+down_revision = 'd50c3d8e3f33'
 
 from alembic import op
 from sqlalchemy_utils import UUIDType
