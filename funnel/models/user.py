@@ -6,6 +6,7 @@ from sqlalchemy import or_
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import defer, deferred
+from sqlalchemy_utils import TimezoneType
 
 from werkzeug.security import check_password_hash
 from werkzeug.utils import cached_property
@@ -225,7 +226,7 @@ class User(SharedNameMixin, UuidMixin, BaseMixin, db.Model):
     #: Expiry date for the password (to prompt user to reset it)
     pw_expires_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     #: User's timezone
-    timezone = db.Column(db.Unicode(40), nullable=True)
+    timezone = db.Column(TimezoneType(backend='pytz'), nullable=True)
     #: User's status (active, suspended, merged, etc)
     status = db.Column(db.SmallInteger, nullable=False, default=USER_STATUS.ACTIVE)
     #: User avatar (URL to browser-ready image)

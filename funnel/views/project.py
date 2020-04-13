@@ -218,7 +218,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             )
 
             if not self.obj.timezone:
-                form.timezone.data = current_auth.user.timezone
+                form.timezone.data = str(current_auth.user.timezone)
 
             return render_form(
                 form=form,
