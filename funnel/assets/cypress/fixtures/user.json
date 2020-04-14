@@ -1,0 +1,10 @@
+{
+  "admin": {
+    "username": "admin-user",
+    "password": "cypress129"
+  },
+  "user": {
+    "username": "member-user",
+    "password": "cypress341"
+  }
+}

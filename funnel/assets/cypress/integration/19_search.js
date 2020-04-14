@@ -14,14 +14,14 @@ describe('Test search feature', function() {
 
     cy.get('input[name="q"]')
       .clear()
-      .type('test')
+      .type('testcypressproject')
       .type('{enter}');
     cy.get('.tabs__item')
       .contains('Profiles')
       .click();
     cy.get('.tab-content__results')
       .find('.card')
-      .contains('test');
+      .contains('testcypressproject');
 
     cy.get('input[name="q"]')
       .clear()

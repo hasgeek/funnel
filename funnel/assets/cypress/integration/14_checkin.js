@@ -1,11 +1,13 @@
 describe('Checkin of attendees', function() {
-  const { admin, user } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
+  const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
   it('Checkin of attendees', function() {
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', admin.username, admin.password);
+
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();
