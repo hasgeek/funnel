@@ -253,6 +253,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         cal.add('version', '2.0')
         cal.add('name', f'{self.obj.title}')
         cal.add('x-wr-calname', f'{self.obj.title}')
+        cal.add('summary', f'{self.obj.title}')
         cal.add('description', f'{self.obj.tagline}')
         cal.add('x-wr-caldesc', f'{self.obj.tagline}')
         cal.add('timezone-id', f'{self.obj.timezone.zone}')
@@ -265,7 +266,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             cal.to_ical(),
             mimetype='text/calendar',
             headers={
-                'Content-Disposition': f'attachment;filename="{self.obj.profile.name}-{self.obj.name}.ics"'
+                'Content-Disposition': f'attachment;filename='
+                f'"{self.obj.profile.name}-{self.obj.name}.ics"'
             },
         )
 
@@ -359,11 +361,18 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         cal.add('version', "2.0")
         cal.add(
             'name',
-            f'{self.obj.venue.project.title} @ {self.obj.venue.title} / {self.obj.title}',
+            f'{self.obj.venue.project.title} @ '
+            f'{self.obj.venue.title} / {self.obj.title}',
         )
         cal.add(
             'x-wr-calname',
-            f'{self.obj.venue.project.title} @ {self.obj.venue.title} / {self.obj.title}',
+            f'{self.obj.venue.project.title} @ '
+            f'{self.obj.venue.title} / {self.obj.title}',
+        )
+        cal.add(
+            'summary',
+            f'{self.obj.venue.project.title} @ '
+            f'{self.obj.venue.title} / {self.obj.title}',
         )
         cal.add('timezone-id', f'{self.obj.venue.project.timezone.zone}')
         cal.add('x-wr-timezone', f'{self.obj.venue.project.timezone.zone}')
@@ -376,7 +385,10 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             cal.to_ical(),
             mimetype='text/calendar',
             headers={
-                'Content-Disposition': f'attachment;filename="{self.obj.venue.project.profile.name}-{self.obj.venue.project.name}-{self.obj.venue.name}-{self.obj.name}.ics"'
+                'Content-Disposition': f'attachment;filename='
+                f'"{self.obj.venue.project.profile.name}-'
+                f'{self.obj.venue.project.name}-'
+                f'{self.obj.venue.name}-{self.obj.name}.ics"'
             },
         )
 
