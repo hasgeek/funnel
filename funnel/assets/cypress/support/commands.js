@@ -9,6 +9,9 @@
 // ***********************************************
 
 Cypress.Commands.add('login', (route, username, password) => {
+  cy.server();
+  cy.route('POST', '**/login').as('login');
+
   cy.visit(route, { failOnStatusCode: false })
     .get('#hgnav')
     .find('.header__button')
@@ -19,6 +22,7 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.get('.form-actions')
     .find('button')
     .click();
+  cy.wait('@login', { timeout: 20000 });
 });
 
 Cypress.Commands.add('relogin', route => {

@@ -4,7 +4,7 @@ from funnel.models import db
 
 
 def drop_models():
-    with app.app_context():
+    with app.test_request_context():
         db.drop_all()
 
 

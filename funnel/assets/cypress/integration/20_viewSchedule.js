@@ -2,7 +2,7 @@ describe('View schedule of p roject', function() {
   const project = require('../fixtures/project.json');
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
-  const { user } = require('../fixtures/user.js');
+  const user = require('../fixtures/user.json').user;
 
   it('View schedule', function() {
     cy.server();
