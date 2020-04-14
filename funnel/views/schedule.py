@@ -135,9 +135,7 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    event.add(
-        'uid', "/".join([session.project.name, session.url_name]) + '@' + request.host
-    )
+    event.add('uid', f'{session.suuid}@{request.host}')
     event.add('dtstart', session.start_at.astimezone(session.project.timezone))
     event.add('dtend', session.end_at.astimezone(session.project.timezone))
     event.add('dtstamp', utcnow().astimezone(session.project.timezone))
@@ -163,6 +161,7 @@ def session_ical(session):
     alarm = Alarm()
     alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')
+    # FIXME: Needs an i18n-friendly approach
     desc = session.title
     if session.venue_room:
         desc += " in " + session.venue_room.title
@@ -250,18 +249,16 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_ical(self):
         cal = Calendar()
-        cal.add(
-            'prodid',
-            "-//Schedule for {event}//funnel.hasgeek.com//".format(
-                event=self.obj.title
-            ),
-        )
-        cal.add('version', "2.0")
-        cal.add('summary', "Schedule for {event}".format(event=self.obj.title))
-        # FIXME: Last updated time for calendar needs to be set. Cannot figure out how.
-        # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=self.obj).first()
-        # cal.add('last-modified', latest_session[0])
-        cal.add('x-wr-calname', "{event}".format(event=self.obj.title))
+        cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
+        cal.add('version', '2.0')
+        cal.add('name', f'{self.obj.title}')
+        cal.add('x-wr-calname', f'{self.obj.title}')
+        cal.add('description', f'{self.obj.tagline}')
+        cal.add('x-wr-caldesc', f'{self.obj.tagline}')
+        cal.add('timezone-id', f'{self.obj.timezone.zone}')
+        cal.add('x-wr-timezone', f'{self.obj.timezone.zone}')
+        cal.add('refresh-interval;value=duration', 'PT12H')
+        cal.add('x-published-ttl', 'PT12H')
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
         return Response(
@@ -358,34 +355,21 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_room_ical(self):
         cal = Calendar()
-        cal.add(
-            'prodid',
-            "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
-                room=self.obj.title,
-                venue=self.obj.venue.title,
-                event=self.obj.venue.project.title,
-            ),
-        )
+        cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN"),
         cal.add('version', "2.0")
         cal.add(
-            'summary',
-            "Schedule for room {room} at {venue} for {event}".format(
-                room=self.obj.title,
-                venue=self.obj.venue.title,
-                event=self.obj.venue.project.title,
-            ),
+            'name',
+            f'{self.obj.venue.project.title} @ {self.obj.venue.title} / {self.obj.title}',
         )
-        # Last updated time for calendar needs to be set. Cannot figure out how.
-        # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
-        # cal.add('last-modified', latest_session[0])
         cal.add(
             'x-wr-calname',
-            "{event} - {room} @ {venue}".format(
-                room=self.obj.title,
-                venue=self.obj.venue.title,
-                event=self.obj.venue.project.title,
-            ),
+            f'{self.obj.venue.project.title} @ {self.obj.venue.title} / {self.obj.title}',
         )
+        cal.add('timezone-id', f'{self.obj.venue.project.timezone.zone}')
+        cal.add('x-wr-timezone', f'{self.obj.venue.project.timezone.zone}')
+        cal.add('refresh-interval;value=duration', 'PT12H')
+        cal.add('x-published-ttl', 'PT12H')
+
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
         return Response(
