@@ -264,7 +264,13 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         cal.add('x-wr-calname', "{event}".format(event=self.obj.title))
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
-        return Response(cal.to_ical(), mimetype='text/calendar')
+        return Response(
+            cal.to_ical(),
+            mimetype='text/calendar',
+            headers={
+                'Content-Disposition': f'attachment;filename="{self.obj.profile.name}-{self.obj.name}.ics"'
+            },
+        )
 
     @route('edit')
     @render_with('schedule_edit.html.jinja2')
@@ -382,7 +388,13 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         )
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
-        return Response(cal.to_ical(), mimetype='text/calendar')
+        return Response(
+            cal.to_ical(),
+            mimetype='text/calendar',
+            headers={
+                'Content-Disposition': f'attachment;filename="{self.obj.venue.project.profile.name}-{self.obj.venue.project.name}-{self.obj.venue.name}-{self.obj.name}.ics"'
+            },
+        )
 
     @route('updates')
     @render_with('room_updates.html.jinja2')
