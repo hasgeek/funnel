@@ -135,12 +135,12 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    event.add('uid', f'{session.suuid}@{request.host}')
-    event.add('dtstart', session.start_at.astimezone(session.project.timezone))
-    event.add('dtend', session.end_at.astimezone(session.project.timezone))
-    event.add('dtstamp', utcnow().astimezone(session.project.timezone))
-    event.add('created', session.created_at.astimezone(session.project.timezone))
-    event.add('last-modified', session.updated_at.astimezone(session.project.timezone))
+    event.add('uid', f'session/{session.suuid}@{request.host}')
+    event.add('dtstart', session.start_at_localized)
+    event.add('dtend', session.end_at_localized)
+    event.add('dtstamp', utcnow())
+    event.add('created', session.created_at)
+    event.add('last-modified', session.updated_at)
     if session.venue_room:
         location = [session.venue_room.title + " - " + session.venue_room.venue.title]
         if session.venue_room.venue.city:
@@ -251,13 +251,13 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         cal = Calendar()
         cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
         cal.add('version', '2.0')
-        cal.add('name', f'{self.obj.title}')
-        cal.add('x-wr-calname', f'{self.obj.title}')
-        cal.add('summary', f'{self.obj.title}')
-        cal.add('description', f'{self.obj.tagline}')
-        cal.add('x-wr-caldesc', f'{self.obj.tagline}')
-        cal.add('timezone-id', f'{self.obj.timezone.zone}')
-        cal.add('x-wr-timezone', f'{self.obj.timezone.zone}')
+        cal.add('name', self.obj.title)
+        cal.add('x-wr-calname', self.obj.title)
+        cal.add('summary', self.obj.title)
+        cal.add('description', self.obj.tagline)
+        cal.add('x-wr-caldesc', self.obj.tagline)
+        cal.add('timezone-id', self.obj.timezone.zone)
+        cal.add('x-wr-timezone', self.obj.timezone.zone)
         cal.add('refresh-interval;value=duration', 'PT12H')
         cal.add('x-published-ttl', 'PT12H')
         for session in self.obj.scheduled_sessions:
@@ -374,8 +374,8 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             f'{self.obj.venue.project.title} @ '
             f'{self.obj.venue.title} / {self.obj.title}',
         )
-        cal.add('timezone-id', f'{self.obj.venue.project.timezone.zone}')
-        cal.add('x-wr-timezone', f'{self.obj.venue.project.timezone.zone}')
+        cal.add('timezone-id', self.obj.venue.project.timezone.zone)
+        cal.add('x-wr-timezone', self.obj.venue.project.timezone.zone)
         cal.add('refresh-interval;value=duration', 'PT12H')
         cal.add('x-published-ttl', 'PT12H')
 
@@ -385,10 +385,15 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             cal.to_ical(),
             mimetype='text/calendar',
             headers={
-                'Content-Disposition': f'attachment;filename='
-                f'"{self.obj.venue.project.profile.name}-'
-                f'{self.obj.venue.project.name}-'
-                f'{self.obj.venue.name}-{self.obj.name}.ics"'
+                'Content-Disposition': 'attachment;filename="'
+                + self.obj.venue.project.profile.name
+                + '-'
+                + self.obj.venue.project.name
+                + '-'
+                + self.obj.venue.name
+                + '-'
+                + self.obj.name
+                + '.ics"'
             },
         )
 
