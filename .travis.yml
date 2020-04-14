@@ -18,8 +18,8 @@ before_script:
   - psql -c 'create database funnel_testing;' -U postgres
   - python -c "import six; print('Six:', six.__version__)"
 script:
-  - ./runfrontendtests.sh
   - ./runtests.sh
+  - ./runfrontendtests.sh
 after_success:
   - coveralls
 notifications:

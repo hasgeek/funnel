@@ -1,6 +1,6 @@
 {
   "admin": {
-    "username": "admin-cypress",
+    "username": "admin-user",
     "password": "cypress129"
   },
   "user": {
