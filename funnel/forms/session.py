@@ -29,7 +29,7 @@ class SessionForm(forms.Form):
     )
     banner_image_url = forms.URLField(
         __("Banner image URL"),
-        description="Banner image for session card",
+        description=__("Banner image for session card"),
         validators=[
             forms.validators.Optional(),
             forms.validators.ValidUrl(),
@@ -43,6 +43,15 @@ class SessionForm(forms.Form):
     )
     end_at = forms.HiddenField(
         __("End Time"), validators=[forms.validators.DataRequired()]
+    )
+    video_url = forms.StringField(
+        __("Video URL"),
+        description=__("URL of the uploaded video after the session is over"),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.ValidUrl(),
+            forms.validators.Length(max=2000),
+        ],
     )
 
 
