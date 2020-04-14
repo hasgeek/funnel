@@ -44,9 +44,9 @@
       {%- else %}
         <input type="hidden" name="save" value="">
         <button type="submit" value="true" class="mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
-          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}
+          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}
         </button>
-        <button type="submit" value="false" class="mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline bookmarked" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
+        <button type="submit" value="false" class="mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline bookmarked" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
       {%- endif %}
     </p>
   </form>
@@ -111,7 +111,7 @@
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
-          <p class="mui--text-subhead mui--text-right separator"><a href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#calendar-plus"></use></svg>{% endassets %}&nbsp;{% trans %}Add to calendar{% endtrans %}</a></p>
+          <p class="add-calendar"><a href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#calendar-plus"></use></svg>{% endassets %}&nbsp;{% trans %}Add to calendar{% endtrans %}</a></p>
         {% endif %}
         <div class="project-details__box--ticketbox">
           <div class="project-banner__action">
