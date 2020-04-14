@@ -27,7 +27,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import (
     CfpForm,
     ProjectBoxofficeForm,
@@ -41,6 +41,7 @@ from ..forms import (
 from ..jobs import import_tickets, tag_locations
 from ..models import RSVP_STATUS, Project, Proposal, Rsvp, SavedProject, db
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
@@ -84,7 +85,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('new_project')
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
@@ -212,7 +213,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def edit(self):
         if request.method == 'GET':
@@ -229,7 +230,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             )
 
             if not self.obj.timezone:
-                form.timezone.data = current_auth.user.timezone
+                form.timezone.data = str(current_auth.user.timezone)
 
             return render_form(
                 form=form,
@@ -264,7 +265,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     )
 
     @route('cfp', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def cfp(self):
         form = CfpForm(obj=self.obj, model=Project)
@@ -276,7 +277,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return render_template('project_cfp.html.jinja2', form=form, project=self.obj)
 
     @route('boxoffice_data', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def edit_boxoffice_data(self):
         form = ProjectBoxofficeForm(obj=self.obj, model=Project)
@@ -290,7 +291,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         )
 
     @route('transition', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def transition(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
@@ -309,7 +310,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for())
 
     @route('cfp_transition', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def cfp_transition(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
@@ -328,7 +329,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for('view_proposals'))
 
     @route('schedule_transition', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def schedule_transition(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
@@ -348,7 +349,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for())
 
     @route('rsvp', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     def rsvp_transition(self):
         form = RsvpTransitionForm()
         if form.validate_on_submit():
@@ -363,14 +364,14 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def rsvp_list(self):
         return {'project': self.obj, 'statuses': RSVP_STATUS}
 
     @route('save', methods=['POST'])
     @render_with(json=True)
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('view')
     def save(self):
         form = SavedProjectForm()
@@ -403,7 +404,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('checkin_event')
     def admin(self):
         csrf_form = forms.Form()
@@ -430,7 +431,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('settings', methods=['GET', 'POST'])
     @render_with('settings.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)

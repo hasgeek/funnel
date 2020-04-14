@@ -6,10 +6,12 @@ from werkzeug.datastructures import MultiDict
 from baseframe import _, forms
 from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
+from ..utils import strip_null
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import ProjectViewMixin
 
 
@@ -19,12 +21,12 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit_project')
     def labels(self):
         form = forms.Form()
         if form.validate_on_submit():
-            namelist = request.values.getlist('name')
+            namelist = [strip_null(x) for x in request.values.getlist('name')]
             for idx, lname in enumerate(namelist, start=1):
                 lbl = Label.query.filter_by(project=self.obj, name=lname).first()
                 if lbl is not None:
@@ -34,7 +36,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
         return {'project': self.obj, 'labels': self.obj.labels, 'form': form}
 
     @route('new', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @render_with('labels_form.html.jinja2')
     @requires_permission('admin')
     def new_label(self):
@@ -46,8 +48,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             # and those values are also available at `form.data`.
             # But in case there are options, the option values are in the list
             # in the order they appeared on the create form.
-            titlelist = request.values.getlist('title')
-            emojilist = request.values.getlist('icon_emoji')
+            titlelist = [strip_null(x) for x in request.values.getlist('title')]
+            emojilist = [strip_null(x) for x in request.values.getlist('icon_emoji')]
             # first values of both lists belong to the parent label
             titlelist.pop(0)
             emojilist.pop(0)
@@ -103,7 +105,7 @@ FunnelProjectLabelView.init_app(funnelapp)
 
 @route('/<profile>/<project>/labels/<label>')
 class LabelView(UrlForView, ModelView):
-    __decorators__ = [lastuser.requires_login, legacy_redirect]
+    __decorators__ = [requires_login, legacy_redirect]
     model = Label
     route_model_map = {
         'profile': 'project.profile.name',
@@ -122,7 +124,7 @@ class LabelView(UrlForView, ModelView):
         return label
 
     @route('edit', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @render_with('labels_form.html.jinja2')
     @requires_permission('edit_project')
     def edit(self):
@@ -138,9 +140,9 @@ class LabelView(UrlForView, ModelView):
             return redirect(self.obj.project.url_for('labels'), code=303)
 
         if form.validate_on_submit():
-            namelist = request.values.getlist('name')
-            titlelist = request.values.getlist('title')
-            emojilist = request.values.getlist('icon_emoji')
+            namelist = [strip_null(x) for x in request.values.getlist('name')]
+            titlelist = [strip_null(x) for x in request.values.getlist('title')]
+            emojilist = [strip_null(x) for x in request.values.getlist('icon_emoji')]
 
             namelist.pop(0)
             titlelist.pop(0)
@@ -198,7 +200,7 @@ class LabelView(UrlForView, ModelView):
         }
 
     @route('archive', methods=['POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('admin')
     def archive(self):
         form = forms.Form()
@@ -211,7 +213,7 @@ class LabelView(UrlForView, ModelView):
         return redirect(self.obj.project.url_for('labels'), code=303)
 
     @route('delete', methods=['GET', 'POST'])
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('admin')
     def delete(self):
         if self.obj.has_proposals:

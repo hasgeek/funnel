@@ -38,7 +38,7 @@
                 {%- if proposal.user != proposal.speaker %}
                   <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
                 {%- endif %}
-                {%- if g.user and current_auth.permissions.edit_project %}
+                {%- if current_auth.user and current_auth.permissions.edit_project %}
                   {%- if proposal.has_outstation_speaker %}
                     {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plane"></use></svg>{% endassets %}
                     <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>
@@ -88,12 +88,12 @@
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <div>
-              <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)">{% trans %}Submit a session proposal{% endtrans %}</a>
               {% if project.cfp_end_at_localized -%}<p class="mui--text-light mui--text-subhead"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="mui-d--inlineblock">
-              <a class="mui-btn mui-btn--raised mui-btn--dark mui-btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui-btn--dark mui-btn--strike" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
               <p class="mui--text-light mui--text-caption">{% trans %}Submissions are closed for this project{% endtrans %}</p>
             </div>
           {%- endif %}

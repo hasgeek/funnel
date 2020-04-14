@@ -1,9 +1,14 @@
 describe('Manage project venue', function() {
-  const { admin } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
   const project = require('../fixtures/project.json');
 
   it('Add venue', function() {
-    cy.relogin('/testcypressproject/' + project.url);
+    cy.login(
+      '/testcypressproject/' + project.url,
+      admin.username,
+      admin.password
+    );
+
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="manage-venues"]').click();

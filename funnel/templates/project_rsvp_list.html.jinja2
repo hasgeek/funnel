@@ -30,7 +30,15 @@
             {%- for rsvp in project.rsvps_with(value) %}
               <tr>
                 <td data-cy="user">{{rsvp.user.fullname}}</td>
-                <td>{{rsvp.user.email}}</td>
+                <td>
+                  {%- if rsvp.user.email %}
+                    {{ rsvp.user.email }}
+                  {%- elif rsvp.user.emailclaims %}
+                    {{ rsvp.user.emailclaims[0] }} <em>(unverified)</em>
+                  {%- elif rsvp.user.phone %}
+                    {{ rsvp.user.phone }}
+                  {%- endif %}
+                </td>
               </tr>
             {%- else %}
               <tr><td colspan="2"><em>No users</em></td></tr>

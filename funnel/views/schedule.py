@@ -23,11 +23,11 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, lastuser
+from .. import app, funnelapp
 from ..forms import ProjectScheduleTransitionForm, SavedProjectForm
 from ..models import Proposal, Session, db
 from .decorators import legacy_redirect
-from .helpers import localize_date
+from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 from .venue import room_data
 
@@ -268,7 +268,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('edit')
     @render_with('schedule_edit.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-schedule')
     def edit_schedule(self):
         proposals = {
@@ -314,7 +314,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('update', methods=['POST'])
     @render_with('schedule_edit.html.jinja2')
-    @lastuser.requires_login
+    @requires_login
     @requires_permission('edit-schedule')
     @requestargs(('sessions', json.loads))
     def update_schedule(self, sessions):
