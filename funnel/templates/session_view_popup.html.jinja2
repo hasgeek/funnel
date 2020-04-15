@@ -21,16 +21,18 @@
   </div>
 </div>
 <div class="modal__body">
+    {% if session.video and session.video.url %}
     <div class="details">
       <div class="details__box details__box--left mui-tabs__bar">
         <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
-          {{ embed_video_player({'video_source':'youtube', 'video_id':'AS9CMVU4XhI'}) }}
+          {{ embed_video_player({'video_source': session.video.source, 'video_id': session.video.id}) }}
         </div>
         <div class="details__box__control">
-          {{ video_action_bar({'video_source':'youtube', 'video_id':'AS9CMVU4XhI'}, session.proposal) }}
+          {{ video_action_bar({'video_source': session.video.source, 'video_id': session.video.id}, session.proposal) }}
         </div>
       </div>
     </div>
+    {% endif %}
     {% if session.proposal %}
       <div class="modal__body__section">
         <a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %}&nbsp;&nbsp;  {% trans %}View Proposal{% endtrans %}</a>
