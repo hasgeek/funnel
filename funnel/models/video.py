@@ -15,6 +15,84 @@ class VideoException(Exception):
     pass
 
 
+def parse_video_url(video_url):
+    video_source = 'raw'
+    video_id = video_url
+
+    parsed = urllib.parse.urlparse(video_url)
+    if parsed.netloc is None:
+        raise ValueError("Invalid video URL")
+
+    if parsed.netloc in ['youtube.com', 'www.youtube.com', 'm.youtube.com']:
+        if parsed.path == '/watch':
+            queries = urllib.parse.parse_qs(parsed.query)
+            if 'v' in queries and queries['v']:
+                video_id = queries['v'][0]
+                video_source = 'youtube'
+            else:
+                raise ValueError(
+                    f"{video_url}: YouTube video URLs need to be in the format: "
+                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                )
+        elif parsed.path.startswith('/embed'):
+            video_id = parsed.path.lstrip('/embed/')
+            if video_id:
+                video_id = video_id
+                video_source = 'youtube'
+            else:
+                raise ValueError(
+                    f"{video_url}: YouTube video URLs need to be in the format: "
+                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                )
+        else:
+            raise ValueError(
+                f"{video_url}: YouTube video URLs need to be in the format: "
+                "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            )
+    elif parsed.netloc == 'youtu.be':
+        video_id = parsed.path.lstrip('/')
+        if video_id:
+            video_id = video_id
+            video_source = 'youtube'
+        else:
+            raise ValueError(
+                "YouTube short URLs need to be in the format: "
+                "https://youtu.be/dQw4w9WgXcQ"
+            )
+    elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
+        video_id = parsed.path.lstrip('/')
+        if video_id:
+            video_id = video_id
+            video_source = 'vimeo'
+        else:
+            raise ValueError(
+                "Vimeo video URLs need to be in the format: "
+                "https://vimeo.com/336892869"
+            )
+    elif parsed.netloc == 'drive.google.com':
+        if parsed.path.startswith('/open'):
+            queries = urllib.parse.parse_qs(parsed.query)
+            if 'id' in queries and queries['id']:
+                video_id = queries['id'][0]
+                video_source = 'googledrive'
+            else:
+                raise ValueError(
+                    f"{video_url}: Google drive video URLs need to be in the format: "
+                    "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
+                    "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+                )
+        elif parsed.path.startswith('/file/d/'):
+            video_id = parsed.path.lstrip('/file/d/').rstrip('/view').rstrip('/preview')
+            video_source = 'googledrive'
+        else:
+            raise ValueError(
+                f"{video_url}: Google drive video URLs need to be in the format: "
+                "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
+                "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+            )
+    return video_source, video_id
+
+
 class VideoMixin:
     video_id = db.Column(db.UnicodeText, nullable=True)
     video_source = db.Column(db.UnicodeText, nullable=True)
@@ -119,43 +197,7 @@ class VideoMixin:
 
     @video_url.setter
     def video_url(self, value):
-        parsed = urllib.parse.urlparse(value)
-        if parsed.netloc is None:
-            raise ValueError("Invalid video URL")
-
-        if parsed.netloc in ['youtube.com', 'www.youtube.com']:
-            queries = urllib.parse.parse_qs(parsed.query)
-            if 'v' in queries and queries['v']:
-                self.video_id = queries['v'][0]
-                self.video_source = 'youtube'
-            else:
-                raise ValueError(
-                    "YouTube video URLs need to be in the format: "
-                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                )
-        elif parsed.netloc == 'youtu.be':
-            video_id = parsed.path.lstrip('/')
-            if video_id:
-                self.video_id = video_id
-                self.video_source = 'youtube'
-            else:
-                raise ValueError(
-                    "YouTube short URLs need to be in the format: "
-                    "https://youtu.be/dQw4w9WgXcQ"
-                )
-        elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
-            video_id = parsed.path.lstrip('/')
-            if video_id:
-                self.video_id = video_id
-                self.video_source = 'vimeo'
-            else:
-                raise ValueError(
-                    "Vimeo video URLs need to be in the format: "
-                    "https://vimeo.com/336892869"
-                )
-        else:
-            self.video_source = 'raw'
-            self.video_id = value
+        self.video_source, self.video_id = parse_video_url(value)
 
     @property
     def embeddable_video_url(self):

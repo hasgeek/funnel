@@ -6,9 +6,23 @@ from pytz import UTC
 
 from funnel import redis_store
 from funnel.models import Proposal
+from funnel.models.video import parse_video_url
 
 
 class TestVideos(object):
+    def test_parse_video_url(self):
+        assert parse_video_url('https://www.youtube.com/watch?v=dQw4w9WgXcQ') == (
+            'youtube',
+            'dQw4w9WgXcQ',
+        )
+        assert parse_video_url('https://vimeo.com/336892869') == ('vimeo', '336892869')
+        assert parse_video_url(
+            'https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o'
+        ) == ('googledrive', '1rwHdWYnF4asdhsnDwLECoqZQy4o')
+        assert parse_video_url(
+            'https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view'
+        ) == ('googledrive', '1rwHdWYnF4asdhsnDwLECoqZQy4o')
+
     def test_youtube(self, test_client, test_db, new_proposal):
         assert new_proposal.title == "Test Proposal"
 
