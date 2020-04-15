@@ -135,28 +135,26 @@
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script src="{{ url_for('static', filename=asset_path('schedule_view')) }}" type="text/javascript"></script>
   <script type="text/javascript">
-    var scheduleConfig = {
-      fromDate: {{ from_date|tojson }},
-      toDate: {{ to_date|tojson }},
-      timeZone: {{ timezone|tojson }},
-      sessions: {{ sessions|tojson }},
-      schedule: {{ schedule|tojson }},
-      venues: {{ venues|tojson }},
-      slotInterval: 5,
-      divElem: "#project-schedule-table",
-      scriptTemplate: '#scheduletemplate',
-      parentContainer: '#schedule',
-      active_session: '',
-      projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
-      pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
-      svgIconUrl: {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %}
-    };
-    {%- if active_session -%}
-      scheduleConfig['active_session'] = {{ active_session|tojson }};
-    {%- endif %}
-  </script>
-  <script type="text/javascript">
     $(document).ready( function() {
+      var scheduleConfig = {
+        fromDate: {{ from_date|tojson }},
+        toDate: {{ to_date|tojson }},
+        timeZone: {{ timezone|tojson }},
+        sessions: {{ sessions|tojson }},
+        schedule: {{ schedule|tojson }},
+        venues: {{ venues|tojson }},
+        slotInterval: 5,
+        divElem: "#project-schedule-table",
+        scriptTemplate: '#scheduletemplate',
+        parentContainer: '#schedule',
+        active_session: '',
+        projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
+        pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
+      };
+
+      {%- if active_session -%}
+        scheduleConfig['active_session'] = {{ active_session|tojson }};
+      {%- endif %}
       var saveProjectConfig = {
         formId: 'save-form',
         postUrl: {{ project.url_for('save')|tojson }}

@@ -82,30 +82,23 @@
       </p>
       <div class="details">
         <div class="details__box details__box--left mui-tabs__bar">
-          <!-- Session videos -->
-          <div class="mui--is-active mui-tabs__pane" id="pane-justified-2">
-            <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
-              {{ embed_video_player({'video_source':'youtube', 'video_id':'AS9CMVU4XhI'}) }}
+          {% if proposal.session and proposal.session.video and proposal.session.video.url %}
+            <div class="mui--is-active mui-tabs__pane" id="pane-justified-2">
+              <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
+                {{ embed_video_player({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id})}}
+              </div>
+              <div class="details__box__control">
+
+              </div>
             </div>
-            <div class="details__box__control">
-              {{ video_action_bar({'video_source':'youtube', 'video_id':'AS9CMVU4XhI'}, proposal) }}
-            </div>
-          </div>
-          <div class="mui-tabs__pane" id="pane-justified-3">
-            <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
-              {{ embed_video_player({'video_source':'youtube', 'video_id':'72168762'}) }}
-            </div>
-            <div class="details__box__control">
-              {{ video_action_bar({'video_source':'youtube', 'video_id':'72168762'}, proposal) }}
-            </div>
-          </div>
+          {%- endif -%}
           {% if proposal.preview_video.url %}
             <div class="mui-tabs__pane" id="pane-justified-1">
               <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
                 {{ embed_video_player({'video_source':'youtube', 'video_id':'71JdaRofCgA'}) }}
               </div>
               <div class="details__box__control">
-                {{ video_action_bar({'video_source':'youtube', 'video_id':'71JdaRofCgA'}, proposal.url_for(_external=true), proposal.title, proposal_owner, admin) }}
+
               </div>
             </div>
           {%- elif proposal.current_roles.owner %}
@@ -127,29 +120,26 @@
           <div class="gallery mui-tabs__bar">
             <a class="gallery-control gallery-control--prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
             </a>
-            <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Session</h3>
-            <div class="mui--is-active gallery__thumbnail tabs__item">
-              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-2">
-                <img src="https://hasgeek.tv/static/thumbnails/Building_a_PWA_using_Polymer_-_Ashrith_Kulai_OlaCabs_2.jpeg" class="img-responsive">
-                <div class="overlay"></div>
-                <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
-              </a>
-            </div>
-            <div class="gallery__thumbnail tabs__item">
-              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-3">
-                <img src="https://hasgeek.tv/static/thumbnails/Progressive_Web_Games_-_Prateek_Bhatnagar_Google_2.jpeg" class="img-responsive">
-                <div class="overlay"></div>
-                <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
-              </a>
-            </div>
-            <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Proposal</h3>
-            <div class="gallery__thumbnail tabs__item">
-              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-1">
-                <img src="https://hasgeek.tv/static/thumbnails/Demystifying_Web_Components_as_the_Weapon_for_Web_Convergence_-_Rahat_Khanna_Apple_2.jpeg" class="img-responsive">
-                <div class="overlay"></div>
-                <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
-              </a>
-            </div>
+            {% if proposal.session and proposal.session.video and proposal.session.video.url %}
+              <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Session</h3>
+              <div class="mui--is-active gallery__thumbnail tabs__item">
+                <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-2">
+                  <img src="{{ proposal.session.video.thumbnail }}" class="img-responsive">
+                  <div class="overlay"></div>
+                  <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+                </a>
+              </div>
+            {% endif %}
+            {% if proposal.preview_video.url %}
+              <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Proposal</h3>
+              <div class="gallery__thumbnail tabs__item">
+                <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-1">
+                  <img src="https://hasgeek.tv/static/thumbnails/Demystifying_Web_Components_as_the_Weapon_for_Web_Convergence_-_Rahat_Khanna_Apple_2.jpeg" class="img-responsive">
+                  <div class="overlay"></div>
+                  <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+                </a>
+              </div>
+            {% endif %}
             <a class="gallery-control gallery-control--next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button" data-action="Next(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
             </a>
           </div>

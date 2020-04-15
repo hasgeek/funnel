@@ -32,28 +32,21 @@
         <div class="grid__col-xs-12">
           <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}Videos{% endtrans %}</h2>
         </div>
-        <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
-          <div class="video">
-            <a class="video__thumbnail">
-              <img src="https://hasgeek.tv/static/thumbnails/Building_a_PWA_using_Polymer_-_Ashrith_Kulai_OlaCabs_2.jpeg" class="video__thumbnail__img img-responsive">
-              <div class="video__thumbnail__icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
-            </a>
-            <p class="mui--text-subhead video__txt">Security of Cryptocurrency wallet</p>
-            <p class="mui--text-body1 mui--text-light video__txt">lorem ipsum (@bool)</p>
-            <div class="mui--text-caption mui--text-light"><span>22 mins</span><span class="mui--pull-right">26 Nov 2017</span></div>
+        {% for session in project.sessions %}
+          {% if session.video and session.video.url %}
+          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+            <div class="video">
+              <a class="video__thumbnail" href="{{ session.url_for() }}">
+                <img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive">
+                <div class="video__thumbnail__icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+              </a>
+              <p class="mui--text-subhead video__txt">{{ session.title }}</p>
+              <p class="mui--text-body1 mui--text-light video__txt">{{ session.speaker_bio }}</p>
+              <div class="mui--text-caption mui--text-light"><span>{{ session.video.duration }}</span><span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span></div>
+            </div>
           </div>
-        </div>
-        <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
-          <div class="video">
-            <a class="video__thumbnail">
-              <img src="https://hasgeek.tv/static/thumbnails/Progressive_Web_Games_-_Prateek_Bhatnagar_Google_2.jpeg" class="video__thumbnail__img img-responsive">
-              <div class="video__thumbnail__icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
-            </a>
-            <p class="mui--text-subhead video__txt">Security of Cryptocurrency wallet</p>
-            <p class="mui--text-body1 mui--text-light video__txt">lorem ipsum (@bool)</p>
-            <div class="mui--text-caption mui--text-light"><span>22 mins</span><span class="mui--pull-right">26 Nov 2017</span></div>
-          </div>
-        </div>
+          {%- endif %}
+        {% endfor %}
       </div>
     </div>
   </div>

@@ -19,37 +19,51 @@
       <p class="mui--text-subhead" data-cy-session="room">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
     {% endif %}
   </div>
+  {% if not session.video and session.project.current_roles.admin %}
+    <div>
+      <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Add session video{% endtrans %}">Add session video</a>
+    </div>
+  {%- endif %}
 </div>
+{% if session.video or session.proposal or session.description or session.speaker_bio %}
 <div class="modal__body">
-    {% if session.video and session.video.url %}
+  {% if session.video and session.video.url %}
     <div class="details">
-      <div class="details__box details__box--left mui-tabs__bar">
+      <div class="details__box details__box--left">
         <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
           {{ embed_video_player({'video_source': session.video.source, 'video_id': session.video.id}) }}
         </div>
-        <div class="details__box__control">
-          {{ video_action_bar({'video_source': session.video.source, 'video_id': session.video.id}, session.proposal) }}
-        </div>
+        {% if session.proposal %}
+          <div class="details__box__control">
+            {{ video_action_bar({'video_source': session.video.source, 'video_id': session.video.id}, session.proposal) }}
+          </div>
+        {% else %}
+          <div class="details__box__control">
+            {{ video_action_bar({'video_source': session.video.source, 'video_id': session.video.id}, '', session) }}
+          </div>
+        {%- endif %}
       </div>
     </div>
-    {% endif %}
-    {% if session.proposal %}
-      <div class="modal__body__section">
-        <a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %}&nbsp;&nbsp;  {% trans %}View Proposal{% endtrans %}</a>
-      </div>
-    {% endif %}
-    <hr class="modal__body__separator">
-    {% if session.description %}
-      <div class="modal__body__section">
-        <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Description{% endtrans %}</strong></h3>
-        <div class="mui--text-body2 image-wrapper">{{ session.description }}</div>
-      </div>
-    {% endif %}
-    {% if session.speaker_bio %}
-      <div class="modal__body__section">
-        <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Speaker Bio{% endtrans %}</strong></h3>
-        <div class="mui--text-body2">{{ session.speaker_bio }}</div>
-      </div>
-    {% endif %}
-  </div>
+  {%- endif %}
+  {% if session.proposal %}
+    <div class="modal__body__section">
+      <a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %}&nbsp;&nbsp;  {% trans %}View Proposal{% endtrans %}</a>
+    </div>
+  {% endif %}
+  {% if session.video or session.proposal %}
+  <hr class="modal__body__separator">
+  {% endif %}
+  {% if session.description %}
+    <div class="modal__body__section">
+      <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Description{% endtrans %}</strong></h3>
+      <div class="mui--text-body2 image-wrapper">{{ session.description }}</div>
+    </div>
+  {% endif %}
+  {% if session.speaker_bio %}
+    <div class="modal__body__section">
+      <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Speaker Bio{% endtrans %}</strong></h3>
+      <div class="mui--text-body2">{{ session.speaker_bio }}</div>
+    </div>
+  {% endif %}
 </div>
+{% endif %}
