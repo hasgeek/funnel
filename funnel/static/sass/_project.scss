@@ -40,18 +40,22 @@
 
     .bookmark-icon {
       position: absolute;
-      top: 0;
+      top: 4px;
       right: 0;
     }
     .card__calendar {
       padding: 0 15px 10px;
       margin: 0 -15px 25px;
     }
-    .project-time {
-      margin-bottom: 15px;
-    }
     .project-venue {
       margin: 10px 0;
+    }
+    .add-calendar {
+      position: absolute;
+      right: 50px;
+      top: 0;
+      font-size: 16px;
+      font-variant: all-small-caps;
     }
     .propose {
       margin: 8px 0 0;
@@ -133,7 +137,7 @@
       margin-top: -7px;
 
       .bookmark-icon {
-        top: 5px;
+        top: 1px;
         right: 10px;
       }
       .card__calendar {
