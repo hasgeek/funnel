@@ -108,16 +108,17 @@ class VideoMixin:
     def _video_cache(self):
         data = redis_store.hgetall(self.video_cache_key)
         if data:
-            if 'uploaded_at' in data:
+            if 'uploaded_at' in data and data['uploaded_at']:
                 data['uploaded_at'] = parse_isoformat(data['uploaded_at'], naive=False)
-            if 'duration' in data:
+            if 'duration' in data and data['duration']:
                 data['duration'] = int(data['duration'])
         return data
 
     @_video_cache.setter
     def _video_cache(self, data):
         copied_data = data.copy()
-        copied_data['uploaded_at'] = copied_data['uploaded_at'].isoformat()
+        if copied_data['uploaded_at']:
+            copied_data['uploaded_at'] = copied_data['uploaded_at'].isoformat()
         if copied_data['duration'] and not isinstance(copied_data['duration'], int):
             copied_data['duration'] = int(copied_data['duration'])
         redis_store.hmset(self.video_cache_key, copied_data)
@@ -179,8 +180,8 @@ class VideoMixin:
                 else:
                     # source = raw
                     data['duration'] = 0
-                    data['uploaded_at'] = None
-                    data['thumbnail'] = None
+                    data['uploaded_at'] = ''
+                    data['thumbnail'] = ''
                 self._video_cache = data  # using _video_cache setter to set cache
         return data
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, localize_timezone
+from baseframe import _, localize_timezone, request_is_xhr
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -69,18 +69,21 @@ def session_form(project, proposal=None, session=None):
                 db.session, session, project_id=project.id, url_id=session.url_id
             )
         db.session.commit()
-        data = {
-            'id': session.url_id,
-            'title': session.title,
-            'room_scoped_name': (
-                session.venue_room.scoped_name if session.venue_room else None
-            ),
-            'is_break': session.is_break,
-            'modal_url': session.url_for('edit'),
-            'delete_url': session.url_for('delete'),
-            'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
-        }
-        return jsonify(status=True, data=data)
+        if request_is_xhr():
+            data = {
+                'id': session.url_id,
+                'title': session.title,
+                'room_scoped_name': (
+                    session.venue_room.scoped_name if session.venue_room else None
+                ),
+                'is_break': session.is_break,
+                'modal_url': session.url_for('edit'),
+                'delete_url': session.url_for('delete'),
+                'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
+            }
+            return jsonify(status=True, data=data)
+        else:
+            return redirect(session.url_for('view'))
     return jsonify(
         status=False,
         form=render_template(
