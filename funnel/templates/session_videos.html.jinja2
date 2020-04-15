@@ -32,20 +32,18 @@
         <div class="grid__col-xs-12">
           <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}Videos{% endtrans %}</h2>
         </div>
-        {% for session in project.sessions %}
-          {% if session.video and session.video.url %}
+        {% for session in project.sessions_with_video %}
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
             <div class="video">
               <a class="video__thumbnail" href="{{ session.url_for() }}">
                 <img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive">
                 <div class="video__thumbnail__icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
               </a>
-              <p class="mui--text-subhead video__txt">{{ session.title }}</p>
-              <p class="mui--text-body1 mui--text-light video__txt">{{ session.speaker_bio }}</p>
-              <div class="mui--text-caption mui--text-light"><span>{{ session.video.duration }}</span><span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span></div>
+              <p class="mui--text-subhead video__txt">{%- if session.proposal %}{{ session.proposal.title }}{% else %}{{ session.title }}{%- endif %}</p>
+              {%- if session.proposal and session.proposal.speaker %}<p class="mui--text-body1 mui--text-light video__txt">{{ session.proposal.speaker.title }}</p>{%- endif %}
+              <div class="mui--text-caption mui--text-light"><span class="js-video-duration" data-duration="{{ session.video.duration }}"></span><span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span></div>
             </div>
           </div>
-          {%- endif %}
         {% endfor %}
       </div>
     </div>
@@ -67,6 +65,15 @@
         formId: 'save-form',
         postUrl: {{ project.url_for('save')|tojson }}
       }
+
+      $('.js-video-duration').each(function() {
+        var durationInSeconds = $(this).data('duration');
+        console.log('durationInSeconds', durationInSeconds);
+        var date = new Date(null);
+        date.setSeconds(durationInSeconds);
+        var duration = date.toISOString().substr(11, 8);
+        $(this).html(duration);
+      });
 
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);
       window.HasGeek.ProposalsInit(proposalsConfig);

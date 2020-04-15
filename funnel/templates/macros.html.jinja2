@@ -164,7 +164,9 @@
       {%- if project.featured_sessions %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
-      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'videos' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'videos' -%}{{ project.url_for('session_videos') }}{%- endif %}#video" data-action="Video(navbar)" data-cy-navbar="video">{% trans %}Video{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+      {%- if project.sessions_with_video.count() > 0 %}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'videos' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'videos' -%}{{ project.url_for('session_videos') }}{%- endif %}#video" data-action="Video(navbar)" data-cy-navbar="video">{% trans %}Video{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+      {%- endif %}
       {%- if project.hasjob_embed_url.url -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-action="Jobs(navbar)" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
       {%- endif %}
@@ -189,11 +191,13 @@
     <iframe id="youtube_player" src="//videoken.com/embed/?videoID={{video.video_id}}&wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=1&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>
     <p><a href="https://videoken.com" target="_blank" class="mui--text-caption mui--text-light">Powered by VideoKen</a></p>
   {% elif video.video_source == 'vimeo' %}
-    <iframe src="//player.vimeo.com/video/{{video.video_id}}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+    <iframe src="//player.vimeo.com/video/{{video.video_id}}" frameborder="0" allowfullscreen></iframe>
+  {% elif video.video_source == 'googledrive' %}
+    <iframe src="https://drive.google.com/file/d/{{video.video_id}}/preview" frameborder="0" allowfullscreen></iframe>
   {% else %}
     <p class="video_txt">
       {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
-      <a href="{{ video.preview_video }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+      <a href="{{ video.video_id }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
     </p>
   {%- endif %}
 {% endmacro %}
