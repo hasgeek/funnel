@@ -7,6 +7,7 @@ Create Date: 2020-04-15 10:36:15.558161
 
 """
 
+from textwrap import dedent
 import csv
 import re
 
@@ -73,15 +74,56 @@ def upgrade():
         writer.writeheader()
         writer.writerows(troublesome_previews)
 
+    op.execute(
+        sa.DDL(
+            dedent(
+                '''
+        UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(links, '')), 'B') || setweight(to_tsvector('english', COALESCE(bio_text, '')), 'B');
+
+        DROP TRIGGER proposal_search_vector_trigger ON proposal;
+        DROP FUNCTION proposal_search_vector_update();
+
+        CREATE FUNCTION proposal_search_vector_update() RETURNS trigger AS $$
+        BEGIN
+            NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.links, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.bio_text, '')), 'B');
+            RETURN NEW;
+        END
+        $$ LANGUAGE plpgsql;
+
+        CREATE TRIGGER proposal_search_vector_trigger BEFORE INSERT OR UPDATE ON proposal
+        FOR EACH ROW EXECUTE PROCEDURE proposal_search_vector_update();
+                '''
+            )
+        )
+    )
+
+    op.drop_column('proposal', 'preview_video')
+
 
 def downgrade():
-    conn = op.get_bind()
+    op.add_column(
+        'proposal', sa.Column('preview_video', sa.UnicodeText(), nullable=True)
+    )
 
-    proposals = conn.execute(proposal.select())
-    for prop in proposals:
-        if prop['preview_video']:
-            conn.execute(
-                sa.update(proposal)
-                .where(proposal.c.id == prop['id'])
-                .values(video_source=None, video_id=None)
+    op.execute(
+        sa.DDL(
+            dedent(
+                '''
+        UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(preview_video, '')), 'C') || setweight(to_tsvector('english', COALESCE(links, '')), 'B') || setweight(to_tsvector('english', COALESCE(bio_text, '')), 'B');
+
+        DROP TRIGGER proposal_search_vector_trigger ON proposal;
+        DROP FUNCTION proposal_search_vector_update();
+
+        CREATE FUNCTION proposal_search_vector_update() RETURNS trigger AS $$
+        BEGIN
+            NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.preview_video, '')), 'C') || setweight(to_tsvector('english', COALESCE(NEW.links, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.bio_text, '')), 'B');
+            RETURN NEW;
+        END
+        $$ LANGUAGE plpgsql;
+
+        CREATE TRIGGER proposal_search_vector_trigger BEFORE INSERT OR UPDATE ON proposal
+        FOR EACH ROW EXECUTE PROCEDURE proposal_search_vector_update();
+                '''
             )
+        )
+    )

@@ -135,6 +135,7 @@ class VideoMixin:
                     'source': self.video_source,
                     'id': self.video_id,
                     'url': self.video_url,
+                    'embeddable_url': self.embeddable_video_url,
                 }
                 if self.video_source == 'youtube':
                     youtube_video = requests.get(

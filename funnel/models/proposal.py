@@ -132,7 +132,6 @@ class Proposal(
     outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(UrlType, nullable=True)
-    preview_video = db.Column(UrlType, default='', nullable=True)
     links = db.Column(db.Text, default='', nullable=True)
 
     _state = db.Column(
@@ -174,7 +173,6 @@ class Proposal(
                 'outline_text',
                 'requirements_text',
                 'slides',
-                'preview_video',
                 'links',
                 'bio_text',
                 weights={
@@ -183,7 +181,6 @@ class Proposal(
                     'outline_text': 'B',
                     'requirements_text': 'B',
                     'slides': 'B',
-                    'preview_video': 'C',
                     'links': 'B',
                     'bio_text': 'B',
                 },
@@ -219,7 +216,7 @@ class Proposal(
                 'outline',
                 'requirements',
                 'slides',
-                'preview_video',
+                'video',
                 'links',
                 'location',
                 'latitude',
