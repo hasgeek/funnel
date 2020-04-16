@@ -262,7 +262,7 @@
           -webkit-transform: translateX(-50%);
           margin: auto;
           padding: 4px;
-          width: 135px;
+          width: 180px;
           font-size: 12px;
           line-height: 1;
           z-index: 3;
@@ -283,12 +283,16 @@
         }
 
         .calendar__weekdays__dates__date:nth-child(1)
+          .calendar__weekdays__dates__time,
+        .calendar__weekdays__dates__date:nth-child(2)
           .calendar__weekdays__dates__time {
           left: 0;
           transform: translateX(0);
           -webkit-transform: translateX(0);
         }
 
+        .calendar__weekdays__dates__date:nth-child(6)
+          .calendar__weekdays__dates__time,
         .calendar__weekdays__dates__date:nth-child(7)
           .calendar__weekdays__dates__time {
           left: unset;
@@ -366,7 +370,7 @@
     .card__body__bookmark {
       position: absolute;
       right: 15px;
-      top: 19px;
+      top: 11px;
     }
     .card__body__bookmark--pushup {
       top: 4px;

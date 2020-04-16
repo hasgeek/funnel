@@ -4,10 +4,10 @@
     <div id="c{{ comment.suuid }}">
       <div class="comment--content">
         <div class="comment--header">
-          <button class="js-collapse mui-btn--nostyle" aria-label="{% trans %}Hide comment{% endtrans %}" aria-expanded="true">
+          <button class="js-collapse mui-btn mui-btn--nostyle" aria-label="{% trans %}Hide comment{% endtrans %}" aria-expanded="true">
             {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-up"></use></svg>{% endassets %}
           </button>
-          <button class="js-uncollapse mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
+          <button class="js-uncollapse mui-btn mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
             {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-down"></use></svg>{% endassets %}
           </button>&nbsp;
           {% if comment.state.DELETED -%}

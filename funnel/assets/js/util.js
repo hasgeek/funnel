@@ -159,19 +159,17 @@ export const Utils = {
       let eventDay = Date.parse(eventDate);
       // Find the difference between event and today's date in UTC
       let counting = Math.round((eventDay - today) / singleDay);
+      let dayText = ['Today', 'Tomorrow', 'Day after'];
       // Show number of days on the widget only if it is less than 32 days
-      if (counting > 0 && counting < 32) {
+      if (counting >= 0 && counting < 3) {
+        $(this)
+          .find('.calendar__counting')
+          .text(dayText[counting]);
+      } else if (counting > 2 && counting < 32) {
         let daysRemainingTxt = `In ${counting} day`;
-        if (counting > 1) {
-          daysRemainingTxt += 's';
-        }
         $(this)
           .find('.calendar__counting')
           .text(daysRemainingTxt);
-      } else if (counting === 0) {
-        $(this)
-          .find('.calendar__counting')
-          .text('Today');
       }
     });
   },
@@ -339,28 +337,37 @@ export const Video = {
       /(http:|https:|)\/\/(player.|www.)?(y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
     );
     let type = '';
-    if (
-      regexMatch[3].indexOf('youtu') > -1 ||
-      regexMatch[3].indexOf('y2u') > -1
-    ) {
-      type = 'youtube';
-    } else if (regexMatch[3].indexOf('vimeo') > -1) {
-      type = 'vimeo';
+    if (regexMatch && regexMatch.length > 5) {
+      if (
+        regexMatch[3].indexOf('youtu') > -1 ||
+        regexMatch[3].indexOf('y2u') > -1
+      ) {
+        type = 'youtube';
+      } else if (regexMatch[3].indexOf('vimeo') > -1) {
+        type = 'vimeo';
+      }
+      return {
+        type,
+        videoId: regexMatch[6],
+      };
+    } else {
+      return {
+        type,
+        videoId: url,
+      };
     }
-    return {
-      type,
-      videoId: regexMatch[6],
-    };
   },
   embedIframe(videoWrapper, videoUrl) {
-    let videoEmbedUrl;
+    let videoEmbedUrl = '';
     const { type, videoId } = this.getVideoTypeAndId(videoUrl);
     if (type === 'youtube') {
       videoEmbedUrl = `<iframe src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
     } else if (type === 'vimeo') {
       videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}' frameborder='0' allowfullscreen></iframe>`;
     }
-    videoWrapper.innerHTML = videoEmbedUrl;
+    if (videoEmbedUrl) {
+      videoWrapper.innerHTML = videoEmbedUrl;
+    }
   },
 };
 
