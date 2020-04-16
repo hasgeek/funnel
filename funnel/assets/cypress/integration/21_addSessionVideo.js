@@ -27,5 +27,13 @@ describe('Add video to session', function() {
     cy.get('[data-cy="session-video"]')
       .find('iframe')
       .should('be.visible');
+    cy.get('[data-cy="view-proposal"]')
+      .invoke('removeAttr', 'target')
+      .click();
+    cy.get('[data-cy="session-video"]')
+      .find('iframe')
+      .should('be.visible');
+    cy.get('img[data-cy="session-video-thumbnail"]').should('be.visible');
+    cy.get('[data-cy="edit-session-video"]').should('exist');
   });
 });
