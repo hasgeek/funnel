@@ -205,7 +205,15 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return 'invalid'
         elif len(name) > cls.__name_length__:
             return 'long'
-        existing = cls.get(name)
+        existing = (
+            cls.query.filter_by(name=name)
+            .options(
+                db.load_only(
+                    cls.id, cls.uuid, cls.user_id, cls.organization_id, cls.reserved
+                )
+            )
+            .one_or_none()
+        )
         if existing:
             if existing.reserved:
                 return 'reserved'
