@@ -728,7 +728,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
         backref=db.backref('teams', order_by=title, cascade='all, delete-orphan'),
     )
     users = db.relationship(
-        User, secondary='team_membership', lazy='dynamic', backref='teams'
+        User, secondary=team_membership, lazy='dynamic', backref='teams'
     )  # No cascades here! Cascades will delete users
 
     def __repr__(self):
@@ -751,8 +751,12 @@ class Team(UuidMixin, BaseMixin, db.Model):
     def migrate_user(cls, olduser, newuser):
         for team in olduser.teams:
             if team not in newuser.teams:
+                # FIXME: This creates new memberships, updating `created_at`.
+                # Unfortunately, we can't work with model instances as in the other
+                # `migrate_user` methods as team_membership is an unmapped table.
                 newuser.teams.append(team)
         olduser.teams = []
+        return [cls.__table__.name, team_membership.name]
 
     @classmethod
     def get(cls, buid, with_parent=False):
@@ -861,6 +865,16 @@ class UserEmail(BaseMixin, db.Model):
         else:
             return cls.query.filter_by(user=user, md5sum=md5sum).one_or_none()
 
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        primary_email = old_user.primary_email
+        for useremail in list(old_user.emails):
+            useremail.user = new_user
+        if new_user.primary_email is None:
+            new_user.primary_email = primary_email
+        old_user.primary_email = None
+        return [cls.__table__.name, user_email_primary_table.name]
+
 
 class UserEmailClaim(BaseMixin, db.Model):
     __tablename__ = 'user_email_claim'
@@ -907,6 +921,16 @@ class UserEmailClaim(BaseMixin, db.Model):
         if user and user == self.user:
             perms.add('verify')
         return perms
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        emails = {claim.email for claim in new_user.emailclaims}
+        for claim in list(old_user.emailclaims):
+            if claim.email not in emails:
+                claim.user = new_user
+            else:
+                # New user also made the same claim. Delete old user's claim
+                db.session.delete(claim)
 
     @classmethod
     def get_for(cls, user, email=None, md5sum=None):
@@ -1014,6 +1038,16 @@ class UserPhone(BaseMixin, db.Model):
         """
         return cls.query.filter_by(user=user, phone=phone).one_or_none()
 
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        primary_phone = old_user.primary_phone
+        for userphone in list(old_user.phones):
+            userphone.user = new_user
+        if new_user.primary_phone is None:
+            new_user.primary_phone = primary_phone
+        old_user.primary_phone = None
+        return [cls.__table__.name, user_phone_primary_table.name]
+
 
 class UserPhoneClaim(BaseMixin, db.Model):
     __tablename__ = 'user_phone_claim'
@@ -1059,6 +1093,16 @@ class UserPhoneClaim(BaseMixin, db.Model):
         return phonenumbers.format_number(
             self.parsed(), phonenumbers.PhoneNumberFormat.INTERNATIONAL
         )
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        phones = {claim.email for claim in new_user.phoneclaims}
+        for claim in list(old_user.phoneclaims):
+            if claim.phone not in phones:
+                claim.user = new_user
+            else:
+                # New user also made the same claim. Delete old user's claim
+                db.session.delete(claim)
 
     @hybrid_property
     def verification_expired(self):
@@ -1176,8 +1220,12 @@ class UserExternalId(BaseMixin, db.Model):
         return perms
 
 
-add_primary_relationship(User, 'primary_email', UserEmail, 'user', 'user_id')
-add_primary_relationship(User, 'primary_phone', UserPhone, 'user', 'user_id')
+user_email_primary_table = add_primary_relationship(
+    User, 'primary_email', UserEmail, 'user', 'user_id'
+)
+user_phone_primary_table = add_primary_relationship(
+    User, 'primary_phone', UserPhone, 'user', 'user_id'
+)
 
 # Tail imports
 from .profile import Profile  # isort:skip

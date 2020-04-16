@@ -56,7 +56,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
     user = db.relationship(
         User,
         backref=db.backref(
-            'all_sessions', cascade='all, delete-orphan', lazy='dynamic'
+            'all_user_sessions', cascade='all, delete-orphan', lazy='dynamic'
         ),
     )
 

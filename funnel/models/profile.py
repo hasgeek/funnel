@@ -9,6 +9,7 @@ from coaster.utils import LabeledEnum, valid_username
 from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
 from .helpers import RESERVED_NAMES, add_search_trigger
 from .user import Organization, User
+from .utils import do_migrate_instances
 
 __all__ = ['Profile']
 
@@ -240,6 +241,19 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         # the caller must call :meth:`is_available_name` or attempt to commit
         # to the db and catch IntegrityError.
         return value
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        if old_user.profile and not new_user.profile:
+            # New user doesn't have a profile. Simply transfer ownership.
+            new_user.profile = old_user.profile
+        elif old_user.profile and new_user.profile:
+            # Both have profiles. Move everything that refers to old profile
+            done = do_migrate_instances(
+                old_user.profile, new_user.profile, 'migrate_profile'
+            )
+            if done:
+                db.session.delete(old_user.profile)
 
     @property
     def teams(self):
