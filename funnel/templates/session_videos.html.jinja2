@@ -52,31 +52,16 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('session_videos')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var proposalsConfig = {};
-      proposalsConfig.search = {
-        tableId: 'proposals-table',
-        inputId: 'search'
-      };
-
       var saveProjectConfig = {
         formId: 'save-form',
         postUrl: {{ project.url_for('save')|tojson }}
       }
 
-      $('.js-video-duration').each(function() {
-        var durationInSeconds = $(this).data('duration');
-        console.log('durationInSeconds', durationInSeconds);
-        var date = new Date(null);
-        date.setSeconds(durationInSeconds);
-        var duration = date.toISOString().substr(11, 8);
-        $(this).html(duration);
-      });
-
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);
-      window.HasGeek.ProposalsInit(proposalsConfig);
+      window.HasGeek.SessionVideoInit();
     });
   </script>
 {% endblock %}
