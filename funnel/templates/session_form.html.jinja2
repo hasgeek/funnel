@@ -10,7 +10,7 @@
     {{ form.hidden_tag() }}
 	  {{ renderform_inner(form, formid or None) }}
     {%- if not request_is_xhr() %}
-      {{ rendersubmit([("Save session", "Save session", '')]) }}
+      {{ rendersubmit([("Save session", "save session", '')]) }}
     {%- endif %}
 	</form>
   {%- if request_is_xhr() %}
