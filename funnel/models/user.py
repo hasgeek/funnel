@@ -168,7 +168,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @name.setter
     def name(self, value):
         if not value:
-            raise ValueError("Name is required")
+            if self.profile is not None:
+                raise ValueError("Name is required")
         else:
             if self.profile is not None:
                 self.profile.name = value
@@ -627,7 +628,8 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @name.setter
     def name(self, value):
         if not value:
-            raise ValueError("Name is required")
+            if self.profile is not None:
+                raise ValueError("Name is required")
         else:
             if self.profile is not None:
                 self.profile.name = value
