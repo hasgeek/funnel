@@ -65,7 +65,9 @@ class ProfileViewMixin(object):
     route_model_map = {'profile': 'name'}
 
     def loader(self, profile):
-        profile = self.model.query.filter(Profile.name == profile).first_or_404()
+        profile = self.model.get(profile)
+        if not profile:
+            abort(404)
         g.profile = profile
         return profile
 
