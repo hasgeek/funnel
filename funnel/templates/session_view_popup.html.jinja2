@@ -19,13 +19,8 @@
       <p class="mui--text-subhead" data-cy-session="room">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
     {% endif %}
   </div>
-  {% if not session.video and session.project.current_roles.admin %}
-    <div>
-      <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Add session video{% endtrans %}">Add session video</a>
-    </div>
-  {%- endif %}
 </div>
-{% if session.video or session.proposal or session.description or session.speaker_bio %}
+
 <div class="modal__body">
   {% if session.video and session.video.url %}
     <div class="details">
@@ -44,10 +39,26 @@
         {%- endif %}
       </div>
     </div>
+  {% else %}
+    <div class="details">
+      <div class="details__box details__box--left">
+        <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
+          <div class="video_txt">
+            <p>{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video-slash"></use></svg>{% endassets %}</p>
+            <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
+            {% if not session.video and session.project.current_roles.admin %}
+              <div>
+                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Add session video{% endtrans %}">Edit session</a>
+              </div>
+            {%- endif %}
+          </div>
+        </div>
+      </div>
+    </div>
   {%- endif %}
   {% if session.proposal %}
     <div class="modal__body__section">
-      <a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %}&nbsp;&nbsp;  {% trans %}View Proposal{% endtrans %}</a>
+      <a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %} {% trans %}Open proposal for this session{% endtrans %}</a>
     </div>
   {% endif %}
   {% if session.video or session.proposal %}
@@ -66,4 +77,3 @@
     </div>
   {% endif %}
 </div>
-{% endif %}

@@ -83,40 +83,40 @@
       <div class="details">
         <div class="details__box details__box--left mui-tabs__bar">
           {% with seq = 1 %}
-          {% if proposal.session and proposal.session.video and proposal.session.video.url %}
-            <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
-              <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
-                {{ embed_video_player({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id})}}
+            {% if proposal.session and proposal.session.video and proposal.session.video.url %}
+              <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
+                <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
+                  {{ embed_video_player({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id})}}
+                </div>
+                <div class="details__box__control">
+                  {{ video_action_bar({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id}, proposal)}}
+                </div>
               </div>
-              <div class="details__box__control">
-                {{ video_action_bar({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id}, proposal)}}
+              {% set seq = seq + 1 %}
+            {%- endif -%}
+            {% if proposal.video %}
+              <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
+                <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
+                  {{ embed_video_player({'video_source': proposal.video.source, 'video_id':proposal.video.id }) }}
+                </div>
+                <div class="details__box__control">
+                  {{ video_action_bar({'video_source': proposal.video.source, 'video_id':proposal.video.id }, proposal) }}
+                </div>
               </div>
-            </div>
-            {% set seq = seq + 1 %}
-          {%- endif -%}
-          {% if proposal.video %}
-            <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
-              <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
-                {{ embed_video_player({'video_source': proposal.video.source, 'video_id':proposal.video.id }) }}
+            {%- elif proposal.current_roles.owner %}
+              <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
+                <div class="details__box__video details__box__video--novideo embed-video-wrapper">
+                  <p class="details__box__video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
+                  <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
+                </div>
               </div>
-              <div class="details__box__control">
-                {{ video_action_bar({'video_source': proposal.video.source, 'video_id':proposal.video.id }, proposal) }}
+            {%- else %}
+              <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
+                <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
+                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline no-video" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video-slash"></use></svg>{% endassets %}
+                </div>
               </div>
-            </div>
-          {%- elif proposal.current_roles.owner %}
-            <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
-              <div class="details__box__video details__box__video--novideo embed-video-wrapper">
-                <p class="details__box__video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
-                <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-preview_video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
-              </div>
-            </div>
-          {%- else %}
-            <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
-              <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
-              {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline no-video" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video-slash"></use></svg>{% endassets %}
-              </div>
-            </div>
-          {% endif %}
+            {% endif %}
           {% endwith %}
         </div>
         <div class="details__box details__box--right">
@@ -135,8 +135,8 @@
                 </div>
                 {% set seq = seq + 1 %}
               {% endif %}
+              <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Proposal video</h3>
               {% if proposal.video %}
-                <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Proposal video</h3>
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
                   <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                     <img src="{{ proposal.video.thumbnail }}" class="img-responsive">
@@ -144,10 +144,12 @@
                     <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
                   </a>
                 </div>
-                {% set seq = seq + 1 %}
-              {% endif %}
-              {% if seq == 1 %}
-                <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">No Videos</h3>
+                {%- else %}
+                <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
+                  <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
+                    <h3 class="mui--text-subhead mui--text-accent mui--text-bold">No preview video</h3>
+                  </a>
+                </div>
               {% endif %}
             {% endwith %}
             <a class="gallery-control gallery-control--next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button" data-action="Next(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
@@ -232,8 +234,8 @@
               {%- endif %}
               <hr class="mui-divider">
               {%- if proposal.current_roles.owner %}
-                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.url_for('edit') }}#field-preview_video" data-cy-admin="edit proposal video" aria-label="{% trans %}Add proposal video{% endtrans %}">
-                  {%- if proposal.preview_video.url %}
+                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.url_for('edit') }}#field-video" data-cy-admin="edit proposal video" aria-label="{% trans %}Add proposal video{% endtrans %}">
+                  {%- if proposal.video %}
                     {% trans %}Edit proposal video{% endtrans %}
                   {% else %}
                     {% trans %}Add proposal video{% endtrans %}
@@ -294,9 +296,9 @@
             <p><i>This section is empty.</i></p>
           {% endif %}
 
-          {% if proposal.preview_video.url %}
+          {% if proposal.video %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Preview video{% endtrans %}</h3>
-            <a href="{{ proposal.preview_video }}">{{ proposal.preview_video }}</a>
+            <a href="{{ proposal.video }}">{{ proposal.video.id }}</a>
           {% endif %}
         </div>
       </div>

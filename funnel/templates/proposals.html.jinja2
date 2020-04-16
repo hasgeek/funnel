@@ -54,7 +54,7 @@
               {% endif %}
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
-              {% if proposal.preview_video.url %}
+              {% if proposal.video %}
                 <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                   {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}
                 </li>
