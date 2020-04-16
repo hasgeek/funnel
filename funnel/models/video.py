@@ -207,7 +207,7 @@ class VideoMixin:
     def embeddable_video_url(self):
         if self.video_source:
             if self.video_source == 'youtube':
-                return f'https://www.youtube.com/embed/{self.video_id}?wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=0&enablejsapi=1&version=3'
+                return f'https://videoken.com/embed/?videoID={self.video_id}&wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=1&enablejsapi=1&version=3'
             elif self.video_source == 'vimeo':
                 return f'https://player.vimeo.com/video/{self.video_id}?api=1&player_id=vimeoplayer'
             elif self.video_source == 'googledrive':
