@@ -91,8 +91,8 @@
               <div>
                 <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
                   <div class="tabs">
-                    <button class="mui-btn--nostyle tabs__item" :class="(view === 'agenda') ? 'tabs__item--active' : ''" @click="toggleView($event, 'agenda')">Agenda view</button>
-                    <button class="mui-btn--nostyle tabs__item" :class="(view === 'calendar') ? 'tabs__item--active' : ''" @click="toggleView($event, 'calendar')">Calender view</button>
+                    <button class="mui-btn mui-btn--nostyle tabs__item" :class="(view === 'agenda') ? 'tabs__item--active' : ''" @click="toggleView($event, 'agenda')">Agenda view</button>
+                    <button class="mui-btn mui-btn--nostyle tabs__item" :class="(view === 'calendar') ? 'tabs__item--active' : ''" @click="toggleView($event, 'calendar')">Calender view</button>
                   </div>
                 </div>
                 <div class="schedule" v-for="schedule in schedules">

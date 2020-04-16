@@ -89,6 +89,12 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_permission('new_project')
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
+        # Profile URLs:
+        # HasGeek: https://hasgeek.com/rootconf (no /)
+        # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
+        form.name.prefix = self.obj.url_for(_external=True)
+        if not form.name.prefix.endswith('/'):
+            form.name.prefix += '/'
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():

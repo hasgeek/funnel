@@ -36,11 +36,6 @@
   display: block;
 }
 
-.svg-icon {
-  position: relative;
-  top: 2px;
-}
-
 .material-icons {
   display: none;
 }
@@ -71,11 +66,6 @@
   top: 7px;
 }
 
-.material-icons.mui--align-middle {
-  position: relative;
-  top: -1px;
-}
-
 .mui-divider--custom {
   margin: 5px 0 20px;
 }
@@ -86,10 +76,6 @@
 
 .btn-group .mui-btn + .mui-btn {
   margin-left: 0;
-}
-
-.mui-btn .material-icons.mui--align-middle {
-  margin-right: 5px;
 }
 
 .content-head--top-padding {
@@ -268,47 +254,6 @@ html.touch .collapsible__body--disable {
   left: 0;
   top: 11px;
   border-radius: 50%;
-}
-
-.mui-btn--nostyle {
-  background: none;
-  border: none;
-}
-
-.fa5-icon {
-  width: 14px;
-  height: 14px;
-  fill: currentColor;
-}
-
-.fa5--align-baseline {
-  position: relative;
-  top: 0.09em;
-}
-
-.fa5-icon--caption {
-  width: 12px;
-  height: 12px;
-}
-
-.fa5-icon--subhead {
-  width: 16px;
-  height: 16px;
-}
-
-.fa5-icon--title {
-  width: 18px;
-  height: 18px;
-}
-
-.fa5-icon--headline {
-  width: 24px;
-  height: 24px;
-}
-
-.fa5-icon--display1 {
-  width: 32px;
-  height: 32px;
 }
 
 .read-more {
@@ -1766,7 +1711,7 @@ html.touch .collapsible__body--disable {
   -webkit-transform: translateX(-50%);
   margin: auto;
   padding: 4px;
-  width: 135px;
+  width: 180px;
   font-size: 12px;
   line-height: 1;
   z-index: 3;
@@ -1804,11 +1749,23 @@ html.touch .collapsible__body--disable {
   .calendar__weekdays
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date:nth-child(1)
+  .calendar__weekdays__dates__time,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(2)
   .calendar__weekdays__dates__time {
   left: 0;
   transform: translateX(0);
   -webkit-transform: translateX(0);
 }
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(6)
+  .calendar__weekdays__dates__time,
 .card__calendar
   .calendar
   .calendar__weekdays
@@ -1896,7 +1853,7 @@ html.touch .collapsible__body--disable {
 .card--upcoming .card__body .card__body__bookmark {
   position: absolute;
   right: 15px;
-  top: 19px;
+  top: 11px;
 }
 .card--upcoming .card__body .card__body__bookmark--pushup {
   top: 4px;
@@ -2150,8 +2107,8 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .bookmark-icon {
   position: absolute;
-  top: 4px;
-  right: 0;
+  top: -4px;
+  right: 15px;
 }
 .project-banner .project-details__box .card__calendar {
   padding: 0 15px 10px;
@@ -2162,7 +2119,7 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .add-calendar {
   position: absolute;
-  right: 50px;
+  right: 30px;
   top: 0;
   font-size: 16px;
   font-variant: all-small-caps;
@@ -2182,21 +2139,6 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
-}
-.project-banner .project-details__box .propose .propose__txt {
-  margin-top: 5px;
-}
-.project-banner
-  .project-details__box
-  .propose
-  .propose__txt
-  .propose__txt__badge {
-  margin-right: 10px;
-  padding: 5px;
-  float: left;
-  position: relative;
-  top: 8px;
-  border-radius: 2px;
 }
 .project-banner .project-details__box .project-banner__action {
   display: flex;
@@ -2250,7 +2192,7 @@ html.touch .collapsible__body--disable {
     margin-top: -7px;
   }
   .project-banner .project-details__box .bookmark-icon {
-    top: 1px;
+    top: -4px;
     right: 10px;
   }
   .project-banner .project-details__box .card__calendar {

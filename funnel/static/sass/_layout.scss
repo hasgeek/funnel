@@ -36,11 +36,6 @@
   display: block;
 }
 
-.svg-icon {
-  position: relative;
-  top: 2px;
-}
-
 .material-icons {
   display: none;
 }
@@ -71,11 +66,6 @@
   top: 7px;
 }
 
-.material-icons.mui--align-middle {
-  position: relative;
-  top: -1px;
-}
-
 .mui-divider--custom {
   margin: 5px 0 20px;
 }
@@ -86,10 +76,6 @@
 
 .btn-group .mui-btn + .mui-btn {
   margin-left: 0;
-}
-
-.mui-btn .material-icons.mui--align-middle {
-  margin-right: 5px;
 }
 
 .content-head--top-padding {
@@ -275,48 +261,6 @@ html.touch .collapsible__body--disable {
     top: 11px;
     border-radius: 50%;
   }
-}
-
-.mui-btn--nostyle {
-  background: none;
-  border: none;
-}
-
-//Font awesome 5
-.fa5-icon {
-  width: 14px;
-  height: 14px;
-  fill: currentColor;
-}
-
-.fa5--align-baseline {
-  position: relative;
-  top: 0.09em;
-}
-
-.fa5-icon--caption {
-  width: 12px;
-  height: 12px;
-}
-
-.fa5-icon--subhead {
-  width: 16px;
-  height: 16px;
-}
-
-.fa5-icon--title {
-  width: 18px;
-  height: 18px;
-}
-
-.fa5-icon--headline {
-  width: 24px;
-  height: 24px;
-}
-
-.fa5-icon--display1 {
-  width: 32px;
-  height: 32px;
 }
 
 .read-more {
