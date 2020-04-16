@@ -614,14 +614,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'day_start_at': (
                         session_dates_dict[date]['day_start_at']
                         .astimezone(self.timezone)
-                        .strftime("%I:%M %p")
+                        .strftime("%I:%M %p %Z")
                         if date in session_dates_dict.keys()
                         else None
                     ),
                     'day_end_at': (
                         session_dates_dict[date]['day_end_at']
                         .astimezone(self.timezone)
-                        .strftime("%I:%M %p")
+                        .strftime("%I:%M %p %Z")
                         if date in session_dates_dict.keys()
                         else None
                     ),

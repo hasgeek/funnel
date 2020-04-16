@@ -40,8 +40,8 @@
 
     .bookmark-icon {
       position: absolute;
-      top: 4px;
-      right: 0;
+      top: -4px;
+      right: 15px;
     }
     .card__calendar {
       padding: 0 15px 10px;
@@ -52,7 +52,7 @@
     }
     .add-calendar {
       position: absolute;
-      right: 50px;
+      right: 30px;
       top: 0;
       font-size: 16px;
       font-variant: all-small-caps;
@@ -71,18 +71,6 @@
       }
       .propose-btn--strike:hover {
         text-decoration: line-through;
-      }
-      .propose__txt {
-        margin-top: 5px;
-
-        .propose__txt__badge {
-          margin-right: 10px;
-          padding: 5px;
-          float: left;
-          position: relative;
-          top: 8px;
-          border-radius: 2px;
-        }
       }
     }
     .project-banner__action {
@@ -137,7 +125,7 @@
       margin-top: -7px;
 
       .bookmark-icon {
-        top: 1px;
+        top: -4px;
         right: 10px;
       }
       .card__calendar {
