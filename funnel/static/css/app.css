@@ -2488,25 +2488,22 @@ html.touch .collapsible__body--disable {
 }
 
 .details .details__box {
-  margin-top: 15px;
   position: relative;
   overflow: visible;
 }
-.details .details__box--right {
-  margin-top: 0;
+.details .details__box--right,
+.details .details__box--left {
+  margin-top: 15px;
 }
 
 @media (min-width: 992px) {
   .details {
-    margin-top: 15px;
     display: flex;
   }
   .details .details__box--left {
-    margin-top: 0;
     width: 70%;
   }
   .details .details__box--right {
-    margin-top: 0;
     width: 30%;
   }
 }
@@ -2821,11 +2818,15 @@ html.touch .collapsible__body--disable {
   margin-bottom: 0;
 }
 
+.video {
+  margin-bottom: 30px;
+}
 .video .video__thumbnail {
   position: relative;
   display: block;
   width: 100%;
-  margin-bottom: 3px;
+  margin-bottom: 10px;
+  display: block;
 }
 .video .video__thumbnail .video__thumbnail__img {
   display: block;
@@ -2836,6 +2837,10 @@ html.touch .collapsible__body--disable {
   left: 50%;
   color: #fff;
   transform: translate(-50%, -50%);
+}
+.video .video__thumnail--novideo {
+  background: #ccc;
+  padding-top: 56.25%;
 }
 .video .video__txt {
   margin-bottom: 3px;

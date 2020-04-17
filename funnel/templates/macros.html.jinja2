@@ -209,8 +209,6 @@
 
   {%- if proposal and proposal.current_roles.owner %}
     <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy-admin="edit" aria-label="{% trans %}Edit proposal video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
-  {% elif proposal and proposal.current_roles.admin and proposal.state.SCHEDULED %}
-    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Edit session video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
   {% elif session and session.project.current_roles.admin %}
     <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Edit session video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
   {%- endif %}
@@ -224,7 +222,7 @@
     <div class="mui-dropdown">
       <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead" data-mui-toggle="dropdown" data-action="Share dropdown">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#share-square"></use></svg>{% endassets %}</a>
       <ul class="mui-dropdown__menu mui-dropdown__menu--right">
-        <li><a class="details__box__control__link mui--text-title" target="_blank" href="//twitter.com/share?url={{ url }}&amp;via=HasGeek&amp;{{ title }}" data-url="{{ url }}" data-via="HasGeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
+        <li><a class="details__box__control__link mui--text-title" target="_blank" href="//twitter.com/share?url={{ url }}&amp;via=HasGeek&amp;text={{ title }}" data-url="{{ url }}" data-via="HasGeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
         <li><a class="details__box__control__link mui--text-title" target="_blank" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}" data-href="{{ url }}" data-action="Share video on facebook">Facebook</a></li>
         <li><a class="details__box__control__link mui--text-title" href="mailto:?subject={{ title }}&amp;body={{ url }}" data-action="Email video">Email</a></li>
       </ul>

@@ -57,9 +57,7 @@
     </div>
   {%- endif %}
   {% if session.proposal %}
-    <div class="modal__body__section">
-      <a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %} {% trans %}Open proposal for this session{% endtrans %}</a>
-    </div>
+    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %} {% trans %}Open proposal for this session{% endtrans %}</a></p>
   {% endif %}
   {% if session.video or session.proposal %}
   <hr class="modal__body__separator">

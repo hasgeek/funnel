@@ -1,9 +1,12 @@
 .video {
+  margin-bottom: 30px;
+
   .video__thumbnail {
     position: relative;
     display: block;
     width: 100%;
-    margin-bottom: 3px;
+    margin-bottom: 10px;
+    display: block;
 
     .video__thumbnail__img {
       display: block;
@@ -16,6 +19,10 @@
       color: #fff;
       transform: translate(-50%, -50%);
     }
+  }
+  .video__thumnail--novideo {
+    background: #ccc;
+    padding-top: 56.25%;
   }
   .video__txt {
     margin-bottom: 3px;

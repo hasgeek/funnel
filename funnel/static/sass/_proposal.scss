@@ -107,26 +107,23 @@
 
 .details {
   .details__box {
-    margin-top: 15px;
     position: relative;
     overflow: visible;
   }
-  .details__box--right {
-    margin-top: 0;
+  .details__box--right,
+  .details__box--left {
+    margin-top: 15px;
   }
 }
 
 @media (min-width: 992px) {
   .details {
-    margin-top: 15px;
     display: flex;
 
     .details__box--left {
-      margin-top: 0;
       width: 70%;
     }
     .details__box--right {
-      margin-top: 0;
       width: 30%;
     }
   }

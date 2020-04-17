@@ -35,12 +35,12 @@
         {% for session in project.sessions_with_video %}
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
             <div class="video">
-              <a class="video__thumbnail" href="{{ session.url_for() }}">
+              <a class="video__thumbnail {%- if not session.video.thumbnail %} video__thumnail--novideo{%- endif %}" href="{{ session.url_for() }}">
                 {%- if session.video.thumbnail %}<img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive">{%- endif %}
                 <div class="video__thumbnail__icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
               </a>
               <p class="mui--text-subhead video__txt">{%- if session.proposal %}{{ session.proposal.title }}{% else %}{{ session.title }}{%- endif %}</p>
-              {%- if session.proposal and session.proposal.speaker %}<p class="mui--text-body1 mui--text-light video__txt">{{ session.proposal.speaker.title }}</p>{%- endif %}
+              {%- if session.speaker %}<p class="mui--text-body1 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
               <div class="mui--text-caption mui--text-light">
                   {%- if session.video.duration %}<span class="js-video-duration" data-duration="{{ session.video.duration }}"></span>{%- endif %}
                   {%- if session.video.uploaded_at %}<span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span>{%- endif %}
