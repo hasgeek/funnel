@@ -5,18 +5,18 @@
   <h3 class="js-modal-title mui--text-headline modal__header__title" data-cy-session="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
-      <p class="mui--text-subhead" data-cy-session="speaker">{% assets "fa5-sprite" %}<svg class="fa5-icon  fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#microphone-alt"></use></svg>{% endassets %} {{ session.speaker }}</p>
+      <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{% assets "fa5-sprite" %}<svg class="fa5-icon  fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#microphone-alt"></use></svg>{% endassets %} {{ session.speaker }}</p>
     {% endif %}
     {% if session.scheduled %}
-      <p class="mui--text-subhead" data-cy-session="time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#calendar-alt"></use></svg>{% endassets %} {{ session.start_at_localized.strftime('%d %B %Y') }}, {{ session.start_at_localized.strftime('%I:%M %p') }}–{{ session.end_at_localized.strftime('%I:%M %p') }}
+      <p class="mui--text-subhead modal__header__text" data-cy-session="time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#calendar-alt"></use></svg>{% endassets %} {{ session.start_at_localized.strftime('%d %B %Y') }}, {{ session.start_at_localized.strftime('%I:%M %p') }}–{{ session.end_at_localized.strftime('%I:%M %p') }}
       </p>
     {% else %}
-      <p class="mui--text-subhead">
+      <p class="mui--text-subhead modal__header__text">
       {% trans %}This session has not been scheduled yet.{% endtrans %}
       </p>
     {% endif %}
     {% if session.venue_room %}
-      <p class="mui--text-subhead" data-cy-session="room">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
+      <p class="mui--text-subhead modal__header__text" data-cy-session="room">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
     {% endif %}
   </div>
 </div>

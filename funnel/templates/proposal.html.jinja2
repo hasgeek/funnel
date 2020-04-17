@@ -89,7 +89,7 @@
                   {{ embed_video_player({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id})}}
                 </div>
                 <div class="details__box__control">
-                  {{ video_action_bar({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id}, proposal)}}
+                  {{ video_action_bar({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id}, '', proposal.session)}}
                 </div>
               </div>
               {% set seq = seq + 1 %}
@@ -121,13 +121,11 @@
         </div>
         <div class="details__box details__box--right">
           <div class="gallery mui-tabs__bar">
-            <a class="gallery-control gallery-control--prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
-            </a>
             {% with seq = 1 %}
               {% if proposal.session and proposal.session.video and proposal.session.video.url %}
                 <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Session video</h3>
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
+                  <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                     <img src="{{ proposal.session.video.thumbnail }}" class="img-responsive" data-cy="session-video-thumbnail">
                     <div class="overlay"></div>
                     <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
@@ -138,7 +136,7 @@
               <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Proposal video</h3>
               {% if proposal.video %}
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
+                  <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                     <img src="{{ proposal.video.thumbnail }}" class="img-responsive" data-cy="proposal-video-thumbnail">
                     <div class="overlay"></div>
                     <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
@@ -152,8 +150,6 @@
                 </div>
               {% endif %}
             {% endwith %}
-            <a class="gallery-control gallery-control--next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button" data-action="Next(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
-            </a>
           </div>
         </div>
       </div>

@@ -3,5 +3,5 @@
   "chromeWebSecurity": false,
   "baseUrl": "http://funnel.travis.local:3002",
   "pageLoadTimeout": 150000,
-  "video": true
+  "video": false
 }

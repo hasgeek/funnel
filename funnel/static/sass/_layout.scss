@@ -106,13 +106,14 @@
 .badge {
   position: relative;
   color: #fff;
-  width: 15px;
+  min-width: 15px;
   line-height: 15px;
-  height: 15px;
+  min-height: 15px;
   text-align: center;
   display: inline-block;
   background-color: #856a91;
-  border-radius: 50%;
+  border-radius: 3px;
+  padding: 2px;
 }
 
 .select2-inline {
@@ -143,7 +144,7 @@
 }
 
 .collapsible__header--smaller {
-  width: calc(100% - 51px);
+  width: calc(100% - 37px);
   padding: 10px;
   margin: 0 0 10px;
   white-space: nowrap;
