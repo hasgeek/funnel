@@ -76,6 +76,16 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return roles
 
     @classmethod
+    def migrate_user(cls, old_user, new_user):
+        participant_ids = {ce.participant_id for ce in new_user.scanned_contacts}
+        for ce in old_user.scanned_contacts:
+            if ce.participant_id not in participant_ids:
+                ce.user = new_user
+            else:
+                # Discard duplicate contact exchange
+                db.session.delete(ce)
+
+    @classmethod
     def grouped_counts_for(cls, user, archived=False):
         """
         Return count of contacts grouped by project and date

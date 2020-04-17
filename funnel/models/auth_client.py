@@ -422,19 +422,19 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         return True
 
     @classmethod
-    def migrate_user(cls, olduser, newuser):
-        if not olduser or not newuser:
+    def migrate_user(cls, old_user, new_user):
+        if not old_user or not new_user:
             return  # Don't mess with client-only tokens
-        oldtokens = cls.query.filter_by(user=olduser).all()
+        oldtokens = cls.query.filter_by(user=old_user).all()
         newtokens = {}  # AuthClient: token mapping
-        for token in cls.query.filter_by(user=newuser).all():
+        for token in cls.query.filter_by(user=new_user).all():
             newtokens.setdefault(token.auth_client_id, []).append(token)
 
         for token in oldtokens:
             merge_performed = False
             if token.auth_client_id in newtokens:
                 for newtoken in newtokens[token.auth_client_id]:
-                    if newtoken.user == newuser:
+                    if newtoken.user == new_user:
                         # There's another token for newuser with the same client.
                         # Just extend the scope there
                         newtoken.scope = set(newtoken.scope) | set(token.scope)
@@ -442,7 +442,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
                         merge_performed = True
                         break
             if merge_performed is False:
-                token.user = newuser  # Reassign this token to newuser
+                token.user = new_user  # Reassign this token to newuser
 
     @classmethod
     def get(cls, token):
@@ -531,10 +531,10 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
         return self.user.buid
 
     @classmethod
-    def migrate_user(cls, olduser, newuser):
-        for operm in olduser.client_permissions:
+    def migrate_user(cls, old_user, new_user):
+        for operm in old_user.client_permissions:
             merge_performed = False
-            for nperm in newuser.client_permissions:
+            for nperm in new_user.client_permissions:
                 if nperm.auth_client == operm.auth_client:
                     # Merge permission strings
                     tokens = set(operm.access_permissions.split(' '))
@@ -545,7 +545,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
                     db.session.delete(operm)
                     merge_performed = True
             if not merge_performed:
-                operm.user = newuser
+                operm.user = new_user
 
     @classmethod
     def get(cls, auth_client, user):

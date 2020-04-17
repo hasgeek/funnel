@@ -16,7 +16,6 @@ from pytz import utc
 from baseframe import _
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.gfm import markdown
-from coaster.sqlalchemy import failsafe_add
 from coaster.utils import utcnow
 from coaster.views import get_current_url
 
@@ -458,11 +457,7 @@ def register_internal(username, fullname, password):
     user = User(username=username, fullname=fullname, password=password)
     if not username:
         user.username = None
-    if user.username:
-        # We can only use failsafe_add when a unique identifier like username is present
-        user = failsafe_add(db.session, user, username=user.username)
-    else:
-        db.session.add(user)
+    db.session.add(user)
     user_registered.send(user)
     return user
 

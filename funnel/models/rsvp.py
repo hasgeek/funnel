@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from flask import current_app
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
@@ -33,7 +35,13 @@ class Rsvp(TimestampMixin, db.Model):
     user_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=False, primary_key=True
     )
-    user = with_roles(db.relationship(User), grants={'owner'})
+    user = with_roles(
+        db.relationship(
+            User,
+            backref=db.backref('rsvps', cascade='all, delete-orphan', lazy='dynamic'),
+        ),
+        grants={'owner'},
+    )
 
     _state = db.Column(
         'state',
@@ -76,6 +84,21 @@ class Rsvp(TimestampMixin, db.Model):
     )
     def rsvp_maybe(self):
         pass
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
+        for rsvp in old_user.rsvps:
+            if rsvp.project_id not in project_ids:
+                rsvp.user = new_user
+            else:
+                current_app.logger.warning(
+                    "Discarding conflicting RSVP (%s) from %r on %r",
+                    rsvp._state,
+                    old_user,
+                    rsvp.project,
+                )
+                db.session.delete(rsvp)
 
     @classmethod
     def get_for(cls, project, user, create=False):
