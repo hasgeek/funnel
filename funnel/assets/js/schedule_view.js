@@ -28,7 +28,7 @@ const Schedule = {
             description: schedule.config.pageDescription,
           },
           view: 'agenda',
-          svgIconUrl: schedule.config.svgIconUrl,
+          svgIconUrl: window.HasGeek.config.svgIconUrl,
         };
       },
       methods: {
