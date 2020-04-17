@@ -96,12 +96,21 @@ def add_search_trigger(model, column_name):
         class MyModel(db.Model):
             ...
             search_vector = db.deferred(db.Column(
-                TSVectorType('name', 'title', weights={'name': 'A', 'title': 'B'}, regconfig='english'),
-                nullable=False))
+                TSVectorType(
+                    'name', 'title', *indexed_columns,
+                    weights={'name': 'A', 'title': 'B'},
+                    regconfig='english'
+                ),
+                nullable=False,
+            ))
 
             __table_args__ = (
-                db.Index('ix_mymodel_search_vector', 'search_vector', postgresql_using='gin'),
-                )
+                db.Index(
+                    'ix_mymodel_search_vector',
+                    'search_vector',
+                    postgresql_using='gin'
+                ),
+            )
 
         add_search_trigger(MyModel, 'search_vector')
 

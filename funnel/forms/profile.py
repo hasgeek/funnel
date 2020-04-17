@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from baseframe import _, __
-from baseframe.forms.sqlalchemy import QuerySelectField
 import baseframe.forms as forms
 
 
@@ -36,16 +35,3 @@ class EditProfileForm(forms.Form):
             forms.validators.Length(max=2000),
         ],
     )
-    admin_team = QuerySelectField(
-        "Admin Team",
-        validators=[forms.validators.DataRequired(_("Please select a team"))],
-        get_label='title',
-        allow_blank=True,
-        blank_text=__("Choose a team..."),
-        description=__(
-            "The team of users with administrative rights to this profile (owners always have admin access)"
-        ),
-    )
-
-    def set_queries(self):
-        self.admin_team.query = self.edit_obj.teams
