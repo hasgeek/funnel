@@ -105,13 +105,14 @@
 .badge {
   position: relative;
   color: #fff;
-  width: 15px;
+  min-width: 15px;
   line-height: 15px;
-  height: 15px;
+  min-height: 15px;
   text-align: center;
   display: inline-block;
   background-color: #856a91;
-  border-radius: 50%;
+  border-radius: 3px;
+  padding: 2px;
 }
 
 .select2-inline {
@@ -141,7 +142,7 @@
 }
 
 .collapsible__header--smaller {
-  width: calc(100% - 51px);
+  width: calc(100% - 37px);
   padding: 10px;
   margin: 0 0 10px;
   white-space: nowrap;
@@ -864,6 +865,7 @@ html.touch .collapsible__body--disable {
   cursor: pointer;
   position: relative;
   min-width: 130px;
+  border: none;
   border-bottom: 2px solid transparent;
   margin: 0;
   text-align: center;
@@ -1124,110 +1126,6 @@ html.touch .collapsible__body--disable {
   .spotlight-schedule-card {
     height: 531px;
     overflow: scroll;
-  }
-}
-.hg-about__content__txt {
-  width: 100%;
-  height: 100px;
-  position: relative;
-  margin-bottom: 30px;
-}
-.hg-about__content__txt .hg-about__content__txt__string {
-  font-size: 38px;
-  opacity: 0;
-  height: 0px;
-  margin: 0;
-  line-height: 1.2;
-}
-
-@media (min-width: 544px) {
-  .hg-about__content__txt {
-    height: 55px;
-  }
-}
-@media (min-width: 768px) {
-  .hg-about__content__txt {
-    height: 92px;
-  }
-}
-@media (min-width: 992px) {
-  .hg-about__content__txt {
-    height: 140px;
-  }
-}
-@media (min-width: 1200px) {
-  .hg-about__content__txt {
-    height: 146px;
-  }
-  .hg-about__content__txt .hg-about__content__txt__string {
-    font-size: 40px;
-  }
-}
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(1) {
-  animation: animation 12s infinite;
-}
-
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(2) {
-  animation: animation 12s infinite;
-  animation-delay: 4s;
-}
-
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(3) {
-  animation: animation 12s infinite;
-  animation-delay: 8s;
-}
-
-@keyframes animation {
-  0% {
-    opacity: 0;
-    height: auto;
-  }
-  16% {
-    opacity: 1;
-  }
-  33% {
-    opacity: 0;
-    height: 0px;
-  }
-  100% {
-    opacity: 0;
-    height: 0px;
-  }
-}
-@-webkit-keyframes animation {
-  0% {
-    opacity: 0;
-    height: auto;
-  }
-  16% {
-    opacity: 1;
-  }
-  33% {
-    opacity: 0;
-    height: 0px;
-  }
-  100% {
-    opacity: 0;
-    height: 0px;
-  }
-}
-.hg-about__img {
-  border-radius: 16px 16px 0 16px;
-  width: 100%;
-}
-
-.hg-about__img--top {
-  border-radius: 16px 16px 16px 0;
-}
-
-.hg-about__img--bottom {
-  border-radius: 0 16px 16px 16px;
-  margin-top: 23px;
-}
-
-@media (min-width: 1200px) {
-  .hg-about__content {
-    justify-content: center;
   }
 }
 .cfp-action-btn {
@@ -1578,7 +1476,7 @@ html.touch .collapsible__body--disable {
   width: calc(100% / 7);
   text-align: center;
   margin: 0;
-  padding: 10px 0;
+  padding: 10px 0 15px;
   background: #f9fafc;
 }
 .card__calendar
@@ -1681,7 +1579,7 @@ html.touch .collapsible__body--disable {
   .calendar__weekdays__dates__date--showtime:before {
   content: '';
   position: absolute;
-  bottom: -5px;
+  bottom: 0;
   left: 0;
   right: 0;
   margin: auto;
@@ -1702,7 +1600,7 @@ html.touch .collapsible__body--disable {
   display: block;
   opacity: 0;
   position: absolute;
-  bottom: -25px;
+  bottom: -20px;
   border-radius: 2px;
   background-color: #f6e2c5;
   color: #906b37;
@@ -2013,6 +1911,11 @@ html.touch .collapsible__body--disable {
   max-width: 400px;
 }
 
+.card__body .label-edit {
+  display: inline-block;
+  max-width: 85%;
+}
+
 .session-card .session-card__header {
   display: flex;
   background: none;
@@ -2119,7 +2022,7 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .add-calendar {
   position: absolute;
-  right: 30px;
+  right: 45px;
   top: 0;
   font-size: 16px;
   font-variant: all-small-caps;
@@ -2221,6 +2124,10 @@ html.touch .collapsible__body--disable {
     margin-top: 42px;
   }
 }
+.project-section__headline {
+  margin-bottom: 15px;
+}
+
 .about {
   padding: 0 15px;
   word-break: break-word;
@@ -3351,10 +3258,6 @@ body > .proposal-box.ui-draggable {
 .icon-img {
   width: 15px;
   vertical-align: text-top;
-}
-
-.card__body--lgtext .mui-btn + .mui-btn {
-  margin-left: 10px;
 }
 
 a.loginbutton.hidden,
