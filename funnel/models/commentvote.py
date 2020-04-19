@@ -185,7 +185,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @property
     def absolute_url(self):
         if self.commentset.proposal:
-            return self.commentset.proposal.absolute_url + '#c' + self.suuid
+            return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
 
     @property
     def title(self):

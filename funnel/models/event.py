@@ -279,10 +279,12 @@ class Attendee(BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('event_id', 'participant_id'),)
 
     @classmethod
-    def get(cls, event, participant_suuid):
+    def get(cls, event, participant_uuid_b58):
         return (
             cls.query.join(Participant)
-            .filter(Attendee.event == event, Participant.suuid == participant_suuid)
+            .filter(
+                Attendee.event == event, Participant.uuid_b58 == participant_uuid_b58
+            )
             .one_or_none()
         )
 

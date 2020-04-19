@@ -59,8 +59,8 @@ def proposal_data(proposal):
     """
     return dict(
         [
-            ('id', proposal.suuid),
-            ('name', proposal.url_name_suuid),
+            ('id', proposal.uuid_b58),
+            ('name', proposal.url_name_uuid_b58),
             ('legacy_id', proposal.url_id),
             ('legacy_name', proposal.url_name),
             ('title', proposal.title),
@@ -172,7 +172,7 @@ FunnelProjectProposalView.add_route_for('new_proposal', 'new', methods=['GET', '
 FunnelProjectProposalView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/proposals/<url_name_suuid>')
+@route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
