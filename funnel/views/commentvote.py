@@ -19,7 +19,7 @@ from .mixins import ProposalViewMixin
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
 
 
-@route('/<profile>/<project>/proposals/<url_name_suuid>')
+@route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -79,7 +79,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
             send_mail_info = []
             if commentform.comment_edit_id.data:
                 comment = Comment.query.filter_by(
-                    suuid=commentform.comment_edit_id.data
+                    uuid_b58=commentform.comment_edit_id.data
                 ).first_or_404()
                 if comment:
                     if comment.current_permissions.edit_comment:
@@ -98,7 +98,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                 )
                 if commentform.parent_id.data:
                     parent = Comment.query.filter_by(
-                        suuid=commentform.parent_id.data
+                        uuid_b58=commentform.parent_id.data
                     ).first_or_404()
                     if parent.user.email:
                         # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
@@ -195,20 +195,22 @@ class ProposalCommentViewMixin(object):
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'suuid': '**comment.suuid',
-        'url_name_suuid': 'url_name_suuid',
+        'uuid_b58': '**comment.uuid_b58',
+        'url_name_uuid_b58': 'url_name_uuid_b58',
         'url_id_name': 'url_id_name',
     }
 
-    def loader(self, profile, project, suuid, url_name_suuid=None, url_id_name=None):
-        require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
-        if url_name_suuid:
+    def loader(
+        self, profile, project, uuid_b58, url_name_uuid_b58=None, url_id_name=None
+    ):
+        require_one_of(url_name_uuid_b58=url_name_uuid_b58, url_id_name=url_id_name)
+        if url_name_uuid_b58:
             proposal = (
                 Proposal.query.join(Project, Profile)
                 .filter(
                     Profile.name == profile,
                     Project.name == project,
-                    Proposal.url_name_suuid == url_name_suuid,
+                    Proposal.url_name_uuid_b58 == url_name_uuid_b58,
                 )
                 .first_or_404()
             )
@@ -227,7 +229,7 @@ class ProposalCommentViewMixin(object):
             Comment.query.join(
                 Proposal, Comment.commentset_id == Proposal.commentset_id
             )
-            .filter(Comment.suuid == suuid, Proposal.id == proposal.id)
+            .filter(Comment.uuid_b58 == uuid_b58, Proposal.id == proposal.id)
             .first_or_404()
         )
 
@@ -238,7 +240,7 @@ class ProposalCommentViewMixin(object):
         return super(ProposalCommentViewMixin, self).after_loader()
 
 
-@route('/<profile>/<project>/proposals/<url_name_suuid>/comments/<suuid>')
+@route('/<profile>/<project>/proposals/<url_name_uuid_b58>/comments/<uuid_b58>')
 class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -307,7 +309,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         return redirect(self.obj.proposal.url_for(), code=303)
 
 
-@route('/<project>/<url_id_name>/comments/<suuid>', subdomain='<profile>')
+@route('/<project>/<url_id_name>/comments/<uuid_b58>', subdomain='<profile>')
 class FunnelProposalCommentView(ProposalCommentView):
     pass
 

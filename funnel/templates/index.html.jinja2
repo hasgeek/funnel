@@ -139,7 +139,7 @@
                 <div class="card__body">
                   <h3 class="mui--text-headline zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title_inline }}</span>{% if featured_project.tagline %} <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
                   {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "featured_" + featured_project.suuid %}
+                    {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
                     <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, save_form_id) }}</div>
                   {% endif %}
                   {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
@@ -183,7 +183,7 @@
             </div>
             <div class="card__body">
               {%- if not current_auth.is_anonymous %}
-                {% set save_form_id = "upcoming_" + project.suuid %}
+                {% set save_form_id = "upcoming_" + project.uuid_b58 %}
                 <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
               {% endif %}
               {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
@@ -332,7 +332,7 @@
                 </div>
                 <div class="card__body">
                   {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "all_" + project.suuid %}
+                    {% set save_form_id = "all_" + project.uuid_b58 %}
                     <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
                   {% endif %}
                   {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
