@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from funnel import app
-from funnel.models import Organization, Profile, User, db
+from funnel.models import Organization, User, db
 
 
 def init_models():
@@ -12,18 +12,11 @@ def init_models():
         user = User(username='member-user', fullname='member-user')
         user._set_password('cypress341')
         db.session.add_all([user_admin, user])
-        test_profile = Organization(
-            name="testcypressproject", title="testcypressproject"
-        )
-        test_profile.owners.users.append(user_admin)
-        db.session.add(test_profile)
-        profile = Profile(
-            name='testcypressproject',
-            title="testcypressproject",
-            userid=test_profile.buid,
-            admin_team=test_profile.teams[0],
-        )
-        db.session.add(profile)
+        test_org = Organization(name="testcypressproject", title="testcypressproject")
+        test_org.owners.users.append(user_admin)
+        db.session.add(test_org)
+        test_org.profile.admin_team = test_org.owners
+        test_org.profile.make_public()
         db.session.commit()
 
 
