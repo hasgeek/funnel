@@ -2124,6 +2124,13 @@ html.touch .collapsible__body--disable {
     margin-top: 42px;
   }
 }
+@media (min-width: 992px) and (max-width: 1199px) {
+  .project-banner .project-details__box .add-calendar {
+    right: 30px;
+    top: 3px;
+    font-size: 13px;
+  }
+}
 .project-section__headline {
   margin-bottom: 15px;
 }
