@@ -65,7 +65,7 @@ const Queue = function(queueName) {
           } else {
             const index = Utils.findLoopIndex(
               participants,
-              'puuid_b58',
+              'puuidB58',
               participantID
             );
             ParticipantList.set(`participants.${index}.submitting`, true);
@@ -76,7 +76,7 @@ const Queue = function(queueName) {
         } else {
           const index = Utils.findLoopIndex(
             participants,
-            'puuid_b58',
+            'puuidB58',
             participantID
           );
           ParticipantList.set(`participants.${index}.submitting`, true);
@@ -122,14 +122,14 @@ const ParticipantTable = {
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
         },
-        getBadgeUrl(puuid_b58) {
-          return badgeUrl.replace('participant-id', puuid_b58);
+        getBadgeUrl(puuidB58) {
+          return badgeUrl.replace('participant-id', puuidB58);
         },
-        getLabelBadgeUrl(puuid_b58) {
-          return labelbadgeUrl.replace('participant-id', puuid_b58);
+        getLabelBadgeUrl(puuidB58) {
+          return labelbadgeUrl.replace('participant-id', puuidB58);
         },
-        getEditUrl(puuid_b58) {
-          return editUrl.replace('participant-id', puuid_b58);
+        getEditUrl(puuidB58) {
+          return editUrl.replace('participant-id', puuidB58);
         },
         getCheckinUrl() {
           return checkinUrl;
@@ -137,7 +137,7 @@ const ParticipantTable = {
       },
       handleCheckIn(event, checkin) {
         event.original.preventDefault();
-        const participantID = this.get(`${event.keypath}.puuid_b58`);
+        const participantID = this.get(`${event.keypath}.puuidB58`);
         if (checkin) {
           // Add participant id to checkin queue
           this.get('checkinQ').enqueue(participantID);
@@ -149,7 +149,7 @@ const ParticipantTable = {
       },
       handleAbortCheckIn(event, checkin) {
         event.original.preventDefault();
-        const participantID = this.get(`${event.keypath}.puuid_b58`);
+        const participantID = this.get(`${event.keypath}.puuidB58`);
         if (checkin) {
           this.get('checkinQ').dequeue(participantID);
           this.get('cancelcheckinQ').enqueue(participantID);
@@ -174,7 +174,7 @@ const ParticipantTable = {
             list.set('participants', data.participants).then(() => {
               const participants = Utils.tohashMap(
                 data.participants,
-                'puuid_b58'
+                'puuidB58'
               );
               list.get('checkinQ').updateQueue(participants, list);
               list.get('cancelcheckinQ').updateQueue(participants, list);
@@ -216,7 +216,7 @@ const ParticipantTable = {
     let formValues;
     participants = $.param(
       {
-        puuid_b58: participantIDs,
+        puuidB58: participantIDs,
       },
       true
     );

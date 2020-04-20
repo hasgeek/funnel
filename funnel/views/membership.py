@@ -22,7 +22,14 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..jobs import send_mail_async
-from ..models import OrganizationMembership, Profile, Project, ProjectCrewMembership, db
+from ..models import (
+    Organization,
+    OrganizationMembership,
+    Profile,
+    Project,
+    ProjectCrewMembership,
+    db,
+)
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
@@ -36,11 +43,14 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     @render_with('organization_membership.html.jinja2')
     @requires_roles({'admin'})
     def membership(self):
+        if not self.obj.organization:
+            # User profiles don't have memberships
+            abort(404)
         return {
             'profile': self.obj,
             'memberships': [
                 membership.current_access()
-                for membership in self.obj.active_admin_memberships
+                for membership in self.obj.organization.active_admin_memberships
             ],
         }
 
@@ -49,6 +59,9 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'owner'})
     def new_member(self):
+        if not self.obj.organization:
+            # User profiles don't have memberships
+            abort(404)
         membership_form = OrganizationMembershipForm()
 
         if request.method == 'POST':
@@ -132,17 +145,19 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
     def loader(self, profile, membership):
         obj = (
-            self.model.query.join(Profile)
+            self.model.query.join(Organization, Profile)
             .filter(
-                Profile.name == profile, OrganizationMembership.uuid_b58 == membership
+                OrganizationMembership.uuid_b58 == membership,
+                OrganizationMembership.organization_id == Profile.organization_id,
+                Profile.name == profile,
             )
             .first_or_404()
         )
         return obj
 
     def after_loader(self):
-        g.profile = self.obj.profile
-        super(OrganizationMembershipView, self).after_loader()
+        g.profile = self.obj.organization.profile
+        super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
@@ -154,7 +169,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
-                primary_owner_membership = self.obj.profile.active_admin_memberships.order_by(
+                primary_owner_membership = self.obj.organization.active_admin_memberships.order_by(
                     OrganizationMembership.granted_at.asc()
                 ).first()
 
@@ -176,7 +191,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     'status': 'ok',
                     'memberships': [
                         membership.current_access()
-                        for membership in self.obj.profile.active_admin_memberships
+                        for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
             else:
@@ -206,7 +221,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
         form = Form()
         if request.method == 'POST':
             if form.validate_on_submit():
-                primary_owner_membership = self.obj.profile.active_admin_memberships.order_by(
+                primary_owner_membership = self.obj.organization.active_admin_memberships.order_by(
                     OrganizationMembership.granted_at.asc()
                 ).first()
 
@@ -234,14 +249,14 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                             profile=self.obj.profile,
                         ),
                         subject=_("You have been removed from {} as a member").format(
-                            self.obj.profile.title
+                            self.obj.organization.title
                         ),
                     )
                 return {
                     'status': 'ok',
                     'memberships': [
                         membership.current_access()
-                        for membership in self.obj.profile.active_admin_memberships
+                        for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
             else:

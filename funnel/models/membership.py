@@ -89,11 +89,16 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @hybrid_property
     def is_active(self):
-        return self.revoked_at is None and not self.is_invite
+        return (
+            self.revoked_at is None
+            and self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
+        )
 
     @is_active.expression
     def is_active(cls):  # NOQA: N805
-        return cls.revoked_at.is_(None) & cls.is_invite.is_(False)
+        return db.and_(
+            cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
+        )
 
     @hybrid_property
     def is_invite(self):

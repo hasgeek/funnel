@@ -82,12 +82,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     )
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
-    # TODO: Deprecate this and assume only owners have rights, until membership
-    admin_team_id = db.Column(
-        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
-    )
-    admin_team = db.relationship('Team')
-
     description = MarkdownColumn('description', default='', nullable=False)
     logo_url = db.Column(UrlType, nullable=True)
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
@@ -146,6 +140,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             raise ValueError(value)
         self.reserved = False
 
+    @with_roles(grants={'owner', 'admin'})
     @property
     def owners(self):
         """List or query containing owners of this profile"""
@@ -155,6 +150,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return self.organization.owners
         return []
 
+    @with_roles(grants={'admin'})
     @property
     def admins(self):
         """List or query containing admins of this profile"""
@@ -283,31 +279,12 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def permissions(self, user, inherited=None):
         perms = super(Profile, self).permissions(user, inherited)
         perms.add('view')
-        if user:
-            if (
-                self.user == user
-                or (self.organization and user in self.organization.owners.users)
-                # TODO: Deprecated, remove admin_team
-                or (self.admin_team and user in self.admin_team.users)
-            ):
-                perms.add('edit-profile')
-                perms.add('new_project')
-                perms.add('delete-project')
-                perms.add('edit_project')
+        if 'admin' in self.roles_for(user):
+            perms.add('edit-profile')
+            perms.add('new_project')
+            perms.add('delete-project')
+            perms.add('edit_project')
         return perms
-
-    def roles_for(self, actor=None, anchors=()):
-        roles = super(Profile, self).roles_for(actor, anchors)
-        roles.add('reader')
-
-        if actor is not None:
-            membership = self.active_admin_memberships.filter_by(
-                user=actor
-            ).one_or_none()
-            if membership is not None:
-                roles.update(membership.offered_roles())
-
-        return roles
 
     @with_roles(call={'owner'})
     @state.transition(None, state.PUBLIC, title=__("Make public"))
