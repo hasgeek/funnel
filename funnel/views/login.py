@@ -619,11 +619,15 @@ def account_merge():
     if form.validate_on_submit():
         if 'merge' in request.form:
             new_user = merge_users(current_auth.user, other_user)
-            login_internal(new_user)
-            flash(_("Your accounts have been merged"), 'success')
-            session.pop('merge_buid', None)
-            db.session.commit()
-            user_data_changed.send(new_user, changes=['merge'])
+            if new_user:
+                login_internal(new_user)
+                flash(_("Your accounts have been merged"), 'success')
+                session.pop('merge_buid', None)
+                db.session.commit()
+                user_data_changed.send(new_user, changes=['merge'])
+            else:
+                flash(_("Account merger failed"), 'danger')
+                session.pop('merge_buid', None)
             return redirect(get_next_url(), code=303)
         else:
             session.pop('merge_buid', None)

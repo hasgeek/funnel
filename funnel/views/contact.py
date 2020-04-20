@@ -35,9 +35,9 @@ def contact_details(participant):
 class ContactView(ClassView):
     current_section = 'contact'
 
-    def get_project(self, suuid):
+    def get_project(self, uuid_b58):
         return (
-            Project.query.filter_by(suuid=suuid)
+            Project.query.filter_by(uuid_b58=uuid_b58)
             .options(db.load_only(Project.id, Project.uuid, Project.title))
             .one_or_404()
         )
@@ -102,12 +102,12 @@ class ContactView(ClassView):
             ],
         )
 
-    @route('<suuid>/<datestr>.csv', endpoint='contacts_project_date_csv')
+    @route('<uuid_b58>/<datestr>.csv', endpoint='contacts_project_date_csv')
     @requires_login
-    def project_date_csv(self, suuid, datestr):
+    def project_date_csv(self, uuid_b58, datestr):
         """Contacts for a given project and date in CSV format"""
         archived = getbool(request.args.get('archived'))
-        project = self.get_project(suuid)
+        project = self.get_project(uuid_b58)
         date = datetime.strptime(datestr, '%Y-%m-%d').date()
 
         contacts = ContactExchange.contacts_for_project_and_date(
@@ -121,12 +121,12 @@ class ContactView(ClassView):
             ),
         )
 
-    @route('<suuid>.csv', endpoint='contacts_project_csv')
+    @route('<uuid_b58>.csv', endpoint='contacts_project_csv')
     @requires_login
-    def project_csv(self, suuid):
+    def project_csv(self, uuid_b58):
         """Contacts for a given project in CSV format"""
         archived = getbool(request.args.get('archived'))
-        project = self.get_project(suuid)
+        project = self.get_project(uuid_b58)
 
         contacts = ContactExchange.contacts_for_project(
             current_auth.user, project, archived

@@ -91,8 +91,8 @@
               <div>
                 <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
                   <div class="tabs">
-                    <button class="mui-btn mui-btn--nostyle tabs__item" :class="(view === 'agenda') ? 'tabs__item--active' : ''" @click="toggleView($event, 'agenda')">Agenda view</button>
-                    <button class="mui-btn mui-btn--nostyle tabs__item" :class="(view === 'calendar') ? 'tabs__item--active' : ''" @click="toggleView($event, 'calendar')">Calender view</button>
+                    <button class="tabs__item" :class="(view === 'agenda') ? 'tabs__item--active' : ''" @click="toggleView($event, 'agenda')">Agenda view</button>
+                    <button class="tabs__item" :class="(view === 'calendar') ? 'tabs__item--active' : ''" @click="toggleView($event, 'calendar')">Calender view</button>
                   </div>
                 </div>
                 <div class="schedule" v-for="schedule in schedules">
@@ -107,7 +107,7 @@
                         <a :href="'#t' + key" :id="'t' + key" class="schedule__row__column schedule__row__column--time schedule__row__column--time--pointer" :style="{minWidth: timeSlotWidth + 'px'}" @click="disableScroll($event, 't' + key)" v-if="(view === 'calendar' && session.showLabel)">{{ getTimeStr(key) }}</a>
                         <p class="schedule__row__column schedule__row__column--time" :style="{minWidth: timeSlotWidth + 'px'}" v-else-if="(view === 'calendar')"></p>
                       <div class="schedule__row__column" :id="(view === 'agenda') ? 't' + key : ''" :class="['schedule__row__column--' + rowWidth, room.talk ? 'schedule__row__column--talks' : '', room.talk ? roomkey : '', room.talk && activeTab == roomkey ? 'js-active': '']" @click="showSessionModal(room.talk)"  :style="(getColumnWidth('content') > 0) ? {width: 'calc(100% - ' + getColumnWidth('content') + 'px)'} : {width: '100%'}" v-for="(room, roomkey, roomindex) in session.rooms">
-                        <div class="schedule__row__column__content" :class="[view === 'calendar' ? 'schedule__row__column__content--calendar schedule__row__column__content--overflow' : '']" :style="(view == 'calendar') ? {height: getColumnHeight(room.talk.duration, rowHeight) + 'px'} : ''" :id="room.talk.url_name_suuid" v-if="room.talk">
+                        <div class="schedule__row__column__content" :class="[view === 'calendar' ? 'schedule__row__column__content--calendar schedule__row__column__content--overflow' : '']" :style="(view == 'calendar') ? {height: getColumnHeight(room.talk.duration, rowHeight) + 'px'} : ''" :id="room.talk.url_name_uuid_b58" v-if="room.talk">
                           <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(room.talk.startTime) }}–{{ getTimeStr(room.talk.endTime) }}</p>
                             <div class="schedule__row__column__content__title">
                               <p class="mui--text-subhead schedule__row__column__content__title__heading" v-if="room.talk.title">{{ room.talk.title }}</p>
@@ -151,10 +151,10 @@
         projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
         pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
       };
-
       {%- if active_session -%}
         scheduleConfig['active_session'] = {{ active_session|tojson }};
       {%- endif %}
+
       var saveProjectConfig = {
         formId: 'save-form',
         postUrl: {{ project.url_for('save')|tojson }}

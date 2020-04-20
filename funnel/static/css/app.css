@@ -865,6 +865,7 @@ html.touch .collapsible__body--disable {
   cursor: pointer;
   position: relative;
   min-width: 130px;
+  border: none;
   border-bottom: 2px solid transparent;
   margin: 0;
   text-align: center;
@@ -1125,110 +1126,6 @@ html.touch .collapsible__body--disable {
   .spotlight-schedule-card {
     height: 531px;
     overflow: scroll;
-  }
-}
-.hg-about__content__txt {
-  width: 100%;
-  height: 100px;
-  position: relative;
-  margin-bottom: 30px;
-}
-.hg-about__content__txt .hg-about__content__txt__string {
-  font-size: 38px;
-  opacity: 0;
-  height: 0px;
-  margin: 0;
-  line-height: 1.2;
-}
-
-@media (min-width: 544px) {
-  .hg-about__content__txt {
-    height: 55px;
-  }
-}
-@media (min-width: 768px) {
-  .hg-about__content__txt {
-    height: 92px;
-  }
-}
-@media (min-width: 992px) {
-  .hg-about__content__txt {
-    height: 140px;
-  }
-}
-@media (min-width: 1200px) {
-  .hg-about__content__txt {
-    height: 146px;
-  }
-  .hg-about__content__txt .hg-about__content__txt__string {
-    font-size: 40px;
-  }
-}
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(1) {
-  animation: animation 12s infinite;
-}
-
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(2) {
-  animation: animation 12s infinite;
-  animation-delay: 4s;
-}
-
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(3) {
-  animation: animation 12s infinite;
-  animation-delay: 8s;
-}
-
-@keyframes animation {
-  0% {
-    opacity: 0;
-    height: auto;
-  }
-  16% {
-    opacity: 1;
-  }
-  33% {
-    opacity: 0;
-    height: 0px;
-  }
-  100% {
-    opacity: 0;
-    height: 0px;
-  }
-}
-@-webkit-keyframes animation {
-  0% {
-    opacity: 0;
-    height: auto;
-  }
-  16% {
-    opacity: 1;
-  }
-  33% {
-    opacity: 0;
-    height: 0px;
-  }
-  100% {
-    opacity: 0;
-    height: 0px;
-  }
-}
-.hg-about__img {
-  border-radius: 16px 16px 0 16px;
-  width: 100%;
-}
-
-.hg-about__img--top {
-  border-radius: 16px 16px 16px 0;
-}
-
-.hg-about__img--bottom {
-  border-radius: 0 16px 16px 16px;
-  margin-top: 23px;
-}
-
-@media (min-width: 1200px) {
-  .hg-about__content {
-    justify-content: center;
   }
 }
 .cfp-action-btn {
@@ -1712,7 +1609,7 @@ html.touch .collapsible__body--disable {
   -webkit-transform: translateX(-50%);
   margin: auto;
   padding: 4px;
-  width: 180px;
+  width: 157px;
   font-size: 12px;
   line-height: 1;
   z-index: 3;
@@ -2012,6 +1909,11 @@ html.touch .collapsible__body--disable {
 
 .card--small {
   max-width: 400px;
+}
+
+.card__body .label-edit {
+  display: inline-block;
+  max-width: 85%;
 }
 
 .session-card .session-card__header {
@@ -3475,10 +3377,6 @@ body > .proposal-box.ui-draggable {
 .icon-img {
   width: 15px;
   vertical-align: text-top;
-}
-
-.card__body--lgtext .mui-btn + .mui-btn {
-  margin-left: 10px;
 }
 
 a.loginbutton.hidden,

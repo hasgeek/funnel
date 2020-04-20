@@ -5,7 +5,7 @@ from itertools import groupby
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from coaster.utils import uuid2suuid
+from coaster.utils import uuid_to_base58
 
 from . import RoleMixin, TimestampMixin, db
 from .event import Participant
@@ -16,7 +16,7 @@ __all__ = ['ContactExchange']
 
 
 # Named tuples for returning contacts grouped by project and date
-ProjectId = namedtuple('ProjectId', ['id', 'uuid', 'suuid', 'title', 'timezone'])
+ProjectId = namedtuple('ProjectId', ['id', 'uuid', 'uuid_b58', 'title', 'timezone'])
 DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'])
 
 
@@ -74,6 +74,16 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             if actor == self.participant.user:
                 roles.add('subject')
         return roles
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        participant_ids = {ce.participant_id for ce in new_user.scanned_contacts}
+        for ce in old_user.scanned_contacts:
+            if ce.participant_id not in participant_ids:
+                ce.user = new_user
+            else:
+                # Discard duplicate contact exchange
+                db.session.delete(ce)
 
     @classmethod
     def grouped_counts_for(cls, user, archived=False):
@@ -149,7 +159,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         #
         # Transform it into this:
         # [
-        #   (ProjectId(id, uuid, suuid, title, timezone), [
+        #   (ProjectId(id, uuid, uuid_b58, title, timezone), [
         #     DateCountContacts(date, count, contacts),
         #     ...  # More dates
         #     ]
@@ -176,7 +186,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             for k, g in groupby(
                 query,
                 lambda r: ProjectId(
-                    r.id, r.uuid, uuid2suuid(r.uuid), r.title, r.timezone
+                    r.id, r.uuid, uuid_to_base58(r.uuid), r.title, r.timezone
                 ),
             )
         ]

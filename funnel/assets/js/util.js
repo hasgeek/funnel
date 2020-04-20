@@ -166,7 +166,7 @@ export const Utils = {
           .find('.calendar__counting')
           .text(dayText[counting]);
       } else if (counting > 2 && counting < 32) {
-        let daysRemainingTxt = `In ${counting} day`;
+        let daysRemainingTxt = `In ${counting} days`;
         $(this)
           .find('.calendar__counting')
           .text(daysRemainingTxt);

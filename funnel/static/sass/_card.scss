@@ -262,7 +262,7 @@
           -webkit-transform: translateX(-50%);
           margin: auto;
           padding: 4px;
-          width: 180px;
+          width: 157px;
           font-size: 12px;
           line-height: 1;
           z-index: 3;
@@ -548,6 +548,13 @@
 
 .card--small {
   max-width: 400px;
+}
+
+.card__body {
+  .label-edit {
+    display: inline-block;
+    max-width: 85%;
+  }
 }
 
 .session-card {
