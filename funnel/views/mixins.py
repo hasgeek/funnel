@@ -17,6 +17,7 @@ from ..models import (
     ProjectRedirect,
     Proposal,
     ProposalRedirect,
+    ProposalSuuidRedirect,
     Session,
     Venue,
     VenueRoom,
@@ -77,18 +78,28 @@ class ProposalViewMixin(object):
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'url_name_suuid': 'url_name_suuid',
+        'url_name_uuid_b58': 'url_name_uuid_b58',
         'url_id_name': 'url_id_name',
     }
 
-    def loader(self, profile, project, url_name_suuid=None, url_id_name=None):
-        require_one_of(url_name_suuid=url_name_suuid, url_id_name=url_id_name)
-        if url_name_suuid:
+    def loader(self, profile, project, url_name_uuid_b58=None, url_id_name=None):
+        require_one_of(url_name_uuid_b58=url_name_uuid_b58, url_id_name=url_id_name)
+        if url_name_uuid_b58:
             proposal = (
                 self.model.query.join(Project, Profile)
-                .filter(Proposal.url_name_suuid == url_name_suuid)
-                .first_or_404()
+                .filter(Proposal.url_name_uuid_b58 == url_name_uuid_b58)
+                .first()
             )
+            if proposal is None:
+                if request.method == 'GET':
+                    redirect = (
+                        ProposalSuuidRedirect.query.join(Proposal)
+                        .filter_by(suuid=url_name_uuid_b58.split('-')[-1])
+                        .first_or_404()
+                    )
+                    return redirect
+                else:
+                    abort(404)
         else:
             proposal = (
                 self.model.query.join(Project, Profile)
@@ -118,7 +129,7 @@ class ProposalViewMixin(object):
         return proposal
 
     def after_loader(self):
-        if isinstance(self.obj, ProposalRedirect):
+        if isinstance(self.obj, (ProposalRedirect, ProposalSuuidRedirect)):
             if self.obj.proposal:
                 g.profile = self.obj.proposal.project.profile
                 return redirect(self.obj.proposal.url_for())
@@ -133,7 +144,7 @@ class SessionViewMixin(object):
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'session': 'url_name_suuid',
+        'session': 'url_name_uuid_b58',
     }
 
     def loader(self, profile, project, session):
@@ -142,7 +153,7 @@ class SessionViewMixin(object):
             .filter(
                 Profile.name == profile,
                 Project.name == project,
-                Session.url_name_suuid == session,
+                Session.url_name_uuid_b58 == session,
             )
             .first_or_404()
         )
