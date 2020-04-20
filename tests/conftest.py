@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 
 
-import uuid
-
 import pytest
 
 from funnel import app
-from funnel.models import Label, Profile, Project, Proposal, Team, User, db
+from funnel.models import (
+    Label,
+    Organization,
+    Profile,
+    Project,
+    Proposal,
+    Team,
+    User,
+    db,
+)
 
 
 @app.route('/usertest')
@@ -81,8 +88,16 @@ def new_user3(test_db):
 
 
 @pytest.fixture(scope='session')
+def new_org(test_db):
+    org = Organization(title="Test Org")
+    test_db.session.add(org)
+    test_db.session.commit()
+    return org
+
+
+@pytest.fixture(scope='session')
 def new_team(test_db, new_user):
-    team = Team(title="Owners", owners=True, org_uuid=uuid.uuid4())
+    team = Team(title="Owners")
     test_db.session.add(team)
     team.users.append(new_user)
     test_db.session.commit()
@@ -90,9 +105,12 @@ def new_team(test_db, new_user):
 
 
 @pytest.fixture(scope='session')
-def new_profile(test_db, new_team):
+def new_profile(test_db, new_user, new_org):
     profile = Profile(
-        title="Test Profile", description="Test Description", admin_team=new_team
+        title="Test Profile",
+        description="Test Description",
+        organization=new_org,
+        user=new_user,
     )
     test_db.session.add(profile)
     test_db.session.commit()
@@ -100,7 +118,7 @@ def new_profile(test_db, new_team):
 
 
 @pytest.fixture(scope='session')
-def new_project(test_db, new_profile, new_user, new_team):
+def new_project(test_db, new_profile, new_user):
     project = Project(
         profile=new_profile,
         user=new_user,
@@ -108,9 +126,6 @@ def new_project(test_db, new_profile, new_user, new_team):
         tagline="Test tagline",
         description="Test description",
         location="Test Location",
-        admin_team=new_team,
-        review_team=new_team,
-        checkin_team=new_team,
     )
     test_db.session.add(project)
     test_db.session.commit()
