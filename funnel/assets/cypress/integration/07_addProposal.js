@@ -54,7 +54,6 @@ describe('Add a new proposal', function() {
     cy.get('[data-cy="proposal-video"]')
       .find('iframe')
       .should('be.visible');
-    cy.get('img[data-cy="proposal-video-thumbnail"]').should('be.visible');
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
     cy.get('[data-cy="edit-proposal-video"]').should('exist');
