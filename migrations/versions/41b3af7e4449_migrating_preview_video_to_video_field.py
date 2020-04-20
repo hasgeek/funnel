@@ -2,7 +2,7 @@
 """migrating preview_video to video field
 
 Revision ID: 41b3af7e4449
-Revises: d50c3d8e3f33
+Revises: e2b28adfa135
 Create Date: 2020-04-15 10:36:15.558161
 
 """
@@ -15,11 +15,11 @@ from alembic import op
 from sqlalchemy.sql import column, table
 import sqlalchemy as sa
 
-from funnel.models.video import parse_video_url
+from funnel.models.video import make_video_url, parse_video_url
 
 # revision identifiers, used by Alembic.
 revision = '41b3af7e4449'
-down_revision = 'd50c3d8e3f33'
+down_revision = 'e2b28adfa135'
 branch_labels = None
 depends_on = None
 
@@ -33,15 +33,15 @@ proposal = table(
 )
 
 
-troublesome_filename = 'preview-video-troublesone.csv'
+troublesome_filename = 'preview-video-troublesome.csv'
 
 
 def upgrade():
     conn = op.get_bind()
 
     proposals = conn.execute(
-        proposal.select().where(proposal.c.preview_video != None)
-    )  # NOQA
+        proposal.select().where(proposal.c.preview_video.isnot(None))
+    )
     troublesome_previews = []
     for prop in proposals:
         if prop['preview_video'].strip():
@@ -103,6 +103,23 @@ def upgrade():
 def downgrade():
     op.add_column(
         'proposal', sa.Column('preview_video', sa.UnicodeText(), nullable=True)
+    )
+
+    conn = op.get_bind()
+    proposals = conn.execute(proposal.select().where(proposal.c.video_id.isnot(None)))
+    for prop in proposals:
+        conn.execute(
+            sa.update(proposal)
+            .where(proposal.c.id == prop['id'])
+            .values(
+                preview_video=make_video_url(prop['video_source'], prop['video_id'])
+            )
+        )
+
+    conn.execute(
+        sa.update(proposal)
+        .where(proposal.c.preview_video.isnot(None))
+        .values(video_source=None, video_id=None)
     )
 
     op.execute(

@@ -93,6 +93,17 @@ def parse_video_url(video_url):
     return video_source, video_id
 
 
+def make_video_url(video_source, video_id):
+    if video_source == 'youtube':
+        return f'https://www.youtube.com/watch?v={video_id}'
+    elif video_source == 'vimeo':
+        return f'https://vimeo.com/{video_id}'
+    elif video_source == 'googledrive':
+        return f'https://drive.google.com/file/d/{video_id}/view'
+    elif video_source == 'raw':
+        return video_id
+
+
 class VideoMixin:
     video_id = db.Column(db.UnicodeText, nullable=True)
     video_source = db.Column(db.UnicodeText, nullable=True)
@@ -189,14 +200,7 @@ class VideoMixin:
     @property
     def video_url(self):
         if self.video_source:
-            if self.video_source == 'youtube':
-                return f'https://www.youtube.com/watch?v={self.video_id}'
-            elif self.video_source == 'vimeo':
-                return f'https://vimeo.com/{self.video_id}'
-            elif self.video_source == 'googledrive':
-                return f'https://drive.google.com/file/d/{self.video_id}/view'
-            elif self.video_source == 'raw':
-                return self.video_id
+            return make_video_url(self.video_source, self.video_id)
         return None
 
     @video_url.setter
