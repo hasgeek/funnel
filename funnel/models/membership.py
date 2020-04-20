@@ -103,7 +103,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     def __table_args__(cls):
         return (
             db.Index(
-                cls.__tablename__ + '_active',
+                'ix_' + cls.__tablename__ + '_active',
                 cls.parent_id.name,
                 'user_id',
                 unique=True,
