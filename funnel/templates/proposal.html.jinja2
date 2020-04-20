@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {% from "comments.html.jinja2" import commenttree %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}

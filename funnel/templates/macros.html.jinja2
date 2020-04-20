@@ -1,4 +1,5 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 
 {% macro calendarwidget(calendar, compact=true) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">

@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% trans %}Labels{% endtrans %}{% endblock %}
 
 {% block top_title %}
@@ -13,7 +14,7 @@
   <div class="grid__col-xs-12">
     <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}">
       <div class="card__body mui--text-center">
-        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-action="Create new label">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
+        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-action="Create new label">{{ faicon(icon='plus', icon_size='title', baseline=true) }}  <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
       </div>
     </div>
   </div>
@@ -22,7 +23,7 @@
       {{ form.hidden_tag() }}
       {%- for label in labels %}
         <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
-          {% assets "fa5-sprite" %}<svg class="fa5-icon label-box__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
+          {{ faicon(icon='grip-vertical', icon_size='body1', baseline=false, css_class='label-box__icon') }}
           <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>

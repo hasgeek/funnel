@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import project_header %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}

@@ -1,3 +1,5 @@
+{% from "baseframe/components.html.jinja2" import faicon %}
+
 {% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
@@ -5,10 +7,10 @@
       <div class="comment--content">
         <div class="comment--header">
           <button class="js-collapse mui-btn mui-btn--nostyle" aria-label="{% trans %}Hide comment{% endtrans %}" aria-expanded="true">
-            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-up"></use></svg>{% endassets %}
+            {{ faicon(icon='caret-circle-up', icon_size='subhead', baseline=true) }}
           </button>
           <button class="js-uncollapse mui-btn mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
-            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-down"></use></svg>{% endassets %}
+            {{ faicon(icon='caret-circle-down', icon_size='subhead', baseline=true) }}
           </button>&nbsp;
           {% if comment.state.DELETED -%}
             <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
