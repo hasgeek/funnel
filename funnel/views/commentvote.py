@@ -114,7 +114,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
-                                        'template': 'proposal_comment_reply_email.md',
+                                        'template': 'proposal_comment_reply_email.md.jinja2',
                                     }
                                 )
                         else:
@@ -127,7 +127,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
-                                        'template': 'proposal_comment_to_proposer_email.md',
+                                        'template': 'proposal_comment_to_proposer_email.md.jinja2',
                                     }
                                 )
                             if not self.obj.owner == current_auth.user:
@@ -140,7 +140,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
-                                        'template': 'proposal_comment_email.md',
+                                        'template': 'proposal_comment_email.md.jinja2',
                                     }
                                 )
 
@@ -155,7 +155,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                     project=self.obj.project.title,
                                     proposal=self.obj.title,
                                 ),
-                                'template': 'proposal_comment_email.md',
+                                'template': 'proposal_comment_email.md.jinja2',
                             }
                         )
                 self.obj.commentset.count += 1

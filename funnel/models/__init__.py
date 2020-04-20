@@ -46,6 +46,6 @@ from .saved import *  # isort:skip
 from .session import *  # isort:skip
 from .venue import *  # isort:skip
 from .membership import *  # isort:skip
-from .profile_membership import *  # isort:skip
+from .organization_membership import *  # isort:skip
 from .project_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip

@@ -13,16 +13,16 @@ __all__ = ['ProposalMembership']
 
 class ProposalMembership(ImmutableMembershipMixin, db.Model):
     """
-    Users can be crew members of projects, with specified access rights.
+    Users can be presenters or reviewers on proposals.
     """
 
     __tablename__ = 'proposal_membership'
 
     # List of is_role columns in this model
-    __data_columns__ = ('is_reviewer', 'is_speaker')
+    __data_columns__ = ('is_reviewer', 'is_presenter')
 
     __roles__ = {
-        'all': {'read': {'user', 'is_reviewer', 'is_speaker', 'proposal'}},
+        'all': {'read': {'user', 'is_reviewer', 'is_presenter', 'proposal'}},
         'editor': {'read': {'edit_url', 'delete_url'}},
     }
 
@@ -49,15 +49,15 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
     #: Reviewers can change state of proposal
     is_reviewer = db.Column(db.Boolean, nullable=False, default=False)
-    #: Speakers can edit and withdraw proposals
-    is_speaker = db.Column(db.Boolean, nullable=False, default=False)
+    #: Presenters can edit and withdraw proposals
+    is_presenter = db.Column(db.Boolean, nullable=False, default=False)
 
     @declared_attr
     def __table_args__(cls):
-        args = list(super(cls, cls).__table_args__)
+        args = list(super().__table_args__)
         args.append(
             db.CheckConstraint(
-                'is_reviewer IS TRUE OR is_speaker IS TRUE',
+                db.or_(cls.is_reviewer.is_(True), cls.is_presenter.is_(True)),
                 name='proposal_membership_has_role',
             )
         )
@@ -77,7 +77,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
         if self.is_reviewer:
             roles.add('reviewer')
         elif self.is_speaker:
-            roles.add('speaker')
+            roles.add('presenter')
         return roles
 
 
@@ -89,6 +89,7 @@ Proposal.active_memberships = db.relationship(
     primaryjoin=db.and_(
         ProposalMembership.proposal_id == Proposal.id, ProposalMembership.is_active
     ),
+    viewonly=True,
 )
 
 Proposal.active_reviewer_memberships = db.relationship(
@@ -99,18 +100,20 @@ Proposal.active_reviewer_memberships = db.relationship(
         ProposalMembership.is_active,
         ProposalMembership.is_reviewer.is_(True),
     ),
+    viewonly=True,
 )
 
-Proposal.active_speaker_memberships = db.relationship(
+Proposal.active_presenter_memberships = db.relationship(
     ProposalMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
         ProposalMembership.proposal_id == Proposal.id,
         ProposalMembership.is_active,
-        ProposalMembership.is_speaker.is_(True),
+        ProposalMembership.is_presenter.is_(True),
     ),
+    viewonly=True,
 )
 
 Proposal.members = DynamicAssociationProxy('active_memberships', 'user')
 Proposal.reviewers = DynamicAssociationProxy('active_reviewer_memberships', 'user')
-Proposal.speakers = DynamicAssociationProxy('active_speaker_memberships', 'user')
+Proposal.presenters = DynamicAssociationProxy('active_presenters_memberships', 'user')
