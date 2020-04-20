@@ -124,6 +124,7 @@
               </div>
               <hr class="mui-divider">
               <div>
+                  {% endif %}
                 <p class="mui--text-body2 mui--text-light zero-bottom-margin mui--text-uppercase">Downloads</p>
                 <p class="btn-group">
                   <a href="{{ project.url_for('csv') }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--dark" target="_blank" aria-label="{% trans %}Download CSV{% endtrans %}" data-action="Download CSV">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#download"></use></svg>{% endassets %} {% trans %}CSV{% endtrans %}</a>
