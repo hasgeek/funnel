@@ -7,6 +7,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 
+from flask import current_app
 from werkzeug.utils import cached_property
 
 from babel.dates import format_date
@@ -15,7 +16,7 @@ from pytz import utc
 
 from baseframe import __, get_locale, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum, utcnow, valid_username
+from coaster.utils import LabeledEnum, buid, utcnow, valid_username
 
 from ..utils import geonameid_from_location
 from . import (
@@ -261,6 +262,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             self.name,
             self.title,
         )
+
+    @classmethod
+    def migrate_profile(cls, old_profile, new_profile):
+        names = {project.name for project in new_profile.projects}
+        for project in old_profile.projects:
+            if project.name in names:
+                current_app.logger.warning(
+                    "Project %r had a conflicting name in profile migration, "
+                    "so renaming by adding adding random value to name",
+                    project,
+                )
+                project.name += '-' + buid()
+            project.profile = new_profile
 
     @property
     def title_inline(self):
@@ -607,7 +621,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'day_end_at': (
                         session_dates_dict[date]['day_end_at']
                         .astimezone(self.timezone)
-                        .strftime("%I:%M %p")
+                        .strftime("%I:%M %p %Z")
                         if date in session_dates_dict.keys()
                         else None
                     ),
@@ -914,12 +928,19 @@ class ProjectRedirect(TimestampMixin, db.Model):
             return {}
 
     @classmethod
-    def migrate_profile(cls, oldprofile, newprofile):
+    def migrate_profile(cls, old_profile, new_profile):
         """
-        There's no point trying to migrate redirects when merging profiles, so discard them.
+        There's no point trying to migrate redirects when merging profiles,`
+        so discard them.
         """
-        oldprofile.project_redirects = []
-        return [cls.__table__.name]
+        names = {pr.name for pr in new_profile.project_redirects}
+        for pr in old_profile.project_redirects:
+            if pr.name not in names:
+                pr.profile = new_profile
+            else:
+                # Discard project redirect since the name is already taken by another
+                # redirect in the new profile
+                db.session.delete(pr)
 
 
 class ProjectLocation(TimestampMixin, db.Model):

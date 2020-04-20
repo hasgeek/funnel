@@ -1,20 +1,12 @@
 describe('Confirm proposal', function() {
-  const { admin } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  before(function() {
-    cy.server();
-    cy.route('POST', '**/login').as('login');
-    cy.login('/testcypressproject/new', admin.username, admin.password);
-    cy.wait('@login', { timeout: 20000 });
-    cy.get('a.mui-btn')
-      .contains('Cancel')
-      .click();
-  });
-
   it('Confirm proposal', function() {
+    cy.login('/testcypressproject', admin.username, admin.password);
+
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="proposals"]').click();

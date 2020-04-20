@@ -6,7 +6,7 @@
       {% set event = namespace(month='', year='') %}
       {% for week in calendar.weeks|sort(attribute='year') %}
         {% for date in week.dates %}
-          {% if date.count > 0 %}
+          {% if date.count > 0 and not event.month %}
             {% set event.month = week.month  %}
             {% set event.year = week.year  %}
           {% endif %}
@@ -40,13 +40,13 @@
     {{ form.hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
-        <a class="mui-btn--nostyle"  href="{{ url_for('login') }}" data-action="Login to save project">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}</a>
+        <a class="mui-btn mui-btn--nostyle"  href="{{ url_for('login') }}" data-action="Login to save project">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
-          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}
+        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
+          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}
         </button>
-        <button type="submit" value="false" class="mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline bookmarked" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline bookmarked" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
       {%- endif %}
     </p>
   </form>
@@ -111,11 +111,9 @@
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
+          <p class="add-calendar"><a href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#calendar-plus"></use></svg>{% endassets %}&nbsp;{% trans %}Add to calendar{% endtrans %}</a></p>
         {% endif %}
         <div class="project-details__box--ticketbox">
-          {%- if project.primary_venue %}
-            <p><a class="mui--text-hyperlink mui--text-subhead project-venue {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
-          {%- endif %}
           <div class="project-banner__action">
             <div class="project-banner__action__social">
               <p class="mui--text-light zero-bottom-margin">{% trans %}Share this project{% endtrans %}</p>
@@ -140,13 +138,16 @@
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p class="mui--text-subhead propose__txt zero-bottom-margin"><span class="propose__txt__badge alert--warning mui--d-inlineblock">Note</span> <em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline secondary-color-txt" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#info-circle"></use></svg>{% endassets %} <em class="mui--text-body1">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
               <p class="mui--text-light mui--text-caption mui--text-center zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
             </div>
+          {%- endif %}
+          {%- if project.primary_venue %}
+            <p class="project-venue"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
           {%- endif %}
         </div>
       </div>

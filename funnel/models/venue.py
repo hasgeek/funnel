@@ -62,7 +62,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
                 'project_details',
                 'room_list',
                 'seq',
-                'suuid',
+                'uuid_b58',
                 'latitude',
                 'longitude',
                 'has_coordinates',
@@ -75,7 +75,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         return {
             'name': self.project.name,
             'title': self.project.title,
-            'suuid': self.project.suuid,
+            'uuid_b58': self.project.uuid_b58,
         }
 
     @property
@@ -122,7 +122,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
                 'seq',
                 'venue_details',
                 'scoped_name',
-                'suuid',
+                'uuid_b58',
             }
         }
     }
@@ -132,7 +132,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
         return {
             'name': self.venue.name,
             'title': self.venue.title,
-            'suuid': self.venue.suuid,
+            'uuid_b58': self.venue.uuid_b58,
         }
 
     @property
