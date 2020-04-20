@@ -118,7 +118,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         ),
         db.Index(
             'ix_profile_name_lower',
-            db.func.lower('name').label('name_lower'),
+            db.func.lower(name).label('name_lower'),
             unique=True,
             postgresql_ops={'name_lower': 'varchar_pattern_ops'},
         ),
