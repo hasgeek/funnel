@@ -205,7 +205,16 @@ class VideoMixin:
 
     @video_url.setter
     def video_url(self, value):
-        self.video_source, self.video_id = parse_video_url(value)
+        if value is None:
+            if (
+                self.video_id
+                and self.video_source
+                and redis_store.exists(self.video_cache_key)
+            ):
+                redis_store.delete(self.video_cache_key)
+            self.video_source, self.video_id = None, None
+        else:
+            self.video_source, self.video_id = parse_video_url(value)
 
     @property
     def embeddable_video_url(self):
