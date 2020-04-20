@@ -65,9 +65,15 @@ def session_form(project, proposal=None, session=None):
         form.populate_obj(session)
         if new:
             session.parent = project
-            session = failsafe_add(
-                db.session, session, project_id=project.id, url_id=session.url_id
-            )
+            if session.proposal:
+                session = failsafe_add(
+                    db.session,
+                    session,
+                    project_id=project.id,
+                    proposal_id=session.proposal_id,
+                )
+            else:
+                db.session.add(session)
         db.session.commit()
         if request_is_xhr():
             data = {
