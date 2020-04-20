@@ -58,10 +58,14 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     @declared_attr
     def __table_args__(cls):
-        args = list(super(cls, cls).__table_args__)
+        args = list(super().__table_args__)
         args.append(
             db.CheckConstraint(
-                'is_editor IS TRUE OR is_concierge IS TRUE OR is_usher IS TRUE',
+                db.or_(
+                    cls.is_editor.is_(True),
+                    cls.is_concierge.is_(True),
+                    cls.is_usher.is_(True),
+                ),
                 name='project_crew_membership_has_role',
             )
         )
