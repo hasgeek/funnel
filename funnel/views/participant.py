@@ -9,7 +9,7 @@ from flask import flash, g, jsonify, redirect, request, url_for
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, uuid_to_base58
 from coaster.views import (
     ClassView,
     ModelView,
@@ -72,7 +72,7 @@ def participant_data(participant, project_id, full=False):
 
 
 def participant_checkin_data(participant, project, event):
-    puuid_b58 = participant.uuid_b58
+    puuid_b58 = uuid_to_base58(participant.uuid)
     data = {
         'puuid_b58': puuid_b58,
         'fullname': participant.fullname,
