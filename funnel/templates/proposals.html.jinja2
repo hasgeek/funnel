@@ -29,7 +29,7 @@
   <table id="proposals-table" class="proposal-list-table mui-table">
     <tbody>
       {% for proposal in proposals %}
-        <tr id="{{ proposal.suuid }}">
+        <tr id="{{ proposal.uuid_b58 }}">
           <td class='js-searchable'>
             <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
             <p class="speaker-details">
@@ -88,12 +88,12 @@
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <div>
-              <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)">{% trans %}Submit a session proposal{% endtrans %}</a>
               {% if project.cfp_end_at_localized -%}<p class="mui--text-light mui--text-subhead"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="mui-d--inlineblock">
-              <a class="mui-btn mui-btn--raised mui-btn--dark mui-btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui-btn--dark mui-btn--strike" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
               <p class="mui--text-light mui--text-caption">{% trans %}Submissions are closed for this project{% endtrans %}</p>
             </div>
           {%- endif %}

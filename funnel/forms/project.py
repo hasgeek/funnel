@@ -32,13 +32,21 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {"org": "hasgeek", "item_collection_id": ""}
 
 
 class ProjectForm(forms.Form):
-    name = forms.StringField(
+    name = forms.AnnotatedTextField(
         __("URL name"),
+        description=__(
+            "The URL at which your project will appear. "
+            "Use letters, numbers and dashes only. "
+            "Including a date is recommended"
+        ),
         validators=[
             forms.validators.DataRequired(),
-            forms.ValidName(),
+            forms.validators.ValidName(),
             AvailableName(),
+            forms.validators.Length(max=Project.__name_length__),
         ],
+        prefix="https://hasgeek.com/<profile>/",
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     title = forms.StringField(
         __("Title"),

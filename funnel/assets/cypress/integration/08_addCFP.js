@@ -1,10 +1,15 @@
 describe('Add CFP to project', function() {
-  const { admin } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
   const cfp = require('../fixtures/cfp.json');
   const project = require('../fixtures/project.json');
 
   it('Add CFP', function() {
-    cy.relogin('/testcypressproject/' + project.url);
+    cy.login(
+      '/testcypressproject/' + project.url,
+      admin.username,
+      admin.password
+    );
+
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="add-cfp"]').click();

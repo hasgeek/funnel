@@ -65,7 +65,7 @@ const Queue = function(queueName) {
           } else {
             const index = Utils.findLoopIndex(
               participants,
-              'psuuid',
+              'puuid_b58',
               participantID
             );
             ParticipantList.set(`participants.${index}.submitting`, true);
@@ -76,7 +76,7 @@ const Queue = function(queueName) {
         } else {
           const index = Utils.findLoopIndex(
             participants,
-            'psuuid',
+            'puuid_b58',
             participantID
           );
           ParticipantList.set(`participants.${index}.submitting`, true);
@@ -137,7 +137,7 @@ const ParticipantTable = {
       },
       handleCheckIn(event, checkin) {
         event.original.preventDefault();
-        const participantID = this.get(`${event.keypath}.psuuid`);
+        const participantID = this.get(`${event.keypath}.puuid_b58`);
         if (checkin) {
           // Add participant id to checkin queue
           this.get('checkinQ').enqueue(participantID);
@@ -149,7 +149,7 @@ const ParticipantTable = {
       },
       handleAbortCheckIn(event, checkin) {
         event.original.preventDefault();
-        const participantID = this.get(`${event.keypath}.psuuid`);
+        const participantID = this.get(`${event.keypath}.puuid_b58`);
         if (checkin) {
           this.get('checkinQ').dequeue(participantID);
           this.get('cancelcheckinQ').enqueue(participantID);
@@ -172,7 +172,10 @@ const ParticipantTable = {
               total_checkedin: data.total_checkedin,
             });
             list.set('participants', data.participants).then(() => {
-              const participants = Utils.tohashMap(data.participants, 'psuuid');
+              const participants = Utils.tohashMap(
+                data.participants,
+                'puuid_b58'
+              );
               list.get('checkinQ').updateQueue(participants, list);
               list.get('cancelcheckinQ').updateQueue(participants, list);
             });
@@ -213,7 +216,7 @@ const ParticipantTable = {
     let formValues;
     participants = $.param(
       {
-        psuuid: participantIDs,
+        puuid_b58: participantIDs,
       },
       true
     );

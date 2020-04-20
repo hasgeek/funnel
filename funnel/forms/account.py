@@ -6,8 +6,7 @@ from coaster.utils import nullstr, sorted_timezones
 import baseframe.forms as forms
 
 from ..models import (
-    RESERVED_NAMES,
-    AccountName,
+    Profile,
     User,
     UserEmail,
     UserEmailClaim,
@@ -122,8 +121,8 @@ class AccountForm(forms.Form):
             "You need a username to have a public profile"
         ),
         validators=[
-            forms.validators.Optional(),
-            forms.validators.Length(max=AccountName.__name_length__),
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=Profile.__name_length__),
         ],
         filters=[forms.filters.none_if_empty()],
         prefix="https://hasgeek.com/",
@@ -139,11 +138,6 @@ class AccountForm(forms.Form):
     )
 
     def validate_username(self, field):
-        if field.data.lower() in RESERVED_NAMES:
-            raise forms.ValidationError(
-                _("This name is reserved")
-            )  # To be deprecated in favour of one below
-
         reason = self.edit_obj.validate_name_candidate(field.data)
         if not reason:
             return  # Username is available

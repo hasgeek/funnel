@@ -11,6 +11,7 @@ from coaster.utils import LabeledEnum
 
 from ..utils import geonameid_from_location
 from . import (
+    BaseMixin,
     BaseScopedIdNameMixin,
     CoordinatesMixin,
     MarkdownColumn,
@@ -26,7 +27,7 @@ from .project import Project
 from .user import User
 from .video import VideoMixin
 
-__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
+__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect', 'ProposalSuuidRedirect']
 
 _marker = object()
 
@@ -577,3 +578,15 @@ class ProposalRedirect(TimestampMixin, db.Model):
             }
         else:
             return {}
+
+
+class ProposalSuuidRedirect(BaseMixin, db.Model):
+    """Holds Proposal SUUIDs from before when they were deprecated"""
+
+    __tablename__ = 'proposal_suuid_redirect'
+
+    suuid = db.Column(db.Unicode(22), nullable=False, index=True)
+    proposal_id = db.Column(
+        None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+    )
+    proposal = db.relationship(Proposal)

@@ -11,7 +11,16 @@ from coaster.utils import for_tsquery
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, funnelapp
-from ..models import Comment, Profile, Project, Proposal, Session, User, db
+from ..models import (
+    Comment,
+    Organization,
+    Profile,
+    Project,
+    Proposal,
+    Session,
+    User,
+    db,
+)
 from ..utils import strip_null
 
 # --- Definitions -------------------------------------------------------------
@@ -21,42 +30,74 @@ pg_startsel = '<b>'
 pg_stopsel = '</b>'
 pg_delimiter = ' … '
 
-# TODO: extend SearchModel to include profile_query_factory and project_query_factory
+# TODO: extend SearchModel to include profile_query_filter and project_query_filter
 # for scoped search
-SearchModel = namedtuple(
-    'SearchModel', ['label', 'model', 'has_title', 'query_factory']
-)
+SearchModel = namedtuple('SearchModel', ['label', 'model', 'has_title', 'query_filter'])
 
 # The order here is preserved into the tabs shown in UI
 search_types = OrderedDict(
     [
         (
             'project',
-            SearchModel(__("Projects"), Project, True, lambda: Project.all_unsorted()),
+            SearchModel(
+                __("Projects"),
+                Project,
+                True,
+                lambda q: Project.all_unsorted().filter(Project.search_vector.match(q)),
+            ),
         ),
-        ('profile', SearchModel(__("Profiles"), Profile, True, lambda: Profile.query)),
+        (
+            'profile',
+            SearchModel(
+                __("Profiles"),
+                Profile,
+                True,
+                lambda q: Profile.query.filter(
+                    Profile.state.PUBLIC,
+                    db.or_(
+                        Profile.search_vector.match(q),
+                        User.query.filter(
+                            Profile.user_id == User.id, User.search_vector.match(q)
+                        ).exists(),
+                        Organization.query.filter(
+                            Profile.organization_id == Organization.id,
+                            Organization.search_vector.match(q),
+                        ).exists(),
+                    ),
+                ),
+            ),
+        ),
         (
             'session',
             SearchModel(
                 __("Sessions"),
                 Session,
                 True,
-                lambda: Session.query.join(Proposal).join(User, Proposal.speaker),
+                lambda q: Session.query.join(Proposal)
+                .join(User, Proposal.speaker)
+                .filter(Session.search_vector.match(q)),
             ),
-        ),  # FIXME: undefer userinfo
+        ),
         (
             'proposal',
             SearchModel(
                 __("Proposals"),
                 Proposal,
                 True,
-                lambda: Proposal.query.join(User, Proposal.speaker),
+                lambda q: Proposal.query.join(User, Proposal.speaker).filter(
+                    Proposal.search_vector.match(q)
+                ),
             ),
         ),
         (
             'comment',
             SearchModel(
-                __("Comments"), Comment, False, lambda: Comment.query.join(User)
+                __("Comments"),
+                Comment,
+                False,
+                lambda q: Comment.query.join(User).filter(
+                    Comment.search_vector.match(q)
+                ),
             ),
         ),
     ]
@@ -80,10 +121,7 @@ def search_counts(squery):
         {
             'type': k,
             'label': v.label,
-            'count': v.query_factory()
-            .options(db.load_only(v.model.id))
-            .filter(v.model.search_vector.match(squery))
-            .count(),
+            'count': v.query_filter(squery).options(db.load_only(v.model.id)).count(),
         }
         for k, v in search_types.items()
     ]
@@ -99,13 +137,9 @@ def search_results(squery, stype, page=1, per_page=20):
     # Construct a basic query, sorted by matching column priority followed by date.
     # TODO: Pick the right query factory depending on requested scoping.
     # TODO: Pick a better date column than "created_at".
-    query = (
-        st.query_factory()
-        .filter(st.model.search_vector.match(squery))
-        .order_by(
-            db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
-            st.model.created_at.desc(),
-        )
+    query = st.query_filter(squery).order_by(
+        db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
+        st.model.created_at.desc(),
     )
 
     # Show rich summary by including the item's title with search terms highlighted

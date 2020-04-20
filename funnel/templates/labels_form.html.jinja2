@@ -21,7 +21,7 @@
   {%- else -%}
     {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field label-form__title-field--close") }}
   {%- endif %}
-  {%- if empty %}<button class="mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon mui--text-light  mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</button>
+  {%- if empty %}<button class="mui-btn mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon mui--text-light  mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</button>
   {%- endif %}
   <!-- Add archive button for existing sublabels -->
   {%- if subform %}

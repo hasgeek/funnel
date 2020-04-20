@@ -166,6 +166,7 @@ def account_edit(newprofile=False):
             formid='account_edit',
             submit=_("Save changes"),
             ajax=True,
+            cancel_url=url_for('account') if not newprofile else None,
         )
 
 

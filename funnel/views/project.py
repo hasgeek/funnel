@@ -97,6 +97,12 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_roles({'admin'})
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
+        # Profile URLs:
+        # HasGeek: https://hasgeek.com/rootconf (no /)
+        # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
+        form.name.prefix = self.obj.url_for(_external=True)
+        if not form.name.prefix.endswith('/'):
+            form.name.prefix += '/'
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
@@ -240,7 +246,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             )
 
             if not self.obj.timezone:
-                form.timezone.data = current_auth.user.timezone
+                form.timezone.data = str(current_auth.user.timezone)
 
             return render_form(
                 form=form,
