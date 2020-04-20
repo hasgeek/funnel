@@ -187,13 +187,8 @@
 {% endmacro %}
 
 {% macro embed_video_player(video) %}
-  {%- if video.video_source == 'youtube' -%}
-    <iframe id="youtube_player" src="//videoken.com/embed/?videoID={{video.video_id}}&wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=1&enablejsapi=1&version=3" frameborder="0" allowfullscreen></iframe>
-    <p><a href="https://videoken.com" target="_blank" class="mui--text-caption mui--text-light">Powered by VideoKen</a></p>
-  {% elif video.video_source == 'vimeo' %}
-    <iframe src="//player.vimeo.com/video/{{video.video_id}}" frameborder="0" allowfullscreen></iframe>
-  {% elif video.video_source == 'googledrive' %}
-    <iframe src="https://drive.google.com/file/d/{{video.video_id}}/preview" frameborder="0" allowfullscreen></iframe>
+  {% if video.video_source != 'raw' %}
+    <iframe src="{{ video.embeddable_url }}" frameborder="0" allowfullscreen></iframe>
   {% else %}
     <p class="video_txt">
       {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
@@ -208,9 +203,9 @@
   {%- endif %}
 
   {%- if proposal and proposal.current_roles.owner %}
-    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy-admin="edit" aria-label="{% trans %}Edit proposal video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
+    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-video" aria-label="{% trans %}Edit proposal video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
   {% elif session and session.project.current_roles.admin %}
-    <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy-admin="edit" aria-label="{% trans %}Edit session video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
+    <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
   {%- endif %}
 
   {%- if proposal or session %}

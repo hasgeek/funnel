@@ -1,4 +1,4 @@
-describe('Add video to session', function() {
+describe('Remove video to session', function() {
   const admin = require('../fixtures/user.json').admin;
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
@@ -19,22 +19,13 @@ describe('Add video to session', function() {
       .click();
     cy.wait('@view-session');
     cy.get('#session-modal').should('be.visible');
-    cy.get('[data-cy-admin="edit-session"]').click();
-    cy.get('#field-video_url').type(proposal.session_video);
+    cy.get('[data-cy="edit-video"]').click();
+    cy.get('#video_url').clear();
     cy.get('button')
       .contains('save session')
       .click();
-    cy.get('[data-cy="session-video"]')
+    cy.get('#session-modal')
       .find('iframe')
-      .should('be.visible');
-    cy.get('[data-cy="view-proposal"]')
-      .invoke('removeAttr', 'target')
-      .click();
-    cy.get('[data-cy="session-video"]')
-      .find('iframe')
-      .should('be.visible');
-    cy.get('img[data-cy="proposal-video-thumbnail"]').should('be.visible');
-    cy.get('img[data-cy="session-video-thumbnail"]').should('be.visible');
-    cy.get('[data-cy="edit-session-video"]').should('exist');
+      .should('not.exist');
   });
 });

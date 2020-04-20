@@ -87,10 +87,10 @@
               {% if proposal.session and proposal.session.video and proposal.session.video.url %}
                 <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
                   <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="session-video">
-                    {{ embed_video_player({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id})}}
+                    {{ embed_video_player(proposal.session.video) }}
                   </div>
                   <div class="details__box__control">
-                    {{ video_action_bar({'video_source': proposal.session.video.source, 'video_id': proposal.session.video.id}, '', proposal.session)}}
+                    {{ video_action_bar(proposal.session.video, '', proposal.session)}}
                   </div>
                 </div>
                 {% set seq = seq + 1 %}
@@ -98,10 +98,10 @@
               {% if proposal.video %}
                 <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
                   <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="proposal-video">
-                    {{ embed_video_player({'video_source': proposal.video.source, 'video_id':proposal.video.id }) }}
+                    {{ embed_video_player(proposal.video) }}
                   </div>
                   <div class="details__box__control">
-                    {{ video_action_bar({'video_source': proposal.video.source, 'video_id':proposal.video.id }, proposal) }}
+                    {{ video_action_bar(proposal.video, proposal) }}
                   </div>
                 </div>
               {%- elif proposal.current_roles.owner %}
@@ -227,20 +227,20 @@
                 </form>
               {%- endif %}
               <hr class="mui-divider">
-              {%- if proposal.current_roles.owner %}
-                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">
-                  {%- if proposal.video %}
-                    {% trans %}Edit proposal video{% endtrans %}
-                  {% else %}
-                    {% trans %}Add proposal video{% endtrans %}
-                  {%- endif %}
-                </a>
-              {% elif proposal.current_roles.admin and proposal.state.SCHEDULED %}
+              {% if proposal.current_roles.admin and proposal.state.SCHEDULED %}
                 <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session-video" aria-label="{% trans %}Add session video{% endtrans %}">
                   {%- if proposal.session.video %}
                     {% trans %}Edit session video{% endtrans %}
                   {% else %}
                     {% trans %}Add session video{% endtrans %}
+                  {%- endif %}
+                </a>
+              {%- elif proposal.current_roles.owner %}
+                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">
+                  {%- if proposal.video %}
+                    {% trans %}Edit proposal video{% endtrans %}
+                  {% else %}
+                    {% trans %}Add proposal video{% endtrans %}
                   {%- endif %}
                 </a>
               {%- endif %}

@@ -26,17 +26,11 @@
     <div class="details">
       <div class="details__box details__box--left">
         <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="session-video">
-          {{ embed_video_player({'video_source': session.video.source, 'video_id': session.video.id}) }}
+          {{ embed_video_player(session.video) }}
         </div>
-        {% if session.proposal %}
-          <div class="details__box__control">
-            {{ video_action_bar({'video_source': session.video.source, 'video_id': session.video.id}, session.proposal) }}
-          </div>
-        {% else %}
-          <div class="details__box__control">
-            {{ video_action_bar({'video_source': session.video.source, 'video_id': session.video.id}, '', session) }}
-          </div>
-        {%- endif %}
+        <div class="details__box__control">
+          {{ video_action_bar(session.video, '', session) }}
+        </div>
       </div>
     </div>
   {% else %}
