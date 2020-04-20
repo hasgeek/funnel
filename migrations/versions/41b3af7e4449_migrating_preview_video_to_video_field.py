@@ -2,7 +2,7 @@
 """migrating preview_video to video field
 
 Revision ID: 41b3af7e4449
-Revises: e2b28adfa135
+Revises: 530c22761e27
 Create Date: 2020-04-15 10:36:15.558161
 
 """
@@ -19,7 +19,7 @@ from funnel.models.video import make_video_url, parse_video_url
 
 # revision identifiers, used by Alembic.
 revision = '41b3af7e4449'
-down_revision = 'e2b28adfa135'
+down_revision = '530c22761e27'
 branch_labels = None
 depends_on = None
 
