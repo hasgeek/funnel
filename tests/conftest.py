@@ -8,8 +8,8 @@ import pytest
 from funnel import app
 from funnel.models import (
     Label,
+    OrganizationMembership,
     Profile,
-    ProfileAdminMembership,
     Project,
     Proposal,
     Team,
@@ -125,7 +125,7 @@ def new_profile(test_db, new_team):
     test_db.session.add(profile)
 
     for u in new_team.users:
-        admin_membership = ProfileAdminMembership(profile=profile, user=u)
+        admin_membership = OrganizationMembership(profile=profile, user=u)
         test_db.session.add(admin_membership)
 
     test_db.session.commit()
@@ -138,7 +138,7 @@ def new_profile2(test_db, new_team2):
     test_db.session.add(profile)
 
     for u in new_team2.users:
-        admin_membership = ProfileAdminMembership(profile=profile, user=u)
+        admin_membership = OrganizationMembership(profile=profile, user=u)
         test_db.session.add(admin_membership)
 
     test_db.session.commit()

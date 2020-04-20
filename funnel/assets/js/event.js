@@ -122,14 +122,14 @@ const ParticipantTable = {
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
         },
-        getBadgeUrl(psuuid) {
-          return badgeUrl.replace('participant-id', psuuid);
+        getBadgeUrl(puuid_b58) {
+          return badgeUrl.replace('participant-id', puuid_b58);
         },
-        getLabelBadgeUrl(psuuid) {
-          return labelbadgeUrl.replace('participant-id', psuuid);
+        getLabelBadgeUrl(puuid_b58) {
+          return labelbadgeUrl.replace('participant-id', puuid_b58);
         },
-        getEditUrl(psuuid) {
-          return editUrl.replace('participant-id', psuuid);
+        getEditUrl(puuid_b58) {
+          return editUrl.replace('participant-id', puuid_b58);
         },
         getCheckinUrl() {
           return checkinUrl;

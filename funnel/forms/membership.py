@@ -4,7 +4,7 @@ from baseframe import _, __
 import baseframe.forms as forms
 
 
-class ProfileAdminMembershipForm(forms.Form):
+class OrganizationMembershipForm(forms.Form):
     # add a member to a project
     user = forms.UserSelectField(
         __("User"),

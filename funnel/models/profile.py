@@ -146,6 +146,24 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             raise ValueError(value)
         self.reserved = False
 
+    @property
+    def owners(self):
+        """List or query containing owners of this profile"""
+        if self.user is not None:
+            return [self.user]
+        elif self.organization is not None:
+            return self.organization.owners
+        return []
+
+    @property
+    def admins(self):
+        """List or query containing admins of this profile"""
+        if self.user is not None:
+            return [self.user]
+        elif self.organization is not None:
+            return self.organization.admins
+        return []
+
     @hybrid_property
     def title(self):
         if self.user:

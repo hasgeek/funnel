@@ -16,24 +16,24 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import (
-    ProfileAdminMembershipForm,
+    OrganizationMembershipForm,
     ProjectCrewMembershipForm,
     ProjectCrewMembershipInviteForm,
     SavedProjectForm,
 )
 from ..jobs import send_mail_async
-from ..models import Profile, ProfileAdminMembership, Project, ProjectCrewMembership, db
+from ..models import OrganizationMembership, Profile, Project, ProjectCrewMembership, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 
 @route('/<profile>/membership')
-class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
+class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET', 'POST'])
-    @render_with('profile_membership.html.jinja2')
+    @render_with('organization_membership.html.jinja2')
     @requires_roles({'admin'})
     def membership(self):
         return {
@@ -49,13 +49,13 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'owner'})
     def new_member(self):
-        membership_form = ProfileAdminMembershipForm()
+        membership_form = OrganizationMembershipForm()
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
                 previous_membership = (
-                    ProfileAdminMembership.query.filter(
-                        ProfileAdminMembership.is_active
+                    OrganizationMembership.query.filter(
+                        OrganizationMembership.is_active
                     )
                     .filter_by(profile=self.obj, user_id=membership_form.user.data.id)
                     .one_or_none()
@@ -70,7 +70,7 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
                         400,
                     )
                 else:
-                    new_membership = ProfileAdminMembership(
+                    new_membership = OrganizationMembership(
                         parent_id=self.obj.id, granted_by=current_auth.user
                     )
                     membership_form.populate_obj(new_membership)
@@ -81,10 +81,10 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
                         sender=None,
                         to=new_membership.user.email,
                         body=render_template(
-                            'profile_membership_add_email.md',
+                            'organization_membership_add_email.md.jinja2',
                             granted_by=new_membership.granted_by,
                             profile=self.obj,
-                            profile_membership_link=self.obj.url_for(
+                            organization_membership_link=self.obj.url_for(
                                 'membership', _external=True
                             ),
                         ),
@@ -120,33 +120,29 @@ class ProfileMembershipView(ProfileViewMixin, UrlForView, ModelView):
         return {'form': membership_form_html}
 
 
-@route('/membership', subdomain='<profile>')
-class FunnelProfileMembershipView(ProfileMembershipView):
-    pass
+OrganizationMembersView.init_app(app)
 
 
-ProfileMembershipView.init_app(app)
-FunnelProfileMembershipView.init_app(funnelapp)
-
-
-@route('/<profile>/membership/<suuid>')
-class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
-    model = ProfileAdminMembership
+@route('/<profile>/membership/<membership>')
+class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
+    model = OrganizationMembership
     __decorators__ = [legacy_redirect]
 
-    route_model_map = {'profile': 'profile.name', 'suuid': 'suuid'}
+    route_model_map = {'profile': 'profile.name', 'membership': 'uuid_b58'}
 
-    def loader(self, profile, suuid):
-        membership = (
+    def loader(self, profile, membership):
+        obj = (
             self.model.query.join(Profile)
-            .filter(Profile.name == profile, ProfileAdminMembership.suuid == suuid)
+            .filter(
+                Profile.name == profile, OrganizationMembership.uuid_b58 == membership
+            )
             .first_or_404()
         )
-        return membership
+        return obj
 
     def after_loader(self):
         g.profile = self.obj.profile
-        super(ProfileAdminMembershipView, self).after_loader()
+        super(OrganizationMembershipView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
@@ -154,12 +150,12 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'profile_owner'})
     def edit(self):
         previous_membership = self.obj
-        membership_form = ProfileAdminMembershipForm(obj=previous_membership)
+        membership_form = OrganizationMembershipForm(obj=previous_membership)
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
                 primary_owner_membership = self.obj.profile.active_admin_memberships.order_by(
-                    ProfileAdminMembership.granted_at.asc()
+                    OrganizationMembership.granted_at.asc()
                 ).first()
 
                 if (
@@ -211,7 +207,7 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
         if request.method == 'POST':
             if form.validate_on_submit():
                 primary_owner_membership = self.obj.profile.active_admin_memberships.order_by(
-                    ProfileAdminMembership.granted_at.asc()
+                    OrganizationMembership.granted_at.asc()
                 ).first()
 
                 if (
@@ -233,7 +229,7 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
                         sender=None,
                         to=previous_membership.user.email,
                         body=render_template(
-                            'profile_membership_revoke_notification_email.md',
+                            'organization_membership_revoke_notification_email.md.jinja2',
                             revoked_by=current_auth.user,
                             profile=self.obj.profile,
                         ),
@@ -264,13 +260,7 @@ class ProfileAdminMembershipView(UrlChangeCheck, UrlForView, ModelView):
         return {'form': form_html}
 
 
-@route('/membership/<suuid>', subdomain='<profile>')
-class FunnelProfileAdminMembershipView(ProfileAdminMembershipView):
-    pass
-
-
-ProfileAdminMembershipView.init_app(app)
-FunnelProfileAdminMembershipView.init_app(funnelapp)
+OrganizationMembershipView.init_app(app)
 
 
 #: Project Membership views
@@ -329,8 +319,8 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         sender=None,
                         to=new_membership.user.email,
                         body=render_template(
-                            'project_membership_add_email.md',
-                            # 'project_membership_add_invite_email.md',
+                            'project_membership_add_email.md.jinja2',
+                            # 'project_membership_add_invite_email.md.jinja2',
                             granted_by=new_membership.granted_by,
                             project=self.obj,
                             project_membership_link=self.obj.url_for(
@@ -385,40 +375,38 @@ class ProjectCrewMembershipMixin(object):
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'suuid': 'suuid',
+        'membership': 'uuid_b58',
     }
 
-    def loader(self, profile, project, suuid):
-        membership = (
+    def loader(self, profile, project, membership):
+        obj = (
             self.model.query.join(Project, Profile)
             .filter(
                 Profile.name == profile,
                 Project.name == project,
-                ProjectCrewMembership.suuid == suuid,
+                ProjectCrewMembership.uuid_b58 == membership,
             )
             .first_or_404()
         )
-        return membership
+        return obj
 
     def after_loader(self):
         g.profile = self.obj.project.profile
         super(ProjectCrewMembershipMixin, self).after_loader()
 
 
-@route('/<profile>/<project>/membership/<suuid>/invite')
+@route('/<profile>/<project>/membership/<membership>/invite')
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     __decorators__ = [legacy_redirect]
 
-    def loader(self, profile, project, suuid):
-        membership = super(ProjectCrewMembershipInviteView, self).loader(
-            profile, project, suuid
-        )
-        if not membership.is_invite or membership.user != current_auth.user:
+    def loader(self, profile, project, membership):
+        obj = super().loader(profile, project, membership)
+        if not obj.is_invite or obj.user != current_auth.user:
             raise abort(404)
 
-        return membership
+        return obj
 
     @route('', methods=['GET'])
     @render_with('membership_invite_actions.html.jinja2')
@@ -439,7 +427,7 @@ class ProjectCrewMembershipInviteView(
         return redirect(self.obj.project.url_for(), 303)
 
 
-@route('/<project>/membership/<suuid>/invite', subdomain='<profile>')
+@route('/<project>/membership/<membership>/invite', subdomain='<profile>')
 class FunnelProjectCrewMembershipInviteView(ProjectCrewMembershipInviteView):
     pass
 
@@ -448,7 +436,7 @@ ProjectCrewMembershipInviteView.init_app(app)
 FunnelProjectCrewMembershipInviteView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/membership/<suuid>')
+@route('/<profile>/<project>/membership/<membership>')
 class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
@@ -514,7 +502,7 @@ class ProjectCrewMembershipView(
                         sender=None,
                         to=previous_membership.user.email,
                         body=render_template(
-                            'project_membership_revoke_notification_email.md',
+                            'project_membership_revoke_notification_email.md.jinja2',
                             revoked_by=current_auth.user,
                             project=self.obj.project,
                         ),
@@ -545,7 +533,7 @@ class ProjectCrewMembershipView(
         return {'form': form_html}
 
 
-@route('/<project>/membership/<suuid>', subdomain='<profile>')
+@route('/<project>/membership/<membership>', subdomain='<profile>')
 class FunnelProjectCrewMembershipView(ProjectCrewMembershipView):
     pass
 

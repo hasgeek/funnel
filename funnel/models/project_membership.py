@@ -103,6 +103,7 @@ Project.active_crew_memberships = db.relationship(
     primaryjoin=db.and_(
         ProjectCrewMembership.project_id == Project.id, ProjectCrewMembership.is_active
     ),
+    viewonly=True,
 )
 
 Project.active_editor_memberships = db.relationship(
@@ -113,6 +114,7 @@ Project.active_editor_memberships = db.relationship(
         ProjectCrewMembership.is_active,
         ProjectCrewMembership.is_editor.is_(True),
     ),
+    viewonly=True,
 )
 
 Project.active_concierge_memberships = db.relationship(
@@ -123,6 +125,7 @@ Project.active_concierge_memberships = db.relationship(
         ProjectCrewMembership.is_active,
         ProjectCrewMembership.is_concierge.is_(True),
     ),
+    viewonly=True,
 )
 
 Project.active_usher_memberships = db.relationship(
@@ -133,6 +136,7 @@ Project.active_usher_memberships = db.relationship(
         ProjectCrewMembership.is_active,
         ProjectCrewMembership.is_usher.is_(True),
     ),
+    viewonly=True,
 )
 
 Project.crew = DynamicAssociationProxy('active_crew_memberships', 'user')
