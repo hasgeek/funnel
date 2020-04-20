@@ -4,7 +4,6 @@ from coaster.sqlalchemy import DynamicAssociationProxy, immutable
 
 from . import db
 from .membership import ImmutableMembershipMixin
-from .profile import Profile
 from .user import Organization, User
 
 __all__ = ['OrganizationMembership']
@@ -83,29 +82,29 @@ Organization.active_admin_memberships = db.relationship(
     OrganizationMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        OrganizationMembership.organization_id == db.remote(Organization.id),
+        db.remote(OrganizationMembership.organization_id) == Organization.id,
         OrganizationMembership.is_active,
     ),
     order_by=lambda: OrganizationMembership.granted_at.asc(),
     viewonly=True,
 )
 
-Profile.active_owner_memberships = db.relationship(
+Organization.active_owner_memberships = db.relationship(
     OrganizationMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        OrganizationMembership.organization_id == db.remote(Organization.id),
+        db.remote(OrganizationMembership.organization_id) == Organization.id,
         OrganizationMembership.is_active,
         OrganizationMembership.is_owner.is_(True),
     ),
     viewonly=True,
 )
 
-Profile.active_invitations = db.relationship(
+Organization.active_invitations = db.relationship(
     OrganizationMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        OrganizationMembership.organization_id == db.remote(Organization.id),
+        db.remote(OrganizationMembership.organization_id) == Organization.id,
         OrganizationMembership.is_invite,
         ~OrganizationMembership.is_active,
     ),
@@ -116,6 +115,8 @@ Profile.active_invitations = db.relationship(
 Organization.admins = DynamicAssociationProxy('active_admin_memberships', 'user')
 Organization.owners = DynamicAssociationProxy('active_owner_memberships', 'user')
 
+
+# User.active_organization_memberships is a future possibility. For now just admin and owner
 
 User.active_organization_admin_memberships = db.relationship(
     OrganizationMembership,

@@ -15,7 +15,6 @@ def init_models():
         test_org = Organization(name="testcypressproject", title="testcypressproject")
         test_org.owners.users.append(user_admin)
         db.session.add(test_org)
-        test_org.profile.admin_team = test_org.owners
         test_org.profile.make_public()
         db.session.commit()
 

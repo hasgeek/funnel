@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
-"""data migrate checkin and admin teams to membership
+"""Populate membership models
 
-Revision ID: 8297ea2c9645
-Revises: 8cb98498a659
-Create Date: 2019-10-23 19:42:48.165500
+Revision ID: 71fcac85957c
+Revises: 8829241430b6
+Create Date: 2020-04-21 02:01:52.012077
 
 """
-
-# revision identifiers, used by Alembic.
-revision = '8297ea2c9645'
-down_revision = '8cb98498a659'
 
 from uuid import uuid4
 
 from alembic import op
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
+
+# revision identifiers, used by Alembic.
+revision = '71fcac85957c'
+down_revision = '8829241430b6'
+branch_labels = None
+depends_on = None
 
 
 class MEMBERSHIP_RECORD_TYPE:  # NOQA: N801
@@ -26,11 +28,20 @@ class MEMBERSHIP_RECORD_TYPE:  # NOQA: N801
     AMEND = 3
 
 
+organization = table(
+    'organization',
+    column('id', sa.Integer()),
+    column('owners_id', sa.Integer()),
+    column('uuid', postgresql.UUID(as_uuid=True)),
+)
+
 profile = table(
     'profile',
     column('id', sa.Integer()),
+    column('uuid', postgresql.UUID(as_uuid=True)),
+    column('user_id', sa.Integer()),
+    column('organization_id', sa.Integer()),
     column('admin_team_id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
 )
 
 project = table(
@@ -45,21 +56,28 @@ project = table(
 team = table(
     'team',
     column('id', sa.Integer()),
-    column('owners', sa.Boolean()),
-    column('org_uuid', UUIDType(binary=False)),
+    column('organization_id', sa.Integer()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
 )
 
-users_teams = table(
-    'users_teams',
+team_membership = table(
+    'team_membership',
     column('user_id', sa.Integer()),
     column('team_id', sa.Integer()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
 )
 
+proposal = table(
+    'proposal',
+    column('id', sa.Integer()),
+    column('created_at', sa.TIMESTAMP(timezone=True)),
+    column('user_id', sa.Integer()),
+    column('speaker_id', sa.Integer()),
+)
+
 project_crew_membership = table(
     'project_crew_membership',
-    column('id', UUIDType(binary=False)),
+    column('id', postgresql.UUID(as_uuid=True)),
     column('project_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_editor', sa.Boolean()),
@@ -74,12 +92,28 @@ project_crew_membership = table(
     column('revoked_at', sa.TIMESTAMP(timezone=True)),
 )
 
-profile_admin_membership = table(
-    'profile_admin_membership',
-    column('id', UUIDType(binary=False)),
-    column('profile_id', sa.Integer()),
+organization_membership = table(
+    'organization_membership',
+    column('id', postgresql.UUID(as_uuid=True)),
+    column('organization_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_owner', sa.Boolean()),
+    column('granted_by_id', sa.Integer()),
+    column('revoked_by_id', sa.Integer()),
+    column('granted_at', sa.TIMESTAMP(timezone=True)),
+    column('record_type', sa.Integer()),
+    column('created_at', sa.TIMESTAMP(timezone=True)),
+    column('updated_at', sa.TIMESTAMP(timezone=True)),
+    column('revoked_at', sa.TIMESTAMP(timezone=True)),
+)
+
+proposal_membership = table(
+    'proposal_membership',
+    column('id', postgresql.UUID(as_uuid=True)),
+    column('proposal_id', sa.Integer()),
+    column('user_id', sa.Integer()),
+    column('is_reviewer', sa.Boolean()),
+    column('is_speaker', sa.Boolean()),
     column('granted_by_id', sa.Integer()),
     column('revoked_by_id', sa.Integer()),
     column('granted_at', sa.TIMESTAMP(timezone=True)),
@@ -93,32 +127,29 @@ profile_admin_membership = table(
 def upgrade():
     conn = op.get_bind()
 
-    #: Create ProfileAdminMembership record for admin_team members of Profiles
-    profiles = conn.execute(
-        sa.select([profile.c.id, profile.c.admin_team_id, profile.c.uuid])
-    )
-    for profile_id, profile_admin_team_id, profile_uuid in profiles:
+    #: Create OrganizationMembership record for owners team members of Organization
+    orgs = conn.execute(sa.select([organization.c.id, organization.c.owners_id]))
+    for org_id, org_owners_id in orgs:
         owner_team_users = conn.execute(
-            sa.select([users_teams.c.user_id, users_teams.c.created_at])
-            .where(team.c.org_uuid == profile_uuid)
-            .where(team.c.owners == 't')
-            .where(users_teams.c.team_id == team.c.id)
+            sa.select([team_membership.c.user_id, team_membership.c.created_at])
+            .where(team.c.id == org_owners_id)
+            .where(team_membership.c.team_id == team.c.id)
         )
         owners_dict = {user_id: created_at for user_id, created_at in owner_team_users}
         admin_team_users = conn.execute(
-            sa.select([users_teams.c.user_id, users_teams.c.created_at]).where(
-                users_teams.c.team_id == profile_admin_team_id
-            )
+            sa.select([team_membership.c.user_id, team_membership.c.created_at])
+            .where(profile.c.organization_id == org_id)
+            .where(team_membership.c.team_id == profile.c.admin_team_id)
         )
         admins_dict = {user_id: created_at for user_id, created_at in admin_team_users}
-        all_profile_admins = set(owners_dict.keys() + admins_dict.keys())
+        all_profile_admins = set(owners_dict.keys()) | set(admins_dict.keys())
 
         for user_id in all_profile_admins:
             conn.execute(
-                profile_admin_membership.insert().values(
+                organization_membership.insert().values(
                     {
                         'id': uuid4(),
-                        'profile_id': profile_id,
+                        'organization_id': org_id,
                         'user_id': user_id,
                         'is_owner': user_id in owners_dict,
                         'granted_by_id': None,
@@ -147,28 +178,29 @@ def upgrade():
         )
     )
     for project_id, checkin_team_id, review_team_id, admin_team_id in projects:
-        # migrate checkin team
         checkin_team_users = conn.execute(
-            sa.select([users_teams.c.user_id, users_teams.c.created_at]).where(
-                users_teams.c.team_id == checkin_team_id
+            sa.select([team_membership.c.user_id, team_membership.c.created_at]).where(
+                team_membership.c.team_id == checkin_team_id
             )
         )
         checkin_dict = {
             user_id: created_at for user_id, created_at in checkin_team_users
         }
         review_team_users = conn.execute(
-            sa.select([users_teams.c.user_id, users_teams.c.created_at]).where(
-                users_teams.c.team_id == review_team_id
+            sa.select([team_membership.c.user_id, team_membership.c.created_at]).where(
+                team_membership.c.team_id == review_team_id
             )
         )
         review_dict = {user_id: created_at for user_id, created_at in review_team_users}
         admin_team_users = conn.execute(
-            sa.select([users_teams.c.user_id, users_teams.c.created_at]).where(
-                users_teams.c.team_id == admin_team_id
+            sa.select([team_membership.c.user_id, team_membership.c.created_at]).where(
+                team_membership.c.team_id == admin_team_id
             )
         )
         admin_dict = {user_id: created_at for user_id, created_at in admin_team_users}
-        all_users = set(checkin_dict.keys() + review_dict.keys() + admin_dict.keys())
+        all_users = (
+            set(checkin_dict.keys()) | set(review_dict.keys()) | set(admin_dict.keys())
+        )
 
         for user_id in all_users:
             conn.execute(
@@ -185,11 +217,13 @@ def upgrade():
                         'is_usher': user_id in checkin_dict,
                         'granted_by_id': None,
                         'granted_at': (
-                            checkin_dict[user_id]
+                            admin_dict[user_id]
+                            if user_id in admin_dict
+                            else checkin_dict[user_id]
                             if user_id in checkin_dict
                             else review_dict[user_id]
                             if user_id in review_dict
-                            else admin_dict[user_id]
+                            else sa.func.now()
                         ),
                         'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
                         'created_at': sa.func.now(),
@@ -202,4 +236,4 @@ def upgrade():
 def downgrade():
     conn = op.get_bind()
     conn.execute(project_crew_membership.delete())
-    conn.execute(profile_admin_membership.delete())
+    conn.execute(organization_membership.delete())
