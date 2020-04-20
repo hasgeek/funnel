@@ -15,8 +15,6 @@ import sqlalchemy as sa
 from progressbar import ProgressBar
 import progressbar.widgets
 
-from coaster.utils import uuid2suuid
-
 # revision identifiers, used by Alembic.
 revision = 'e2b28adfa135'
 down_revision = '41a4531be082'
@@ -56,6 +54,11 @@ def get_progressbar(label, maxval):
 
 
 def upgrade():
+    # Import inside the `upgrade` function because `uuid2suuid` will be removed from
+    # Coaster shortly. Importing this migration should not break in the future unless
+    # also attempting to perform the migration, which will hopefully be unnecessary
+    from coaster.utils import uuid2suuid
+
     op.create_table(
         'proposal_suuid_redirect',
         sa.Column('id', sa.Integer(), nullable=False),
