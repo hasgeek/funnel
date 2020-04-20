@@ -108,15 +108,15 @@ $(function() {
                 index,
                 element
               ) {
-                if ($(element).attr('name') === 'room-suuid') {
-                  var roomSuuid = $(element).val();
+                if ($(element).attr('name') === 'room-uuidb58') {
+                  var roomUuidB58 = $(element).val();
                   var room = {
-                    suuid: roomSuuid,
+                    uuid_b58: roomUuidB58,
                     seq: $(
-                      'input[name="room-seq"][data-room="' + roomSuuid + '"]'
+                      'input[name="room-seq"][data-room="' + roomUuidB58 + '"]'
                     ).val(),
                     color: $(
-                      'input[name="color"][data-room="' + roomSuuid + '"]'
+                      'input[name="color"][data-room="' + roomUuidB58 + '"]'
                     ).val(),
                   };
                   json[venue]['rooms'].push(room);
@@ -287,7 +287,7 @@ $(function() {
             for (i = 0; i <= 6; i++) {
               if (
                 (from_day <= to_day && (i < from_day || i > to_day)) ||
-                (from_day > to_day && (i < from_day && i > to_day))
+                (from_day > to_day && i < from_day && i > to_day)
               )
                 inactive.push(i);
             }

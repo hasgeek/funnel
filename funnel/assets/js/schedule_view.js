@@ -126,7 +126,7 @@ const Schedule = {
           this.updateMetaTags(pageDetails);
         },
         showSessionModal(activeSession) {
-          const backPage = `${this.pageDetails.url}/${activeSession.url_name_suuid}`;
+          const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
           const pageDetails = {
             title: `${activeSession.title} — ${this.pageDetails.projectTitle}`,
             pageTitle: activeSession.title,
@@ -179,7 +179,7 @@ const Schedule = {
             this.showSessionModal(activeSession);
             // Scroll page to session
             Utils.animateScrollTo(
-              $(`#${activeSession.url_name_suuid}`).offset().top -
+              $(`#${activeSession.url_name_uuid_b58}`).offset().top -
                 this.headerHeight
             );
           } else if (

@@ -52,7 +52,7 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
             session.venue_room.scoped_name if session.venue_room else None
         ),
         'is_break': session.is_break,
-        'url_name_suuid': session.url_name_suuid,
+        'url_name_uuid_b58': session.url_name_uuid_b58,
         'url_name': session.url_name,
         'proposal_id': session.proposal_id,
         'description': session.description,
@@ -66,7 +66,7 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         'proposal_url': (
             session.proposal.url_for(_external=True) if session.proposal else None
         ),
-        'proposal': session.proposal.suuid if session.proposal else None,
+        'proposal': session.proposal.uuid_b58 if session.proposal else None,
         'feedback_url': (
             session.url_for('feedback', _external=True) if session.proposal else None
         ),
@@ -135,7 +135,7 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    event.add('uid', f'session/{session.suuid}@{request.host}')
+    event.add('uid', f'session/{session.uuid_b58}@{request.host}')
     event.add('dtstart', session.start_at_localized)
     event.add('dtend', session.end_at_localized)
     event.add('dtstamp', utcnow())
