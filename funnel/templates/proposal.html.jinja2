@@ -58,7 +58,6 @@
     </div>
   </div>
   <div class="grid__col-xs-12 proposal-wrapper">
-
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
       <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" aria-label="{% trans %}Edit proposal{% endtrans %}" class="mui--text-subhead mui--align-middle"> {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{% endif %}</h1>
       <p class="zero-bottom-margin">
@@ -80,7 +79,7 @@
           </p>
         {%- endif -%}
       </p>
-      <div class="details">
+            <div class="details">
         {% if proposal.session and proposal.session.video or proposal.video or proposal.current_roles.owner %}
           <div class="details__box details__box--left mui-tabs__bar">
             {% with seq = 1 %}
@@ -152,7 +151,6 @@
         {% endif %}
       </div>
     </section>
-
     <section class="proposal__section proposal__section--border">
       <div>
         {%- for label in proposal.labels %}
@@ -176,10 +174,7 @@
           <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">
           {% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
           </p>
-          {% if proposal.state.SCHEDULED %}
-            <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></p>
-          {% endif %}
-        </div>
+        {% endif %}
       </div>
       {% if proposal.state.SCHEDULED %}
         <div><a class="mui-btn mui-btn--raised mui-btn--small mui-btn--dark" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></div>

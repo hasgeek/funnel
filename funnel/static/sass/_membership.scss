@@ -1,4 +1,4 @@
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
   .membership-wrapper--left {
     width: 50%;
     float: left;
@@ -11,7 +11,7 @@
 }
 
 .membership-wrapper__filter {
-	margin-top: 10px;
+  margin-top: 10px;
   clear: both;
 }
 
@@ -22,11 +22,19 @@
   clear: both;
 }
 
+.content-box {
+  padding: 15px;
+  background-color: #f6e2c5;
+  color: #906b37;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
 .membership-wrapper__members {
   .membership-wrapper__members__collapsible__header {
     margin: 5px 0 0;
     width: 100%;
-    background: #EFF2F7;
+    background: #eff2f7;
     padding: 15px;
     cursor: pointer;
   }
@@ -34,7 +42,7 @@
   .membership-wrapper__members__list {
     border-bottom: 1px solid #ddd;
     cursor: pointer;
-    padding: 5px;
+    padding: 5px 15px 15px;
 
     .membership-wrapper__members__list__roles {
       display: inline-block;
@@ -44,7 +52,7 @@
 
     .membership-wrapper__members__list__roles__role {
       display: none;
-      color: #4A90E2;
+      color: #4a90e2;
     }
     .membership-wrapper__members__list__roles__role:first-child {
       display: block;
@@ -64,9 +72,8 @@
   }
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
   .membership-wrapper__members {
-
     .membership-wrapper__members__list {
       .membership-wrapper__members__list__roles__role {
         display: inline-block !important;
@@ -79,13 +86,13 @@
 }
 
 .slide-fade-enter-active {
-  transition: all .1s ease-in;
+  transition: all 0.1s ease-in;
 }
 .slide-fade-leave-active {
-  transition: all .1s ease-in;
+  transition: all 0.1s ease-in;
 }
-.slide-fade-enter, .slide-fade-leave-to {
+.slide-fade-enter,
+.slide-fade-leave-to {
   transform: translateY(10px);
   opacity: 0;
 }
-
