@@ -221,7 +221,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         elif len(name) > cls.__name_length__:
             return 'long'
         existing = (
-            cls.query.filter_by(name=name)
+            cls.query.filter(db.func.lower(cls.name) == db.func.lower(name))
             .options(
                 db.load_only(
                     cls.id, cls.uuid, cls.user_id, cls.organization_id, cls.reserved
@@ -239,12 +239,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def is_available_name(cls, name):
-        if valid_username(name) and len(name) <= cls.__name_length__:
-            if cls.query.filter(
-                db.func.lower(cls.name) == db.func.lower(name)
-            ).isempty():
-                return True
-        return False
+        return cls.validate_name_candidate(name) is None
 
     @db.validates('name')
     def validate_name(self, key, value):

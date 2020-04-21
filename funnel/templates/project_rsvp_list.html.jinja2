@@ -12,7 +12,7 @@
     <ul class="mui-tabs__bar mui-tabs__bar--justified" role="tablist">
       {%- for value, status in statuses.items() %}
         <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-          <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{status.name}}">{{ status.title }} {%- if counts[value] %}&nbsp;<span class="badge mui--text-caption">{{ counts[value] }}</span>{% endif %}</a>
+          <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{status.name}}">{{ status.title }} {%- if counts[value] %}&nbsp;&nbsp;<span class="badge mui--text-caption">{{ counts[value] }}</span>{% endif %}</a>
         </li>
       {%- endfor %}
     </ul>

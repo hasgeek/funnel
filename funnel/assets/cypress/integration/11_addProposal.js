@@ -24,7 +24,7 @@ describe('Add a new proposal', function() {
       .find('.CodeMirror textarea')
       .type(proposal.outline, { force: true });
     cy.get('#slides').type(proposal.slides);
-    cy.get('#preview_video').type(proposal.preview_video);
+    cy.get('#field-video_url').type(proposal.preview_video);
     cy.get('#field-bio')
       .find('.CodeMirror textarea')
       .type(proposal.speaker_bio, { force: true });
@@ -51,7 +51,11 @@ describe('Add a new proposal', function() {
     cy.get('.proposal__section__headline')
       .should('exist')
       .contains(proposal.title);
+    cy.get('[data-cy="proposal-video"]')
+      .find('iframe')
+      .should('be.visible');
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
+    cy.get('[data-cy="edit-proposal-video"]').should('exist');
   });
 });
