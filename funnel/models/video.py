@@ -108,6 +108,11 @@ class VideoMixin:
     video_id = db.Column(db.UnicodeText, nullable=True)
     video_source = db.Column(db.UnicodeText, nullable=True)
 
+    # We'll assume that the video exists at the source.
+    # We'll get to know whether it actually exists when
+    # we make API calls for thumbnails etc.
+    _source_video_exists = True
+
     @property
     def video_cache_key(self):
         if self.video_source and self.video_id:
@@ -133,12 +138,15 @@ class VideoMixin:
         if copied_data['duration'] and not isinstance(copied_data['duration'], int):
             copied_data['duration'] = int(copied_data['duration'])
         redis_store.hmset(self.video_cache_key, copied_data)
-        redis_store.expire(self.video_cache_key, 60 * 60 * 24 * 2)  # caching for 2 days
+
+        days_to_cache = 2 if self._source_video_exists else 7
+        redis_store.expire(self.video_cache_key, 60 * 60 * 24 * days_to_cache)
 
     @property
     def video(self):
         data = None
         if self.video_source and self.video_id:
+            # Check for cached data
             data = self._video_cache
 
             if not data:
@@ -152,14 +160,14 @@ class VideoMixin:
                     youtube_video = requests.get(
                         f'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={self.video_id}&key={app.config["YOUTUBE_API_KEY"]}'
                     ).json()
-                    if (
-                        not youtube_video
-                        or 'items' not in youtube_video
-                        or not youtube_video['items']
-                    ):
+                    if not youtube_video or 'items' not in youtube_video:
                         raise VideoException(
                             "Unable to fetch data, please check the youtube url or API key"
                         )
+                    elif not youtube_video['items']:
+                        # Response has zero item for our given video ID.
+                        # This will happen if the video has been removed from YouTube.
+                        self._source_video_exists = False
                     else:
                         youtube_video = youtube_video['items'][0]
 
@@ -177,9 +185,8 @@ class VideoMixin:
                         f'https://vimeo.com/api/v2/video/{self.video_id}.json'
                     ).json()
                     if not vimeo_video:
-                        raise VideoException(
-                            "Unable to fetch data, please check the vimeo url"
-                        )
+                        # Video doesn't exist on Vimeo anymore
+                        self._source_video_exists = False
                     else:
                         vimeo_video = vimeo_video[0]
 
@@ -199,7 +206,7 @@ class VideoMixin:
 
     @property
     def video_url(self):
-        if self.video_source:
+        if self.video_source and self.video_id:
             return make_video_url(self.video_source, self.video_id)
         return None
 
