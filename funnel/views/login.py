@@ -22,7 +22,7 @@ from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import render_form, render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool, utcnow, valid_username
+from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, load_model, requestargs
 
 from .. import app, funnelapp, lastuserapp
@@ -36,6 +36,7 @@ from ..forms import (
 from ..models import (
     AuthClientCredential,
     AuthPasswordResetRequest,
+    Profile,
     User,
     UserEmail,
     UserEmailClaim,
@@ -537,9 +538,7 @@ def login_service_postcallback(service, userdata):
             user = register_internal(None, userdata.get('fullname'), None)
             extid.user = user
             if userdata.get('username'):
-                if valid_username(userdata['username']) and user.is_valid_name(
-                    userdata['username']
-                ):
+                if Profile.is_available_name(userdata['username']):
                     # Set a username for this user if it's available
                     user.username = userdata['username']
     else:  # We have an existing user account from extid or useremail
