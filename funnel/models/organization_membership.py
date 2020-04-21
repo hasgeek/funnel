@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .membership import ImmutableMembershipMixin
@@ -50,13 +50,15 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     # Organization roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
 
+    # FIXME: Remove this and use UrlDict
     @property
     def edit_url(self):
-        return self.url_for('edit', _external=True)
+        return self.organization.url_for('edit', _external=True)
 
+    # FIXME: Remove this and use UrlDict
     @property
     def delete_url(self):
-        return self.url_for('delete', _external=True)
+        return self.organization.url_for('delete', _external=True)
 
     def offered_roles(self):
         """Roles offered by this membership record"""
@@ -112,8 +114,12 @@ Organization.active_invitations = db.relationship(
 )
 
 
-Organization.admins = DynamicAssociationProxy('active_admin_memberships', 'user')
-Organization.owners = DynamicAssociationProxy('active_owner_memberships', 'user')
+Organization.admin_users = with_roles(
+    DynamicAssociationProxy('active_admin_memberships', 'user'), grants={'admin'}
+)
+Organization.owner_users = with_roles(
+    DynamicAssociationProxy('active_owner_memberships', 'user'), grants={'owner'}
+)
 
 
 # User.active_organization_memberships is a future possibility. For now just admin and owner
