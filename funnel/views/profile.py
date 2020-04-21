@@ -19,7 +19,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('index.html.jinja2', json=True)
-    @requires_roles({'reader'})
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.
         # We're using it because we want to define our own order here.
