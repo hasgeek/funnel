@@ -1,20 +1,9 @@
 describe('Verify roles of usher', function() {
-  const { usher } = require('../fixtures/user.js');
+  const usher = require('../fixtures/user.json').usher;
   const project = require('../fixtures/project.json');
 
-  before(function() {
-    cy.server();
-    cy.route('POST', '**/login').as('login');
-    cy.login(
-      '/testcypressproject/2020/proposals/new',
-      usher.username,
-      usher.password
-    );
-    cy.wait('@login', { timeout: 20000 });
-    cy.get('a[data-cy="home-desktop"]').click();
-  });
-
   it('Access available for usher in project settings', function() {
+    cy.login('/testcypressproject', usher.username, usher.password);
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();
@@ -32,9 +21,5 @@ describe('Verify roles of usher', function() {
     cy.get('a[data-cy="download-csv"]').should('not.exist');
     cy.get('a[data-cy="download-json"]').should('not.exist');
     cy.get('a[data-cy="download-schedule-json"]').should('not.exist');
-  });
-
-  after(function() {
-    cy.logout();
   });
 });

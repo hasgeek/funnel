@@ -8,7 +8,7 @@ describe('Setup event for checkin', function() {
     cy.route('POST', '**/participants/checkin?*').as('checkin');
     cy.route('**/participants/json').as('participant-list');
 
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', admin.username, admin.password);
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();

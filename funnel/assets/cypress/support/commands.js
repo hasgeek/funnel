@@ -25,19 +25,6 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.wait('@login', { timeout: 20000 });
 });
 
-Cypress.Commands.add('relogin', route => {
-  cy.visit(route)
-    .get('#hgnav')
-    .then($header => {
-      if ($header.find('.header__button').length > 0) {
-        cy.get('#hgnav')
-          .find('.header__button')
-          .click();
-        cy.location('pathname').should('include', route);
-      }
-    });
-});
-
 Cypress.Commands.add('logout', () => {
   cy.get('a[data-cy="account-link"]').click();
   cy.get('a[data-cy="my-account"]').click();
