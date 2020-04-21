@@ -140,26 +140,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             raise ValueError(value)
         self.reserved = False
 
-    @with_roles(grants={'owner', 'admin'})
-    @property
-    def owners(self):
-        """List or query containing owners of this profile"""
-        if self.user is not None:
-            return [self.user]
-        elif self.organization is not None:
-            return self.organization.owners
-        return []
-
-    @with_roles(grants={'admin'})
-    @property
-    def admins(self):
-        """List or query containing admins of this profile"""
-        if self.user is not None:
-            return [self.user]
-        elif self.organization is not None:
-            return self.organization.admins
-        return []
-
     @hybrid_property
     def title(self):
         if self.user:
@@ -192,6 +172,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             ],
             else_='',
         )
+
+    def roles_for(self, actor, anchors=()):
+
+        if self.owner:
+            roles = self.owner.roles_for(actor, anchors)
+        else:
+            roles = super().roles_for(actor, anchors)
+        return roles
 
     @classmethod
     def get(cls, name):

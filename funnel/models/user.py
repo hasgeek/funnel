@@ -15,7 +15,7 @@ import bcrypt
 import phonenumbers
 
 from baseframe import _, __
-from coaster.sqlalchemy import add_primary_relationship, failsafe_add
+from coaster.sqlalchemy import add_primary_relationship, failsafe_add, with_roles
 from coaster.utils import (
     LabeledEnum,
     md5sum,
@@ -103,7 +103,10 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
-    fullname = db.Column(db.Unicode(__title_length__), default='', nullable=False)
+    fullname = with_roles(
+        db.Column(db.Unicode(__title_length__), default='', nullable=False),
+        read={'all'},
+    )
     #: Alias for the user's fullname
     title = db.synonym('fullname')
     #: Bcrypt hash of the user's password
@@ -113,11 +116,13 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     #: Expiry date for the password (to prompt user to reset it)
     pw_expires_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     #: User's timezone
-    timezone = db.Column(TimezoneType(backend='pytz'), nullable=True)
+    timezone = with_roles(
+        db.Column(TimezoneType(backend='pytz'), nullable=True), read={'owner'}
+    )
     #: User's status (active, suspended, merged, etc)
     status = db.Column(db.SmallInteger, nullable=False, default=USER_STATUS.ACTIVE)
     #: User avatar (URL to browser-ready image)
-    avatar = db.Column(db.UnicodeText, nullable=True)
+    avatar = with_roles(db.Column(db.UnicodeText, nullable=True), read={'all'})
 
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
@@ -133,10 +138,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             nullable=False,
         )
     )
-
-    #: FIXME: Temporary values for Flask-Lastuser compatibility
-    lastuser_token = lastuser_token_scope = lastuser_token_type = None
-    userinfo = {}
 
     __table_args__ = (
         db.Index(
@@ -180,7 +181,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def name(cls):  # NOQA: N805
         return db.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
 
-    username = db.synonym('name')
+    with_roles(name, read={'all'})
+    username = name
 
     @property
     def is_active(self):
@@ -238,6 +240,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def displayname(self):
         return self.fullname or self.username or self.buid
 
+    @with_roles(read={'all'})
     @property
     def pickername(self):
         if self.username:
@@ -262,6 +265,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             db.session.flush()
             self.primary_email = UserEmail.query.filter_by(user=self).first()
 
+    @with_roles(read={'owner'})
     @cached_property
     def email(self):
         """
@@ -283,6 +287,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to get the email address as a string.
         return ''
 
+    @with_roles(read={'owner'})
     @cached_property
     def phone(self):
         """
@@ -303,6 +308,14 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to support the common use case, where the caller will use str(user.phone)
         # to get the phone number as a string.
         return ''
+
+    def roles_for(self, actor, anchors=()):
+        roles = super().roles_for(actor, anchors)
+        if actor == self:
+            # Owner because the user owns their own account
+            # Admin because it's relevant in the Profile model
+            roles.update({'owner', 'admin'})
+        return roles
 
     def organizations(self):
         """
@@ -592,7 +605,10 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         cascade='all',
         post_update=True,
     )  # No delete-orphan cascade here
-    title = db.Column(db.Unicode(__title_length__), default='', nullable=False)
+    title = with_roles(
+        db.Column(db.Unicode(__title_length__), default='', nullable=False),
+        read={'all'},
+    )
     #: Deprecated, but column preserved for existing data until migration
     description = deferred(db.Column(db.UnicodeText, default='', nullable=False))
 
@@ -644,6 +660,8 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             .label('name')
         )
 
+    with_roles(name, read={'all'})
+
     def make_teams(self):
         if self.owners is None:
             self.owners = Team(title=_("Owners"), organization=self)
@@ -653,6 +671,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             name=self.name or self.buid, title=self.title
         )
 
+    @with_roles(read={'all'})
     @property
     def pickername(self):
         if self.name:
