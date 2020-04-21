@@ -155,6 +155,9 @@ class VideoMixin:
                     'id': self.video_id,
                     'url': self.video_url,
                     'embeddable_url': self.embeddable_video_url,
+                    'duration': 0,
+                    'uploaded_at': '',
+                    'thumbnail': '',
                 }
                 if self.video_source == 'youtube':
                     youtube_video = requests.get(
@@ -196,11 +199,6 @@ class VideoMixin:
                             vimeo_video['upload_date'], delimiter=' '
                         ).replace(tzinfo=UTC)
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
-                else:
-                    # source = raw
-                    data['duration'] = 0
-                    data['uploaded_at'] = ''
-                    data['thumbnail'] = ''
                 self._video_cache = data  # using _video_cache setter to set cache
         return data
 
@@ -212,7 +210,7 @@ class VideoMixin:
 
     @video_url.setter
     def video_url(self, value):
-        if value is None:
+        if not value:
             if (
                 self.video_id
                 and self.video_source
