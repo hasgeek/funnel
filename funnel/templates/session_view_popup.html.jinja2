@@ -1,39 +1,71 @@
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar %}
+
 <div class="modal__header mui--bg-accent">
-  <a class="modal__close" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
-  <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>
+  <a class="modal__close" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
+  <h3 class="js-modal-title mui--text-headline modal__header__title" data-cy-session="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
-      <p class="mui--text-title zero-bottom-margin" data-cy-session="speaker"><small class="mui--text-light">by</small> <strong>{{ session.speaker }}</strong></p>
+      <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{% assets "fa5-sprite" %}<svg class="fa5-icon  fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#microphone-alt"></use></svg>{% endassets %} {{ session.speaker }}</p>
     {% endif %}
     {% if session.scheduled %}
-      <p class="mui--text-subhead zero-bottom-margin" data-cy-session="time">
-        <small class="mui--text-light">at</small>
-        {{ session.start_at_localized.strftime('%I:%M %p') }}–{{ session.end_at_localized.strftime('%I:%M %p') }}
-        <small class="mui--text-light">on</small>
-        {{ session.start_at_localized.strftime('%d %B, %Y') }}
+      <p class="mui--text-subhead modal__header__text" data-cy-session="time">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#calendar-alt"></use></svg>{% endassets %} {{ session.start_at_localized.strftime('%d %B %Y') }}, {{ session.start_at_localized.strftime('%I:%M %p') }}–{{ session.end_at_localized.strftime('%I:%M %p') }}
       </p>
     {% else %}
-      <p class="mui--text-subhead zero-bottom-margin">
+      <p class="mui--text-subhead modal__header__text">
       {% trans %}This session has not been scheduled yet.{% endtrans %}
       </p>
     {% endif %}
     {% if session.venue_room %}
-      <p class="mui--text-subhead zero-bottom-margin" data-cy-session="room"><small class="mui--text-light">in</small> {{ session.venue_room.title }} <small class="mui--text-light">{{ session.venue_room.venue.title }}</small></p>
-    {% endif %}
-    {% if session.proposal %}
-      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary mui--pull-right" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% trans %}View Proposal{% endtrans %}</a>
+      <p class="mui--text-subhead modal__header__text" data-cy-session="room">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
     {% endif %}
   </div>
 </div>
+
 <div class="modal__body">
-  <div class="section">
-    {% if session.description %}
-      <h3 class="mui--text-title"><strong>{% trans %}Description{% endtrans %}</strong></h3>
+  {% if session.video and session.video.url %}
+    <div class="details">
+      <div class="details__box details__box--left">
+        <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="session-video">
+          {{ embed_video_player(session.video) }}
+        </div>
+        <div class="details__box__control">
+          {{ video_action_bar(session.video, '', session) }}
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="details">
+      <div class="details__box details__box--left">
+        <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
+          <div class="video_txt">
+            <p>{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video-slash"></use></svg>{% endassets %}</p>
+            <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
+            {% if not session.video and session.project.current_roles.admin %}
+              <div>
+                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">Edit session</a>
+              </div>
+            {%- endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endif %}
+  {% if session.proposal %}
+    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" data-cy="view-proposal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#presentation"></use></svg>{% endassets %} {% trans %}Open proposal for this session{% endtrans %}</a></p>
+  {% endif %}
+  {% if session.video or session.proposal %}
+  <hr class="modal__body__separator">
+  {% endif %}
+  {% if session.description %}
+    <div class="modal__body__section">
+      <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Description{% endtrans %}</strong></h3>
       <div class="mui--text-body2 image-wrapper">{{ session.description }}</div>
-    {% endif %}
-    {% if session.speaker_bio %}
-      <h3 class="mui--text-title"><strong>{% trans %}Speaker Bio{% endtrans %}</strong></h3>
+    </div>
+  {% endif %}
+  {% if session.speaker_bio %}
+    <div class="modal__body__section">
+      <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Speaker Bio{% endtrans %}</strong></h3>
       <div class="mui--text-body2">{{ session.speaker_bio }}</div>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 </div>

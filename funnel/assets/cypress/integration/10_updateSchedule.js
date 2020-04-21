@@ -39,6 +39,7 @@ describe('Add session to schedule and publish', function() {
     cy.get('#field-is_break')
       .find('label')
       .click();
+    cy.get('#field-video_url').type(session.video);
     cy.get('#session-save').click();
     cy.wait('@add-new-session');
 

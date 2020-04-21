@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar %}
 {% from "comments.html.jinja2" import commenttree %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
@@ -60,7 +61,7 @@
 
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
       <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" aria-label="{% trans %}Edit proposal{% endtrans %}" class="mui--text-subhead mui--align-middle"> {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>{% endif %}</h1>
-      <p>
+      <p class="zero-bottom-margin">
         {% trans %}Submitted by{% endtrans%}
         {%- if proposal.speaker %}
           <strong>{{ proposal.speaker.pickername }}</strong>
@@ -79,57 +80,107 @@
           </p>
         {%- endif -%}
       </p>
-      <div class="mui--clearfix">
-        <div class="proposal-details proposal-details--left">
-          {% if proposal.preview_video.url %}
-            <div class="proposal-video mui--bg-primary-light embed-video-wrapper" data-video-src="{{ proposal.preview_video }}" id="js-embed">
-              <p class="video_txt">
-                {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
-                <a href="{{ proposal.preview_video }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
-              </p>
+      <div class="details">
+        {% if proposal.session and proposal.session.video or proposal.video or proposal.current_roles.owner %}
+          <div class="details__box details__box--left mui-tabs__bar">
+            {% with seq = 1 %}
+              {% if proposal.session and proposal.session.video and proposal.session.video.url %}
+                <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
+                  <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="session-video">
+                    {{ embed_video_player(proposal.session.video) }}
+                  </div>
+                  <div class="details__box__control">
+                    {{ video_action_bar(proposal.session.video, '', proposal.session)}}
+                  </div>
+                </div>
+                {% set seq = seq + 1 %}
+              {%- endif -%}
+              {% if proposal.video %}
+                <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
+                  <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="proposal-video">
+                    {{ embed_video_player(proposal.video) }}
+                  </div>
+                  <div class="details__box__control">
+                    {{ video_action_bar(proposal.video, proposal) }}
+                  </div>
+                </div>
+              {%- elif proposal.current_roles.owner %}
+                <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
+                  <div class="details__box__video details__box__video--novideo embed-video-wrapper">
+                    <p class="details__box__video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
+                    <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
+                  </div>
+                </div>
+              {% endif %}
+            {% endwith %}
+          </div>
+        {% endif %}
+        {% if proposal.video and proposal.session and proposal.session.video %}
+          <div class="details__box details__box--right">
+            <div class="gallery mui-tabs__bar">
+              {% with seq = 1 %}
+                {% if proposal.session and proposal.session.video and proposal.session.video.url %}
+                  <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Session video</h3>
+                  <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
+                    <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
+                      <img src="{{ proposal.session.video.thumbnail }}" class="img-responsive" data-cy="session-video-thumbnail">
+                      <div class="overlay"></div>
+                      <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+                    </a>
+                  </div>
+                  {% set seq = seq + 1 %}
+                {% endif %}
+                <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Proposal video</h3>
+                {% if proposal.video %}
+                  <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
+                    <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
+                      <img src="{{ proposal.video.thumbnail }}" class="img-responsive" data-cy="proposal-video-thumbnail">
+                      <div class="overlay"></div>
+                      <div class="gallery__thumbnail__play-icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+                    </a>
+                  </div>
+                  {%- else %}
+                  <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
+                    <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
+                      <h3 class="mui--text-subhead mui--text-accent mui--text-bold">No preview video</h3>
+                    </a>
+                  </div>
+                {% endif %}
+              {% endwith %}
             </div>
-          {%- elif proposal.current_roles.owner %}
-            <div class="proposal-video proposal-video--novideo embed-video-wrapper">
-              <p class="proposal-video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
-              <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-preview_video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
-            </div>
-          {%- else %}
-            <div class="proposal-video mui--bg-primary-light embed-video-wrapper">
-              {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline no-video" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video-slash"></use></svg>{% endassets %}
-            </div>
-          {% endif %}
-        </div>
-        <div class="proposal-details proposal-details--right">
-          <p>
-          {%- for label in proposal.labels %}
-            {% if not label.restricted %}
-              <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
-            {%- endif %}
-          {%- endfor %}
-          {%- if proposal.current_roles.admin %}
-            {%- for label in proposal.labels %}
-              {%- if label.restricted %}
-                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
-              {%- endif %}
-            {%- endfor %}
-          {% endif %}
-          <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">
-          {% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
-          </p>
-          {% if proposal.state.SCHEDULED %}
-            <p class="mui--text-subhead zero-bottom-margin"><a class="" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></p>
-          {% endif %}
-        </div>
+          </div>
+        {% endif %}
       </div>
     </section>
 
-    <section class="proposal__section--border">
+    <section class="proposal__section proposal__section--border">
+      <div>
+        {%- for label in proposal.labels %}
+          {% if not label.restricted %}
+            <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+          {%- endif %}
+        {%- endfor %}
+        {%- if proposal.current_roles.admin %}
+          {%- for label in proposal.labels %}
+            {%- if label.restricted %}
+              <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+            {%- endif %}
+          {%- endfor %}
+        {% endif %}
+        <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">
+        {% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
+      </div>
+      {% if proposal.state.SCHEDULED %}
+        <div><a class="mui-btn mui-btn--raised mui-btn--small mui-btn--dark" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></div>
+      {% endif %}
+    </section>
 
+    <section class="proposal__section--border">
       <div class="proposal__admin-panel sticky-admin-panel">
         {%- if proposal.current_roles.owner or proposal.current_roles.admin %}
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title"><strong>ADMIN PANEL</strong></h3>
+              <h3 class="mui--text-title mui--text-bold mui--text-uppercase" data-cy="admin-panel">Admin panel</h3>
             </div>
             <div class="card__body">
               {%- if proposal.current_roles.owner %}
@@ -142,11 +193,12 @@
               {% if proposal.current_roles.admin %}
                 {%- if proposal_move_form %}
                   {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
+                  <hr class="mui-divider">
                 {%- endif %}
                 {%- if proposal_transfer_form %}
                   {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit="Transfer", style='horiz') }}
+                  <hr class="mui-divider">
                 {%- endif %}
-                <hr class="mui-divider">
                 <p class="mui--text-subhead">Change status of proposal</p>
                 <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
                   {{ transition_form.hidden_tag() }}
@@ -156,6 +208,7 @@
                     {% endfor %}
                   </p>
                 </form>
+                <hr class="mui-divider">
               {% endif %}
               {% if proposal.current_roles.admin and  proposal_label_admin_form %}
                 <form action="{{ proposal.url_for('edit_labels') }}" method="post" class="add-label-form">
@@ -172,6 +225,24 @@
                   </div>
                   {{ rendersubmit([("add-label", "Save", '')]) }}
                 </form>
+              {%- endif %}
+              <hr class="mui-divider">
+              {% if proposal.current_roles.admin and proposal.state.SCHEDULED %}
+                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session-video" aria-label="{% trans %}Add session video{% endtrans %}">
+                  {%- if proposal.session.video %}
+                    {% trans %}Edit session video{% endtrans %}
+                  {% else %}
+                    {% trans %}Add session video{% endtrans %}
+                  {%- endif %}
+                </a>
+              {%- elif proposal.current_roles.owner %}
+                <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">
+                  {%- if proposal.video %}
+                    {% trans %}Edit proposal video{% endtrans %}
+                  {% else %}
+                    {% trans %}Add proposal video{% endtrans %}
+                  {%- endif %}
+                </a>
               {%- endif %}
             </div>
           </div>
@@ -219,9 +290,9 @@
             <p><i>This section is empty.</i></p>
           {% endif %}
 
-          {% if proposal.preview_video.url %}
+          {% if proposal.video %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Preview video{% endtrans %}</h3>
-            <a href="{{ proposal.preview_video }}">{{ proposal.preview_video }}</a>
+            <a href="{{ proposal.video }}">{{ proposal.video.id }}</a>
           {% endif %}
         </div>
       </div>
@@ -237,7 +308,7 @@
       {% endif %}
       {% if not current_auth.user -%}
         <p>
-          <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}">{% trans %}Login with Twitter or Google to leave a comment{% endtrans %}</a>
+          <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}">{% trans %}Login to leave a comment{% endtrans %}</a>
         </p>
       {% else -%}
         <form method="POST" id="comment-form" action="{{ proposal.url_for('new_comment') }}" class="mui-form">

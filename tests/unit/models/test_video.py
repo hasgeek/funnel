@@ -4,11 +4,39 @@ from datetime import datetime
 
 from pytz import UTC
 
-from funnel import redis_store
 from funnel.models import Proposal
+from funnel.models.video import parse_video_url
 
 
 class TestVideos(object):
+    def test_parse_video_url(self):
+        assert parse_video_url('https://www.youtube.com/watch?v=dQw4w9WgXcQ') == (
+            'youtube',
+            'dQw4w9WgXcQ',
+        )
+        assert parse_video_url('https://vimeo.com/336892869') == ('vimeo', '336892869')
+        assert parse_video_url(
+            'https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o'
+        ) == ('googledrive', '1rwHdWYnF4asdhsnDwLECoqZQy4o')
+        assert parse_video_url(
+            'https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view'
+        ) == ('googledrive', '1rwHdWYnF4asdhsnDwLECoqZQy4o')
+
+    def test_youtube_video_delete(self, test_client, test_db, new_proposal):
+        assert new_proposal.title == "Test Proposal"
+
+        new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        test_db.session.commit()
+
+        assert new_proposal.video_source == 'youtube'
+        assert new_proposal.video_id == 'dQw4w9WgXcQ'
+
+        new_proposal.video_url = None
+        test_db.session.commit()
+
+        assert new_proposal.video_source is None
+        assert new_proposal.video_id is None
+
     def test_youtube(self, test_client, test_db, new_proposal):
         assert new_proposal.title == "Test Proposal"
 
@@ -20,17 +48,6 @@ class TestVideos(object):
         assert check_proposal.video_source == 'youtube'
         assert check_proposal.video_id == 'dQw4w9WgXcQ'
         assert check_proposal.video_url == 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-
-        # delete existing cache if any
-        redis_store.hdel(
-            check_proposal.video_cache_key,
-            'source',
-            'id',
-            'url',
-            'duration',
-            'thumbnail',
-            'uploaded_at',
-        )
 
         # the first returned value of .video will be calculated values
         # and then it'll cache everything in redis
@@ -62,6 +79,21 @@ class TestVideos(object):
             == f'https://i.ytimg.com/vi/{check_proposal.video_id}/mqdefault.jpg'
         )
 
+    def test_vimeo_video_delete(self, test_client, test_db, new_proposal):
+        assert new_proposal.title == "Test Proposal"
+
+        new_proposal.video_url = 'https://vimeo.com/336892869'
+        test_db.session.commit()
+
+        assert new_proposal.video_source == 'vimeo'
+        assert new_proposal.video_id == '336892869'
+
+        new_proposal.video_url = None
+        test_db.session.commit()
+
+        assert new_proposal.video_source is None
+        assert new_proposal.video_id is None
+
     def test_vimeo(self, test_client, test_db, new_proposal):
         assert new_proposal.title == "Test Proposal"
 
@@ -73,17 +105,6 @@ class TestVideos(object):
         assert check_proposal.video_source == 'vimeo'
         assert check_proposal.video_id == '336892869'
         assert check_proposal.video_url == 'https://vimeo.com/336892869'
-
-        # delete existing cache if any
-        redis_store.hdel(
-            check_proposal.video_cache_key,
-            'source',
-            'id',
-            'url',
-            'duration',
-            'thumbnail',
-            'uploaded_at',
-        )
 
         # the first returned value of .video will be calculated values
         # and then it'll cache everything in redis

@@ -60,6 +60,7 @@ module.exports = {
     scan_contact: path.resolve(__dirname, 'js/scan_contact.js'),
     contact: path.resolve(__dirname, 'js/contact.js'),
     search: path.resolve(__dirname, 'js/search.js'),
+    session_videos: path.resolve(__dirname, 'js/session_videos.js'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),
