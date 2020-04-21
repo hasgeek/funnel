@@ -2,7 +2,7 @@
 """Add membership models
 
 Revision ID: 8829241430b6
-Revises: 530c22761e27
+Revises: 41b3af7e4449
 Create Date: 2020-04-21 01:40:41.323838
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '8829241430b6'
-down_revision = '530c22761e27'
+down_revision = '41b3af7e4449'
 branch_labels = None
 depends_on = None
 
