@@ -1,5 +1,7 @@
 describe('Adding crew', function() {
-  const { admin, concierge, usher } = require('../fixtures/user.js');
+  const owner = require('../fixtures/user.json').owner;
+  const admin = require('../fixtures/user.json').admin;
+  const concierge = require('../fixtures/user.json').concierge;
   const project = require('../fixtures/project.json');
 
   Cypress.on('uncaught:exception', (err, runnable) => {
@@ -7,7 +9,7 @@ describe('Adding crew', function() {
   });
 
   it('Add crew to project', function() {
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', admin.username, admin.password);
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();

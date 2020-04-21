@@ -1,9 +1,9 @@
 describe('Verify roles of editor', function() {
-  const { admin } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
   const project = require('../fixtures/project.json');
 
   it('Access available for editor in project settings', function() {
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', admin.username, admin.password);
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();

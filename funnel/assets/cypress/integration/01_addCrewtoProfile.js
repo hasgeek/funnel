@@ -1,5 +1,6 @@
 describe('Adding crew to profile', function() {
-  const { owner, admin } = require('../fixtures/user.js');
+  const owner = require('../fixtures/user.json').owner;
+  const admin = require('../fixtures/user.json').admin;
 
   Cypress.on('uncaught:exception', (err, runnable) => {
     return false;
@@ -11,7 +12,7 @@ describe('Adding crew to profile', function() {
     cy.route('POST', '**/edit').as('edit-member');
     cy.route('POST', '**/delete').as('delete-member');
 
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', owner.username, owner.password);
     cy.get('a[data-cy-btn="profile-crew"]').click();
 
     cy.add_member(admin.username, 'owner');
@@ -44,10 +45,5 @@ describe('Adding crew to profile', function() {
       .parents('.user-box')
       .find('[data-cy="role"]')
       .contains('Admin');
-  });
-
-  after(function() {
-    cy.relogin('/testcypressproject');
-    cy.logout();
   });
 });

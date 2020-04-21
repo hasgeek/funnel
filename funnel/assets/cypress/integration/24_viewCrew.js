@@ -1,5 +1,7 @@
 describe('View crew', function() {
-  const { admin, concierge, usher } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
+  const concierge = require('../fixtures/user.json').concierge;
+  const usher = require('../fixtures/user.json').usher;
   const project = require('../fixtures/project.json');
 
   it('View crew of the project', function() {

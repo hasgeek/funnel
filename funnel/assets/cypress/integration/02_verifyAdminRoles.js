@@ -1,17 +1,9 @@
 describe('Profile admin roles', function() {
-  const { owner, admin } = require('../fixtures/user.js');
-
-  before(function() {
-    cy.server();
-    cy.route('POST', '**/login').as('login');
-    cy.login('/testcypressproject/new', admin.username, admin.password);
-    cy.wait('@login', { timeout: 20000 });
-    cy.get('a.mui-btn')
-      .contains('Cancel')
-      .click();
-  });
+  const owner = require('../fixtures/user.json').owner;
+  const admin = require('../fixtures/user.json').admin;
 
   it('Check roles of profile admins', function() {
+    cy.login('/testcypressproject/new', admin.username, admin.password);
     cy.get('a[data-cy-btn="profile-crew"]').click();
     cy.get('button[data-cy-btn="add-member"]').should('not.exist');
     cy.get('[data-cy="member"]')
