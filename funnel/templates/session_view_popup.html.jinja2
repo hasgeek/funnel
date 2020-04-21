@@ -1,7 +1,7 @@
 {%- from "macros.html.jinja2" import embed_video_player, video_action_bar %}
 
 <div class="modal__header mui--bg-accent">
-  <a class="modal__close" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
+  <a class="modal__close" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
   <h3 class="js-modal-title mui--text-headline modal__header__title" data-cy-session="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}

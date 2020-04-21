@@ -27,5 +27,10 @@ describe('Remove video to session', function() {
     cy.get('#session-modal')
       .find('iframe')
       .should('not.exist');
+    cy.get('[data-cy="close-modal"]').click();
+    cy.get('[data-cy-navbar="video"]').click();
+    cy.get('[data-cy="title"]')
+      .contains(proposal.title)
+      .should('not.exist');
   });
 });
