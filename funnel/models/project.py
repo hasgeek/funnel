@@ -3,7 +3,6 @@
 from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 
@@ -846,17 +845,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
         return currently_listed_projects
 
-    profile_owners = with_roles(
-        association_proxy('profile', 'owners'), grants={'profile_owner'}
-    )
-    profile_admins = with_roles(
-        association_proxy('profile', 'admins'), grants={'profile_admin'}
-    )
-
     def roles_for(self, actor=None, anchors=()):
-        roles = super(Project, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
+
+        profile_roles = self.profile.roles_for(actor, anchors)
+        # FIXME: These two checks result in two SQL queries even though there is a
+        # single underlying membership. We need some optimization here to load related
+        # roles in one go.
+        if 'owner' in profile_roles:
+            roles.add('profile_owner')
+        if 'admin' in profile_roles:
+            roles.add('profile_admin')
 
         crew_membership = self.active_crew_memberships.filter_by(
             user=actor
