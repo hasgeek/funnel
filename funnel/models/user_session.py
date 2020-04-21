@@ -81,11 +81,12 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         """
         Mark a session as currently active.
 
-        :param auth_client: For API calls from clients, save the client instead of IP address and User-Agent
+        :param auth_client: For API calls from clients, save the client instead of IP
+            address and User-Agent
         """
         # `accessed_at` will be different from the automatic `updated_at` in one
-        # crucial context: when the session was revoked remotely. `accessed_at` won't
-        # be updated at that time.
+        # crucial context: when the session was revoked from a different session.
+        # `accessed_at` won't be updated at that time.
         self.accessed_at = db.func.utcnow()
         with db.session.no_autoflush:
             if auth_client:
@@ -94,7 +95,8 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
                 ):  # self.auth_clients is defined via Client.user_sessions
                     self.auth_clients.append(auth_client)
                 else:
-                    # If we've seen this client in this session before, only update the timestamp
+                    # If we've seen this client in this session before, only update the
+                    # timestamp
                     db.session.execute(
                         auth_client_user_session.update()
                         .where(auth_client_user_session.c.user_session_id == self.id)
