@@ -201,9 +201,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return jsonp(
             **{
                 'project': project_data(self.obj),
-                'space': project_data(
-                    self.obj
-                ),  # TODO: Remove when the native app switches over
                 'venues': [venue_data(venue) for venue in self.obj.venues],
                 'rooms': [room_data(room) for room in self.obj.rooms],
                 'proposals': [proposal_data(proposal) for proposal in proposals],
