@@ -13,7 +13,7 @@
   {%- if subform %}
     <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
       {{ lform.hidden_tag() }}
-      {% assets "fa5-sprite" %}<svg class="fa5-icon mui--text-light  mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
+      {{ faicon(icon='grip-vertical', icon_size='body1', baseline=true, css_class='mui--text-light  mui--align-middle') }}
       {{ renderfield(lform.seq, css_class="seq-input") }}
   {%- endif %}
   {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
@@ -22,7 +22,7 @@
   {%- else -%}
     {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field label-form__title-field--close") }}
   {%- endif %}
-  {%- if empty %}<button class="mui-btn mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon mui--text-light  mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</button>
+  {%- if empty %}<button class="mui-btn mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', icon_size='body1', baseline=true, css_class='mui--text-light  mui--align-middle') }}</button>
   {%- endif %}
   <!-- Add archive button for existing sublabels -->
   {%- if subform %}
@@ -33,8 +33,8 @@
 {% block content %}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
-      <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
-      <p class="alert__text">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#exclamation-circle"></use></svg>{% endassets %} {% trans %}Please review the indicated issues{% endtrans %}</p>
+      <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', icon_size='body1', baseline=false) }}</a>
+      <p class="alert__text">{{ faicon(icon='exclamation-circle', icon_size='body1', baseline=true) }} {% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}
   {%- if message %}
@@ -50,7 +50,7 @@
         {% endfor %}
       {% endif %}
     </div>
-    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %} Add option</button></div>
+    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form">{{ faicon(icon='plus', icon_size='caption', baseline=true) }} Add option</button></div>
     {%- if subforms|length > 0 %}
       {{ renderfield(form.required) }}
     {%- else -%}

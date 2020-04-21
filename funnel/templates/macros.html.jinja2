@@ -26,7 +26,7 @@
             {% endfor %}
             {% if calendar.weeks|length > 1 %}
               <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon">
-                {% assets "fa5-sprite" %}<svg class="fa5-icon calendar__weekdays__dates__icon__next" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
+                {{ faicon(icon='chevron-right', icon_size='body1', baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
               </p>
             {% endif %}
           </div>
@@ -41,13 +41,13 @@
     {{ form.hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
-        <a class="mui-btn mui-btn--nostyle"  href="{{ url_for('login') }}" data-action="Login to save project">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}</a>
+        <a class="mui-btn mui-btn--nostyle"  href="{{ url_for('login') }}" data-action="Login to save project">{{ faicon(icon='bookmark', icon_size='title', baseline=true) }}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
         <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
-          {% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark"></use></svg>{% endassets %}
+          {{ faicon(icon='bookmark', icon_size='body1', baseline=true) }}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline bookmarked" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#bookmark-solid"></use></svg>{% endassets %}</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{{ faicon(icon='bookmark', icon_size='body1', baseline=true, css_class='bookmarked') }}</button>
       {%- endif %}
     </p>
   </form>
@@ -85,7 +85,7 @@
               <div class="project-banner__box">
                 <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
                   <p class="video_txt">
-                    {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--display1 fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}<br>
+                    {{ faicon(icon='video', icon_size='display1', baseline=true) }}<br>
                     <a href="{{ stream }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
                   </p>
                 </div>
@@ -112,15 +112,15 @@
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
-          <p class="add-calendar"><a href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#calendar-plus"></use></svg>{% endassets %}&nbsp;{% trans %}Add to calendar{% endtrans %}</a></p>
+          <p class="add-calendar"><a href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open">{{ faicon(icon='calendar-plus', icon_size='caption', baseline=true) }}&nbsp;{% trans %}Add to calendar{% endtrans %}</a></p>
         {% endif %}
         <div class="project-details__box--ticketbox">
           <div class="project-banner__action">
             <div class="project-banner__action__social">
               <p class="mui--text-light zero-bottom-margin">{% trans %}Share this project{% endtrans %}</p>
-              <a class="mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" data-action="Tweet this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#twitter-square"></use></svg>{% endassets %}</a>
-              <a class="mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" data-action="Share on Facebook(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#facebook-square"></use></svg>{% endassets %}</a>
-              <a class="mui--text-headline mui--text-light" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" data-action="Email this(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline mui--align-bottom" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#envelope-square"></use></svg>{% endassets %}</a>
+              <a class="mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" data-action="Tweet this(header)">{{ faicon(icon='twitter-square', icon_size='headline', baseline=false, css_class='mui--align-bottom') }}</a>
+              <a class="mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" data-action="Share on Facebook(header)">{{ faicon(icon='facebook-square', icon_size='headline', baseline=false, css_class='mui--align-bottom') }}</a>
+              <a class="mui--text-headline mui--text-light" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" data-action="Email this(header)">{{ faicon(icon='envelope-square', icon_size='headline', baseline=false, css_class='mui--align-bottom') }}</a>
             </div>
           </div>
           <div class="mui--hidden-xs mui--hidden-sm">
@@ -139,7 +139,7 @@
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p>{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline secondary-color-txt" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#info-circle"></use></svg>{% endassets %} <em class="mui--text-body1">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', icon_size='body1', baseline=false, css_class='secondary-color-txt') }} <em class="mui--text-body1">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="propose propose--lessmargin">
@@ -148,7 +148,7 @@
             </div>
           {%- endif %}
           {%- if project.primary_venue %}
-            <p class="project-venue"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
+            <p class="project-venue"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{{ faicon(icon='map-marker-alt', icon_size='title', baseline=false) }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
           {%- endif %}
         </div>
       </div>
@@ -158,27 +158,27 @@
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
       {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a></div>
+        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a></div>
       {%- elif project.buy_tickets_url.url %}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" data-action="Tickets(navbar)" id="ticket-btn"> {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}{{ project.boxoffice_data.buy_btn_text }}{% else %}{% trans %}Get tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a></div>
+        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" data-action="Tickets(navbar)" id="ticket-btn"> {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}{{ project.boxoffice_data.buy_btn_text }}{% else %}{% trans %}Get tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a>
       {%- endif %}
       {%- if project.hasjob_embed_url.url -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-action="Jobs(navbar)" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-action="Jobs(navbar)" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a>
       {%- endif %}
       {%- if project.primary_venue -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(navbar)" data-cy-navbar="venue">{% trans %}Venue{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(navbar)" data-cy-navbar="venue">{% trans %}Venue{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a>
       {%- endif %}
       {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" data-action="Proposals(navbar)" data-cy-navbar="proposals">{% trans %}Proposals{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" data-action="Proposals(navbar)" data-cy-navbar="proposals">{% trans %}Proposals{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a>
       {%- endif %}
       {%- if project.schedule_state.PUBLISHED %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a>
       {%- endif %}
       {%- if project.current_roles.admin or current_auth.permissions.checkin_event -%}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}</span></a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}</span></a>
       {%- endif %}
     </nav>
   </div>
