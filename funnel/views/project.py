@@ -156,6 +156,18 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project_save_form': project_save_form,
         }
 
+    @route('videos')
+    @render_with('session_videos.html.jinja2')
+    @requires_permission('view')
+    def session_videos(self):
+        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
+        project_save_form = SavedProjectForm()
+        return {
+            'project': self.obj,
+            'cfp_transition_form': cfp_transition_form,
+            'project_save_form': project_save_form,
+        }
+
     @route('json')
     @render_with(json=True)
     @requires_permission('view')

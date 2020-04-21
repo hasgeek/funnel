@@ -176,3 +176,13 @@ Project.schedule_end_at = db.column_property(
     .where(Session.project_id == Project.id)
     .correlate_except(Session)
 )
+
+Project.sessions_with_video = db.relationship(
+    Session,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        Project.id == Session.project_id,
+        Session.video_id.isnot(None),
+        Session.video_source.isnot(None),
+    ),
+)

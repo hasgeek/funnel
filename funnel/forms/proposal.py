@@ -161,7 +161,7 @@ class ProposalForm(forms.Form):
             "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"
         ),
     )
-    preview_video = forms.URLField(
+    video_url = forms.URLField(
         __("Preview Video"),
         validators=[
             forms.validators.Optional(),
@@ -169,7 +169,8 @@ class ProposalForm(forms.Form):
             forms.validators.ValidUrl(),
         ],
         description=__(
-            "Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. "
+            "Link to your preview video. Use a video to engage the community and give them a better "
+            "idea about what you are planning to cover in your session and why they should attend. "
             "If you provide a YouTube/Vimeo link, we'll embed it in the page"
         ),
     )

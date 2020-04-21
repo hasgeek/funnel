@@ -1,0 +1,70 @@
+{% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
+{%- from "macros.html.jinja2" import project_header %}
+{% block title %}Videos{% endblock %}
+{% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" data-action="Back to the {{ project.title }}(videos page)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Videos{% endtrans %}</span>
+    </div>
+  </div>
+  {{ project_header(project, project_save_form,
+    class='mui--hidden-xs mui--hidden-sm',
+    current_page='videos') }}
+{% endblock %}
+
+{% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid project-section" id="videos">
+        <div class="grid__col-xs-12">
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}Videos{% endtrans %}</h2>
+        </div>
+        {% for session in project.sessions_with_video %}
+          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+            <div class="video">
+              <a class="video__thumbnail {%- if not session.video.thumbnail %} video__thumnail--novideo{%- endif %}" href="{{ session.url_for() }}">
+                {%- if session.video.thumbnail %}<img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">{%- endif %}
+                <div class="video__thumbnail__icon">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--headline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#play-circle"></use></svg>{% endassets %}</div>
+              </a>
+              <p class="mui--text-subhead video__txt" data-cy="title">{%- if session.proposal %}{{ session.proposal.title }}{% else %}{{ session.title }}{%- endif %}</p>
+              {%- if session.speaker %}<p class="mui--text-body1 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
+              <div class="mui--text-caption mui--text-light">
+                  {%- if session.video.duration %}<span class="js-video-duration" data-duration="{{ session.video.duration }}"></span>{%- endif %}
+                  {%- if session.video.uploaded_at %}<span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span>{%- endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('session_videos')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: {{ project.url_for('save')|tojson }}
+      }
+
+      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
+      window.HasGeek.SessionVideoInit();
+    });
+  </script>
+{% endblock %}
