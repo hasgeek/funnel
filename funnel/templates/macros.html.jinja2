@@ -45,12 +45,26 @@
       {%- else %}
         <input type="hidden" name="save" value="">
         <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value">
-          {{ faicon(icon='bookmark', icon_size='body1', baseline=true) }}
+          {{ faicon(icon='bookmark', icon_size='body1', baseline=true, css_class='mui--text-light') }}
         </button>
         <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value">{{ faicon(icon='bookmark', icon_size='body1', baseline=true, css_class='bookmarked') }}</button>
       {%- endif %}
     </p>
   </form>
+{% endmacro %}
+
+{% macro project_share(project, project_save_form) %}
+  <div class="project-banner__box project-banner__footer">
+    <div class="bookmark"><span class="mui--text-body1 mui--text-light txt">{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{{ saveprojectform(project, project_save_form) }}</div>
+    <a class="add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar"><span class="mui--text-body1 mui--text-light txt">{% trans %}Add to calendar{% endtrans %}</span>{{ faicon(icon='calendar-plus', icon_size='body1', baseline=true, css_class='mui--text-light') }}</a>
+    <div class="share"><span class="mui--text-body1 mui--text-light txt">{% trans %}Share <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>
+      <div class="mui-dropdown">
+        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead" data-mui-toggle="dropdown" data-action="Share dropdown">{{ faicon(icon='share-square', icon_size='body1', baseline=true, css_class='mui--text-light') }}</a>
+        <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+        </ul>
+      </div>
+    </div>
+  </div>
 {% endmacro %}
 
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
@@ -92,6 +106,7 @@
               </div>
             </div>
           {%- endfor %}
+          {{ project_share(project, project_save_form) }}
         </div>
       {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
@@ -104,25 +119,16 @@
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
             {% endif %}
           </div>
+          {{ project_share(project, project_save_form) }}
         </div>
       {% endif %}
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
-        <div class="bookmark-icon  {% if not project.calendar_weeks_full.weeks %} bookmark-icon--height {% endif %}">{{ saveprojectform(project, project_save_form) }}</div>
         {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
-          <p class="add-calendar"><a href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open">{{ faicon(icon='calendar-plus', icon_size='caption', baseline=true) }}&nbsp;{% trans %}Add to calendar{% endtrans %}</a></p>
         {% endif %}
         <div class="project-details__box--ticketbox">
-          <div class="project-banner__action">
-            <div class="project-banner__action__social">
-              <p class="mui--text-light zero-bottom-margin">{% trans %}Share this project{% endtrans %}</p>
-              <a class="mui--text-headline mui--text-light" data-width="550" data-height="250" rel="noopener" target="_blank" href="https://twitter.com/share?url={{ project.url_for(_external=true) }}" aria-label="{% trans %}Tweet this{% endtrans %}" data-action="Tweet this(header)">{{ faicon(icon='twitter-square', icon_size='headline', baseline=false, css_class='mui--align-bottom') }}</a>
-              <a class="mui--text-headline mui--text-light" data-width="520" data-height="230" rel="noopener" target="_blank" href="http://www.facebook.com/sharer.php?s=100&p[url]={{ project.url_for(_external=true) }}" aria-label="{% trans %}Share on Facebook{% endtrans %}" data-action="Share on Facebook(header)">{{ faicon(icon='facebook-square', icon_size='headline', baseline=false, css_class='mui--align-bottom') }}</a>
-              <a class="mui--text-headline mui--text-light" href="mailto:?subject={{ project.title }}&amp;body={{ project.url_for(_external=true) }}" aria-label="{% trans %}Email this{% endtrans %}" data-action="Email this(header)">{{ faicon(icon='envelope-square', icon_size='headline', baseline=false, css_class='mui--align-bottom') }}</a>
-            </div>
-          </div>
           <div class="mui--hidden-xs mui--hidden-sm">
             {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
               <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %}</a>
@@ -139,7 +145,7 @@
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', icon_size='body1', baseline=false, css_class='secondary-color-txt') }} <em class="mui--text-body1">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', icon_size='body1', baseline=false, css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="propose propose--lessmargin">
