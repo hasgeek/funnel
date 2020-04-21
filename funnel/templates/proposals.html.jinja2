@@ -54,7 +54,7 @@
               {% endif %}
               <li>{{ proposal.commentset.count }} comments</li>
               <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
-              {% if proposal.preview_video.url %}
+              {% if proposal.video %}
                 <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                   {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead mui--align-middle" role="img" aria-hidden="true"><use xlink:href="{{ ASSET_URL }}#video"></use></svg>{% endassets %}
                 </li>
@@ -79,10 +79,10 @@
 {% block basecontent %}
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
-      <div class="grid">
+      <div class="grid project-section">
        {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
-          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
+          <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
           {%- if project.instructions and project.instructions != "None" %}
             <div class="about__details__description">{{ project.instructions }}</div>
           {%- endif %}

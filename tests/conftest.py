@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 import uuid
 
 import pytest
@@ -8,6 +7,7 @@ import pytest
 from funnel import app
 from funnel.models import (
     Label,
+    Organization,
     OrganizationMembership,
     Profile,
     Project,
@@ -102,12 +102,11 @@ def new_user3(test_db):
 
 
 @pytest.fixture(scope='session')
-def new_team(test_db, new_user):
-    team = Team(title="Owners", owners=True, org_uuid=uuid.uuid4())
-    test_db.session.add(team)
-    team.users.append(new_user)
+def new_organization(test_db):
+    org = Organization(title="Test org", name='test-org', is_public_profile=True)
+    test_db.session.add(org)
     test_db.session.commit()
-    return team
+    return org
 
 
 @pytest.fixture(scope='session')
@@ -141,14 +140,19 @@ def new_profile2(test_db, new_team2):
         admin_membership = OrganizationMembership(profile=profile, user=u)
         test_db.session.add(admin_membership)
 
+
+def new_team(test_db, new_user, new_organization):
+    team = Team(title="Owners", organization=new_organization)
+    test_db.session.add(team)
+    team.users.append(new_user)
     test_db.session.commit()
-    return profile
+    return team
 
 
 @pytest.fixture(scope='session')
-def new_project(test_db, new_profile, new_user, new_team):
+def new_project(test_db, new_organization, new_user):
     project = Project(
-        profile=new_profile,
+        profile=new_organization.profile,
         user=new_user,
         title="Test Project",
         tagline="Test tagline",

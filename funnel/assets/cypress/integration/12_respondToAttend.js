@@ -12,5 +12,6 @@ describe('Responding yes to attend a project', function() {
       .find('button[title="Going"]')
       .click();
     cy.get('[data-cy-rsvp="going"]').should('exist');
+    cy.get('a[data-cy-navbar="settings"]').should('not.exist');
   });
 });
