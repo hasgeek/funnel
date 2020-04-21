@@ -166,13 +166,11 @@
   <script src="{{ url_for('static', filename=asset_path('membership')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-
       var saveProjectConfig = {
         formId: 'save-form',
         postUrl: "{{ project.url_for('save') }}"
       }
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);
-
       var membershipConfig = {
         newMemberUrl: "{{ project.url_for('new_member') }}",
         members: {{ memberships|tojson }},
@@ -197,9 +195,7 @@
         memberTemplate: '#member-template',
         isUserProfileAdmin: {%- if project.profile.current_roles.admin %} true {% else %} false {%- endif %},
       };
-
       HasGeek.Membership(membershipConfig);
-
     });
   </script>
 {% endblock %}
