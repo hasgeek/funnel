@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import project_header %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
@@ -66,7 +67,7 @@
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">
-            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
+            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
         <div id="tickets" {% if project.allow_rsvp and not project.boxoffice_data.item_collection_id -%}class="rsvp-wrapper"{%- endif %}>

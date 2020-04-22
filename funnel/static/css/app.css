@@ -263,6 +263,7 @@ html.touch .collapsible__body--disable {
 
 .animate-btn {
   display: none;
+  line-height: 1;
 }
 .animate-btn .bookmarked {
   fill: #e05f26;
@@ -2004,14 +2005,42 @@ html.touch .collapsible__body--disable {
   margin: 0;
   display: block;
 }
+.project-banner .project-banner__footer {
+  display: flex;
+  align-items: baseline;
+  margin: 16px 0 0;
+  padding: 0 16px;
+}
+.project-banner .project-banner__footer .bookmark,
+.project-banner .project-banner__footer .add-calendar,
+.project-banner .project-banner__footer .share {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-right: solid 1px rgba(121, 129, 139, 0.48);
+  line-height: 1;
+}
+.project-banner .project-banner__footer .bookmark {
+  padding: 0 8px 0 0;
+}
+.project-banner .project-banner__footer .share {
+  border-right: none;
+}
+.project-banner .project-banner__footer .bookmark span.txt,
+.project-banner .project-banner__footer .add-calendar span.txt,
+.project-banner .project-banner__footer .share span.txt {
+  padding-right: 8px;
+}
+.project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
+  margin: 0;
+}
+.project-banner .project-banner__footer .mui-dropdown__menu {
+  min-width: auto;
+  z-index: 1003;
+}
 .project-banner .project-details__box {
   margin-top: 15px;
   position: relative;
-}
-.project-banner .project-details__box .bookmark-icon {
-  position: absolute;
-  top: -4px;
-  right: 15px;
 }
 .project-banner .project-details__box .card__calendar {
   padding: 0 15px 10px;
@@ -2043,41 +2072,23 @@ html.touch .collapsible__body--disable {
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
-.project-banner .project-details__box .project-banner__action {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-.project-banner
-  .project-details__box
-  .project-banner__action
-  .project-banner__action__icon {
-  height: 24px;
-  vertical-align: middle;
-}
-.project-banner
-  .project-details__box
-  .project-banner__action
-  .project-banner__action__social {
-  justify-content: space-between;
-  width: 100%;
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 2px dashed #eff2f6;
-}
-.project-banner
-  .project-details__box
-  .project-banner__action
-  .mui-btn
-  + .mui-btn {
-  margin-left: 0;
-}
 
 @media (min-width: 768px) {
   .project-banner .project-banner__box {
     padding: 0 15px;
+  }
+  .project-banner .project-banner__footer .bookmark,
+  .project-banner .project-banner__footer .add-calendar,
+  .project-banner .project-banner__footer .share {
+    padding: 0 16px;
+  }
+  .project-banner .project-banner__footer .bookmark {
+    padding: 0 16px 0 0;
+  }
+  .project-banner .project-banner__footer .bookmark span.txt,
+  .project-banner .project-banner__footer .add-calendar span.txt,
+  .project-banner .project-banner__footer .share span.txt {
+    padding-right: 16px;
   }
 }
 @media (min-width: 992px) {
@@ -2093,10 +2104,6 @@ html.touch .collapsible__body--disable {
   .project-banner .project-details__box {
     margin: 0;
     margin-top: -7px;
-  }
-  .project-banner .project-details__box .bookmark-icon {
-    top: -4px;
-    right: 10px;
   }
   .project-banner .project-details__box .card__calendar {
     margin: 0 0 25px;
@@ -3131,6 +3138,7 @@ html.touch .collapsible__body--disable {
 
 .session-modal--nopadding {
   padding: 0;
+  overflow: visible !important;
 }
 .session-modal--nopadding .modal__header {
   padding: 15px 15px 5px;
@@ -3148,7 +3156,7 @@ html.touch .collapsible__body--disable {
   word-break: break-word;
 }
 .session-modal--nopadding .modal__body .modal__body__separator {
-  margin: 30px -30px;
+  margin: 30px -15px;
 }
 .session-modal--nopadding .modal__body .modal__body__section {
   margin: 30px 0;

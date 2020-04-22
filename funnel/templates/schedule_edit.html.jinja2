@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% trans %}Schedule{% endtrans %}{% endblock %}
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
@@ -46,17 +47,17 @@
             <div class="ui-dragable-box ui-dragable-box--header">
               <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{venue.uuid_b58}}">
               <div class="collapsible">
-                <div class="collapsible__header">
+                <div class="collapsible__header" data-cy-collapsible="open">
                   <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}">
-                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption mui--text-light drag-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
+                  {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
                   <span class="mui--text-subhead">{{ venue.title }}</span>
-                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline mui--text-light collapsible__icon collapsible__icon--disable" aria-hidden="true" role="img"data-cy-collapsible="open"><use xlink:href="{{ ASSET_URL }}#angle-down"></use></svg>{% endassets %}
-                  {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline mui--text-light collapsible__icon collapsible__icon--disable mui--hide" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#angle-up"></use></svg>{% endassets %}
+                  {{ faicon(icon='angle-down', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable') }}
+                  {{ faicon(icon='angle-up', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable mui--hide') }}
                 </div>
                 <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
                   {% for room in venue.room_list %}
                     <p class="ui-dragable-box" draggable="true">
-                      {% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption mui--text-light drag-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
+                      {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
                       <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.uuid_b58}}">
                       <label for="room-color-input-{{ room.uuid_b58 }}" class="h5">
                         <input type="hidden" name="room-uuidb58" value="{{ room.uuid_b58 }}" data-venue="{{venue.uuid_b58}}">
@@ -79,7 +80,7 @@
   </div>
   <div id="popup" class="modal session-modal">
     <div class="modal__header">
-      <a class="modal__close" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
+      <a class="modal__close" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times') }}</a>
       <h3 class="js-modal-title session-modal__title">{{ session.title }}</h3>
     </div>
     <hr class="mui-divider mui-divider--custom">
