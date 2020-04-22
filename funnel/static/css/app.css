@@ -2085,9 +2085,6 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__footer .bookmark {
     padding: 0 16px 0 0;
   }
-  .project-banner .project-banner__footer .share {
-    border-right: none;
-  }
   .project-banner .project-banner__footer .bookmark span.txt,
   .project-banner .project-banner__footer .add-calendar span.txt,
   .project-banner .project-banner__footer .share span.txt {
