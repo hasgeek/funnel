@@ -134,7 +134,7 @@ const Membership = {
           };
         },
         deleteURL() {
-          return this.activeMember.delete_url;
+          return this.activeMember.urls.delete;
         },
       },
       mounted() {

@@ -22,8 +22,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
     __data_columns__ = ('is_reviewer', 'is_presenter')
 
     __roles__ = {
-        'all': {'read': {'user', 'is_reviewer', 'is_presenter', 'proposal'}},
-        'editor': {'read': {'edit_url', 'delete_url'}},
+        'all': {'read': {'urls', 'user', 'is_reviewer', 'is_presenter', 'proposal'}}
     }
 
     proposal_id = immutable(
@@ -62,14 +61,6 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
             )
         )
         return tuple(args)
-
-    @property
-    def edit_url(self):
-        return self.url_for('edit', _external=True)
-
-    @property
-    def delete_url(self):
-        return self.url_for('delete', _external=True)
 
     def offered_roles(self):
         """Roles offered by this membership record"""
