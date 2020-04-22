@@ -14,6 +14,12 @@ describe('View schedule of p roject', function() {
       .contains(project.title)
       .click({ force: true });
     cy.get('[data-cy-navbar="schedule"]').click();
+
+    cy.get('a[data-cy="add-to-calendar"]').click();
+    cy.wait(1000);
+    cy.get('[data-cy="schedule-subscribe"]').should('exist');
+    cy.get('a[data-cy="close-modal"]').click();
+
     var tomorrow = Cypress.moment()
       .add(1, 'days')
       .format('dddd, D MMMM YYYY');
