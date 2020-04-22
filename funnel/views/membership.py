@@ -70,7 +70,10 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     OrganizationMembership.query.filter(
                         OrganizationMembership.is_active
                     )
-                    .filter_by(profile=self.obj, user_id=membership_form.user.data.id)
+                    .filter_by(
+                        organization=self.obj.organization,
+                        user_id=membership_form.user.data.id,
+                    )
                     .one_or_none()
                 )
                 if previous_membership is not None:
@@ -84,7 +87,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     )
                 else:
                     new_membership = OrganizationMembership(
-                        parent_id=self.obj.id, granted_by=current_auth.user
+                        organization=self.obj.organization, granted_by=current_auth.user
                     )
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
