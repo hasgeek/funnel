@@ -632,9 +632,15 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     _defercols = [defer('created_at'), defer('updated_at')]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, owner, *args, **kwargs):
         super(Organization, self).__init__(*args, **kwargs)
         self.make_teams()
+        self.owners.users.append(owner)
+        db.session.add(
+            OrganizationMembership(
+                organization=self, user=owner, granted_by=owner, is_owner=True
+            )
+        )
 
     @hybrid_property
     def name(self):
@@ -1248,3 +1254,4 @@ user_phone_primary_table = add_primary_relationship(
 
 # Tail imports
 from .profile import Profile  # isort:skip
+from .organization_membership import OrganizationMembership  # isort:skip

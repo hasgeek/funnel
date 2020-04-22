@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import uuid
 
 import pytest
 
@@ -103,19 +102,14 @@ def new_user3(test_db):
 
 @pytest.fixture(scope='session')
 def new_organization(test_db):
-    org = Organization(title="Test org", name='test-org', is_public_profile=True)
+    user = User(name='test-org-owner', fullname="Test org owner")
+    org = Organization(
+        owner=user, title="Test org", name='test-org', is_public_profile=True
+    )
+    test_db.session.add(user)
     test_db.session.add(org)
     test_db.session.commit()
     return org
-
-
-@pytest.fixture(scope='session')
-def new_team2(test_db, new_user2):
-    team = Team(title=u"Owners 2", owners=True, org_uuid=uuid.uuid4())
-    test_db.session.add(team)
-    team.users.append(new_user2)
-    test_db.session.commit()
-    return team
 
 
 @pytest.fixture(scope='session')

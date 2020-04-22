@@ -41,10 +41,8 @@ class OrgView(UrlForView, ModelView):
     def new(self):
         form = OrganizationForm()
         if form.validate_on_submit():
-            org = Organization()
+            org = Organization(owner=current_auth.user)
             form.populate_obj(org)
-            if current_auth.user not in org.owners.users:
-                org.owners.users.append(current_auth.user)
             db.session.add(org)
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
