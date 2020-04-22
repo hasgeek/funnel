@@ -185,7 +185,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             if AuthClientUserPermissions.get(self, actor):
                 return True
         else:
-            if AuthClientTeamPermissions.all_for(self, actor.teams).first():
+            if AuthClientTeamPermissions.all_for(self, actor).first():
                 return True
         return False
 
