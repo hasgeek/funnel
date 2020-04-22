@@ -120,24 +120,24 @@ def new_team2(test_db, new_user2):
 
 @pytest.fixture(scope='session')
 def new_profile(test_db, new_team):
-    profile = Profile(title="Test Profile", description="Test Description")
-    test_db.session.add(profile)
+    org = Organization(title="Test Profile", description="Test Description")
+    test_db.session.add(org)
 
     for u in new_team.users:
-        admin_membership = OrganizationMembership(profile=profile, user=u)
+        admin_membership = OrganizationMembership(organization=org, user=u)
         test_db.session.add(admin_membership)
 
     test_db.session.commit()
-    return profile
+    return org.profile
 
 
 @pytest.fixture(scope='session')
 def new_profile2(test_db, new_team2):
-    profile = Profile(title=u"Test Profile 2", description=u"Test Description 2")
-    test_db.session.add(profile)
+    org = Profile(title=u"Test Profile 2", description=u"Test Description 2")
+    test_db.session.add(org)
 
     for u in new_team2.users:
-        admin_membership = OrganizationMembership(profile=profile, user=u)
+        admin_membership = OrganizationMembership(organization=org, user=u)
         test_db.session.add(admin_membership)
 
 
