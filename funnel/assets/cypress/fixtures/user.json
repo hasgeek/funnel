@@ -1,19 +1,19 @@
 {
   "owner": {
-    "username": "admin-user",
-    "password": "cypress129"
+    "username": "profile-cypress",
+    "password": "cypress123"
   },
   "admin": {
     "username": "admin-user",
     "password": "cypress129"
   },
   "concierge": {
-    "username": "member-user",
-    "password": "cypress129"
+    "username": "concierge-user",
+    "password": "cypress341"
   },
   "usher": {
-    "username": "member-user",
-    "password": "cypress129"
+    "username": "usher-cypress",
+    "password": "cypress566"
   },
   "user": {
     "username": "member-user",

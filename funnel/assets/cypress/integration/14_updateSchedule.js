@@ -75,9 +75,4 @@ describe('Add session to schedule and publish', function() {
       .find('.card--upcoming')
       .contains(project.title);
   });
-
-  after(function() {
-    cy.relogin('/testcypressproject');
-    cy.logout();
-  });
 });

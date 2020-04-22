@@ -13,7 +13,7 @@ def init_models():
         user._set_password('cypress341')
         profile_owner = User(username='profile-cypress', fullname='profile-cypress')
         profile_owner._set_password('cypress123')
-        concierge = User(username='member-user', fullname='member-user')
+        concierge = User(username='concierge-user', fullname='concierge-user')
         concierge._set_password('cypress341')
         usher = User(username='usher-cypress', fullname='usher-cypress')
         usher._set_password('cypress566')
