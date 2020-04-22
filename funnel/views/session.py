@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, localize_timezone
+from baseframe import _, localize_timezone, request_is_xhr
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -51,7 +50,10 @@ def session_form(project, proposal=None, session=None):
         if not (session or proposal):
             form.is_break.data = True
         return render_template(
-            'session_form.html.jinja2', form=form, formid='session_form'
+            'session_form.html.jinja2',
+            form=form,
+            formid='session_form',
+            title=_("Edit session"),
         )
     if form.validate_on_submit():
         new = False
@@ -63,26 +65,38 @@ def session_form(project, proposal=None, session=None):
         form.populate_obj(session)
         if new:
             session.parent = project
-            session = failsafe_add(
-                db.session, session, project_id=project.id, url_id=session.url_id
-            )
+            if session.proposal:
+                session = failsafe_add(
+                    db.session,
+                    session,
+                    project_id=project.id,
+                    proposal_id=session.proposal_id,
+                )
+            else:
+                db.session.add(session)
         db.session.commit()
-        data = {
-            'id': session.url_id,
-            'title': session.title,
-            'room_scoped_name': (
-                session.venue_room.scoped_name if session.venue_room else None
-            ),
-            'is_break': session.is_break,
-            'modal_url': session.url_for('edit'),
-            'delete_url': session.url_for('delete'),
-            'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
-        }
-        return jsonify(status=True, data=data)
+        if request_is_xhr():
+            data = {
+                'id': session.url_id,
+                'title': session.title,
+                'room_scoped_name': (
+                    session.venue_room.scoped_name if session.venue_room else None
+                ),
+                'is_break': session.is_break,
+                'modal_url': session.url_for('edit'),
+                'delete_url': session.url_for('delete'),
+                'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
+            }
+            return jsonify(status=True, data=data)
+        else:
+            return redirect(session.url_for('view'))
     return jsonify(
         status=False,
         form=render_template(
-            'session_form.html.jinja2', form=form, formid='session_new'
+            'session_form.html.jinja2',
+            form=form,
+            formid='session_new',
+            title=_("Edit session"),
         ),
     )
 

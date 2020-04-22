@@ -6,7 +6,6 @@ SITE_TITLE = 'HasGeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
 STATIC_SUBDOMAIN = 'static'
-SERVER_NAME = 'funnel.travis.local:3002'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
 LASTUSER_USE_SESSIONS = False
 UPLOAD_FOLDER = '/tmp'
