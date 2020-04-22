@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% trans %}Labels{% endtrans %}{% endblock %}
 
 {% block top_title %}
@@ -13,7 +14,7 @@
   <div class="grid__col-xs-12">
     <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}">
       <div class="card__body mui--text-center">
-        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-action="Create new label">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#plus"></use></svg>{% endassets %} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
+        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-action="Create new label">{{ faicon(icon='plus', icon_size='title') }}  <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
       </div>
     </div>
   </div>
@@ -22,7 +23,7 @@
       {{ form.hidden_tag() }}
       {%- for label in labels %}
         <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
-          {% assets "fa5-sprite" %}<svg class="fa5-icon label-box__icon" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#grip-vertical"></use></svg>{% endassets %}
+          {{ faicon(icon='grip-vertical',  baseline=false, css_class='label-box__icon') }}
           <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
           {% if label.has_options %}
             <h3 class="mui--text-title mui--text-bold label-box__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
@@ -37,11 +38,11 @@
             <h3 class="mui--text-title mui--text-bold label-box__heading">{{ label.title }}</h3>
           {% endif %}
           <div class="label-box__icon-wrapper">
-            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a>
+            <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}</a>
             {% if label.has_proposals %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#archive"></use></svg>{% endassets %}</a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
             {% else %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#trash-alt"></use></svg>{% endassets %}</a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
             {% endif %}
           </div>
         </div>

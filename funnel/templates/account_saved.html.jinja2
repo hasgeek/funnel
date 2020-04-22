@@ -1,6 +1,9 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 {%- from "macros.html.jinja2" import calendarwidget %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import account_tabs %}
+
+{% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
@@ -18,16 +21,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
-          <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(account)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-left"></use></svg>{% endassets %}
-            </a>
-            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Account{% endtrans %}</a>
-            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}My saves{% endtrans %}</p>
-            <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
-            <a class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase" href="{{ url_for('contacts') }}">{% trans %}Contacts{% endtrans %}</a>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button"  data-action="Next(My saves)">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#chevron-right"></use></svg>{% endassets %}
-            </a>
-          </div>
+          {{ account_tabs(active_tab='saved') }}
         </div>
       </div>
     </div>
@@ -55,7 +49,7 @@
                 {{ calendarwidget(saved.project.calendar_weeks_compact) }}
               {% endif %}
               <div class="card__body__title js-truncate {% if not (saved.project.schedule_state.PUBLISHED and saved.project.calendar_weeks_compact.weeks) %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ saved.project.title }}</span> <span class="mui--text-light">{{ saved.project.tagline }}</span></div>
-              {% if saved.project.primary_venue %}<p class="card__body__location">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#map-marker-alt"></use></svg>{% endassets %} {% if saved.project.primary_venue.city %}{{ saved.project.primary_venue.city }}{% else %}{{ saved.project.primary_venue.title }}{% endif %}</p>{% endif %}
+              {% if saved.project.primary_venue %}<p class="card__body__location">{{ faicon(icon='map-marker-alt', icon_size='caption') }} {% if saved.project.primary_venue.city %}{{ saved.project.primary_venue.city }}{% else %}{{ saved.project.primary_venue.title }}{% endif %}</p>{% endif %}
             </div>
           </a>
         </li>

@@ -1,13 +1,14 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}Setup events{% endblock %}
 {% block pageheaders %}
 {% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#arrow-left"></use></svg>{% endassets %} {% trans %}Back to setup events{% endtrans %}</a></p>
+  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -23,7 +24,7 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--link fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#edit"></use></svg>{% endassets %}</a></h3>
+      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       <h3 class="mui--text-right" id="participants-count">
@@ -39,7 +40,7 @@
       <form class="search-participant mui-form mui-form--margins">
         <div class="mui-textfield mui-textfield--float-label">
           <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label>{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#search"></use></svg>{% endassets %} Search</label>
+          <label>{{ faicon(icon='search',  baseline=false) }} Search</label>
         </div>
       </form>
     </div>
@@ -99,13 +100,6 @@
                         <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="Cancel check-in" data-cy="cancel-checkin">Cancel Check-in  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                       {{else}}
                         <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="Check-in" data-cy="checkin">Check-in {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
-                      {{/if}}
-                      {{#if submitting}}
-                        {{#if checked_in}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 0)" aria-label="Abort"><svg class="fa5-icon fa5-icon--title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></button>
-                        {{else}}
-                          <button class="mui-btn mui-btn--small mui-btn--danger mui-btn--nomargin" on-click="handleAbortCheckIn(event, 1)" aria-label="Abort"><svg class="fa5-icon fa5-icon--title mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></button>
-                        {{/if}}
                       {{/if}}
                     </form>
                   </li>

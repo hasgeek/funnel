@@ -303,6 +303,7 @@
 
 .session-modal--nopadding {
   padding: 0;
+  overflow: visible !important;
 
   .modal__header {
     padding: 15px 15px 5px;
@@ -323,7 +324,7 @@
     word-break: break-word;
 
     .modal__body__separator {
-      margin: 30px -30px;
+      margin: 30px -15px;
     }
 
     .modal__body__section {
