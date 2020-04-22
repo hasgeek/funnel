@@ -44,7 +44,7 @@
                 <hr class="mui--hidden-xl">
               </div>
               <div class="mui--text-center" v-if="members" :class="[isUserProfileAdmin? 'membership-wrapper--right': '']">
-                <form class="mui-form mui--d-inlineblock search mui--z1">
+                <form class="mui-form mui--d-inlineblock search mui--z1" v-on:submit.prevent>
                   <div class="mui-textfield">
                     <input class="field-search" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
                   </div>
