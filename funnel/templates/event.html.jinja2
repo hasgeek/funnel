@@ -8,7 +8,7 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{{ faicon(icon='arrow-left', icon_size='subhead', baseline=true) }} {% trans %}Back to setup events{% endtrans %}</a></p>
+  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
 {% block contentwrapper %}
@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=true) }}</a></h3>
+      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       <h3 class="mui--text-right" id="participants-count">
@@ -40,7 +40,7 @@
       <form class="search-participant mui-form mui-form--margins">
         <div class="mui-textfield mui-textfield--float-label">
           <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label>{{ faicon(icon='search', icon_size='body1', baseline=false) }} Search</label>
+          <label>{{ faicon(icon='search',  baseline=false) }} Search</label>
         </div>
       </form>
     </div>

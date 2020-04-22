@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import add_tabs %}
+{%- from "macros.html.jinja2" import account_tabs %}
 
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
 
@@ -20,7 +20,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
-          {{ add_tabs(active_tab='contacts') }}
+          {{ account_tabs(active_tab='contacts') }}
         </div>
       </div>
     </div>
@@ -33,18 +33,18 @@
           <div class="tab-content__results zero-bottom-margin">
             <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{project.id}}">
               <p class="mui--text-subhead zero-bottom-margin collapsible__header__title">
-                {{ faicon(icon='angle-right', icon_size='body1', baseline=true, css_class='collapsible__icon') }}
-                {{ faicon(icon='angle-down', icon_size='body1', baseline=true, css_class='collapsible__icon mui--hide') }}
+                {{ faicon(icon='angle-right', css_class='collapsible__icon') }}
+                {{ faicon(icon='angle-down', css_class='collapsible__icon mui--hide') }}
                 {{ project.title }}
               </p>
             </div>
             <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle">
-              <button class="mui-btn mui-btn--nostyle mui--text-subhead" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">{{ faicon(icon='ellipsis-v', icon_size='subhead', baseline=true) }}
+              <button class="mui-btn mui-btn--nostyle mui--text-subhead" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}
               </button>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                 <li>
                   <a href="{{ url_for('contacts_project_csv', uuid_b58=project.uuid_b58) }}" download aria-label="{% trans %}Download CSV{% endtrans %}">
-                    {{ faicon(icon='download', icon_size='subhead', baseline=true) }} {% trans %}CSV{% endtrans %}
+                    {{ faicon(icon='download', icon_size='subhead') }} {% trans %}CSV{% endtrans %}
                   </a>
                 </li>
               </ul>
@@ -54,17 +54,17 @@
                 <div class="collapsible">
                   <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{daterow.date}}">
                     <p class="mui--text-subhead zero-bottom-margin collapsible__header__title">
-                      {{ faicon(icon='angle-right', icon_size='body1', baseline=true, css_class='collapsible__icon') }}
-                      {{ faicon(icon='angle-down', icon_size='body1', baseline=true, css_class='collapsible__icon mui--hide') }} {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
+                      {{ faicon(icon='angle-right', css_class='collapsible__icon') }}
+                      {{ faicon(icon='angle-down', css_class='collapsible__icon mui--hide') }} {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
                   </div>
                   <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle" id="collapse-{{daterow.date}}">
                     <button class="mui-btn mui-btn--nostyle mui--text-subhead" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">
-                      {{ faicon(icon='ellipsis-v', icon_size='subhead', baseline=true) }}
+                      {{ faicon(icon='ellipsis-v', icon_size='subhead') }}
                     </button>
                     <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                       <li>
                         <a href="{{ url_for('contacts_project_date_csv', uuid_b58=project.uuid_b58, datestr=daterow.date) }}" download arial-label="{% trans %}Download contacts CSV{% endtrans %}" >
-                          {{ faicon(icon='download', icon_size='subhead', baseline=true) }} {% trans %}CSV{% endtrans %}
+                          {{ faicon(icon='download', icon_size='subhead') }} {% trans %}CSV{% endtrans %}
                         </a>
                       </li>
                     </ul>
@@ -79,7 +79,7 @@
                             <p class="mui--text-body1">{{ contact.participant.email }}</p>
                           </div>
                           <a class="mui--pull-right contact-download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact">
-                            {{ faicon(icon='address-card', icon_size='headline', baseline=true) }}
+                            {{ faicon(icon='address-card', icon_size='headline') }}
                           </a>
                         </div>
                       </div>

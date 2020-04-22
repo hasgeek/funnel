@@ -51,8 +51,8 @@
                   <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}">
                   {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
                   <span class="mui--text-subhead">{{ venue.title }}</span>
-                  {{ faicon(icon='angle-down', icon_size='caption', baseline=true, css_class='mui--text-light collapsible__icon collapsible__icon--disable') }}
-                  {{ faicon(icon='angle-up', icon_size='caption', baseline=true, css_class='mui--text-light collapsible__icon collapsible__icon--disable mui--hide') }}
+                  {{ faicon(icon='angle-down', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable') }}
+                  {{ faicon(icon='angle-up', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable mui--hide') }}
                 </div>
                 <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
                   {% for room in venue.room_list %}
@@ -80,7 +80,7 @@
   </div>
   <div id="popup" class="modal session-modal">
     <div class="modal__header">
-      <a class="modal__close" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='body1', baseline=true) }}</a>
+      <a class="modal__close" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times') }}</a>
       <h3 class="js-modal-title session-modal__title">{{ session.title }}</h3>
     </div>
     <hr class="mui-divider mui-divider--custom">

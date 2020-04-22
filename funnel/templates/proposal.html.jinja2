@@ -35,7 +35,7 @@
     </a>
   {%- endif %}
   {% if project.cfp_state.OPEN -%}
-    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" data-action="Propose a session(header)">{{ faicon(icon='microphone-alt', icon_size='body1', baseline=true) }} {% trans %}Submit a session proposal{% endtrans %}</a>
+    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" data-action="Propose a session(header)">{{ faicon(icon='microphone-alt') }} {% trans %}Submit a session proposal{% endtrans %}</a>
   {% endif %}
   </p>
 {% endblock %}
@@ -219,7 +219,7 @@
                     {%- for label in proposal.labels %}
                       <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
                     {%- endfor %}
-                    {{ faicon(icon='angle-down', icon_size='body1', baseline=true, css_class='mui--text-light') }}
+                    {{ faicon(icon='angle-down', css_class='mui--text-light') }}
                   </div>
                   <div id="label-dropdown" class="label-dropdown-wrapper">
                     {{ renderfield(proposal_label_admin_form.formlabels, css_class="label-select-fields") }}

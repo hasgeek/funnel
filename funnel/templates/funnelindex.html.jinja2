@@ -20,7 +20,7 @@
 {% block contentwrapper %}
   {%- if config['LEGACY'] and not g.profile %}
     <div class="alert alert--warning funnel-notice">
-      <p class="alert__text">{{ faicon(icon='exclamation-triangle', icon_size='display1', baseline=true, css_class='alert__icon') }} {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use {% endtrans %}<a href="https://hasgeek.com" class="funnel-notice-txt">HasGeek</a>.</p>
+      <p class="alert__text">{{ faicon(icon='exclamation-triangle', icon_size='display1', css_class='alert__icon') }} {% trans %}Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use {% endtrans %}<a href="https://hasgeek.com" class="funnel-notice-txt">HasGeek</a>.</p>
     </div>
     <div class="grid">
       <div class="grid__col-sm-12">

@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import add_tabs %}
+{%- from "macros.html.jinja2" import account_tabs %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
@@ -21,7 +21,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
-          {{ add_tabs(active_tab='account') }}
+          {{ account_tabs(active_tab='account') }}
         </div>
       </div>
     </div>

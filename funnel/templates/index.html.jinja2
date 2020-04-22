@@ -96,7 +96,7 @@
                 <h3 class="mui--text-headline zero-top-margin"><a class="clickable-card" href="{{ featured_project.url_for() }}">{{ featured_project.title }}</a></h3>
                 <p class="mui--text-title mui--text-bold hg-text">Live</p>
                 {% if current_sessions.sessions|length > 0 %}
-                  <p class="mui--text-title mui--text-light">{{ faicon(icon='clock', icon_size='title', baseline=true) }} Session starts at {{ current_sessions.sessions[0].start_at_localized.strftime('%I:%M %p') }}</p>
+                  <p class="mui--text-title mui--text-light">{{ faicon(icon='clock', icon_size='title') }} Session starts at {{ current_sessions.sessions[0].start_at_localized.strftime('%I:%M %p') }}</p>
                 {% endif %}
                 <div>
                   {%- if featured_project.livestream_urls %}
@@ -215,7 +215,7 @@
               <div class="card card--cfp">
                 <a class="card__image-wrapper card__image-wrapper--cfp clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}" data-action="View {{ project.title }}(cfp)">
                   <div class="card__image-wrapper__overlay"></div>
-                  <div class="card__image-wrapper__text">{{ faicon(icon='microphone-alt', icon_size='display1', baseline=true, css_class='mui--align-middle') }} <div class="mui--d-inlineblock mui--align-middle"><p class="mui--text-menu zero-bottom-margin">CFP</p> <p class="mui--text-menu zero-bottom-margin">{% trans %}Now open{% endtrans %}</p></div></div>
+                  <div class="card__image-wrapper__text">{{ faicon(icon='microphone-alt', icon_size='display1', css_class='mui--align-middle') }} <div class="mui--d-inlineblock mui--align-middle"><p class="mui--text-menu zero-bottom-margin">CFP</p> <p class="mui--text-menu zero-bottom-margin">{% trans %}Now open{% endtrans %}</p></div></div>
                   {% if project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
                     <noscript>
@@ -258,7 +258,7 @@
             <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="Create new project" data-cy="new-project" data-action="Add new project">
               <div class="card__image-wrapper">
                 <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
-                <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', baseline=true, css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
+                <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
               </div>
               <div class="card__body">
                 <h4 class="mui--text-headline mui--text-bold">{% trans %}Start a project{% endtrans %}</h4>

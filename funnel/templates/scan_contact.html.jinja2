@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import add_tabs %}
+{%- from "macros.html.jinja2" import account_tabs %}
 
 {% block title %}{% trans %}Scan badge{% endtrans %}{% endblock %}
 
@@ -28,7 +28,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
-          {{ add_tabs(active_tab='scan') }}
+          {{ account_tabs(active_tab='scan') }}
         </div>
       </div>
     </div>
