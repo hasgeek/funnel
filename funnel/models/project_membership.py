@@ -22,9 +22,9 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     __data_columns__ = ('is_editor', 'is_concierge', 'is_usher')
 
     __roles__ = {
-        'all': {'read': {'user', 'is_editor', 'is_concierge', 'is_usher', 'project'}},
-        'profile_admin': {'read': {'edit_url', 'delete_url'}},
-        'project_editor': {'read': {'edit_url', 'delete_url'}},
+        'all': {
+            'read': {'urls', 'user', 'is_editor', 'is_concierge', 'is_usher', 'project'}
+        }
     }
 
     project_id = immutable(
@@ -70,14 +70,6 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             )
         )
         return tuple(args)
-
-    @property
-    def edit_url(self):
-        return self.url_for('edit', _external=True)
-
-    @property
-    def delete_url(self):
-        return self.url_for('delete', _external=True)
 
     def offered_roles(self):
         """Roles offered by this membership record"""

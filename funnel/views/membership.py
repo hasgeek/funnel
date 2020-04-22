@@ -113,7 +113,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         'message': _("The user has been added as an admin"),
                         'memberships': [
                             membership.current_access()
-                            for membership in self.obj.active_admin_memberships
+                            for membership in self.obj.organization.active_admin_memberships
                         ],
                     }
             else:
@@ -144,7 +144,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
     model = OrganizationMembership
     __decorators__ = [legacy_redirect]
 
-    route_model_map = {'profile': 'profile.name', 'membership': 'uuid_b58'}
+    route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
 
     def loader(self, profile, membership):
         obj = (

@@ -254,6 +254,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         super(Project, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
+        # Add the creator as editor and concierge
+        new_membership = ProjectCrewMembership(
+            parent=self,
+            user=self.user,
+            granted_by=self.user,
+            is_editor=True,
+            is_concierge=True,
+        )
+        db.session.add(new_membership)
 
     def __repr__(self):
         return '<Project %s/%s "%s">' % (
@@ -968,3 +977,4 @@ class ProjectLocation(TimestampMixin, db.Model):
 # Tail imports
 from .session import Session  # isort:skip
 from .venue import VenueRoom  # isort:skip
+from .project_membership import ProjectCrewMembership  # isort:skip

@@ -22,10 +22,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     # List of role columns in this model
     __data_columns__ = ('is_owner',)
 
-    __roles__ = {
-        'all': {'read': {'user', 'is_owner', 'organization'}},
-        'organization_admin': {'read': {'edit_url', 'delete_url'}},
-    }
+    __roles__ = {'all': {'read': {'urls', 'user', 'is_owner', 'organization'}}}
 
     #: Organization that this membership is being granted on
     organization_id = immutable(
@@ -50,16 +47,6 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     # Organization roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
 
-    # FIXME: Remove this and use UrlDict
-    @property
-    def edit_url(self):
-        return self.organization.url_for('edit', _external=True)
-
-    # FIXME: Remove this and use UrlDict
-    @property
-    def delete_url(self):
-        return self.organization.url_for('delete', _external=True)
-
     def offered_roles(self):
         """Roles offered by this membership record"""
         roles = {'admin'}
@@ -70,10 +57,11 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     def roles_for(self, actor, anchors=()):
         """Roles available to the specified actor and anchors"""
         roles = super().roles_for(actor, anchors)
-        if 'admin' in self.organization.roles_for(actor, anchors):
-            roles.add('organization_admin')
-        if 'owner' in self.organization.roles_for(actor, anchors):
-            roles.add('organization_owner')
+        org_roles = self.organization.roles_for(actor, anchors)
+        if 'admin' in org_roles:
+            roles.add('profile_admin')
+        if 'owner' in org_roles:
+            roles.add('profile_owner')
         return roles
 
 
