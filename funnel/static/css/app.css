@@ -3125,6 +3125,7 @@ html.touch .collapsible__body--disable {
 
 .session-modal--nopadding {
   padding: 0;
+  overflow: visible !important;
 }
 .session-modal--nopadding .modal__header {
   padding: 15px 15px 5px;
@@ -3142,7 +3143,7 @@ html.touch .collapsible__body--disable {
   word-break: break-word;
 }
 .session-modal--nopadding .modal__body .modal__body__separator {
-  margin: 30px -30px;
+  margin: 30px -15px;
 }
 .session-modal--nopadding .modal__body .modal__body__section {
   margin: 30px 0;

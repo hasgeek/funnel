@@ -1,5 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import add_tabs %}
+
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
 
 {% block bodytag %}
@@ -18,16 +20,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
-          <div class="tabs" id="jquery-scroll-tabs">
-            <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(Contacts)">{{ faicon(icon='chevron-left', icon_size='subhead', baseline=true) }}
-            </a>
-            <a href="{{ url_for('account') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Account{% endtrans %}</a>
-            <a href="{{ url_for('saved') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}My saves{% endtrans %}</a>
-            <a href="{{ url_for('scan_contact') }}" class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase">{% trans %}Scan badge{% endtrans %}</a>
-            <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase tabs__item--active">{% trans %}Contacts{% endtrans %}</p>
-            <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button"  data-action="Next(Contacts)">{{ faicon(icon='chevron-right', icon_size='subhead', baseline=true) }}
-            </a>
-          </div>
+          {{ add_tabs(active_tab='contacts') }}
         </div>
       </div>
     </div>
