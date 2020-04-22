@@ -138,9 +138,6 @@
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
         {% endif %}
-        {%- if project.allow_rsvp -%}
-          <p class="mui--text-subhead zero-bottom-margin mui--text-light">{% trans count=project.rsvp_counts()['Y'] %}{{ count }} <span class="mui--text-body1">attending</span>{% endtrans %}</p>
-        {% endif %}
         <div class="project-details__box--ticketbox">
           <div class="mui--hidden-xs mui--hidden-sm">
             {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
