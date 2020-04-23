@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from baseframe import _, __
+from coaster.utils import getbool
 import baseframe.forms as forms
 
 
@@ -11,7 +12,18 @@ class OrganizationMembershipForm(forms.Form):
         validators=[forms.validators.DataRequired(_(u"Please select a user"))],
         description=__("Find a user by their name or email address"),
     )
-    is_owner = forms.BooleanField(__("Owner"), default=False)
+    is_owner = forms.RadioField(
+        __("Access level"),
+        coerce=getbool,
+        default=False,
+        choices=[
+            (
+                False,
+                __("Admin (can manage projects, but can't add or remove other admins)"),
+            ),
+            (True, __("Owner (can also manage other owners and admins)")),
+        ],
+    )
 
 
 class ProjectCrewMembershipForm(forms.Form):
