@@ -2,9 +2,10 @@
 
 from datetime import timedelta
 
-from coaster.utils import buid, utcnow
 from lastuserapp import db
 import lastuser_core.models as models
+
+from coaster.utils import buid, utcnow
 
 from .test_db import TestDatabaseFixture
 
