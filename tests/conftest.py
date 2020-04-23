@@ -8,7 +8,6 @@ from funnel.models import (
     Label,
     Organization,
     OrganizationMembership,
-    Profile,
     Project,
     Proposal,
     Team,
@@ -27,19 +26,19 @@ def user_test():
 TEST_DATA = {
     'users': {
         'testuser': {
-            'username': "testuser",
+            'name': "testuser",
             'fullname': "Test User",
             'email': "testuser@example.com",
         },
-        'testuser2': {
-            'username': "testuser2",
+        'test-org-owner': {
+            'name': "test-org-owner",
             'fullname': "Test User 2",
-            'email': "testuser2@example.com",
+            'email': "testorgowner@example.com",
         },
-        'testuser3': {
-            'username': "testuser3",
+        'test-org-admin': {
+            'name': "test-org-admin",
             'fullname': "Test User 3",
-            'email': "testuser3@example.com",
+            'email': "testorgadmin@example.com",
         },
     }
 }
@@ -85,56 +84,35 @@ def new_user(test_db):
 
 
 @pytest.fixture(scope='session')
-def new_user2(test_db):
-    user = User(**TEST_DATA['users']['testuser2'])
+def new_user_owner(test_db):
+    user = User(**TEST_DATA['users']['test-org-owner'])
     test_db.session.add(user)
     test_db.session.commit()
     return user
 
 
 @pytest.fixture(scope='session')
-def new_user3(test_db):
-    user = User(**TEST_DATA['users']['testuser3'])
+def new_user_admin(test_db):
+    user = User(**TEST_DATA['users']['test-org-admin'])
     test_db.session.add(user)
     test_db.session.commit()
     return user
 
 
 @pytest.fixture(scope='session')
-def new_organization(test_db):
-    user = User(name='test-org-owner', fullname="Test org owner")
+def new_organization(test_db, new_user_owner, new_user_admin):
     org = Organization(
-        owner=user, title="Test org", name='test-org', is_public_profile=True
+        owner=new_user_owner, title="Test org", name='test-org', is_public_profile=True
     )
-    test_db.session.add(user)
     test_db.session.add(org)
+
+    admin_membership = OrganizationMembership(organization=org, user=new_user_admin)
+    test_db.session.add(admin_membership)
     test_db.session.commit()
     return org
 
 
 @pytest.fixture(scope='session')
-def new_profile(test_db, new_team):
-    org = Organization(title="Test Profile", description="Test Description")
-    test_db.session.add(org)
-
-    for u in new_team.users:
-        admin_membership = OrganizationMembership(organization=org, user=u)
-        test_db.session.add(admin_membership)
-
-    test_db.session.commit()
-    return org.profile
-
-
-@pytest.fixture(scope='session')
-def new_profile2(test_db, new_team2):
-    org = Profile(title=u"Test Profile 2", description=u"Test Description 2")
-    test_db.session.add(org)
-
-    for u in new_team2.users:
-        admin_membership = OrganizationMembership(organization=org, user=u)
-        test_db.session.add(admin_membership)
-
-
 def new_team(test_db, new_user, new_organization):
     team = Team(title="Owners", organization=new_organization)
     test_db.session.add(team)
@@ -159,10 +137,10 @@ def new_project(test_db, new_organization, new_user):
 
 
 @pytest.fixture(scope='session')
-def new_project2(test_db, new_profile2, new_user2, new_team2):
+def new_project2(test_db, new_organization, new_user_owner):
     project = Project(
-        profile=new_profile2,
-        user=new_user2,
+        profile=new_organization.profile,
+        user=new_user_owner,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",
