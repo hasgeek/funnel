@@ -105,13 +105,14 @@
 .badge {
   position: relative;
   color: #fff;
-  width: 15px;
+  min-width: 15px;
   line-height: 15px;
-  height: 15px;
+  min-height: 15px;
   text-align: center;
   display: inline-block;
   background-color: #856a91;
-  border-radius: 50%;
+  border-radius: 3px;
+  padding: 2px;
 }
 
 .select2-inline {
@@ -141,7 +142,7 @@
 }
 
 .collapsible__header--smaller {
-  width: calc(100% - 51px);
+  width: calc(100% - 37px);
   padding: 10px;
   margin: 0 0 10px;
   white-space: nowrap;
@@ -262,6 +263,7 @@ html.touch .collapsible__body--disable {
 
 .animate-btn {
   display: none;
+  line-height: 1;
 }
 .animate-btn .bookmarked {
   fill: #e05f26;
@@ -864,6 +866,7 @@ html.touch .collapsible__body--disable {
   cursor: pointer;
   position: relative;
   min-width: 130px;
+  border: none;
   border-bottom: 2px solid transparent;
   margin: 0;
   text-align: center;
@@ -1124,110 +1127,6 @@ html.touch .collapsible__body--disable {
   .spotlight-schedule-card {
     height: 531px;
     overflow: scroll;
-  }
-}
-.hg-about__content__txt {
-  width: 100%;
-  height: 100px;
-  position: relative;
-  margin-bottom: 30px;
-}
-.hg-about__content__txt .hg-about__content__txt__string {
-  font-size: 38px;
-  opacity: 0;
-  height: 0px;
-  margin: 0;
-  line-height: 1.2;
-}
-
-@media (min-width: 544px) {
-  .hg-about__content__txt {
-    height: 55px;
-  }
-}
-@media (min-width: 768px) {
-  .hg-about__content__txt {
-    height: 92px;
-  }
-}
-@media (min-width: 992px) {
-  .hg-about__content__txt {
-    height: 140px;
-  }
-}
-@media (min-width: 1200px) {
-  .hg-about__content__txt {
-    height: 146px;
-  }
-  .hg-about__content__txt .hg-about__content__txt__string {
-    font-size: 40px;
-  }
-}
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(1) {
-  animation: animation 12s infinite;
-}
-
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(2) {
-  animation: animation 12s infinite;
-  animation-delay: 4s;
-}
-
-.hg-about__content__txt .hg-about__content__txt__string:nth-child(3) {
-  animation: animation 12s infinite;
-  animation-delay: 8s;
-}
-
-@keyframes animation {
-  0% {
-    opacity: 0;
-    height: auto;
-  }
-  16% {
-    opacity: 1;
-  }
-  33% {
-    opacity: 0;
-    height: 0px;
-  }
-  100% {
-    opacity: 0;
-    height: 0px;
-  }
-}
-@-webkit-keyframes animation {
-  0% {
-    opacity: 0;
-    height: auto;
-  }
-  16% {
-    opacity: 1;
-  }
-  33% {
-    opacity: 0;
-    height: 0px;
-  }
-  100% {
-    opacity: 0;
-    height: 0px;
-  }
-}
-.hg-about__img {
-  border-radius: 16px 16px 0 16px;
-  width: 100%;
-}
-
-.hg-about__img--top {
-  border-radius: 16px 16px 16px 0;
-}
-
-.hg-about__img--bottom {
-  border-radius: 0 16px 16px 16px;
-  margin-top: 23px;
-}
-
-@media (min-width: 1200px) {
-  .hg-about__content {
-    justify-content: center;
   }
 }
 .cfp-action-btn {
@@ -1578,7 +1477,7 @@ html.touch .collapsible__body--disable {
   width: calc(100% / 7);
   text-align: center;
   margin: 0;
-  padding: 10px 0;
+  padding: 10px 0 15px;
   background: #f9fafc;
 }
 .card__calendar
@@ -1681,7 +1580,7 @@ html.touch .collapsible__body--disable {
   .calendar__weekdays__dates__date--showtime:before {
   content: '';
   position: absolute;
-  bottom: -5px;
+  bottom: 0;
   left: 0;
   right: 0;
   margin: auto;
@@ -1702,7 +1601,7 @@ html.touch .collapsible__body--disable {
   display: block;
   opacity: 0;
   position: absolute;
-  bottom: -25px;
+  bottom: -20px;
   border-radius: 2px;
   background-color: #f6e2c5;
   color: #906b37;
@@ -1711,7 +1610,7 @@ html.touch .collapsible__body--disable {
   -webkit-transform: translateX(-50%);
   margin: auto;
   padding: 4px;
-  width: 180px;
+  width: 157px;
   font-size: 12px;
   line-height: 1;
   z-index: 3;
@@ -2013,6 +1912,11 @@ html.touch .collapsible__body--disable {
   max-width: 400px;
 }
 
+.card__body .label-edit {
+  display: inline-block;
+  max-width: 85%;
+}
+
 .session-card .session-card__header {
   display: flex;
   background: none;
@@ -2101,14 +2005,42 @@ html.touch .collapsible__body--disable {
   margin: 0;
   display: block;
 }
+.project-banner .project-banner__footer {
+  display: flex;
+  align-items: baseline;
+  margin: 16px 0 0;
+  padding: 0 16px;
+}
+.project-banner .project-banner__footer .bookmark,
+.project-banner .project-banner__footer .add-calendar,
+.project-banner .project-banner__footer .share {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-right: solid 1px rgba(121, 129, 139, 0.48);
+  line-height: 1;
+}
+.project-banner .project-banner__footer .bookmark {
+  padding: 0 8px 0 0;
+}
+.project-banner .project-banner__footer .share {
+  border-right: none;
+}
+.project-banner .project-banner__footer .bookmark span.txt,
+.project-banner .project-banner__footer .add-calendar span.txt,
+.project-banner .project-banner__footer .share span.txt {
+  padding-right: 8px;
+}
+.project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
+  margin: 0;
+}
+.project-banner .project-banner__footer .mui-dropdown__menu {
+  min-width: auto;
+  z-index: 1003;
+}
 .project-banner .project-details__box {
   margin-top: 15px;
   position: relative;
-}
-.project-banner .project-details__box .bookmark-icon {
-  position: absolute;
-  top: -4px;
-  right: 15px;
 }
 .project-banner .project-details__box .card__calendar {
   padding: 0 15px 10px;
@@ -2119,7 +2051,7 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .add-calendar {
   position: absolute;
-  right: 30px;
+  right: 45px;
   top: 0;
   font-size: 16px;
   font-variant: all-small-caps;
@@ -2140,41 +2072,23 @@ html.touch .collapsible__body--disable {
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
-.project-banner .project-details__box .project-banner__action {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-.project-banner
-  .project-details__box
-  .project-banner__action
-  .project-banner__action__icon {
-  height: 24px;
-  vertical-align: middle;
-}
-.project-banner
-  .project-details__box
-  .project-banner__action
-  .project-banner__action__social {
-  justify-content: space-between;
-  width: 100%;
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 2px dashed #eff2f6;
-}
-.project-banner
-  .project-details__box
-  .project-banner__action
-  .mui-btn
-  + .mui-btn {
-  margin-left: 0;
-}
 
 @media (min-width: 768px) {
   .project-banner .project-banner__box {
     padding: 0 15px;
+  }
+  .project-banner .project-banner__footer .bookmark,
+  .project-banner .project-banner__footer .add-calendar,
+  .project-banner .project-banner__footer .share {
+    padding: 0 16px;
+  }
+  .project-banner .project-banner__footer .bookmark {
+    padding: 0 16px 0 0;
+  }
+  .project-banner .project-banner__footer .bookmark span.txt,
+  .project-banner .project-banner__footer .add-calendar span.txt,
+  .project-banner .project-banner__footer .share span.txt {
+    padding-right: 16px;
   }
 }
 @media (min-width: 992px) {
@@ -2190,10 +2104,6 @@ html.touch .collapsible__body--disable {
   .project-banner .project-details__box {
     margin: 0;
     margin-top: -7px;
-  }
-  .project-banner .project-details__box .bookmark-icon {
-    top: -4px;
-    right: 10px;
   }
   .project-banner .project-details__box .card__calendar {
     margin: 0 0 25px;
@@ -2221,6 +2131,17 @@ html.touch .collapsible__body--disable {
     margin-top: 42px;
   }
 }
+@media (min-width: 992px) and (max-width: 1199px) {
+  .project-banner .project-details__box .add-calendar {
+    right: 30px;
+    top: 3px;
+    font-size: 13px;
+  }
+}
+.project-section__headline {
+  margin-bottom: 15px;
+}
+
 .about {
   padding: 0 15px;
   word-break: break-word;
@@ -2482,11 +2403,27 @@ html.touch .collapsible__body--disable {
   margin-bottom: 15px;
 }
 
-.proposal-details {
+.details .details__box {
+  position: relative;
+  overflow: visible;
+}
+.details .details__box--right,
+.details .details__box--left {
   margin-top: 15px;
 }
 
-.proposal-video--novideo {
+@media (min-width: 992px) {
+  .details {
+    display: flex;
+  }
+  .details .details__box--left {
+    width: 70%;
+  }
+  .details .details__box--right {
+    width: 30%;
+  }
+}
+.details__box__video--novideo {
   padding-left: 10px;
   padding-right: 10px;
   padding-top: 10px;
@@ -2494,51 +2431,110 @@ html.touch .collapsible__body--disable {
   border-radius: 2px;
   min-height: 220px;
 }
-.proposal-video--novideo .proposal-video__banner {
+.details__box__video--novideo .details__box__video__banner {
   background-color: #dda32a;
   padding: 10px;
   opacity: 0.8;
 }
 
-.proposal-details--talk {
-  margin-top: 30px;
-  border-top: 1px solid rgba(132, 146, 166, 0.3);
-  padding-top: 15px;
-  margin-left: -15px;
-  margin-right: -15px;
+.details__box__control {
+  background: #000;
+  padding: 10px;
+  color: #fff;
+  text-align: right;
 }
-
-.proposal-details--talk__box {
-  min-width: 160px;
+.details__box__control .details__box__control__link {
+  color: #fff;
+  margin-right: 15px;
+}
+.details__box__control .details__box__control__link:last-child {
+  margin-right: 0;
+}
+.details__box__control .mui-dropdown__menu {
+  background-color: #000;
 }
 
 @media (min-width: 992px) {
-  .proposal-video {
+  .details__box__video {
     min-width: 300px;
-  }
-
-  .proposal-details {
-    margin-top: 30px;
-  }
-
-  .proposal-details--left {
-    float: left;
-    width: 50%;
-  }
-
-  .proposal-details--right {
-    float: right;
-    width: 50%;
-    margin-top: 40px;
-  }
-
-  .proposal-video {
-    max-width: 50%;
   }
 }
 @media (min-width: 1200px) {
-  .proposal-video {
+  .details__box__video {
     min-width: 500px;
+  }
+}
+.gallery {
+  background: #000;
+  display: flex;
+  overflow: scroll;
+}
+.gallery .gallery__thumbnail {
+  position: relative;
+  flex: 0 0 50%;
+  padding: 15px;
+}
+.gallery .mui--is-active.gallery__thumbnail {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+.gallery .gallery__thumbnail__play-icon {
+  color: #fff;
+  text-align: center;
+  font-size: 32px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  transform: translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
+}
+.gallery .gallery-control {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1000;
+  min-width: auto;
+  padding: 5px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  background: rgba(91, 94, 92, 0.5);
+}
+.gallery .gallery-control .gallery-control__icon {
+  vertical-align: middle;
+}
+.gallery .gallery-control--prev {
+  left: 0;
+}
+.gallery .gallery-control--next {
+  right: 0;
+}
+.gallery .gallery__text {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .gallery {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 16px 0;
+    background: #000;
+    overflow: scroll;
+    flex-direction: column;
+  }
+  .gallery .gallery__thumbnail {
+    flex: 0 0 33.33%;
+    margin: 0;
+  }
+  .gallery .gallery-control {
+    display: none;
+  }
+  .gallery .gallery__text {
+    display: block;
+    padding: 0 15px;
   }
 }
 .proposal-move-form div {
@@ -2720,6 +2716,7 @@ html.touch .collapsible__body--disable {
   border-left: 1.4px solid #fff;
   border-bottom: 1.2px solid #fff;
   transform: rotate(-61deg);
+  -webkit-transform: rotate(-61deg);
   left: 2px;
   top: 8px;
 }
@@ -2735,6 +2732,34 @@ html.touch .collapsible__body--disable {
 }
 .add-label-form .mui-checkbox {
   margin-bottom: 0;
+}
+
+.video {
+  margin-bottom: 30px;
+}
+.video .video__thumbnail {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  display: block;
+}
+.video .video__thumbnail .video__thumbnail__img {
+  display: block;
+}
+.video .video__thumbnail .video__thumbnail__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: #fff;
+  transform: translate(-50%, -50%);
+}
+.video .video__thumnail--novideo {
+  background: #ccc;
+  padding-top: 56.25%;
+}
+.video .video__txt {
+  margin-bottom: 3px;
 }
 
 .proposal-list-header {
@@ -3113,18 +3138,34 @@ html.touch .collapsible__body--disable {
 
 .session-modal--nopadding {
   padding: 0;
+  overflow: visible !important;
 }
 .session-modal--nopadding .modal__header {
   padding: 15px 15px 5px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
-.session-modal--nopadding .modal__body {
-  padding: 15px;
-}
-.session-modal--nopadding .session-modal__title {
-  margin-top: 15px;
-  margin-bottom: 0;
+.session-modal--nopadding .modal__header .modal__header__title {
+  margin-bottom: 5px;
   font-weight: bold;
+}
+.session-modal--nopadding .modal__header .modal__header__text {
+  margin: 0 0 5px;
+}
+.session-modal--nopadding .modal__body {
+  padding: 0 15px 15px;
+  word-break: break-word;
+}
+.session-modal--nopadding .modal__body .modal__body__separator {
+  margin: 30px -15px;
+}
+.session-modal--nopadding .modal__body .modal__body__section {
+  margin: 30px 0;
+}
+.session-modal--nopadding
+  .modal__body
+  .modal__body__section
+  .modal__body__section__text {
+  margin: 0 0 5px;
 }
 
 @media (min-width: 1200px) {
@@ -3351,10 +3392,6 @@ body > .proposal-box.ui-draggable {
 .icon-img {
   width: 15px;
   vertical-align: text-top;
-}
-
-.card__body--lgtext .mui-btn + .mui-btn {
-  margin-left: 10px;
 }
 
 a.loginbutton.hidden,

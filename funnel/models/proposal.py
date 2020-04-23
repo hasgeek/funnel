@@ -10,6 +10,7 @@ from coaster.utils import LabeledEnum
 
 from ..utils import geonameid_from_location
 from . import (
+    BaseMixin,
     BaseScopedIdNameMixin,
     CoordinatesMixin,
     MarkdownColumn,
@@ -25,7 +26,7 @@ from .project import Project
 from .user import User
 from .video import VideoMixin
 
-__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect']
+__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect', 'ProposalSuuidRedirect']
 
 _marker = object()
 
@@ -132,7 +133,6 @@ class Proposal(
     outline = MarkdownColumn('outline', nullable=True)
     requirements = MarkdownColumn('requirements', nullable=True)
     slides = db.Column(UrlType, nullable=True)
-    preview_video = db.Column(UrlType, default='', nullable=True)
     links = db.Column(db.Text, default='', nullable=True)
 
     _state = db.Column(
@@ -174,7 +174,6 @@ class Proposal(
                 'outline_text',
                 'requirements_text',
                 'slides',
-                'preview_video',
                 'links',
                 'bio_text',
                 weights={
@@ -183,7 +182,6 @@ class Proposal(
                     'outline_text': 'B',
                     'requirements_text': 'B',
                     'slides': 'B',
-                    'preview_video': 'C',
                     'links': 'B',
                     'bio_text': 'B',
                 },
@@ -219,7 +217,7 @@ class Proposal(
                 'outline',
                 'requirements',
                 'slides',
-                'preview_video',
+                'video',
                 'links',
                 'location',
                 'latitude',
@@ -562,3 +560,15 @@ class ProposalRedirect(TimestampMixin, db.Model):
             }
         else:
             return {}
+
+
+class ProposalSuuidRedirect(BaseMixin, db.Model):
+    """Holds Proposal SUUIDs from before when they were deprecated"""
+
+    __tablename__ = 'proposal_suuid_redirect'
+
+    suuid = db.Column(db.Unicode(22), nullable=False, index=True)
+    proposal_id = db.Column(
+        None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+    )
+    proposal = db.relationship(Proposal)

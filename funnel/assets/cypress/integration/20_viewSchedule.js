@@ -14,6 +14,12 @@ describe('View schedule of p roject', function() {
       .contains(project.title)
       .click({ force: true });
     cy.get('[data-cy-navbar="schedule"]').click();
+
+    cy.get('a[data-cy="add-to-calendar"]').click();
+    cy.wait(1000);
+    cy.get('[data-cy="schedule-subscribe"]').should('exist');
+    cy.get('a[data-cy="close-modal"]').click();
+
     var tomorrow = Cypress.moment()
       .add(1, 'days')
       .format('dddd, D MMMM YYYY');
@@ -30,12 +36,15 @@ describe('View schedule of p roject', function() {
     cy.get('#session-modal').should('be.visible');
     tomorrow = Cypress.moment()
       .add(1, 'days')
-      .format('DD MMMM, YYYY');
+      .format('DD MMMM YYYY');
     cy.get('[data-cy-session="title"]').contains(session.title);
     cy.get('[data-cy-session="speaker"]').contains(session.speaker);
     cy.get('[data-cy-session="time"]').contains(session.time);
     cy.get('[data-cy-session="time"]').contains(tomorrow);
-    cy.get('[data-cy-session="room"]').should('have.text', session.venue_room);
+    cy.get('[data-cy-session="room"]').contains(session.venue_room);
+    cy.get('[data-cy="session-video"]')
+      .find('iframe')
+      .should('be.visible');
     cy.get('#session-modal')
       .find('a.modal__close')
       .click();
@@ -48,7 +57,11 @@ describe('View schedule of p roject', function() {
     cy.get('[data-cy-session="title"]').contains(proposal.title);
     cy.get('[data-cy-session="speaker"]').contains(user.username);
     cy.get('[data-cy-session="time"]').contains(tomorrow);
-    cy.get('[data-cy-session="room"]').should('have.text', proposal.venue_room);
+    cy.get('[data-cy-session="room"]').contains(proposal.venue_room);
     cy.get('[data-cy="view-proposal"]').should('have.exist');
+    cy.get('[data-cy="view-proposal"]')
+      .invoke('removeAttr', 'target')
+      .click();
+    cy.get('[data-cy="admin-panel"]').should('not.exist');
   });
 });

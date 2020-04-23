@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import project_header %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.title }} &ndash; {{ project.tagline }}{% endblock %}
@@ -66,12 +67,12 @@
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">
-            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
+            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
         <div id="tickets" {% if project.allow_rsvp and not project.boxoffice_data.item_collection_id -%}class="rsvp-wrapper"{%- endif %}>
           {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-            <h2 class="mui--text-display1 mui--text-left project-section__headline">Tickets</h2>
+            <h2 class="mui--text-display1 mui--text-bold mui--text-left project-section__headline">Tickets</h2>
             <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
           {% elif project.allow_rsvp -%}
             <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
@@ -102,7 +103,7 @@
       </div>
     {%- endif %}
     <div class="about__details" id="about">
-      <h2 class="mui--text-display1 mui--text-left about__details__headline">{% trans %}About{% endtrans %}</h2>
+      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}About{% endtrans %}</h2>
       <div class="about__details__description">{{ project.description }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
@@ -139,7 +140,7 @@
 
       {% if project.featured_sessions  %}
         <div id="talks" class="mui--clearfix">
-          <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Talks{% endtrans %}</h2>
+          <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Talks{% endtrans %}</h2>
           <div class="grid-no-left-padding grid-no-right-padding">
             <ul class="about__details__featured mui--clearfix">
               {% for session in project.featured_sessions %}
@@ -209,7 +210,7 @@
   {%- if project.primary_venue -%}
   <div class="grid project-section" id="venue">
     <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Venue{% endtrans %}</h2>
+      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}Venue{% endtrans %}</h2>
       <div class="mui--text-body1">
         <p class="zero-bottom-margin">{{ project.primary_venue.title }}</p>
         <p class="zero-bottom-margin">{{ project.primary_venue.address1 }}</p>
