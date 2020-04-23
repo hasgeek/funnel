@@ -1,11 +1,12 @@
 describe('Add labels to project', function() {
   const admin = require('../fixtures/user.json').admin;
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
   it('Add labels', function() {
     cy.login(
-      '/testcypressproject/' + project.url,
+      '/' + profile.title + '/' + project.url,
       admin.username,
       admin.password
     );

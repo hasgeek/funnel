@@ -1,10 +1,11 @@
 describe('Confirm propose button', function() {
+  const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
   it('Confirm Add proposal button', function() {
-    cy.visit('/testcypressproject');
+    cy.visit('/' + profile.title);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
