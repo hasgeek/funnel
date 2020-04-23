@@ -2,10 +2,9 @@
 
 from datetime import timedelta
 
-from lastuserapp import db
-import lastuser_core.models as models
-
 from coaster.utils import buid, utcnow
+from funnel import db
+import funnel.models as models
 
 from .test_db import TestDatabaseFixture
 
@@ -119,8 +118,9 @@ class TestAuthToken(TestDatabaseFixture):
         greyback_token = models.AuthToken(
             auth_client=auth_client, user=greyback, scope=['id']
         )
-        pottermania = models.Organization(name='pottermania', title='Pottermania')
-        pottermania.owners.users.append(hermione)
+        pottermania = models.Organization(
+            name='pottermania', title='Pottermania', owner=hermione
+        )
         db.session.add_all(
             [
                 myrtle,

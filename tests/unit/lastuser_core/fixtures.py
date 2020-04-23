@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from lastuser_core.models import (
+from funnel import db
+from funnel.models import (
     AuthClient,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
@@ -11,7 +12,6 @@ from lastuser_core.models import (
     UserEmail,
     UserPhone,
 )
-from lastuserapp import db
 
 
 class Fixtures(object):
@@ -40,13 +40,13 @@ class Fixtures(object):
         self.crusoe_email = crusoe_email
         self.crusoe_phone = crusoe_phone
 
-        batdog = Organization(name='batdog', title='Batdog')
-        batdog.owners.users.append(crusoe)
+        batdog = Organization(name='batdog', title='Batdog', owner=crusoe)
         db.session.add(batdog)
         self.batdog = batdog
 
-        specialdachs = Organization(name="specialdachs", title="Special Dachshunds")
-        specialdachs.owners.users.append(oakley)
+        specialdachs = Organization(
+            name="specialdachs", title="Special Dachshunds", owner=oakley
+        )
         db.session.add(specialdachs)
         self.specialdachs = specialdachs
 

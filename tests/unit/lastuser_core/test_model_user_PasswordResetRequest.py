@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import lastuser_core.models as models
+import funnel.models as models
 
 from .test_db import TestDatabaseFixture
 
