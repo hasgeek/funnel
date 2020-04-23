@@ -2,7 +2,7 @@
 
 import unittest
 
-from lastuser_core.utils import make_redirect_url, mask_email, strip_phone, valid_phone
+from funnel.utils import make_redirect_url, mask_email, strip_phone, valid_phone
 
 
 class FlaskrTestCase(unittest.TestCase):

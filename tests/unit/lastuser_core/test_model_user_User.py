@@ -4,10 +4,9 @@ from datetime import timedelta
 
 from sqlalchemy.orm.collections import InstrumentedList
 
-from lastuserapp import db
-import lastuser_core.models as models
-
 from coaster.utils import utcnow
+from funnel import db
+import funnel.models as models
 
 from .test_db import TestDatabaseFixture
 

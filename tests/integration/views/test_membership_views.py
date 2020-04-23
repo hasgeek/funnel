@@ -9,7 +9,7 @@ class TestMembershipViews(object):
         self, test_client, test_db, new_user, new_user_owner, new_project, new_project2
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             # new_user is new_project.profile's admin, so the page should load
             resp = c.get(new_project.url_for('membership'))
@@ -47,7 +47,7 @@ class TestMembershipViews(object):
 
     def test_create_new_member(self, test_client, new_user, new_project):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             # GET request should return a form
             resp = c.get(new_project.url_for('new_member'))
@@ -61,7 +61,7 @@ class TestMembershipViews(object):
         self, test_client, test_db, new_user, new_user_owner, new_project
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             # let's add a member to the project
             new_membership = ProjectCrewMembership(
@@ -85,7 +85,7 @@ class TestMembershipViews(object):
         self, test_client, test_db, new_user, new_user_owner, new_project
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             new_membership = ProjectCrewMembership(
                 parent=new_project, user=new_user_owner, is_editor=True

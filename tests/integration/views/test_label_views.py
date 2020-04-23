@@ -10,7 +10,7 @@ class TestLabelViews(object):
         self, test_client, test_db, new_project, new_user, new_label, new_main_label
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             resp = c.get(new_project.url_for('labels'))
             assert "Manage labels" in resp.data.decode('utf-8')
@@ -21,7 +21,7 @@ class TestLabelViews(object):
         self, test_client, test_db, new_project, new_user, new_label, new_main_label
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             assert new_label.seq == 1
             assert new_main_label.seq == 2
@@ -45,7 +45,7 @@ class TestLabelViews(object):
 
     def test_new_label_view(self, test_client, test_db, new_project, new_user):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             resp = c.post(
                 new_project.url_for('new_label'),
@@ -81,7 +81,7 @@ class TestLabelViews(object):
         self, test_client, test_db, new_project, new_user, new_main_label
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             opt_label = new_main_label.options[0]
             resp = c.post(opt_label.url_for('edit'), follow_redirects=True)
@@ -92,7 +92,7 @@ class TestLabelViews(object):
         self, test_client, test_db, new_project, new_user, new_main_label
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             assert new_main_label.title == "Parent Label A"
             assert new_main_label.name == "parent-label-a"
@@ -139,7 +139,7 @@ class TestLabelViews(object):
 class TestLabelArchiveView(object):
     def test_label_archive(self, test_client, test_db, new_user, new_label):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             resp = c.post(new_label.url_for('archive'), follow_redirects=True)
             label = Label.query.get(new_label.id)
@@ -157,7 +157,7 @@ class TestLabelDeleteView(object):
 
     def test_main_label_delete(self, test_client, test_db, new_user, new_label):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             resp = c.post(new_label.url_for('delete'), follow_redirects=True)
             assert "Manage labels" in resp.data.decode('utf-8')
@@ -167,7 +167,7 @@ class TestLabelDeleteView(object):
 
     def test_option_label_delete(self, test_client, test_db, new_user, new_main_label):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             label_a1 = new_main_label.options[0]
             label_a2 = new_main_label.options[1]
@@ -193,7 +193,7 @@ class TestOptionedLabelDeleteView(object):
         self, test_client, test_db, new_user, new_main_label
     ):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             label_a1 = new_main_label.options[0]
             label_a2 = new_main_label.options[1]
