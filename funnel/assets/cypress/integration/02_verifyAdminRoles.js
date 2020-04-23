@@ -3,7 +3,7 @@ describe('Profile admin roles', function() {
   const admin = require('../fixtures/user.json').admin;
 
   it('Check roles of profile admins', function() {
-    cy.login('/testcypressproject/new', admin.username, admin.password);
+    cy.login('/testcypressproject', admin.username, admin.password);
     cy.get('a[data-cy-btn="profile-crew"]').click();
     cy.get('button[data-cy-btn="add-member"]').should('not.exist');
     cy.get('[data-cy="member"]')
