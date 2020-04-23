@@ -7,6 +7,7 @@ from coaster.sqlalchemy import DynamicAssociationProxy, immutable
 from . import db
 from .membership import ImmutableMembershipMixin
 from .project import Project
+from .user import User
 
 __all__ = ['ProjectCrewMembership']
 
@@ -139,3 +140,19 @@ Project.crew = DynamicAssociationProxy('active_crew_memberships', 'user')
 Project.editors = DynamicAssociationProxy('active_editor_memberships', 'user')
 Project.concierges = DynamicAssociationProxy('active_concierge_memberships', 'user')
 Project.ushers = DynamicAssociationProxy('active_usher_memberships', 'user')
+
+# Similarly for users (add as needs come up)
+User.projects_editor_of_active_memberships = db.relationship(
+    ProjectCrewMembership,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        ProjectCrewMembership.user_id == User.id,
+        ProjectCrewMembership.is_active,
+        ProjectCrewMembership.is_editor.is_(True),
+    ),
+    viewonly=True,
+)
+
+User.projects_editor_of = DynamicAssociationProxy(
+    'projects_editor_of_active_memberships', 'project'
+)
