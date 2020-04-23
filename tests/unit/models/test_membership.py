@@ -17,28 +17,28 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
 
 
 class TestMembership(object):
-    def test_crew_membership(self, test_db, new_user, new_user2, new_project):
+    def test_crew_membership(self, test_db, new_user, new_user_owner, new_project):
         # new_user is profile admin
-        assert 'profile_admin' in new_project.profile.roles_for(new_user)
+        assert 'admin' in new_project.profile.roles_for(new_user_owner)
         # but it has no role in the project yet
-        assert 'editor' not in new_project.roles_for(new_user)
-        assert 'concierge' not in new_project.roles_for(new_user)
-        assert 'usher' not in new_project.roles_for(new_user)
+        assert 'editor' not in new_project.roles_for(new_user_owner)._contents()
+        assert 'concierge' not in new_project.roles_for(new_user_owner)
+        assert 'usher' not in new_project.roles_for(new_user_owner)
 
         previous_membership = (
             ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
-            .filter_by(project=new_project, user=new_user)
+            .filter_by(project=new_project, user=new_user_owner)
             .first()
         )
         assert previous_membership is None
 
         new_membership = ProjectCrewMembership(
-            parent=new_project, user=new_user, is_editor=True
+            parent=new_project, user=new_user_owner, is_editor=True
         )
         test_db.session.add(new_membership)
         test_db.session.commit()
 
-        assert 'editor' in new_project.roles_for(new_user)
+        assert 'editor' in new_project.roles_for(new_user_owner)
         assert new_membership.is_active
         assert new_membership in new_project.active_crew_memberships
         assert new_membership.record_type == MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
@@ -60,7 +60,7 @@ class TestMembership(object):
             .filter_by(project=new_project, user=new_user)
             .first()
         )
-        previous_membership2.revoke(actor=new_user2)
+        previous_membership2.revoke(actor=new_user_owner)
         test_db.session.commit()
 
         assert previous_membership2 not in new_project.active_crew_memberships
@@ -82,7 +82,7 @@ class TestMembership(object):
 
         # let's try replacing the roles in place
         new_membership3 = new_membership2.replace(
-            actor=new_user2, is_editor=True, is_concierge=False, is_usher=False
+            actor=new_user_owner, is_editor=True, is_concierge=False, is_usher=False
         )
         test_db.session.commit()
         assert 'editor' in new_project.roles_for(new_user)
@@ -91,7 +91,7 @@ class TestMembership(object):
         assert new_membership3.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
         # replace() can replace a single role as well, rest stays as they were
-        new_membership4 = new_membership3.replace(actor=new_user2, is_usher=True)
+        new_membership4 = new_membership3.replace(actor=new_user_owner, is_usher=True)
         test_db.session.commit()
         assert 'editor' in new_project.roles_for(new_user)
         assert 'concierge' not in new_project.roles_for(new_user)
@@ -102,17 +102,19 @@ class TestMembership(object):
 
         # can't replace with an unknown role
         with pytest.raises(AttributeError):
-            new_membership4.replace(actor=new_user2, is_foobar=True)
+            new_membership4.replace(actor=new_user_owner, is_foobar=True)
 
     def test_lazy_proxy(
-        self, test_client, test_db, new_user, new_user2, new_profile2, new_project2
+        self,
+        test_client,
+        test_db,
+        new_user,
+        new_user_owner,
+        new_organization,
+        new_project2,
     ):
-        assert len(new_profile2.admins) > 0
-        assert new_user2 in new_profile2.admins
-        assert 'admin' in new_profile2.roles_for(new_user2)
-        assert 'admin' not in new_profile2.roles_for(new_user)
+        assert 'admin' in new_organization.profile.roles_for(new_user_owner)
+        assert 'admin' not in new_organization.profile.roles_for(new_user)
 
-        assert len(new_project2.profile_admins) > 0
-        assert new_user2 in new_project2.profile_admins
-        assert 'profile_admin' in new_project2.roles_for(new_user2)
+        assert 'profile_admin' in new_project2.roles_for(new_user_owner)
         assert 'profile_admin' not in new_project2.roles_for(new_user)

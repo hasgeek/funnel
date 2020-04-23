@@ -5,8 +5,6 @@ from baseframe.forms.sqlalchemy import QuerySelectField
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import OrganizationMembership, Profile, Project, ProjectCrewMembership
-
 __all__ = [
     'ProposalForm',
     'ProposalLabelsAdminForm',
@@ -243,17 +241,4 @@ class ProposalMoveForm(forms.Form):
     )
 
     def set_queries(self):
-        self.target.query = (
-            Project.query.join(ProjectCrewMembership)
-            .join(Profile)
-            .join(OrganizationMembership)
-            .filter(Project.state.DELETABLE)  # all projects except deleted ones
-            .filter(
-                ProjectCrewMembership.user == current_auth.user,
-                ProjectCrewMembership.is_active == True,  # NOQA
-                ProjectCrewMembership.is_editor == True,  # NOQA
-                OrganizationMembership.user == current_auth.user,
-                OrganizationMembership.is_active == True,  # NOQA
-            )
-            .order_by(Project.created_at.desc())
-        )
+        self.target.query = current_auth.user.projects_editor_of

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from coaster.utils import md5sum
 import lastuser_core.models as models
+
+from coaster.utils import md5sum
 
 from .test_db import TestDatabaseFixture
 
