@@ -1,11 +1,12 @@
 describe('Add a new proposal', function() {
   const user = require('../fixtures/user.json').user;
+  const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
   it('Add proposal', function() {
-    cy.login('/testcypressproject', user.username, user.password);
+    cy.login('/' + profile.title, user.username, user.password);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);

@@ -1,9 +1,10 @@
 describe('Publish project', function() {
   const admin = require('../fixtures/user.json').admin;
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
   it('Publish project', function() {
-    cy.login('/testcypressproject', admin.username, admin.password);
+    cy.login('/' + profile.title, admin.username, admin.password);
 
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()

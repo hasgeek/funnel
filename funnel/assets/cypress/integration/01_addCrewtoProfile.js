@@ -1,6 +1,7 @@
 describe('Adding crew to profile', function() {
   const owner = require('../fixtures/user.json').owner;
   const admin = require('../fixtures/user.json').admin;
+  const profile = require('../fixtures/profile.json');
 
   Cypress.on('uncaught:exception', (err, runnable) => {
     return false;
@@ -12,7 +13,7 @@ describe('Adding crew to profile', function() {
     cy.route('POST', '**/edit').as('edit-member');
     cy.route('POST', '**/delete').as('delete-member');
 
-    cy.login('/testcypressproject', owner.username, owner.password);
+    cy.login('/' + profile.title, owner.username, owner.password);
     cy.get('a[data-cy-btn="profile-crew"]').click();
 
     cy.add_member(admin.username, 'owner');
@@ -35,7 +36,7 @@ describe('Adding crew to profile', function() {
       .contains(admin.username)
       .click();
     cy.wait('@edit-form');
-    cy.get('#is_owner').click();
+    cy.get('#is_owner-0').click();
     cy.get('button')
       .contains('Edit membership')
       .click();

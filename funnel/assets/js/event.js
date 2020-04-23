@@ -88,8 +88,8 @@ const Queue = function(queueName) {
 
 const ParticipantTable = {
   init({
-    isEditor,
     isConcierge,
+    isUsher,
     badgeUrl,
     labelbadgeUrl,
     editUrl,
@@ -116,8 +116,8 @@ const ParticipantTable = {
         checkinUrl,
         checkinQ: new Queue(`${eventName}-checkin-queue`),
         cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
-        isEditor,
         isConcierge,
+        isUsher,
         svgIconUrl: window.HasGeek.config.svgIconUrl,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');

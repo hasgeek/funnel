@@ -1,11 +1,12 @@
 describe('Confirm proposal', function() {
   const admin = require('../fixtures/user.json').admin;
+  const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
   it('Confirm proposal', function() {
-    cy.login('/testcypressproject', admin.username, admin.password);
+    cy.login('/' + profile.title, admin.username, admin.password);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);

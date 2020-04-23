@@ -1,9 +1,11 @@
 describe('Verify roles of editor', function() {
   const admin = require('../fixtures/user.json').admin;
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
   it('Access available for editor in project settings', function() {
-    cy.login('/testcypressproject', admin.username, admin.password);
+    cy.login('/' + profile.title, admin.username, admin.password);
+
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
       .click();
@@ -13,10 +15,10 @@ describe('Verify roles of editor', function() {
     cy.get('a[data-cy="edit"]').should('exist');
     cy.get('a[data-cy="add-livestream"]').should('exist');
     cy.get('a[data-cy="manage-venues"]').should('exist');
-    cy.get('a[data-cy="add-cfp"]').should('exist');
+    // cy.get('a[data-cy="add-cfp"]').should('exist');
     cy.get('a[data-cy="edit-schedule"]').should('exist');
     cy.get('a[data-cy="manage-labels"]').should('exist');
-    cy.get('a[data-cy="setup-events"]').should('not.exist');
+    cy.get('a[data-cy="setup-events"]').should('exist');
     cy.get('a[data-cy="scan-checkin"]').should('not.exist');
     cy.get('a[data-cy="download-csv"]').should('exist');
     cy.get('a[data-cy="download-json"]').should('exist');
