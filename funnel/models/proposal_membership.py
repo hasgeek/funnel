@@ -34,10 +34,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
         db.relationship(
             Proposal,
             backref=db.backref(
-                'memberships',
-                lazy='dynamic',
-                cascade='all, delete-orphan',
-                passive_deletes=True,
+                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
             ),
         )
     )

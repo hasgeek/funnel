@@ -239,7 +239,7 @@ class AuthClientCredential(BaseMixin, db.Model):
         primaryjoin=auth_client_id == AuthClient.id,
         backref=db.backref(
             'credentials',
-            cascade='all, delete-orphan',
+            cascade='all',
             collection_class=attribute_mapped_collection('name'),
         ),
     )
@@ -288,7 +288,7 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):
     auth_client = db.relationship(
         AuthClient,
         primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref('authcodes', cascade='all, delete-orphan'),
+        backref=db.backref('authcodes', cascade='all'),
     )
     user_session_id = db.Column(None, db.ForeignKey('user_session.id'), nullable=True)
     user_session = db.relationship(UserSession)
@@ -319,7 +319,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     _user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('authtokens', lazy='dynamic', cascade='all, delete-orphan'),
+        backref=db.backref('authtokens', lazy='dynamic', cascade='all'),
     )
     #: The session in which this token was issued, null for confidential clients
     user_session_id = db.Column(None, db.ForeignKey('user_session.id'), nullable=True)
@@ -333,7 +333,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     auth_client = db.relationship(
         AuthClient,
         primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref('authtokens', lazy='dynamic', cascade='all, delete-orphan'),
+        backref=db.backref('authtokens', lazy='dynamic', cascade='all'),
     )
     #: The token
     token = db.Column(db.String(22), default=buid, nullable=False, unique=True)
@@ -501,7 +501,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('client_permissions', cascade='all, delete-orphan'),
+        backref=db.backref('client_permissions', cascade='all'),
     )
     #: AuthClient app they are assigned on
     auth_client_id = db.Column(
@@ -510,7 +510,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     auth_client = db.relationship(
         AuthClient,
         primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref('user_permissions', cascade='all, delete-orphan'),
+        backref=db.backref('user_permissions', cascade='all'),
     )
     #: The permissions as a string of tokens
     access_permissions = db.Column(
@@ -565,7 +565,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     team = db.relationship(
         Team,
         primaryjoin=team_id == Team.id,
-        backref=db.backref('client_permissions', cascade='all, delete-orphan'),
+        backref=db.backref('client_permissions', cascade='all'),
     )
     #: AuthClient app they are assigned on
     auth_client_id = db.Column(
@@ -574,7 +574,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     auth_client = db.relationship(
         AuthClient,
         primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref('team_permissions', cascade='all, delete-orphan'),
+        backref=db.backref('team_permissions', cascade='all'),
     )
     #: The permissions as a string of tokens
     access_permissions = db.Column(

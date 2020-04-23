@@ -54,10 +54,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
-        User,
-        backref=db.backref(
-            'all_user_sessions', cascade='all, delete-orphan', lazy='dynamic'
-        ),
+        User, backref=db.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 
     ipaddr = db.Column(db.String(45), nullable=False)

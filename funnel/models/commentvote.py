@@ -73,13 +73,13 @@ class Vote(BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('votes', lazy='dynamic', cascade="all, delete-orphan"),
+        backref=db.backref('votes', lazy='dynamic', cascade='all'),
     )
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(
         Voteset,
         primaryjoin=voteset_id == Voteset.id,
-        backref=db.backref('votes', cascade="all, delete-orphan"),
+        backref=db.backref('votes', cascade='all'),
     )
     votedown = db.Column(db.Boolean, default=False, nullable=False)
 
@@ -119,18 +119,18 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('comments', lazy='dynamic', cascade="all, delete-orphan"),
+        backref=db.backref('comments', lazy='dynamic', cascade='all'),
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(
         Commentset,
         primaryjoin=commentset_id == Commentset.id,
-        backref=db.backref('comments', cascade="all, delete-orphan"),
+        backref=db.backref('comments', cascade='all'),
     )
 
     parent_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
     children = db.relationship(
-        "Comment", backref=db.backref("parent", remote_side="Comment.id")
+        'Comment', backref=db.backref('parent', remote_side='Comment.id')
     )
 
     message = MarkdownColumn('message', nullable=False)

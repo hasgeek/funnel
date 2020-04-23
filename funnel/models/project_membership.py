@@ -35,10 +35,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         db.relationship(
             Project,
             backref=db.backref(
-                'crew_memberships',
-                lazy='dynamic',
-                cascade='all, delete-orphan',
-                passive_deletes=True,
+                'crew_memberships', lazy='dynamic', cascade='all', passive_deletes=True
             ),
         )
     )

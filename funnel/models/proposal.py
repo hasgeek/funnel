@@ -109,7 +109,7 @@ class Proposal(
         db.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('proposals', cascade="all, delete-orphan"),
+            backref=db.backref('proposals', cascade='all'),
         ),
         grants={'creator'},
     )
@@ -119,7 +119,7 @@ class Proposal(
         User,
         primaryjoin=speaker_id == User.id,
         lazy='joined',
-        backref=db.backref('speaker_at', cascade="all"),
+        backref=db.backref('speaker_at', cascade='all'),
     )
 
     email = db.Column(db.Unicode(80), nullable=True)
@@ -129,7 +129,7 @@ class Proposal(
     project = db.relationship(
         Project,
         primaryjoin=project_id == Project.id,
-        backref=db.backref('proposals', cascade="all, delete-orphan", lazy='dynamic'),
+        backref=db.backref('proposals', cascade='all', lazy='dynamic'),
     )
     parent = db.synonym('project')
 
@@ -150,11 +150,7 @@ class Proposal(
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(
-        Voteset,
-        uselist=False,
-        lazy='joined',
-        cascade='all, delete-orphan',
-        single_parent=True,
+        Voteset, uselist=False, lazy='joined', cascade='all', single_parent=True
     )
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
@@ -162,7 +158,7 @@ class Proposal(
         Commentset,
         uselist=False,
         lazy='joined',
-        cascade='all, delete-orphan',
+        cascade='all',
         single_parent=True,
         backref=db.backref('proposal', uselist=False),
     )
@@ -530,7 +526,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
     project = db.relationship(
         Project,
         primaryjoin=project_id == Project.id,
-        backref=db.backref('proposal_redirects', cascade="all, delete-orphan"),
+        backref=db.backref('proposal_redirects', cascade='all'),
     )
     parent = db.synonym('project')
     url_id = db.Column(db.Integer, nullable=False, primary_key=True)

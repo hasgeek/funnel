@@ -72,12 +72,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('projects', cascade='all, delete-orphan'),
+        backref=db.backref('projects', cascade='all'),
     )
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
     profile = db.relationship(
-        'Profile',
-        backref=db.backref('projects', cascade='all, delete-orphan', lazy='dynamic'),
+        'Profile', backref=db.backref('projects', cascade='all', lazy='dynamic')
     )
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
@@ -184,13 +183,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     venues = db.relationship(
         'Venue',
-        cascade='all, delete-orphan',
+        cascade='all',
         order_by='Venue.seq',
         collection_class=ordering_list('seq', count_from=1),
     )
     labels = db.relationship(
         'Label',
-        cascade='all, delete-orphan',
+        cascade='all',
         primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None, Label._archived == False)',
         order_by='Label.seq',
         collection_class=ordering_list('seq', count_from=1),
@@ -914,7 +913,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         None, db.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
     profile = db.relationship(
-        'Profile', backref=db.backref('project_redirects', cascade='all, delete-orphan')
+        'Profile', backref=db.backref('project_redirects', cascade='all')
     )
     parent = db.synonym('profile')
     name = db.Column(db.Unicode(250), nullable=False, primary_key=True)
@@ -959,9 +958,7 @@ class ProjectLocation(TimestampMixin, db.Model):
     project_id = db.Column(
         None, db.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project = db.relationship(
-        Project, backref=db.backref('locations', cascade='all, delete-orphan')
-    )
+    project = db.relationship(Project, backref=db.backref('locations', cascade='all'))
     #: Geonameid for this project
     geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     primary = db.Column(db.Boolean, default=True, nullable=False)
