@@ -69,7 +69,7 @@
                   </p>
                   <transition name="slide-fade">
                     <div v-if="role.showMembers">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member, edit=true)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>
@@ -77,7 +77,7 @@
                 </div>
               </div>
               <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member, edit=true)" title="Edit" aria-label="Edit" role="button">
+                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" title="Edit" aria-label="Edit" role="button">
                   <member :member="member"></member>
                 </div>
               </div>
