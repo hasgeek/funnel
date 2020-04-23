@@ -554,7 +554,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('oldids', cascade='all, delete-orphan'),
+        backref=db.backref('oldids', cascade='all'),
     )
 
     def __repr__(self):
@@ -750,7 +750,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
     organization = db.relationship(
         Organization,
         primaryjoin=organization_id == Organization.id,
-        backref=db.backref('teams', order_by=title, cascade='all, delete-orphan'),
+        backref=db.backref('teams', order_by=title, cascade='all'),
     )
     users = db.relationship(
         User, secondary=team_membership, lazy='dynamic', backref='teams'
@@ -774,13 +774,13 @@ class Team(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, olduser, newuser):
-        for team in olduser.teams:
+        for team in list(olduser.teams):
             if team not in newuser.teams:
                 # FIXME: This creates new memberships, updating `created_at`.
                 # Unfortunately, we can't work with model instances as in the other
                 # `migrate_user` methods as team_membership is an unmapped table.
                 newuser.teams.append(team)
-        olduser.teams = []
+            db.session.delete(team)
         return [cls.__table__.name, team_membership.name]
 
     @classmethod
@@ -806,7 +806,7 @@ class UserEmail(BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('emails', cascade='all, delete-orphan'),
+        backref=db.backref('emails', cascade='all'),
     )
     _email = db.Column('email', db.Unicode(254), unique=True, nullable=False)
     md5sum = db.Column(db.String(32), unique=True, nullable=False)
@@ -907,7 +907,7 @@ class UserEmailClaim(BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('emailclaims', cascade='all, delete-orphan'),
+        backref=db.backref('emailclaims', cascade='all'),
     )
     _email = db.Column('email', db.Unicode(254), nullable=True, index=True)
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
@@ -998,7 +998,7 @@ class UserPhone(BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('phones', cascade='all, delete-orphan'),
+        backref=db.backref('phones', cascade='all'),
     )
     _phone = db.Column('phone', db.UnicodeText, unique=True, nullable=False)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
@@ -1080,7 +1080,7 @@ class UserPhoneClaim(BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('phoneclaims', cascade='all, delete-orphan'),
+        backref=db.backref('phoneclaims', cascade='all'),
     )
     _phone = db.Column('phone', db.UnicodeText, nullable=False, index=True)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
@@ -1194,7 +1194,7 @@ class UserExternalId(BaseMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('externalids', cascade='all, delete-orphan'),
+        backref=db.backref('externalids', cascade='all'),
     )
     service = db.Column(db.UnicodeText, nullable=False)
     userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)

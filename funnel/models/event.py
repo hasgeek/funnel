@@ -86,9 +86,7 @@ class Event(ScopedNameTitleMixin, db.Model):
     __tablename__ = 'event'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(
-        Project, backref=db.backref('events', cascade='all, delete-orphan')
-    )
+    project = db.relationship(Project, backref=db.backref('events', cascade='all'))
     parent = db.synonym('project')
     ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
     participants = db.relationship(
@@ -122,7 +120,7 @@ class TicketType(ScopedNameTitleMixin, db.Model):
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = db.relationship(
-        Project, backref=db.backref('ticket_types', cascade='all, delete-orphan')
+        Project, backref=db.backref('ticket_types', cascade='all')
     )
     parent = db.synonym('project')
     events = db.relationship('Event', secondary=event_ticket_type)
@@ -193,14 +191,10 @@ class Participant(UuidMixin, BaseMixin, db.Model):
     )
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(
-        User, backref=db.backref('participants', cascade='all, delete-orphan')
-    )
+    user = db.relationship(User, backref=db.backref('participants', cascade='all'))
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(
-            Project, backref=db.backref('participants', cascade='all, delete-orphan')
-        ),
+        db.relationship(Project, backref=db.backref('participants', cascade='all')),
         read={'concierge', 'subject', 'scanner'},
     )
 
@@ -302,12 +296,10 @@ class Attendee(BaseMixin, db.Model):
 
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(
-        Participant, backref=db.backref('attendees', cascade='all, delete-orphan')
+        Participant, backref=db.backref('attendees', cascade='all')
     )
     event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False)
-    event = db.relationship(
-        Event, backref=db.backref('attendees', cascade='all, delete-orphan')
-    )
+    event = db.relationship(Event, backref=db.backref('attendees', cascade='all'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (db.UniqueConstraint('event_id', 'participant_id'),)
@@ -332,7 +324,7 @@ class TicketClient(BaseMixin, db.Model):
     client_access_token = db.Column(db.Unicode(80), nullable=False)
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = db.relationship(
-        Project, backref=db.backref('ticket_clients', cascade='all, delete-orphan')
+        Project, backref=db.backref('ticket_clients', cascade='all')
     )
 
     project_editors = with_roles(
@@ -404,19 +396,19 @@ class SyncTicket(BaseMixin, db.Model):
     order_no = db.Column(db.Unicode(80), nullable=False)
     ticket_type_id = db.Column(None, db.ForeignKey('ticket_type.id'), nullable=False)
     ticket_type = db.relationship(
-        TicketType, backref=db.backref('sync_tickets', cascade='all, delete-orphan')
+        TicketType, backref=db.backref('sync_tickets', cascade='all')
     )
     participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
     participant = db.relationship(
         Participant,
         primaryjoin=participant_id == Participant.id,
-        backref=db.backref('sync_tickets', cascade="all, delete-orphan"),
+        backref=db.backref('sync_tickets', cascade='all'),
     )
     ticket_client_id = db.Column(
         None, db.ForeignKey('ticket_client.id'), nullable=False
     )
     ticket_client = db.relationship(
-        TicketClient, backref=db.backref('sync_tickets', cascade='all, delete-orphan')
+        TicketClient, backref=db.backref('sync_tickets', cascade='all')
     )
     __table_args__ = (db.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
 

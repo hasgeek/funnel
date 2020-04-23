@@ -27,7 +27,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
 
     rooms = db.relationship(
         'VenueRoom',
-        cascade='all, delete-orphan',
+        cascade='all',
         order_by='VenueRoom.seq',
         collection_class=ordering_list('seq', count_from=1),
     )
