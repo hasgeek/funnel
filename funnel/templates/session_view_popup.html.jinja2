@@ -40,7 +40,7 @@
           <div class="video_txt">
             <p>{{ faicon(icon='video-slash', icon_size='display1') }}</p>
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
-            {% if not session.video and session.project.current_roles.admin %}
+            {% if not session.video and session.project.current_roles.editor %}
               <div>
                 <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">Edit session</a>
               </div>

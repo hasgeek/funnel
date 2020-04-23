@@ -1,5 +1,5 @@
 describe('Add labels to project', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const editor = require('../fixtures/user.json').editor;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
@@ -7,8 +7,8 @@ describe('Add labels to project', function() {
   it('Add labels', function() {
     cy.login(
       '/' + profile.title + '/' + project.url,
-      admin.username,
-      admin.password
+      editor.username,
+      editor.password
     );
 
     cy.get('a[data-cy-navbar="settings"]').click();

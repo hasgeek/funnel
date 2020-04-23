@@ -17,7 +17,9 @@ def init_models():
         concierge._set_password('cypress341')
         usher = User(username='usher-cypress', fullname='usher-cypress')
         usher._set_password('cypress566')
-        db.session.add_all([user_admin, user, profile_owner, concierge, usher])
+        editor = User(username='editor-cypress', fullname='editor-cypress')
+        editor._set_password('cypress900')
+        db.session.add_all([user_admin, user, profile_owner, concierge, usher, editor])
         db.session.commit()
 
 
