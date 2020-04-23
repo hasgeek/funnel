@@ -1,11 +1,11 @@
 describe('Setup event for checkin', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const concierge = require('../fixtures/user.json').concierge;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
   it('Setup event for checkin', function() {
-    cy.login('/', admin.username, admin.password);
+    cy.login('/', concierge.username, concierge.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()

@@ -1,10 +1,10 @@
 describe('Add livestream', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const editor = require('../fixtures/user.json').editor;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
   it('Adding livestream youtube url to project', function() {
-    cy.login('/' + profile.title, admin.username, admin.password);
+    cy.login('/' + profile.title, editor.username, editor.password);
 
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()

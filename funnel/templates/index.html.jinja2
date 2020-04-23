@@ -251,7 +251,7 @@
     </div>
   {% endif %}
 
-  {%- if profile and profile.current_roles.admin %}
+  {%- if profile and (profile.current_roles.admin or profile.current_roles.editor or profile.current_roles.concierge) %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
@@ -260,49 +260,51 @@
           </div>
         </div>
         <ul class="grid projects" role="list">
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="Create new project" data-cy="new-project" data-action="Add new project">
-              <div class="card__image-wrapper">
-                <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
-                <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
-              </div>
-              <div class="card__body">
-                <h4 class="mui--text-headline mui--text-bold">{% trans %}Start a project{% endtrans %}</h4>
-                <p class="mui--text-subhead mui--text-light zero-top-margin"">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
-              </div>
-              <div class="mui-divider"></div>
-              <div class="card__footer">
-                <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}Start project{% endtrans %}</p>
-              </div>
-            </a>
-          </li>
-        {% if draft_projects %}
-          {% for project in draft_projects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-              <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}" data-action="View {{ project.title }}(drafts)">
+          {%- if profile.current_roles.admin %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="Create new project" data-cy="new-project" data-action="Add new project">
                 <div class="card__image-wrapper">
-                  {% if project.bg_image.url %}
-                    <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-                    <noscript>
-                      <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
-                    </noscript>
-                  {% else %}
-                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
-                    <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
-                  {% endif %}
+                  <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
+                  <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
                 </div>
                 <div class="card__body">
-                  {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
-                    <div aria-label="{{ project.datelocation }}">
-                      {{ calendarwidget(project.calendar_weeks_compact) }}
-                    </div>
-                  {% endif %}
-                  <h3 class="card__body__title {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %} js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light">{{ project.tagline }}</span></h3>
-                  <p class="card__body__location">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
+                  <h4 class="mui--text-headline mui--text-bold">{% trans %}Start a project{% endtrans %}</h4>
+                  <p class="mui--text-subhead mui--text-light zero-top-margin"">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
+                </div>
+                <div class="mui-divider"></div>
+                <div class="card__footer">
+                  <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}Start project{% endtrans %}</p>
                 </div>
               </a>
             </li>
-          {%- endfor -%}
+          {% endif %}
+          {% if draft_projects %}
+            {% for project in draft_projects %}
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
+                <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-project="{{ project.title }}" data-action="View {{ project.title }}(drafts)">
+                  <div class="card__image-wrapper">
+                    {% if project.bg_image.url %}
+                      <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      <noscript>
+                        <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+                      </noscript>
+                    {% else %}
+                      <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+                      <p class="card__image__tagline mui--text-body1">{{ project.title }}</p>
+                    {% endif %}
+                  </div>
+                  <div class="card__body">
+                    {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
+                      <div aria-label="{{ project.datelocation }}">
+                        {{ calendarwidget(project.calendar_weeks_compact) }}
+                      </div>
+                    {% endif %}
+                    <h3 class="card__body__title {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %} js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light">{{ project.tagline }}</span></h3>
+                    <p class="card__body__location">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
+                  </div>
+                </a>
+              </li>
+            {%- endfor -%}
           </ul>
           {% if draft_projects|length > 3 %}
             <div class="mui--text-center">

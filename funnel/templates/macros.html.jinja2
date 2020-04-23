@@ -222,7 +222,7 @@
 
   {%- if proposal and 'edit_proposal' in proposal.permissions(current_auth.user) %}
     <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-video" aria-label="{% trans %}Edit proposal video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
-  {% elif session and session.project.current_roles.admin %}
+  {% elif session and session.project.current_roles.editor %}
     <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
   {%- endif %}
 
