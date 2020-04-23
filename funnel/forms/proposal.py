@@ -241,4 +241,4 @@ class ProposalMoveForm(forms.Form):
     )
 
     def set_queries(self):
-        self.target.query = current_auth.user.projects_editor_of
+        self.target.query = current_auth.user.projects_as_editor
