@@ -6,7 +6,7 @@ from funnel.models import ProjectCrewMembership
 
 class TestMembershipViews(object):
     def test_get_existing_members(
-        self, test_client, test_db, new_user, new_user2, new_project, new_project2
+        self, test_client, test_db, new_user, new_user_owner, new_project, new_project2
     ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
@@ -38,7 +38,7 @@ class TestMembershipViews(object):
             assert new_membership.url_for('delete') in resp3.data.decode('utf-8')
 
             # let's revoke the membership
-            new_membership.revoke(actor=new_user2)
+            new_membership.revoke(actor=new_user_owner)
             test_db.session.commit()
             # now the member should not show up in the page
             resp3 = c.get(new_project.url_for('membership'))
@@ -57,13 +57,15 @@ class TestMembershipViews(object):
 
             # FIXME: Can't test new member creation because SelectUserField validation fails
 
-    def test_edit_member(self, test_client, test_db, new_user, new_user2, new_project):
+    def test_edit_member(
+        self, test_client, test_db, new_user, new_user_owner, new_project
+    ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
             # let's add a member to the project
             new_membership = ProjectCrewMembership(
-                parent=new_project, user=new_user2, is_editor=True
+                parent=new_project, user=new_user_owner, is_editor=True
             )
             test_db.session.add(new_membership)
             test_db.session.commit()
@@ -80,13 +82,13 @@ class TestMembershipViews(object):
             # FIXME: Can't test member edit because SelectUserField validation fails
 
     def test_delete_new_member(
-        self, test_client, test_db, new_user, new_user2, new_project
+        self, test_client, test_db, new_user, new_user_owner, new_project
     ):
         with test_client.session_transaction() as session:
             session['lastuser_userid'] = new_user.userid
         with test_client as c:
             new_membership = ProjectCrewMembership(
-                parent=new_project, user=new_user2, is_editor=True
+                parent=new_project, user=new_user_owner, is_editor=True
             )
             test_db.session.add(new_membership)
             test_db.session.commit()
