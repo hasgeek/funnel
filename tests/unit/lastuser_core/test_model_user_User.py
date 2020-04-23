@@ -4,9 +4,10 @@ from datetime import timedelta
 
 from sqlalchemy.orm.collections import InstrumentedList
 
-from coaster.utils import utcnow
 from lastuserapp import db
 import lastuser_core.models as models
+
+from coaster.utils import utcnow
 
 from .test_db import TestDatabaseFixture
 
