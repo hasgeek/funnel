@@ -46,13 +46,16 @@ const Membership = {
           search: '',
           showInfo: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
+          isMobile: false,
+          editMembership: false,
         };
       },
       methods: {
-        fetchForm(event, url, member = '') {
+        fetchForm(event, url, member = '', edit = false) {
           event.preventDefault();
           if (this.isUserProfileAdmin) {
             this.activeMember = member;
+            this.editMembership = edit;
             const app = this;
             $.ajax({
               type: 'GET',
@@ -87,6 +90,12 @@ const Membership = {
             onError,
             {}
           );
+          // For edit form, disable user select field
+          if (this.editMembership) {
+            $('#member-form #user').select2({
+              disabled: true,
+            });
+          }
         },
         updateMembersList(membersList) {
           this.members = membersList.length > 0 ? membersList : '';
@@ -99,6 +108,7 @@ const Membership = {
           if (event) event.preventDefault();
           $.modal.close();
           this.errorMsg = '';
+          this.editMembership = false;
         },
         onChange() {
           if (this.search) {
@@ -118,6 +128,10 @@ const Membership = {
         showRoleDetails(event) {
           event.preventDefault();
           this.showInfo = !this.showInfo;
+        },
+        onWindowResize() {
+          this.isMobile =
+            $(window).width() < window.HasGeek.config.mobileBreakpoint;
         },
       },
       computed: {
@@ -141,6 +155,9 @@ const Membership = {
         $('#member-form').on($.modal.CLOSE, () => {
           this.closeForm();
         });
+      },
+      created() {
+        window.addEventListener('resize', this.onWindowResize);
       },
     });
   },
