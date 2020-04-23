@@ -76,6 +76,7 @@ const Membership = {
             this.closeForm();
             if (responseData.memberships) {
               app.updateMembersList(responseData.memberships);
+              this.onChange();
             }
           };
           const onError = response => {
@@ -107,7 +108,7 @@ const Membership = {
         },
         onChange() {
           if (this.search) {
-            members.filter(member => {
+            this.members.filter(member => {
               member.hide =
                 member.user.fullname
                   .toLowerCase()

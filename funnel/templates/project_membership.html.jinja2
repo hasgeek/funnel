@@ -45,6 +45,12 @@
                 <div class="membership-wrapper__info" v-if="showInfo || !isMobile">
                   <p><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#user-circle'"></use></svg> <span class="mui--text-headline mui--text-bold mui--text-center">Member roles</span></p>
 
+                  <p class="mui--text-title mui--text-uppercase">Profile Owner/Admin</p>
+                  <ul class="mui-list--unstyled">
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can create new projects</span></li>
+                    <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can add members to a project and revoke members</span></li>
+                  <hr>
+
                   <p class="mui--text-title mui--text-uppercase">Editor</p>
                   <ul class="mui-list--unstyled">
                     <li><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#check'"></use></svg> <span class="mui--text-subhead">Can edit project details</span></li>
