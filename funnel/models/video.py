@@ -186,12 +186,12 @@ class VideoMixin:
                 elif self.video_source == 'vimeo':
                     vimeo_video = requests.get(
                         f'https://vimeo.com/api/v2/video/{self.video_id}.json'
-                    ).json()
-                    if not vimeo_video:
+                    )
+                    if vimeo_video.status_code == 404:
                         # Video doesn't exist on Vimeo anymore
                         self._source_video_exists = False
                     else:
-                        vimeo_video = vimeo_video[0]
+                        vimeo_video = vimeo_video.json()[0]
 
                         data['duration'] = vimeo_video['duration']
                         # Vimeo returns naive datetime, we will add UTC timezone to it
