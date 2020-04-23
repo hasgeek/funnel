@@ -17,7 +17,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5-icon--title fa5--align-baseline mobile-nav__prev" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#long-arrow-left"></use></svg>{% endassets %}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Crew{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Crew{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -102,7 +102,7 @@
                   </p>
                   <transition name="slide-fade">
                     <div v-if="role.showMembers">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member, edit=true)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>
@@ -110,7 +110,7 @@
                 </div>
               </div>
               <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member, edit=true)" title="Edit" aria-label="Edit" role="button">
+                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" title="Edit" aria-label="Edit" role="button">
                    <member :member="member"></member>
                 </div>
               </div>
