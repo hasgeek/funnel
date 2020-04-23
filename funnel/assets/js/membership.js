@@ -47,15 +47,13 @@ const Membership = {
           showInfo: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
           isMobile: false,
-          editMembership: false,
         };
       },
       methods: {
-        fetchForm(event, url, member = '', edit = false) {
+        fetchForm(event, url, member = '') {
           event.preventDefault();
           if (this.isUserProfileAdmin) {
             this.activeMember = member;
-            this.editMembership = edit;
             const app = this;
             $.ajax({
               type: 'GET',
@@ -91,10 +89,8 @@ const Membership = {
             {}
           );
           // For edit form, disable user select field
-          if (this.editMembership) {
-            $('#member-form #user').select2({
-              disabled: true,
-            });
+          if (this.activeMember) {
+            $('#member-form #user').select2('destroy');
           }
         },
         updateMembersList(membersList) {
@@ -108,7 +104,6 @@ const Membership = {
           if (event) event.preventDefault();
           $.modal.close();
           this.errorMsg = '';
-          this.editMembership = false;
         },
         onChange() {
           if (this.search) {

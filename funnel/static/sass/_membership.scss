@@ -100,3 +100,13 @@
   transform: translateY(10px);
   opacity: 0;
 }
+
+.modal-form--edit {
+  .mui-select #user.select2 {
+    background-color: #eee;
+    cursor: not-allowed;
+  }
+  .mui-select #user.select2:focus {
+    outline: none;
+  }
+}
