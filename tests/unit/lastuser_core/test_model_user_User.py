@@ -260,8 +260,7 @@ class TestUser(TestDatabaseFixture):
         aro = models.User(username='aro')
         jane = models.User(username='jane')
         marcus = models.User(username='marcus')
-        volturi = models.Organization(name='volturi', title='The Volturi')
-        volturi.owners.users.append(aro)
+        volturi = models.Organization(name='volturi', title='The Volturi', owner=aro)
         volterra = models.AuthClient(
             title='Volterra, Tuscany',
             organization=volturi,

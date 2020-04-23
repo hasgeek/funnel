@@ -13,7 +13,9 @@ class TestOrganization(TestDatabaseFixture):
         """
         name = 'dachshunited'
         title = 'Dachshunds United'
-        dachsunited = models.Organization(name=name, title=title)
+        dachsunited = models.Organization(
+            name=name, title=title, owner=self.fixtures.crusoe
+        )
         self.assertIsInstance(dachsunited, models.Organization)
         self.assertEqual(dachsunited.title, title)
         self.assertEqual(dachsunited.name, name)
@@ -25,12 +27,14 @@ class TestOrganization(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         name = 'dachshunited'
         title = 'Dachshunds United'
-        dachsunited = models.Organization(name=name, title=title)
+        dachsunited = models.Organization(name=name, title=title, owner=crusoe)
+
+        # INVALID: Organization can no longer be created without an owner.
         # Scenario: before any users were added to the organization
-        self.assertIsInstance(dachsunited.owners, models.Team)
-        self.assertEqual(dachsunited.owners.users.all(), [])
+        # self.assertIsInstance(dachsunited.owners, models.Team)
+        # self.assertEqual(dachsunited.owners.users.all(), [])
+
         # After adding users to the organization
-        dachsunited.owners.users.append(crusoe)
         self.assertEqual(dachsunited.owners.users.all(), [crusoe])
         assert title == dachsunited.owners.organization.title
 
@@ -40,7 +44,7 @@ class TestOrganization(TestDatabaseFixture):
         """
         name = 'spew'
         title = 'S.P.E.W'
-        spew = models.Organization(name=name, title=title)
+        spew = models.Organization(name=name, title=title, owner=self.fixtures.crusoe)
         db.session.add(spew)
         db.session.commit()
         # scenario 1: when neither name or buid are passed
@@ -64,8 +68,8 @@ class TestOrganization(TestDatabaseFixture):
         """
         Test for getting all organizations (takes buid or name optionally)
         """
-        gryffindor = models.Organization(name='gryffindor')
-        ravenclaw = models.Organization(name='ravenclaw')
+        gryffindor = models.Organization(name='gryffindor', owner=self.fixtures.crusoe)
+        ravenclaw = models.Organization(name='ravenclaw', owner=self.fixtures.crusoe)
         db.session.add(gryffindor)
         db.session.add(ravenclaw)
         db.session.commit()
@@ -95,7 +99,9 @@ class TestOrganization(TestDatabaseFixture):
         """
         Test for checking if given is a valid organization name
         """
-        hufflepuffs = models.Organization(name='hufflepuffs', title='Huffle Puffs')
+        hufflepuffs = models.Organization(
+            name='hufflepuffs', title='Huffle Puffs', owner=self.fixtures.crusoe
+        )
         self.assertFalse(hufflepuffs.is_valid_name('#$%#%___2836273untitled'))
         self.assertTrue(hufflepuffs.is_valid_name('hufflepuffs'))
 
@@ -104,14 +110,14 @@ class TestOrganization(TestDatabaseFixture):
         Test for checking Organization's pickername
         """
         # scenario 1: when only title is given
-        abnegation = models.Organization(title="Abnegation")
+        abnegation = models.Organization(title="Abnegation", owner=self.fixtures.crusoe)
         self.assertIsInstance(abnegation.pickername, str)
         self.assertEqual(abnegation.pickername, abnegation.title)
 
         # scenario 2: when both name and title are given
         name = 'cullens'
         title = 'The Cullens'
-        olympic_coven = models.Organization(title=title)
+        olympic_coven = models.Organization(title=title, owner=self.fixtures.crusoe)
         olympic_coven.name = name
         db.session.add(olympic_coven)
         db.session.commit()
@@ -126,7 +132,7 @@ class TestOrganization(TestDatabaseFixture):
         Test for retrieving Organization's name
         name is a setter method
         """
-        insurgent = models.Organization(title='Insurgent')
+        insurgent = models.Organization(title='Insurgent', owner=self.fixtures.crusoe)
         with self.assertRaises(ValueError):
             insurgent.name = '35453496*%&^$%^'
         with self.assertRaises(ValueError):

@@ -63,7 +63,7 @@ class TestName(TestDatabaseFixture):
         Names cannot be assigned to both a user and an organization simultaneously
         """
         user = models.User(fullname="User")
-        org = models.Organization(title="Organization")
+        org = models.Organization(title="Organization", owner=self.fixtures.piglet)
         name = models.AccountName(name='double-assigned', user=user, organization=org)
         db.session.add_all([user, org, name])
         with self.assertRaises(IntegrityError):
