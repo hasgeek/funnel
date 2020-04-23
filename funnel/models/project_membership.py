@@ -142,7 +142,7 @@ Project.concierges = DynamicAssociationProxy('active_concierge_memberships', 'us
 Project.ushers = DynamicAssociationProxy('active_usher_memberships', 'user')
 
 # Similarly for users (add as needs come up)
-User.projects_editor_of_active_memberships = db.relationship(
+User.projects_as_editor_active_memberships = db.relationship(
     ProjectCrewMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
@@ -153,6 +153,6 @@ User.projects_editor_of_active_memberships = db.relationship(
     viewonly=True,
 )
 
-User.projects_editor_of = DynamicAssociationProxy(
-    'projects_editor_of_active_memberships', 'project'
+User.projects_as_editor = DynamicAssociationProxy(
+    'projects_as_editor_active_memberships', 'project'
 )
