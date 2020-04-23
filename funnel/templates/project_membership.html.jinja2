@@ -32,17 +32,17 @@
       <div class="grid__col-xs-12">
         {% raw %}
         <div id="manage-membership">
-          <div class="membership-wrapper--right">
-            <div class="content-box mui--z1" @click="showInfo = !showInfo" role="button" aria-label="What role should I assign? Read more">
+          <div class="membership-wrapper" v-if="isUserProfileAdmin">
+            <div class="content-box mui--z1" @click="isMobile ? showInfo = !showInfo : null" role="button" aria-label="What role should I assign? Read more">
               <p class="mui--text-headline mui--text-bold">What role should I assign?</p>
               <p class="mui--text-subhead">Read this before adding a new member
-                <svg class="fa5-icon fa5-icon--title mui--align-middle" aria-hidden="true" role="img">
+                <svg class="fa5-icon fa5-icon--title mui--align-middle mui--hidden-xl mui--hidden-lg" aria-hidden="true" role="img">
                   <use v-bind:xlink:href="svgIconUrl + '#angle-up'" v-if="showInfo"></use>
                   <use v-bind:xlink:href="svgIconUrl + '#angle-down'" v-else></use>
                 </svg>
               </p>
               <transition name="slide-fade">
-                <div class="membership-wrapper__info" v-if="showInfo">
+                <div class="membership-wrapper__info" v-if="showInfo || !isMobile">
                   <p><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#user-circle'"></use></svg> <span class="mui--text-headline mui--text-bold mui--text-center">Member roles</span></p>
 
                   <p class="mui--text-title mui--text-uppercase">Editor</p>
@@ -70,7 +70,7 @@
               </transition>
             </div>
           </div>
-          <div class="membership-wrapper--right">
+          <div class="membership-wrapper">
             <div class="mui--clearfix">
               <div class="mui--text-center btn-wrapper membership-wrapper--left" v-if="isUserProfileAdmin">
                 <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#plus'"></use></svg> Add new member</p></button>
@@ -102,7 +102,7 @@
                   </p>
                   <transition name="slide-fade">
                     <div v-if="role.showMembers">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member, edit=true)" title="Edit" aria-label="Edit" role="button" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>
@@ -110,8 +110,8 @@
                 </div>
               </div>
               <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.edit_url, member)" title="Edit" aria-label="Edit" role="button">
-                  <member :member="member"></member>
+                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member, edit=true)" title="Edit" aria-label="Edit" role="button">
+                   <member :member="member"></member>
                 </div>
               </div>
             </div>

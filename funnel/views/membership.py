@@ -249,7 +249,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                         body=render_template(
                             'organization_membership_revoke_notification_email.md.jinja2',
                             revoked_by=current_auth.user,
-                            profile=self.obj.profile,
+                            profile=self.obj.organization.profile,
                         ),
                         subject=_("You have been removed from {} as a member").format(
                             self.obj.organization.title
@@ -270,7 +270,9 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
             title=_("Delete member"),
             message=_(
                 "Are you sure you want to remove {member} from {profile} as an admin?"
-            ).format(member=self.obj.user.fullname, profile=self.obj.profile.title),
+            ).format(
+                member=self.obj.user.fullname, profile=self.obj.organization.title
+            ),
             submit=_("Delete"),
             ajax=False,
             with_chrome=False,

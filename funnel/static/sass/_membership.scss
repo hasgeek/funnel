@@ -1,11 +1,9 @@
-@media (min-width: 1200px) {
-  .membership-wrapper--left {
+@media (min-width: 768px) {
+  .membership-wrapper {
     width: 50%;
     float: left;
   }
-  .membership-wrapper--right {
-    float: right;
-    width: 50%;
+  .membership-wrapper + .membership-wrapper {
     padding-left: 15px;
   }
 }
@@ -28,6 +26,12 @@
   color: #906b37;
   cursor: pointer;
   margin-bottom: 15px;
+}
+
+@media (min-width: 768px) {
+  .content-box {
+    cursor: auto;
+  }
 }
 
 .membership-wrapper__members {
