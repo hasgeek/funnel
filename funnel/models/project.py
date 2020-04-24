@@ -579,9 +579,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         # if the project's week is within next 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
+        current_week = Week.withdate(now)
 
         if leading_weeks and self.schedule_start_at is not None:
-            current_week = Week.withdate(now)
             schedule_start_week = Week.withdate(self.schedule_start_at)
 
             # session_dates is a list of tuples in this format -
@@ -602,6 +602,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         for project_date, day_start_at, day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
+                weeks[weekobj.week]['current'] = weekobj.week == current_week.week
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
