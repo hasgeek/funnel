@@ -11,6 +11,7 @@ describe('Adding crew to profile', function() {
     cy.server();
     cy.route('**/edit').as('edit-form');
     cy.route('POST', '**/edit').as('edit-member');
+    cy.route('GET', '**/delete').as('delete-form');
     cy.route('POST', '**/delete').as('delete-member');
 
     cy.login('/' + profile.title, owner.username, owner.password);
@@ -23,6 +24,7 @@ describe('Adding crew to profile', function() {
       .click();
     cy.wait('@edit-form');
     cy.get('button[data-cy-btn="revoke"]').click();
+    cy.wait('@delete-form');
     cy.get('button')
       .contains('Delete')
       .click();
