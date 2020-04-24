@@ -24,6 +24,7 @@ phonenumbers==8.11.2
 progressbar2==3.50.1
 psycopg2==2.8.4
 pycountry==19.8.18
+python-dateutil==2.8.1
 pytz==2019.3
 qrcode==6.1
 requests==2.22.0
