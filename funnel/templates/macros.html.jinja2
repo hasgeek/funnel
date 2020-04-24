@@ -5,18 +5,12 @@
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
     <div class="calendar">
       {% set event = namespace(month='', year='') %}
-      {% for week in calendar.weeks|sort(attribute='year') %}
-        {% for date in week.dates %}
-          {% if date.count > 0 and not event.month %}
-            {% set event.month = week.month  %}
-            {% set event.year = week.year  %}
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
-      <p class="calendar__month-name">{{ event.month }} {{ event.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}"></span></p>
       <div class="calendar__weekdays mui--bg-accent {% if calendar.weeks|length > 1 %} calendar__weekdays--rows {% endif %}">
         {% for week in calendar.weeks|sort(attribute='year') %}
-          <div class="calendar__weekdays__dates">
+          {% if week.month != event.month %}<p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %}">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}"></span></p>{% endif %}
+          {% set event.month = week.month  %}
+          {% set event.year = week.year  %}
+          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %}">
             {% for date in week.dates %}
               <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %}>
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
@@ -24,11 +18,6 @@
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
               </p>
             {% endfor %}
-            {% if calendar.weeks|length > 1 %}
-              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon">
-                {{ faicon(icon='chevron-right',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
-              </p>
-            {% endif %}
           </div>
         {% endfor %}
       </div>

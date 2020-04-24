@@ -1438,7 +1438,7 @@ html.touch .collapsible__body--disable {
   }
 }
 .card__calendar {
-  padding: 15px 0 25px;
+  padding: 0 0 25px;
 }
 .card__calendar .calendar {
   width: 100%;
@@ -1449,6 +1449,9 @@ html.touch .collapsible__body--disable {
   width: 100%;
   text-align: left;
   font-weight: 600;
+  padding: 20px 0 10px;
+  background-color: #fff;
+  margin: 0;
 }
 .card__calendar .calendar .calendar__month-name .calendar__counting {
   font-style: italic;
@@ -1457,10 +1460,16 @@ html.touch .collapsible__body--disable {
   letter-spacing: 0.5px;
   font-variant: none;
 }
+.card__calendar .calendar .calendar__month-name--upcoming:first-child {
+  padding-top: 10px;
+}
 .card__calendar .calendar .calendar__weekdays {
   display: flex;
   width: 100%;
   flex-wrap: wrap;
+  position: relative;
+  top: -20px;
+  z-index: 2;
 }
 .card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates {
   width: 100%;
@@ -1691,34 +1700,25 @@ html.touch .collapsible__body--disable {
   display: none;
 }
 
+.card__calendar--compact .calendar .calendar__weekdays {
+  top: -10px;
+}
 .card__calendar--compact
   .calendar
   .calendar__weekdays
-  .calendar__weekdays__dates:not(:first-child) {
+  .calendar__weekdays__dates,
+.card__calendar--compact .calendar .calendar__weekdays .calendar__month-name {
   display: none;
 }
 .card__calendar--compact
   .calendar
-  .calendar__weekdays--rows
-  .calendar__weekdays__dates
-  .calendar__weekdays__dates__date {
-  width: calc(100% / 7.5);
-}
+  .calendar__weekdays
+  .calendar__weekdays__dates--upcoming,
 .card__calendar--compact
   .calendar
-  .calendar__weekdays--rows
-  .calendar__weekdays__dates
-  .calendar__weekdays__dates__icon {
-  display: block;
-  width: calc(0.5 * calc(100% / 7.5));
-}
-.card__calendar--compact
-  .calendar
-  .calendar__weekdays--rows
-  .calendar__weekdays__dates
-  .calendar__weekdays__dates__icon__next {
-  position: relative;
-  top: 7px;
+  .calendar__weekdays
+  .calendar__month-name--upcoming {
+  display: flex;
 }
 
 .card--upcoming {
@@ -1732,6 +1732,7 @@ html.touch .collapsible__body--disable {
   position: relative;
   padding-bottom: 56.2%;
   background-image: linear-gradient(to bottom, #4d5763, #202d3c);
+  z-index: 3;
 }
 .card--upcoming .card__image-wrapper .card__image {
   position: absolute;
@@ -1753,6 +1754,7 @@ html.touch .collapsible__body--disable {
   position: absolute;
   right: 15px;
   top: 11px;
+  z-index: 4;
 }
 .card--upcoming .card__body .card__body__bookmark--pushup {
   top: 4px;

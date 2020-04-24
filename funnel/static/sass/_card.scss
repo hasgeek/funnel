@@ -123,7 +123,7 @@
 }
 
 .card__calendar {
-  padding: 15px 0 25px;
+  padding: 0 0 25px;
 
   .calendar {
     width: 100%;
@@ -134,6 +134,9 @@
       width: 100%;
       text-align: left;
       font-weight: 600;
+      padding: 20px 0 10px;
+      background-color: #fff;
+      margin: 0;
 
       .calendar__counting {
         font-style: italic;
@@ -144,10 +147,17 @@
       }
     }
 
+    .calendar__month-name--upcoming:first-child {
+      padding-top: 10px;
+    }
+
     .calendar__weekdays {
       display: flex;
       width: 100%;
       flex-wrap: wrap;
+      position: relative;
+      top: -20px;
+      z-index: 2;
 
       .calendar__weekdays__dates {
         width: 100%;
@@ -316,23 +326,14 @@
 .card__calendar--compact {
   .calendar {
     .calendar__weekdays {
-      .calendar__weekdays__dates:not(:first-child) {
+      top: -10px;
+      .calendar__weekdays__dates,
+      .calendar__month-name {
         display: none;
       }
-    }
-    .calendar__weekdays--rows {
-      .calendar__weekdays__dates {
-        .calendar__weekdays__dates__date {
-          width: calc(100% / 7.5);
-        }
-        .calendar__weekdays__dates__icon {
-          display: block;
-          width: calc(0.5 * calc(100% / 7.5));
-        }
-        .calendar__weekdays__dates__icon__next {
-          position: relative;
-          top: 7px;
-        }
+      .calendar__weekdays__dates--upcoming,
+      .calendar__month-name--upcoming {
+        display: flex;
       }
     }
   }
@@ -349,6 +350,7 @@
     position: relative;
     padding-bottom: 56.2%;
     background-image: linear-gradient(to bottom, #4d5763, #202d3c);
+    z-index: 3;
 
     .card__image {
       position: absolute;
@@ -371,6 +373,7 @@
       position: absolute;
       right: 15px;
       top: 11px;
+      z-index: 4;
     }
     .card__body__bookmark--pushup {
       top: 4px;

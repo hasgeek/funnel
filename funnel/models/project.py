@@ -602,13 +602,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         for project_date, day_start_at, day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
-                weeks[weekobj.week]['current'] = weekobj.week == current_week.week
+                weeks[weekobj.week]['upcoming'] = weekobj.week >= current_week.week
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
+            today = now.date().isoformat()
             for wdate in weekobj.days():
                 weeks[weekobj.week]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
+                    if wdate.isoformat() < today:
+                        weeks[weekobj.week]['upcoming'] = False
                     weeks[weekobj.week]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekobj.week]:
                         weeks[weekobj.week]['month'] = format_date(
