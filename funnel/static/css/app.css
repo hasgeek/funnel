@@ -3543,12 +3543,18 @@ body > .proposal-box.ui-draggable {
   opacity: 0;
 }
 
-.modal-form--edit .mui-select #user.select2 {
+.modal-form--edit .select2.select2-container {
+  display: none !important;
+}
+.modal-form--edit .select2-hidden-accessible {
   background-color: #eee;
   cursor: not-allowed;
+  height: 32px !important;
+  position: relative !important;
 }
-.modal-form--edit .mui-select #user.select2:focus {
-  outline: none;
+.modal-form--edit .mui-select:focus > label,
+.modal-form--edit .mui-select > select:focus ~ label {
+  color: rgba(0, 0, 0, 0.54);
 }
 
 .footer {

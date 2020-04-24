@@ -71,11 +71,10 @@ const Membership = {
         activateForm() {
           const formId = Utils.getElementId(this.memberForm);
           const url = Utils.getActionUrl(formId);
-          const app = this;
           const onSuccess = responseData => {
             this.closeForm();
             if (responseData.memberships) {
-              app.updateMembersList(responseData.memberships);
+              this.updateMembersList(responseData.memberships);
               this.onChange();
             }
           };
@@ -89,10 +88,6 @@ const Membership = {
             onError,
             {}
           );
-          // For edit form, disable user select field
-          if (this.activeMember) {
-            $('#member-form #user').select2('destroy');
-          }
         },
         updateMembersList(membersList) {
           this.members = membersList.length > 0 ? membersList : '';

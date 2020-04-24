@@ -102,11 +102,17 @@
 }
 
 .modal-form--edit {
-  .mui-select #user.select2 {
+  .select2.select2-container {
+    display: none !important;
+  }
+  .select2-hidden-accessible {
     background-color: #eee;
     cursor: not-allowed;
+    height: 32px !important;
+    position: relative !important;
   }
-  .mui-select #user.select2:focus {
-    outline: none;
+  .mui-select:focus > label,
+  .mui-select > select:focus ~ label {
+    color: rgba(0, 0, 0, 0.54);
   }
 }
