@@ -3,10 +3,10 @@
 from datetime import timedelta
 
 from flask import request
-from werkzeug.utils import cached_property
 
-from ua_parser import user_agent_parser
+import user_agents
 
+from baseframe import _
 from coaster.utils import buid as make_buid
 from coaster.utils import utcnow
 
@@ -106,9 +106,25 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
                 self.ipaddr = request.remote_addr or ''
                 self.user_agent = str(request.user_agent.string[:250]) or ''
 
-    @cached_property
-    def ua(self):
-        return user_agent_parser.Parse(self.user_agent)
+    def user_agent_details(self):
+        ua = user_agents.parse(self.user_agent)
+        return {
+            'browser': (ua.browser.family + ' ' + ua.browser.version_string)
+            if ua.browser.family
+            else _("Unknown browser"),
+            'os_device': ua.os.family
+            + ' '
+            + ua.os.version_string
+            + (
+                ' ('
+                + str(ua.device.brand or '')
+                + ' '
+                + str(ua.device.model or '')
+                + ')'
+                if ua.device.family != 'Other'
+                else ''
+            ),
+        }
 
     @property
     def has_sudo(self):

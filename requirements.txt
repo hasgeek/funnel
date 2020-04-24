@@ -32,4 +32,4 @@ six==1.14.0
 SQLAlchemy>=0.9
 sqlalchemy_utils==0.36.1
 tweepy==3.8.0
-ua-parser==0.8.0
+user-agents==2.1
