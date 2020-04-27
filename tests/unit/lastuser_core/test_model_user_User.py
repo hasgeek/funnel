@@ -99,19 +99,8 @@ class TestUser(TestDatabaseFixture):
         """
         crusoe = self.fixtures.crusoe
         batdog = self.fixtures.batdog
-        result = crusoe.organizations_owned()
-        self.assertIsInstance(result, list)
-        self.assertCountEqual(result, [batdog])
-
-    def test_user_organizations_owned_ids(self):
-        """
-        Test for verifying ids of organizations owned by a user
-        """
-        crusoe = self.fixtures.crusoe
-        batdog = self.fixtures.batdog
-        result = crusoe.organizations_owned_ids()
-        self.assertIsInstance(result, list)
-        self.assertCountEqual(result, [batdog.id])
+        result = crusoe.organizations_as_owner
+        self.assertCountEqual(list(result), [batdog])
 
     def test_user_organizations(self):
         """
@@ -122,24 +111,13 @@ class TestUser(TestDatabaseFixture):
         self.assertIsInstance(result, list)
         self.assertCountEqual(result, [self.fixtures.specialdachs])
 
-    def test_user_organizations_memberof(self):
+    def test_user_organizations_as_admin(self):
         """
-        Test for verifying list of organizations this user is member of
-        """
-        oakley = self.fixtures.oakley
-        result = oakley.organizations_memberof()
-        self.assertIsInstance(result, list)
-        self.assertCountEqual(result, [self.fixtures.specialdachs])
-
-    def test_user_organizations_memberof_ids(self):
-        """
-        Test for verifying ids of organizations where a user is a *only* a member
+        Test for verifying list of organizations this user is an admin of
         """
         oakley = self.fixtures.oakley
-        self.fixtures.batdog
-        result = oakley.organizations_memberof_ids()
-        self.assertIsInstance(result, list)
-        self.assertCountEqual(result, [self.fixtures.specialdachs.id])
+        result = oakley.organizations_as_admin
+        self.assertCountEqual(list(result), [self.fixtures.specialdachs])
 
     def test_user_username(self):
         """
@@ -252,38 +230,6 @@ class TestUser(TestDatabaseFixture):
         self.assertEqual(len(result.pw_hash), 60)
         self.assertTrue(result.password_is('12thprecinct'))
         self.assertGreater(result.pw_expires_at, result.pw_set_at)
-
-    def test_user_clients_with_team_access(self):
-        """
-        Test to verify a list of clients with access to the user's organizations' teams.
-        """
-        aro = models.User(username='aro')
-        jane = models.User(username='jane')
-        marcus = models.User(username='marcus')
-        volturi = models.Organization(name='volturi', title='The Volturi', owner=aro)
-        volterra = models.AuthClient(
-            title='Volterra, Tuscany',
-            organization=volturi,
-            confidential=True,
-            website='volterra.co.it',
-        )
-        enforcers = models.AuthClient(
-            title='Volturi\'s thugs',
-            organization=volturi,
-            confidential=True,
-            website='volturi.co.it',
-        )
-        volterra_auth_token = models.AuthToken(
-            auth_client=volterra, user=aro, scope='teams', validity=0
-        )
-        volterra_auth_token
-        enforcers_auth_token = models.AuthToken(
-            auth_client=enforcers, user=marcus, scope='teams', validity=0
-        )
-        enforcers_auth_token
-        self.assertCountEqual(aro.clients_with_team_access(), [volterra])
-        self.assertCountEqual(marcus.clients_with_team_access(), [enforcers])
-        self.assertEqual(jane.clients_with_team_access(), [])
 
     def test_user_password_has_expired(self):
         """

@@ -158,7 +158,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
         if not user:
             return False
         return self.user == user or (
-            self.organization and self.organization in user.organizations_owned()
+            self.organization and self.organization in user.organizations_as_owner
         )
 
     def permissions(self, user, inherited=None):
@@ -208,7 +208,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             return cls.query.filter(
                 db.or_(
                     cls.user == user,
-                    cls.organization_id.in_(user.organizations_owned_ids()),
+                    cls.organization_id.in_(user.organizations_as_owner_ids()),
                 )
             ).order_by(cls.title)
 
