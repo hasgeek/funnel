@@ -34,7 +34,7 @@ class OrgView(UrlForView, ModelView):
     def index(self):
         return render_template(
             'organization_index.html.jinja2',
-            organizations=current_auth.user.organizations_owned(),
+            organizations=current_auth.user.organizations_as_owner,
         )
 
     @route('/new', methods=['GET', 'POST'])
