@@ -87,7 +87,7 @@ const Queue = function(queueName) {
 };
 
 const ParticipantTable = {
-  init({ isAdmin, isConcierge, checkinUrl, participantlistUrl, eventName }) {
+  init({ isConcierge, isUsher, checkinUrl, participantlistUrl, eventName }) {
     Ractive.DEBUG = false;
 
     const count = new Ractive({
@@ -107,8 +107,8 @@ const ParticipantTable = {
         checkinUrl,
         checkinQ: new Queue(`${eventName}-checkin-queue`),
         cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
-        isAdmin,
         isConcierge,
+        isUsher,
         svgIconUrl: window.HasGeek.config.svgIconUrl,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');

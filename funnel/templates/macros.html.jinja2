@@ -190,13 +190,14 @@
       {%- if project.primary_venue -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(navbar)" data-cy-navbar="venue">{% trans %}Venue{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
-      {%- if project.current_roles.admin or not project.cfp_state.NONE -%}
+      {%- if project.current_roles.editor or not project.cfp_state.NONE -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'proposals' -%}{{ project.url_for('view_proposals') }}{%- endif %}#call-for-proposal" data-action="Proposals(navbar)" data-cy-navbar="proposals">{% trans %}Proposals{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
       {%- if project.schedule_state.PUBLISHED %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
-      {%- if project.current_roles.admin or current_auth.permissions.checkin_event -%}
+      <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.url_for('membership') }}" title="Crew" data-action="Crew(navbar)" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      {%- if project.current_roles.editor or project.current_roles.concierge or project.current_roles.usher -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
     </nav>
@@ -219,9 +220,9 @@
     <p><a href="https://videoken.com" target="_blank" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
   {%- endif %}
 
-  {%- if proposal and proposal.current_roles.owner %}
+  {%- if proposal and 'edit_proposal' in proposal.permissions(current_auth.user) %}
     <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-video" aria-label="{% trans %}Edit proposal video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
-  {% elif session and session.project.current_roles.admin %}
+  {% elif session and session.project.current_roles.editor %}
     <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
   {%- endif %}
 

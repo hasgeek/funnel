@@ -28,8 +28,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = db.relationship(
-        Project,
-        backref=db.backref('sessions', cascade='all, delete-orphan', lazy='dynamic'),
+        Project, backref=db.backref('sessions', cascade='all', lazy='dynamic')
     )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)
@@ -38,8 +37,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         None, db.ForeignKey('proposal.id'), nullable=True, unique=True
     )
     proposal = db.relationship(
-        Proposal,
-        backref=db.backref('session', uselist=False, cascade='all, delete-orphan'),
+        Proposal, backref=db.backref('session', uselist=False, cascade='all')
     )
     speaker = db.Column(db.Unicode(200), default=None, nullable=True)
     start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)

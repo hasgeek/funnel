@@ -4,10 +4,11 @@ from flask import flash, redirect
 
 from baseframe import _
 from baseframe.forms import render_form
-from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
+from coaster.auth import current_auth
+from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
-from ..forms import EditProfileForm, SavedProjectForm
+from ..forms import ProfileForm, SavedProjectForm
 from ..models import Profile, Project, db
 from .decorators import legacy_redirect
 from .mixins import ProfileViewMixin
@@ -19,7 +20,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('index.html.jinja2', json=True)
-    @requires_permission('view')
+    @requires_roles({'reader', 'admin'})
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.
         # We're using it because we want to define our own order here.
@@ -56,9 +57,14 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
-        draft_projects = [
-            proj for proj in self.obj.draft_projects if proj.current_roles.admin
-        ]
+
+        # If the user is an admin of this profile, show all draft projects.
+        # Else, only show the drafts they have a crew role in
+        if self.obj.current_roles.admin:
+            draft_projects = self.obj.draft_projects
+        else:
+            draft_projects = self.obj.draft_projects_for(current_auth.user)
+
         return {
             'profile': self.obj.current_access(),
             'past_projects': [p.current_access() for p in past_projects],
@@ -73,9 +79,9 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         }
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_permission('edit-profile')
+    @requires_roles({'admin'})
     def edit(self):
-        form = EditProfileForm(obj=self.obj, model=Profile)
+        form = ProfileForm(obj=self.obj, model=Profile)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -94,7 +100,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 class FunnelProfileView(ProfileView):
     @route('')
     @render_with('funnelindex.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view(self):
         return {'profile': self.obj, 'projects': self.obj.listed_projects}
 

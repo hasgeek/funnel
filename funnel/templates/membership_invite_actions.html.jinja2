@@ -1,0 +1,22 @@
+{% extends "layout.html.jinja2" %}
+{% set title_suffix = membership.project.title %}
+{% block title %}{% trans %}Manage membership{% endtrans %}{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block basecontent %}
+<div class="mui-container">
+  <div class="page-content page-content--mob-nav">
+    <div class="grid" id="membership">
+      <div class="grid__col-xs-12">
+        <p>You have been invited to {{ membership.project.title }}.</p>
+        <form method='POST' action="{{ membership.url_for('invite_action') }}">
+          {{ form.hidden_tag() }}
+          <button type="submit" name="action" value="accept">Accept</button>
+          <button type="submit" name="action" value="decline">Decline</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
