@@ -124,7 +124,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET', 'POST'])
     @render_with('event.html.jinja2')
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_concierge', 'project_usher'})
     def view(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
@@ -188,7 +188,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
 
     @route('scan_badge')
     @render_with('scan_badge.html.jinja2')
-    @requires_roles({'project_usher'})
+    @requires_roles({'project_concierge', 'project_usher'})
     def scan_badge(self):
         return {
             'profile': self.obj.project.profile,
