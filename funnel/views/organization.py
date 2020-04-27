@@ -34,7 +34,7 @@ class OrgView(UrlForView, ModelView):
     def index(self):
         return render_template(
             'organization_index.html.jinja2',
-            organizations=current_auth.user.organizations_owned(),
+            organizations=current_auth.user.organizations_as_owner,
         )
 
     @route('/new', methods=['GET', 'POST'])
@@ -46,7 +46,7 @@ class OrgView(UrlForView, ModelView):
             db.session.add(org)
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
-            if org.profile.PUBLIC:
+            if org.profile.state.PUBLIC:
                 return render_redirect(org.profile.url_for('edit'), code=303)
             else:
                 return render_redirect(org.url_for(), code=303)

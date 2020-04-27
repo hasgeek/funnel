@@ -317,58 +317,12 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             roles.update({'owner', 'admin'})
         return roles
 
-    def organizations(self):
-        """
-        Return the organizations this user is a member of.
-        """
-        return sorted({team.organization for team in self.teams}, key=lambda o: o.title)
-
-    def organizations_owned(self):
-        """
-        Return the organizations this user is an owner of.
-        """
-        return sorted(
-            {
-                team.organization
-                for team in self.teams
-                if team.organization.owners == team
-            },
-            key=lambda o: o.title,
-        )
-
-    def organizations_owned_ids(self):
+    def organizations_as_owner_ids(self):
         """
         Return the database ids of the organizations this user is an owner of. This is used
         for database queries.
         """
-        return list(
-            {
-                team.organization.id
-                for team in self.teams
-                if team.organization.owners == team
-            }
-        )
-
-    def user_organizations_owned_ids(self):
-        # Temp function for Flask-Lastuser
-        return [self.buid] + [o.buid for o in self.organizations_owned()]
-
-    def owner_of(self, profile):
-        # Temp function for Flask-Lastuser
-        return profile.buid in self.user_organizations_owned_ids()
-
-    def organizations_memberof(self):
-        """
-        Return the organizations this user is a member of.
-        """
-        return sorted({team.organization for team in self.teams}, key=lambda o: o.title)
-
-    def organizations_memberof_ids(self):
-        """
-        Return the database ids of the organizations this user is a member of. This is used
-        for database queries.
-        """
-        return list({team.organization.id for team in self.teams})
+        return [o.id for o in self.organizations_as_owner]
 
     def is_profile_complete(self):
         """
@@ -376,16 +330,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         otherwise.
         """
         return bool(self.fullname and self.username and self.email)
-
-    def clients_with_team_access(self):
-        """
-        Return a list of clients with access to the user's organizations' teams.
-        """
-        return [
-            token.auth_client
-            for token in self.authtokens
-            if {'*', 'teams', 'teams/*'}.intersection(token.effective_scope)
-        ]
 
     @classmethod
     def get(cls, username=None, buid=None, userid=None, defercols=False):
