@@ -302,9 +302,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('next')  # NOQA: A003
+    @route('next')
     @requires_permission('view')
-    def next(self):
+    def next(self):  # NOQA: A003
         nextobj = self.obj.getnext()
         if nextobj:
             return redirect(nextobj.url_for())
