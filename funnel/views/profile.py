@@ -4,6 +4,7 @@ from flask import flash, redirect
 
 from baseframe import _
 from baseframe.forms import render_form
+from coaster.auth import current_auth
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
@@ -55,7 +56,13 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
-        draft_projects = self.obj.draft_projects if self.obj.current_roles.admin else []
+
+        # If the user is an admin of this profile, show all draft projects.
+        # Else, only show the drafts they have a crew role in
+        if self.obj.current_roles.admin:
+            draft_projects = self.obj.draft_projects
+        else:
+            draft_projects = self.obj.draft_projects_for(current_auth.user)
 
         return {
             'profile': self.obj.current_access(),
