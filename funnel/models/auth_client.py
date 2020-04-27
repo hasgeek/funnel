@@ -279,8 +279,8 @@ class AuthClientCredential(BaseMixin, db.Model):
 
     def permissions(self, user, inherited=None):
         perms = super(AuthClientCredential, self).permissions(user, inherited)
-        perms.add('view')
         if user and self.auth_client.owner_is(user):
+            perms.add('view')
             perms.add('delete')
         return perms
 
