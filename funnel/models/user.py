@@ -414,8 +414,10 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if user and user.is_active:
             return user
 
-    @classmethod  # NOQA: A003
-    def all(cls, buids=None, userids=None, usernames=None, defercols=False):
+    @classmethod
+    def all(  # NOQA: A003
+        cls, buids=None, userids=None, usernames=None, defercols=False
+    ):
         """
         Return all matching users.
 
@@ -721,8 +723,8 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             query = query.options(*cls._defercols)
         return query.one_or_none()
 
-    @classmethod  # NOQA: A003
-    def all(cls, buids=None, names=None, defercols=False):
+    @classmethod
+    def all(cls, buids=None, names=None, defercols=False):  # NOQA: A003
         orgs = []
         if buids:
             query = cls.query.filter(cls.buid.in_(buids))
@@ -982,8 +984,8 @@ class UserEmailClaim(BaseMixin, db.Model):
             md5sum=md5sum, verification_code=verification_code
         ).one_or_none()
 
-    @classmethod  # NOQA: A003
-    def all(cls, email):
+    @classmethod
+    def all(cls, email):  # NOQA: A003
         """
         Return all UserEmailClaim instances with matching email address.
 
@@ -1149,8 +1151,8 @@ class UserPhoneClaim(BaseMixin, db.Model):
         """
         return cls.query.filter_by(phone=phone, user=user).one_or_none()
 
-    @classmethod  # NOQA: A003
-    def all(cls, phone):
+    @classmethod
+    def all(cls, phone):  # NOQA: A003
         """
         Return all UserPhoneClaim instances with matching phone number.
 
