@@ -14,7 +14,7 @@ describe('Profile', function() {
     cy.get('#name').type(profile.title);
     cy.get('#is_public_profile').click();
     cy.get('button')
-      .contains('Create')
+      .contains('Next')
       .click();
   });
 });
