@@ -302,7 +302,6 @@ class EventParticipantCheckinView(ClassView):
 
     @route('checkin', methods=['POST'])
     @render_with(json=True)
-    @requires_roles({'project_concierge', 'project_usher'})
     def checkin_puk(self, profile, project, event, puk):
         checked_in = getbool(request.form.get('checkin', 't'))
         event = (
