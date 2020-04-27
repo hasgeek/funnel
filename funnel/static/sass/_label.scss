@@ -42,3 +42,13 @@
     right: 0;
   }
 }
+
+.label-box--new {
+  margin: 15px auto 35px;
+  width: 100%;
+  max-width: 500px;
+
+  a:hover {
+    text-decoration: none;
+  }
+}
