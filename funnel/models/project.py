@@ -857,15 +857,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
 
-        profile_roles = self.profile.roles_for(actor, anchors)
-        if 'admin' in profile_roles:
-            roles.add('profile_admin')
+        if actor is not None:
+            profile_roles = self.profile.roles_for(actor, anchors)
+            if 'admin' in profile_roles:
+                roles.add('profile_admin')
 
-        crew_membership = self.active_crew_memberships.filter_by(
-            user=actor
-        ).one_or_none()
-        if crew_membership is not None:
-            roles.update(crew_membership.offered_roles())
+            crew_membership = self.active_crew_memberships.filter_by(
+                user=actor
+            ).one_or_none()
+            if crew_membership is not None:
+                roles.update(crew_membership.offered_roles())
 
         return roles
 
@@ -901,18 +902,22 @@ Profile.draft_projects = db.relationship(
 )
 
 
-Profile.draft_projects_for = lambda self, user: (
-    membership.project
-    for membership in user.projects_as_crew_active_memberships.join(
-        Project, Profile
-    ).filter(
-        # Project is attached to this profile
-        Project.profile_id == self.id,
-        # Project is not a sub-project (TODO: Deprecated, remove this)
-        Project.parent_id.is_(None),
-        # Project is in draft state OR has a draft call for proposals
-        db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+Profile.draft_projects_for = (
+    lambda self, user: (
+        membership.project
+        for membership in user.projects_as_crew_active_memberships.join(
+            Project, Profile
+        ).filter(
+            # Project is attached to this profile
+            Project.profile_id == self.id,
+            # Project is not a sub-project (TODO: Deprecated, remove this)
+            Project.parent_id.is_(None),
+            # Project is in draft state OR has a draft call for proposals
+            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+        )
     )
+    if user
+    else ()
 )
 
 
