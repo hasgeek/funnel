@@ -806,7 +806,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'confirm-proposal',
                         'view_voteinfo',
                         'view_status',
-                        'edit_proposal',
                         'delete-proposal',
                         'edit-schedule',
                         'new-session',
@@ -832,8 +831,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects
 
-    @classmethod  # NOQA: A003
-    def all(cls, legacy=None):
+    @classmethod
+    def all(cls, legacy=None):  # NOQA: A003
         """
         Return currently active events, sorted by date.
         """
@@ -900,9 +899,25 @@ Profile.draft_projects = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         Profile.id == Project.profile_id,
+        # TODO: parent projects are deprecated
         Project.parent_id.is_(None),
         db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
     ),
+)
+
+
+Profile.draft_projects_for = lambda self, user: (
+    membership.project
+    for membership in user.projects_as_crew_active_memberships.join(
+        Project, Profile
+    ).filter(
+        # Project is attached to this profile
+        Project.profile_id == self.id,
+        # Project is not a sub-project (TODO: Deprecated, remove this)
+        Project.parent_id.is_(None),
+        # Project is in draft state OR has a draft call for proposals
+        db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+    )
 )
 
 
