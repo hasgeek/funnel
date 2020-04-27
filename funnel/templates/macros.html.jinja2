@@ -193,18 +193,18 @@
 {% endmacro %}
 
 {% macro embed_video_player(video) %}
-  {% if video.video_source != 'raw' %}
+  {% if video.source != 'raw' %}
     <iframe src="{{ video.embeddable_url }}" frameborder="0" allowfullscreen></iframe>
   {% else %}
     <p class="video_txt">
       {{ faicon(icon='video', icon_size='display1') }}<br>
-      <a href="{{ video.video_id }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+      <a href="{{ video.id }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
     </p>
   {%- endif %}
 {% endmacro %}
 
 {% macro video_action_bar(video, proposal='', session='') %}
-  {%- if video.video_source == 'youtube' -%}
+  {%- if video.source == 'youtube' -%}
     <p><a href="https://videoken.com" target="_blank" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
   {%- endif %}
 
