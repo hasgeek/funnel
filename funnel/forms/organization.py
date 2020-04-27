@@ -39,7 +39,7 @@ class OrganizationForm(forms.Form):
     is_public_profile = forms.BooleanField(__("Make profile page public"))
 
     def validate_name(self, field):
-        if field.data and field.data == self.edit_obj.name:
+        if self.edit_obj and field.data and field.data == self.edit_obj.name:
             # Don't validate if name is unchanged
             return
 
