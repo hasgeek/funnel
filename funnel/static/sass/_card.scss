@@ -137,6 +137,7 @@
       padding: 0 0 10px;
       background-color: #fff;
       margin: 0;
+      display: none;
 
       .calendar__counting {
         font-style: italic;
@@ -145,6 +146,10 @@
         letter-spacing: 0.5px;
         font-variant: none;
       }
+    }
+
+    .calendar__month-name--unique {
+      display: block;
     }
 
     .calendar__month-name:nth-child(n + 2) {
