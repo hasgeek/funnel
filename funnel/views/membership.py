@@ -172,18 +172,10 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
-                primary_owner_membership = self.obj.organization.active_admin_memberships.order_by(
-                    OrganizationMembership.granted_at.asc()
-                ).first()
-
-                if (
-                    membership_form.user.data == primary_owner_membership.user
-                    and current_auth.user != primary_owner_membership.user
-                ):
-                    # the primary(first) owner membership can't be modified by others
+                if previous_membership.user == current_auth.user:
                     return {
                         'status': 'error',
-                        'message': _("Cannot modify the primary owner of the profile"),
+                        'message': _("You can't edit your own role"),
                     }
 
                 previous_membership.replace(
@@ -224,21 +216,12 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
         form = Form()
         if request.method == 'POST':
             if form.validate_on_submit():
-                primary_owner_membership = self.obj.organization.active_admin_memberships.order_by(
-                    OrganizationMembership.granted_at.asc()
-                ).first()
-
-                if (
-                    self.obj.user == primary_owner_membership.user
-                    and current_auth.user != primary_owner_membership.user
-                ):
-                    # the primary(first) owner membership can't be deleted by others
+                previous_membership = self.obj
+                if previous_membership.user == current_auth.user:
                     return {
                         'status': 'error',
-                        'message': _("Cannot delete the primary owner of the profile"),
+                        'message': _("You can't revoke your own membership"),
                     }
-
-                previous_membership = self.obj
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
                     db.session.commit()
