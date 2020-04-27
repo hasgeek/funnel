@@ -113,8 +113,6 @@ class LoginManager(object):
                 'session', UserSession.authenticate(buid=lastuser_cookie['sessionid'])
             )
             if current_auth.session:
-                current_auth.session.access()
-                db.session.commit()  # Save access
                 add_auth_attribute('user', current_auth.session.user)
             else:
                 # Invalid session. Logout the user
@@ -126,8 +124,6 @@ class LoginManager(object):
             add_auth_attribute('user', User.get(buid=lastuser_cookie['userid']))
             if current_auth.is_authenticated:
                 add_auth_attribute('session', UserSession(user=current_auth.user))
-                current_auth.session.access()
-                db.session.commit()  # Save access
 
         if current_auth.session:
             lastuser_cookie['sessionid'] = current_auth.session.buid
@@ -220,6 +216,14 @@ def lastuser_cookie(response):
     Save lastuser login cookie and hasuser JS-readable flag cookie.
     """
     if request_has_auth() and hasattr(current_auth, 'cookie'):
+        if current_auth.session:
+            # Don't commit if the view failed to
+            db.session.rollback()
+            # Update user session access timestamp...
+            current_auth.session.access()
+            # ...and save it
+            db.session.commit()
+
         expires = utcnow() + timedelta(days=365)
         response.set_cookie(
             'lastuser',

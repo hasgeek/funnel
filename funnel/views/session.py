@@ -10,6 +10,7 @@ from coaster.views import (
     render_with,
     requestargs,
     requires_permission,
+    requires_roles,
     route,
 )
 
@@ -107,7 +108,7 @@ class ProjectSessionView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new-session')
+    @requires_roles({'editor'})
     def new_session(self):
         return session_form(self.obj)
 

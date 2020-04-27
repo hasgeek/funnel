@@ -39,8 +39,10 @@
           <div data-id="{{ comment.uuid_b58 }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
               {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}">[Reply]</a>{% endif %}
-              {% if comment.current_permissions.edit_comment %}<a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.uuid_b58 }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
-              {% if comment.current_permissions.delete_comment %}<a aria-label="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.uuid_b58 }}">[{% trans %}Delete{% endtrans %}]</a>{% endif %}
+              {% if comment.current_roles.author %}
+                <a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.uuid_b58 }}">{% trans %}[Edit]{% endtrans %}</a>
+                <a aria-label="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.uuid_b58 }}">{% trans %}[Delete]{% endtrans %}</a>
+              {%- endif %}
             {%- endif %}
             <a aria-label="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.uuid_b58 }}">[{% trans %}Link{% endtrans %}]</a>
             {% if comment.parent %}<a aria-label="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.uuid_b58 }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}

@@ -1,7 +1,23 @@
 {
+  "owner": {
+    "username": "profile-cypress",
+    "password": "cypress123"
+  },
   "admin": {
     "username": "admin-user",
     "password": "cypress129"
+  },
+  "concierge": {
+    "username": "concierge-user",
+    "password": "cypress341"
+  },
+  "usher": {
+    "username": "usher-cypress",
+    "password": "cypress566"
+  },
+  "editor": {
+    "username": "editor-cypress",
+    "password": "cypress900"
   },
   "user": {
     "username": "member-user",

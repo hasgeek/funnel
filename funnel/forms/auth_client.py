@@ -123,7 +123,7 @@ class RegisterClientForm(forms.Form):
         else:
             orgs = [
                 org
-                for org in self.edit_user.organizations_owned()
+                for org in self.edit_user.organizations_as_owner
                 if org.buid == field.data
             ]
             if len(orgs) != 1:
