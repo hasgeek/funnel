@@ -109,13 +109,15 @@ Organization.admin_users = with_roles(
 )
 
 
-# User.active_organization_memberships is a future possibility. For now just admin and owner
+# User.active_organization_memberships is a future possibility.
+# For now just admin and owner
 
 User.active_organization_admin_memberships = db.relationship(
     OrganizationMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        OrganizationMembership.user_id == User.id, OrganizationMembership.is_active
+        db.remote(OrganizationMembership.user_id) == User.id,
+        OrganizationMembership.is_active,
     ),
     viewonly=True,
 )
@@ -124,7 +126,7 @@ User.active_organization_owner_memberships = db.relationship(
     OrganizationMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        OrganizationMembership.user_id == User.id,
+        db.remote(OrganizationMembership.user_id) == User.id,
         OrganizationMembership.is_active,
         OrganizationMembership.is_owner.is_(True),
     ),
@@ -135,7 +137,17 @@ User.active_organization_invitations = db.relationship(
     OrganizationMembership,
     lazy='dynamic',
     primaryjoin=db.and_(
-        OrganizationMembership.user_id == User.id, OrganizationMembership.is_invite
+        db.remote(OrganizationMembership.user_id) == User.id,
+        OrganizationMembership.is_invite,
+        ~OrganizationMembership.is_active,
     ),
     viewonly=True,
+)
+
+User.organizations_as_owner = DynamicAssociationProxy(
+    'active_organization_owner_memberships', 'organization'
+)
+
+User.organizations_as_owner = DynamicAssociationProxy(
+    'active_organization_admin_memberships', 'organization'
 )
