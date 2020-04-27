@@ -8,7 +8,7 @@ from coaster.auth import current_auth
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
-from ..forms import EditProfileForm, SavedProjectForm
+from ..forms import ProfileForm, SavedProjectForm
 from ..models import Profile, Project, db
 from .decorators import legacy_redirect
 from .mixins import ProfileViewMixin
@@ -81,7 +81,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit(self):
-        form = EditProfileForm(obj=self.obj, model=Profile)
+        form = ProfileForm(obj=self.obj, model=Profile)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
