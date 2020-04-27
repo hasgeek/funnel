@@ -149,6 +149,15 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             return ''
 
+    @title.setter
+    def title(self, value):
+        if self.user:
+            self.user.fullname = value
+        elif self.organization:
+            self.organization.title = value
+        else:
+            raise ValueError("Reserved profiles do not have titles")
+
     @title.expression
     def title(cls):  # NOQA: N805
         return db.case(
@@ -172,6 +181,18 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             ],
             else_='',
         )
+
+    # TODO: Remove this form helper and make views for explicitly toggling visibility
+    @property
+    def is_public_profile(self):
+        return bool(self.state.PUBLIC)
+
+    @is_public_profile.setter
+    def is_public_profile(self, value):
+        if not value and self.state.PUBLIC:
+            self.make_private()
+        elif value and not self.state.PUBLIC:
+            self.make_public()
 
     def roles_for(self, actor, anchors=()):
         if self.owner:
