@@ -290,7 +290,7 @@
 
           {% if proposal.video %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Preview video{% endtrans %}</h3>
-            <a href="{{ proposal.video }}">{{ proposal.video.id }}</a>
+            <a href="{{ proposal.video.url }}">{{ proposal.video.url }}</a>
           {% endif %}
         </div>
       </div>
