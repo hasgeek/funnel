@@ -858,11 +858,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         roles.add('reader')
 
         profile_roles = self.profile.roles_for(actor, anchors)
-        # FIXME: These two checks result in two SQL queries even though there is a
-        # single underlying membership. We need some optimization here to load related
-        # roles in one go.
-        if 'owner' in profile_roles:
-            roles.add('profile_owner')
         if 'admin' in profile_roles:
             roles.add('profile_admin')
 

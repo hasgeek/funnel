@@ -99,11 +99,13 @@ Organization.active_invitations = db.relationship(
 )
 
 
+Organization.owner_users = with_roles(
+    DynamicAssociationProxy('active_owner_memberships', 'user'),
+    grants={'owner', 'admin'},
+)
+
 Organization.admin_users = with_roles(
     DynamicAssociationProxy('active_admin_memberships', 'user'), grants={'admin'}
-)
-Organization.owner_users = with_roles(
-    DynamicAssociationProxy('active_owner_memberships', 'user'), grants={'owner'}
 )
 
 
