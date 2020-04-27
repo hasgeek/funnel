@@ -4,13 +4,29 @@
 {% macro calendarwidget(calendar, compact=true) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
     <div class="calendar">
-      {% set event = namespace(month='', year='') %}
+      {% set event = namespace(month='', year='', first_week='', previous='', next='') %}
       <div class="calendar__weekdays mui--bg-accent {% if calendar.weeks|length > 1 %} calendar__weekdays--rows {% endif %}">
         {% for week in calendar.weeks|sort(attribute='year') %}
-          {% if week.month != event.month %}<p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %}">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}"></span></p>{% endif %}
+          {% set event.previous = false %}
+          {% set event.next = false %}
+          {% if not event.first_week and week.upcoming %}
+            {% set event.first_week = week %}
+            {% if loop.index0 > 1 %}
+              {% set event.previous = true %}
+            {% endif %}
+            {% if loop.index != calendar.weeks|length and calendar.weeks[loop.index].upcoming %}
+              {% set event.next = true %}
+            {% endif %}
+          {% endif %}
+          {% if week.month != event.month %}<p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %}">{{ week.month }} {{ week.year }}&nbsp;{% if event.first_week == week %}<span class="calendar__counting" data-today="{{ calendar.today }}"></span>{% endif %}</p>{% endif %}
           {% set event.month = week.month  %}
           {% set event.year = week.year  %}
-          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %}">
+          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first{% endif %}">
+            {% if event.previous  %}
+              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
+                {{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
+              </p>
+            {% endif %}
             {% for date in week.dates %}
               <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %}>
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
@@ -18,6 +34,11 @@
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
               </p>
             {% endfor %}
+            {% if event.next  %}
+              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right">
+                {{ faicon(icon='chevron-right',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
+              </p>
+            {% endif %}
           </div>
         {% endfor %}
       </div>

@@ -1438,7 +1438,7 @@ html.touch .collapsible__body--disable {
   }
 }
 .card__calendar {
-  padding: 0 0 25px;
+  padding: 15px 0 25px;
 }
 .card__calendar .calendar {
   width: 100%;
@@ -1449,7 +1449,7 @@ html.touch .collapsible__body--disable {
   width: 100%;
   text-align: left;
   font-weight: 600;
-  padding: 20px 0 10px;
+  padding: 0 0 10px;
   background-color: #fff;
   margin: 0;
 }
@@ -1460,15 +1460,14 @@ html.touch .collapsible__body--disable {
   letter-spacing: 0.5px;
   font-variant: none;
 }
-.card__calendar .calendar .calendar__month-name--upcoming:first-child {
-  padding-top: 10px;
+.card__calendar .calendar .calendar__month-name:nth-child(n + 2) {
+  margin-top: 25px;
 }
 .card__calendar .calendar .calendar__weekdays {
   display: flex;
   width: 100%;
   flex-wrap: wrap;
   position: relative;
-  top: -20px;
   z-index: 2;
 }
 .card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates {
@@ -1476,6 +1475,7 @@ html.touch .collapsible__body--disable {
   display: flex;
   flex-wrap: wrap;
   padding: 0;
+  position: relative;
 }
 .card__calendar
   .calendar
@@ -1700,25 +1700,52 @@ html.touch .collapsible__body--disable {
   display: none;
 }
 
-.card__calendar--compact .calendar .calendar__weekdays {
-  top: -10px;
-}
 .card__calendar--compact
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates,
 .card__calendar--compact .calendar .calendar__weekdays .calendar__month-name {
   display: none;
+  margin-top: 0;
 }
 .card__calendar--compact
   .calendar
   .calendar__weekdays
-  .calendar__weekdays__dates--upcoming,
+  .calendar__weekdays__dates--upcoming--first,
 .card__calendar--compact
   .calendar
   .calendar__weekdays
-  .calendar__month-name--upcoming {
+  .calendar__month-name--upcoming--first {
   display: flex;
+}
+.card__calendar--compact
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__icon {
+  position: absolute;
+  line-height: 29px;
+  background: #fff;
+  display: block;
+  z-index: -1;
+}
+.card__calendar--compact
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__icon--left {
+  position: absolute;
+  left: -30px;
+  line-height: 29px;
+}
+.card__calendar--compact
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__icon--right {
+  position: absolute;
+  right: -30px;
+  line-height: 29px;
 }
 
 .card--upcoming {
