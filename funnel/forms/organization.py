@@ -6,7 +6,7 @@ from baseframe import _, __
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import RESERVED_NAMES, AccountName, Organization, Team
+from ..models import Organization, Profile, Team
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -30,23 +30,21 @@ class OrganizationForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=AccountName.__name_length__),
+            forms.validators.Length(max=Profile.__name_length__),
         ],
         prefix="https://hasgeek.com/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
-    def validate_name(self, field):
-        if field.data.lower() in RESERVED_NAMES:
-            # To be deprecated in favour of one below
-            raise forms.ValidationError(_("This name is reserved"))
+    is_public_profile = forms.BooleanField(__("Make profile page public"))
 
+    def validate_name(self, field):
         if self.edit_obj:
             reason = self.edit_obj.validate_name_candidate(field.data)
         else:
-            reason = AccountName.validate_name_candidate(field.data)
+            reason = Profile.validate_name_candidate(field.data)
         if not reason:
-            return  # AccountName is available
+            return  # name is available
         if reason == 'invalid':
             raise forms.ValidationError(
                 _(

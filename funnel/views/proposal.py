@@ -42,7 +42,7 @@ proposal_headers = [
     'speaker',
     'email',
     'slides',
-    'preview_video',
+    'video_url',
     'phone',
     'type',
     'level',
@@ -59,8 +59,8 @@ def proposal_data(proposal):
     """
     return dict(
         [
-            ('id', proposal.suuid),
-            ('name', proposal.url_name_suuid),
+            ('id', proposal.uuid_b58),
+            ('name', proposal.url_name_uuid_b58),
             ('legacy_id', proposal.url_id),
             ('legacy_name', proposal.url_name),
             ('title', proposal.title),
@@ -89,7 +89,7 @@ def proposal_data(proposal):
             ('requirements_html', proposal.requirements.html),
             ('slides', proposal.slides.url),
             ('links', proposal.links),
-            ('preview_video', proposal.preview_video.url),
+            ('video', proposal.video),
             ('bio', proposal.bio.html),
             ('votes', proposal.voteset.count),
             ('comments', proposal.commentset.count),
@@ -172,7 +172,7 @@ FunnelProjectProposalView.add_route_for('new_proposal', 'new', methods=['GET', '
 FunnelProjectProposalView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/proposals/<url_name_suuid>')
+@route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 

@@ -36,11 +36,6 @@
   display: block;
 }
 
-.svg-icon {
-  position: relative;
-  top: 2px;
-}
-
 .material-icons {
   display: none;
 }
@@ -71,11 +66,6 @@
   top: 7px;
 }
 
-.material-icons.mui--align-middle {
-  position: relative;
-  top: -1px;
-}
-
 .mui-divider--custom {
   margin: 5px 0 20px;
 }
@@ -84,8 +74,8 @@
   margin-right: 5px;
 }
 
-.mui-btn .material-icons.mui--align-middle {
-  margin-right: 5px;
+.btn-group .mui-btn + .mui-btn {
+  margin-left: 0;
 }
 
 .content-head--top-padding {
@@ -116,13 +106,14 @@
 .badge {
   position: relative;
   color: #fff;
-  width: 15px;
+  min-width: 15px;
   line-height: 15px;
-  height: 15px;
+  min-height: 15px;
   text-align: center;
   display: inline-block;
   background-color: #856a91;
-  border-radius: 50%;
+  border-radius: 3px;
+  padding: 2px;
 }
 
 .select2-inline {
@@ -153,7 +144,7 @@
 }
 
 .collapsible__header--smaller {
-  width: calc(100% - 51px);
+  width: calc(100% - 37px);
   padding: 10px;
   margin: 0 0 10px;
   white-space: nowrap;
@@ -273,54 +264,13 @@ html.touch .collapsible__body--disable {
   }
 }
 
-.mui-btn--nostyle {
-  background: none;
-  border: none;
-}
-
-//Font awesome 5
-.fa5-icon {
-  width: 14px;
-  height: 14px;
-  fill: currentColor;
-}
-
-.fa5--align-baseline {
-  position: relative;
-  top: 0.09em;
-}
-
-.fa5-icon--caption {
-  width: 12px;
-  height: 12px;
-}
-
-.fa5-icon--subhead {
-  width: 16px;
-  height: 16px;
-}
-
-.fa5-icon--title {
-  width: 18px;
-  height: 18px;
-}
-
-.fa5-icon--headline {
-  width: 24px;
-  height: 24px;
-}
-
-.fa5-icon--display1 {
-  width: 32px;
-  height: 32px;
-}
-
 .read-more {
   cursor: pointer;
 }
 
 .animate-btn {
   display: none;
+  line-height: 1;
 
   .bookmarked {
     fill: #e05f26;

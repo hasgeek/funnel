@@ -9,7 +9,7 @@ from flask import flash, g, jsonify, redirect, request, url_for
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.utils import getbool, uuid2suuid
+from coaster.utils import getbool, uuid_to_base58
 from coaster.views import (
     ClassView,
     ModelView,
@@ -72,9 +72,9 @@ def participant_data(participant, project_id, full=False):
 
 
 def participant_checkin_data(participant, project, event):
-    psuuid = uuid2suuid(participant.uuid)
+    puuid_b58 = uuid_to_base58(participant.uuid)
     data = {
-        'psuuid': psuuid,
+        'puuid_b58': puuid_b58,
         'fullname': participant.fullname,
         'company': participant.company,
         'email': mask_email(participant.email),
@@ -89,19 +89,19 @@ def participant_checkin_data(participant, project, event):
                     'ParticipantView_badge',
                     profile=project.profile.name,
                     project=project.name,
-                    participant=psuuid,
+                    participant=puuid_b58,
                 ),
                 'label_badge_url': url_for(
                     'ParticipantView_label_badge',
                     profile=project.profile.name,
                     project=project.name,
-                    participant=psuuid,
+                    participant=puuid_b58,
                 ),
                 'edit_url': url_for(
                     'ParticipantView_edit',
                     profile=project.profile.name,
                     project=project.name,
-                    participant=psuuid,
+                    participant=puuid_b58,
                 ),
             }
         )
@@ -149,7 +149,7 @@ class ParticipantView(UrlForView, ModelView):
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'participant': 'suuid',
+        'participant': 'uuid_b58',
     }
 
     def loader(self, profile, project, participant):
@@ -158,7 +158,7 @@ class ParticipantView(UrlForView, ModelView):
             .filter(
                 Profile.name == profile,
                 Project.name == project,
-                Participant.suuid == participant,
+                Participant.uuid_b58 == participant,
             )
             .first_or_404()
         )
@@ -194,7 +194,7 @@ class ParticipantView(UrlForView, ModelView):
         return {'badges': participant_badge_data([self.obj], self.obj.project)}
 
 
-@route('/<project>/participant/<suuid>', subdomain='<profile>')
+@route('/<project>/participant/<uuid_b58>', subdomain='<profile>')
 class FunnelParticipantView(ParticipantView):
     pass
 
@@ -213,7 +213,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
-            participant_ids = [strip_null(x) for x in request.form.getlist('psuuid')]
+            participant_ids = [strip_null(x) for x in request.form.getlist('puuid_b58')]
             for participant_id in participant_ids:
                 attendee = Attendee.get(self.obj, participant_id)
                 attendee.checked_in = checked_in
@@ -285,7 +285,7 @@ EventParticipantView.init_app(app)
 FunnelEventParticipantView.init_app(funnelapp)
 
 
-# FIXME: make this endpoint use suuid instead of puk, along with badge generation
+# FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
 @route('/<profile>/<project>/event/<event>/participant/<puk>')
 class EventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
@@ -308,7 +308,7 @@ class EventParticipantCheckinView(ClassView):
             )
             .first_or_404()
         )
-        attendee = Attendee.get(event, participant.suuid)
+        attendee = Attendee.get(event, participant.uuid_b58)
         if not attendee:
             return (
                 {'error': 'not_found', 'error_description': "Attendee not found"},

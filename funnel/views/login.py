@@ -22,7 +22,7 @@ from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import render_form, render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool, utcnow, valid_username
+from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, load_model, requestargs
 
 from .. import app, funnelapp, lastuserapp
@@ -36,6 +36,7 @@ from ..forms import (
 from ..models import (
     AuthClientCredential,
     AuthPasswordResetRequest,
+    Profile,
     User,
     UserEmail,
     UserEmailClaim,
@@ -66,6 +67,25 @@ def login():
     # If user is already logged in, send them back
     if current_auth.is_authenticated:
         return redirect(get_next_url(referrer=True), code=303)
+
+    # Remember where the user came from if it wasn't already saved.
+    # Placing this inside an `if` block has consequences:
+    # 1. If the user aborts this login attempt but tries to login later using the login
+    #    button, they will be redirected to the page the original attempt was made from,
+    #    not the latest attempt. This can be unexpected behaviour. However, this problem
+    #    does not exist for pages guarded with @requires_login as `next` is always saved
+    #    in there.
+    # 2. Browsers are increasingly tending towards stripping the referrer header. It is
+    #    becoming the norm for cross-site referrers, and an OAuth2 login via /auth is
+    #    crucially dependent on receiving the next URL from the client, validating it
+    #    and saving to session['next'] (to avoid URL length limitations in browsers when
+    #    bounce the user off to a third party login provider like Google). This saved
+    #    value absolutely cannot be clobbered by the referrer header.
+    # TODO: Work out a more robust solution that saves _two_ possible next URL values
+    # to the session.
+
+    if 'next' not in session:
+        session['next'] = get_next_url(referrer=True)
 
     loginform = LoginForm()
     service_forms = {}
@@ -518,9 +538,7 @@ def login_service_postcallback(service, userdata):
             user = register_internal(None, userdata.get('fullname'), None)
             extid.user = user
             if userdata.get('username'):
-                if valid_username(userdata['username']) and user.is_valid_name(
-                    userdata['username']
-                ):
+                if Profile.is_available_name(userdata['username']):
                     # Set a username for this user if it's available
                     user.username = userdata['username']
     else:  # We have an existing user account from extid or useremail
@@ -600,11 +618,15 @@ def account_merge():
     if form.validate_on_submit():
         if 'merge' in request.form:
             new_user = merge_users(current_auth.user, other_user)
-            login_internal(new_user)
-            flash(_("Your accounts have been merged"), 'success')
-            session.pop('merge_buid', None)
-            db.session.commit()
-            user_data_changed.send(new_user, changes=['merge'])
+            if new_user:
+                login_internal(new_user)
+                flash(_("Your accounts have been merged"), 'success')
+                session.pop('merge_buid', None)
+                db.session.commit()
+                user_data_changed.send(new_user, changes=['merge'])
+            else:
+                flash(_("Account merger failed"), 'danger')
+                session.pop('merge_buid', None)
             return redirect(get_next_url(), code=303)
         else:
             session.pop('merge_buid', None)

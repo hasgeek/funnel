@@ -34,24 +34,59 @@
       display: block;
     }
   }
+
+  .project-banner__footer {
+    display: flex;
+    align-items: baseline;
+    margin: 16px 0 0;
+    padding: 0 16px;
+
+    .bookmark,
+    .add-calendar,
+    .share {
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      border-right: solid 1px rgba(121, 129, 139, 0.48);
+      line-height: 1;
+    }
+    .bookmark {
+      padding: 0 8px 0 0;
+    }
+    .share {
+      border-right: none;
+    }
+    .bookmark span.txt,
+    .add-calendar span.txt,
+    .share span.txt {
+      padding-right: 8px;
+    }
+
+    .mui-btn--nostyle + .mui-btn--nostyle {
+      margin: 0;
+    }
+    .mui-dropdown__menu {
+      min-width: auto;
+      z-index: 1003;
+    }
+  }
   .project-details__box {
     margin-top: 15px;
     position: relative;
 
-    .bookmark-icon {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
     .card__calendar {
       padding: 0 15px 10px;
       margin: 0 -15px 25px;
     }
-    .project-time {
-      margin-bottom: 15px;
-    }
     .project-venue {
       margin: 10px 0;
+    }
+    .add-calendar {
+      position: absolute;
+      right: 45px;
+      top: 0;
+      font-size: 16px;
+      font-variant: all-small-caps;
     }
     .propose {
       margin: 8px 0 0;
@@ -68,42 +103,6 @@
       .propose-btn--strike:hover {
         text-decoration: line-through;
       }
-      .propose__txt {
-        margin-top: 5px;
-
-        .propose__txt__badge {
-          margin-right: 10px;
-          padding: 5px;
-          float: left;
-          position: relative;
-          top: 8px;
-          border-radius: 2px;
-        }
-      }
-    }
-    .project-banner__action {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-
-      .project-banner__action__icon {
-        height: 24px;
-        vertical-align: middle;
-      }
-
-      .project-banner__action__social {
-        justify-content: space-between;
-        width: 100%;
-        display: flex;
-        align-items: baseline;
-        margin-bottom: 10px;
-        padding: 10px;
-        border: 2px dashed #eff2f6;
-      }
-
-      .mui-btn + .mui-btn {
-        margin-left: 0;
-      }
     }
   }
 }
@@ -112,6 +111,21 @@
   .project-banner {
     .project-banner__box {
       padding: 0 15px;
+    }
+    .project-banner__footer {
+      .bookmark,
+      .add-calendar,
+      .share {
+        padding: 0 16px;
+      }
+      .bookmark {
+        padding: 0 16px 0 0;
+      }
+      .bookmark span.txt,
+      .add-calendar span.txt,
+      .share span.txt {
+        padding-right: 16px;
+      }
     }
   }
 }
@@ -132,10 +146,6 @@
       margin: 0;
       margin-top: -7px;
 
-      .bookmark-icon {
-        top: 5px;
-        right: 10px;
-      }
       .card__calendar {
         margin: 0 0 25px;
         padding: 0 0 8px;
@@ -161,6 +171,18 @@
       margin-top: 42px;
     }
   }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .project-banner .project-details__box .add-calendar {
+    right: 30px;
+    top: 3px;
+    font-size: 13px;
+  }
+}
+
+.project-section__headline {
+  margin-bottom: 15px;
 }
 
 .about {

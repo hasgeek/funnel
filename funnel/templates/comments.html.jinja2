@@ -1,14 +1,16 @@
+{% from "baseframe/components.html.jinja2" import faicon %}
+
 {% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
-    <div id="c{{ comment.suuid }}">
+    <div id="c{{ comment.uuid_b58 }}">
       <div class="comment--content">
         <div class="comment--header">
-          <button class="js-collapse mui-btn--nostyle" aria-label="{% trans %}Hide comment{% endtrans %}" aria-expanded="true">
-            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-up"></use></svg>{% endassets %}
+          <button class="js-collapse mui-btn mui-btn--nostyle" aria-label="{% trans %}Hide comment{% endtrans %}" aria-expanded="true">
+            {{ faicon(icon='caret-circle-up', icon_size='subhead') }}
           </button>
-          <button class="js-uncollapse mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
-            {% assets "fa5-sprite" %}<svg class="fa5-icon mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#caret-circle-down"></use></svg>{% endassets %}
+          <button class="js-uncollapse mui-btn mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
+            {{ faicon(icon='caret-circle-down', icon_size='subhead') }}
           </button>&nbsp;
           {% if comment.state.DELETED -%}
             <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
@@ -34,14 +36,14 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.suuid }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
+          <div data-id="{{ comment.uuid_b58 }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
-              {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.suuid }}">[Reply]</a>{% endif %}
-              {% if comment.current_permissions.edit_comment %}<a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.suuid }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
-              {% if comment.current_permissions.delete_comment %}<a aria-label="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.suuid }}">[{% trans %}Delete{% endtrans %}]</a>{% endif %}
+              {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}">[Reply]</a>{% endif %}
+              {% if comment.current_permissions.edit_comment %}<a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.uuid_b58 }}">[{% trans %}Edit{% endtrans %}]</a>{% endif %}
+              {% if comment.current_permissions.delete_comment %}<a aria-label="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.uuid_b58 }}">[{% trans %}Delete{% endtrans %}]</a>{% endif %}
             {%- endif %}
-            <a aria-label="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.suuid }}">[{% trans %}Link{% endtrans %}]</a>
-            {% if comment.parent %}<a aria-label="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.suuid }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
+            <a aria-label="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.uuid_b58 }}">[{% trans %}Link{% endtrans %}]</a>
+            {% if comment.parent %}<a aria-label="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.uuid_b58 }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
           </div>
         </div>
         {% if comment.children %}

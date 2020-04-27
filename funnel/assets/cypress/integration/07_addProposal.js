@@ -1,15 +1,17 @@
 describe('Add a new proposal', function() {
-  const { user } = require('../fixtures/user.js');
+  const user = require('../fixtures/user.json').user;
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
   it('Add proposal', function() {
-    cy.login(
-      '/testcypressproject/2020/proposals/new',
-      user.username,
-      user.password
-    );
+    cy.login('/testcypressproject', user.username, user.password);
+
+    cy.get('a[data-cy-project="' + project.title + '"]').click();
+    cy.location('pathname').should('contain', project.url);
+    cy.get('a[data-cy-navbar="proposals"]').click();
+    cy.location('pathname').should('contain', 'proposals');
+    cy.get('a[data-cy="propose-a-session"]').click();
     cy.location('pathname').should('contain', 'new');
     cy.get('#speaking label')
       .eq(0)
@@ -22,10 +24,11 @@ describe('Add a new proposal', function() {
       .find('.CodeMirror textarea')
       .type(proposal.outline, { force: true });
     cy.get('#slides').type(proposal.slides);
-    cy.get('#preview_video').type(proposal.preview_video);
+    cy.get('#field-video_url').type(proposal.preview_video);
     cy.get('#field-bio')
       .find('.CodeMirror textarea')
       .type(proposal.speaker_bio, { force: true });
+    cy.get('#email').type(proposal.email);
     cy.get('#phone').type(proposal.phone);
     cy.get('#location').type(proposal.location);
     cy.get('fieldset')
@@ -48,7 +51,11 @@ describe('Add a new proposal', function() {
     cy.get('.proposal__section__headline')
       .should('exist')
       .contains(proposal.title);
+    cy.get('[data-cy="proposal-video"]')
+      .find('iframe')
+      .should('be.visible');
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
+    cy.get('[data-cy="edit-proposal-video"]').should('exist');
   });
 });

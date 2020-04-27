@@ -160,7 +160,7 @@
           width: calc(100% / 7);
           text-align: center;
           margin: 0;
-          padding: 10px 0;
+          padding: 10px 0 15px;
           background: #f9fafc;
 
           .calendar__weekdays__dates__date__day {
@@ -235,7 +235,7 @@
         .calendar__weekdays__dates__date--showtime:before {
           content: '';
           position: absolute;
-          bottom: -5px;
+          bottom: 0;
           left: 0;
           right: 0;
           margin: auto;
@@ -253,7 +253,7 @@
           display: block;
           opacity: 0;
           position: absolute;
-          bottom: -25px;
+          bottom: -20px;
           border-radius: 2px;
           background-color: #f6e2c5;
           color: #906b37;
@@ -262,7 +262,7 @@
           -webkit-transform: translateX(-50%);
           margin: auto;
           padding: 4px;
-          width: 135px;
+          width: 157px;
           font-size: 12px;
           line-height: 1;
           z-index: 3;
@@ -283,12 +283,16 @@
         }
 
         .calendar__weekdays__dates__date:nth-child(1)
+          .calendar__weekdays__dates__time,
+        .calendar__weekdays__dates__date:nth-child(2)
           .calendar__weekdays__dates__time {
           left: 0;
           transform: translateX(0);
           -webkit-transform: translateX(0);
         }
 
+        .calendar__weekdays__dates__date:nth-child(6)
+          .calendar__weekdays__dates__time,
         .calendar__weekdays__dates__date:nth-child(7)
           .calendar__weekdays__dates__time {
           left: unset;
@@ -366,7 +370,7 @@
     .card__body__bookmark {
       position: absolute;
       right: 15px;
-      top: 19px;
+      top: 11px;
     }
     .card__body__bookmark--pushup {
       top: 4px;
@@ -544,6 +548,13 @@
 
 .card--small {
   max-width: 400px;
+}
+
+.card__body {
+  .label-edit {
+    display: inline-block;
+    max-width: 85%;
+  }
 }
 
 .session-card {

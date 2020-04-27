@@ -52,7 +52,7 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
             session.venue_room.scoped_name if session.venue_room else None
         ),
         'is_break': session.is_break,
-        'url_name_suuid': session.url_name_suuid,
+        'url_name_uuid_b58': session.url_name_uuid_b58,
         'url_name': session.url_name,
         'proposal_id': session.proposal_id,
         'description': session.description,
@@ -66,7 +66,7 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         'proposal_url': (
             session.proposal.url_for(_external=True) if session.proposal else None
         ),
-        'proposal': session.proposal.suuid if session.proposal else None,
+        'proposal': session.proposal.uuid_b58 if session.proposal else None,
         'feedback_url': (
             session.url_for('feedback', _external=True) if session.proposal else None
         ),
@@ -135,14 +135,12 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    event.add(
-        'uid', "/".join([session.project.name, session.url_name]) + '@' + request.host
-    )
-    event.add('dtstart', session.start_at.astimezone(session.project.timezone))
-    event.add('dtend', session.end_at.astimezone(session.project.timezone))
-    event.add('dtstamp', utcnow().astimezone(session.project.timezone))
-    event.add('created', session.created_at.astimezone(session.project.timezone))
-    event.add('last-modified', session.updated_at.astimezone(session.project.timezone))
+    event.add('uid', f'session/{session.uuid_b58}@{request.host}')
+    event.add('dtstart', session.start_at_localized)
+    event.add('dtend', session.end_at_localized)
+    event.add('dtstamp', utcnow())
+    event.add('created', session.created_at)
+    event.add('last-modified', session.updated_at)
     if session.venue_room:
         location = [session.venue_room.title + " - " + session.venue_room.venue.title]
         if session.venue_room.venue.city:
@@ -163,6 +161,7 @@ def session_ical(session):
     alarm = Alarm()
     alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')
+    # FIXME: Needs an i18n-friendly approach
     desc = session.title
     if session.venue_room:
         desc += " in " + session.venue_room.title
@@ -250,21 +249,27 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_ical(self):
         cal = Calendar()
-        cal.add(
-            'prodid',
-            "-//Schedule for {event}//funnel.hasgeek.com//".format(
-                event=self.obj.title
-            ),
-        )
-        cal.add('version', "2.0")
-        cal.add('summary', "Schedule for {event}".format(event=self.obj.title))
-        # FIXME: Last updated time for calendar needs to be set. Cannot figure out how.
-        # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=self.obj).first()
-        # cal.add('last-modified', latest_session[0])
-        cal.add('x-wr-calname', "{event}".format(event=self.obj.title))
+        cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
+        cal.add('version', '2.0')
+        cal.add('name', self.obj.title)
+        cal.add('x-wr-calname', self.obj.title)
+        cal.add('summary', self.obj.title)
+        cal.add('description', self.obj.tagline)
+        cal.add('x-wr-caldesc', self.obj.tagline)
+        cal.add('timezone-id', self.obj.timezone.zone)
+        cal.add('x-wr-timezone', self.obj.timezone.zone)
+        cal.add('refresh-interval;value=duration', 'PT12H')
+        cal.add('x-published-ttl', 'PT12H')
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
-        return Response(cal.to_ical(), mimetype='text/calendar')
+        return Response(
+            cal.to_ical(),
+            mimetype='text/calendar',
+            headers={
+                'Content-Disposition': f'attachment;filename='
+                f'"{self.obj.profile.name}-{self.obj.name}.ics"'
+            },
+        )
 
     @route('edit')
     @render_with('schedule_edit.html.jinja2')
@@ -352,37 +357,45 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_room_ical(self):
         cal = Calendar()
-        cal.add(
-            'prodid',
-            "-//Schedule for room {room} at {venue} for {event}//funnel.hasgeek.com//".format(
-                room=self.obj.title,
-                venue=self.obj.venue.title,
-                event=self.obj.venue.project.title,
-            ),
-        )
+        cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN"),
         cal.add('version', "2.0")
         cal.add(
-            'summary',
-            "Schedule for room {room} at {venue} for {event}".format(
-                room=self.obj.title,
-                venue=self.obj.venue.title,
-                event=self.obj.venue.project.title,
-            ),
+            'name',
+            f'{self.obj.venue.project.title} @ '
+            f'{self.obj.venue.title} / {self.obj.title}',
         )
-        # Last updated time for calendar needs to be set. Cannot figure out how.
-        # latest_session = Session.query.with_entities(func.max(Session.updated_at).label('updated_at')).filter_by(project=project).first()
-        # cal.add('last-modified', latest_session[0])
         cal.add(
             'x-wr-calname',
-            "{event} - {room} @ {venue}".format(
-                room=self.obj.title,
-                venue=self.obj.venue.title,
-                event=self.obj.venue.project.title,
-            ),
+            f'{self.obj.venue.project.title} @ '
+            f'{self.obj.venue.title} / {self.obj.title}',
         )
+        cal.add(
+            'summary',
+            f'{self.obj.venue.project.title} @ '
+            f'{self.obj.venue.title} / {self.obj.title}',
+        )
+        cal.add('timezone-id', self.obj.venue.project.timezone.zone)
+        cal.add('x-wr-timezone', self.obj.venue.project.timezone.zone)
+        cal.add('refresh-interval;value=duration', 'PT12H')
+        cal.add('x-published-ttl', 'PT12H')
+
         for session in self.obj.scheduled_sessions:
             cal.add_component(session_ical(session))
-        return Response(cal.to_ical(), mimetype='text/calendar')
+        return Response(
+            cal.to_ical(),
+            mimetype='text/calendar',
+            headers={
+                'Content-Disposition': 'attachment;filename="'
+                + self.obj.venue.project.profile.name
+                + '-'
+                + self.obj.venue.project.name
+                + '-'
+                + self.obj.venue.name
+                + '-'
+                + self.obj.name
+                + '.ics"'
+            },
+        )
 
     @route('updates')
     @render_with('room_updates.html.jinja2')

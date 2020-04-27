@@ -41,6 +41,15 @@ class SavedProject(NoIdMixin, db.Model):
             roles.add('owner')
         return roles
 
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        project_ids = {sp.project_id for sp in new_user.saved_projects}
+        for sp in old_user.saved_projects:
+            if sp.project_id not in project_ids:
+                sp.user = new_user
+            else:
+                db.session.delete(sp)
+
 
 class SavedSession(NoIdMixin, db.Model):
     #: User who saved this session
@@ -76,6 +85,17 @@ class SavedSession(NoIdMixin, db.Model):
         if actor is not None and actor == self.user:
             roles.add('owner')
         return roles
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        project_ids = {ss.project_id for ss in new_user.saved_sessions}
+        for ss in old_user.saved_sessions:
+            if ss.project_id not in project_ids:
+                ss.user = new_user
+            else:
+                # TODO: `if ss.description`, don't discard, but add it to existing's
+                # description
+                db.session.delete(ss)
 
 
 User.saved_sessions_in = lambda self, project: self.saved_sessions.join(Session).filter(

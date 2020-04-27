@@ -143,9 +143,13 @@ def split_name(fullname):
     """
     Split a given fullname into a first name and remaining names.
 
-    Eg: "ABC DEF EFG" -> ("ABC", "DEF EFG")
+    Eg: "ABC DEF EFG" -> ["ABC", "DEF EFG"]
+        "ABC" -> ["ABC", ""]
     """
-    return fullname.split(None, 1)
+    parts = fullname.split(None, 1)
+    if len(parts) == 1:
+        parts += ['']
+    return parts
 
 
 # TODO: Added tests for this

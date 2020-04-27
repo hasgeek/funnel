@@ -98,7 +98,7 @@ class VenuePrimaryForm(forms.Form):
     venue = QuerySelectField(
         __("Venue"),
         validators=[forms.validators.DataRequired()],
-        get_pk=lambda v: v.suuid,
+        get_pk=lambda v: v.uuid_b58,
         get_label='title',
         allow_blank=False,
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},

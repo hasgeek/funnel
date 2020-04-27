@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from flask import current_app
+
 from baseframe import _, __
 from coaster.sqlalchemy import StateManager, cached
 from coaster.utils import LabeledEnum
@@ -82,6 +84,22 @@ class Vote(BaseMixin, db.Model):
     votedown = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (db.UniqueConstraint("user_id", "voteset_id"), {})
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        votesets = {vote.voteset for vote in new_user.votes}
+        for vote in list(old_user.votes):
+            if vote.voteset not in votesets:
+                vote.user = new_user
+            else:
+                # Discard conflicting vote
+                current_app.logger.warning(
+                    "Discarding conflicting vote (down %r) from %r on voteset %d",
+                    vote.votedown,
+                    vote.user,
+                    vote.voteset_id,
+                )
+                db.session.delete(vote)
 
 
 class Commentset(BaseMixin, db.Model):
@@ -167,7 +185,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @property
     def absolute_url(self):
         if self.commentset.proposal:
-            return self.commentset.proposal.absolute_url + '#c' + self.suuid
+            return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
 
     @property
     def title(self):

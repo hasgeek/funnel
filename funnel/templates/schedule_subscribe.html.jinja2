@@ -1,22 +1,24 @@
-<div class="modal__header">
-  <a class="modal__close" href="javascript:void(0);"  data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{% assets "fa5-sprite" %}<svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL }}#times"></use></svg>{% endassets %}</a>
-  <h3 class="mui--text-title">{% trans %}Subscribe to the schedule{% endtrans %}</h3>
+{% from "baseframe/components.html.jinja2" import faicon %}
+
+<div class="modal__header" data-cy="schedule-subscribe">
+  <a class="modal__close" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times') }}</a>
+  <h3 class="mui--text-headline">{% trans %}Subscribe to the schedule{% endtrans %}</h3>
 </div>
 <hr class="mui-divider mui-divider--custom">
 <div class="modal__body">
-  <h4 class="mui--text-headline mui--bg-primary-light subscibe-title">{% trans %}Complete Schedule{% endtrans %}</h4>
-  <p>
-    <a href="{{ project.url_for('schedule_ical', _external=True) }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Subscribe{% endtrans %}</a>
-    <a href="https://www.google.com/calendar/render?cid={{ project.url_for('schedule_ical', _external=True)|urlencode }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Subscribe using Google Calendar{% endtrans %}</a>
+  <h4 class="mui--text-title mui--bg-primary-light subscibe-title">{% trans %}Complete Schedule{% endtrans %}</h4>
+  <p class="btn-group">
+    <a href="{{ project.url_for('schedule_ical', _external=True) }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Download{% endtrans %}</a>
+    <a href="https://www.google.com/calendar/render?cid={{ project.url_for('schedule_ical', _external=True, _scheme='webcal')|urlencode }}&Name" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Add to Google Calendar{% endtrans %}</a>
   </p>
-  <h4 class="mui--text-headline mui--bg-primary-light subscibe-title">{% trans %}Room Schedules{% endtrans %}</h4>
+  <h4 class="mui--text-title mui--bg-primary-light subscibe-title">{% trans %}Room Schedules{% endtrans %}</h4>
   {% for venue in project.venues %}
     <p class="mui--text-title"><strong>Venue: {{ venue.title }}</strong></p>
     {% for room in venue.rooms %}
       <p class="mui--text-subhead zero-bottom-margin">{{ room.title }}</p>
-      <p>
-        <a href="{{ room.url_for('schedule_room_ical', _external=True) }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Subscribe{% endtrans %}</a>
-        <a href="https://www.google.com/calendar/render?cid={{ room.url_for('schedule_room_ical', _external=True)|urlencode }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Subscribe using Google Calendar{% endtrans %}</a>
+      <p class="btn-group">
+        <a href="{{ room.url_for('schedule_room_ical', _external=True) }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Download{% endtrans %}</a>
+        <a href="https://www.google.com/calendar/render?cid={{ room.url_for('schedule_room_ical', _external=True, _scheme='webcal')|urlencode }}&Name" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Add to Google Calendar{% endtrans %}</a>
       </p>
     {% endfor %}
   {% endfor %}

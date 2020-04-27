@@ -1,5 +1,5 @@
 describe('Add session to schedule and publish', function() {
-  const { admin } = require('../fixtures/user.js');
+  const admin = require('../fixtures/user.json').admin;
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
@@ -11,7 +11,8 @@ describe('Add session to schedule and publish', function() {
     cy.route('**/schedule').as('session-form');
     cy.route('POST', '**/schedule').as('add-session');
 
-    cy.relogin('/testcypressproject');
+    cy.login('/testcypressproject', admin.username, admin.password);
+
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
@@ -38,6 +39,7 @@ describe('Add session to schedule and publish', function() {
     cy.get('#field-is_break')
       .find('label')
       .click();
+    cy.get('#field-video_url').type(session.video);
     cy.get('#session-save').click();
     cy.wait('@add-new-session');
 
