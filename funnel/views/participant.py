@@ -15,7 +15,6 @@ from coaster.views import (
     ModelView,
     UrlForView,
     render_with,
-    requires_permission,
     requires_roles,
     route,
 )
@@ -115,7 +114,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('json')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'project_concierge', 'project_usher'})
     def participants_json(self):
         return jsonify(
             participants=[
@@ -126,7 +125,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'project_concierge'})
     def new_participant(self):
         form = ParticipantForm(parent=self.obj)
         if form.validate_on_submit():
@@ -181,7 +180,7 @@ class ParticipantView(UrlForView, ModelView):
         return super(ParticipantView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_permission('edit-participant')
+    @requires_roles({'project_concierge'})
     def edit(self):
         form = ParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
@@ -195,13 +194,13 @@ class ParticipantView(UrlForView, ModelView):
 
     @route('badge', methods=['GET'])
     @render_with('badge.html.jinja2')
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def badge(self):
         return {'badges': participant_badge_data([self.obj], self.obj.project)}
 
     @route('label_badge', methods=['GET'])
     @render_with('label_badge.html.jinja2')
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def label_badge(self):
         return {'badges': participant_badge_data([self.obj], self.obj.project)}
 
@@ -220,7 +219,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
 
     @route('participants/checkin', methods=['GET', 'POST'])
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def checkin(self):
         form = forms.Form()
         if form.validate_on_submit():
@@ -238,7 +237,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
 
     @route('participants/json')
     @render_with(json=True)
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def participants_json(self):
         checkin_count = 0
         participants = []
@@ -257,7 +256,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
 
     @route('badges')
     @render_with('badge.html.jinja2')
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def badges(self):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
@@ -273,7 +272,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
 
     @route('label_badges')
     @render_with('label_badge.html.jinja2')
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def label_badges(self):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
@@ -304,6 +303,7 @@ class EventParticipantCheckinView(ClassView):
 
     @route('checkin', methods=['POST'])
     @render_with(json=True)
+    @requires_roles({'project_concierge', 'project_usher'})
     def checkin_puk(self, profile, project, event, puk):
         checked_in = getbool(request.form.get('checkin', 't'))
         event = (
