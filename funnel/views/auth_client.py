@@ -77,7 +77,7 @@ def client_new():
         auth_client.trusted = False
         db.session.add(auth_client)
         db.session.commit()
-        return render_redirect(auth_client.url_for('info'), code=303)
+        return render_redirect(auth_client.url_for(), code=303)
 
     return render_form(
         form=form,
@@ -88,18 +88,18 @@ def client_new():
     )
 
 
-@route('/account/apps/<key>')
+@route('/account/apps/<app>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
-    route_model_map = {'key': 'buid'}
+    route_model_map = {'app': 'buid'}
 
-    def loader(self, key):
-        return self.model.query.filter(AuthClient.buid == key).first_or_404()
+    def loader(self, app):
+        return self.model.query.filter(AuthClient.buid == app).one_or_404()
 
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
     @requires_permission('view')
-    def info(self):
+    def view(self):
         if self.obj.user:
             permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
         else:
@@ -142,7 +142,7 @@ class AuthClientView(UrlForView, ModelView):
             self.obj.user = form.user
             self.obj.organization = form.organization
             db.session.commit()
-            return render_redirect(self.obj.url_for('`info'), code=303)
+            return render_redirect(self.obj.url_for(), code=303)
 
         return render_form(
             form=form,
@@ -247,7 +247,7 @@ class AuthClientView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.url_for('info'), code=303)
+            return render_redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
             title=_("Assign permissions"),
@@ -261,15 +261,15 @@ AuthClientView.init_app(app)
 # --- Routes: client credentials ----------------------------------------------
 
 
-@route('/apps/<key>/cred/<name>')
+@route('/account/apps/<app>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
-    route_model_map = {'key': 'auth_client.buid', 'name': 'name'}
+    route_model_map = {'app': 'auth_client.buid', 'name': 'name'}
 
-    def loader(self, key, name):
+    def loader(self, app, name):
         cred = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == key, AuthClientCredential.name == name)
+            .filter(AuthClient.buid == app, AuthClientCredential.name == name)
             .first_or_404()
         )
         return cred
@@ -286,7 +286,7 @@ class AuthClientCredentialView(UrlForView, ModelView):
             success=_("You have deleted access key ‘{title}’").format(
                 title=self.obj.title
             ),
-            next=self.obj.auth_client.url_for('info'),
+            next=self.obj.auth_client.url_for(),
         )
 
 
@@ -296,16 +296,16 @@ AuthClientCredentialView.init_app(app)
 # --- Routes: client app permissions ------------------------------------------
 
 
-@route('/apps/<key>/perms/u/<buid>')
+@route('/account/apps/<app>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
-    route_model_map = {'key': 'auth_client.buid', 'buid': 'user.buid'}
+    route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
 
-    def loader(self, key, buid):
-        user = User.get(buid=buid)
+    def loader(self, app, user):
+        user = User.get(buid=user)
         perm = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == key, self.model.user == user)
+            .filter(AuthClient.buid == app, self.model.user == user)
             .one_or_404()
         )
         return perm
@@ -339,7 +339,7 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.auth_client.url_for('info'), code=303)
+            return render_redirect(self.obj.auth_client.url_for(), code=303)
         return render_form(
             form=form,
             title=_("Edit permissions"),
@@ -362,23 +362,23 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
             success=_("You have revoked permisions for user {pname}").format(
                 pname=self.obj.user.pickername
             ),
-            next=self.obj.auth_client.url_for('info'),
+            next=self.obj.auth_client.url_for(),
         )
 
 
 AuthClientUserPermissionsView.init_app(app)
 
 
-@route('/apps/<key>/perms/t/<buid>')
+@route('/account/apps/<app>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
-    route_model_map = {'key': 'auth_client.buid', 'buid': 'team.buid'}
+    route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}
 
-    def loader(self, key, buid):
-        team = Team.get(buid=buid)
+    def loader(self, app, team):
+        team = Team.get(buid=team)
         perm = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == key, self.model.team == team)
+            .filter(AuthClient.buid == app, self.model.team == team)
             .one_or_404()
         )
         return perm
@@ -412,7 +412,7 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.auth_client.url_for('info'), code=303)
+            return render_redirect(self.obj.auth_client.url_for(), code=303)
         return render_form(
             form=form,
             title=_("Edit permissions"),
@@ -435,7 +435,7 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
             success=_("You have revoked permisions for team {title}").format(
                 title=self.obj.team.title
             ),
-            next=self.obj.auth_client.url_for('info'),
+            next=self.obj.auth_client.url_for(),
         )
 
 

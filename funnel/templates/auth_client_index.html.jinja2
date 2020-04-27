@@ -19,7 +19,7 @@
     </thead>
     <tbody class="mui--text-subhead">
       {% for auth_client in auth_clients %}
-        {%- set link = auth_client.url_for('info') %}
+        {%- set link = auth_client.url_for() %}
         <tr>
           <td data-th="#"><a href="{{ link }}" title="{{ auth_client.title }}">{{ loop.index }}</a></td>
           <td data-th="Title"><a href="{{ link }}" title="{{ auth_client.title }}">{{ auth_client.title }}</a></td>
