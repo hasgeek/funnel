@@ -111,7 +111,7 @@ class AccountForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         description=__("Required for sending you tickets, invoices and notifications"),
-        validators=[forms.validators.DataRequired(), forms.ValidEmail()],
+        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
@@ -166,7 +166,7 @@ class AccountForm(forms.Form):
 class NewEmailAddressForm(forms.RecaptchaForm):
     email = forms.EmailField(
         __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.ValidEmail()],
+        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # NOQA: A003
@@ -201,7 +201,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
 class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.ValidEmail()],
+        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
