@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import flash, g, jsonify, redirect, request, url_for
+from flask import abort, flash, g, jsonify, redirect, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -20,7 +20,7 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import ParticipantForm
-from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
+from ..models import Attendee, Participant, Profile, Project, SyncTicket, db
 from ..utils import format_twitter_handle, make_qrcode, split_name, strip_null
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
@@ -303,30 +303,33 @@ class EventParticipantCheckinView(ClassView):
     @route('checkin', methods=['POST'])
     @render_with(json=True)
     def checkin_puk(self, profile, project, event, puk):
-        checked_in = getbool(request.form.get('checkin', 't'))
-        event = (
-            Event.query.join(Project, Profile)
-            .filter(
-                Profile.name == profile, Project.name == project, Event.name == event
-            )
-            .first_or_404()
-        )
-        participant = (
-            Participant.query.join(Project, Profile)
-            .filter(
-                Profile.name == profile, Project.name == project, Participant.puk == puk
-            )
-            .first_or_404()
-        )
-        attendee = Attendee.get(event, participant.uuid_b58)
-        if not attendee:
-            return (
-                {'error': 'not_found', 'error_description': "Attendee not found"},
-                404,
-            )
-        attendee.checked_in = checked_in
-        db.session.commit()
-        return {'attendee': {'fullname': participant.fullname}}
+        # checked_in = getbool(request.form.get('checkin', 't'))
+        # event = (
+        #     Event.query.join(Project, Profile)
+        #     .filter(
+        #         Profile.name == profile, Project.name == project, Event.name == event
+        #     )
+        #     .first_or_404()
+        # )
+        # participant = (
+        #     Participant.query.join(Project, Profile)
+        #     .filter(
+        #         Profile.name == profile, Project.name == project, Participant.puk == puk
+        #     )
+        #     .first_or_404()
+        # )
+        # attendee = Attendee.get(event, participant.uuid_b58)
+        # if not attendee:
+        #     return (
+        #         {'error': 'not_found', 'error_description': "Attendee not found"},
+        #         404,
+        #     )
+        # attendee.checked_in = checked_in
+        # db.session.commit()
+        # return {'attendee': {'fullname': participant.fullname}}
+
+        # FIXME: This view and badge generation need to be moved to use base58
+        abort(403)
 
 
 EventParticipantCheckinView.init_app(app)
