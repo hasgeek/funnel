@@ -174,17 +174,18 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         )
 
     def roles_for(self, actor, anchors=()):
-
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
         else:
             roles = super().roles_for(actor, anchors)
+        if self.state.PUBLIC:
+            roles.add('reader')
         return roles
 
     @classmethod
     def get(cls, name):
         return cls.query.filter(
-            db.func.lower(Profile.name) == db.func.lower(name), cls.state.PUBLIC
+            db.func.lower(Profile.name) == db.func.lower(name)
         ).one_or_none()
 
     @classmethod
