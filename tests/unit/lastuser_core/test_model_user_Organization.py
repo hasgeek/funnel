@@ -20,24 +20,6 @@ class TestOrganization(TestDatabaseFixture):
         self.assertEqual(dachsunited.title, title)
         self.assertEqual(dachsunited.name, name)
 
-    def test_organization_make_teams(self):
-        """
-        Test for verifying the creation of default Teams: owners and members
-        """
-        crusoe = self.fixtures.crusoe
-        name = 'dachshunited'
-        title = 'Dachshunds United'
-        dachsunited = models.Organization(name=name, title=title, owner=crusoe)
-
-        # INVALID: Organization can no longer be created without an owner.
-        # Scenario: before any users were added to the organization
-        # self.assertIsInstance(dachsunited.owners, models.Team)
-        # self.assertEqual(dachsunited.owners.users.all(), [])
-
-        # After adding users to the organization
-        self.assertEqual(dachsunited.owners.users.all(), [crusoe])
-        assert title == dachsunited.owners.organization.title
-
     def test_organization_get(self):
         """
         Test for retrieving an organization

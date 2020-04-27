@@ -137,7 +137,7 @@ class TestAuthToken(TestDatabaseFixture):
         db.session.commit()
 
         # scenario 1
-        result1 = models.AuthToken.all(pottermania.owners.users)
+        result1 = models.AuthToken.all(pottermania.owner_users)
         self.assertIsInstance(result1, list)
         self.assertIsInstance(result1[0], models.AuthToken)
         self.assertCountEqual(result1, [herminone_token])
