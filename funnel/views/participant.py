@@ -8,7 +8,6 @@ from flask import flash, g, jsonify, redirect, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.auth import current_auth
 from coaster.utils import getbool, uuid_to_base58
 from coaster.views import (
     ClassView,
@@ -82,7 +81,7 @@ def participant_checkin_data(participant, project, event):
         'checked_in': participant.checked_in,
         'ticket_type_titles': participant.ticket_type_titles,
     }
-    if 'checkin_event' in current_auth.user.current_permissions:
+    if {'concierge', 'usher'}.intersection(project.current_roles):
         data.update(
             {
                 'badge_url': url_for(

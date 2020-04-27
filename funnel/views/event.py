@@ -34,7 +34,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('event_list.html.jinja2')
     @requires_login
-    @requires_roles({'usher'})
+    @requires_roles({'concierge', 'usher'})
     def events(self):
         return {
             'project': self.obj,
