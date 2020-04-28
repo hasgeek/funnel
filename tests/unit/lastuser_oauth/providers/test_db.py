@@ -2,7 +2,7 @@
 
 import unittest
 
-from lastuserapp import app, db
+from funnel import app, db
 
 from .fixtures import Fixtures
 
