@@ -175,6 +175,40 @@ export const Utils = {
       }
     });
   },
+  getElementId(htmlString) {
+    return htmlString.match(/id="(.*?)"/)[1];
+  },
+  formErrorHandler(formId, errorResponse) {
+    let errorMsg = '';
+    // xhr readyState '4' indicates server has received the request & response is ready
+    if (errorResponse.readyState === 4) {
+      if (errorResponse.status === 500) {
+        errorMsg = 'Internal Server Error';
+      } else {
+        if (errorResponse.responseJSON.errors) {
+          window.Baseframe.Forms.showValidationErrors(
+            formId,
+            errorResponse.responseJSON.errors
+          );
+        }
+        errorMsg = errorResponse.responseJSON.message
+          ? errorResponse.responseJSON.message
+          : 'Error';
+      }
+    } else {
+      errorMsg = 'Unable to connect. Please try again.';
+    }
+    $(`#${formId}`)
+      .find('button[type="submit"]')
+      .prop('disabled', false);
+    $(`#${formId}`)
+      .find('.loading')
+      .addClass('mui--hide');
+    return errorMsg;
+  },
+  getActionUrl(formId) {
+    return $(`#${formId}`).attr('action');
+  },
 };
 
 export const ScrollActiveMenu = {

@@ -216,6 +216,11 @@ html.touch .collapsible__body--disable {
   margin-bottom: 10px;
 }
 
+.full-width-btn {
+  width: 100%;
+  margin: 0;
+}
+
 .past-events-table {
   border-collapse: collapse;
 }
@@ -1319,6 +1324,78 @@ html.touch .collapsible__body--disable {
   margin-left: 5px;
 }
 
+.modal-form-page .jquery-modal.blocker.current {
+  padding: 0;
+}
+
+.modal-form {
+  min-width: 100%;
+  min-height: 325px;
+  height: 100%;
+  border-radius: 0;
+}
+.modal-form .modal-form__action-box {
+  padding: 20px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  border-top: 1px solid rgba(132, 146, 166, 0.3);
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  z-index: 1002;
+}
+.modal-form .modal-form__action-box--revoke {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+}
+.modal-form .modal-form__action-box--revoke .mui-btn.mui-btn--nostyle {
+  text-transform: none;
+}
+.modal-form .mui-form .form-actions {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 15px;
+  z-index: 1003;
+}
+
+.modal-form.modal-form--edit .modal-form__action-box,
+.modal-form.modal-form--edit .mui-form .form-actions {
+  bottom: 65px;
+}
+
+@media (min-width: 768px) {
+  .modal-form {
+    min-width: 50%;
+    min-height: 450px;
+    height: auto;
+    border-radius: 4px;
+  }
+}
+.search {
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 0 10px;
+  border: 1px solid rgba(132, 146, 166, 0.3);
+  border-radius: 2px;
+}
+.search .mui-textfield {
+  padding: 0;
+  margin: 0;
+  height: 36px;
+}
+.search .mui-textfield > input {
+  border-bottom: 0;
+}
+
+@media (min-width: 1200px) {
+  .search.search--50 {
+    width: 50%;
+  }
+}
 .badge-print-status-btn .mui-form__fields.select2-inline {
   min-width: 160px;
 }
@@ -1939,6 +2016,10 @@ html.touch .collapsible__body--disable {
 }
 .card--new .card__body--new .new-btn:hover {
   text-decoration: none;
+}
+
+.card--new--padding {
+  padding: 10px;
 }
 
 .card--small {
@@ -3396,6 +3477,121 @@ body > .proposal-box.ui-draggable {
 }
 .camera-dropdown .mui-select__menu {
   display: block !important;
+}
+
+@media (min-width: 768px) {
+  .membership-wrapper {
+    width: 50%;
+    float: left;
+  }
+
+  .membership-wrapper + .membership-wrapper {
+    padding-left: 15px;
+  }
+}
+.membership-wrapper__filter {
+  margin-top: 10px;
+  clear: both;
+}
+
+.membership-wrapper__info {
+  background: white;
+  margin: 10px -15px -15px;
+  padding: 15px;
+  clear: both;
+}
+
+.content-box {
+  padding: 15px;
+  background-color: #f6e2c5;
+  color: #906b37;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+@media (min-width: 768px) {
+  .content-box {
+    cursor: auto;
+  }
+}
+.membership-wrapper__members .membership-wrapper__members__collapsible__header {
+  margin: 5px 0 0;
+  width: 100%;
+  background: #eff2f7;
+  padding: 15px;
+  cursor: pointer;
+}
+.membership-wrapper__members .membership-wrapper__members__list {
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  padding: 5px 15px 15px;
+}
+.membership-wrapper__members
+  .membership-wrapper__members__list
+  .membership-wrapper__members__list__roles {
+  display: inline-block;
+  text-align: right;
+  float: right;
+}
+.membership-wrapper__members
+  .membership-wrapper__members__list
+  .membership-wrapper__members__list__roles__role {
+  display: none;
+  color: #4a90e2;
+}
+.membership-wrapper__members
+  .membership-wrapper__members__list
+  .membership-wrapper__members__list__roles__role:first-child {
+  display: block;
+}
+.membership-wrapper__members .membership-wrapper__members__list:last-child {
+  border: none;
+}
+.membership-wrapper__members .membership-wrapper__members__list--viewonly {
+  cursor: default;
+}
+.membership-wrapper__members .membership-wrapper__members__list--nomargin {
+  margin: 0 auto;
+}
+
+@media (min-width: 1200px) {
+  .membership-wrapper__members
+    .membership-wrapper__members__list
+    .membership-wrapper__members__list__roles__role {
+    display: inline-block !important;
+  }
+  .membership-wrapper__members
+    .membership-wrapper__members__list
+    .membership-wrapper__members__list__roles__count {
+    display: none;
+  }
+}
+.slide-fade-enter-active {
+  transition: all 0.1s ease-in;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.1s ease-in;
+}
+
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateY(10px);
+  opacity: 0;
+}
+
+.modal-form--edit .select2.select2-container {
+  display: none !important;
+}
+.modal-form--edit .select2-hidden-accessible {
+  background-color: #eee;
+  cursor: not-allowed;
+  height: 32px !important;
+  position: relative !important;
+}
+.modal-form--edit .mui-select:focus > label,
+.modal-form--edit .mui-select > select:focus ~ label {
+  color: rgba(0, 0, 0, 0.54);
 }
 
 .footer {

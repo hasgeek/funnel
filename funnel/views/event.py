@@ -7,7 +7,7 @@ from flask import flash, g, jsonify, redirect
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form
 from coaster.utils import getbool
-from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
+from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
 from ..forms import EventForm, ParticipantBadgeForm, TicketClientForm, TicketTypeForm
@@ -34,7 +34,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('event_list.html.jinja2')
     @requires_login
-    @requires_permission('checkin_event')
+    @requires_roles({'concierge', 'usher'})
     def events(self):
         return {
             'project': self.obj,
@@ -44,7 +44,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('json')
     @requires_login
-    @requires_permission('admin')
+    @requires_roles({'editor', 'concierge'})
     def events_json(self):
         return jsonify(
             events=[{'name': e.name, 'title': e.title} for e in self.obj.events]
@@ -52,7 +52,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new-event')
+    @requires_roles({'concierge'})
     def new_event(self):
         form = EventForm()
         if form.validate_on_submit():
@@ -70,7 +70,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('ticket_type/new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new-ticket-type')
+    @requires_roles({'concierge'})
     def new_ticket_type(self):
         form = TicketTypeForm()
         form.events.query = self.obj.events
@@ -91,7 +91,7 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('ticket_client/new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new_ticket_client')
+    @requires_roles({'concierge'})
     def new_ticket_client(self):
         form = TicketClientForm()
         if form.validate_on_submit():
@@ -124,7 +124,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET', 'POST'])
     @render_with('event.html.jinja2')
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def view(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
@@ -160,7 +160,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
         }
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_permission('edit_event')
+    @requires_roles({'project_concierge'})
     def edit(self):
         form = EventForm(obj=self.obj, model=Event)
         if form.validate_on_submit():
@@ -171,7 +171,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
         return render_form(form=form, title=_("Edit event"), submit=_("Save changes"))
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_permission('delete_event')
+    @requires_roles({'project_concierge'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -188,7 +188,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
 
     @route('scan_badge')
     @render_with('scan_badge.html.jinja2')
-    @requires_permission('checkin_event')
+    @requires_roles({'project_concierge', 'project_usher'})
     def scan_badge(self):
         return {
             'profile': self.obj.project.profile,
@@ -234,7 +234,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     @route('')
     @render_with('ticket_type.html.jinja2')
-    @requires_permission('view_ticket_type')
+    @requires_roles({'project_concierge'})
     def view(self):
         participants = (
             Participant.query.join(SyncTicket)
@@ -249,7 +249,7 @@ class TicketTypeView(UrlForView, ModelView):
         }
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_permission('edit_event')
+    @requires_roles({'project_concierge'})
     def edit(self):
         form = TicketTypeForm(obj=self.obj, model=TicketType)
         form.events.query = self.obj.project.events
@@ -263,7 +263,7 @@ class TicketTypeView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_permission('delete_ticket_type')
+    @requires_roles({'project_concierge'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -315,7 +315,7 @@ class TicketClientView(UrlForView, ModelView):
         return super(TicketClientView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_permission('edit_ticket_client')
+    @requires_roles({'project_concierge'})
     def edit(self):
         form = TicketClientForm(obj=self.obj, model=TicketClient)
         if form.validate_on_submit():
@@ -328,7 +328,7 @@ class TicketClientView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_permission('delete_ticket_client')
+    @requires_roles({'project_concierge'})
     def delete(self):
         return render_delete_sqla(
             self.obj,

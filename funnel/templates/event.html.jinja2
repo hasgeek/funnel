@@ -82,7 +82,7 @@
               <td class='js-searchable' data-th="Company">{{ company }}</td>
               <td class='buttongrp-column'>
                 <ul class="mui-list--unstyled">
-                  {{#if isAdmin || isConcierge}}
+                  {{#if isUsher || isConcierge}}
                   <li>
                     <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" data-cy="show-badge">Show badge</a>
                   </li>
@@ -103,7 +103,7 @@
                       {{/if}}
                     </form>
                   </li>
-                  {{#if isAdmin}}
+                  {{#if isConcierge}}
                   <li>
                     <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" data-cy="edit-attendee-details">Edit attendee details</a>
                   </li>
@@ -124,7 +124,6 @@
 <script src="{{ url_for('static', filename=asset_path('event')) }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-
     /* Check-in scenarios:
     1. A participant is checked-in & Internet is available. Also verify for cancel check-in and multiple participants check-in.
     2. A participant is checked-in & Internet is down.
@@ -136,23 +135,19 @@
     8. There are two check-in counters & both counter's internet is down: They checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
     8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
     9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
-
     var eventConfig = {};
     eventConfig.checkin = {
-      isAdmin: {%- if project.current_roles.admin %} true {% else %} false {%- endif %},
-      isConcierge: {%- if current_auth.permissions.checkin_event %} true {% else %} false {%- endif %},
+      isConcierge: {%- if project.current_roles.concierge %} true {% else %} false {%- endif %},
+      isUsher: {%- if project.current_roles.usher %} true {% else %} false {%- endif %},
       checkinUrl: "{{ event.url_for('checkin') }}",
       participantlistUrl: "{{ event.url_for('participants_json') }}",
       eventName: "{{ project.name }}" + "-" + "{{event.title}}".replace(/ /g,'-'),
     };
-
     eventConfig.search = {
       tableId: 'participants-table',
       inputId: 'search'
     };
-
     HasGeek.EventInit(eventConfig);
-
     //If there is no network, display a confirmation dialog when user closes/reloades the page
     window.onbeforeunload = function() {
       if (!navigator.onLine) {
@@ -161,7 +156,6 @@
         return true;
       }
     };
-
     $('#badge_form').on("submit", function() {
       if ($('#badge_form select.field-badge_printed').val() === '') {
         return false;
@@ -169,7 +163,6 @@
         return window.confirm('Are you sure? Selected action will apply to all listed participants.');
       }
     });
-
   });
 </script>
 {% endblock %}

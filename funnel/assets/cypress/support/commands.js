@@ -25,19 +25,6 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.wait('@login', { timeout: 20000 });
 });
 
-Cypress.Commands.add('relogin', route => {
-  cy.visit(route)
-    .get('#hgnav')
-    .then($header => {
-      if ($header.find('.header__button').length > 0) {
-        cy.get('#hgnav')
-          .find('.header__button')
-          .click();
-        cy.location('pathname').should('include', route);
-      }
-    });
-});
-
 Cypress.Commands.add('logout', () => {
   cy.get('a[data-cy="account-link"]').click();
   cy.get('a[data-cy="my-account"]').click();
@@ -46,6 +33,37 @@ Cypress.Commands.add('logout', () => {
     .contains('Logout')
     .click();
   cy.clearCookies();
+});
+
+Cypress.Commands.add('add_member', (username, role) => {
+  cy.server();
+  cy.route('**/membership/new').as('member-form');
+  cy.route('POST', '**/membership/new').as('add-member');
+
+  cy.get('button[data-cy-btn="add-member"]').click();
+  cy.wait('@member-form');
+  cy.get('.select2-selection__arrow').click({ multiple: true });
+  cy.get('.select2-search__field').type(username, {
+    force: true,
+  });
+  cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
+    'be.visible'
+  );
+  cy.get('.select2-results__option')
+    .contains(username)
+    .click();
+  cy.get('.select2-results__options', { timeout: 10000 }).should('not.visible');
+  cy.get(`#is_${role}`).click();
+  cy.get('button')
+    .contains('Add member')
+    .click();
+  cy.wait('@add-member');
+  var roleString = role[0].toUpperCase() + role.slice(1);
+  cy.get('[data-cy="member"]')
+    .contains(username)
+    .parents('.user-box')
+    .find('[data-cy="role"]')
+    .contains(roleString);
 });
 
 Cypress.Commands.add('checkin', participant => {

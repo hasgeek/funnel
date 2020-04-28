@@ -98,7 +98,7 @@ def notify_org_data_changed(org, user, changes, team=None):
     all other owners of this org to find apps that need to be notified.
     """
     client_users = {}
-    for token in AuthToken.all(users=org.owners.users):
+    for token in AuthToken.all(users=org.admin_users):
         if (
             {'*', 'organizations', 'organizations/*'}.intersection(
                 token.effective_scope

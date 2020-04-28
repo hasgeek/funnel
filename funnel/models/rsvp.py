@@ -29,16 +29,14 @@ class Rsvp(TimestampMixin, db.Model):
         None, db.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = db.relationship(
-        Project,
-        backref=db.backref('rsvps', cascade='all, delete-orphan', lazy='dynamic'),
+        Project, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
     )
     user_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=False, primary_key=True
     )
     user = with_roles(
         db.relationship(
-            User,
-            backref=db.backref('rsvps', cascade='all, delete-orphan', lazy='dynamic'),
+            User, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         grants={'owner'},
     )

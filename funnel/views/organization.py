@@ -20,12 +20,12 @@ from .helpers import requires_login
 class OrgView(UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Organization
-    # Map <name> in URL to attribute `name`, for `url_for` automation
-    route_model_map = {'name': 'name'}
+    # Map <organization> in URL to attribute `name`, for `url_for` automation
+    route_model_map = {'organization': 'name'}
 
-    def loader(self, name=None):
-        if name:
-            obj = Organization.get(name=name)
+    def loader(self, organization=None):
+        if organization:
+            obj = Organization.get(name=organization)
             if not obj:
                 abort(404)
             return obj
@@ -34,35 +34,38 @@ class OrgView(UrlForView, ModelView):
     def index(self):
         return render_template(
             'organization_index.html.jinja2',
-            organizations=current_auth.user.organizations_owned(),
+            organizations=current_auth.user.organizations_as_owner,
         )
 
-    @route('new', methods=['GET', 'POST'])
+    @route('/new', methods=['GET', 'POST'])
     def new(self):
         form = OrganizationForm()
         if form.validate_on_submit():
-            org = Organization()
+            org = Organization(owner=current_auth.user)
             form.populate_obj(org)
-            if current_auth.user not in org.owners.users:
-                org.owners.users.append(current_auth.user)
             db.session.add(org)
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
-            return render_redirect(org.url_for('view'), code=303)
+            if org.profile.state.PUBLIC:
+                return render_redirect(org.profile.url_for('edit'), code=303)
+            else:
+                return render_redirect(org.url_for(), code=303)
         return render_form(
             form=form,
-            title=_("New organization"),
+            title=_("Create a new organization"),
             formid='org_new',
-            submit=_("Create"),
+            submit=_("Next"),
             ajax=False,
         )
 
-    @route('<name>')
+    # TODO: Deprecated, redirect user to /<profile> instead once teams are removed
+    @route('<organization>')
     @requires_permission('view')
     def view(self):
         return render_template('organization.html.jinja2', org=self.obj)
 
-    @route('<name>/edit', methods=['GET', 'POST'])
+    # TODO: Deprecated, use `/<profile>/edit` instead
+    @route('<organization>/edit', methods=['GET', 'POST'])
     @requires_permission('edit')
     def edit(self):
         form = OrganizationForm(obj=self.obj)
@@ -79,7 +82,8 @@ class OrgView(UrlForView, ModelView):
             ajax=False,
         )
 
-    @route('<name>/delete', methods=['GET', 'POST'])
+    # The /root URL is intentional as profiles don't have a delete endpoint
+    @route('/<organization>/delete', methods=['GET', 'POST'])
     @requires_permission('delete')
     def delete(self):
         if request.method == 'POST':
@@ -96,13 +100,13 @@ class OrgView(UrlForView, ModelView):
             next=url_for('OrgView_index'),
         )
 
-    @route('<name>/teams')
+    @route('<organization>/teams')
     @requires_permission('view-teams')
     def teams(self):
         # There's no separate teams page at the moment
         return redirect(self.obj.url_for('view'))
 
-    @route('<name>/teams/new', methods=['GET', 'POST'])
+    @route('<organization>/teams/new', methods=['GET', 'POST'])
     @requires_permission('new-team')
     def new_team(self):
         form = TeamForm()
@@ -121,18 +125,18 @@ class OrgView(UrlForView, ModelView):
 OrgView.init_app(app)
 
 
-@route('/organizations/<name>/teams/<buid>')
+@route('/organizations/<organization>/teams/<team>')
 class TeamView(UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Team
     route_model_map = {  # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
-        'name': 'organization.name',
-        'buid': 'buid',
+        'organization': 'organization.name',
+        'team': 'buid',
     }
 
-    def loader(self, name, buid):
-        obj = Team.get(buid=buid, with_parent=True)
-        if not obj or obj.organization.name != name:
+    def loader(self, organization, team):
+        obj = Team.get(buid=team, with_parent=True)
+        if not obj or obj.organization.name != organization:
             abort(404)
         return obj
 
@@ -156,8 +160,6 @@ class TeamView(UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_permission('delete')
     def delete(self):
-        if self.obj == self.obj.organization.owners:
-            abort(403)
         if request.method == 'POST':
             team_data_changed.send(self.obj, changes=['delete'], user=current_auth.user)
         return render_delete_sqla(

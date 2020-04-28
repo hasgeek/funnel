@@ -9,7 +9,7 @@ from funnel.models import Label
 class TestProjectViews(object):
     def test_new_label_get(self, test_client, new_user, new_project):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             resp = c.get(new_project.url_for('new_label'))
             label_form = LabelForm(parent=new_project, model=Label)
@@ -18,7 +18,7 @@ class TestProjectViews(object):
 
     def test_new_label_without_option(self, test_client, new_user, new_project):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             resp_post = c.post(
                 new_project.url_for('new_label'),
@@ -40,7 +40,7 @@ class TestProjectViews(object):
 
     def test_new_label_with_option(self, test_client, new_user, new_project):
         with test_client.session_transaction() as session:
-            session['lastuser_userid'] = new_user.userid
+            session['userid'] = new_user.userid
         with test_client as c:
             resp_post = c.post(
                 new_project.url_for('new_label'),

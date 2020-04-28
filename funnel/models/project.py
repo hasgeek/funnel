@@ -31,7 +31,7 @@ from . import (
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import RESERVED_NAMES, add_search_trigger
 from .profile import Profile
-from .user import Team, User
+from .user import User
 
 __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
@@ -72,12 +72,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('projects', cascade='all, delete-orphan'),
+        backref=db.backref('projects', cascade='all'),
     )
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
     profile = db.relationship(
-        'Profile',
-        backref=db.backref('projects', cascade='all, delete-orphan', lazy='dynamic'),
+        'Profile', backref=db.backref('projects', cascade='all', lazy='dynamic')
     )
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
@@ -139,21 +138,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(Commentset, uselist=False)
 
-    admin_team_id = db.Column(
-        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
-    )
-    admin_team = db.relationship(Team, foreign_keys=[admin_team_id])
-
-    review_team_id = db.Column(
-        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
-    )
-    review_team = db.relationship(Team, foreign_keys=[review_team_id])
-
-    checkin_team_id = db.Column(
-        None, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True
-    )
-    checkin_team = db.relationship(Team, foreign_keys=[checkin_team_id])
-
     parent_id = db.Column(
         None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
@@ -199,13 +183,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     venues = db.relationship(
         'Venue',
-        cascade='all, delete-orphan',
+        cascade='all',
         order_by='Venue.seq',
         collection_class=ordering_list('seq', count_from=1),
     )
     labels = db.relationship(
         'Label',
-        cascade='all, delete-orphan',
+        cascade='all',
         primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None, Label._archived == False)',
         order_by='Label.seq',
         collection_class=ordering_list('seq', count_from=1),
@@ -269,6 +253,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         super(Project, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
+        # Add the creator as editor and concierge
+        new_membership = ProjectCrewMembership(
+            parent=self,
+            user=self.user,
+            granted_by=self.user,
+            is_editor=True,
+            is_concierge=True,
+        )
+        db.session.add(new_membership)
 
     def __repr__(self):
         return '<Project %s/%s "%s">' % (
@@ -441,7 +434,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
         cfp_state.PUBLIC,
@@ -452,7 +445,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def open_cfp(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
@@ -463,7 +456,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def close_cfp(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @schedule_state.transition(
         schedule_state.DRAFT,
         schedule_state.PUBLISHED,
@@ -474,7 +467,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def publish_schedule(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @schedule_state.transition(
         schedule_state.PUBLISHED,
         schedule_state.DRAFT,
@@ -485,7 +478,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def unpublish_schedule(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @state.transition(
         state.PUBLISHABLE,
         state.PUBLISHED,
@@ -496,7 +489,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def publish(self):
         pass
 
-    @with_roles(call={'admin'})
+    @with_roles(call={'editor'})
     @state.transition(
         state.PUBLISHED,
         state.WITHDRAWN,
@@ -508,7 +501,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         pass
 
     # Removing Delete feature till we figure out siteadmin feature
-    # @with_roles(call={'admin'})
+    # @with_roles(call={'editor'})
     # @state.transition(
     #     state.DELETABLE, state.DELETED, title=__("Delete project"),
     #     message=__("The project has been deleted"), type='success')
@@ -782,11 +775,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if user is not None:
             if self.cfp_state.OPEN:
                 perms.add('new-proposal')
-            if (
-                (self.admin_team and user in self.admin_team.users)
-                or (self.profile.admin_team and user in self.profile.admin_team.users)
-                or user.owner_of(self.profile)
-            ):
+            if 'editor' in self.roles_for(user):
                 perms.update(
                     [
                         'view_contactinfo',
@@ -817,16 +806,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'edit-participant',
                         'view-participant',
                         'new-participant',
-                    ]
-                )
-            if self.review_team and user in self.review_team.users:
-                perms.update(
-                    [
                         'view_contactinfo',
                         'confirm-proposal',
                         'view_voteinfo',
                         'view_status',
-                        'edit_proposal',
                         'delete-proposal',
                         'edit-schedule',
                         'new-session',
@@ -838,7 +821,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'new-participant',
                     ]
                 )
-            if self.checkin_team and user in self.checkin_team.users:
+            if 'usher' in self.roles_for(user):
                 perms.update(['checkin_event'])
         return perms
 
@@ -852,8 +835,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects
 
-    @classmethod  # NOQA: A003
-    def all(cls, legacy=None):
+    @classmethod
+    def all(cls, legacy=None):  # NOQA: A003
         """
         Return currently active events, sorted by date.
         """
@@ -874,16 +857,21 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return currently_listed_projects
 
     def roles_for(self, actor=None, anchors=()):
-        roles = super(Project, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
+        # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
+        roles.add('reader')
+
         if actor is not None:
-            if self.admin_team in actor.teams:
-                roles.add('admin')
-            if self.review_team in actor.teams:
-                roles.add('reviewer')
-            roles.add(
-                'reader'
-            )  # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
-        roles.update(self.profile.roles_for(actor, anchors))
+            profile_roles = self.profile.roles_for(actor, anchors)
+            if 'admin' in profile_roles:
+                roles.add('profile_admin')
+
+            crew_membership = self.active_crew_memberships.filter_by(
+                user=actor
+            ).one_or_none()
+            if crew_membership is not None:
+                roles.update(crew_membership.offered_roles())
+
         return roles
 
     def is_saved_by(self, user):
@@ -911,9 +899,29 @@ Profile.draft_projects = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         Profile.id == Project.profile_id,
+        # TODO: parent projects are deprecated
         Project.parent_id.is_(None),
         db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
     ),
+)
+
+
+Profile.draft_projects_for = (
+    lambda self, user: (
+        membership.project
+        for membership in user.projects_as_crew_active_memberships.join(
+            Project, Profile
+        ).filter(
+            # Project is attached to this profile
+            Project.profile_id == self.id,
+            # Project is not a sub-project (TODO: Deprecated, remove this)
+            Project.parent_id.is_(None),
+            # Project is in draft state OR has a draft call for proposals
+            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+        )
+    )
+    if user
+    else ()
 )
 
 
@@ -924,7 +932,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         None, db.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
     profile = db.relationship(
-        'Profile', backref=db.backref('project_redirects', cascade='all, delete-orphan')
+        'Profile', backref=db.backref('project_redirects', cascade='all')
     )
     parent = db.synonym('profile')
     name = db.Column(db.Unicode(250), nullable=False, primary_key=True)
@@ -969,9 +977,7 @@ class ProjectLocation(TimestampMixin, db.Model):
     project_id = db.Column(
         None, db.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project = db.relationship(
-        Project, backref=db.backref('locations', cascade='all, delete-orphan')
-    )
+    project = db.relationship(Project, backref=db.backref('locations', cascade='all'))
     #: Geonameid for this project
     geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     primary = db.Column(db.Boolean, default=True, nullable=False)
@@ -987,3 +993,4 @@ class ProjectLocation(TimestampMixin, db.Model):
 # Tail imports
 from .session import Session  # isort:skip
 from .venue import VenueRoom  # isort:skip
+from .project_membership import ProjectCrewMembership  # isort:skip
