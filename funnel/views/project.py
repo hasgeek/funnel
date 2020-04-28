@@ -33,6 +33,7 @@ from ..forms import (
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
+    ProjectRenameForm,
     ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpTransitionForm,
@@ -92,14 +93,13 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         # Profile URLs:
         # HasGeek: https://hasgeek.com/rootconf (no /)
         # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
-        form.name.prefix = self.obj.url_for(_external=True)
-        if not form.name.prefix.endswith('/'):
-            form.name.prefix += '/'
+
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
             project = Project(user=current_auth.user, profile=self.obj)
             form.populate_obj(project)
+            project.name = project.uuid_b58.lower()
             db.session.add(project)
             db.session.commit()
 
@@ -215,6 +215,19 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     ),
                 )
             ],
+        )
+
+    @route('rename', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def rename(self):
+        form = ProjectRenameForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            return redirect(self.obj.url_for())
+        return render_form(
+            form=form, title=_("Rename project"), submit=_("Save changes"),
         )
 
     @route('edit', methods=['GET', 'POST'])

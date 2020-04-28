@@ -88,6 +88,11 @@
                     <a href="{{ project.url_for('edit') }}#field-livestream_urls" data-cy="add-livestream">{% trans %}Add livestream url{% endtrans %}</a>
                   </li>
                 {% endif %}
+                {% if project.view_for('rename').is_available() %}
+                  <li>
+                    <a href="{{ project.url_for('rename') }}" data-cy="edit">{% trans %}Update project URL name{% endtrans %}</a>
+                  </li>
+                {% endif %}
                 {% if project.view_for('venues').is_available() %}
                   <li>
                     <a href="{{ project.url_for('venues') }}" data-cy="manage-venues">{% trans %}Manage venues{% endtrans %}</a>
