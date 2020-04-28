@@ -160,8 +160,6 @@ class TeamView(UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_permission('delete')
     def delete(self):
-        if self.obj == self.obj.organization.owners:
-            abort(403)
         if request.method == 'POST':
             team_data_changed.send(self.obj, changes=['delete'], user=current_auth.user)
         return render_delete_sqla(

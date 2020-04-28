@@ -14,7 +14,7 @@ from werkzeug.utils import cached_property
 import bcrypt
 import phonenumbers
 
-from baseframe import _, __
+from baseframe import __
 from coaster.sqlalchemy import add_primary_relationship, failsafe_add, with_roles
 from coaster.utils import (
     LabeledEnum,
@@ -536,21 +536,6 @@ team_membership = db.Table(
 class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
-    # owners_id cannot be null, but must be declared with nullable=True since there is
-    # a circular dependency. The post_update flag on the relationship tackles the circular
-    # dependency within SQLAlchemy.
-    owners_id = db.Column(
-        None,
-        db.ForeignKey('team.id', use_alter=True, name='organization_owners_id_fkey'),
-        nullable=True,
-    )
-    owners = db.relationship(
-        'Team',
-        primaryjoin='Organization.owners_id == Team.id',
-        uselist=False,
-        cascade='all',
-        post_update=True,
-    )  # No delete-orphan cascade here
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
@@ -580,8 +565,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def __init__(self, owner, *args, **kwargs):
         super(Organization, self).__init__(*args, **kwargs)
-        self.make_teams()
-        self.owners.users.append(owner)
         db.session.add(
             OrganizationMembership(
                 organization=self, user=owner, granted_by=owner, is_owner=True
@@ -614,10 +597,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     with_roles(name, read={'all'})
 
-    def make_teams(self):
-        if self.owners is None:
-            self.owners = Team(title=_("Owners"), organization=self)
-
     def __repr__(self):
         return '<Organization {name} "{title}">'.format(
             name=self.name or self.buid, title=self.title
@@ -632,20 +611,21 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             return self.title
 
     def permissions(self, user, inherited=None):
-        perms = super(Organization, self).permissions(user, inherited)
-        if user and user in self.owners.users:
+        perms = super().permissions(user, inherited)
+        if 'view' in perms:
+            perms.remove('view')
+        if 'edit' in perms:
+            perms.remove('edit')
+        if 'delete' in perms:
+            perms.remove('delete')
+
+        if user and user in self.admin_users:
             perms.add('view')
             perms.add('edit')
-            perms.add('delete')
             perms.add('view-teams')
             perms.add('new-team')
-        else:
-            if 'view' in perms:
-                perms.remove('view')
-            if 'edit' in perms:
-                perms.remove('edit')
-            if 'delete' in perms:
-                perms.remove('delete')
+        if user and user in self.owner_users:
+            perms.add('delete')
         return perms
 
     @classmethod
@@ -713,7 +693,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
 
     def permissions(self, user, inherited=None):
         perms = super(Team, self).permissions(user, inherited)
-        if user and user in self.organization.owners.users:
+        if user and user in self.organization.admin_users:
             perms.add('edit')
             perms.add('delete')
         return perms
