@@ -360,16 +360,17 @@ class TestUser(TestDatabaseFixture):
         crusoe2 = models.User(username="crusoe2", fullname="Crusoe2")
         db.session.add(crusoe2)
         db.session.commit()
-        merged_user = models.merge_users(crusoe, crusoe2)
-        db.session.commit()
-        # ## DONE ###
-        self.assertIsInstance(merged_user, models.User)
-        # because the logic is to merge into older account so merge status set on newer account
-        self.assertEqual(crusoe.status, 0)
-        self.assertEqual(crusoe2.status, 2)
-        self.assertEqual(merged_user.username, "crusoe")
-        self.assertIsInstance(merged_user.oldids, InstrumentedList)
-        self.assertCountEqual(crusoe.oldids, merged_user.oldids)
+        with self.app.test_request_context('/'):
+            merged_user = models.merge_users(crusoe, crusoe2)
+            db.session.commit()
+            # ## DONE ###
+            self.assertIsInstance(merged_user, models.User)
+            # because the logic is to merge into older account so merge status set on newer account
+            self.assertEqual(crusoe.status, 0)
+            self.assertEqual(crusoe2.status, 2)
+            self.assertEqual(merged_user.username, "crusoe")
+            self.assertIsInstance(merged_user.oldids, InstrumentedList)
+            self.assertCountEqual(crusoe.oldids, merged_user.oldids)
 
     def test_user_get(self):
         """
@@ -405,12 +406,12 @@ class TestUser(TestDatabaseFixture):
         piggy = models.User(username='piggy')
         db.session.add(piggy)
         db.session.commit()
-        merged_user = models.merge_users(piglet, piggy)
-        merged_user
-        db.session.commit()
-        lookup_by_buid_merged = models.User.get(buid=piggy.buid)
-        self.assertIsInstance(lookup_by_buid_merged, models.User)
-        self.assertEqual(lookup_by_buid_merged.username, piglet.username)
+        with self.app.test_request_context('/'):
+            models.merge_users(piglet, piggy)
+            db.session.commit()
+            lookup_by_buid_merged = models.User.get(buid=piggy.buid)
+            self.assertIsInstance(lookup_by_buid_merged, models.User)
+            self.assertEqual(lookup_by_buid_merged.username, piglet.username)
 
     def test_user_all(self):
         """
@@ -458,12 +459,12 @@ class TestUser(TestDatabaseFixture):
         hyde = models.User()
         db.session.add_all([jykll, hyde])
         db.session.commit()
-        merged_user = models.merge_users(jykll, hyde)
-        merged_user
-        db.session.commit()
-        lookup_by_buid_merged = models.User.all(buids=[hyde.buid])
-        self.assertIsInstance(lookup_by_buid_merged, list)
-        self.assertEqual(lookup_by_buid_merged[0].username, jykll.username)
+        with self.app.test_request_context('/'):
+            models.merge_users(jykll, hyde)
+            db.session.commit()
+            lookup_by_buid_merged = models.User.all(buids=[hyde.buid])
+            self.assertIsInstance(lookup_by_buid_merged, list)
+            self.assertEqual(lookup_by_buid_merged[0].username, jykll.username)
 
     def test_user_add_email(self):
         """
