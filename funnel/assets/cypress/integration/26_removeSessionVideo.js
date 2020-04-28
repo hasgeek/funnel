@@ -1,5 +1,5 @@
 describe('Remove video to session', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const editor = require('../fixtures/user.json').editor;
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
 
@@ -7,7 +7,7 @@ describe('Remove video to session', function() {
     cy.server();
     cy.route('**/viewsession-popup').as('view-session');
 
-    cy.login('/', admin.username, admin.password);
+    cy.login('/', editor.username, editor.password);
 
     cy.get('.upcoming')
       .find('.card--upcoming')

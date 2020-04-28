@@ -82,7 +82,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     uuid_b58=commentform.comment_edit_id.data
                 ).first_or_404()
                 if comment:
-                    if comment.current_permissions.edit_comment:
+                    if comment.current_roles.author:
                         comment.message = commentform.message.data
                         comment.edited_at = utcnow()
                         flash(_("Your comment has been edited"), 'info')
@@ -114,7 +114,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
-                                        'template': 'proposal_comment_reply_email.md',
+                                        'template': 'proposal_comment_reply_email.md.jinja2',
                                     }
                                 )
                         else:
@@ -127,7 +127,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
-                                        'template': 'proposal_comment_to_proposer_email.md',
+                                        'template': 'proposal_comment_to_proposer_email.md.jinja2',
                                     }
                                 )
                             if not self.obj.owner == current_auth.user:
@@ -140,7 +140,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                             project=self.obj.project.title,
                                             proposal=self.obj.title,
                                         ),
-                                        'template': 'proposal_comment_email.md',
+                                        'template': 'proposal_comment_email.md.jinja2',
                                     }
                                 )
 
@@ -155,7 +155,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                                     project=self.obj.project.title,
                                     proposal=self.obj.title,
                                 ),
-                                'template': 'proposal_comment_email.md',
+                                'template': 'proposal_comment_email.md.jinja2',
                             }
                         )
                 self.obj.commentset.count += 1

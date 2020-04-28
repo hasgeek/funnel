@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 
-from lastuser_core import registry
+from funnel import registry
 
 from .test_db import TestDatabaseFixture
 

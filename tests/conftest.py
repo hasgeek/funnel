@@ -4,7 +4,16 @@
 import pytest
 
 from funnel import app
-from funnel.models import Label, Organization, Project, Proposal, Team, User, db
+from funnel.models import (
+    Label,
+    Organization,
+    OrganizationMembership,
+    Project,
+    Proposal,
+    Team,
+    User,
+    db,
+)
 
 
 @app.route('/usertest')
@@ -16,9 +25,21 @@ def user_test():
 
 TEST_DATA = {
     'users': {
-        'testuser': {'username': "testuser", 'email': "testuser@example.com"},
-        'testuser2': {'username': "testuser2", 'email': "testuser2@example.com"},
-        'testuser3': {'username': "testuser3", 'email': "testuser3@example.com"},
+        'testuser': {
+            'name': "testuser",
+            'fullname': "Test User",
+            'email': "testuser@example.com",
+        },
+        'test-org-owner': {
+            'name': "test-org-owner",
+            'fullname': "Test User 2",
+            'email': "testorgowner@example.com",
+        },
+        'test-org-admin': {
+            'name': "test-org-admin",
+            'fullname': "Test User 3",
+            'email': "testorgadmin@example.com",
+        },
     }
 }
 # Scope: session
@@ -63,25 +84,30 @@ def new_user(test_db):
 
 
 @pytest.fixture(scope='session')
-def new_user2(test_db):
-    user = User(**TEST_DATA['users']['testuser2'])
+def new_user_owner(test_db):
+    user = User(**TEST_DATA['users']['test-org-owner'])
     test_db.session.add(user)
     test_db.session.commit()
     return user
 
 
 @pytest.fixture(scope='session')
-def new_user3(test_db):
-    user = User(**TEST_DATA['users']['testuser3'])
+def new_user_admin(test_db):
+    user = User(**TEST_DATA['users']['test-org-admin'])
     test_db.session.add(user)
     test_db.session.commit()
     return user
 
 
 @pytest.fixture(scope='session')
-def new_organization(test_db):
-    org = Organization(title="Test org", name='test-org', is_public_profile=True)
+def new_organization(test_db, new_user_owner, new_user_admin):
+    org = Organization(
+        owner=new_user_owner, title="Test org", name='test-org', is_public_profile=True
+    )
     test_db.session.add(org)
+
+    admin_membership = OrganizationMembership(organization=org, user=new_user_admin)
+    test_db.session.add(admin_membership)
     test_db.session.commit()
     return org
 
@@ -100,6 +126,21 @@ def new_project(test_db, new_organization, new_user):
     project = Project(
         profile=new_organization.profile,
         user=new_user,
+        title="Test Project",
+        tagline="Test tagline",
+        description="Test description",
+        location="Test Location",
+    )
+    test_db.session.add(project)
+    test_db.session.commit()
+    return project
+
+
+@pytest.fixture(scope='session')
+def new_project2(test_db, new_organization, new_user_owner):
+    project = Project(
+        profile=new_organization.profile,
+        user=new_user_owner,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",

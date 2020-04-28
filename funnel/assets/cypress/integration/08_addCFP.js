@@ -1,13 +1,14 @@
 describe('Add CFP to project', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const editor = require('../fixtures/user.json').editor;
   const cfp = require('../fixtures/cfp.json');
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
   it('Add CFP', function() {
     cy.login(
-      '/testcypressproject/' + project.url,
-      admin.username,
-      admin.password
+      '/' + profile.title + '/' + project.url,
+      editor.username,
+      editor.password
     );
 
     cy.get('a[data-cy-navbar="settings"]').click();

@@ -2,9 +2,8 @@
 
 import unittest
 
-from lastuser_core import login_registry
-from lastuser_core.registry import LoginProviderRegistry
-from lastuserapp import app
+from funnel import app
+from funnel.registry import LoginProviderRegistry, login_registry
 
 
 class TestLoginProviderRegistry(unittest.TestCase):

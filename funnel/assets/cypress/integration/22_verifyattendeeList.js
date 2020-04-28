@@ -1,10 +1,10 @@
 describe('Verify attendee list', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const concierge = require('../fixtures/user.json').concierge;
   const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
 
   it('Verify list of attendees who have responded yes to attending a project', function() {
-    cy.login('/testcypressproject', admin.username, admin.password);
+    cy.login('/testcypressproject', concierge.username, concierge.password);
 
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()

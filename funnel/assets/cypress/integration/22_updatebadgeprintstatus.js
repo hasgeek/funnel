@@ -1,6 +1,5 @@
-describe('View badges to be printed', function() {
+describe('View and update print status of badge', function() {
   const admin = require('../fixtures/user.json').admin;
-  const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
@@ -18,17 +17,16 @@ describe('View badges to be printed', function() {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="checkin"').click();
+
+    cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[0].title + '"]').click();
-    var firstname1 = participants[0].fullname.split(' ')[0];
-    var firstname2 = participants[1].fullname.split(' ')[0];
+    cy.get('select#badge_printed').select('Printed', { force: true });
+    cy.get('#badge-form-submit').click();
     cy.get('a[data-cy="badges-to-printed"]')
       .invoke('removeAttr', 'target')
       .click();
     cy.url().should('contain', 'badges');
-    cy.get('.first-name').should('contain', firstname1);
-    cy.get('.first-name').should('contain', firstname2);
-    cy.get('.first-name').should('contain', user.username);
+    cy.get('.first-name').should('not.exist');
   });
 });

@@ -1,0 +1,118 @@
+@media (min-width: 768px) {
+  .membership-wrapper {
+    width: 50%;
+    float: left;
+  }
+  .membership-wrapper + .membership-wrapper {
+    padding-left: 15px;
+  }
+}
+
+.membership-wrapper__filter {
+  margin-top: 10px;
+  clear: both;
+}
+
+.membership-wrapper__info {
+  background: white;
+  margin: 10px -15px -15px;
+  padding: 15px;
+  clear: both;
+}
+
+.content-box {
+  padding: 15px;
+  background-color: #f6e2c5;
+  color: #906b37;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+@media (min-width: 768px) {
+  .content-box {
+    cursor: auto;
+  }
+}
+
+.membership-wrapper__members {
+  .membership-wrapper__members__collapsible__header {
+    margin: 5px 0 0;
+    width: 100%;
+    background: #eff2f7;
+    padding: 15px;
+    cursor: pointer;
+  }
+
+  .membership-wrapper__members__list {
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    padding: 5px 15px 15px;
+
+    .membership-wrapper__members__list__roles {
+      display: inline-block;
+      text-align: right;
+      float: right;
+    }
+
+    .membership-wrapper__members__list__roles__role {
+      display: none;
+      color: #4a90e2;
+    }
+    .membership-wrapper__members__list__roles__role:first-child {
+      display: block;
+    }
+  }
+
+  .membership-wrapper__members__list:last-child {
+    border: none;
+  }
+
+  .membership-wrapper__members__list--viewonly {
+    cursor: default;
+  }
+
+  .membership-wrapper__members__list--nomargin {
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  .membership-wrapper__members {
+    .membership-wrapper__members__list {
+      .membership-wrapper__members__list__roles__role {
+        display: inline-block !important;
+      }
+      .membership-wrapper__members__list__roles__count {
+        display: none;
+      }
+    }
+  }
+}
+
+.slide-fade-enter-active {
+  transition: all 0.1s ease-in;
+}
+.slide-fade-leave-active {
+  transition: all 0.1s ease-in;
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateY(10px);
+  opacity: 0;
+}
+
+.modal-form--edit {
+  .select2.select2-container {
+    display: none !important;
+  }
+  .select2-hidden-accessible {
+    background-color: #eee;
+    cursor: not-allowed;
+    height: 32px !important;
+    position: relative !important;
+  }
+  .mui-select:focus > label,
+  .mui-select > select:focus ~ label {
+    color: rgba(0, 0, 0, 0.54);
+  }
+}

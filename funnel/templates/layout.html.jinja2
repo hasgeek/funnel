@@ -44,7 +44,7 @@
   {% endif -%}
 {%- endblock %}
 
-{%- block font_icons %}{%- endblock %}
+
 
 {%- block layoutheaders %}
   {%- if not config['LEGACY'] -%}
@@ -96,7 +96,7 @@
       </form>
       <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links-active{% endif %}" aria-label="Search" data-action="Search">{{ faicon(icon='search', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Search</span></a>
       {% if not current_auth.is_anonymous -%}
-        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links-active{% endif %}" aria-label="Account" data-action="Account">{{ faicon(icon='home', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Account</span></a>
+        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links-active{% endif %}" aria-label="Account" data-action="Account">{{ faicon(icon='user', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Account</span></a>
         <div class="mui-dropdown mui--hidden-xs mui--hidden-sm">
           <a href="javascript:void(0)" data-target="account dropdown" data-mui-toggle="dropdown" class="header__nav-links js-account-dropdown" data-cy="account-link" data-action="Account dropdown">
             {{ faicon(icon='user', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Account</span>

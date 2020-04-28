@@ -39,7 +39,6 @@ RESERVED_NAMES = {
     'funnels',
     'hacknight',
     'hacknights',
-    'hasjob',
     'hgtv',
     'imap',
     'kharcha',

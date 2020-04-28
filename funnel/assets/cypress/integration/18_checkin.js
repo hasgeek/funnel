@@ -1,12 +1,13 @@
 describe('Checkin of attendees', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const concierge = require('../fixtures/user.json').concierge;
   const user = require('../fixtures/user.json').user;
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
   it('Checkin of attendees', function() {
-    cy.login('/testcypressproject', admin.username, admin.password);
+    cy.login('/', concierge.username, concierge.password);
 
     cy.get('[data-cy-project="' + project.title + '"]')
       .first()
@@ -14,7 +15,7 @@ describe('Checkin of attendees', function() {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="checkin"').click();
+    cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
 
     cy.fixture('participants').then(participants => {

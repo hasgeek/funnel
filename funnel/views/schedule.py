@@ -20,6 +20,7 @@ from coaster.views import (
     render_with,
     requestargs,
     requires_permission,
+    requires_roles,
     route,
 )
 
@@ -177,7 +178,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('')
     @render_with('schedule.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
@@ -228,13 +229,13 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('subscribe')
     @render_with('schedule_subscribe.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def subscribe_schedule(self):
         return {'project': self.obj, 'venues': self.obj.venues, 'rooms': self.obj.rooms}
 
     @route('json')
     @cors('*')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def schedule_json(self):
         scheduled_sessions_list = session_list_data(self.obj.scheduled_sessions)
         return jsonp(
@@ -246,7 +247,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         )
 
     @route('ical')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def schedule_ical(self):
         cal = Calendar()
         cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
@@ -274,7 +275,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @route('edit')
     @render_with('schedule_edit.html.jinja2')
     @requires_login
-    @requires_permission('edit-schedule')
+    @requires_roles({'editor'})
     def edit_schedule(self):
         proposals = {
             'unscheduled': [
@@ -320,7 +321,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @route('update', methods=['POST'])
     @render_with('schedule_edit.html.jinja2')
     @requires_login
-    @requires_permission('edit-schedule')
+    @requires_roles({'editor'})
     @requestargs(('sessions', json.loads))
     def update_schedule(self, sessions):
         for session in sessions:

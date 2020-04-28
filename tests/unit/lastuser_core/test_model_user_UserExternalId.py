@@ -3,8 +3,8 @@
 
 from os import environ
 
-from lastuserapp import db
-import lastuser_core.models as models
+from funnel import db
+import funnel.models as models
 
 from .test_db import TestDatabaseFixture
 

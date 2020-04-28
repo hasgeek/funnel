@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
 
-from coaster.sqlalchemy import add_primary_relationship
+from coaster.sqlalchemy import add_primary_relationship, with_roles
 
 from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db
 from .project import Project
@@ -26,12 +27,22 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
 
     rooms = db.relationship(
         'VenueRoom',
-        cascade='all, delete-orphan',
+        cascade='all',
         order_by='VenueRoom.seq',
         collection_class=ordering_list('seq', count_from=1),
     )
 
     seq = db.Column(db.Integer, nullable=False)
+
+    project_editors = with_roles(
+        association_proxy('project', 'editors'), grants={'project_editor'}
+    )
+    project_concierges = with_roles(
+        association_proxy('project', 'concierges'), grants={'project_concierge'}
+    )
+    project_ushers = with_roles(
+        association_proxy('project', 'ushers'), grants={'project_usher'}
+    )
 
     __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
@@ -86,6 +97,16 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     scheduled_sessions = db.relationship(
         "Session",
         primaryjoin='and_(Session.venue_room_id == VenueRoom.id, Session.scheduled)',
+    )
+
+    project_editors = with_roles(
+        association_proxy('venue', 'project_editors'), grants={'project_editor'}
+    )
+    project_concierges = with_roles(
+        association_proxy('venue', 'project_concierges'), grants={'project_concierge'}
+    )
+    project_ushers = with_roles(
+        association_proxy('venue', 'project_ushers'), grants={'project_usher'}
     )
 
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)

@@ -33,8 +33,6 @@ from .helpers import (
 
 def get_userinfo(user, auth_client, scope=[], user_session=None, get_permissions=True):
 
-    teams = {}
-
     if '*' in scope or 'id' in scope or 'id/*' in scope:
         userinfo = {
             'userid': user.buid,
@@ -67,66 +65,9 @@ def get_userinfo(user, auth_client, scope=[], user_session=None, get_permissions
                     'name': org.name,
                     'title': org.title,
                 }
-                for org in user.organizations_owned()
-            ],
-            'member': [
-                {
-                    'userid': org.buid,
-                    'buid': org.buid,
-                    'uuid': org.uuid,
-                    'name': org.name,
-                    'title': org.title,
-                }
-                for org in user.organizations_memberof()
-            ],
-            'all': [
-                {
-                    'userid': org.buid,
-                    'buid': org.buid,
-                    'uuid': org.uuid,
-                    'name': org.name,
-                    'title': org.title,
-                }
-                for org in user.organizations()
-            ],
+                for org in user.organizations_as_owner
+            ]
         }
-
-    if (
-        '*' in scope
-        or 'organizations' in scope
-        or 'teams' in scope
-        or 'organizations/*' in scope
-        or 'teams/*' in scope
-    ):
-        for team in user.teams:
-            teams[team.buid] = {
-                'userid': team.buid,
-                'buid': team.buid,
-                'uuid': team.uuid,
-                'title': team.title,
-                'org': team.organization.buid,
-                'org_uuid': team.organization.uuid,
-                'owners': team == team.organization.owners,
-                'member': True,
-            }
-
-    if '*' in scope or 'teams' in scope or 'teams/*' in scope:
-        for org in user.organizations_owned():
-            for team in org.teams:
-                if team.buid not in teams:
-                    teams[team.buid] = {
-                        'userid': team.buid,
-                        'buid': team.buid,
-                        'uuid': team.uuid,
-                        'title': team.title,
-                        'org': team.organization.buid,
-                        'org_uuid': team.organization.uuid,
-                        'owners': team == team.organization.owners,
-                        'member': False,
-                    }
-
-    if teams:
-        userinfo['teams'] = list(teams.values())
 
     if get_permissions:
         if auth_client.user:

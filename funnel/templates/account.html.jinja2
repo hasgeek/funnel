@@ -160,18 +160,29 @@
       <div class="grid__col-xs-12">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">{% trans %}My sessions{% endtrans %}</h3>
+            <h3 class="mui--text-title mui--text-bold">{% trans %}Login sessions{% endtrans %}</h3>
           </div>
           <div class="card__body">
             <ul class="mui-list--aligned mui-list--unstyled mui--text-subhead mui-list--border">
               {%- for user_session in current_auth.user.active_sessions %}
-                <li>From {{ user_session.ipaddr }} since {{ user_session.created_at|age }} with {{ user_session.ua['user_agent']['family']}} {{ user_session.ua['user_agent']['major'] }} on {{ user_session.ua['os']['family'] }} {{ user_session.ua['os']['major'] }}.{{ user_session.ua['os']['minor'] }}, last active {{ user_session.accessed_at|age }}
-                {% if user_session == current_auth.session -%}
+              {%- with ua=user_session.user_agent_details() %}
+                <li>
+                  {%- trans
+                      ipaddr=user_session.ipaddr,
+                      user_agent=user_session.user_agent,
+                      since=user_session.created_at|age,
+                      browser=ua['browser'],
+                      os_device=ua['os_device'],
+                      last_active=user_session.accessed_at|age -%}
+                    From {{ ipaddr }} since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
+                {%- endtrans %}
+                {%- if user_session == current_auth.session %}
                   {% trans %}(current){% endtrans %}
-                {%- else -%}
+                {%- else %}
                   <a href="{{ url_for('logout_session', user_session=user_session.buid) }}" title="logout">{% trans %}(logout){% endtrans %}</a>
-                {%- endif %}
+                {%- endif -%}
                 </li>
+              {%- endwith %}
               {%- endfor %}
             </ul>
           </div>

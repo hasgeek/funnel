@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import lastuser_core.models as models
-
 from coaster.utils import md5sum
+import funnel.models as models
 
 from .test_db import TestDatabaseFixture
 

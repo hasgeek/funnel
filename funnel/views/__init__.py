@@ -17,6 +17,7 @@ from . import (
     index,
     label,
     login,
+    membership,
     mixins,
     organization,
     participant,

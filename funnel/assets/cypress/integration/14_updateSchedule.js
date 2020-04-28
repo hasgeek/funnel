@@ -1,7 +1,8 @@
 describe('Add session to schedule and publish', function() {
-  const admin = require('../fixtures/user.json').admin;
+  const editor = require('../fixtures/user.json').editor;
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
   it('Update schedule', function() {
@@ -11,7 +12,7 @@ describe('Add session to schedule and publish', function() {
     cy.route('**/schedule').as('session-form');
     cy.route('POST', '**/schedule').as('add-session');
 
-    cy.login('/testcypressproject', admin.username, admin.password);
+    cy.login('/' + profile.title, editor.username, editor.password);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
