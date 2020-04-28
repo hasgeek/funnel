@@ -3,10 +3,10 @@
 from datetime import timedelta
 
 from flask import request
-from werkzeug.utils import cached_property
 
-from ua_parser import user_agent_parser
+import user_agents
 
+from baseframe import _
 from coaster.utils import buid as make_buid
 from coaster.utils import utcnow
 
@@ -54,10 +54,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
-        User,
-        backref=db.backref(
-            'all_user_sessions', cascade='all, delete-orphan', lazy='dynamic'
-        ),
+        User, backref=db.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 
     ipaddr = db.Column(db.String(45), nullable=False)
@@ -81,11 +78,12 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         """
         Mark a session as currently active.
 
-        :param auth_client: For API calls from clients, save the client instead of IP address and User-Agent
+        :param auth_client: For API calls from clients, save the client instead of IP
+            address and User-Agent
         """
         # `accessed_at` will be different from the automatic `updated_at` in one
-        # crucial context: when the session was revoked remotely. `accessed_at` won't
-        # be updated at that time.
+        # crucial context: when the session was revoked from a different session.
+        # `accessed_at` won't be updated at that time.
         self.accessed_at = db.func.utcnow()
         with db.session.no_autoflush:
             if auth_client:
@@ -94,7 +92,8 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
                 ):  # self.auth_clients is defined via Client.user_sessions
                     self.auth_clients.append(auth_client)
                 else:
-                    # If we've seen this client in this session before, only update the timestamp
+                    # If we've seen this client in this session before, only update the
+                    # timestamp
                     db.session.execute(
                         auth_client_user_session.update()
                         .where(auth_client_user_session.c.user_session_id == self.id)
@@ -107,9 +106,25 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
                 self.ipaddr = request.remote_addr or ''
                 self.user_agent = str(request.user_agent.string[:250]) or ''
 
-    @cached_property
-    def ua(self):
-        return user_agent_parser.Parse(self.user_agent)
+    def user_agent_details(self):
+        ua = user_agents.parse(self.user_agent)
+        return {
+            'browser': (ua.browser.family + ' ' + ua.browser.version_string)
+            if ua.browser.family
+            else _("Unknown browser"),
+            'os_device': ua.os.family
+            + ' '
+            + ua.os.version_string
+            + (
+                ' ('
+                + str(ua.device.brand or '')
+                + ' '
+                + str(ua.device.model or '')
+                + ')'
+                if ua.device.family != 'Other'
+                else ''
+            ),
+        }
 
     @property
     def has_sudo(self):

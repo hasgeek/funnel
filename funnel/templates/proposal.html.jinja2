@@ -59,9 +59,8 @@
     </div>
   </div>
   <div class="grid__col-xs-12 proposal-wrapper">
-
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
-      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-title" aria-label="{% trans %}Edit proposal{% endtrans %}" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false) }}</a>{% endif %}</h1>
+      <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-title" aria-label="{% trans %}Edit proposal{% endtrans %}" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false) }}</a>{% endif %}</h1>
       <p class="zero-bottom-margin">
         {% trans %}Submitted by{% endtrans%}
         {%- if proposal.speaker %}
@@ -82,7 +81,7 @@
         {%- endif -%}
       </p>
       <div class="details">
-        {% if proposal.session and proposal.session.video or proposal.video or proposal.current_roles.owner %}
+        {% if proposal.session and proposal.session.video or proposal.video or 'edit_proposal' in proposal.permissions(current_auth.user) %}
           <div class="details__box details__box--left mui-tabs__bar">
             {% with seq = 1 %}
               {% if proposal.session and proposal.session.video and proposal.session.video.url %}
@@ -105,7 +104,7 @@
                     {{ video_action_bar(proposal.video, proposal) }}
                   </div>
                 </div>
-              {%- elif proposal.current_roles.owner %}
+              {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
                   <div class="details__box__video details__box__video--novideo embed-video-wrapper">
                     <p class="details__box__video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
@@ -153,7 +152,6 @@
         {% endif %}
       </div>
     </section>
-
     <section class="proposal__section proposal__section--border">
       <div>
         {%- for label in proposal.labels %}
@@ -161,15 +159,14 @@
             <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
           {%- endif %}
         {%- endfor %}
-        {%- if proposal.current_roles.admin %}
+        {%- if proposal.current_roles.project_editor %}
           {%- for label in proposal.labels %}
             {%- if label.restricted %}
               <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
             {%- endif %}
           {%- endfor %}
         {% endif %}
-        <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">
-        {% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
+        <span class="label mui--text-bold" data-cy-proposal-status="{{ proposal.state.label.title }}">{% trans status=proposal.state.label.title %}Status: {{ status }}{% endtrans %}</span>
       </div>
       {% if proposal.state.SCHEDULED %}
         <div><a class="mui-btn mui-btn--raised mui-btn--small mui-btn--dark" href="{{ proposal.session.url_for() }}">{% trans %}View proposal in schedule{% endtrans %}</a></div>
@@ -178,20 +175,20 @@
 
     <section class="proposal__section--border">
       <div class="proposal__admin-panel sticky-admin-panel">
-        {%- if proposal.current_roles.owner or proposal.current_roles.admin %}
+        {%- if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
           <div class="card">
             <div class="card__header">
               <h3 class="mui--text-title mui--text-bold mui--text-uppercase" data-cy="admin-panel">Admin panel</h3>
             </div>
             <div class="card__body">
-              {%- if proposal.current_roles.owner %}
+              {%- if 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <ul class="mui-list--aligned">
                   <li><a href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{% trans %}Edit details{% endtrans %}</a></li>
                   <li><a href="{{ proposal.url_for('delete') }}" data-cy-admin="delete">{% trans %}Delete{% endtrans %}</a></li>
                 </ul>
                 <hr class="mui-divider">
-              {%- endif %}
-              {% if proposal.current_roles.admin %}
+              {% endif %}
+              {%- if proposal.current_roles.project_editor %}
                 {%- if proposal_move_form %}
                   {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
                   <hr class="mui-divider">
@@ -211,7 +208,7 @@
                 </form>
                 <hr class="mui-divider">
               {% endif %}
-              {% if proposal.current_roles.admin and  proposal_label_admin_form %}
+              {% if proposal_label_admin_form %}
                 <form action="{{ proposal.url_for('edit_labels') }}" method="post" class="add-label-form">
                   {{ proposal_label_admin_form.hidden_tag() }}
                   <p class="mui--text-title">Labels</p>
@@ -226,9 +223,9 @@
                   </div>
                   {{ rendersubmit([("add-label", "Save", '')]) }}
                 </form>
-              {%- endif %}
-              <hr class="mui-divider">
-              {% if proposal.current_roles.admin and proposal.state.SCHEDULED %}
+                <hr class="mui-divider">
+              {% endif %}
+              {% if proposal.current_roles.project_editor and proposal.state.SCHEDULED %}
                 <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session-video" aria-label="{% trans %}Add session video{% endtrans %}">
                   {%- if proposal.session.video %}
                     {% trans %}Edit session video{% endtrans %}
@@ -236,7 +233,7 @@
                     {% trans %}Add session video{% endtrans %}
                   {%- endif %}
                 </a>
-              {%- elif proposal.current_roles.owner %}
+              {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">
                   {%- if proposal.video %}
                     {% trans %}Edit proposal video{% endtrans %}
@@ -252,48 +249,48 @@
 
       <div class="proposal__section proposal__section--left">
         <div class="proposal-content">
-          <h3 class="mui--text-headline mui--text-bold">{% trans %}Abstract{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-abstract" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
+          <h3 class="mui--text-headline mui--text-bold">{% trans %}Abstract{% endtrans %} {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-abstract" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
           <div class="mui--text-subhead">{{ proposal.abstract }}</div>
 
-          <h3 class="mui--text-headline mui--text-bold">{% trans %}Outline{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-outline" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
+          <h3 class="mui--text-headline mui--text-bold">{% trans %}Outline{% endtrans %} {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-outline" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
           <div class="mui--text-subhead">{{ proposal.outline }}</div>
 
           {% if proposal.requirements.text -%}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-requirements" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %} </h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-requirements" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %} </h3>
             <div class="mui--text-subhead">{{ proposal.requirements }}</div>
-          {%- elif proposal.current_roles.owner %}
+          {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Requirements{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-requirements" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a></h3>
             <p><i>This section is empty.</i></p>
           {%- endif %}
 
           {% if proposal.bio.text -%}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Speaker bio{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-bio" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Speaker bio{% endtrans %} {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-bio" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
             <div class="mui--text-subhead">{{ proposal.bio }}</div>
           {%- endif %}
 
           {% if proposal.links %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-links" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-links" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
             <ul class="links-list">
               {% for link in links -%}
                 <li class="mui--text-subhead">{{ link }}</li>
               {% endfor %}
             </ul>
-          {%- elif proposal.current_roles.owner %}
+          {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Links{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-links" class="mui--text-subhead mui--align-middle">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a></h3>
             <p><i>This section is empty.</i></p>
           {% endif %}
 
           {% if proposal.slides.url %}
-            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} {% if proposal.current_roles.owner %}<a href="{{ proposal.url_for('edit') }}#field-slides" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
+            <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-slides" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a>{% endif %}</h3>
             <a href="{{ proposal.slides }}">{{ proposal.slides }}</a>
-          {%- elif proposal.current_roles.owner %}
+          {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Slides{% endtrans %} <a href="{{ proposal.url_for('edit') }}#field-slides" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='fa5--link') }}</a></h3>
             <p><i>This section is empty.</i></p>
           {% endif %}
 
           {% if proposal.video %}
             <h3 class="mui--text-headline mui--text-bold">{% trans %}Preview video{% endtrans %}</h3>
-            <a href="{{ proposal.video }}">{{ proposal.video.id }}</a>
+            <a href="{{ proposal.video.url }}">{{ proposal.video.url }}</a>
           {% endif %}
         </div>
       </div>

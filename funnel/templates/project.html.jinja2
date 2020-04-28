@@ -95,7 +95,7 @@
                 <a href="{{ url_for('login') }}" class='mui-btn mui-btn--raised mui-btn--primary'>{% trans %}Login to respond{% endtrans %}</a>
               </p>
             {%- endif %}
-            {% if project.current_roles.admin or current_auth.permissions.view_rsvps %}
+            {% if project.current_roles.concierge %}
               <a href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{% trans %}See responses{% endtrans %}</a>
             {% endif %}
           {%- endif %}

@@ -4,7 +4,7 @@ from flask import flash, request
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
-from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
+from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
@@ -54,7 +54,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('venues.html.jinja2')
     @requires_login
-    @requires_permission('view')
+    @requires_roles({'editor'})
     def venues(self):
         return {
             'project': self.obj,
@@ -64,7 +64,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new-venue')
+    @requires_roles({'editor'})
     def new_venue(self):
         form = VenueForm()
         if form.validate_on_submit():
@@ -88,7 +88,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @route('update_venue_settings', methods=['POST'])
     @render_with(json=True)
     @requires_login
-    @requires_permission('edit-venue')
+    @requires_roles({'editor'})
     def update_venue_settings(self):
         if request.json is None:
             return {'error': _("Invalid data")}, 400
@@ -113,7 +113,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('makeprimary', methods=['POST'])
     @requires_login
-    @requires_permission('edit-venue')
+    @requires_roles({'editor'})
     def makeprimary_venue(self):
         form = VenuePrimaryForm(parent=self.obj)
         if form.validate_on_submit():
@@ -144,7 +144,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit-venue')
+    @requires_roles({'project_editor'})
     def edit(self):
         form = VenueForm(obj=self.obj)
         if form.validate_on_submit():
@@ -163,7 +163,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('delete-venue')
+    @requires_roles({'project_editor'})
     def delete(self):
         if self.obj == self.obj.project.primary_venue:
             flash(_("You can not delete the primary venue"), 'danger')
@@ -183,7 +183,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new-venue')
+    @requires_roles({'project_editor'})
     def new_venueroom(self):
         form = VenueRoomForm()
         if form.validate_on_submit():
@@ -218,7 +218,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit-venue')
+    @requires_roles({'project_editor'})
     def edit(self):
         form = VenueRoomForm(obj=self.obj)
         if form.validate_on_submit():
@@ -237,7 +237,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('delete-venue')
+    @requires_roles({'project_editor'})
     def delete(self):
         return render_delete_sqla(
             self.obj,

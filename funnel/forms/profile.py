@@ -3,18 +3,12 @@
 from baseframe import _, __
 import baseframe.forms as forms
 
+from .organization import OrganizationForm
 
-class NewProfileForm(forms.Form):
-    """Create a new profile."""
-
-    profile = forms.RadioField(
-        __("Organization"),
-        validators=[forms.validators.DataRequired("Select an organization")],
-        description=__("Select the organization you’d like to create a Talkfunnel for"),
-    )
+__all__ = ['ProfileForm']
 
 
-class EditProfileForm(forms.Form):
+class ProfileForm(OrganizationForm):
     """Edit a profile."""
 
     description = forms.MarkdownField(

@@ -55,7 +55,7 @@ def available_client_owners():
     """
     choices = []
     choices.append((current_auth.user.buid, current_auth.user.pickername))
-    for org in current_auth.user.organizations_owned():
+    for org in current_auth.user.organizations_as_owner:
         choices.append((org.buid, org.pickername))
     return choices
 
