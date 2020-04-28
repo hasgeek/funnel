@@ -63,13 +63,11 @@
 
 {% block contentwrapper %}
   <div class="about">
-    {% if not project.schedule_state.PAST %}
-      {% if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-        <div class="about__participate">
-          <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
-            <div class="mobile-nav mui--z1">
-              <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
-            </div>
+    {% if not project.schedule_state.PAST and (project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
+      <div class="about__participate">
+        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
+          <div class="mobile-nav mui--z1">
+            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
           <div id="tickets" {% if project.allow_rsvp and not project.boxoffice_data.item_collection_id -%}class="rsvp-wrapper"{%- endif %}>
             {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
@@ -102,7 +100,7 @@
             {%- endif %}
           </div>
         </div>
-      {%- endif %}
+      </div>
     {%- endif %}
     <div class="about__details" id="about">
       <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}About{% endtrans %}</h2>
@@ -237,20 +235,18 @@
     $(function() {
       var projectConfig = {};
 
-      {% if not project.schedule_state.PAST %}
-        {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-          projectConfig.tickets = {
-            boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
-            widgetElem: "#boxoffice-widget",
-            org: {{ project.boxoffice_data.org|tojson }},
-            itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
-            itemCollectionTitle: {{ project.title|tojson }}
-          };
-        {%- elif project.allow_rsvp %}
-          projectConfig.tickets = {
-            rsvp: true
-          };
-        {%- endif %}
+      {% if not project.schedule_state.PAST and (project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
+        projectConfig.tickets = {
+          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+          widgetElem: "#boxoffice-widget",
+          org: {{ project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ project.title|tojson }}
+        };
+      {%- elif not project.schedule_state.PAST and project.allow_rsvp %}
+        projectConfig.tickets = {
+          rsvp: true
+        };
       {%- endif %}
 
       {%- if project.primary_venue.has_coordinates -%}

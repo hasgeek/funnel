@@ -122,6 +122,9 @@
                     <a href="{{ project.url_for('events') }}" data-cy="scan-checkin">{% trans %}Scan badges to check-in{% endtrans %}</a>
                   </li>
                 {% endif %}
+                {% if project.view_for('rsvp_list').is_available() %}
+                  <a href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{% trans %}View RSVP responses{% endtrans %}</a>
+                {% endif %}
                 </ul>
               </div>
               <hr class="mui-divider">
