@@ -126,8 +126,15 @@ export const Utils = {
     });
   },
   showTimeOnCalendar() {
-    $('body .calendar__weekdays')
-      .find('.calendar__weekdays__dates--upcoming:first')
+    let firstActiveWeek = $('body .calendar__weekdays').find(
+      '.calendar__weekdays__dates--upcoming:first'
+    ).length
+      ? $('body .calendar__weekdays').find(
+          '.calendar__weekdays__dates--upcoming:first'
+        )
+      : $('body .calendar__weekdays').find('.calendar__weekdays__dates:first');
+
+    firstActiveWeek
       .find('.calendar__weekdays__dates__date--showtime:first')
       .addClass('calendar__weekdays__dates__date--display');
 
@@ -139,8 +146,7 @@ export const Utils = {
     });
 
     $('body .calendar__weekdays__dates__date--showtime').mouseleave(function() {
-      $('body .calendar__weekdays')
-        .find('.calendar__weekdays__dates--upcoming:first')
+      firstActiveWeek
         .find('.calendar__weekdays__dates__date--showtime:first')
         .addClass('calendar__weekdays__dates__date--display');
     });
