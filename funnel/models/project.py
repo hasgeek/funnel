@@ -592,14 +592,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 session_dates.insert(0, (now, None, None, 0))
 
         weeks = defaultdict(dict)
+        today = now.date().isoformat()
         for project_date, day_start_at, day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
-                weeks[weekobj.week]['upcoming'] = weekobj.week >= current_week.week
+                weeks[weekobj.week]['upcoming'] = weekobj >= current_week
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
-            today = now.date().isoformat()
             for wdate in weekobj.days():
                 weeks[weekobj.week]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
@@ -835,7 +835,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, legacy=None):  # NOQA: A003
         """
         Return currently active events, sorted by date.
