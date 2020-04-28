@@ -485,7 +485,10 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         else:
             count = len(users)
             if count == 1:
-                return query.filter_by(user=users[0]).all()
+                # Cast users into a list/tuple before accessing [0], as the source
+                # may not be an actual list with indexed access. For example,
+                # Organization.owner_users is a DynamicAssociationProxy.
+                return query.filter_by(user=tuple(users)[0]).all()
             elif count > 1:
                 return query.filter(AuthToken.user_id.in_([u.id for u in users])).all()
 
