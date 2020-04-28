@@ -5,7 +5,14 @@ from flask import abort, flash, render_template, request, url_for
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, render_with, requires_permission, route
+from coaster.views import (
+    ClassView,
+    ModelView,
+    UrlForView,
+    render_with,
+    requires_permission,
+    route,
+)
 
 from .. import app
 from ..forms import (
@@ -60,32 +67,37 @@ def available_client_owners():
     return choices
 
 
-@app.route('/account/apps/new', methods=['GET', 'POST'])
-@requires_login
-def client_new():
-    form = RegisterClientForm(model=AuthClient)
-    form.edit_user = current_auth.user
-    form.client_owner.choices = available_client_owners()
-    if request.method == 'GET':
-        form.client_owner.data = current_auth.user.buid
+@route('/account/apps/new', methods=['GET', 'POST'])
+class AuthClientCreateView(ClassView):
+    @route('', endpoint='authclient_new')
+    @requires_login
+    def new(self):
+        form = RegisterClientForm(model=AuthClient)
+        form.edit_user = current_auth.user
+        form.client_owner.choices = available_client_owners()
+        if request.method == 'GET':
+            form.client_owner.data = current_auth.user.buid
 
-    if form.validate_on_submit():
-        auth_client = AuthClient()
-        form.populate_obj(auth_client)
-        auth_client.user = form.user
-        auth_client.organization = form.organization
-        auth_client.trusted = False
-        db.session.add(auth_client)
-        db.session.commit()
-        return render_redirect(auth_client.url_for(), code=303)
+        if form.validate_on_submit():
+            auth_client = AuthClient()
+            form.populate_obj(auth_client)
+            auth_client.user = form.user
+            auth_client.organization = form.organization
+            auth_client.trusted = False
+            db.session.add(auth_client)
+            db.session.commit()
+            return render_redirect(auth_client.url_for(), code=303)
 
-    return render_form(
-        form=form,
-        title=_("Register a new client application"),
-        formid='client_new',
-        submit=_("Register application"),
-        ajax=True,
-    )
+        return render_form(
+            form=form,
+            title=_("Register a new client application"),
+            formid='client_new',
+            submit=_("Register application"),
+            ajax=True,
+        )
+
+
+AuthClientCreateView.init_app(app)
 
 
 @route('/account/apps/<app>')
