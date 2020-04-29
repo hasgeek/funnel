@@ -327,7 +327,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             granted_by=new_membership.granted_by,
                             project=self.obj,
                             project_membership_link=self.obj.url_for(
-                                'membership', _external=True
+                                'crew', _external=True
                             )
                             # link=new_membership.url_for('invite', _external=True),
                         ),
