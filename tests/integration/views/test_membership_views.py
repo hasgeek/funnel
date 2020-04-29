@@ -12,12 +12,12 @@ class TestMembershipViews(object):
             session['userid'] = new_user.userid
         with test_client as c:
             # new_user is new_project.profile's admin, so the page should load
-            resp = c.get(new_project.url_for('membership'))
+            resp = c.get(new_project.url_for('crew'))
             assert resp.status_code == 200
             assert u"Add a member" in resp.data.decode('utf-8')
 
             # but new_user is not new_project2.profile's admin, so it should not load
-            resp2 = c.get(new_project2.url_for('membership'))
+            resp2 = c.get(new_project2.url_for('crew'))
             assert resp2.status_code == 403  # forbidden
             assert u"Add new member" not in resp2.data.decode('utf-8')
             assert u"Access denied" in resp2.data.decode('utf-8')
@@ -30,7 +30,7 @@ class TestMembershipViews(object):
             test_db.session.commit()
 
             # now the new member should show up in membership page
-            resp3 = c.get(new_project.url_for('membership'))
+            resp3 = c.get(new_project.url_for('crew'))
             assert resp3.status_code == 200
             assert new_user.fullname in resp3.data.decode('utf-8')
             # membership record's edit/delete urls are in the page
@@ -41,7 +41,7 @@ class TestMembershipViews(object):
             new_membership.revoke(actor=new_user_owner)
             test_db.session.commit()
             # now the member should not show up in the page
-            resp3 = c.get(new_project.url_for('membership'))
+            resp3 = c.get(new_project.url_for('crew'))
             assert resp3.status_code == 200
             assert new_user.fullname not in resp3.data.decode('utf-8')
 
