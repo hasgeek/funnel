@@ -224,7 +224,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         if user is not None:
             perms.add('vote_comment')
             if user == self.user:
-                perms.update(['edit_comment', 'delete_comment'])
+                perms.add('edit_comment')
+                perms.add('delete_comment')
         return perms
 
     def roles_for(self, actor=None, anchors=()):

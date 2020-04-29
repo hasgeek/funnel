@@ -481,16 +481,16 @@ class Proposal(
     def permissions(self, user, inherited=None):
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
-            perms.update(['vote_proposal', 'new_comment', 'vote_comment'])
+            perms.update(('vote_proposal', 'new_comment', 'vote_comment'))
             if user == self.owner:
                 perms.update(
-                    [
+                    (
                         'view-proposal',
                         'edit_proposal',
                         'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
                         'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
                         'transfer-proposal',
-                    ]
+                    )
                 )
                 if self.speaker != self.user:
                     perms.add('decline-proposal')  # Decline speaking
