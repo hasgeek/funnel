@@ -242,14 +242,12 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             return self.fullname
 
     @property
-    def avatar_initials(self):
+    def initials(self):
         """
         Return up to two initials from the user's fullname, for use as avatar stand-in.
         """
         # Combine using Zero Width Non Joiner (ZWNJ) to prevent ligature rendering
-        return '\u200c'.join(
-            word[0].upper() for word in self.fullname.split(maxsplit=1)
-        )
+        return ''.join(word[0] for word in self.fullname.split(maxsplit=1) if word)
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)
