@@ -17,7 +17,7 @@ from flask import (
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, make_name, utcnow
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -33,7 +33,7 @@ from ..forms import (
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
-    ProjectRenameForm,
+    ProjectNameForm,
     ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpTransitionForm,
@@ -90,16 +90,15 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_roles({'admin'})
     def new_project(self):
         form = ProjectForm(model=Project, parent=self.obj)
-        # Profile URLs:
-        # HasGeek: https://hasgeek.com/rootconf (no /)
-        # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
 
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
             project = Project(user=current_auth.user, profile=self.obj)
             form.populate_obj(project)
-            project.name = project.uuid_b58.lower()
+            project.name = "{yyyymm}-{name}".format(
+                yyyymm=utcnow().strftime('%Y-%m'), name=make_name(project.title),
+            )
             db.session.add(project)
             db.session.commit()
 
@@ -217,17 +216,20 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             ],
         )
 
-    @route('rename', methods=['GET', 'POST'])
+    @route('editslug', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def rename(self):
-        form = ProjectRenameForm(obj=self.obj)
+    def edit_slug(self):
+        form = ProjectNameForm(obj=self.obj)
+        # Profile URLs:
+        # HasGeek: https://hasgeek.com/rootconf (no /)
+        # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             return redirect(self.obj.url_for())
         return render_form(
-            form=form, title=_("Rename project"), submit=_("Save changes"),
+            form=form, title=_("Set a custom URL slug"), submit=_("Save changes"),
         )
 
     @route('edit', methods=['GET', 'POST'])

@@ -18,7 +18,7 @@ __all__ = [
     'ProjectBoxofficeForm',
     'ProjectCfpTransitionForm',
     'ProjectForm',
-    'ProjectRenameForm',
+    'ProjectNameForm',
     'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
     'RsvpTransitionForm',
@@ -84,11 +84,11 @@ class ProjectForm(forms.Form):
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
 
 
-class ProjectRenameForm(forms.Form):
+class ProjectNameForm(forms.Form):
     name = forms.AnnotatedTextField(
-        __("URL name"),
+        __("URL slug"),
         description=__(
-            "The URL at which your project will appear. "
+            "The URL slug at which your project will appear. "
             "Use letters, numbers and dashes only. "
             "Including a date is recommended"
         ),
