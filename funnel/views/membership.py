@@ -101,7 +101,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                             granted_by=new_membership.granted_by,
                             profile=self.obj,
                             organization_membership_link=self.obj.url_for(
-                                'membership', _external=True
+                                'members', _external=True
                             ),
                         ),
                         subject=_("You have been added to {} as a admin").format(
