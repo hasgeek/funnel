@@ -312,8 +312,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         roles = super().roles_for(actor, anchors)
         if actor == self:
             # Owner because the user owns their own account
+            roles.add('owner')
             # Admin because it's relevant in the Profile model
-            roles.update({'owner', 'admin'})
+            roles.add('admin')
         return roles
 
     def organizations_as_owner_ids(self):
