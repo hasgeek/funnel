@@ -18,6 +18,7 @@ __all__ = [
     'ProjectBoxofficeForm',
     'ProjectCfpTransitionForm',
     'ProjectForm',
+    'ProjectLivestreamForm',
     'ProjectNameForm',
     'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
@@ -53,14 +54,7 @@ class ProjectForm(forms.Form):
     description = forms.MarkdownField(
         __("Project description"),
         validators=[forms.validators.DataRequired()],
-        description=__("Some more details about the project"),
-    )
-    livestream_urls = forms.TextListField(
-        __("Livestream URLs. One per line."),
-        validators=[
-            forms.validators.Optional(),
-            forms.ForEach([forms.validators.URL(), forms.validators.ValidUrl()]),
-        ],
+        description=__("Landing page contents"),
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -84,11 +78,21 @@ class ProjectForm(forms.Form):
     allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
 
 
+class ProjectLivestreamForm(forms.Form):
+    livestream_urls = forms.TextListField(
+        __("Livestream URLs. One per line."),
+        validators=[
+            forms.validators.Optional(),
+            forms.ForEach([forms.validators.URL(), forms.validators.ValidUrl()]),
+        ],
+    )
+
+
 class ProjectNameForm(forms.Form):
     name = forms.AnnotatedTextField(
-        __("URL slug"),
+        __("Custom URL"),
         description=__(
-            "The URL slug at which your project will appear. "
+            "Customize the URL of your project. "
             "Use letters, numbers and dashes only. "
             "Including a date is recommended"
         ),
