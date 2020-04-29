@@ -25,7 +25,7 @@
         <td data-th="Admins"><a href="{{ link }}" title="org.title">
           {%- for user in org.admin_users %}
             {%- if not loop.first %}, {% endif -%}
-            {{ user.displayname() }}
+            {{ user.pickername }}
           {%- endfor -%}
         </a></td>
       </tr>
