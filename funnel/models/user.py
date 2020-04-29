@@ -241,6 +241,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         else:
             return self.fullname
 
+    @with_roles(read={'all'})
     @property
     def initials(self):
         """
