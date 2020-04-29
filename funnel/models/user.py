@@ -319,10 +319,13 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def organizations_as_owner_ids(self):
         """
-        Return the database ids of the organizations this user is an owner of. This is used
-        for database queries.
+        Return the database ids of the organizations this user is an owner of. This is
+        used for database queries.
         """
-        return [o.id for o in self.organizations_as_owner]
+        return [
+            membership.organization_id
+            for membership in self.active_organization_owner_memberships
+        ]
 
     def is_profile_complete(self):
         """
