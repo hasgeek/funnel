@@ -1428,6 +1428,7 @@ html.touch .collapsible__body--disable {
     flex: 0 0 62%;
     margin: 0;
     padding: 0;
+    z-index: 3;
   }
   .card--spotlight .card__image-wrapper .card__image {
     position: absolute;
