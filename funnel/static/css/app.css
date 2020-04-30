@@ -1409,7 +1409,12 @@ html.touch .collapsible__body--disable {
 .card--spotlight .card__body__bookmark {
   float: right;
   position: relative;
-  top: 19px;
+  top: 0;
+  height: 0;
+  z-index: 4;
+}
+.card--spotlight .card__calendar {
+  padding: 0 0 25px;
 }
 
 @media (min-width: 992px) {
@@ -1433,9 +1438,6 @@ html.touch .collapsible__body--disable {
   .card--spotlight .card__body {
     position: relative;
     padding: 30px 15px;
-  }
-  .card--spotlight .card__body .card__body__bookmark {
-    top: 16px;
   }
 
   .card--spotlight--live {

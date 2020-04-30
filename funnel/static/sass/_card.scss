@@ -7,7 +7,12 @@
   .card__body__bookmark {
     float: right;
     position: relative;
-    top: 19px;
+    top: 0;
+    height: 0;
+    z-index: 4;
+  }
+  .card__calendar {
+    padding: 0 0 25px;
   }
 }
 
@@ -34,10 +39,6 @@
     .card__body {
       position: relative;
       padding: 30px 15px;
-
-      .card__body__bookmark {
-        top: 16px;
-      }
     }
   }
   .card--spotlight--live {
