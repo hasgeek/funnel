@@ -126,7 +126,15 @@ export const Utils = {
     });
   },
   showTimeOnCalendar() {
-    $('body .calendar__weekdays')
+    let firstActiveWeek = $('body .calendar__weekdays').find(
+      '.calendar__weekdays__dates--upcoming:first'
+    ).length
+      ? $('body .calendar__weekdays').find(
+          '.calendar__weekdays__dates--upcoming:first'
+        )
+      : $('body .calendar__weekdays').find('.calendar__weekdays__dates:first');
+
+    firstActiveWeek
       .find('.calendar__weekdays__dates__date--showtime:first')
       .addClass('calendar__weekdays__dates__date--display');
 
@@ -138,7 +146,7 @@ export const Utils = {
     });
 
     $('body .calendar__weekdays__dates__date--showtime').mouseleave(function() {
-      $('.calendar__weekdays')
+      firstActiveWeek
         .find('.calendar__weekdays__dates__date--showtime:first')
         .addClass('calendar__weekdays__dates__date--display');
     });
@@ -150,6 +158,8 @@ export const Utils = {
         .find('.calendar__counting')
         .data('today');
       let eventDate = $(this)
+        .find('.calendar__weekdays__dates--upcoming--first')
+        .first()
         .find('.calendar__weekdays__dates__date--active')
         .first()
         .data('event-date');
