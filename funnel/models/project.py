@@ -592,7 +592,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 session_dates.insert(0, (now, None, None, 0))
 
         weeks = defaultdict(dict)
-        today = now.date().isoformat()
+        today = now.date()
         for project_date, day_start_at, day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
@@ -605,7 +605,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 weeks[weekobj.week]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
                     # If the event is over don't set upcoming for current week
-                    if wdate.isoformat() < today:
+                    if wdate < today:
                         weeks[weekobj.week]['upcoming'] = False
                     weeks[weekobj.week]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekobj.week]:
