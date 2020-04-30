@@ -161,17 +161,13 @@
         <div class="project-details__box--ticketbox">
           {% if not project.schedule_state.PAST %}
             <div class="mui--hidden-xs mui--hidden-sm">
+              <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">
               {%- if project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
-                <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %}</a>
-              {%- elif project.buy_tickets_url.url %}
-                <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
-                {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
-                  {{ project.boxoffice_data.buy_btn_text }}
-                {% else %}
-                  {% trans %}Get tickets{% endtrans %}
-                {% endif %}
-                </a>
+                {% trans %}Get tickets{% endtrans %}
+              {%- else %}
+                {% trans %}Attend{% endtrans %}
               {%- endif %}
+              </a>
             </div>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
