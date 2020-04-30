@@ -779,7 +779,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 perms.add('new-proposal')
             if 'editor' in self.roles_for(user):
                 perms.update(
-                    [
+                    (
                         'view_contactinfo',
                         'edit_project',
                         'delete-project',
@@ -821,10 +821,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'edit-participant',
                         'view-participant',
                         'new-participant',
-                    ]
+                    )
                 )
             if 'usher' in self.roles_for(user):
-                perms.update(['checkin_event'])
+                perms.add('checkin_event')
         return perms
 
     @classmethod

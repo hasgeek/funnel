@@ -312,16 +312,20 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         roles = super().roles_for(actor, anchors)
         if actor == self:
             # Owner because the user owns their own account
+            roles.add('owner')
             # Admin because it's relevant in the Profile model
-            roles.update({'owner', 'admin'})
+            roles.add('admin')
         return roles
 
     def organizations_as_owner_ids(self):
         """
-        Return the database ids of the organizations this user is an owner of. This is used
-        for database queries.
+        Return the database ids of the organizations this user is an owner of. This is
+        used for database queries.
         """
-        return [o.id for o in self.organizations_as_owner]
+        return [
+            membership.organization_id
+            for membership in self.active_organization_owner_memberships
+        ]
 
     def is_profile_complete(self):
         """
