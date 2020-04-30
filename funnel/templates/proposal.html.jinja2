@@ -23,8 +23,8 @@
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
   <p class="mui--text-headline">{{ project.tagline }}</p>
   <p>
-  {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-    <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">{%- if project.allow_rsvp %}{% trans %}Attend{% endtrans %}{% else %}{% trans %}Tickets{% endtrans %}{% endif %}</a>
+  {%- if not project.schedule_state.PAST or (project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
+    <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">{%- if not project.schedule_state.PAST %}{% trans %}Attend{% endtrans %}{% else %}{% trans %}Tickets{% endtrans %}{% endif %}</a>
   {%- elif project.buy_tickets_url.url %}
     <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.buy_tickets_url }}" data-action="Tickets(header-proposalpage)">
       {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}

@@ -75,7 +75,6 @@ class ProjectForm(forms.Form):
             forms.validators.Length(max=2000),
         ],
     )
-    allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
 
 
 class ProjectLivestreamForm(forms.Form):
