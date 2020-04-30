@@ -128,7 +128,7 @@
           {%- endfor -%}
         </ul>
       {%- endif %}
-      {% if project.buy_tickets_url.url -%}
+      {% if not project.schedule_state.PAST and project.buy_tickets_url.url -%}
         <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets url" target="_blank">
           {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
             {{ project.boxoffice_data.buy_btn_text }}
