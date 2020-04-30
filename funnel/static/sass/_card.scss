@@ -155,7 +155,7 @@
     }
 
     .calendar__month-name:nth-child(n + 2) {
-      margin-top: 25px;
+      padding-top: 25px;
     }
 
     .calendar__weekdays {
@@ -336,7 +336,7 @@
       .calendar__weekdays__dates,
       .calendar__month-name {
         display: none;
-        margin-top: 0;
+        padding-top: 0;
       }
       .calendar__weekdays__dates--upcoming--first,
       .calendar__month-name--upcoming--first {
@@ -349,6 +349,8 @@
           background: #fff;
           display: block;
           z-index: -1;
+          bottom: 0;
+          background: #f9fafc;
         }
         .calendar__weekdays__dates__icon--left {
           position: absolute;
