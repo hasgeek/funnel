@@ -6,7 +6,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
 
 from baseframe import __
-from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
+from baseframe.forms.sqlalchemy import AvailableName
 from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
@@ -18,6 +18,8 @@ __all__ = [
     'ProjectBoxofficeForm',
     'ProjectCfpTransitionForm',
     'ProjectForm',
+    'ProjectLivestreamForm',
+    'ProjectNameForm',
     'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
     'RsvpTransitionForm',
@@ -32,22 +34,6 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {"org": "hasgeek", "item_collection_id": ""}
 
 
 class ProjectForm(forms.Form):
-    name = forms.AnnotatedTextField(
-        __("URL name"),
-        description=__(
-            "The URL at which your project will appear. "
-            "Use letters, numbers and dashes only. "
-            "Including a date is recommended"
-        ),
-        validators=[
-            forms.validators.DataRequired(),
-            forms.validators.ValidName(),
-            AvailableName(),
-            forms.validators.Length(max=Project.__name_length__),
-        ],
-        prefix="https://hasgeek.com/<profile>/",
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
-    )
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -63,27 +49,12 @@ class ProjectForm(forms.Form):
         __("Tagline"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         filters=[forms.filters.strip()],
-        description=__("This is displayed on the card on the homepage"),
-    )
-    website = forms.URLField(
-        __("Website"),
-        validators=[
-            forms.validators.Optional(),
-            forms.validators.URL(),
-            forms.validators.ValidUrl(),
-        ],
+        description=__("One line description of the project"),
     )
     description = forms.MarkdownField(
         __("Project description"),
         validators=[forms.validators.DataRequired()],
-        description=__("About the project"),
-    )
-    livestream_urls = forms.TextListField(
-        __("Livestream URLs. One per line."),
-        validators=[
-            forms.validators.Optional(),
-            forms.ForEach([forms.validators.URL(), forms.validators.ValidUrl()]),
-        ],
+        description=__("Landing page contents"),
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -94,60 +65,45 @@ class ProjectForm(forms.Form):
     )
     bg_image = forms.URLField(
         __("Banner image URL"),
-        description="Banner image for project cards on the homepage",
+        description=(
+            "Banner image for project cards on the homepage. "
+            "Resolution should be 1200x675 px. Image size should be around 50KB."
+        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.ValidUrl(),
             forms.validators.Length(max=2000),
         ],
     )
-    bg_color = forms.StringField(
-        __("Background color"),
-        description=__(
-            "RGB color for the project. Enter without the '#'. E.g. CCCCCC."
-        ),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=6)],
-        default="CCCCCC",
-    )
-    explore_url = forms.URLField(
-        __("Explore tab URL"),
-        description=__(
-            "Page containing the explore tab’s contents, for the mobile app"
-        ),
+
+
+class ProjectLivestreamForm(forms.Form):
+    livestream_urls = forms.TextListField(
+        __("Livestream URLs. One per line."),
         validators=[
             forms.validators.Optional(),
-            forms.validators.URL(),
-            forms.validators.ValidUrl(),
-        ],
-    )
-    parent_project = QuerySelectField(
-        __("Parent project"), get_label='title', allow_blank=True, blank_text=__("None")
-    )
-    allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
-    buy_tickets_url = forms.URLField(
-        __("URL to buy tickets"),
-        description=__("Eg: Explara, Instamojo"),
-        validators=[
-            forms.validators.Optional(),
-            forms.validators.URL(),
-            forms.validators.ValidUrl(),
-            forms.validators.Length(max=2000),
+            forms.ForEach([forms.validators.URL(), forms.validators.ValidUrl()]),
         ],
     )
 
-    def set_queries(self):
-        if self.edit_obj is None:
-            self.parent_project.query = self.edit_parent.projects
-        else:
-            self.parent_project.query = Project.query.filter(
-                Project.profile == self.edit_obj.profile,
-                Project.id != self.edit_obj.id,
-                Project.parent_project == None,
-            )  # NOQA
 
-    def validate_bg_color(self, field):
-        if not valid_color_re.match(field.data):
-            raise forms.ValidationError("Please enter a valid color code")
+class ProjectNameForm(forms.Form):
+    name = forms.AnnotatedTextField(
+        __("Custom URL"),
+        description=__(
+            "Customize the URL of your project. "
+            "Use letters, numbers and dashes only. "
+            "Including a date is recommended"
+        ),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.ValidName(),
+            AvailableName(),
+            forms.validators.Length(max=Project.__name_length__),
+        ],
+        prefix="https://hasgeek.com/<profile>/",
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
 
 
 class CfpForm(forms.Form):

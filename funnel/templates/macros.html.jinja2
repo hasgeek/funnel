@@ -141,7 +141,7 @@
         <div class="project-details__box--ticketbox">
           {% if not project.schedule_state.PAST %}
             <div class="mui--hidden-xs mui--hidden-sm">
-              {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+              {%- if project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
                 <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %}</a>
               {%- elif project.buy_tickets_url.url %}
                 <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
@@ -175,10 +175,8 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
-      {%- if not project.schedule_state.PAST and (project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
+      {%- if not project.schedule_state.PAST and (project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id)) -%}
         <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
-      {%- elif not project.schedule_state.PAST and project.buy_tickets_url.url %}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" data-action="Tickets(navbar)" id="ticket-btn"> {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}{{ project.boxoffice_data.buy_btn_text }}{% else %}{% trans %}Get tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
