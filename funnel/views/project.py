@@ -223,7 +223,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         # Profile URLs:
         # HasGeek: https://hasgeek.com/rootconf (no /)
         # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
-        form.name.prefix = self.obj.url_for(_external=True)
+        form.name.prefix = self.obj.profile.url_for(_external=True)
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
         if form.validate_on_submit():
