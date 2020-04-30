@@ -35,14 +35,14 @@ from .helpers import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 
-@route('/<profile>/membership')
+@route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')
     @requires_roles({'admin'})
-    def membership(self):
+    def members(self):
         if not self.obj.organization:
             # User profiles don't have memberships
             abort(404)
@@ -101,7 +101,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                             granted_by=new_membership.granted_by,
                             profile=self.obj,
                             organization_membership_link=self.obj.url_for(
-                                'membership', _external=True
+                                'members', _external=True
                             ),
                         ),
                         subject=_("You have been added to {} as a admin").format(
@@ -139,7 +139,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 OrganizationMembersView.init_app(app)
 
 
-@route('/<profile>/membership/<membership>')
+@route('/<profile>/members/<membership>')
 class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
     model = OrganizationMembership
     __decorators__ = [legacy_redirect]
@@ -269,13 +269,13 @@ OrganizationMembershipView.init_app(app)
 #: Project Membership views
 
 
-@route('/<profile>/<project>/membership')
+@route('/<profile>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET', 'POST'])
     @render_with('project_membership.html.jinja2')
-    def membership(self):
+    def crew(self):
         project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
@@ -327,7 +327,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             granted_by=new_membership.granted_by,
                             project=self.obj,
                             project_membership_link=self.obj.url_for(
-                                'membership', _external=True
+                                'crew', _external=True
                             )
                             # link=new_membership.url_for('invite', _external=True),
                         ),
@@ -363,7 +363,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         return {'form': membership_form_html}
 
 
-@route('/<project>/membership', subdomain='<profile>')
+@route('/<project>/crew', subdomain='<profile>')
 class FunnelProjectMembershipView(ProjectMembershipView):
     pass
 
@@ -398,7 +398,7 @@ class ProjectCrewMembershipMixin(object):
         super(ProjectCrewMembershipMixin, self).after_loader()
 
 
-@route('/<profile>/<project>/membership/<membership>/invite')
+@route('/<profile>/<project>/crew/<membership>/invite')
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
@@ -430,7 +430,7 @@ class ProjectCrewMembershipInviteView(
         return redirect(self.obj.project.url_for(), 303)
 
 
-@route('/<project>/membership/<membership>/invite', subdomain='<profile>')
+@route('/<project>/crew/<membership>/invite', subdomain='<profile>')
 class FunnelProjectCrewMembershipInviteView(ProjectCrewMembershipInviteView):
     pass
 
@@ -439,7 +439,7 @@ ProjectCrewMembershipInviteView.init_app(app)
 FunnelProjectCrewMembershipInviteView.init_app(funnelapp)
 
 
-@route('/<profile>/<project>/membership/<membership>')
+@route('/<profile>/<project>/crew/<membership>')
 class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
@@ -536,7 +536,7 @@ class ProjectCrewMembershipView(
         return {'form': form_html}
 
 
-@route('/<project>/membership/<membership>', subdomain='<profile>')
+@route('/<project>/crew/<membership>', subdomain='<profile>')
 class FunnelProjectCrewMembershipView(ProjectCrewMembershipView):
     pass
 

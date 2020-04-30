@@ -37,8 +37,8 @@ Cypress.Commands.add('logout', () => {
 
 Cypress.Commands.add('add_member', (username, role) => {
   cy.server();
-  cy.route('**/membership/new').as('member-form');
-  cy.route('POST', '**/membership/new').as('add-member');
+  cy.route('**/new').as('member-form');
+  cy.route('POST', '**/new').as('add-member');
 
   cy.get('button[data-cy-btn="add-member"]').click();
   cy.wait('@member-form');
