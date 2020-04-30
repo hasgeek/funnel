@@ -1537,6 +1537,7 @@ html.touch .collapsible__body--disable {
   color: #e05f25;
   letter-spacing: 0.5px;
   font-variant: none;
+  line-height: 25px;
 }
 .card__calendar .calendar .calendar__month-name--unique {
   display: block;

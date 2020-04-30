@@ -18,7 +18,7 @@
               {% set event.next = true %}
             {% endif %}
           {% endif %}
-          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} ">{{ week.month }} {{ week.year }}&nbsp;{% if event.first_week == week %}<span class="calendar__counting" data-today="{{ calendar.today }}"></span>{% endif %}</p>
+          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} ">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}"></span></p>
           {% set event.month = week.month  %}
           {% set event.year = week.year  %}
           <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first{% endif %}">

@@ -158,6 +158,8 @@ export const Utils = {
         .find('.calendar__counting')
         .data('today');
       let eventDate = $(this)
+        .find('.calendar__weekdays__dates--upcoming--first')
+        .first()
         .find('.calendar__weekdays__dates__date--active')
         .first()
         .data('event-date');
