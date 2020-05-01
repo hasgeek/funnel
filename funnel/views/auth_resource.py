@@ -28,6 +28,7 @@ from .helpers import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
     requires_user_or_client_login,
+    validate_rate_limit,
 )
 
 
@@ -398,6 +399,40 @@ def user_autocomplete():
     q = strip_null(request.values.get('q', ''))
     if not q:
         return api_result('error', error='no_query_provided')
+    # Limit length of query to User.fullname limit
+    q = q[: User.__title_length__]
+
+    # Setup rate limiter to not count progressive typing or backspacing towards
+    # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
+    # sending 'ac' will. When the user backspaces from 'abc' towards 'a', retain 'abc'
+    # as the token until a different query such as 'ac' appears. This effectively
+    # imposes a limit of 20 name lookups per half hour.
+
+    validate_rate_limit(
+        # As this endpoint accepts client_id+user_session in lieu of login cookie,
+        # we may not have an authenticatd user. Use the user_session's user in that case
+        'user_autocomplete/'
+        + (
+            current_auth.actor.uuid_b58
+            if current_auth.actor
+            else current_auth.session.user.uuid_b58
+        ),
+        # Limit 20 attempts
+        20,
+        # Per half hour (60s * 30m = 1800s)
+        1800,
+        # Save the query as a token. Validator will receive the previous call's token
+        token=q,
+        # Validator has to return two flags: (count_this, retain_previous_token)
+        # prev_q will be None on the first call to the validator
+        validator=lambda prev_q: (True, False)
+        if not prev_q
+        else (False, False)
+        if q.startswith(prev_q or '')  # Progressive typing, use new query as token
+        else (False, True)
+        if (prev_q or '').startswith(q)  # Backspacing, keep prev longer q as token
+        else (True, False),
+    )
     users = User.autocomplete(q)
     result = [
         {
