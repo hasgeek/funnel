@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Markup, abort, escape, flash, redirect, request, url_for
+from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 from baseframe import _
 from baseframe.forms import (
@@ -10,7 +10,14 @@ from baseframe.forms import (
     render_redirect,
 )
 from coaster.auth import current_auth
-from coaster.views import ClassView, get_next_url, load_model, render_with, route
+from coaster.views import (
+    ClassView,
+    get_next_url,
+    load_model,
+    render_with,
+    requestargs,
+    route,
+)
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
@@ -31,12 +38,29 @@ from ..models import (
     UserPhone,
     UserPhoneClaim,
     db,
+    password_policy,
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
 from .email import send_email_verify_link
-from .helpers import app_url_for, requires_login
+from .helpers import app_url_for, login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
+
+
+@app.route('/api/1/password/policy', methods=['POST'])
+@render_with(json=True)
+@requestargs('candidate')
+def password_policy_check(candidate):
+    tested_password = password_policy.password(candidate)
+    failed_tests = tested_password.test()
+    return {
+        'status': 'ok',
+        'result': {
+            'strength': float(tested_password.strength()),
+            'is_weak': bool(failed_tests),
+            'failed_tests': [repr(t) for t in failed_tests],
+        },
+    }
 
 
 @route('/account')
@@ -260,15 +284,31 @@ def change_password():
         form = PasswordChangeForm()
         form.edit_user = current_auth.user
     if form.validate_on_submit():
-        current_auth.user.password = form.password.data
+        current_app.logger.info("Password strength %f", form.password_strength)
+        user = current_auth.user
+        user.password = form.password.data
+        # 1. Log out of the current session
+        logout_internal()
+        # 2. As a precaution, invalidate all of the user's active sessions
+        for user_session in user.active_sessions.all():
+            user_session.revoke()
+        # 3. Create a new session and continue without disrupting user experience
+        login_internal(user)
         db.session.commit()
         flash(_("Your new password has been saved"), category='success')
-        return render_redirect(url_for('account'), code=303)
+        # If the user was sent here from login because of a weak password, the next
+        # URL will be saved in the session. If so, send the user on their way after
+        # setting the password, falling back to the account page if there's nowhere
+        # else to send them.
+        return render_redirect(
+            get_next_url(session=True, default=url_for('account')), code=303
+        )
     return render_form(
         form=form,
         title=_("Change password"),
         formid='changepassword',
         submit=_("Change password"),
+        cancel_url=url_for('account'),
         ajax=True,
     )
 
