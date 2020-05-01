@@ -13,6 +13,7 @@ from ..models import (
     UserPhone,
     UserPhoneClaim,
     getuser,
+    password_policy,
 )
 from ..utils import strip_phone, valid_phone
 
@@ -33,6 +34,24 @@ __all__ = [
 timezones = sorted_timezones()
 
 
+def password_strength_validator(form, field):
+    # Test the candidate password
+    tested_password = password_policy.password(field.data)
+    # Stick password strength into the form for logging in the view and possibly
+    # rendering into UI
+    form.password_strength = float(tested_password.strength())
+    # No test failures? All good then
+    if not tested_password.test():
+        return
+    # Tell the user to make up a better password
+    raise forms.validators.StopValidation(
+        _(
+            "This password is too simple. Add complexity by making it longer and using "
+            "a mix of upper and lower case letters, numbers and symbols"
+        )
+    )
+
+
 class PasswordResetRequestForm(forms.RecaptchaForm):
     username = forms.StringField(
         __("Username or Email"),
@@ -48,6 +67,8 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
 
 
 class PasswordResetForm(forms.RecaptchaForm):
+    __returns__ = ('password_strength',)
+
     username = forms.StringField(
         __("Username or Email"),
         validators=[forms.validators.DataRequired()],
@@ -55,12 +76,18 @@ class PasswordResetForm(forms.RecaptchaForm):
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
-        __("New password"), validators=[forms.validators.DataRequired()]
+        __("New password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            password_strength_validator,
+        ],
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -70,22 +97,32 @@ class PasswordResetForm(forms.RecaptchaForm):
         if user is None or user != self.edit_user:
             raise forms.ValidationError(
                 _(
-                    "This username or email does not match the user the reset code is for"
+                    "This username or email does not match the user the reset code is "
+                    "for"
                 )
             )
 
 
 class PasswordChangeForm(forms.Form):
+    __returns__ = ('password_strength',)
+
     old_password = forms.PasswordField(
-        __("Current password"), validators=[forms.validators.DataRequired()]
+        __("Current password"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
     )
     password = forms.PasswordField(
-        __("New password"), validators=[forms.validators.DataRequired()]
+        __("New password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            password_strength_validator,
+        ],
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -131,7 +168,8 @@ class AccountForm(forms.Form):
     timezone = forms.SelectField(
         __("Timezone"),
         description=__(
-            "Where in the world are you? Dates and times will be shown in your local timezone"
+            "Where in the world are you? Dates and times will be shown in your local "
+            "timezone"
         ),
         validators=[forms.validators.DataRequired()],
         choices=timezones,
@@ -144,7 +182,8 @@ class AccountForm(forms.Form):
         if reason == 'invalid':
             raise forms.ValidationError(
                 _(
-                    "Usernames can only have alphabets, numbers and dashes (except at the ends)"
+                    "Usernames can only have alphabets, numbers and dashes (except at "
+                    "the ends)"
                 )
             )
         elif reason == 'reserved':
@@ -220,14 +259,16 @@ class NewPhoneForm(forms.RecaptchaForm):
         ),
     )
 
-    # Temporarily removed since we only support mobile numbers at this time. When phone call validation is added,
-    # we can ask for other types of numbers:
+    # Temporarily removed since we only support mobile numbers at this time. When phone
+    # call validation is added, we can ask for other types of numbers:
 
-    # type = forms.RadioField(__("Type"), coerce=nullstr, validators=[forms.validators.Optional()], choices=[
-    #     (__(u"Mobile"), __(u"Mobile")),
-    #     (__(u"Home"), __(u"Home")),
-    #     (__(u"Work"), __(u"Work")),
-    #     (__(u"Other"), __(u"Other"))])
+    # type = forms.RadioField(__("Type"), coerce=nullstr,
+    #     validators=[forms.validators.Optional()],
+    #     choices=[
+    #         (__(u"Mobile"), __(u"Mobile")),
+    #         (__(u"Home"), __(u"Home")),
+    #         (__(u"Work"), __(u"Work")),
+    #         (__(u"Other"), __(u"Other"))])
 
     def validate_phone(self, field):
         # TODO: Use the phonenumbers library to validate this
@@ -243,7 +284,8 @@ class NewPhoneForm(forms.RecaptchaForm):
         if not valid_phone(number):
             raise forms.ValidationError(
                 _(
-                    "Invalid phone number (must be in international format with a leading + symbol)"
+                    "Invalid phone number (must be in international format with a "
+                    "leading + (plus) symbol)"
                 )
             )
         # Step 4: Check if Indian number (startswith('+91'))
