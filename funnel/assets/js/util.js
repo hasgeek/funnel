@@ -164,9 +164,9 @@ export const Utils = {
         .first();
       let eventDate = nextEventElem.data('event-date');
       let eventMonth = nextEventElem.data('event-month');
-      let monthElem = $('.calendar__month-name').find(
-        "[data-month='" + eventMonth + "']"
-      );
+      let monthElem = $(this)
+        .find('.calendar__month-name')
+        .find("[data-month='" + eventMonth + "']");
 
       // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
       let today = Date.parse(todayDate);
