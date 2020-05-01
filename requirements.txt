@@ -10,7 +10,7 @@ Flask-Redis>=0.3.0
 Flask-RQ2==18.3
 Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.3
-Flask==1.1.1
+Flask==1.1.2
 git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 git+https://github.com/hasgeek/coaster.git#egg=coaster
 git+https://github.com/hasgeek/Flask-FlatPages.git#egg=Flask-FlatPages
