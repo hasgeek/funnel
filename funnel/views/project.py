@@ -17,7 +17,7 @@ from flask import (
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.utils import getbool, make_name
+from coaster.utils import getbool
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -97,7 +97,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         if form.validate_on_submit():
             project = Project(user=current_auth.user, profile=self.obj)
             form.populate_obj(project)
-            project.name = make_name(project.title)
+            project.make_name()
             db.session.add(project)
             db.session.commit()
 

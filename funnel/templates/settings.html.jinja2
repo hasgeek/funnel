@@ -87,7 +87,7 @@
                 {% endif %}
                 {% if project.view_for('edit_slug').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('edit_slug') }}" data-cy="edit">{% trans %}Update project URL name{% endtrans %}</a>
+                    <a href="{{ project.url_for('edit_slug') }}" data-cy="edit">{% trans %}Update project URL{% endtrans %}</a>
                   </li>
                 {% endif %}
                 {% if project.view_for('edit_livestream').is_available() %}

@@ -103,7 +103,7 @@
       <div class="grid__col-sm-12 project-banner__headline">
         <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}
           {% if project.view_for('edit_slug').is_available() %}
-            <a class="mui--text-body1" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url">{{ project.url_for(_external=true) }} {{ faicon(icon='edit') }}</a>
+            <a class="mui--text-body1" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
           {% endif %}
         </h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
@@ -145,7 +145,7 @@
             {%- else %}
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
               {% if project.view_for('edit_livestream').is_available() %}
-                <a href="{{ project.url_for('edit') }}#bg_image" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Add banner image{% endtrans %}</a>
+                <a href="{{ project.url_for('edit_livestream') }}#bg_image" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Add banner image{% endtrans %}</a>
               {% endif %}
             {% endif %}
           </div>
@@ -161,7 +161,7 @@
         <div class="project-details__box--ticketbox">
           {% if not project.schedule_state.PAST %}
             <div class="mui--hidden-xs mui--hidden-sm">
-              <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">
+              <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">
               {%- if project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
                 {% trans %}Get tickets{% endtrans %}
               {%- else %}

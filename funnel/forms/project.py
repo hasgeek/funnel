@@ -82,7 +82,9 @@ class ProjectLivestreamForm(forms.Form):
         __("Livestream URLs. One per line."),
         validators=[
             forms.validators.Optional(),
-            forms.ForEach([forms.validators.URL(), forms.validators.ValidUrl()]),
+            forms.validators.ForEach(
+                [forms.validators.URL(), forms.validators.ValidUrl()]
+            ),
         ],
     )
 
@@ -97,9 +99,9 @@ class ProjectNameForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
+            forms.validators.Length(max=Project.__name_length__),
             forms.validators.ValidName(),
             AvailableName(),
-            forms.validators.Length(max=Project.__name_length__),
         ],
         prefix="https://hasgeek.com/<profile>/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
