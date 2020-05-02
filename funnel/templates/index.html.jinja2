@@ -82,9 +82,9 @@
               {% if not featured_project.livestream_urls and current_sessions.sessions|length > 0 %}
                 {% trans %}Live schedule{% endtrans %}
               {% elif featured_project.livestream_urls and not current_sessions.sessions|length > 0 %}
-                {% trans %}LiveStream{% endtrans %}
+                {% trans %}Livestream{% endtrans %}
               {% elif featured_project.livestream_urls and current_sessions.sessions|length > 0 %}
-                {% trans %}LiveStream and Schedule{% endtrans %}
+                {% trans %}Livestream and Schedule{% endtrans %}
               {% endif %}
             </h2>
           </div>

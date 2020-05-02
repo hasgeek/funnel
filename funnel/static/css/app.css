@@ -1428,6 +1428,7 @@ html.touch .collapsible__body--disable {
     flex: 0 0 62%;
     margin: 0;
     padding: 0;
+    z-index: 3;
   }
   .card--spotlight .card__image-wrapper .card__image {
     position: absolute;
@@ -1545,7 +1546,7 @@ html.touch .collapsible__body--disable {
   display: block;
 }
 .card__calendar .calendar .calendar__month-name:nth-child(n + 2) {
-  margin-top: 25px;
+  padding-top: 25px;
 }
 .card__calendar .calendar .calendar__weekdays {
   display: flex;
@@ -1790,7 +1791,7 @@ html.touch .collapsible__body--disable {
   .calendar__weekdays__dates,
 .card__calendar--compact .calendar .calendar__weekdays .calendar__month-name {
   display: none;
-  margin-top: 0;
+  padding-top: 0;
 }
 .card__calendar--compact
   .calendar
@@ -1812,6 +1813,8 @@ html.touch .collapsible__body--disable {
   background: #fff;
   display: block;
   z-index: -1;
+  bottom: 0;
+  background: #f9fafc;
 }
 .card__calendar--compact
   .calendar

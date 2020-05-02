@@ -4,7 +4,16 @@ from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import unquote, urljoin, urlparse
 
-from flask import Response, current_app, flash, redirect, request, session, url_for
+from flask import (
+    Response,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    request,
+    session,
+    url_for,
+)
 from flask_mail import Message
 from werkzeug.urls import url_quote
 import itsdangerous
@@ -13,7 +22,7 @@ from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
 
-from baseframe import _
+from baseframe import _, cache
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.gfm import markdown
 from coaster.utils import utcnow
@@ -381,6 +390,10 @@ def requires_client_id_or_user_or_client_login(f):
     def decorated_function(*args, **kwargs):
         add_auth_attribute('login_required', True)
 
+        # Is there a user? Go right ahead
+        if current_auth.is_authenticated:
+            return f(*args, **kwargs)
+
         # Check if http referrer and given client id match a registered client
         if (
             'client_id' in request.values
@@ -393,17 +406,18 @@ def requires_client_id_or_user_or_client_login(f):
             if client_cred is not None and get_scheme_netloc(
                 client_cred.auth_client.website
             ) == get_scheme_netloc(request.referrer):
-                if (
-                    UserSession.authenticate(buid=strip_null(request.values['session']))
-                    is not None
-                ):
+                user_session = UserSession.authenticate(
+                    buid=strip_null(request.values['session'])
+                )
+                if user_session is not None:
+                    # Add this user session to current_auth so the wrapped function
+                    # knows who it's operating for. However, this is not proper
+                    # authentication, so do not tag this as an actor.
+                    add_auth_attribute('session', user_session)
                     return f(*args, **kwargs)
 
-        # If we didn't get a valid client_id and session, maybe there's a user?
-        if current_auth.is_authenticated:
-            return f(*args, **kwargs)
-
-        # If user is not logged in, check for client credentials in the request authorization header.
+        # If we didn't get a valid client_id and session, and the user is not logged in,
+        # check for client credentials in the request authorization header.
         # If no error reported, call the function, else return error.
         result = _client_login_inner()
         if result is None:
@@ -476,3 +490,60 @@ def set_loginmethod_cookie(response, value):
         httponly=True,
     )
     return response
+
+
+def validate_rate_limit(identifier, attempts, timeout, token=None, validator=None):
+    """
+    Confirm the rate limit has not been reached for the given string identifier, number
+    of attempts, and timeout period. Uses a simple limiter: once the number of attempts
+    is reached, no further attempts can be made for timeout seconds.
+
+    Aborts with HTTP 429 in case the limit has been reached.
+
+    :param str identifier: Identifier for type of request and entity being rate limited
+    :param int attempts: Number of attempts allowed
+    :param int timeout: Duration in seconds to block after attempts are exhausted
+    :param str token: For advanced use, a token to check against for future calls
+    :param validator: A validator that receives the token and returns two bools
+        ``(count_this, retain_previous_token)``
+
+    For an example of how the token and validator are used, see the user_autocomplete
+    endpoint in views/auth_resource.py
+    """
+    cache_key = 'rate_limit/v1/' + identifier
+    cache_value = cache.get(cache_key)
+    if cache_value is None:
+        count, cache_token = None, None
+    else:
+        count, cache_token = cache_value
+    if not count or not isinstance(count, int):
+        count = 0
+    if count >= attempts:
+        abort(429)
+    if validator is not None:
+        result, retain_token = validator(cache_token)
+        if retain_token:
+            token = cache_token
+        if result:
+            current_app.logger.debug(
+                "Rate limit +1 (validated with %s, retain %r) for %s",
+                cache_token,
+                retain_token,
+                identifier,
+            )
+            count += 1
+        else:
+            current_app.logger.debug(
+                "Rate limit +0 (validated with %s, retain %r) for %s",
+                cache_token,
+                retain_token,
+                identifier,
+            )
+    else:
+        current_app.logger.debug("Rate limit +1 for %s", identifier)
+        count += 1
+    # Always set count, regardless of validator output
+    current_app.logger.debug(
+        "Setting rate limit usage for %s to %s with token %s", identifier, count, token
+    )
+    cache.set(cache_key, (count, token), timeout=timeout)

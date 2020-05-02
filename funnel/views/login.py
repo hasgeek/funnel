@@ -29,6 +29,7 @@ from .. import app, funnelapp, lastuserapp
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
+    LoginPasswordWeakException,
     PasswordResetForm,
     PasswordResetRequestForm,
     RegisterForm,
@@ -58,6 +59,7 @@ from .helpers import (
     requires_login,
     requires_login_no_message,
     set_loginmethod_cookie,
+    validate_rate_limit,
 )
 
 
@@ -100,19 +102,56 @@ def login():
     formid = strip_null(request.form.get('form.id'))
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
-            if loginform.validate():
+            success = loginform.validate()
+            # Allow 10 login attempts per hour per user (if present) or username.
+            # We do rate limit check after loading the user (via .validate()) so that
+            # the limit is fixed to the user and not to the username. An account with
+            # multiple email addresses will allow an extended rate limit otherwise.
+            # The rate limit explicitly blocks successful validation, to discourage
+            # password guessing.
+            validate_rate_limit(
+                'login/'
+                + (
+                    ('user/' + loginform.user.uuid_b58)
+                    if loginform.user
+                    else ('username/' + loginform.username.data)
+                ),
+                10,
+                3600,
+            )
+            if success:
                 user = loginform.user
                 login_internal(user)
                 db.session.commit()
-                flash(_("You are now logged in"), category='success')
-                current_app.logger.info(
-                    "Login successful for %r, possible redirect URL is '%s'",
-                    user,
-                    session.get('next', ''),
-                )
-                return set_loginmethod_cookie(
-                    render_redirect(get_next_url(session=True), code=303), 'password'
-                )
+                if loginform.weak_password:
+                    current_app.logger.info(
+                        "Login successful for %r, but weak password detected. "
+                        "Possible redirect URL is '%s' after password change",
+                        user,
+                        session.get('next', ''),
+                    )
+                    flash(
+                        _(
+                            "You have a weak password. To ensure the safety of "
+                            "your account, please choose a stronger password"
+                        ),
+                        category='danger',
+                    )
+                    return set_loginmethod_cookie(
+                        render_redirect(url_for('change_password'), code=303),
+                        'password',
+                    )
+                else:
+                    current_app.logger.info(
+                        "Login successful for %r, possible redirect URL is '%s'",
+                        user,
+                        session.get('next', ''),
+                    )
+                    flash(_("You are now logged in"), category='success')
+                    return set_loginmethod_cookie(
+                        render_redirect(get_next_url(session=True), code=303),
+                        'password',
+                    )
         except LoginPasswordResetException:
             flash(
                 _(
@@ -121,6 +160,15 @@ def login():
                     "new password"
                 ),
                 category='danger',
+            )
+            return render_redirect(url_for('reset', username=loginform.username.data))
+        except LoginPasswordWeakException:
+            flash(
+                _(
+                    "Your account has a weak password. Please enter your "
+                    "username or email address to request a reset code and set a "
+                    "new password"
+                )
             )
             return render_redirect(url_for('reset', username=loginform.username.data))
     elif request.method == 'POST' and formid in service_forms:
@@ -217,6 +265,7 @@ def logout():
 
 @app.route('/logout/<user_session>')
 @lastuserapp.route('/logout/<user_session>')
+@requires_login
 @load_model(UserSession, {'buid': 'user_session'}, 'user_session')
 def logout_session(user_session):
     if (
@@ -245,6 +294,7 @@ def register():
         return redirect(url_for('index'))
     form = RegisterForm()
     if form.validate_on_submit():
+        current_app.logger.info("Password strength %f", form.password_strength)
         user = register_internal(None, form.fullname.data, form.password.data)
         useremail = UserEmailClaim(user=user, email=form.email.data)
         db.session.add(useremail)
@@ -327,6 +377,8 @@ def reset():
                         ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
                     ),
                 )
+        # Allow only two reset attempts per hour to discourage abuse
+        validate_rate_limit('email_reset/' + user.uuid_b58, 2, 3600)
         resetreq = AuthPasswordResetRequest(user=user)
         db.session.add(resetreq)
         send_password_reset_link(email=email, user=user, secret=resetreq.reset_code)
@@ -379,8 +431,12 @@ def reset_email(user, kwargs):
     form = PasswordResetForm()
     form.edit_user = user
     if form.validate_on_submit():
+        current_app.logger.info("Password strength %f", form.password_strength)
         user.password = form.password.data
         db.session.delete(resetreq)
+        # Invalidate all of the user's active sessions
+        for user_session in user.active_sessions.all():
+            user_session.revoke()
         db.session.commit()
         return render_message(
             title=_("Password reset complete"),
