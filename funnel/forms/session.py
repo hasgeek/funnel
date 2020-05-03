@@ -4,9 +4,12 @@ from baseframe import __
 from coaster.utils import nullint
 import baseframe.forms as forms
 
+from ..models import SavedSession, Session
+
 __all__ = ['SavedSessionForm', 'SessionForm']
 
 
+@Session.forms('main')
 class SessionForm(forms.Form):
     title = forms.StringField(
         __("Title"),
@@ -55,6 +58,7 @@ class SessionForm(forms.Form):
     )
 
 
+@SavedSession.forms('main')
 class SavedSessionForm(forms.Form):
     save = forms.BooleanField(
         __("Save this session?"), validators=[forms.validators.InputRequired()]

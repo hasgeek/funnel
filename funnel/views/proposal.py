@@ -21,8 +21,8 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import (
+    CommentDeleteForm,
     CommentForm,
-    DeleteCommentForm,
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMoveForm,
@@ -198,7 +198,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             reverse=True,
         )
         commentform = CommentForm(model=Comment)
-        delcommentform = DeleteCommentForm()
+        delcommentform = CommentDeleteForm()
 
         links = [
             Markup(linkify(str(escape(l))))

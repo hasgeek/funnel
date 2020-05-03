@@ -6,9 +6,12 @@ from wtforms.widgets import CheckboxInput, ListWidget
 from baseframe import __
 import baseframe.forms as forms
 
+from ..models import Participant
+
 __all__ = ['ParticipantBadgeForm', 'ParticipantForm']
 
 
+@Participant.forms('main')
 class ParticipantForm(forms.Form):
     fullname = forms.StringField(
         __("Fullname"),
@@ -59,6 +62,7 @@ class ParticipantForm(forms.Form):
             self.events.query = self.edit_parent.events
 
 
+@Participant.forms('badge')
 class ParticipantBadgeForm(forms.Form):
     choices = [('', "Badge printing status"), ('t', "Printed"), ('f', "Not printed")]
     badge_printed = forms.SelectField(
