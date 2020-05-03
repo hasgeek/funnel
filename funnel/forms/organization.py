@@ -11,6 +11,7 @@ from ..models import Organization, Profile, Team
 __all__ = ['OrganizationForm', 'TeamForm']
 
 
+@Organization.forms('main')
 class OrganizationForm(forms.Form):
     title = forms.StringField(
         __("Organization name"),
@@ -77,6 +78,7 @@ class OrganizationForm(forms.Form):
             raise forms.ValidationError(_("This name is not available"))
 
 
+@Team.forms('main')
 class TeamForm(forms.Form):
     title = forms.StringField(
         __("Team name"),

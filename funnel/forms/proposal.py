@@ -5,6 +5,8 @@ from baseframe.forms.sqlalchemy import QuerySelectField
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
+from ..models import Proposal
+
 __all__ = [
     'ProposalForm',
     'ProposalLabelsAdminForm',
@@ -13,6 +15,13 @@ __all__ = [
     'ProposalTransferForm',
     'ProposalTransitionForm',
 ]
+
+# FIXME: As labels are user generated content (UGC), these form constructors will
+# fail wherever a label's name clashes with a form's default attributes including:
+# - csrf_token
+# - validate
+# - populate_obj
+# Do not add UGC field names to a form. Override populate_obj instead
 
 
 def proposal_label_form(project, proposal):
@@ -88,6 +97,7 @@ def proposal_label_admin_form(project, proposal):
     )
 
 
+@Proposal.forms('transfer')
 class ProposalTransferForm(forms.Form):
     user = forms.UserSelectField(
         __("Transfer to"),
@@ -96,6 +106,7 @@ class ProposalTransferForm(forms.Form):
     )
 
 
+@Proposal.forms('labels')
 class ProposalLabelsForm(forms.Form):
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
@@ -105,6 +116,7 @@ class ProposalLabelsForm(forms.Form):
         )
 
 
+# FIXME: There is no "admin" in a project anymore. Is this form for editors?
 class ProposalLabelsAdminForm(forms.Form):
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
@@ -114,6 +126,7 @@ class ProposalLabelsAdminForm(forms.Form):
         )
 
 
+@Proposal.forms('main')
 class ProposalForm(forms.Form):
     speaking = forms.RadioField(
         __("Are you speaking?"),
@@ -218,6 +231,7 @@ class ProposalForm(forms.Form):
         )
 
 
+@Proposal.forms('transition')
 class ProposalTransitionForm(forms.Form):
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
@@ -232,6 +246,7 @@ class ProposalTransitionForm(forms.Form):
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
+@Proposal.forms('move')
 class ProposalMoveForm(forms.Form):
     target = QuerySelectField(
         __("Move proposal to"),

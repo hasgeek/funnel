@@ -10,7 +10,7 @@ from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
-from ..models import Project, Rsvp
+from ..models import Event, Project, Rsvp, SavedProject, TicketClient
 
 __all__ = [
     'CfpForm',
@@ -31,6 +31,7 @@ valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 BOXOFFICE_DETAILS_PLACEHOLDER = {"org": "hasgeek", "item_collection_id": ""}
 
 
+@Project.forms('main')
 class ProjectForm(forms.Form):
     name = forms.AnnotatedTextField(
         __("URL name"),
@@ -150,6 +151,7 @@ class ProjectForm(forms.Form):
             raise forms.ValidationError("Please enter a valid color code")
 
 
+@Project.forms('cfp')
 class CfpForm(forms.Form):
     instructions = forms.MarkdownField(
         __("Proposal guidelines"),
@@ -183,6 +185,7 @@ class CfpForm(forms.Form):
     )
 
 
+@Project.forms('transition')
 class ProjectTransitionForm(forms.Form):
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
@@ -192,6 +195,7 @@ class ProjectTransitionForm(forms.Form):
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
+@Project.forms('schedule_transition')
 class ProjectScheduleTransitionForm(forms.Form):
     schedule_transition = forms.SelectField(
         __("Schedule status"), validators=[forms.validators.DataRequired()]
@@ -203,6 +207,7 @@ class ProjectScheduleTransitionForm(forms.Form):
         )
 
 
+@Project.forms('cfp_transition')
 class ProjectCfpTransitionForm(forms.Form):
     cfp_transition = forms.SelectField(
         __("CfP status"), validators=[forms.validators.DataRequired()]
@@ -214,6 +219,7 @@ class ProjectCfpTransitionForm(forms.Form):
         )
 
 
+@SavedProject.forms('main')
 class SavedProjectForm(forms.Form):
     save = forms.BooleanField(
         __("Save this project?"), validators=[forms.validators.InputRequired()]
@@ -221,6 +227,7 @@ class SavedProjectForm(forms.Form):
     description = forms.StringField(__("Note to self"))
 
 
+@Rsvp.forms('transition')
 class RsvpTransitionForm(forms.Form):
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
@@ -238,6 +245,7 @@ class RsvpTransitionForm(forms.Form):
         ]
 
 
+@Event.forms('main')
 class EventForm(forms.Form):
     title = forms.StringField(
         __("Title"),
@@ -251,6 +259,7 @@ class EventForm(forms.Form):
     )
 
 
+@TicketClient.forms('main')
 class TicketClientForm(forms.Form):
     name = forms.StringField(
         __("Name"),
@@ -271,6 +280,7 @@ class TicketClientForm(forms.Form):
     )
 
 
+@Event.forms('ticket_type')
 class TicketTypeForm(forms.Form):
     title = forms.StringField(
         __("Title"),
@@ -287,6 +297,7 @@ class TicketTypeForm(forms.Form):
     )
 
 
+@Project.forms('boxoffice')
 class ProjectBoxofficeForm(forms.Form):
     boxoffice_data = forms.JsonField(
         __("Ticket client details"), default=BOXOFFICE_DETAILS_PLACEHOLDER
