@@ -29,7 +29,7 @@ from ..forms import (
     ProposalTransferForm,
     ProposalTransitionForm,
 )
-from ..models import Comment, Proposal, db
+from ..models import Comment, Project, Proposal, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import ProjectViewMixin, ProposalViewMixin
@@ -162,6 +162,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
         )
 
 
+@Project.views('proposal_new')
 @route('/<profile>/<project>')
 class ProjectProposalView(BaseProjectProposalView):
     pass
@@ -182,6 +183,7 @@ FunnelProjectProposalView.add_route_for('new_proposal', 'new', methods=['GET', '
 FunnelProjectProposalView.init_app(funnelapp)
 
 
+@Proposal.views('main')
 @route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
