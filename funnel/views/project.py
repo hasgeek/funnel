@@ -39,7 +39,7 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..jobs import import_tickets, tag_locations
-from ..models import RSVP_STATUS, Project, Proposal, Rsvp, SavedProject, db
+from ..models import RSVP_STATUS, Profile, Project, Proposal, Rsvp, SavedProject, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -80,6 +80,7 @@ def project_data(project):
     }
 
 
+@Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -126,6 +127,7 @@ ProfileProjectView.init_app(app)
 FunnelProfileProjectView.init_app(funnelapp)
 
 
+@Project.views('main')
 @route('/<profile>/<project>/')
 class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]

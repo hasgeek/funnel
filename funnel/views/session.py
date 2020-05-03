@@ -16,7 +16,14 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
-from ..models import FEEDBACK_AUTH_TYPE, ProposalFeedback, SavedSession, Session, db
+from ..models import (
+    FEEDBACK_AUTH_TYPE,
+    Project,
+    ProposalFeedback,
+    SavedSession,
+    Session,
+    db,
+)
 from ..utils import strip_null
 from .decorators import legacy_redirect
 from .helpers import localize_date, requires_login
@@ -102,6 +109,7 @@ def session_form(project, proposal=None, session=None):
     )
 
 
+@Project.views('session_new')
 @route('/<profile>/<project>/sessions')
 class ProjectSessionView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -122,6 +130,7 @@ ProjectSessionView.init_app(app)
 FunnelProjectSessionView.init_app(funnelapp)
 
 
+@Session.views('main')
 @route('/<profile>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]

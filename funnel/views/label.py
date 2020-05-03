@@ -15,6 +15,7 @@ from .helpers import requires_login
 from .mixins import ProjectViewMixin
 
 
+@Project.views('label')
 @route('/<profile>/<project>/labels')
 class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -103,6 +104,7 @@ ProjectLabelView.init_app(app)
 FunnelProjectLabelView.init_app(funnelapp)
 
 
+@Label.views('main')
 @route('/<profile>/<project>/labels/<label>')
 class LabelView(UrlForView, ModelView):
     __decorators__ = [requires_login, legacy_redirect]

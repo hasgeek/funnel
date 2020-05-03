@@ -27,6 +27,7 @@ from .helpers import requires_login
 from .mixins import EventViewMixin, ProjectViewMixin
 
 
+@Project.views('event')
 @route('/<profile>/<project>/events')
 class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -118,6 +119,7 @@ ProjectEventView.init_app(app)
 FunnelProjectEventView.init_app(funnelapp)
 
 
+@Event.views('main')
 @route('/<profile>/<project>/event/<name>')
 class EventView(EventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
@@ -206,6 +208,7 @@ EventView.init_app(app)
 FunnelEventView.init_app(funnelapp)
 
 
+@TicketType.views('main')
 @route('/<profile>/<project>/ticket_type/<name>')
 class TicketTypeView(UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
@@ -288,6 +291,7 @@ TicketTypeView.init_app(app)
 FunnelTicketTypeView.init_app(funnelapp)
 
 
+@TicketClient.views('main')
 @route('/<profile>/<project>/ticket_client/<client_id>')
 class TicketClientView(UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]

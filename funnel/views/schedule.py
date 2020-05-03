@@ -26,7 +26,7 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import ProjectScheduleTransitionForm, SavedProjectForm
-from ..models import Proposal, Session, db
+from ..models import Project, Proposal, Session, VenueRoom, db
 from .decorators import legacy_redirect
 from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
@@ -172,6 +172,7 @@ def session_ical(session):
     return event
 
 
+@Project.views('schedule')
 @route('/<profile>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -350,6 +351,7 @@ ProjectScheduleView.init_app(app)
 FunnelProjectScheduleView.init_app(funnelapp)
 
 
+@VenueRoom.views('schedule')
 @route('/<profile>/<project>/schedule/<venue>/<room>')
 class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
