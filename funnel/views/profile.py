@@ -14,6 +14,7 @@ from .decorators import legacy_redirect
 from .mixins import ProfileViewMixin
 
 
+@Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]

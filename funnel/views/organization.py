@@ -16,6 +16,7 @@ from .helpers import requires_login
 # --- Routes: Organizations ---------------------------------------------------
 
 
+@Organization.views('main')
 @route('/organizations')
 class OrgView(UrlForView, ModelView):
     __decorators__ = [requires_login]
@@ -125,6 +126,7 @@ class OrgView(UrlForView, ModelView):
 OrgView.init_app(app)
 
 
+@Team.views('main')
 @route('/organizations/<organization>/teams/<team>')
 class TeamView(UrlForView, ModelView):
     __decorators__ = [requires_login]

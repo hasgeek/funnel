@@ -35,6 +35,7 @@ from .helpers import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 
+@Profile.views('members')
 @route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -139,6 +140,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 OrganizationMembersView.init_app(app)
 
 
+@OrganizationMembership.views('main')
 @route('/<profile>/members/<membership>')
 class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
     model = OrganizationMembership
@@ -269,6 +271,7 @@ OrganizationMembershipView.init_app(app)
 #: Project Membership views
 
 
+@Project.views('crew')
 @route('/<profile>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -398,6 +401,7 @@ class ProjectCrewMembershipMixin(object):
         super(ProjectCrewMembershipMixin, self).after_loader()
 
 
+@ProjectCrewMembership.views('invite')
 @route('/<profile>/<project>/crew/<membership>/invite')
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
@@ -439,6 +443,7 @@ ProjectCrewMembershipInviteView.init_app(app)
 FunnelProjectCrewMembershipInviteView.init_app(funnelapp)
 
 
+@ProjectCrewMembership.views('main')
 @route('/<profile>/<project>/crew/<membership>')
 class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView

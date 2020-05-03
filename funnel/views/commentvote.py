@@ -19,6 +19,7 @@ from .mixins import ProposalViewMixin
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
 
 
+@Proposal.views('vote')
 @route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -240,6 +241,7 @@ class ProposalCommentViewMixin(object):
         return super(ProposalCommentViewMixin, self).after_loader()
 
 
+@Proposal.views('comment')
 @route('/<profile>/<project>/proposals/<url_name_uuid_b58>/comments/<uuid_b58>')
 class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]

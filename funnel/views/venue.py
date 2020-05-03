@@ -8,7 +8,7 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 
 from .. import app, funnelapp
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
-from ..models import Venue, VenueRoom, db
+from ..models import Project, Venue, VenueRoom, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
@@ -47,6 +47,7 @@ def room_data(room):
     }
 
 
+@Project.views('venue')
 @route('/<profile>/<project>/venues')
 class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -138,6 +139,7 @@ ProjectVenueView.init_app(app)
 FunnelProjectVenueView.init_app(funnelapp)
 
 
+@Venue.views('main')
 @route('/<profile>/<project>/venues/<venue>')
 class VenueView(VenueViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -212,6 +214,7 @@ VenueView.init_app(app)
 FunnelVenueView.init_app(funnelapp)
 
 
+@VenueRoom.views('main')
 @route('/<profile>/<project>/venues/<venue>/<room>')
 class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
