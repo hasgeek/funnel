@@ -5,7 +5,7 @@ from flask import Markup, escape, url_for
 from baseframe import _, __
 import baseframe.forms as forms
 
-from ..models import UserEmail, getuser
+from ..models import User, UserEmail, getuser
 from .account import password_policy, password_strength_validator
 
 __all__ = [
@@ -24,6 +24,7 @@ class LoginPasswordWeakException(Exception):
     pass
 
 
+@User.forms('login')
 class LoginForm(forms.Form):
     __returns__ = ('user', 'weak_password')
 
@@ -71,6 +72,7 @@ class LoginForm(forms.Form):
         self.weak_password = bool(password_policy.test(field.data))
 
 
+@User.forms('register')
 class RegisterForm(forms.RecaptchaForm):
     __returns__ = ('password_strength',)  # Set by password_strength_validator
 

@@ -52,6 +52,7 @@ def password_strength_validator(form, field):
     )
 
 
+@User.forms('password_reset_request')
 class PasswordResetRequestForm(forms.RecaptchaForm):
     username = forms.StringField(
         __("Username or Email"),
@@ -66,6 +67,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
         self.user = user
 
 
+@User.forms('password_reset')
 class PasswordResetForm(forms.RecaptchaForm):
     __returns__ = ('password_strength',)
 
@@ -103,6 +105,7 @@ class PasswordResetForm(forms.RecaptchaForm):
             )
 
 
+@User.forms('password_change')
 class PasswordChangeForm(forms.Form):
     __returns__ = ('password_strength',)
 
@@ -134,6 +137,7 @@ class PasswordChangeForm(forms.Form):
             raise forms.ValidationError(_("Incorrect password"))
 
 
+@User.forms('main')
 class AccountForm(forms.Form):
     fullname = forms.StringField(
         __("Full name"),
@@ -202,6 +206,7 @@ class AccountForm(forms.Form):
             )
 
 
+@User.forms('email_add')
 class NewEmailAddressForm(forms.RecaptchaForm):
     email = forms.EmailField(
         __("Email address"),
@@ -237,6 +242,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             raise forms.ValidationError(_("This email address is pending verification"))
 
 
+@User.forms('email_primary')
 class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
@@ -245,10 +251,12 @@ class EmailPrimaryForm(forms.Form):
     )
 
 
+@User.forms('email_verify')
 class VerifyEmailForm(forms.Form):
     pass
 
 
+@User.forms('phone_add')
 class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
@@ -310,6 +318,7 @@ class NewPhoneForm(forms.RecaptchaForm):
         field.data = number  # Save stripped number
 
 
+@User.forms('phone_primary')
 class PhonePrimaryForm(forms.Form):
     phone = forms.StringField(
         __("Phone number"),
@@ -318,6 +327,7 @@ class PhonePrimaryForm(forms.Form):
     )
 
 
+@User.forms('phone_verify')
 class VerifyPhoneForm(forms.Form):
     verification_code = forms.StringField(
         __("Verification code"),

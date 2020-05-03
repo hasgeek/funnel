@@ -3,11 +3,13 @@
 from baseframe import _, __
 import baseframe.forms as forms
 
+from ..models import Profile
 from .organization import OrganizationForm
 
 __all__ = ['ProfileForm']
 
 
+@Profile.forms('main')
 class ProfileForm(OrganizationForm):
     """Edit a profile."""
 

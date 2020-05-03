@@ -10,7 +10,7 @@ from coaster.utils import require_one_of, utcnow
 from coaster.views import ModelView, UrlForView, jsonp, requires_permission, route
 
 from .. import app, funnelapp
-from ..forms import CommentForm, DeleteCommentForm
+from ..forms import CommentDeleteForm, CommentForm
 from ..models import Comment, Profile, Project, Proposal, db
 from .decorators import legacy_redirect
 from .helpers import requires_login, send_mail
@@ -253,7 +253,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_permission('delete_comment')
     def delete_comment(self):
-        delcommentform = DeleteCommentForm(comment_id=self.obj.comment.id)
+        delcommentform = CommentDeleteForm(comment_id=self.obj.comment.id)
         if delcommentform.validate_on_submit():
             self.obj.comment.delete()
             self.obj.proposal.commentset.count -= 1
