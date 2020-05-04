@@ -9,16 +9,13 @@ describe('Project', function() {
     cy.get('a[data-cy="new-project"]').click();
     cy.location('pathname').should('contain', '/new');
 
-    cy.get('#name').type(project.url);
     cy.get('#title').type(project.title);
     cy.get('#location').type(project.location);
     cy.get('#tagline').type(project.tagline);
-    cy.get('#website').type(project.website);
     cy.get('#field-description')
       .find('.CodeMirror textarea')
       .type(project.description, { force: true });
     cy.get('#bg_image').type(project.bg_image);
-    cy.get('#allow_rsvp').click();
     cy.get('button')
       .contains('Create project')
       .click();

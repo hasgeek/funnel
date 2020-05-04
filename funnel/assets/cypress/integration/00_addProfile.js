@@ -3,8 +3,9 @@ describe('Profile', function() {
   const profile = require('../fixtures/profile.json');
 
   it('Create a new profile', function() {
-    cy.login('/organizations', owner.username, owner.password);
+    cy.login('/', owner.username, owner.password);
 
+    cy.visit('/organizations');
     cy.get('a')
       .contains('new organization')
       .click();

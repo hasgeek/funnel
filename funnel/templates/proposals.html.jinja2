@@ -83,14 +83,29 @@
       <div class="grid project-section">
        {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
-          <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
           {%- if project.instructions and project.instructions != "None" %}
-            <div class="about__details__description">{{ project.instructions }}</div>
+            <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
+            <div class="about__details__description">
+              {% if project.view_for('cfp').is_available() -%}
+                <p class="mui--pull-right">
+                  <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--accent">
+                    {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
+                      {% trans %}Open proposal submissions{% endtrans %}
+                    {%- else %}
+                      {% trans %}Modify proposal guidelines and timing{% endtrans %}
+                    {%- endif %}
+                  </a>
+                </p>
+              {%- endif %}
+              {{ project.instructions }}
+            </div>
+          {%- elif project.view_for('cfp').is_available() %}
+            <p><a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--accent">{% trans %}Add proposal guidelines and timing{% endtrans %}</a></p>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <div>
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p class="mui--text-light mui--text-subhead"><em>{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="mui-d--inlineblock">

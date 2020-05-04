@@ -16,6 +16,12 @@
     .project-banner__headline {
       padding: 0 15px;
     }
+    .project-banner__box__add-btn {
+      position: absolute;
+      top: 20px;
+      right: 33px;
+      z-index: 3;
+    }
   }
 
   .livestream-box {
