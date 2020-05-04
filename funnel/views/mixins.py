@@ -281,7 +281,8 @@ class DraftViewMixin(object):
             )
 
         # CSRF check
-        if forms.Form().validate_on_submit():
+        form = forms.Form()
+        if form.validate_on_submit():
             incoming_data = MultiDict(request.form.items(multi=True))
             client_revision = incoming_data.pop('form.revision')
             incoming_data.pop('csrf_token', None)
@@ -341,7 +342,7 @@ class DraftViewMixin(object):
                 )
             db.session.add(draft)
             db.session.commit()
-            return {'revision': draft.revision, 'form_nonce': uuid4().hex}
+            return {'revision': draft.revision, 'form_nonce': form.form_nonce.default()}
         else:
             return (
                 {
