@@ -7,7 +7,12 @@
   .card__body__bookmark {
     float: right;
     position: relative;
-    top: 19px;
+    top: 0;
+    height: 0;
+    z-index: 4;
+  }
+  .card__calendar {
+    padding: 0 0 25px;
   }
 }
 
@@ -22,6 +27,7 @@
       flex: 0 0 62%;
       margin: 0;
       padding: 0;
+      z-index: 3;
 
       .card__image {
         position: absolute;
@@ -34,10 +40,6 @@
     .card__body {
       position: relative;
       padding: 30px 15px;
-
-      .card__body__bookmark {
-        top: 16px;
-      }
     }
   }
   .card--spotlight--live {
@@ -134,6 +136,10 @@
       width: 100%;
       text-align: left;
       font-weight: 600;
+      padding: 0 0 10px;
+      background-color: #fff;
+      margin: 0;
+      display: none;
 
       .calendar__counting {
         font-style: italic;
@@ -141,19 +147,31 @@
         color: #e05f25;
         letter-spacing: 0.5px;
         font-variant: none;
+        line-height: 25px;
       }
+    }
+
+    .calendar__month-name--unique {
+      display: block;
+    }
+
+    .calendar__month-name:nth-child(n + 2) {
+      padding-top: 25px;
     }
 
     .calendar__weekdays {
       display: flex;
       width: 100%;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
 
       .calendar__weekdays__dates {
         width: 100%;
         display: flex;
         flex-wrap: wrap;
         padding: 0;
+        position: relative;
 
         .calendar__weekdays__dates__date {
           position: relative;
@@ -316,22 +334,34 @@
 .card__calendar--compact {
   .calendar {
     .calendar__weekdays {
-      .calendar__weekdays__dates:not(:first-child) {
+      .calendar__weekdays__dates,
+      .calendar__month-name {
         display: none;
+        padding-top: 0;
       }
-    }
-    .calendar__weekdays--rows {
+      .calendar__weekdays__dates--upcoming--first,
+      .calendar__month-name--upcoming--first {
+        display: flex;
+      }
       .calendar__weekdays__dates {
-        .calendar__weekdays__dates__date {
-          width: calc(100% / 7.5);
-        }
         .calendar__weekdays__dates__icon {
+          position: absolute;
+          line-height: 29px;
+          background: #fff;
           display: block;
-          width: calc(0.5 * calc(100% / 7.5));
+          z-index: -1;
+          bottom: 0;
+          background: #f9fafc;
         }
-        .calendar__weekdays__dates__icon__next {
-          position: relative;
-          top: 7px;
+        .calendar__weekdays__dates__icon--left {
+          position: absolute;
+          left: -30px;
+          line-height: 29px;
+        }
+        .calendar__weekdays__dates__icon--right {
+          position: absolute;
+          right: -30px;
+          line-height: 29px;
         }
       }
     }
@@ -349,6 +379,7 @@
     position: relative;
     padding-bottom: 56.2%;
     background-image: linear-gradient(to bottom, #4d5763, #202d3c);
+    z-index: 3;
 
     .card__image {
       position: absolute;
@@ -371,6 +402,7 @@
       position: absolute;
       right: 15px;
       top: 11px;
+      z-index: 4;
     }
     .card__body__bookmark--pushup {
       top: 4px;

@@ -572,9 +572,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         # if the project's week is within next 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
+        current_week = Week.withdate(now)
 
         if leading_weeks and self.schedule_start_at is not None:
-            current_week = Week.withdate(now)
             schedule_start_week = Week.withdate(self.schedule_start_at)
 
             # session_dates is a list of tuples in this format -
@@ -592,15 +592,21 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 session_dates.insert(0, (now, None, None, 0))
 
         weeks = defaultdict(dict)
+        today = now.date()
         for project_date, day_start_at, day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
+                # Set upcoming for weeks with event dates in the future
+                weeks[weekobj.week]['upcoming'] = weekobj >= current_week
                 weeks[weekobj.week]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekobj.week]['dates'] = OrderedDict()
             for wdate in weekobj.days():
                 weeks[weekobj.week]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
+                    # If the event is over don't set upcoming for current week
+                    if wdate < today:
+                        weeks[weekobj.week]['upcoming'] = False
                     weeks[weekobj.week]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekobj.week]:
                         weeks[weekobj.week]['month'] = format_date(
@@ -773,7 +779,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 perms.add('new-proposal')
             if 'editor' in self.roles_for(user):
                 perms.update(
-                    [
+                    (
                         'view_contactinfo',
                         'edit_project',
                         'delete-project',
@@ -815,10 +821,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                         'edit-participant',
                         'view-participant',
                         'new-participant',
-                    ]
+                    )
                 )
             if 'usher' in self.roles_for(user):
-                perms.update(['checkin_event'])
+                perms.add('checkin_event')
         return perms
 
     @classmethod
@@ -831,7 +837,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, legacy=None):  # NOQA: A003
         """
         Return currently active events, sorted by date.

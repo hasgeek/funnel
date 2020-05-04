@@ -277,6 +277,13 @@ class AuthClientCredential(BaseMixin, db.Model):
         cred.secret_hash = 'sha256$' + sha256(secret.encode('utf-8')).hexdigest()
         return cred, secret
 
+    def permissions(self, user, inherited=None):
+        perms = super(AuthClientCredential, self).permissions(user, inherited)
+        if user and self.auth_client.owner_is(user):
+            perms.add('view')
+            perms.add('delete')
+        return perms
+
 
 class AuthCode(ScopeMixin, BaseMixin, db.Model):
     """Short-lived authorization tokens"""
@@ -558,6 +565,11 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     def all_forclient(cls, auth_client):
         return cls.query.filter_by(auth_client=auth_client)
 
+    def permissions(self, user, inherited=None):
+        perms = super(AuthClientUserPermissions, self).permissions(user, inherited)
+        perms.update(self.auth_client.permissions(user, inherited))
+        return perms
+
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
@@ -610,3 +622,8 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     @classmethod
     def all_forclient(cls, auth_client):
         return cls.query.filter_by(auth_client=auth_client)
+
+    def permissions(self, user, inherited=None):
+        perms = super(AuthClientUserPermissions, self).permissions(user, inherited)
+        perms.update(self.auth_client.permissions(user, inherited))
+        return perms

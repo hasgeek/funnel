@@ -7,11 +7,15 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 
-__all__ = ['RESERVED_NAMES', 'add_search_trigger']
+from password_strength import PasswordPolicy
+
+__all__ = ['RESERVED_NAMES', 'password_policy', 'add_search_trigger']
 
 
 RESERVED_NAMES = {
     '_baseframe',
+    'about',
+    'account',
     'admin',
     'api',
     'app',
@@ -26,6 +30,7 @@ RESERVED_NAMES = {
     'confirm',
     'contact',
     'contacts',
+    'crew',
     'dashboard',
     'delete',
     'edit',
@@ -41,14 +46,17 @@ RESERVED_NAMES = {
     'hacknights',
     'hgtv',
     'imap',
+    'json',
     'kharcha',
     'login',
     'logout',
+    'members',
+    'membership',
     'new',
     'news',
+    'org',
     'organization',
     'organizations',
-    'org',
     'orgs',
     'pop',
     'pop3',
@@ -77,6 +85,11 @@ RESERVED_NAMES = {
     'workshops',
     'www',
 }
+
+# Strong passwords require a strength of at least 0.66 as per the password_strength
+# project documentation, but this is hard to achieve with memorised passwords. We use a
+# lower bar to start with, to learn from user behaviour and change as necessary.
+password_policy = PasswordPolicy.from_names(length=8, strength=(0.4, 20))
 
 
 def pgquote(identifier):

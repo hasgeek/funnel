@@ -4,28 +4,38 @@
 {% macro calendarwidget(calendar, compact=true) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
     <div class="calendar">
-      {% set event = namespace(month='', year='') %}
-      {% for week in calendar.weeks|sort(attribute='year') %}
-        {% for date in week.dates %}
-          {% if date.count > 0 and not event.month %}
-            {% set event.month = week.month  %}
-            {% set event.year = week.year  %}
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
-      <p class="calendar__month-name">{{ event.month }} {{ event.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}"></span></p>
+      {% set event = namespace(month='', year='', first_week='', previous='', next='') %}
       <div class="calendar__weekdays mui--bg-accent {% if calendar.weeks|length > 1 %} calendar__weekdays--rows {% endif %}">
         {% for week in calendar.weeks|sort(attribute='year') %}
-          <div class="calendar__weekdays__dates">
+          {% set event.previous = false %}
+          {% set event.next = false %}
+          {% if not event.first_week and week.upcoming %}
+            {% set event.first_week = week %}
+            {% if loop.index0 > 0 %}
+              {% set event.previous = true %}
+            {% endif %}
+            {% if loop.index != calendar.weeks|length and calendar.weeks[loop.index].upcoming %}
+              {% set event.next = true %}
+            {% endif %}
+          {% endif %}
+          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} ">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span></p>
+          {% set event.month = week.month  %}
+          {% set event.year = week.year  %}
+          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first{% endif %}"  data-month="{{ week.month }}">
+            {% if event.previous  %}
+              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
+                {{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
+              </p>
+            {% endif %}
             {% for date in week.dates %}
-              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %}>
+              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
                 <span class="calendar__weekdays__dates__date__name">{{ calendar.days[loop.index-1] }}</span>
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} - {{ date.day_end_at }}</span>{% endif %}
               </p>
             {% endfor %}
-            {% if calendar.weeks|length > 1 %}
-              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon">
+            {% if event.next  %}
+              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right">
                 {{ faicon(icon='chevron-right',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
               </p>
             {% endif %}
@@ -139,19 +149,21 @@
           </div>
         {% endif %}
         <div class="project-details__box--ticketbox">
-          <div class="mui--hidden-xs mui--hidden-sm">
-            {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-              <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %}</a>
-            {%- elif project.buy_tickets_url.url %}
-              <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
-              {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
-                {{ project.boxoffice_data.buy_btn_text }}
-              {% else %}
-                {% trans %}Get tickets{% endtrans %}
-              {% endif %}
-              </a>
-            {%- endif %}
-          </div>
+          {% if not project.schedule_state.PAST %}
+            <div class="mui--hidden-xs mui--hidden-sm">
+              {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+                <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %}</a>
+              {%- elif project.buy_tickets_url.url %}
+                <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
+                {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
+                  {{ project.boxoffice_data.buy_btn_text }}
+                {% else %}
+                  {% trans %}Get tickets{% endtrans %}
+                {% endif %}
+                </a>
+              {%- endif %}
+            </div>
+          {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
@@ -173,9 +185,9 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
-      {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+      {%- if not project.schedule_state.PAST and (project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
         <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
-      {%- elif project.buy_tickets_url.url %}
+      {%- elif not project.schedule_state.PAST and project.buy_tickets_url.url %}
         <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" data-action="Tickets(navbar)" id="ticket-btn"> {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}{{ project.boxoffice_data.buy_btn_text }}{% else %}{% trans %}Get tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
@@ -196,7 +208,7 @@
       {%- if project.schedule_state.PUBLISHED %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- else %}#schedule{%- endif %}" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
-      <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.url_for('membership') }}" title="Crew" data-action="Crew(navbar)" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{{ project.url_for('crew') }}" title="Crew" data-action="Crew(navbar)" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- if project.current_roles.editor or project.current_roles.concierge or project.current_roles.usher -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}#admin-panel" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}

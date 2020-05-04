@@ -126,7 +126,15 @@ export const Utils = {
     });
   },
   showTimeOnCalendar() {
-    $('body .calendar__weekdays')
+    let firstActiveWeek = $('body .calendar__weekdays').find(
+      '.calendar__weekdays__dates--upcoming:first'
+    ).length
+      ? $('body .calendar__weekdays').find(
+          '.calendar__weekdays__dates--upcoming:first'
+        )
+      : $('body .calendar__weekdays').find('.calendar__weekdays__dates:first');
+
+    firstActiveWeek
       .find('.calendar__weekdays__dates__date--showtime:first')
       .addClass('calendar__weekdays__dates__date--display');
 
@@ -138,7 +146,7 @@ export const Utils = {
     });
 
     $('body .calendar__weekdays__dates__date--showtime').mouseleave(function() {
-      $('.calendar__weekdays')
+      firstActiveWeek
         .find('.calendar__weekdays__dates__date--showtime:first')
         .addClass('calendar__weekdays__dates__date--display');
     });
@@ -149,10 +157,17 @@ export const Utils = {
       let todayDate = $(this)
         .find('.calendar__counting')
         .data('today');
-      let eventDate = $(this)
-        .find('.calendar__weekdays__dates__date--active')
+      let nextEventElem = $(this)
+        .find('.calendar__weekdays__dates--upcoming--first')
         .first()
-        .data('event-date');
+        .find('.calendar__weekdays__dates__date--active')
+        .first();
+      let eventDate = nextEventElem.data('event-date');
+      let eventMonth = nextEventElem.data('event-month');
+      let monthElem = $(this)
+        .find('.calendar__month-name')
+        .find("[data-month='" + eventMonth + "']");
+
       // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
       let today = Date.parse(todayDate);
       // Event date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
@@ -162,14 +177,10 @@ export const Utils = {
       let dayText = ['Today', 'Tomorrow', 'Day after'];
       // Show number of days on the widget only if it is less than 32 days
       if (counting >= 0 && counting < 3) {
-        $(this)
-          .find('.calendar__counting')
-          .text(dayText[counting]);
+        monthElem.text(dayText[counting]);
       } else if (counting > 2 && counting < 32) {
         let daysRemainingTxt = `In ${counting} days`;
-        $(this)
-          .find('.calendar__counting')
-          .text(daysRemainingTxt);
+        monthElem.text(daysRemainingTxt);
       }
     });
   },

@@ -40,30 +40,6 @@ class TestUser(TestDatabaseFixture):
         batdog = self.fixtures.batdog
         self.assertFalse(crusoe.is_valid_name(batdog.name))
 
-    def test_user_profileid(self):
-        """
-        Test to verify profileid (same as username) if any
-        """
-        crusoe = self.fixtures.crusoe
-        # scenario 1: when username is given
-        self.assertEqual(crusoe.profileid(), crusoe.username)
-        # scenario 2: when username doesn't exist
-        mollie = models.User(fullname='Mollie')
-        self.assertEqual(len(mollie.profileid()), 22)
-
-    def test_user_displayname(self):
-        """
-        Test to verify any fullname or username or buid for displayname
-        """
-        crusoe = self.fixtures.crusoe
-        oakley = self.fixtures.oakley
-        self.assertEqual(crusoe.displayname(), crusoe.fullname)
-        self.assertEqual(oakley.displayname(), oakley.username)
-        lena = models.User()
-        db.session.add(lena)
-        db.session.commit()
-        self.assertEqual(lena.displayname(), lena.buid)
-
     def test_user_pickername(self):
         """
         Test to verify fullname and username (if any)
