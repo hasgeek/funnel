@@ -1,26 +1,26 @@
 {
   "owner": {
     "username": "profile-cypress",
-    "password": "cypress123"
+    "password": "cypress123_st"
   },
   "admin": {
     "username": "admin-user",
-    "password": "cypress129"
+    "password": "cypress129_ftz"
   },
   "concierge": {
     "username": "concierge-user",
-    "password": "cypress341"
+    "password": "cypress341_qwe"
   },
   "usher": {
     "username": "usher-cypress",
-    "password": "cypress566"
+    "password": "cypress566_yut"
   },
   "editor": {
     "username": "editor-cypress",
-    "password": "cypress900"
+    "password": "cypress900_ghy"
   },
   "user": {
     "username": "member-user",
-    "password": "cypress341"
+    "password": "cypress341_wer"
   }
 }
