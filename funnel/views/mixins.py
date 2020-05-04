@@ -285,6 +285,7 @@ class DraftViewMixin(object):
             incoming_data = MultiDict(request.form.items(multi=True))
             client_revision = incoming_data.pop('form.revision')
             incoming_data.pop('csrf_token', None)
+            incoming_data.pop('form_nonce', None)
 
             # find the last draft
             draft = self.get_draft(obj)
@@ -340,7 +341,7 @@ class DraftViewMixin(object):
                 )
             db.session.add(draft)
             db.session.commit()
-            return {'revision': draft.revision}
+            return {'revision': draft.revision, 'form_nonce': uuid4().hex}
         else:
             return (
                 {
