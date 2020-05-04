@@ -101,7 +101,11 @@
         </div>
       </div>
       <div class="grid__col-sm-12 project-banner__headline">
-        <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}</h1>
+        <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}
+          {% if project.view_for('edit_slug').is_available() %}
+            <a class="mui--text-body1" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
+          {% endif %}
+        </h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
       {% if project.livestream_urls %}
@@ -135,8 +139,14 @@
               {{ project.banner_video_url|safe }}
             {%- elif project.bg_image.url %}
               <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}" data-cy="bg_image"/>
+              {% if project.view_for('edit_livestream').is_available() %}
+                <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Add livestream URLs{% endtrans %}</a>
+              {% endif %}
             {%- else %}
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
+              {% if project.view_for('edit_livestream').is_available() %}
+                <a href="{{ project.url_for('edit_livestream') }}#bg_image" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Add banner image{% endtrans %}</a>
+              {% endif %}
             {% endif %}
           </div>
           {{ project_share(project, project_save_form) }}
@@ -149,25 +159,33 @@
           </div>
         {% endif %}
         <div class="project-details__box--ticketbox">
-          {% if not project.schedule_state.PAST %}
+          {% if not project.schedule_state.PAST and (project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id)) %}
             <div class="mui--hidden-xs mui--hidden-sm">
-              {%- if project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-                <a href="{%- if current_page == 'project' -%}#tickets{%- else %}{{ project.url_for() }}#tickets{%- endif %}" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="ticket-btn">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %}</a>
-              {%- elif project.buy_tickets_url.url %}
-                <a class="mui-btn mui-btn--raised mui-btn--primary mui--d-block" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets(header)">
-                {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
-                  {{ project.boxoffice_data.buy_btn_text }}
-                {% else %}
-                  {% trans %}Get tickets{% endtrans %}
-                {% endif %}
-                </a>
+              <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="tickets">
+              {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+                {% trans %}Get tickets{% endtrans %}
+              {%- elif project.schedule_state.PUBLISHED %}
+                {% trans %}Attend{% endtrans %}
               {%- endif %}
+              </a>
             </div>
+          {% elif project.view_for('edit_schedule').is_available() %}
+            <a class="mui-btn mui-btn--raised mui-btn--accent  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
               {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+            </div>
+          {% elif project.view_for('cfp').is_available() -%}
+            <div class="propose propose--lessmargin">
+              <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark mui--d-block">
+                {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
+                  {% trans %}Open proposal submissions{% endtrans %}
+                {%- else %}
+                  {% trans %}Add proposal guidelines{% endtrans %}
+                {%- endif %}
+              </a>
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="propose propose--lessmargin">
@@ -177,6 +195,8 @@
           {%- endif %}
           {%- if project.primary_venue %}
             <p class="project-venue"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{{ faicon(icon='map-marker-alt') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
+          {% elif project.view_for('venues').is_available() %}
+            <a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui--d-block mui-btn--accent">{% trans %}Add venue{% endtrans %}</a>
           {%- endif %}
         </div>
       </div>
@@ -185,10 +205,8 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
-      {%- if not project.schedule_state.PAST and (project.allow_rsvp or project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
+      {%- if not project.schedule_state.PAST and (project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id)) -%}
         <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.boxoffice_data and project.boxoffice_data.item_collection_id %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
-      {%- elif not project.schedule_state.PAST and project.buy_tickets_url.url %}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a class="sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" href="{{ project.buy_tickets_url }}" data-action="Tickets(navbar)" id="ticket-btn"> {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}{{ project.boxoffice_data.buy_btn_text }}{% else %}{% trans %}Get tickets{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>

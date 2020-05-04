@@ -25,16 +25,6 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.wait('@login', { timeout: 20000 });
 });
 
-Cypress.Commands.add('logout', () => {
-  cy.get('a[data-cy="account-link"]').click();
-  cy.get('a[data-cy="my-account"]').click();
-  cy.get('.card__footer')
-    .find('a')
-    .contains('Logout')
-    .click();
-  cy.clearCookies();
-});
-
 Cypress.Commands.add('add_member', (username, role) => {
   cy.server();
   cy.route('**/new').as('member-form');
