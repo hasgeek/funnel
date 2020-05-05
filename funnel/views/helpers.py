@@ -143,7 +143,8 @@ class LoginManager(object):
         else:
             lastuser_cookie.pop('userid', None)
 
-        lastuser_cookie['updated_at'] = utcnow().isoformat()
+        # Stop tracking updated_at as it's unused and the session has its own timestamp
+        lastuser_cookie.pop('updated_at', None)
 
         # This will be set to True downstream by the requires_login decorator
         add_auth_attribute('login_required', False)
