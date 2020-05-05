@@ -63,7 +63,7 @@
 
 {% block contentwrapper %}
   <div class="about">
-    {% if not project.schedule_state.PAST and (project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id)) -%}
+    {% if project.features.has_rsvp() -%}
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">

@@ -927,6 +927,30 @@ Profile.draft_projects_for = (
 )
 
 
+@Project.features('has_rsvp')
+def project_has_rsvp(obj):
+    return (
+        not obj.schedule_state.PAST
+        and obj.schedule_state.PUBLISHED
+        and (
+            obj.boxoffice_data is None
+            or 'item_collection_id' not in obj.boxoffice_data
+            or not obj.boxoffice_data['item_collection_id']
+        )
+    )
+
+
+@Project.features('has_tickets')
+def project_has_tickets(obj):
+    return (
+        not obj.schedule_state.PAST
+        and obj.schedule_state.PUBLISHED
+        and obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
+    )
+
+
 class ProjectRedirect(TimestampMixin, db.Model):
     __tablename__ = "project_redirect"
 
