@@ -168,7 +168,7 @@ app.assets.register(
 app.assets.register(
     'css_codemirrormarkdown',
     Bundle(
-        assets.require('codemirror-markdown.css'),
+        assets.require('codemirror-markdown-material.css'),
         output='css/codemirror-markdown.packed.css',
         filters='cssmin',
     ),
