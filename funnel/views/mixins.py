@@ -94,7 +94,10 @@ class ProposalViewMixin(object):
                 if request.method == 'GET':
                     redirect = (
                         ProposalSuuidRedirect.query.join(Proposal)
-                        .filter_by(suuid=url_name_uuid_b58.split('-')[-1])
+                        .filter(
+                            ProposalSuuidRedirect.suuid
+                            == url_name_uuid_b58.split('-')[-1]
+                        )
                         .first_or_404()
                     )
                     return redirect
