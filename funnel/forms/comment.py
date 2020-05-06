@@ -3,9 +3,12 @@
 from baseframe import __
 import baseframe.forms as forms
 
-__all__ = ['CommentForm', 'DeleteCommentForm']
+from ..models import Comment
+
+__all__ = ['CommentForm', 'CommentDeleteForm']
 
 
+@Comment.forms('main')
 class CommentForm(forms.RecaptchaForm):
     parent_id = forms.HiddenField(__("Parent"), default="", id="comment_parent_id")
     comment_edit_id = forms.HiddenField(__("Edit"), default="", id="comment_edit_id")
@@ -30,7 +33,8 @@ class CommentForm(forms.RecaptchaForm):
         return verbose_error_list
 
 
-class DeleteCommentForm(forms.Form):
+@Comment.forms('delete')
+class CommentDeleteForm(forms.Form):
     comment_id = forms.HiddenField(
         __("Comment"), validators=[forms.validators.DataRequired()]
     )

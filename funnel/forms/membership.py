@@ -4,7 +4,16 @@ from baseframe import _, __
 from coaster.utils import getbool
 import baseframe.forms as forms
 
+from ..models import OrganizationMembership, ProjectCrewMembership
 
+__all__ = [
+    'OrganizationMembershipForm',
+    'ProjectCrewMembershipForm',
+    'ProjectCrewMembershipInviteForm',
+]
+
+
+@OrganizationMembership.forms('main')
 class OrganizationMembershipForm(forms.Form):
     # add a member to a project
     user = forms.UserSelectField(
@@ -26,6 +35,7 @@ class OrganizationMembershipForm(forms.Form):
     )
 
 
+@ProjectCrewMembership.forms('main')
 class ProjectCrewMembershipForm(forms.Form):
     # add a member to a project
     user = forms.UserSelectField(
@@ -45,6 +55,7 @@ class ProjectCrewMembershipForm(forms.Form):
         return is_valid
 
 
+@ProjectCrewMembership.forms('invite')
 class ProjectCrewMembershipInviteForm(forms.Form):
     action = forms.SelectField(
         __("Choice"),

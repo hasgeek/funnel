@@ -16,9 +16,9 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
-    ClientCredentialForm,
-    PermissionEditForm,
-    RegisterClientForm,
+    AuthClientCredentialForm,
+    AuthClientForm,
+    AuthClientPermissionEditForm,
     TeamPermissionAssignForm,
     UserPermissionAssignForm,
 )
@@ -72,7 +72,7 @@ class AuthClientCreateView(ClassView):
     @route('', endpoint='authclient_new')
     @requires_login
     def new(self):
-        form = RegisterClientForm(model=AuthClient)
+        form = AuthClientForm(model=AuthClient)
         form.edit_user = current_auth.user
         form.client_owner.choices = available_client_owners()
         if request.method == 'GET':
@@ -100,6 +100,7 @@ class AuthClientCreateView(ClassView):
 AuthClientCreateView.init_app(app)
 
 
+@AuthClient.views('main')
 @route('/account/apps/<app>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
@@ -116,16 +117,13 @@ class AuthClientView(UrlForView, ModelView):
             permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
         else:
             permassignments = AuthClientTeamPermissions.all_forclient(self.obj).all()
-        return {
-            'auth_client': self.obj,
-            'permassignments': permassignments,
-        }
+        return {'auth_client': self.obj, 'permassignments': permassignments}
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_permission('edit')
     def edit(self):
-        form = RegisterClientForm(obj=self.obj, model=AuthClient)
+        form = AuthClientForm(obj=self.obj, model=AuthClient)
         form.edit_user = current_auth.user
         form.client_owner.choices = available_client_owners()
         if request.method == 'GET':
@@ -183,7 +181,7 @@ class AuthClientView(UrlForView, ModelView):
     @requires_login
     @requires_permission('edit')
     def cred_new(self):
-        form = ClientCredentialForm()
+        form = AuthClientCredentialForm()
         if request.method == 'GET' and not self.obj.credentials:
             form.title.data = _("Default")
         if form.validate_on_submit():
@@ -273,6 +271,7 @@ AuthClientView.init_app(app)
 # --- Routes: client credentials ----------------------------------------------
 
 
+@AuthClientCredential.views('main')
 @route('/account/apps/<app>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
@@ -308,6 +307,7 @@ AuthClientCredentialView.init_app(app)
 # --- Routes: client app permissions ------------------------------------------
 
 
+@AuthClientUserPermissions.views('main')
 @route('/account/apps/<app>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
@@ -326,7 +326,7 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
     @requires_login
     @requires_permission('assign-permissions')
     def edit(self):
-        form = PermissionEditForm()
+        form = AuthClientPermissionEditForm()
         if request.method == 'GET':
             if self.obj:
                 form.perms.data = self.obj.access_permissions
@@ -381,6 +381,7 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
 AuthClientUserPermissionsView.init_app(app)
 
 
+@AuthClientTeamPermissions.views('main')
 @route('/account/apps/<app>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
@@ -399,7 +400,7 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
     @requires_login
     @requires_permission('assign-permissions')
     def edit(self):
-        form = PermissionEditForm()
+        form = AuthClientPermissionEditForm()
         if request.method == 'GET':
             if self.obj:
                 form.perms.data = self.obj.access_permissions

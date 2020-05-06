@@ -3,9 +3,12 @@
 from baseframe import __
 import baseframe.forms as forms
 
+from ..models import Label
+
 __all__ = ['LabelForm', 'LabelOptionForm']
 
 
+@Label.forms('main')
 class LabelForm(forms.Form):
     name = forms.StringField(
         "", widget=forms.HiddenInput(), validators=[forms.validators.Optional()]
@@ -35,6 +38,7 @@ class LabelForm(forms.Form):
     )
 
 
+@Label.forms('option')
 class LabelOptionForm(forms.Form):
     name = forms.StringField(
         "", widget=forms.HiddenInput(), validators=[forms.validators.Optional()]

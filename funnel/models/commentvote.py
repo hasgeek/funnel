@@ -6,7 +6,7 @@ from baseframe import _, __
 from coaster.sqlalchemy import StateManager, cached
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, MarkdownColumn, TSVectorType, UuidMixin, db
+from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
 from .user import User
 
@@ -67,23 +67,25 @@ class Voteset(BaseMixin, db.Model):
         return Vote.query.filter_by(user=user, voteset=self).first()
 
 
-class Vote(BaseMixin, db.Model):
+class Vote(NoIdMixin, db.Model):
     __tablename__ = 'vote'
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('votes', lazy='dynamic', cascade='all'),
+    voteset_id = db.Column(
+        None, db.ForeignKey('voteset.id'), nullable=False, primary_key=True
     )
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(
         Voteset,
         primaryjoin=voteset_id == Voteset.id,
         backref=db.backref('votes', cascade='all'),
     )
+    user_id = db.Column(
+        None, db.ForeignKey('user.id'), nullable=False, primary_key=True, index=True
+    )
+    user = db.relationship(
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('votes', lazy='dynamic', cascade='all'),
+    )
     votedown = db.Column(db.Boolean, default=False, nullable=False)
-
-    __table_args__ = (db.UniqueConstraint("user_id", "voteset_id"), {})
 
     @classmethod
     def migrate_user(cls, old_user, new_user):

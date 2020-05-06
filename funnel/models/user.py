@@ -5,7 +5,7 @@ from datetime import timedelta
 from sqlalchemy import or_
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import defer, deferred
+from sqlalchemy.orm import defer
 from sqlalchemy_utils import TimezoneType
 
 from werkzeug.security import check_password_hash
@@ -543,8 +543,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )
-    #: Deprecated, but column preserved for existing data until migration
-    description = deferred(db.Column(db.UnicodeText, default='', nullable=False))
 
     search_vector = db.deferred(
         db.Column(

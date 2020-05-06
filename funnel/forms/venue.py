@@ -8,11 +8,13 @@ from baseframe import __, get_locale
 from baseframe.forms.sqlalchemy import QuerySelectField
 import baseframe.forms as forms
 
+from ..models import Venue, VenueRoom
 from .project import valid_color_re
 
 __all__ = ['VenueForm', 'VenuePrimaryForm', 'VenueRoomForm']
 
 
+@Venue.forms('main')
 class VenueForm(forms.Form):
     title = forms.StringField(
         __("Name"),
@@ -72,6 +74,7 @@ class VenueForm(forms.Form):
         self.country.choices = [(code, name) for (name, code) in countries]
 
 
+@VenueRoom.forms('main')
 class VenueRoomForm(forms.Form):
     title = forms.StringField(
         __("Name"),
@@ -94,6 +97,7 @@ class VenueRoomForm(forms.Form):
             raise forms.ValidationError("Please enter a valid color code")
 
 
+@Venue.forms('primary')
 class VenuePrimaryForm(forms.Form):
     venue = QuerySelectField(
         __("Venue"),

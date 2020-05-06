@@ -8,26 +8,24 @@ from baseframe import _, __
 from coaster.utils import domain_namespace_match, getbool, valid_username
 import baseframe.forms as forms
 
+from ..models import (
+    AuthClient,
+    AuthClientCredential,
+    AuthClientTeamPermissions,
+    AuthClientUserPermissions,
+)
+
 __all__ = [
-    'ClientCredentialForm',
-    'ConfirmDeleteForm',
-    'PermissionEditForm',
-    'RegisterClientForm',
+    'AuthClientForm',
+    'AuthClientCredentialForm',
+    'AuthClientPermissionEditForm',
     'TeamPermissionAssignForm',
     'UserPermissionAssignForm',
 ]
 
 
-class ConfirmDeleteForm(forms.Form):
-    """
-    Confirm a delete operation
-    """
-
-    delete = forms.SubmitField(__("Delete"))
-    cancel = forms.SubmitField(__("Cancel"))
-
-
-class RegisterClientForm(forms.Form):
+@AuthClient.forms('main')
+class AuthClientForm(forms.Form):
     """
     Register a new OAuth client application
     """
@@ -178,7 +176,8 @@ class RegisterClientForm(forms.Form):
                 )
 
 
-class ClientCredentialForm(forms.Form):
+@AuthClientCredential.forms('main')
+class AuthClientCredentialForm(forms.Form):
     """
     Generate new client credentials
     """
@@ -203,6 +202,8 @@ def permission_validator(form, field):
     field.data = ' '.join(permlist)
 
 
+@AuthClient.forms('permissions_user')
+@AuthClientUserPermissions.forms('assign')
 class UserPermissionAssignForm(forms.Form):
     """
     Assign permissions to a user
@@ -219,6 +220,8 @@ class UserPermissionAssignForm(forms.Form):
     )
 
 
+@AuthClient.forms('permissions_team')
+@AuthClientTeamPermissions.forms('assign')
 class TeamPermissionAssignForm(forms.Form):
     """
     Assign permissions to a team
@@ -241,7 +244,9 @@ class TeamPermissionAssignForm(forms.Form):
         self.team = teams[0]
 
 
-class PermissionEditForm(forms.Form):
+@AuthClientUserPermissions.forms('edit')
+@AuthClientTeamPermissions.forms('edit')
+class AuthClientPermissionEditForm(forms.Form):
     """
     Edit a user or team's permissions
     """

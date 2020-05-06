@@ -20,7 +20,7 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import ParticipantForm
-from ..models import Attendee, Participant, Profile, Project, SyncTicket, db
+from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
 from ..utils import format_twitter_handle, make_qrcode, split_name, strip_null
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
@@ -107,6 +107,7 @@ def participant_checkin_data(participant, project, event):
     return data
 
 
+@Project.views('participant')
 @route('/<profile>/<project>/participants')
 class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -151,6 +152,7 @@ ProjectParticipantView.init_app(app)
 FunnelProjectParticipantView.init_app(funnelapp)
 
 
+@Participant.views('main')
 @route('/<profile>/<project>/participant/<participant>')
 class ParticipantView(UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
@@ -213,6 +215,7 @@ ParticipantView.init_app(app)
 FunnelParticipantView.init_app(funnelapp)
 
 
+@Event.views('participant')
 @route('/<profile>/<project>/event/<name>')
 class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]

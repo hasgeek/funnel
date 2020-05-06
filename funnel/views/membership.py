@@ -35,6 +35,7 @@ from .helpers import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 
+@Profile.views('members')
 @route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -95,7 +96,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
                     send_mail_async.queue(
                         sender=None,
-                        to=new_membership.user.email,
+                        to=str(new_membership.user.email),
                         body=render_template(
                             'organization_membership_add_email.md.jinja2',
                             granted_by=new_membership.granted_by,
@@ -139,6 +140,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 OrganizationMembersView.init_app(app)
 
 
+@OrganizationMembership.views('main')
 @route('/<profile>/members/<membership>')
 class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
     model = OrganizationMembership
@@ -228,7 +230,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
                     send_mail_async.queue(
                         sender=None,
-                        to=previous_membership.user.email,
+                        to=str(previous_membership.user.email),
                         body=render_template(
                             'organization_membership_revoke_notification_email.md.jinja2',
                             revoked_by=current_auth.user,
@@ -269,6 +271,7 @@ OrganizationMembershipView.init_app(app)
 #: Project Membership views
 
 
+@Project.views('crew')
 @route('/<profile>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -320,7 +323,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     # TODO: Once invite is introduced, send invite email here
                     send_mail_async.queue(
                         sender=None,
-                        to=new_membership.user.email,
+                        to=str(new_membership.user.email),
                         body=render_template(
                             'project_membership_add_email.md.jinja2',
                             # 'project_membership_add_invite_email.md.jinja2',
@@ -398,6 +401,7 @@ class ProjectCrewMembershipMixin(object):
         super(ProjectCrewMembershipMixin, self).after_loader()
 
 
+@ProjectCrewMembership.views('invite')
 @route('/<profile>/<project>/crew/<membership>/invite')
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
@@ -439,6 +443,7 @@ ProjectCrewMembershipInviteView.init_app(app)
 FunnelProjectCrewMembershipInviteView.init_app(funnelapp)
 
 
+@ProjectCrewMembership.views('main')
 @route('/<profile>/<project>/crew/<membership>')
 class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
@@ -503,7 +508,7 @@ class ProjectCrewMembershipView(
 
                     send_mail_async.queue(
                         sender=None,
-                        to=previous_membership.user.email,
+                        to=str(previous_membership.user.email),
                         body=render_template(
                             'project_membership_revoke_notification_email.md.jinja2',
                             revoked_by=current_auth.user,
