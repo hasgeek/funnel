@@ -64,7 +64,7 @@
                 {%- elif project.cfp_state.HAS_PROPOSALS -%}
                   <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-action="View proposals(index page card)">Proposals</a>
                 {%- endif %}
-                {%- if (project.boxoffice_data and project.boxoffice_data.item_collection_id) or project.schedule_state.PUBLISHED -%}
+                {%- if project.features.has_tickets() -%}
                   <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-action="Participate(index page card)">Participate</a>
                 {% endif %}
               </div>
