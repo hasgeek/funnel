@@ -17,12 +17,13 @@ class TestModels(TestDatabaseFixture):
         bathound = models.User(username="bathound", fullname="Bathound")
         db.session.add(bathound)
         db.session.commit()
-        merged = models.merge_users(crusoe, bathound)
-        self.assertEqual(merged, crusoe)
-        self.assertIsInstance(merged, models.User)
-        # because the logic is to merge into older account
-        self.assertEqual(crusoe.status, 0)
-        self.assertEqual(bathound.status, 2)
+        with self.app.test_request_context('/'):
+            merged = models.merge_users(crusoe, bathound)
+            self.assertEqual(merged, crusoe)
+            self.assertIsInstance(merged, models.User)
+            # because the logic is to merge into older account
+            self.assertEqual(crusoe.status, 0)
+            self.assertEqual(bathound.status, 2)
 
         # Scenario 1: if second user's created_at date older than first user 's created_at
         tyrion = models.User(username='tyrion', fullname="Tyrion Lannister")
@@ -31,12 +32,13 @@ class TestModels(TestDatabaseFixture):
         subramanian = models.User(username='subramanian', fullname="Tyrion Subramanian")
         db.session.add(subramanian)
         db.session.commit()
-        merged = models.merge_users(subramanian, tyrion)
-        self.assertEqual(merged, tyrion)
-        self.assertIsInstance(merged, models.User)
-        # because the logic is to merge into older account
-        self.assertEqual(tyrion.status, 0)
-        self.assertEqual(subramanian.status, 2)
+        with self.app.test_request_context('/'):
+            merged = models.merge_users(subramanian, tyrion)
+            self.assertEqual(merged, tyrion)
+            self.assertIsInstance(merged, models.User)
+            # because the logic is to merge into older account
+            self.assertEqual(tyrion.status, 0)
+            self.assertEqual(subramanian.status, 2)
 
     def test_getuser(self):
         """

@@ -2,7 +2,7 @@
 
 from flask import current_app
 
-from funnel.util import (
+from funnel.utils import (
     extract_twitter_handle,
     format_twitter_handle,
     geonameid_from_location,

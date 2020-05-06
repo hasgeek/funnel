@@ -30,5 +30,6 @@ class TestLoginProviderRegistry(unittest.TestCase):
             expected_login_providers.append('linkedin')
         if app.config.get('OAUTH_GITHUB_KEY') and app.config.get('OAUTH_GITHUB_SECRET'):
             expected_login_providers.append('github')
-        self.assertIsInstance(login_registry, LoginProviderRegistry)
-        self.assertCountEqual(expected_login_providers, list(login_registry.keys()))
+
+        assert isinstance(login_registry, LoginProviderRegistry)
+        assert expected_login_providers == list(login_registry.keys())

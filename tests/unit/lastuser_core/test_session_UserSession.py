@@ -11,13 +11,16 @@ class TestUser(TestDatabaseFixture):
     def test_usersession_init(self):
         """Test to verify the creation of UserSession instance"""
         result = models.UserSession()
-        self.assertIsInstance(result, models.UserSession)
+        assert isinstance(result, models.UserSession)
 
     def test_usersession_ua(self):
         """Test to verify user_agent property of UserSession instance"""
         ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36'
         another_user_session = models.UserSession(user_agent=ua)
-        self.assertIsInstance(another_user_session.ua, dict)
+        parsed_ua = another_user_session.user_agent_details()
+        assert isinstance(parsed_ua, dict)
+        assert parsed_ua['browser'] == 'Chrome 49.0.2623'
+        assert parsed_ua['os_device'] == 'Mac OS X 10.11.3 (Apple Mac)'
 
     def test_usersession_has_sudo(self):
         """Test to set sudo and test if UserSession instance has_sudo """
@@ -31,7 +34,7 @@ class TestUser(TestDatabaseFixture):
         another_user_session.set_sudo()
         db.session.add(another_user_session)
         db.session.commit()
-        self.assertTrue(another_user_session.has_sudo)
+        assert another_user_session.has_sudo is True
 
     def test_usersession_revoke(self):
         """Test to revoke on UserSession instance"""
@@ -44,7 +47,7 @@ class TestUser(TestDatabaseFixture):
         )
         yet_another_usersession.revoke()
         result = models.UserSession.get(yet_another_usersession.buid)
-        self.assertIsNotNone(result.revoked_at)
+        assert result.revoked_at is not None
 
     def test_usersession_get(self):
         """Test for verifying UserSession's get method"""
@@ -58,8 +61,8 @@ class TestUser(TestDatabaseFixture):
             accessed_at=utcnow(),
         )
         result = oakley_session.get(buid=oakley_buid)
-        self.assertIsInstance(result, models.UserSession)
-        self.assertEqual(result.user_id, oakley.id)
+        assert isinstance(result, models.UserSession)
+        assert result.user_id == oakley.id
 
     def test_usersession_active_sessions(self):
         "Test for verifying UserSession's active_sessions"
@@ -71,8 +74,8 @@ class TestUser(TestDatabaseFixture):
             user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36',
             accessed_at=utcnow(),
         )
-        self.assertIsInstance(piglet.active_sessions.all(), list)
-        self.assertCountEqual(piglet.active_sessions.all(), [piglet_session])
+        assert isinstance(piglet.active_sessions.all(), list)
+        assert piglet.active_sessions.all() == [piglet_session]
 
     def test_usersession_authenticate(self):
         """Test to verify authenticate method on UserSession"""
@@ -89,5 +92,5 @@ class TestUser(TestDatabaseFixture):
         db.session.add(chandler_session)
         db.session.commit()
         result = models.UserSession.authenticate(chandler_buid)
-        self.assertIsInstance(result, models.UserSession)
-        self.assertEqual(result, chandler_session)
+        assert isinstance(result, models.UserSession)
+        assert result == chandler_session
