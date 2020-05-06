@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from funnel.util import extract_twitter_handle
+from funnel.utils import extract_twitter_handle
 
 event_ticket_types = [
     {'title': 'SpaceCon', 'ticket_types': ['Conference', 'Combo']},
