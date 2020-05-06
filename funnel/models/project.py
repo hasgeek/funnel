@@ -603,7 +603,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 weeks[weekobj.week]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
                     # If the event is over don't set upcoming for current week
-                    if wdate > today and weekobj >= current_week and session_count > 0:
+                    if wdate >= today and weekobj >= current_week and session_count > 0:
                         weeks[weekobj.week]['upcoming'] = True
                     weeks[weekobj.week]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekobj.week]:
