@@ -1403,8 +1403,10 @@ html.touch .collapsible__body--disable {
 .card--spotlight {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
   max-width: 450px;
+  transition: 200ms linear;
+  -webkit-transition: 200ms linear;
 }
 .card--spotlight .card__body__bookmark {
   float: right;
@@ -1420,7 +1422,6 @@ html.touch .collapsible__body--disable {
 @media (min-width: 992px) {
   .card--spotlight {
     display: flex !important;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
     max-width: 100%;
     border-radius: 16px;
   }
@@ -1841,6 +1842,7 @@ html.touch .collapsible__body--disable {
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
   max-width: 450px;
   transition: 200ms linear;
+  -webkit-transition: 200ms linear;
 }
 .card--upcoming .card__image-wrapper {
   position: relative;
@@ -2101,6 +2103,7 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-banner__box {
   padding: 0;
+  position: relative;
 }
 .project-banner .project-banner__box .project-banner__box__image {
   position: absolute;
