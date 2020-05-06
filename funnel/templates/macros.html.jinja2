@@ -87,6 +87,12 @@
   </div>
 {% endmacro %}
 
+{% macro livestream_edit_btn(project) %}
+  {% if project.view_for('edit_livestream').is_available() %}
+    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Update livestream URLs{% endtrans %}</a>
+  {% endif %}
+{% endmacro %}
+
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
@@ -121,6 +127,7 @@
           {%- for stream in project.livestream_urls %}
             <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
               <div class="project-banner__box">
+                {{ livestream_edit_btn(project) }}
                 <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
                   <p class="video_txt">
                     {{ faicon(icon='video', icon_size='display1') }}<br>
@@ -134,19 +141,19 @@
         </div>
       {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
+          {{ livestream_edit_btn(project) }}
           <div class="embed-video-wrapper">
             {% if project.banner_video_url.url %}
-              {{ project.banner_video_url|safe }}
+              <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
+                <p class="video_txt">
+                  {{ faicon(icon='video', icon_size='display1') }}<br>
+                  <a href="{{ project.banner_video_url }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                </p>
+              </div>
             {%- elif project.bg_image.url %}
               <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}" data-cy="bg_image"/>
-              {% if project.view_for('edit_livestream').is_available() %}
-                <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Add livestream URLs{% endtrans %}</a>
-              {% endif %}
             {%- else %}
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
-              {% if project.view_for('edit_livestream').is_available() %}
-                <a href="{{ project.url_for('edit_livestream') }}#bg_image" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Add banner image{% endtrans %}</a>
-              {% endif %}
             {% endif %}
           </div>
           {{ project_share(project, project_save_form) }}
