@@ -11,15 +11,4 @@
     <a href="{{ project.url_for('schedule_ical', _external=True) }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Download{% endtrans %}</a>
     <a href="https://www.google.com/calendar/render?cid={{ project.url_for('schedule_ical', _external=True, _scheme='webcal')|urlencode }}&Name" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Add to Google Calendar{% endtrans %}</a>
   </p>
-  <h4 class="mui--text-title mui--bg-primary-light subscibe-title">{% trans %}Room Schedules{% endtrans %}</h4>
-  {% for venue in project.venues %}
-    <p class="mui--text-title"><strong>Venue: {{ venue.title }}</strong></p>
-    {% for room in venue.rooms %}
-      <p class="mui--text-subhead zero-bottom-margin">{{ room.title }}</p>
-      <p class="btn-group">
-        <a href="{{ room.url_for('schedule_room_ical', _external=True) }}" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Download{% endtrans %}</a>
-        <a href="https://www.google.com/calendar/render?cid={{ room.url_for('schedule_room_ical', _external=True, _scheme='webcal')|urlencode }}&Name" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent">{% trans %}Add to Google Calendar{% endtrans %}</a>
-      </p>
-    {% endfor %}
-  {% endfor %}
 </div>
