@@ -63,18 +63,18 @@
 
 {% block contentwrapper %}
   <div class="about">
-    {% if not project.schedule_state.PAST and (project.schedule_state.PUBLISHED or (project.boxoffice_data and project.boxoffice_data.item_collection_id)) -%}
+    {% if not project.schedule_state.PAST -%}
       <div class="about__participate">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
           <div class="mobile-nav mui--z1">
             <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
-        <div id="tickets" {% if project.schedule_state.PUBLISHED and not project.boxoffice_data.item_collection_id -%}class="rsvp-wrapper"{%- endif %}>
-          {% if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
+        <div id="tickets" {% if project.features.has_rsvp() -%}class="rsvp-wrapper"{%- endif %}>
+          {% if project.features.has_tickets() -%}
             <h2 class="mui--text-display1 mui--text-bold mui--text-left project-section__headline">Tickets</h2>
             <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
-          {% elif project.schedule_state.PUBLISHED -%}
+          {% else -%}
             <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
             {%- if current_auth.is_authenticated %}
               {% if current_rsvp is not none %}
@@ -232,7 +232,7 @@
     $(function() {
       var projectConfig = {};
 
-      {% if not project.schedule_state.PAST and (project.boxoffice_data and project.boxoffice_data.item_collection_id) -%}
+      {% if project.features.has_tickets() -%}
         projectConfig.tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
@@ -240,7 +240,7 @@
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
           itemCollectionTitle: {{ project.title|tojson }}
         };
-      {%- elif not project.schedule_state.PAST and project.schedule_state.PUBLISHED %}
+      {%- else %}
         projectConfig.tickets = {
           rsvp: true
         };
