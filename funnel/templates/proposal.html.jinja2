@@ -23,17 +23,19 @@
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
   <p class="mui--text-headline">{{ project.tagline }}</p>
   <p>
-  <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
-    {%- if project.boxoffice_data and project.boxoffice_data.item_collection_id -%}
-      {% if project.boxoffice_data.buy_btn_text -%}
-        {{ project.boxoffice_data.buy_btn_text }}
-      {% else %}
-        {% trans %}Tickets{% endtrans %}
-      {% endif %}
-    {%- else -%}
-      {% trans %}Attend{% endtrans %}
-    {%- endif %}
-  </a>
+  {% if project.features.has_tickets_or_rsvp() %}
+    <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
+      {%- if project.features.has_tickets() -%}
+        {% if project.boxoffice_data.buy_btn_text -%}
+          {{ project.boxoffice_data.buy_btn_text }}
+        {% else %}
+          {% trans %}Tickets{% endtrans %}
+        {% endif %}
+      {%- else -%}
+        {% trans %}Attend{% endtrans %}
+      {%- endif %}
+    </a>
+  {% endif %}
   {% if project.cfp_state.OPEN -%}
     <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" data-action="Propose a session(header)">{{ faicon(icon='microphone-alt') }} {% trans %}Submit a session proposal{% endtrans %}</a>
   {% endif %}
