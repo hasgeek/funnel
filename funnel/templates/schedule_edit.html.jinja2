@@ -13,7 +13,19 @@
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
-  <p class="mui--text-headline">{% trans %}Edit schedule{% endtrans %}</p>
+  {%- if schedule_transition_form %}
+    <div>
+      <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="schedule-state">{% trans %}Schedule status{% endtrans %}: {{ project.schedule_state.label.title }}</p>
+      <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
+        {{ schedule_transition_form.hidden_tag() }}
+        <p class="btn-group">
+          {% for name, transition in schedule_transition_form.schedule_transition.choices %}
+            <button name="schedule_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}"  data-cy-schedule="{{ name }}">{{ transition.data['title'] }}</button>
+          {% endfor %}
+        </p>
+      </form>
+    </div>
+  {%- endif %}
 {% endblock %}
 
 {% block contentwrapper %}
