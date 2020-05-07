@@ -6,7 +6,7 @@ from flask import request
 
 import user_agents
 
-from baseframe import _
+from baseframe import _, statsd
 from coaster.utils import buid as make_buid
 from coaster.utils import utcnow
 
@@ -107,6 +107,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
             else:
                 self.ipaddr = request.remote_addr or ''
                 self.user_agent = str(request.user_agent.string[:250]) or ''
+        statsd.set('users.active_sessions', self.user.uuid_b58, rate=1)
 
     def user_agent_details(self):
         ua = user_agents.parse(self.user_agent)
