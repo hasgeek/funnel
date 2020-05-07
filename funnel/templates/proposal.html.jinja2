@@ -23,7 +23,7 @@
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
   <p class="mui--text-headline">{{ project.tagline }}</p>
   <p>
-  {% if project.features.has_tickets() or project.features.has_rsvp() %}
+  {% if project.features.has_tickets_or_rsvp() %}
     <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
       {%- if project.features.has_tickets() -%}
         {% if project.boxoffice_data.buy_btn_text -%}
