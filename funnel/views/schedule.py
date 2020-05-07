@@ -278,6 +278,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'editor'})
     def edit_schedule(self):
+        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         proposals = {
             'unscheduled': [
                 {'title': proposal.title, 'modal_url': proposal.url_for('schedule')}
@@ -317,6 +318,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 }
                 for room in self.obj.rooms
             },
+            'schedule_transition_form': schedule_transition_form,
         }
 
     @route('update', methods=['POST'])
