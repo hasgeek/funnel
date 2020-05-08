@@ -104,7 +104,7 @@ class Vote(NoIdMixin, db.Model):
                 db.session.delete(vote)
 
 
-class Commentset(BaseMixin, db.Model):
+class Commentset(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'commentset'
     settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
