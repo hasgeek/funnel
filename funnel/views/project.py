@@ -30,6 +30,8 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import (
     CfpForm,
+    CommentDeleteForm,
+    CommentForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
@@ -41,7 +43,16 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..jobs import import_tickets, tag_locations
-from ..models import RSVP_STATUS, Profile, Project, Proposal, Rsvp, SavedProject, db
+from ..models import (
+    RSVP_STATUS,
+    Comment,
+    Profile,
+    Project,
+    Proposal,
+    Rsvp,
+    SavedProject,
+    db,
+)
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -483,6 +494,29 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
+        }
+
+    @route('discussions', methods=['GET', 'POST'])
+    @render_with('discussions.html.jinja2')
+    @requires_login
+    @requires_roles({'reader'})
+    def discussions(self):
+        project_save_form = SavedProjectForm()
+        comments = sorted(
+            Comment.query.filter_by(commentset=self.obj.commentset, parent=None)
+            .order_by('created_at')
+            .all(),
+            key=lambda c: c.voteset.count,
+            reverse=True,
+        )
+        commentform = CommentForm(model=Comment)
+        delcommentform = CommentDeleteForm()
+        return {
+            'project': self.obj,
+            'project_save_form': project_save_form,
+            'comments': comments,
+            'commentform': commentform,
+            'delcommentform': delcommentform,
         }
 
 
