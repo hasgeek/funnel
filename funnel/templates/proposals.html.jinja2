@@ -81,12 +81,12 @@
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
       <div class="grid project-section">
-       {% if project.current_roles.crew -%}
+       {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
         <div class="grid__col-xs-12 about__details" id="call-for-proposal">
           {%- if project.instructions and project.instructions != "None" %}
             <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
             <div class="about__details__description">
-              {% if project.features.can_manage_cfp() -%}
+              {% if not project.cfp_state.EXPIRED and project.view_for('cfp').is_available() -%}
                 <p class="mui--pull-right">
                   <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--accent">
                     {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
@@ -99,7 +99,7 @@
               {%- endif %}
               {{ project.instructions }}
             </div>
-          {%- elif project.features.can_manage_cfp() %}
+          {%- elif not project.cfp_state.EXPIRED and project.view_for('cfp').is_available() %}
             <p><a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--accent">{% trans %}Add proposal guidelines and timing{% endtrans %}</a></p>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
