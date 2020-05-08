@@ -954,16 +954,6 @@ def project_has_tickets_or_rsvp(obj):
     return obj.features.has_tickets() or obj.features.has_rsvp()
 
 
-@Project.features('can_manage_venues')
-def can_manage_project_venues(obj):
-    return not obj.schedule_state.PAST and obj.view_for('venues').is_available()
-
-
-@Project.features('can_manage_cfp')
-def can_manage_project_cfp(obj):
-    return not obj.cfp_state.EXPIRED and obj.view_for('cfp').is_available()
-
-
 class ProjectRedirect(TimestampMixin, db.Model):
     __tablename__ = "project_redirect"
 
