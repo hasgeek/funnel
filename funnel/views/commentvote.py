@@ -2,16 +2,16 @@
 
 from collections import namedtuple
 
-from flask import abort, flash, g, jsonify, redirect, render_template
+from flask import abort, flash, jsonify, redirect, render_template, url_for
 
 from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
-from coaster.utils import require_one_of, utcnow
+from coaster.utils import utcnow
 from coaster.views import ModelView, UrlForView, jsonp, requires_permission, route
 
 from .. import app, funnelapp
 from ..forms import CommentDeleteForm, CommentForm
-from ..models import Comment, Profile, Project, Proposal, db
+from ..models import Comment, Commentset, Proposal, db
 from .decorators import legacy_redirect
 from .helpers import requires_login, send_mail
 from .mixins import ProposalViewMixin
@@ -69,12 +69,41 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         flash(message, 'info')
         return redirect(self.obj.url_for(), code=303)
 
-    @route('comments/new', methods=['POST'])
+
+@route('/<project>/<url_id_name>', subdomain='<profile>')
+class FunnelProposalVoteView(ProposalVoteView):
+    pass
+
+
+ProposalVoteView.init_app(app)
+FunnelProposalVoteView.init_app(funnelapp)
+
+
+@route('/comments/<commentset>')
+class CommentsView(UrlForView, ModelView):
+    model = Commentset
+    route_model_map = {
+        'uuid_b58': 'commentset',
+    }
+
+    def loader(self, profile=None, commentset=None):
+        return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
+
+    @route('new', endpoint='new_comment', methods=['POST'])
     @requires_login
     @requires_permission('new_comment')
     def new_comment(self):
         # TODO: Make this endpoint support AJAX.
-        to_redirect = self.obj.url_for(_external=True)
+
+        host_obj = None  # project or proposal object
+        if hasattr(self.obj, 'project'):
+            host_obj = self.obj.project
+        elif hasattr(self.obj, 'proposal'):
+            host_obj = self.obj.proposal
+        else:
+            return redirect(url_for('IndexView_home'))
+
+        to_redirect = host_obj.url_for(_external=True)
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
             send_mail_info = []
@@ -94,7 +123,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
             else:
                 comment = Comment(
                     user=current_auth.user,
-                    commentset=self.obj.commentset,
+                    commentset=host_obj.commentset,
                     message=commentform.message.data,
                 )
                 if commentform.parent_id.data:
@@ -103,7 +132,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
                     ).first_or_404()
                     if parent.user.email:
                         # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
-                        if parent.user == self.obj.owner:
+                        if parent.user == host_obj.owner:
                             # parent comment is by the proposal owner
                             if not parent.user == current_auth.user:
                                 # parent comment is not by the curernt user
@@ -181,77 +210,12 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         # to not break the browser Back button.
         return redirect(to_redirect, code=303)
 
-
-@route('/<project>/<url_id_name>', subdomain='<profile>')
-class FunnelProposalVoteView(ProposalVoteView):
-    pass
-
-
-ProposalVoteView.init_app(app)
-FunnelProposalVoteView.init_app(funnelapp)
-
-
-class ProposalCommentViewMixin(object):
-    model = Proposal
-    route_model_map = {
-        'profile': 'project.profile.name',
-        'project': 'project.name',
-        'uuid_b58': '**comment.uuid_b58',
-        'url_name_uuid_b58': 'url_name_uuid_b58',
-        'url_id_name': 'url_id_name',
-    }
-
-    def loader(
-        self, profile, project, uuid_b58, url_name_uuid_b58=None, url_id_name=None
-    ):
-        require_one_of(url_name_uuid_b58=url_name_uuid_b58, url_id_name=url_id_name)
-        if url_name_uuid_b58:
-            proposal = (
-                Proposal.query.join(Project, Profile)
-                .filter(
-                    Profile.name == profile,
-                    Project.name == project,
-                    Proposal.url_name_uuid_b58 == url_name_uuid_b58,
-                )
-                .first_or_404()
-            )
-        else:
-            proposal = (
-                Proposal.query.join(Project, Profile)
-                .filter(
-                    Profile.name == profile,
-                    Project.name == project,
-                    Proposal.url_name == url_id_name,
-                )
-                .first_or_404()
-            )
-
-        comment = (
-            Comment.query.join(
-                Proposal, Comment.commentset_id == Proposal.commentset_id
-            )
-            .filter(Comment.uuid_b58 == uuid_b58, Proposal.id == proposal.id)
-            .first_or_404()
-        )
-
-        return ProposalComment(proposal, comment)
-
-    def after_loader(self):
-        g.profile = self.obj.proposal.project.profile
-        return super(ProposalCommentViewMixin, self).after_loader()
-
-
-@Proposal.views('comment')
-@route('/<profile>/<project>/proposals/<url_name_uuid_b58>/comments/<uuid_b58>')
-class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
-    @route('json')
+    @route('<uuid_b58>/json')
     @requires_permission('view')
     def view_comment_json(self):
         return jsonp(message=self.obj.comment.message.text)
 
-    @route('delete', methods=['POST'])
+    @route('<uuid_b58>/delete', methods=['POST'])
     @requires_login
     @requires_permission('delete_comment')
     def delete_comment(self):
@@ -265,7 +229,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
             flash(_("Your comment could not be deleted"), 'danger')
         return redirect(self.obj.proposal.url_for(), code=303)
 
-    @route('voteup', methods=['POST'])
+    @route('<uuid_b58>/voteup', methods=['POST'])
     @requires_login
     @requires_permission('vote_comment')
     def voteup_comment(self):
@@ -280,7 +244,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         flash(message, 'info')
         return redirect(self.obj.proposal.url_for(), code=303)
 
-    @route('votedown', methods=['POST'])
+    @route('<uuid_b58>/votedown', methods=['POST'])
     @requires_login
     @requires_permission('vote_comment')
     def votedown_comment(self):
@@ -295,7 +259,7 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         flash(message, 'info')
         return redirect(self.obj.proposal.url_for(), code=303)
 
-    @route('delete_vote', methods=['POST'])
+    @route('<uuid_b58>/delete_vote', methods=['POST'])
     @requires_login
     @requires_permission('vote_comment')
     def delete_comment_vote(self):
@@ -311,10 +275,10 @@ class ProposalCommentView(ProposalCommentViewMixin, UrlForView, ModelView):
         return redirect(self.obj.proposal.url_for(), code=303)
 
 
-@route('/<project>/<url_id_name>/comments/<uuid_b58>', subdomain='<profile>')
-class FunnelProposalCommentView(ProposalCommentView):
+@route('/comments', subdomain='<profile>')
+class FunnelCommentsView(CommentsView):
     pass
 
 
-ProposalCommentView.init_app(app)
-FunnelProposalCommentView.init_app(funnelapp)
+CommentsView.init_app(app)
+FunnelCommentsView.init_app(funnelapp)
