@@ -1,0 +1,25 @@
+.comment {
+  margin: 15px 0 0;
+
+  .comment--content {
+    display: inline-block;
+  }
+
+  .comment--content img {
+    max-width: 100%;
+  }
+
+  .comment--body {
+    margin: 10px 0 0 30px;
+  }
+
+  .commenter--gravatar {
+    border-radius: 50%;
+    width: 25px;
+    vertical-align: bottom;
+    margin-right: 5px;
+  }
+  .mui-btn--nostyle + .mui-btn--nostyle {
+    margin-left: 0;
+  }
+}

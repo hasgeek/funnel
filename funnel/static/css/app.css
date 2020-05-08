@@ -2719,25 +2719,6 @@ html.touch .collapsible__body--disable {
   white-space: pre-wrap;
 }
 
-.comment {
-  margin: 15px 0 0;
-}
-.comment .comment--content {
-  display: inline-block;
-}
-.comment .comment--content img {
-  max-width: 100%;
-}
-.comment .comment--body {
-  margin: 10px 0 0 30px;
-}
-.comment .commenter--gravatar {
-  border-radius: 50%;
-  width: 25px;
-  vertical-align: bottom;
-  margin-right: 5px;
-}
-
 .label {
   padding: 4px 8px;
   font-size: 12px;
@@ -2889,6 +2870,28 @@ html.touch .collapsible__body--disable {
 }
 .video .video__txt {
   margin-bottom: 3px;
+}
+
+.comment {
+  margin: 15px 0 0;
+}
+.comment .comment--content {
+  display: inline-block;
+}
+.comment .comment--content img {
+  max-width: 100%;
+}
+.comment .comment--body {
+  margin: 10px 0 0 30px;
+}
+.comment .commenter--gravatar {
+  border-radius: 50%;
+  width: 25px;
+  vertical-align: bottom;
+  margin-right: 5px;
+}
+.comment .mui-btn--nostyle + .mui-btn--nostyle {
+  margin-left: 0;
 }
 
 .proposal-list-header {

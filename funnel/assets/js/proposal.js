@@ -1,105 +1,11 @@
-import { Video } from './util';
+import { Video, Comments } from './util';
 
 export const Proposal = {
   init() {
-    $('button[name="transition"][value="delete"]').click(function(e) {
+    $('button[name="transition"][value="delete"]').click(function (e) {
       if (!window.confirm('Do you really want to delete this proposal?')) {
         e.preventDefault();
       }
-    });
-  },
-};
-
-export const Comments = {
-  init(pageURL) {
-    $('.comment .js-collapse').click(function() {
-      $(this).addClass('mui--hide');
-      $(this)
-        .siblings('.js-uncollapse')
-        .removeClass('mui--hide');
-      $(this)
-        .parent()
-        .siblings('.comment--body')
-        .slideUp('fast');
-      $(this)
-        .parent()
-        .siblings('.comment--children')
-        .slideUp('fast');
-      return false;
-    });
-
-    $('.comment .js-uncollapse').click(function() {
-      $(this).addClass('mui--hide');
-      $(this)
-        .siblings('.js-collapse')
-        .removeClass('mui--hide');
-      $(this)
-        .parent()
-        .siblings('.comment--body')
-        .slideDown('fast');
-      $(this)
-        .parent()
-        .siblings('.comment--children')
-        .slideDown('fast');
-      return false;
-    });
-
-    $('.comment .js-comment-reply').click(function() {
-      const cfooter = $(this).parent();
-      $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
-      $('#comment-form  input[name="comment_edit_id"]').val('');
-      $('#toplevel-comment').removeClass('mui--hide');
-      $('#comment-submit').val('Reply'); // i18n gotcha
-      cfooter.after($('#comment-form'));
-      $('#comment-form textarea').focus();
-      return false;
-    });
-
-    $('#toplevel-comment a').click(function() {
-      $('#comment-form  input[name="parent_id"]').val('');
-      $('#comment-form  input[name="comment_edit_id"]').val('');
-      $('#comment-submit').val('Post comment'); // i18n gotcha
-      $(this)
-        .parent()
-        .after($('#comment-form'));
-      $(this)
-        .parent()
-        .addClass('mui--hide');
-      $('#comment-form textarea').focus();
-      return false;
-    });
-
-    $('.comment .js-comment-delete').click(function() {
-      const cfooter = $(this).parent();
-      $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
-      $('#delcomment').attr('action', cfooter.attr('data-delete-url'));
-      $('#delcomment')
-        .removeClass('mui--hide')
-        .hide()
-        .insertAfter(cfooter)
-        .slideDown('fast');
-      return false;
-    });
-
-    $('#comment-delete-cancel').click(() => {
-      $('#delcomment').slideUp('fast');
-      return false;
-    });
-
-    $('.comment .js-comment-edit').click(function() {
-      const cfooter = $(this).parent();
-      const cid = cfooter.attr('data-id');
-      $('#comment-form textarea').val('Loading...'); // i18n gotcha
-      $.getJSON(`${pageURL}/comments/${cid}/json`, data => {
-        $('#comment-form textarea').val(data.message);
-      });
-      $('#comment-form input[name="parent_id"]').val('');
-      $('#comment-form input[name="comment_edit_id"]').val(cid);
-      $('#toplevel-comment').removeClass('mui--hide');
-      $('#comment-submit').val('Save changes'); // i18n gotcha
-      cfooter.after($('#comment-form'));
-      $('#comment-form textarea').focus();
-      return false;
     });
   },
 };
@@ -109,64 +15,37 @@ export const LabelsWidget = {
     const Widget = this;
 
     // On load, if the radio has been selected, then check mark the listwidget label
-    $('.listwidget input[type="radio"]').each(function() {
+    $('.listwidget input[type="radio"]').each(function () {
       if (this.checked) {
-        $(this)
-          .parent()
-          .parent()
-          .prev('.mui-form__label')
-          .addClass('checked');
+        $(this).parent().parent().prev('.mui-form__label').addClass('checked');
       }
     });
 
-    $('.listwidget .mui-form__label').click(function() {
+    $('.listwidget .mui-form__label').click(function () {
       if ($(this).hasClass('checked')) {
         $(this).removeClass('checked');
-        $(this)
-          .siblings()
-          .find('input[type="radio"]')
-          .prop('checked', false);
-        const attr = Widget.getLabelTxt(
-          $(this)
-            .text()
-            .trim()
-        );
+        $(this).siblings().find('input[type="radio"]').prop('checked', false);
+        const attr = Widget.getLabelTxt($(this).text().trim());
         Widget.updateLabels('', attr, false);
       } else {
         $(this).addClass('checked');
-        $(this)
-          .siblings()
-          .find('input[type="radio"]')
-          .first()
-          .click();
+        $(this).siblings().find('input[type="radio"]').first().click();
       }
     });
 
     // Add check mark to listwidget label
-    $('.listwidget input[type="radio"]').change(function() {
-      const label = $(this)
-        .parent()
-        .parent()
-        .prev('.mui-form__label');
+    $('.listwidget input[type="radio"]').change(function () {
+      const label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
       const labelTxt = `${Widget.getLabelTxt(
         label.text()
-      )}: ${Widget.getLabelTxt(
-        $(this)
-          .parent()
-          .find('label')
-          .text()
-      )}`;
+      )}: ${Widget.getLabelTxt($(this).parent().find('label').text())}`;
       const attr = Widget.getLabelTxt(label.text());
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
-    $('.add-label-form input[type="checkbox"]').change(function() {
-      const labelTxt = Widget.getLabelTxt(
-        $(this)
-          .parent('label')
-          .text()
-      );
+    $('.add-label-form input[type="checkbox"]').change(function () {
+      const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
       Widget.updateLabels(labelTxt, labelTxt, this.checked);
     });
 
@@ -179,7 +58,7 @@ export const LabelsWidget = {
       }
     });
 
-    $(document).on('click', event => {
+    $(document).on('click', (event) => {
       if (
         $('#label-select')[0] !== event.target &&
         !$(event.target).parents('#label-select').length &&
@@ -213,7 +92,7 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.HasGeek.ProposalInit = function({
+  window.HasGeek.ProposalInit = function ({
     pageUrl,
     videoWrapper = '',
     videoUrl = '',
