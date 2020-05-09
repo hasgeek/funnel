@@ -14,9 +14,11 @@ from ..signals import session_revoked
 from . import BaseMixin, UuidMixin, db
 from .user import User
 
-__all__ = ['UserSession']
+__all__ = ['UserSession', 'auth_client_user_session']
 
 
+#: When a user logs into an client app, the user's session is logged against
+#: the client app in this table
 auth_client_user_session = db.Table(
     'auth_client_user_session',
     db.Model.metadata,

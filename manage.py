@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-from datetime import date
 import sys
 
 from dateutil.relativedelta import relativedelta
@@ -10,7 +9,7 @@ import pytz
 import requests
 
 from coaster.manage import Manager, init_manager
-from coaster.utils import midnight_to_utc
+from coaster.utils import midnight_to_utc, utcnow
 from funnel import app, funnelapp, lastuserapp, models
 
 DataSource = namedtuple('DataSource', ['basequery', 'datecolumn'])
@@ -20,6 +19,14 @@ data_sources = {
     'user_sessions': DataSource(
         models.UserSession.query.distinct(models.UserSession.user_id),
         models.UserSession.accessed_at,
+    ),
+    'app_user_sessions': DataSource(
+        models.db.session.query(models.db.func.distinct(models.UserSession.user_id))
+        .select_from(models.auth_client_user_session, models.UserSession)
+        .filter(
+            models.auth_client_user_session.c.user_session_id == models.UserSession.id
+        ),
+        models.auth_client_user_session.c.accessed_at,
     ),
     "New users": DataSource(
         models.User.query.filter(models.User.status == models.USER_STATUS.ACTIVE),
@@ -60,10 +67,13 @@ def growthstats():
             file=sys.stderr,
         )
         return
+    # Dates in report timezone (for display)
     tz = pytz.timezone('Asia/Kolkata')
-    display_date = date.today() - relativedelta(days=1)
-    display_day = display_date.strftime('%A')
-    today = midnight_to_utc(date.today(), tz)
+    now = utcnow().astimezone(tz)
+    display_date = now - relativedelta(days=1)
+    display_prev_date = now - relativedelta(days=2)
+    # Dates cast into UTC (for db queries)
+    today = midnight_to_utc(now)
     yesterday = today - relativedelta(days=1)
     two_days_ago = today - relativedelta(days=2)
     three_days_ago = today - relativedelta(days=3)
@@ -197,27 +207,39 @@ def growthstats():
         )
 
     message = (
-        f"*Growth statistics for {display_date.strftime('%a %-d %b %Y')}*\n"
+        f"*Growth statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
         f"\n"
-        f"*Active users* ⟳ returning new users\n\n"
-        f"*{display_day}:* {stats['user_sessions']['day']} "
+        f"*Active users*, of which\n"
+        f"↝ using other apps, and\n"
+        f"⟳ returning new users from last period\n\n"
+        f"*{display_date.strftime('%A')}:* {stats['user_sessions']['day']} "
+        f"↝ {stats['app_user_sessions']['day']} "
         f"⟳ {stats['returning_users']['day']}\n"
-        f"{stats['user_sessions']['day_trend']} Previous day: {stats['user_sessions']['day_before']} "
+        f"{stats['user_sessions']['day_trend']} {display_prev_date.strftime('%A')}: {stats['user_sessions']['day_before']} "
+        f"↝ {stats['app_user_sessions']['day_trend']} {stats['app_user_sessions']['day_before']} "
         f"⟳ {stats['returning_users']['day_trend']} {stats['returning_users']['day_before']}\n"
-        f"{stats['user_sessions']['weekday_trend']} Last {display_day}: {stats['user_sessions']['weekday_before']} "
+        f"{stats['user_sessions']['weekday_trend']} Last {today.strftime('%a')}: {stats['user_sessions']['weekday_before']} "
+        f"↝ {stats['app_user_sessions']['weekday_trend']} {stats['app_user_sessions']['weekday_before']} "
         f"⟳ {stats['returning_users']['weekday_trend']} {stats['returning_users']['weekday_before']}\n"
         f"*Week:* {stats['user_sessions']['week']} "
+        f"↝ {stats['app_user_sessions']['week']} "
         f"⟳ {stats['returning_users']['week']}\n"
         f"{stats['user_sessions']['week_trend']} {stats['user_sessions']['week_before']} "
+        f"↝ {stats['app_user_sessions']['week_trend']} {stats['app_user_sessions']['week_before']} "
         f"⟳ {stats['returning_users']['week_trend']} {stats['returning_users']['week_before']}\n"
         f"*Month:* {stats['user_sessions']['month']} "
+        f"↝ {stats['app_user_sessions']['month']} "
         f"⟳ {stats['returning_users']['month']}\n"
         f"{stats['user_sessions']['month_trend']} {stats['user_sessions']['month_before']} "
+        f"↝ {stats['app_user_sessions']['month_trend']} {stats['app_user_sessions']['month_before']} "
         f"⟳ {stats['returning_users']['month_trend']} {stats['returning_users']['month_before']}\n"
+        f"\n"
+        f"⚠️ Active user counts for previous periods _do not_ include users who have "
+        f"been subsequently active, as only the last access time is recorded.\n"
         f"\n"
     )
     for key, data in stats.items():
-        if key not in ('user_sessions', 'returning_users'):
+        if key not in ('user_sessions', 'app_user_sessions', 'returning_users'):
             message += (
                 f"*{key}:*\n"
                 f"{data['day_trend']}{data['weekday_trend']} {data['day']} day, "
