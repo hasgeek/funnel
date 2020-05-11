@@ -100,36 +100,23 @@ class CommentsetView(UrlForView, ModelView):
 
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
-            if commentform.comment_edit_id.data:
-                comment = Comment.query.filter_by(
-                    uuid_b58=commentform.comment_edit_id.data
+            comment = Comment(
+                user=current_auth.user,
+                commentset=self.obj,
+                message=commentform.message.data,
+            )
+            if commentform.parent_id.data:
+                parent_comment = Comment.query.filter_by(
+                    uuid_b58=commentform.parent_id.data
                 ).first_or_404()
-                if comment:
-                    if comment.current_roles.author:
-                        comment.message = commentform.message.data
-                        comment.edited_at = utcnow()
-                        flash(_("Your comment has been edited"), 'info')
-                    else:
-                        flash(_("You can only edit your own comments"), 'info')
-                else:
-                    flash(_("No such comment"), 'error')
-            else:
-                comment = Comment(
-                    user=current_auth.user,
-                    commentset=self.obj,
-                    message=commentform.message.data,
-                )
-                if commentform.parent_id.data:
-                    parent_comment = Comment.query.filter_by(
-                        uuid_b58=commentform.parent_id.data
-                    ).first_or_404()
-                    if parent_comment and self.obj == parent_comment.commentset:
-                        comment.parent = parent_comment
-                self.obj.count += 1
-                comment.voteset.vote(current_auth.user)  # Vote for your own comment
-                db.session.add(comment)
-                flash(_("Your comment has been posted"), 'info')
+                if parent_comment and self.obj == parent_comment.commentset:
+                    comment.parent = parent_comment
+            self.obj.count += 1
+            comment.voteset.vote(current_auth.user)  # Vote for your own comment
+            db.session.add(comment)
             db.session.commit()
+            flash(_("Your comment has been posted"), 'info')
+            return redirect(comment.url_for(), code=303)
         else:
             for error in commentform.get_verbose_errors():
                 flash(error, category='error')
@@ -164,6 +151,14 @@ class CommentView(UrlForView, ModelView):
         ).one_or_404()
         return comment
 
+    @route('')
+    @requires_permission('view')
+    def view(self):
+        return redirect(
+            self.obj.commentset.parent_commentset_url + "#c" + self.obj.uuid_b58,
+            code=303,
+        )
+
     @route('json')
     @requires_permission('view')
     def view_json(self):
@@ -187,21 +182,22 @@ class CommentView(UrlForView, ModelView):
                 flash(error, category='error')
         # Redirect despite this being the same page because HTTP 303 is required
         # to not break the browser Back button.
-        return redirect(self.obj.commentset.parent_commentset_url, code=303)
+        return redirect(self.obj.url_for(), code=303)
 
     @route('delete', methods=['POST'])
     @requires_login
     @requires_permission('delete_comment')
     def delete(self):
+        commentset = self.obj.commentset
         delcommentform = CommentDeleteForm(comment_id=self.obj.id)
         if delcommentform.validate_on_submit():
             self.obj.delete()
-            self.obj.commentset.count -= 1
+            commentset.count -= 1
             db.session.commit()
             flash(_("Your comment was deleted"), 'info')
         else:
             flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(self.obj.commentset.parent_commentset_url, code=303)
+        return redirect(commentset.parent_commentset_url, code=303)
 
     @route('voteup', methods=['POST'])
     @requires_login
@@ -216,7 +212,7 @@ class CommentView(UrlForView, ModelView):
         if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.obj.commentset.parent_commentset_url, code=303)
+        return redirect(self.obj.url_for(), code=303)
 
     @route('votedown', methods=['POST'])
     @requires_login
@@ -231,7 +227,7 @@ class CommentView(UrlForView, ModelView):
         if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.obj.commentset.parent_commentset_url, code=303)
+        return redirect(self.obj.url_for(), code=303)
 
     @route('delete_vote', methods=['POST'])
     @requires_login
@@ -246,7 +242,7 @@ class CommentView(UrlForView, ModelView):
         if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.obj.commentset.parent_commentset_url, code=303)
+        return redirect(self.obj.url_for(), code=303)
 
 
 @route('/comments/<commentset>/<comment>', subdomain='<profile>')
