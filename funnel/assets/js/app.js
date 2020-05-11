@@ -13,12 +13,11 @@ $(() => {
 
   Utils.collapse();
   Utils.smoothScroll();
-  Utils.scrollTabs();
   Utils.navSearchForm();
   Utils.truncate();
   Utils.showTimeOnCalendar();
 
-  const intersectionObserverComponents = function() {
+  const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {
       ScrollActiveMenu.init(
         'page-navbar',
@@ -47,7 +46,7 @@ $(() => {
         'src',
         'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver'
       );
-      polyfill.onload = function() {
+      polyfill.onload = function () {
         intersectionObserverComponents();
       };
       document.head.appendChild(polyfill);
