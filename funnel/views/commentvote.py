@@ -80,16 +80,16 @@ FunnelProposalVoteView.init_app(funnelapp)
 
 
 @route('/comments/<commentset>')
-class CommentsView(UrlForView, ModelView):
+class CommentsetView(UrlForView, ModelView):
     model = Commentset
     route_model_map = {
-        'uuid_b58': 'commentset',
+        'commentset': 'uuid_b58',
     }
 
     def loader(self, profile=None, commentset=None):
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
-    @route('new', endpoint='new_comment', methods=['POST'])
+    @route('new', methods=['POST'])
     @requires_login
     @requires_permission('new_comment')
     def new_comment(self):
@@ -276,9 +276,9 @@ class CommentsView(UrlForView, ModelView):
 
 
 @route('/comments', subdomain='<profile>')
-class FunnelCommentsView(CommentsView):
+class FunnelCommentsetView(CommentsetView):
     pass
 
 
-CommentsView.init_app(app)
-FunnelCommentsView.init_app(funnelapp)
+CommentsetView.init_app(app)
+FunnelCommentsetView.init_app(funnelapp)
