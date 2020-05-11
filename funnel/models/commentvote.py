@@ -126,7 +126,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     def parent_commentset_url(self):
         url = None  # project or proposal object
         if hasattr(self, 'project') and self.project:
-            url = self.project.url_for('discussions', _external=True)
+            url = self.project.url_for('project_comments', _external=True)
         elif hasattr(self, 'proposal') and self.proposal:
             url = self.proposal.url_for(_external=True)
         return url

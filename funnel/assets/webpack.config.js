@@ -62,7 +62,7 @@ module.exports = {
     search: path.resolve(__dirname, 'js/search.js'),
     membership: path.resolve(__dirname, 'js/membership.js'),
     session_videos: path.resolve(__dirname, 'js/session_videos.js'),
-    disussions: path.resolve(__dirname, 'js/discussions.js'),
+    project_comments: path.resolve(__dirname, 'js/project_comments.js'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),

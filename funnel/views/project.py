@@ -496,11 +496,11 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project_save_form': project_save_form,
         }
 
-    @route('discussions', methods=['GET', 'POST'])
-    @render_with('discussions.html.jinja2')
+    @route('comments', methods=['GET', 'POST'])
+    @render_with('project_comments.html.jinja2')
     @requires_login
     @requires_roles({'reader'})
-    def discussions(self):
+    def project_comments(self):
         project_save_form = SavedProjectForm()
         comments = sorted(
             Comment.query.filter_by(commentset=self.obj.commentset, parent=None)

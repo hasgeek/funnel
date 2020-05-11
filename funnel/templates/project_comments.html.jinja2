@@ -3,7 +3,7 @@
 {% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
 {% from "comments.html.jinja2" import commenttree %}
 {%- from "macros.html.jinja2" import project_header %}
-{% block title %}Discussions{% endblock %}
+{% block title %}Comments{% endblock %}
 {% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
 {%- block pageheaders %}
@@ -25,20 +25,20 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Discussions{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Comments{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
     class='mui--hidden-xs mui--hidden-sm',
-    current_page='discussions') }}
+    current_page='comments') }}
 {% endblock %}
 
 {% block basecontent %}
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
-      <div class="grid project-section" id="discussions">
+      <div class="grid project-section" id="comments">
         <div class="grid__col-xs-12">
-          <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}Discussions{% endtrans %}</h2>
+          <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}Comments{% endtrans %}</h2>
         </div>
         <div class="grid__col-xs-12">
           {% if comments %}
@@ -90,7 +90,7 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('disussions')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('project_comments')) }}" type="text/javascript"></script>
   {{ widgetscripts(commentform, script=true, ref_id='comment-form') }}
   <script type="text/javascript">
     $(function() {
@@ -101,7 +101,7 @@
       var pageUrl = {{ request.base_url|tojson }};
 
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);
-      window.HasGeek.DiscussionsInit(pageUrl);
+      window.HasGeek.ProjectCommentsInit(pageUrl);
     });
   </script>
 {% endblock %}
