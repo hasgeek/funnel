@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% from "baseframe/components.html.jinja2" import faicon %}
+{% from "baseframe/components.html.jinja2" import faicon, alertbox %}
 {% block title %}{% trans %}Schedule{% endtrans %}{% endblock %}
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
@@ -12,12 +12,9 @@
 {% endblock %}
 
 {% block top_title %}
-  {% if project.features.schedule_publish_alert() %}
-    <div class="alert alert--warning alert--dismissable" id="schedule-publish-alert">
-      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">
-        {{ faicon(icon='times', icon_size='subhead', baseline=true) }}
-      </a>
-      <p class="alert__text">This project will not be listed as it has no sessions in the schedule</p>
+  {% if project.features.schedule_no_sessions() %}
+    <div id="schedule-publish-alert">
+      {{ alertbox('warning', 'This project will not be listed as it has no sessions in the schedule') }}
     </div>
   {% endif %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>

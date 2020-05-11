@@ -474,7 +474,7 @@ $(function () {
                     events.add_unscheduled(event.title, response.modal_url);
                   obj.remove(event);
                   if (response.msg) {
-                    toastr.info(response.msg);
+                    toastr.warning(response.msg);
                   }
                 } else {
                   toastr.error('There was a problem in deleting the session.');

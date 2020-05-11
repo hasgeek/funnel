@@ -198,11 +198,13 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
         else:
             self.obj.make_unscheduled()
         db.session.commit()
-        if self.obj.project.features.schedule_publish_alert():
+        if self.obj.project.features.schedule_no_sessions():
             return jsonify(
                 status=True,
                 modal_url=modal_url,
-                msg='This project will not be listed as it has no sessions in the schedule',
+                msg=_(
+                    "This project will not be listed as it has no sessions in the schedule"
+                ),
             )
         return jsonify(status=True, modal_url=modal_url)
 
