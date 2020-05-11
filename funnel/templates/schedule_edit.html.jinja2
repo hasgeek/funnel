@@ -13,7 +13,10 @@
 
 {% block top_title %}
   {% if project.features.schedule_publish_alert() %}
-    <div class="alert alert--warning">
+    <div class="alert alert--warning alert--dismissable" id="schedule-publish-alert">
+      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">
+        {{ faicon(icon='times', icon_size='subhead', baseline=true) }}
+      </a>
       <p class="alert__text">This project will not be listed as it has no sessions in the schedule</p>
     </div>
   {% endif %}

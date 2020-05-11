@@ -2,7 +2,7 @@ function hexToRgb(hex) {
   if (hex.charAt(0) != '#') hex = '#' + hex;
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
   var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+  hex = hex.replace(shorthandRegex, function (m, r, g, b) {
     return r + r + g + g + b + b;
   });
 
@@ -42,41 +42,39 @@ toastr.options = {
   positionClass: 'toast-bottom-right',
 };
 
-$(function() {
-  var settings = (function() {
+$(function () {
+  var settings = (function () {
     var settings = {
       editable: EDIT_EVENTS,
       container: $('#settings'),
       color_form: $('#room_colors'),
-      onColorChange: function(color) {
+      onColorChange: function (color) {
         ROOMS[$(this).attr('data-room-id')].bgcolor = color.toHexString();
         calendar.render();
       },
-      applySortable: function() {
+      applySortable: function () {
         $(this).sortable({
           placeholder: $(this).data('drag-placeholder'),
           cursor: 'move',
-          update: function() {
+          update: function () {
             $(this)
               .children()
-              .each(function(index) {
+              .each(function (index) {
                 $(this)
                   .children('input[name$="seq"]')
                   .val(++index);
               });
           },
         });
-        $(this)
-          .find('div.sortable')
-          .each(settings.applySortable);
+        $(this).find('div.sortable').each(settings.applySortable);
       },
-      init: function() {
+      init: function () {
         if (this.editable) {
           $('#proposals-tab').easytabs();
 
           $('.sortable').each(settings.applySortable);
 
-          this.color_form.find('input[type=text]').each(function() {
+          this.color_form.find('input[type=text]').each(function () {
             $(this).spectrum({
               showInitial: true,
               hide: settings.onColorChange,
@@ -84,8 +82,8 @@ $(function() {
               change: settings.onColorChange,
             });
           });
-          this.color_form.find('input[type=reset]').click(function() {
-            settings.color_form.find('input[type=text]').each(function() {
+          this.color_form.find('input[type=reset]').click(function () {
+            settings.color_form.find('input[type=text]').each(function () {
               ROOMS[$(this).attr('data-room-id')].bgcolor = $(this).attr(
                 'data-color'
               );
@@ -93,10 +91,10 @@ $(function() {
             });
             calendar.render();
           });
-          this.color_form.submit(function() {
+          this.color_form.submit(function () {
             var json = {};
 
-            $('input[name="uuid"]').each(function(index, element) {
+            $('input[name="uuid"]').each(function (index, element) {
               var venue = $(element).val();
               json[venue] = {
                 seq: $(
@@ -104,7 +102,7 @@ $(function() {
                 ).val(),
                 rooms: [],
               };
-              $('input[data-venue="' + venue + '"]').each(function(
+              $('input[data-venue="' + venue + '"]').each(function (
                 index,
                 element
               ) {
@@ -129,12 +127,12 @@ $(function() {
               dataType: 'json',
               contentType: 'application/json',
               data: JSON.stringify(json),
-              success: function(result) {
+              success: function (result) {
                 toastr.success(
                   'The room sequence and colors have been updated.'
                 );
               },
-              complete: function(xhr, type) {
+              complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
                     'There was a problem in contacting the server. Please try again later.'
@@ -149,39 +147,39 @@ $(function() {
     return settings;
   })();
 
-  var popup = (function() {
+  var popup = (function () {
     var obj = {};
     var popup = {
       container: $('#popup'),
-      title: function() {
+      title: function () {
         return this.container.find('.js-modal-title');
       },
-      body: function() {
+      body: function () {
         return this.container.find('.js-modal-inner');
       },
       activated: false,
       options: {
         backdrop: 'static',
       },
-      pop: function() {
+      pop: function () {
         this.container.modal(this.options);
         if (settings.editable) {
           if (!this.activated) {
             this.activated = true;
-            this.container.on($.modal.CLOSE, function() {
+            this.container.on($.modal.CLOSE, function () {
               popup.close();
             });
             activate_widgets();
-            this.container.on($.modal.OPEN, function() {
+            this.container.on($.modal.OPEN, function () {
               activate_widgets();
             });
           }
         }
       },
-      hide: function() {
+      hide: function () {
         $.modal.close();
       },
-      close: function() {
+      close: function () {
         if (settings.editable)
           if (events.current.unscheduled) calendar.remove(events.current);
         events.current = null;
@@ -189,11 +187,11 @@ $(function() {
     };
 
     if (settings.editable) {
-      popup.form = function(input) {
+      popup.form = function (input) {
         if (typeof input == 'undefined') return this.container.find('form');
         else return this.form().find('[name=' + input + ']');
       };
-      popup.save = function() {
+      popup.save = function () {
         popup.form('start_at').val(events.current.obj_data.start_at);
         popup.form('end_at').val(events.current.obj_data.end_at);
         var data = popup.form().serializeArray();
@@ -201,7 +199,7 @@ $(function() {
           url: events.current.modal_url,
           type: 'POST',
           data: data,
-          success: function(result) {
+          success: function (result) {
             if (result.status) {
               events.update_obj_data(result.data);
               events.current.title = result.data.title;
@@ -212,12 +210,15 @@ $(function() {
               }
               calendar.update(events.current);
               popup.hide();
+              if ($('#schedule-publish-alert').length) {
+                $('#schedule-publish-alert .alert__close').click();
+              }
             } else {
               popup.body().html(result.form);
               activate_widgets();
             }
           },
-          complete: function(xhr, type) {
+          complete: function (xhr, type) {
             if (type == 'error' || type == 'timeout') {
               toastr.error(
                 'There was a problem in contacting the server. Please try again.'
@@ -228,15 +229,21 @@ $(function() {
       };
     }
 
-    obj.open = function() {
+    obj.open = function () {
       $.ajax({
         url: events.current.modal_url,
         type: 'GET',
-        success: function(result) {
+        success: function (result) {
           popup.title().text(events.current.title);
           if (settings.editable) {
-            if (events.current.obj_data.id) popup.title().text('Edit Session');
-            else popup.title().text('Schedule Session');
+            if (events.current.obj_data.id)
+              popup
+                .title()
+                .text('Edit Session');
+            else
+              popup
+                .title()
+                .text('Schedule Session');
           } else {
             popup
               .title()
@@ -252,7 +259,7 @@ $(function() {
           popup.body().html(result);
           popup.pop();
         },
-        complete: function(xhr, type) {
+        complete: function (xhr, type) {
           if (type == 'error' || type == 'timeout') {
             popup.close();
             toastr.error(
@@ -263,21 +270,21 @@ $(function() {
       });
     };
 
-    obj.init = function() {
+    obj.init = function () {
       popup.container.find('.save').click(popup.save);
     };
 
     return obj;
   })();
 
-  var calendar = (function() {
+  var calendar = (function () {
     var calendar = {
       container: $('#calendar'),
       helpers: {
-        date_diff: function(from, to) {
+        date_diff: function (from, to) {
           return (to.valueOf() - from.valueOf()) / 3600 / 24000;
         },
-        inactive_days: function(from, to) {
+        inactive_days: function (from, to) {
           var diff = calendar.helpers.date_diff(from, to);
           if (diff >= 7) return [];
           else {
@@ -318,7 +325,7 @@ $(function() {
             week: 'ddd d', // Mon 31
             day: 'dddd d', // Monday 31
           },
-          eventRender: function(event, element) {
+          eventRender: function (event, element) {
             if (event.speaker) {
               element
                 .find('.fc-event-title')
@@ -326,7 +333,7 @@ $(function() {
             }
           },
         },
-        init: function(scheduled) {
+        init: function (scheduled) {
           var config = calendar.options.config;
           config.events = scheduled;
           if (from_date != null) {
@@ -355,19 +362,19 @@ $(function() {
         is_break: null,
         speaker: null,
       },
-      add: function(event) {
+      add: function (event) {
         this.container.fullCalendar('renderEvent', event, true);
         events.add_obj_data(event);
       },
       filters: {
-        unsaved: function(event) {
+        unsaved: function (event) {
           return !event.saved;
         },
-        get_by_id: function(event) {
+        get_by_id: function (event) {
           return event._id == calendar.temp.get_by_id;
         },
       },
-      events: function(filter, args) {
+      events: function (filter, args) {
         if (typeof filter == 'string') {
           calendar.temp[filter] = args;
           var return_data = calendar.container.fullCalendar(
@@ -381,14 +388,14 @@ $(function() {
           return this.container.fullCalendar('clientEvents', filter);
         return this.container.fullCalendar('clientEvents');
       },
-      init: function(scheduled) {
+      init: function (scheduled) {
         this.options.init(scheduled);
         this.container.fullCalendar(this.options.config);
         init_buttons();
         init_autosave();
         events.height(this.container.find('.fc-content').height());
         var rooms_list = $('#rooms-list').find('.room .js-title');
-        rooms_list.each(function() {
+        rooms_list.each(function () {
           var bgcol = $(this).attr('data-bgcolor');
           $(this).css({ background: bgcol, color: invert(bgcol) });
           $(this)
@@ -410,7 +417,7 @@ $(function() {
       config.selectable = true;
       config.editable = true;
       config.droppable = true;
-      config.select = function(startDate, endDate, allDay, jsEvent, view) {
+      config.select = function (startDate, endDate, allDay, jsEvent, view) {
         $('body').append('<div id="dummy"></div>');
         var event = {
           saved: false,
@@ -424,7 +431,7 @@ $(function() {
         popup.open();
         calendar.container.fullCalendar('unselect');
       };
-      config.drop = function(date, allDay) {
+      config.drop = function (date, allDay) {
         // we need to clone it, else we will lose it when we remove the source's DOM element
         var source = $(this);
         var _event = source.data('info');
@@ -439,19 +446,19 @@ $(function() {
         calendar.add(event);
         popup.open();
       };
-      config.viewRender = function() {
+      config.viewRender = function () {
         event_list = calendar.events();
         for (e in event_list) {
           events.update_properties(event_list[e]);
         }
       };
-      config.eventAfterRender = function(event, element, view) {
+      config.eventAfterRender = function (event, element, view) {
         element.append('<div class="fc-event-custom"></div>');
         var custom = element.find('.fc-event-custom');
         custom.append(
           '<a class="fc-event-delete" href="javascript:void(0)">&times;</div>'
         );
-        custom.find('.fc-event-delete').click(function(e) {
+        custom.find('.fc-event-delete').click(function (e) {
           if (
             confirm(
               event.obj_data.title +
@@ -461,16 +468,19 @@ $(function() {
             $.ajax({
               url: event.delete_url,
               type: 'POST',
-              success: function(response) {
+              success: function (response) {
                 if (response.status) {
                   if (event.proposal_id && response.modal_url)
                     events.add_unscheduled(event.title, response.modal_url);
                   obj.remove(event);
+                  if (response.msg) {
+                    toastr.info(response.msg);
+                  }
                 } else {
                   toastr.error('There was a problem in deleting the session.');
                 }
               },
-              complete: function(xhr, type) {
+              complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
                     'There was a problem in contacting the server. Please try again later.'
@@ -482,18 +492,18 @@ $(function() {
         });
       };
 
-      obj.remove = function(event) {
+      obj.remove = function (event) {
         calendar.container.fullCalendar('removeEvents', event._id);
       };
 
-      obj.update = function(event) {
+      obj.update = function (event) {
         calendar.container.fullCalendar('updateEvent', event);
       };
     }
 
     obj.events = calendar.events;
 
-    obj.init = function(scheduled) {
+    obj.init = function (scheduled) {
       calendar.init(scheduled);
       popup.init();
       if (events.init_open) {
@@ -502,28 +512,28 @@ $(function() {
       }
     };
 
-    var init_buttons = function() {
+    var init_buttons = function () {
       if (settings.editable) {
-        buttons.save = (function() {
+        buttons.save = (function () {
           calendar.container
             .find('.fc-header-right')
             .append('<span class="hg-fc-button save-schedule">Save</span>');
           var button = calendar.container.find('.save-schedule');
-          button.enable = function(label) {
+          button.enable = function (label) {
             $(this).removeClass('fc-state-disabled');
             button.setlabel(label);
           };
-          button.setlabel = function(label) {
+          button.setlabel = function (label) {
             if (typeof label == 'string') $(this).text(label);
           };
-          button.disable = function(label) {
+          button.disable = function (label) {
             $(this).addClass('fc-state-disabled');
             button.setlabel(label);
           };
-          button.disabled = function() {
+          button.disabled = function () {
             return $(this).hasClass('fc-state-disabled');
           };
-          button.click(function() {
+          button.click(function () {
             if (!button.disabled()) events.save();
           });
           button.disable('Saved');
@@ -535,20 +545,20 @@ $(function() {
         .addClass('fc-button fc-state-default fc-corner-left fc-corner-right')
         .attr('unselectable', 'on')
         .hover(
-          function() {
+          function () {
             $(this).addClass('fc-state-hover');
           },
-          function() {
+          function () {
             $(this).removeClass('fc-state-hover');
           }
         );
     };
 
-    obj.render = function() {
+    obj.render = function () {
       calendar.container.fullCalendar('render');
     };
 
-    var init_autosave = function() {
+    var init_autosave = function () {
       if (settings.editable) {
         calendar.container
           .find('.fc-header-right')
@@ -557,7 +567,7 @@ $(function() {
           );
         var autosaver = calendar.container.find('.autosave');
         autosaver.prop('checked', events.autosave);
-        autosaver.change(function() {
+        autosaver.change(function () {
           events.autosave = $(this).is(':checked');
         });
       }
@@ -567,7 +577,7 @@ $(function() {
 
     return obj;
   })();
-  var events = (function() {
+  var events = (function () {
     var events = {
       current: null,
       autosave: true,
@@ -580,7 +590,7 @@ $(function() {
         proposal_id: null,
         speaker: null,
       },
-      add_obj_data: function(event) {
+      add_obj_data: function (event) {
         if (typeof event != 'undefined') this.current = event;
         if (this.current) {
           obj_data = $.extend({}, this.init_obj);
@@ -590,7 +600,7 @@ $(function() {
           this.update_properties();
         }
       },
-      update_obj_data: function(obj, event) {
+      update_obj_data: function (obj, event) {
         if (typeof event != 'undefined') this.current = event;
         if (typeof obj != 'object') return;
         if (this.current) {
@@ -604,7 +614,7 @@ $(function() {
           this.update_properties();
         }
       },
-      update_properties: function(event) {
+      update_properties: function (event) {
         if (typeof event != 'undefined') this.current = event;
         if (this.current.obj_data.is_break) {
           this.current.color = BREAK_EVENTS_COLOR;
@@ -620,7 +630,7 @@ $(function() {
           delete this.current.textColor;
         }
       },
-      update_time: function(event) {
+      update_time: function (event) {
         if (typeof event != 'undefined') this.current = event;
         if (this.current) {
           var stripTimeZoneEnd = moment(this.current.end)
@@ -638,15 +648,11 @@ $(function() {
             .format();
         }
       },
-      height: function(ht) {
+      height: function (ht) {
         if (settings.editable) unscheduled_events.container.height(ht);
       },
-      onClick: function(event, jsEvent, view) {
-        if (
-          !$(jsEvent.target)
-            .parent()
-            .hasClass('fc-event-custom')
-        ) {
+      onClick: function (event, jsEvent, view) {
+        if (!$(jsEvent.target).parent().hasClass('fc-event-custom')) {
           events.current = event;
           popup.open();
         }
@@ -654,13 +660,13 @@ $(function() {
     };
 
     if (settings.editable) {
-      events.onChange = function(event, jsEvent, ui, view) {
+      events.onChange = function (event, jsEvent, ui, view) {
         event.saved = false;
         events.update_time(event);
         calendar.buttons.save.enable('Save');
         if (events.autosave) events.save();
       };
-      events.save = function() {
+      events.save = function () {
         calendar.buttons.save.disable('Saving...');
         var event_list = calendar.events('unsaved');
         var e = [];
@@ -671,11 +677,11 @@ $(function() {
           url: UPDATE_URL,
           type: 'POST',
           data: [{ name: 'sessions', value: JSON.stringify(e) }],
-          success: function(result) {
+          success: function (result) {
             for (event in event_list) event_list[event].saved = true;
             calendar.buttons.save.disable('Saved');
           },
-          complete: function(xhr, type) {
+          complete: function (xhr, type) {
             if (type == 'error' || type == 'timeout') {
               calendar.buttons.save.enable('Save');
               toastr.error(
@@ -690,7 +696,7 @@ $(function() {
 
       var unscheduled_events = {
         container: $('#proposals-tab #list'),
-        add: function(element) {
+        add: function (element) {
           element.draggable(this.options.draggable);
           element.data('info', {
             saved: false,
@@ -707,7 +713,7 @@ $(function() {
             appendTo: 'body',
           },
         },
-        create: function(title, modal_url) {
+        create: function (title, modal_url) {
           unscheduled_events.container.prepend(
             '<div class="js-unscheduled proposal-box" data-modal-url="' +
               modal_url +
@@ -720,7 +726,7 @@ $(function() {
           );
         },
       };
-      unscheduled_events.container.find('.js-unscheduled').each(function() {
+      unscheduled_events.container.find('.js-unscheduled').each(function () {
         unscheduled_events.add($(this));
       });
 
@@ -778,16 +784,14 @@ $(function() {
     calendar.init(scheduled);
   }
 
-  $('#select-date').on('change', function() {
+  $('#select-date').on('change', function () {
     var selectedDate = $('#select-date').val();
     from_date = moment.tz(selectedDate, TIMEZONE).format();
-    to_date = moment(from_date)
-      .add(2, 'day')
-      .format();
+    to_date = moment(from_date).add(2, 'day').format();
     scheduleWidgetInit();
   });
 
-  (function() {
+  (function () {
     settings.init();
     if (from_date) {
       document.getElementById('select-date').value = getDateProjectTZ(
