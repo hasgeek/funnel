@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block top_title %}
-  {% if project.schedule_state.PUBLISHED and not project.schedule_start_at %}
+  {% if project.features.schedule_publish_alert() %}
     <div class="alert alert--warning">
       <p class="alert__text">This project will not be listed as it has no sessions in the schedule</p>
     </div>

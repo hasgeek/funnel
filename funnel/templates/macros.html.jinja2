@@ -96,7 +96,7 @@
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
-      {% if project.view_for('edit').is_available() and project.schedule_state.PUBLISHED and not project.schedule_start_at %}
+      {% if project.view_for('edit').is_available() and project.features.schedule_publish_alert() %}
         <div class="grid__col-sm-12">
           <div class="alert alert--warning">
             <p class="alert__text">This project will not be listed as it has no sessions in the schedule</p>
