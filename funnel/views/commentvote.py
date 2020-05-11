@@ -116,19 +116,16 @@ class CommentsetView(UrlForView, ModelView):
             else:
                 comment = Comment(
                     user=current_auth.user,
-                    commentset=self.obj.parent.commentset,
+                    commentset=self.obj,
                     message=commentform.message.data,
                 )
                 if commentform.parent_id.data:
                     parent_comment = Comment.query.filter_by(
                         uuid_b58=commentform.parent_id.data
                     ).first_or_404()
-                    if (
-                        parent_comment
-                        and self.obj.commentset == parent_comment.commentset
-                    ):
+                    if parent_comment and self.obj == parent_comment.commentset:
                         comment.parent = parent_comment
-                parent_comment.commentset.count += 1
+                self.obj.count += 1
                 comment.voteset.vote(current_auth.user)  # Vote for your own comment
                 db.session.add(comment)
                 flash(_("Your comment has been posted"), 'info')
