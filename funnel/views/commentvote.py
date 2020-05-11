@@ -2,11 +2,10 @@
 
 from collections import namedtuple
 
-from flask import abort, flash, jsonify, redirect, url_for
+from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
-from coaster.utils import utcnow
 from coaster.views import ModelView, UrlForView, jsonp, requires_permission, route
 
 from .. import app, funnelapp
@@ -86,7 +85,8 @@ class CommentsetView(UrlForView, ModelView):
         'commentset': 'uuid_b58',
     }
 
-    def loader(self, profile=None, commentset=None):
+    def loader(self, commentset, profile=None):
+        # `profile` remains for funnelapp even though it's not used.
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
     @route('new', methods=['POST'])
@@ -96,7 +96,7 @@ class CommentsetView(UrlForView, ModelView):
         # TODO: Make this endpoint support AJAX.
 
         if self.obj.parent is None:
-            return redirect(url_for('IndexView_home'))
+            return redirect('/')
 
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
@@ -125,7 +125,7 @@ class CommentsetView(UrlForView, ModelView):
         return redirect(self.obj.parent_commentset_url, code=303)
 
 
-@route('/comments', subdomain='<profile>')
+@route('/comments/<commentset>', subdomain='<profile>')
 class FunnelCommentsetView(CommentsetView):
     pass
 
@@ -143,12 +143,11 @@ class CommentView(UrlForView, ModelView):
     }
 
     def loader(self, commentset, comment):
-        commentset = Commentset.query.filter(
-            Commentset.uuid_b58 == commentset
-        ).one_or_404()
-        comment = Comment.query.filter(
-            Comment.commentset == commentset, Comment.uuid_b58 == comment
-        ).one_or_404()
+        comment = (
+            Comment.query.join(Commentset)
+            .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
+            .one_or_404()
+        )
         return comment
 
     @route('')
@@ -172,7 +171,7 @@ class CommentView(UrlForView, ModelView):
         if commentform.validate_on_submit():
             if self.obj.current_roles.author:
                 self.obj.message = commentform.message.data
-                self.obj.edited_at = utcnow()
+                self.obj.edited_at = db.func.utcnow()
                 flash(_("Your comment has been edited"), 'info')
             else:
                 flash(_("You can only edit your own comments"), 'info')

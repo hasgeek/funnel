@@ -134,7 +134,8 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     def permissions(self, user, inherited=None):
         perms = super().permissions(user, inherited)
         if user is not None:
-            perms.update({'new_comment', 'vote_comment'})
+            perms.add('new_comment')
+            perms.add('vote_comment')
         return perms
 
 

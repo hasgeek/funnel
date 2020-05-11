@@ -51,6 +51,7 @@ from ..models import (
     Proposal,
     Rsvp,
     SavedProject,
+    Voteset,
     db,
 )
 from .decorators import legacy_redirect
@@ -496,17 +497,18 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project_save_form': project_save_form,
         }
 
-    @route('comments', methods=['GET', 'POST'])
+    @route('comments', methods=['GET'])
     @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
         project_save_form = SavedProjectForm()
-        comments = sorted(
-            Comment.query.filter_by(commentset=self.obj.commentset, parent=None)
-            .order_by('created_at')
-            .all(),
-            key=lambda c: c.voteset.count,
-            reverse=True,
+        comments = (
+            Comment.query.join(Voteset)
+            .filter(
+                Comment.commentset == self.obj.commentset, Comment.parent == None
+            )  # NOQA
+            .order_by(Voteset.count, Comment.created_at.desc())
+            .all()
         )
         commentform = CommentForm(model=Comment)
         delcommentform = CommentDeleteForm()
