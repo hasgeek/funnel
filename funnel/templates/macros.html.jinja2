@@ -99,7 +99,7 @@
       {% if project.view_for('edit').is_available() and project.schedule_state.PUBLISHED and not project.schedule_start_at %}
         <div class="grid__col-sm-12">
           <div class="alert alert--warning">
-            <p class="alert__text">Please add session to the schedule for the project to be listed on the profile and homepage.</p>
+            <p class="alert__text">This project will not be listed as it has no sessions in the schedule</p>
           </div>
         </div>
       {% endif %}

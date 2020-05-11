@@ -14,7 +14,7 @@
 {% block top_title %}
   {% if project.schedule_state.PUBLISHED and not project.schedule_start_at %}
     <div class="alert alert--warning">
-      <p class="alert__text">Please add session to the schedule for the project to be listed on the profile and homepage.</p>
+      <p class="alert__text">This project will not be listed as it has no sessions in the schedule</p>
     </div>
   {% endif %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
