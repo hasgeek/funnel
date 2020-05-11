@@ -116,18 +116,18 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     @property
     def parent(self):
         parent = None  # project or proposal object
-        if hasattr(self, 'project') and self.project:
+        if self.project is not None:
             parent = self.project
-        elif hasattr(self, 'proposal') and self.proposal:
+        elif self.proposal is not None:
             parent = self.proposal
         return parent
 
     @property
     def parent_commentset_url(self):
         url = None  # project or proposal object
-        if hasattr(self, 'project') and self.project:
-            url = self.project.url_for('project_comments', _external=True)
-        elif hasattr(self, 'proposal') and self.proposal:
+        if self.project is not None:
+            url = self.project.url_for('comments', _external=True)
+        elif self.proposal is not None:
             url = self.proposal.url_for(_external=True)
         return url
 

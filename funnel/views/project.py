@@ -500,7 +500,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @render_with('project_comments.html.jinja2')
     @requires_login
     @requires_roles({'reader'})
-    def project_comments(self):
+    def comments(self):
         project_save_form = SavedProjectForm()
         comments = sorted(
             Comment.query.filter_by(commentset=self.obj.commentset, parent=None)
