@@ -498,7 +498,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
 
     @route('comments', methods=['GET', 'POST'])
     @render_with('project_comments.html.jinja2')
-    @requires_login
     @requires_roles({'reader'})
     def comments(self):
         project_save_form = SavedProjectForm()

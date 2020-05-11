@@ -2900,6 +2900,12 @@ html.touch .collapsible__body--disable {
 .comments-form .CodeMirror-focused {
   border: 1px solid #4a90e2;
 }
+.comments-form .mui-form__fields {
+  margin-bottom: 0;
+}
+.comments-form .recaptcha-field {
+  height: 0;
+}
 
 .proposal-list-header {
   margin: 1px 0 0;

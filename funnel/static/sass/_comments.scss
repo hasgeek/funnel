@@ -31,4 +31,10 @@
   .CodeMirror-focused {
     border: 1px solid #4a90e2;
   }
+  .mui-form__fields {
+    margin-bottom: 0;
+  }
+  .recaptcha-field {
+    height: 0;
+  }
 }

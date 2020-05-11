@@ -473,7 +473,7 @@ TableSearch.prototype.searchRows = function (q) {
 };
 
 export const Comments = {
-  init(pageURL) {
+  init() {
     $('.comment .js-collapse').click(function () {
       $(this).addClass('mui--hide');
       $(this).siblings('.js-uncollapse').removeClass('mui--hide');
@@ -531,8 +531,10 @@ export const Comments = {
     $('.comment .js-comment-edit').click(function () {
       const cfooter = $(this).parent();
       const cid = cfooter.attr('data-id');
+      const csetid = cfooter.attr('data-commentset-id');
+      const baseUrl = window.location.origin;
       $('#comment-form textarea').val('Loading...'); // i18n gotcha
-      $.getJSON(`${pageURL}/comments/${cid}/json`, (data) => {
+      $.getJSON(`${baseUrl}/comments/${csetid}/${cid}/json`, (data) => {
         $('#comment-form textarea').val(data.message);
       });
       $('#comment-form input[name="parent_id"]').val('');

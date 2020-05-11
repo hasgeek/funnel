@@ -93,12 +93,11 @@ export const LabelsWidget = {
 
 $(() => {
   window.HasGeek.ProposalInit = function ({
-    pageUrl,
     videoWrapper = '',
     videoUrl = '',
   }) {
     Proposal.init();
-    Comments.init(pageUrl);
+    Comments.init();
     LabelsWidget.init();
 
     if (videoWrapper) {

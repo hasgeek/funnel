@@ -1,8 +1,7 @@
-import { Utils, Comments } from './util';
+import { Comments } from './util';
 
 $(() => {
-  window.HasGeek.ProjectCommentsInit = function (pageUrl, sectionId) {
-    Utils.animateScrollTo($(sectionId).offset().top);
+  window.HasGeek.ProjectCommentsInit = function (pageUrl) {
     Comments.init(pageUrl);
   };
 });
