@@ -21,11 +21,6 @@
                 <span class="chip__text">Proposer</span>
               </span>
             {% endif %}
-            {% if not comment.state.DELETED and project.review_team and comment.user in project.review_team.users %}
-              <span class="chip chip--bg-primary">
-                <span class="chip__text">Reviewer</span>
-              </span>
-            {% endif %}
             <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
             {%- if comment.edited_at %}
               <span class="mui--text-caption mui--text-accent">({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})</span>
