@@ -43,7 +43,7 @@
         <div class="grid__col-xs-12">
           {% if comments %}
             <ul class="mui-list--unstyled">
-              {{ commenttree(comments, project.commentset, project, csrf_form) }}
+              {{ commenttree(comments, project.commentset, project, csrf_form, commentform) }}
             </ul>
           {% endif %}
           {{ commentformtemplate(project, commentform, delcommentform, current_auth) }}

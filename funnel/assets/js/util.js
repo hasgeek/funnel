@@ -533,16 +533,17 @@ export const Comments = {
       const cid = cfooter.attr('data-id');
       const csetid = cfooter.attr('data-commentset-id');
       const baseUrl = window.location.origin;
-      $('#comment-form textarea').val('Loading...'); // i18n gotcha
+      const editForm = `#${cid}-comment-form`;
+      $('#comment-form').addClass('mui--hide');
+      $(editForm).removeClass('mui--hide');
+      $(`${editForm} textarea`).val('Loading...'); // i18n gotcha
       $.getJSON(`${baseUrl}/comments/${csetid}/${cid}/json`, (data) => {
-        $('#comment-form textarea').val(data.message);
+        $(`#${cid}-comment-form textarea`).val(data.message);
       });
-      $('#comment-form input[name="parent_id"]').val('');
-      $('#comment-form input[name="comment_edit_id"]').val(cid);
+      $(`${editForm} input[name="parent_id"]`).val('');
+      $(`${editForm} input[name="comment_edit_id"]`).val(cid);
       $('#toplevel-comment').removeClass('mui--hide');
-      $('#comment-submit').val('Save changes'); // i18n gotcha
-      cfooter.after($('#comment-form'));
-      $('#comment-form textarea').focus();
+      $(`${editForm} textarea`).focus();
       return false;
     });
   },

@@ -1,7 +1,7 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 
-{% macro commenttree(comments, document, project, csrf_form) %}
+{% macro commenttree(comments, document, project, csrf_form, commentform) %}
 {%- for comment in comments %}
   <li class="comment">
     <div id="c{{ comment.uuid_b58 }}">
@@ -44,9 +44,18 @@
             {% if comment.parent %}<a aria-label="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.uuid_b58 }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
           </div>
         </div>
+        <form method="POST" id="{{ comment.uuid_b58 }}-comment-form" action="{{ comment.url_for('edit') }}" class="mui-form comments-form reply-comment-form mui--hide">
+          <div class="mui--hide">
+            <input type="hidden" name="form.id" value="editcomment"/>
+            {{ commentform.hidden_tag() }}
+          </div>
+          {{ renderfield(commentform.message, nolabel=true) }}
+          {{ renderfield(commentform.recaptcha, nolabel=true, css_class='recaptcha-field') }}
+          <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Save changes{% endtrans %}"/>
+        </form>
         {% if comment.children %}
           <ul class="mui-list--aligned mui-list--unstyled comment--children">
-            {{ commenttree(comment.sorted_children(), document, project, csrf_form) }}
+            {{ commenttree(comment.sorted_children(), document, project, csrf_form, commentform) }}
           </ul>
         {% endif %}
       </div>
