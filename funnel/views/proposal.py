@@ -88,7 +88,7 @@ def proposal_data(proposal):
             ('outline_html', proposal.outline.html),
             ('requirements_text', proposal.requirements.text),
             ('requirements_html', proposal.requirements.html),
-            ('slides', proposal.slides.url),
+            ('slides', proposal.slides.url if proposal.slides else ''),
             ('links', proposal.links),
             ('video', proposal.video),
             ('bio', proposal.bio.html),
