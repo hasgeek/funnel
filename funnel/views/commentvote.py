@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from flask import abort, flash, jsonify, redirect, render_template, url_for
+from flask import abort, flash, jsonify, redirect, url_for
 
 from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
@@ -13,7 +13,7 @@ from .. import app, funnelapp
 from ..forms import CommentDeleteForm, CommentForm
 from ..models import Comment, Commentset, Proposal, db
 from .decorators import legacy_redirect
-from .helpers import requires_login, send_mail
+from .helpers import requires_login
 from .mixins import ProposalViewMixin
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
@@ -95,18 +95,11 @@ class CommentsetView(UrlForView, ModelView):
     def new_comment(self):
         # TODO: Make this endpoint support AJAX.
 
-        host_obj = None  # project or proposal object
-        if hasattr(self.obj, 'project'):
-            host_obj = self.obj.project
-        elif hasattr(self.obj, 'proposal'):
-            host_obj = self.obj.proposal
-        else:
+        if self.obj.parent is None:
             return redirect(url_for('IndexView_home'))
 
-        to_redirect = host_obj.url_for(_external=True)
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
-            send_mail_info = []
             if commentform.comment_edit_id.data:
                 comment = Comment.query.filter_by(
                     uuid_b58=commentform.comment_edit_id.data
@@ -123,156 +116,29 @@ class CommentsetView(UrlForView, ModelView):
             else:
                 comment = Comment(
                     user=current_auth.user,
-                    commentset=host_obj.commentset,
+                    commentset=self.obj.parent.commentset,
                     message=commentform.message.data,
                 )
                 if commentform.parent_id.data:
-                    parent = Comment.query.filter_by(
+                    parent_comment = Comment.query.filter_by(
                         uuid_b58=commentform.parent_id.data
                     ).first_or_404()
-                    if parent.user.email:
-                        # FIXME: https://github.com/hasgeek/funnel/pull/324#discussion_r241270403
-                        if parent.user == host_obj.owner:
-                            # parent comment is by the proposal owner
-                            if not parent.user == current_auth.user:
-                                # parent comment is not by the curernt user
-                                send_mail_info.append(
-                                    {
-                                        'to': str(self.obj.owner.email)
-                                        or str(self.obj.email),
-                                        'subject': "💬 {project}: {proposal}".format(
-                                            project=self.obj.project.title,
-                                            proposal=self.obj.title,
-                                        ),
-                                        'template': 'proposal_comment_reply_email.md.jinja2',
-                                    }
-                                )
-                        else:
-                            if not parent.user == current_auth.user:
-                                # send mail to parent comment owner
-                                send_mail_info.append(
-                                    {
-                                        'to': str(parent.user.email),
-                                        'subject': "💬 {project}: {proposal}".format(
-                                            project=self.obj.project.title,
-                                            proposal=self.obj.title,
-                                        ),
-                                        'template': 'proposal_comment_to_proposer_email.md.jinja2',
-                                    }
-                                )
-                            if not self.obj.owner == current_auth.user:
-                                # send mail to proposal owner
-                                send_mail_info.append(
-                                    {
-                                        'to': str(self.obj.owner.email)
-                                        or str(self.obj.email),
-                                        'subject': "💬 {project}: {proposal}".format(
-                                            project=self.obj.project.title,
-                                            proposal=self.obj.title,
-                                        ),
-                                        'template': 'proposal_comment_email.md.jinja2',
-                                    }
-                                )
-
-                    if parent and parent.commentset == self.obj.commentset:
-                        comment.parent = parent
-                else:  # for top level comment
-                    if not self.obj.owner == current_auth.user:
-                        send_mail_info.append(
-                            {
-                                'to': str(self.obj.owner.email) or str(self.obj.email),
-                                'subject': "💬 {project}: {proposal}".format(
-                                    project=self.obj.project.title,
-                                    proposal=self.obj.title,
-                                ),
-                                'template': 'proposal_comment_email.md.jinja2',
-                            }
-                        )
-                self.obj.commentset.count += 1
+                    if (
+                        parent_comment
+                        and self.obj.commentset == parent_comment.commentset
+                    ):
+                        comment.parent = parent_comment
+                parent_comment.commentset.count += 1
                 comment.voteset.vote(current_auth.user)  # Vote for your own comment
                 db.session.add(comment)
                 flash(_("Your comment has been posted"), 'info')
             db.session.commit()
-            for item in send_mail_info:
-                email_body = render_template(
-                    item.pop('template'),
-                    proposal=self.obj,
-                    comment=comment,
-                    link=to_redirect,
-                )
-                if item.get('to'):
-                    # Sender is set to None to prevent revealing email.
-                    send_mail(sender=None, body=email_body, **item)
         else:
             for error in commentform.get_verbose_errors():
                 flash(error, category='error')
         # Redirect despite this being the same page because HTTP 303 is required
         # to not break the browser Back button.
-        return redirect(to_redirect, code=303)
-
-    @route('<uuid_b58>/json')
-    @requires_permission('view')
-    def view_comment_json(self):
-        return jsonp(message=self.obj.comment.message.text)
-
-    @route('<uuid_b58>/delete', methods=['POST'])
-    @requires_login
-    @requires_permission('delete_comment')
-    def delete_comment(self):
-        delcommentform = CommentDeleteForm(comment_id=self.obj.comment.id)
-        if delcommentform.validate_on_submit():
-            self.obj.comment.delete()
-            self.obj.proposal.commentset.count -= 1
-            db.session.commit()
-            flash(_("Your comment was deleted"), 'info')
-        else:
-            flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(self.obj.proposal.url_for(), code=303)
-
-    @route('<uuid_b58>/voteup', methods=['POST'])
-    @requires_login
-    @requires_permission('vote_comment')
-    def voteup_comment(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.comment.voteset.vote(current_auth.user, votedown=False)
-        db.session.commit()
-        message = _("Your vote has been recorded")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.proposal.url_for(), code=303)
-
-    @route('<uuid_b58>/votedown', methods=['POST'])
-    @requires_login
-    @requires_permission('vote_comment')
-    def votedown_comment(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.comment.voteset.vote(current_auth.user, votedown=True)
-        db.session.commit()
-        message = _("Your vote has been recorded")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.proposal.url_for(), code=303)
-
-    @route('<uuid_b58>/delete_vote', methods=['POST'])
-    @requires_login
-    @requires_permission('vote_comment')
-    def delete_comment_vote(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.comment.voteset.cancelvote(current_auth.user)
-        db.session.commit()
-        message = _("Your vote has been withdrawn")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.proposal.url_for(), code=303)
+        return redirect(self.obj.parent_commentset_url, code=303)
 
 
 @route('/comments', subdomain='<profile>')
@@ -282,3 +148,114 @@ class FunnelCommentsetView(CommentsetView):
 
 CommentsetView.init_app(app)
 FunnelCommentsetView.init_app(funnelapp)
+
+
+@route('/comments/<commentset>/<comment>')
+class CommentView(UrlForView, ModelView):
+    model = Comment
+    route_model_map = {
+        'commentset': 'commentset.uuid_b58',
+        'comment': 'uuid_b58',
+    }
+
+    def loader(self, commentset, comment):
+        commentset = Commentset.query.filter(
+            Commentset.uuid_b58 == commentset
+        ).one_or_404()
+        comment = Comment.query.filter(
+            Comment.commentset == commentset, Comment.uuid_b58 == comment
+        ).one_or_404()
+        return comment
+
+    @route('json')
+    @requires_permission('view')
+    def view_json(self):
+        return jsonp(message=self.obj.message.text)
+
+    @route('edit', methods=['POST'])
+    @requires_login
+    @requires_permission('edit_comment')
+    def edit(self):
+        commentform = CommentForm(model=Comment)
+        if commentform.validate_on_submit():
+            if self.obj.current_roles.author:
+                self.obj.message = commentform.message.data
+                self.obj.edited_at = utcnow()
+                flash(_("Your comment has been edited"), 'info')
+            else:
+                flash(_("You can only edit your own comments"), 'info')
+            db.session.commit()
+        else:
+            for error in commentform.get_verbose_errors():
+                flash(error, category='error')
+        # Redirect despite this being the same page because HTTP 303 is required
+        # to not break the browser Back button.
+        return redirect(self.obj.commentset.parent_commentset_url, code=303)
+
+    @route('delete', methods=['POST'])
+    @requires_login
+    @requires_permission('delete_comment')
+    def delete(self):
+        delcommentform = CommentDeleteForm(comment_id=self.obj.id)
+        if delcommentform.validate_on_submit():
+            self.obj.delete()
+            self.obj.proposal.commentset.count -= 1
+            db.session.commit()
+            flash(_("Your comment was deleted"), 'info')
+        else:
+            flash(_("Your comment could not be deleted"), 'danger')
+        return redirect(self.obj.proposal.url_for(), code=303)
+
+    @route('voteup', methods=['POST'])
+    @requires_login
+    @requires_permission('vote_comment')
+    def voteup(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.vote(current_auth.user, votedown=False)
+        db.session.commit()
+        message = _("Your vote has been recorded")
+        if request_is_xhr():
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.obj.proposal.url_for(), code=303)
+
+    @route('votedown', methods=['POST'])
+    @requires_login
+    @requires_permission('vote_comment')
+    def votedown(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.vote(current_auth.user, votedown=True)
+        db.session.commit()
+        message = _("Your vote has been recorded")
+        if request_is_xhr():
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.obj.proposal.url_for(), code=303)
+
+    @route('delete_vote', methods=['POST'])
+    @requires_login
+    @requires_permission('vote_comment')
+    def delete_vote(self):
+        csrf_form = forms.Form()
+        if not csrf_form.validate_on_submit():
+            abort(403)
+        self.obj.voteset.cancelvote(current_auth.user)
+        db.session.commit()
+        message = _("Your vote has been withdrawn")
+        if request_is_xhr():
+            return jsonify(message=message, code=200)
+        flash(message, 'info')
+        return redirect(self.obj.proposal.url_for(), code=303)
+
+
+@route('/comments/<commentset>/<comment>', subdomain='<profile>')
+class FunnelCommentView(CommentView):
+    pass
+
+
+CommentView.init_app(app)
+FunnelCommentView.init_app(funnelapp)

@@ -113,6 +113,30 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         super(Commentset, self).__init__(**kwargs)
         self.count = 0
 
+    @property
+    def parent(self):
+        parent = None  # project or proposal object
+        if hasattr(self, 'project') and self.project:
+            parent = self.project
+        elif hasattr(self, 'proposal') and self.proposal:
+            parent = self.proposal
+        return parent
+
+    @property
+    def parent_commentset_url(self):
+        url = None  # project or proposal object
+        if hasattr(self, 'project') and self.project:
+            url = self.project.url_for('discussions', _external=True)
+        elif hasattr(self, 'proposal') and self.proposal:
+            url = self.proposal.url_for(_external=True)
+        return url
+
+    def permissions(self, user, inherited=None):
+        perms = super().permissions(user, inherited)
+        if user is not None:
+            perms.update({'new_comment', 'vote_comment'})
+        return perms
+
 
 class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'

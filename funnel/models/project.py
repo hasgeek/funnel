@@ -136,7 +136,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     voteset = db.relationship(Voteset, uselist=False)
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(Commentset, uselist=False)
+    commentset = db.relationship(
+        Commentset,
+        uselist=False,
+        lazy='joined',
+        cascade='all',
+        single_parent=True,
+        backref=db.backref("project", uselist=False),
+    )
 
     parent_id = db.Column(
         None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
