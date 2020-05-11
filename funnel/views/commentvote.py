@@ -196,12 +196,12 @@ class CommentView(UrlForView, ModelView):
         delcommentform = CommentDeleteForm(comment_id=self.obj.id)
         if delcommentform.validate_on_submit():
             self.obj.delete()
-            self.obj.proposal.commentset.count -= 1
+            self.obj.commentset.count -= 1
             db.session.commit()
             flash(_("Your comment was deleted"), 'info')
         else:
             flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(self.obj.proposal.url_for(), code=303)
+        return redirect(self.obj.commentset.parent_commentset_url, code=303)
 
     @route('voteup', methods=['POST'])
     @requires_login
@@ -216,7 +216,7 @@ class CommentView(UrlForView, ModelView):
         if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.obj.proposal.url_for(), code=303)
+        return redirect(self.obj.commentset.parent_commentset_url, code=303)
 
     @route('votedown', methods=['POST'])
     @requires_login
@@ -231,7 +231,7 @@ class CommentView(UrlForView, ModelView):
         if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.obj.proposal.url_for(), code=303)
+        return redirect(self.obj.commentset.parent_commentset_url, code=303)
 
     @route('delete_vote', methods=['POST'])
     @requires_login
@@ -246,7 +246,7 @@ class CommentView(UrlForView, ModelView):
         if request_is_xhr():
             return jsonify(message=message, code=200)
         flash(message, 'info')
-        return redirect(self.obj.proposal.url_for(), code=303)
+        return redirect(self.obj.commentset.parent_commentset_url, code=303)
 
 
 @route('/comments/<commentset>/<comment>', subdomain='<profile>')
