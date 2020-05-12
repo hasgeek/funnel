@@ -411,12 +411,10 @@ def user_autocomplete():
     validate_rate_limit(
         # As this endpoint accepts client_id+user_session in lieu of login cookie,
         # we may not have an authenticatd user. Use the user_session's user in that case
-        'user_autocomplete/'
-        + (
-            current_auth.actor.uuid_b58
-            if current_auth.actor
-            else current_auth.session.user.uuid_b58
-        ),
+        'user_autocomplete',
+        current_auth.actor.uuid_b58
+        if current_auth.actor
+        else current_auth.session.user.uuid_b58,
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
