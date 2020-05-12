@@ -123,7 +123,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         return parent
 
     @property
-    def parent_commentset_url(self):
+    def parent_comments_url(self):
         url = None  # project or proposal object
         if self.project is not None:
             url = self.project.url_for('comments', _external=True)

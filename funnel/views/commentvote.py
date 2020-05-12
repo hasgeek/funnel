@@ -111,7 +111,7 @@ class CommentsetView(UrlForView, ModelView):
                 ).first_or_404()
                 if parent_comment and self.obj == parent_comment.commentset:
                     comment.parent = parent_comment
-            self.obj.count += 1
+            self.obj.count = Commentset.count + 1
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
             db.session.commit()
@@ -122,7 +122,7 @@ class CommentsetView(UrlForView, ModelView):
                 flash(error, category='error')
         # Redirect despite this being the same page because HTTP 303 is required
         # to not break the browser Back button.
-        return redirect(self.obj.parent_commentset_url, code=303)
+        return redirect(self.obj.parent_comments_url, code=303)
 
 
 @route('/comments/<commentset>', subdomain='<profile>')
@@ -154,7 +154,7 @@ class CommentView(UrlForView, ModelView):
     @requires_permission('view')
     def view(self):
         return redirect(
-            self.obj.commentset.parent_commentset_url + "#c" + self.obj.uuid_b58,
+            self.obj.commentset.parent_comments_url + "#c" + self.obj.uuid_b58,
             code=303,
         )
 
@@ -191,12 +191,12 @@ class CommentView(UrlForView, ModelView):
         delcommentform = CommentDeleteForm(comment_id=self.obj.id)
         if delcommentform.validate_on_submit():
             self.obj.delete()
-            commentset.count -= 1
+            commentset.count = Commentset.count - 1
             db.session.commit()
             flash(_("Your comment was deleted"), 'info')
         else:
             flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(commentset.parent_commentset_url, code=303)
+        return redirect(commentset.parent_comments_url, code=303)
 
     @route('voteup', methods=['POST'])
     @requires_login
