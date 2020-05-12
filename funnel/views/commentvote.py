@@ -122,7 +122,7 @@ class CommentsetView(UrlForView, ModelView):
                 flash(error, category='error')
         # Redirect despite this being the same page because HTTP 303 is required
         # to not break the browser Back button.
-        return redirect(self.obj.parent_comments_url, code=303)
+        return redirect(self.obj.views.url(), code=303)
 
 
 @route('/comments/<commentset>', subdomain='<profile>')
@@ -153,10 +153,7 @@ class CommentView(UrlForView, ModelView):
     @route('')
     @requires_permission('view')
     def view(self):
-        return redirect(
-            self.obj.commentset.parent_comments_url + "#c" + self.obj.uuid_b58,
-            code=303,
-        )
+        return redirect(self.obj.views.url(), code=303,)
 
     @route('json')
     @requires_permission('view')
@@ -196,7 +193,7 @@ class CommentView(UrlForView, ModelView):
             flash(_("Your comment was deleted"), 'info')
         else:
             flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(commentset.parent_comments_url, code=303)
+        return redirect(commentset.views.url(), code=303)
 
     @route('voteup', methods=['POST'])
     @requires_login

@@ -122,21 +122,22 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             parent = self.proposal
         return parent
 
-    @property
-    def parent_comments_url(self):
-        url = None  # project or proposal object
-        if self.project is not None:
-            url = self.project.url_for('comments', _external=True)
-        elif self.proposal is not None:
-            url = self.proposal.url_for(_external=True)
-        return url
-
     def permissions(self, user, inherited=None):
         perms = super().permissions(user, inherited)
         if user is not None:
             perms.add('new_comment')
             perms.add('vote_comment')
         return perms
+
+
+@Commentset.views('url')
+def parent_comments_url(obj):
+    url = None  # project or proposal object
+    if obj.project is not None:
+        url = obj.project.url_for('comments', _external=True)
+    elif obj.proposal is not None:
+        url = obj.proposal.url_for(_external=True)
+    return url
 
 
 class Comment(UuidMixin, BaseMixin, db.Model):
@@ -265,3 +266,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
 
 add_search_trigger(Comment, 'search_vector')
+
+
+@Comment.views('url')
+def comment_url(obj):
+    url = None
+    commentset_url = obj.commentset.views.url()
+    if commentset_url is not None:
+        url = commentset_url + '#c' + obj.uuid_b58
+    return url
