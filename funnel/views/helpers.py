@@ -22,7 +22,7 @@ from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
 
-from baseframe import _, cache
+from baseframe import _, cache, statsd
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.gfm import markdown
 from coaster.utils import utcnow
@@ -493,7 +493,9 @@ def set_loginmethod_cookie(response, value):
     return response
 
 
-def validate_rate_limit(identifier, attempts, timeout, token=None, validator=None):
+def validate_rate_limit(
+    resource, identifier, attempts, timeout, token=None, validator=None
+):
     """
     Confirm the rate limit has not been reached for the given string identifier, number
     of attempts, and timeout period. Uses a simple limiter: once the number of attempts
@@ -511,15 +513,18 @@ def validate_rate_limit(identifier, attempts, timeout, token=None, validator=Non
     For an example of how the token and validator are used, see the user_autocomplete
     endpoint in views/auth_resource.py
     """
-    cache_key = 'rate_limit/v1/' + identifier
+    statsd.set('rate_limit', identifier, rate=1, tags={'resource': resource})
+    cache_key = 'rate_limit/v1/%s/%s' % (resource, identifier)
     cache_value = cache.get(cache_key)
     if cache_value is None:
         count, cache_token = None, None
+        statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 201})
     else:
         count, cache_token = cache_value
     if not count or not isinstance(count, int):
         count = 0
     if count >= attempts:
+        statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 429})
         abort(429)
     if validator is not None:
         result, retain_token = validator(cache_token)
@@ -527,24 +532,32 @@ def validate_rate_limit(identifier, attempts, timeout, token=None, validator=Non
             token = cache_token
         if result:
             current_app.logger.debug(
-                "Rate limit +1 (validated with %s, retain %r) for %s",
+                "Rate limit +1 (validated with %s, retain %r) for %s/%s",
                 cache_token,
                 retain_token,
+                resource,
                 identifier,
             )
             count += 1
+            statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 200})
         else:
             current_app.logger.debug(
-                "Rate limit +0 (validated with %s, retain %r) for %s",
+                "Rate limit +0 (validated with %s, retain %r) for %s/%s",
                 cache_token,
                 retain_token,
+                resource,
                 identifier,
             )
     else:
-        current_app.logger.debug("Rate limit +1 for %s", identifier)
+        current_app.logger.debug("Rate limit +1 for %s/%s", resource, identifier)
         count += 1
+        statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 200})
     # Always set count, regardless of validator output
     current_app.logger.debug(
-        "Setting rate limit usage for %s to %s with token %s", identifier, count, token
+        "Setting rate limit usage for %s/%s to %s with token %s",
+        resource,
+        identifier,
+        count,
+        token,
     )
     cache.set(cache_key, (count, token), timeout=timeout)

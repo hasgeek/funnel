@@ -105,7 +105,11 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
             else:
                 self.ipaddr = request.remote_addr or ''
                 self.user_agent = str(request.user_agent.string[:250]) or ''
-        statsd.set('users.active_sessions', self.user.uuid_b58, rate=1)
+
+        # Use integer id instead of uuid_b58 here because statsd documentation is
+        # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
+        statsd.set('users.active_sessions', self.id, rate=1)
+        statsd.set('users.active_users', self.user.id, rate=1)
 
     def user_agent_details(self):
         ua = user_agents.parse(self.user_agent)
