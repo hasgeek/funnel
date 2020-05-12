@@ -110,12 +110,10 @@ def login():
             # The rate limit explicitly blocks successful validation, to discourage
             # password guessing.
             validate_rate_limit(
-                'login/'
-                + (
-                    ('user/' + loginform.user.uuid_b58)
-                    if loginform.user
-                    else ('username/' + loginform.username.data)
-                ),
+                'login',
+                ('user/' + loginform.user.uuid_b58)
+                if loginform.user
+                else ('username/' + loginform.username.data),
                 10,
                 3600,
             )
@@ -378,7 +376,7 @@ def reset():
                     ),
                 )
         # Allow only two reset attempts per hour to discourage abuse
-        validate_rate_limit('email_reset/' + user.uuid_b58, 2, 3600)
+        validate_rate_limit('email_reset', user.uuid_b58, 2, 3600)
         resetreq = AuthPasswordResetRequest(user=user)
         db.session.add(resetreq)
         send_password_reset_link(email=email, user=user, secret=resetreq.reset_code)
