@@ -961,6 +961,11 @@ def project_has_tickets_or_rsvp(obj):
     return obj.features.has_tickets() or obj.features.has_rsvp()
 
 
+@Project.features('schedule_no_sessions')
+def project_has_no_sessions(obj):
+    return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
+
+
 class ProjectRedirect(TimestampMixin, db.Model):
     __tablename__ = "project_redirect"
 

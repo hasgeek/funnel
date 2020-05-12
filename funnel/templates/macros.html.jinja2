@@ -1,5 +1,5 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
-{% from "baseframe/components.html.jinja2" import faicon %}
+{% from "baseframe/components.html.jinja2" import faicon, alertbox %}
 
 {% macro calendarwidget(calendar, compact=true) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
@@ -96,6 +96,11 @@
 {% macro project_header(project, project_save_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
+      {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
+        <div class="grid__col-sm-12">
+          {{ alertbox('warning', 'This project will not be listed as it has no sessions in the schedule') }}
+        </div>
+      {% endif %}
       <div class="grid__col-sm-12">
         <div class="profile-details">
           {%- if project.profile.logo_url.url %}
@@ -168,7 +173,7 @@
         <div class="project-details__box--ticketbox">
           {% if not project.schedule_state.PAST %}
             <div class="mui--hidden-xs mui--hidden-sm">
-              <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="tickets">
+              <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="get-tickets">
               {%- if project.features.has_tickets() -%}
                 {% trans %}Get tickets{% endtrans %}
               {%- else %}
