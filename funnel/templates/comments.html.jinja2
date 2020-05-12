@@ -1,7 +1,7 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 
-{% macro commenttree(comments, document, project, csrf_form, commentform) %}
+{% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
   <li class="comment">
     <div id="c{{ comment.uuid_b58 }}">
@@ -48,7 +48,7 @@
         </div>
         {% if comment.children %}
           <ul class="mui-list--aligned mui-list--unstyled comment--children">
-            {{ commenttree(comment.sorted_children(), document, project, csrf_form, commentform) }}
+            {{ commenttree(comment.sorted_children(), document, project, csrf_form) }}
           </ul>
         {% endif %}
       </div>
