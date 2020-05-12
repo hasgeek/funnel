@@ -195,6 +195,14 @@
   padding: 0;
 }
 
+.modal {
+  .mui-form {
+    .mui-select__menu {
+      z-index: 1001;
+    }
+  }
+}
+
 .modal-form {
   min-width: 100%;
   min-height: 325px;

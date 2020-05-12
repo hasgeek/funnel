@@ -32,7 +32,7 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" data-delete-url="{{ comment.url_for('delete') }}" data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
+          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" data-delete-url="{{ comment.url_for('delete') }}" data-edit-url="{{ comment.url_for('edit') }}" data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
               {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}">[Reply]</a>{% endif %}
               {% if comment.current_roles.author %}
@@ -42,17 +42,9 @@
             {%- endif %}
             <a aria-label="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.uuid_b58 }}">[{% trans %}Link{% endtrans %}]</a>
             {% if comment.parent %}<a aria-label="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.uuid_b58 }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
+            <span class="loading mui--hide"></span>
           </div>
         </div>
-        <form method="POST" id="{{ comment.uuid_b58 }}-comment-form" action="{{ comment.url_for('edit') }}" class="mui-form comments-form reply-comment-form mui--hide">
-          <div class="mui--hide">
-            <input type="hidden" name="form.id" value="editcomment"/>
-            {{ commentform.hidden_tag() }}
-          </div>
-          {{ renderfield(commentform.message, nolabel=true) }}
-          {{ renderfield(commentform.recaptcha, nolabel=true, css_class='recaptcha-field') }}
-          <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Save changes{% endtrans %}"/>
-        </form>
         {% if comment.children %}
           <ul class="mui-list--aligned mui-list--unstyled comment--children">
             {{ commenttree(comment.sorted_children(), document, project, csrf_form, commentform) }}
@@ -75,7 +67,7 @@
         <input type="hidden" name="form.id" value="newcomment"/>
         {{ commentform.hidden_tag() }}
       </div>
-      {{ renderfield(commentform.message, nolabel=true) }}
+      {{ renderfield(commentform.message, nolabel=true, css_class='message') }}
       {{ renderfield(commentform.recaptcha, nolabel=true, css_class='recaptcha-field') }}
       <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
     </form>

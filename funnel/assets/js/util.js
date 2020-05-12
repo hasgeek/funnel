@@ -474,6 +474,7 @@ TableSearch.prototype.searchRows = function (q) {
 
 export const Comments = {
   init() {
+    const newCommentUrl = $('#comment-form').attr('action');
     $('.comment .js-collapse').click(function () {
       $(this).addClass('mui--hide');
       $(this).siblings('.js-uncollapse').removeClass('mui--hide');
@@ -502,9 +503,11 @@ export const Comments = {
     });
 
     $('#toplevel-comment a').click(function () {
+      $('#comment-form').attr('action', newCommentUrl);
       $('#comment-form  input[name="parent_id"]').val('');
       $('#comment-form  input[name="comment_edit_id"]').val('');
       $('#comment-submit').val('Post comment'); // i18n gotcha
+      $('#comment-form textarea').val('');
       $(this).parent().after($('#comment-form'));
       $(this).parent().addClass('mui--hide');
       $('#comment-form textarea').focus();
@@ -532,18 +535,18 @@ export const Comments = {
       const cfooter = $(this).parent();
       const cid = cfooter.attr('data-id');
       const editUrl = cfooter.attr('data-json-url');
-      const editForm = `#${cid}-comment-form`;
-      $('#comment-form').addClass('mui--hide');
-      $(editForm).removeClass('mui--hide');
-      $(`${editForm} textarea`).val('Loading...'); // i18n gotcha
+      $(cfooter).find('.loading').removeClass('mui--hide');
+      $('#comment-form').attr('action', cfooter.attr('data-edit-url'));
       $.getJSON(editUrl, (data) => {
-        console.log('data', data);
-        $(`#${cid}-comment-form textarea`).val(data.message);
+        $('#comment-form textarea').val(data.message);
       });
-      $(`${editForm} input[name="parent_id"]`).val('');
-      $(`${editForm} input[name="comment_edit_id"]`).val(cid);
+      $('#comment-form input[name="parent_id"]').val('');
+      $('#comment-form input[name="comment_edit_id"]').val(cid);
       $('#toplevel-comment').removeClass('mui--hide');
-      $(`${editForm} textarea`).focus();
+      $(cfooter).find('.loading').addClass('mui--hide');
+      $('#comment-submit').val('Save changes');
+      cfooter.after($('#comment-form'));
+      $('#comment-form textarea').focus();
       return false;
     });
   },
