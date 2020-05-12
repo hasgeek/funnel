@@ -18,9 +18,10 @@
           {%- else -%}
             <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
             {%- if comment.user == document.user %}
-              <span class="chip chip--bg-accent">
-                <span class="chip__text">Proposer</span>
-              </span>
+              <span class="badge">Proposer</span>
+            {% endif %}
+            {%- if project.crew %}
+              <span class="badge">Crew</span>
             {% endif %}
             <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
             {%- if comment.edited_at %}

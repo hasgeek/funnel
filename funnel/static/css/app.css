@@ -2897,6 +2897,10 @@ html.touch .collapsible__body--disable {
 .comment .mui-btn--nostyle + .mui-btn--nostyle {
   margin-left: 0;
 }
+.comment .badge {
+  margin-left: 2px;
+  margin-right: 2px;
+}
 
 .comments-form .CodeMirror {
   border: 1px solid #c0ccda;
