@@ -6,7 +6,7 @@ from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, jsonp, requires_permission, route
+from coaster.views import ModelView, UrlForView, requires_permission, route
 
 from .. import app, funnelapp
 from ..forms import CommentDeleteForm, CommentForm
@@ -161,7 +161,7 @@ class CommentView(UrlForView, ModelView):
     @route('json')
     @requires_permission('view')
     def view_json(self):
-        return jsonp(message=self.obj.message.text)
+        return jsonify(status=True, message=self.obj.message.text)
 
     @route('edit', methods=['POST'])
     @requires_login

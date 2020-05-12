@@ -32,7 +32,7 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" data-delete-url="{{ comment.url_for('delete') }}" class="comment--footer">
+          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" data-delete-url="{{ comment.url_for('delete') }}" data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
               {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}">[Reply]</a>{% endif %}
               {% if comment.current_roles.author %}
@@ -89,9 +89,8 @@
         {{ delcommentform.comment_id() }}
       </div>
       <p>
-        {% trans %}Really delete this comment?{% endtrans %}&nbsp;
-        <input id="comment-delete-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="{% trans %}Delete{% endtrans %}"/>
-        &nbsp;or&nbsp;<button id="comment-delete-cancel" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" href="#">{% trans %}Cancel{% endtrans %}</button>
+        {% trans %}Delete this comment?{% endtrans %} <input id="comment-delete-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="{% trans %}Delete{% endtrans %}"/>
+        <button id="comment-delete-cancel" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" href="#">{% trans %}Cancel{% endtrans %}</button>
       </p>
     </form>
   {% endif %}

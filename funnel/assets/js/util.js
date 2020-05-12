@@ -531,13 +531,13 @@ export const Comments = {
     $('.comment .js-comment-edit').click(function () {
       const cfooter = $(this).parent();
       const cid = cfooter.attr('data-id');
-      const csetid = cfooter.attr('data-commentset-id');
-      const baseUrl = window.location.origin;
+      const editUrl = cfooter.attr('data-json-url');
       const editForm = `#${cid}-comment-form`;
       $('#comment-form').addClass('mui--hide');
       $(editForm).removeClass('mui--hide');
       $(`${editForm} textarea`).val('Loading...'); // i18n gotcha
-      $.getJSON(`${baseUrl}/comments/${csetid}/${cid}/json`, (data) => {
+      $.getJSON(editUrl, (data) => {
+        console.log('data', data);
         $(`#${cid}-comment-form textarea`).val(data.message);
       });
       $(`${editForm} input[name="parent_id"]`).val('');

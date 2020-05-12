@@ -1,7 +1,8 @@
 {% extends "formlayout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import renderfield, rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{% block title %}Add proposal guidelines and timing{% endblock %}
+{% block title %}{% trans %}Add proposal guidelines and timing{% endtrans %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.tagline|striptags }}{% endif %}{% endblock %}
 
 {% block content %}
   {%- if form.errors %}
