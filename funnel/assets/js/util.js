@@ -475,6 +475,8 @@ TableSearch.prototype.searchRows = function (q) {
 export const Comments = {
   init() {
     const newCommentUrl = $('#comment-form').attr('action');
+    const codemirrorInstance = $('#comment-form .message .CodeMirror')[0]
+      .CodeMirror;
     $('.comment .js-collapse').click(function () {
       $(this).addClass('mui--hide');
       $(this).siblings('.js-uncollapse').removeClass('mui--hide');
@@ -507,7 +509,7 @@ export const Comments = {
       $('#comment-form  input[name="parent_id"]').val('');
       $('#comment-form  input[name="comment_edit_id"]').val('');
       $('#comment-submit').val('Post comment'); // i18n gotcha
-      $('#comment-form textarea').val('');
+      codemirrorInstance.setValue('');
       $(this).parent().after($('#comment-form'));
       $(this).parent().addClass('mui--hide');
       $('#comment-form textarea').focus();
@@ -538,7 +540,7 @@ export const Comments = {
       $(cfooter).find('.loading').removeClass('mui--hide');
       $('#comment-form').attr('action', cfooter.attr('data-edit-url'));
       $.getJSON(editUrl, (data) => {
-        $('#comment-form textarea').val(data.message);
+        codemirrorInstance.setValue(data.message);
       });
       $('#comment-form input[name="parent_id"]').val('');
       $('#comment-form input[name="comment_edit_id"]').val(cid);

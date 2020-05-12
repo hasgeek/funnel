@@ -4,7 +4,7 @@
 {% from "comments.html.jinja2" import commenttree, commentformtemplate %}
 {%- from "macros.html.jinja2" import project_header %}
 {% block title %}{% trans %}Comments{% endtrans %}{% endblock %}
-{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.tagline|striptags }}{% endif %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {%- block pageheaders %}
   {% assets "css_codemirrormarkdown" -%}

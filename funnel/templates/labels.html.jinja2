@@ -3,7 +3,7 @@
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% trans %}Labels{% endtrans %}{% endblock %}
-{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.tagline|striptags }}{% endif %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>

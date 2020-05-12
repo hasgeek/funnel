@@ -507,7 +507,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             .filter(
                 Comment.commentset == self.obj.commentset, Comment.parent == None
             )  # NOQA
-            .order_by(Voteset.count, Comment.created_at.desc())
+            .order_by(Voteset.count, Comment.created_at.asc())
             .all()
         )
         commentform = CommentForm(model=Comment)

@@ -2,7 +2,7 @@
 {% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import project_header %}
 {% block title %}{% trans %}Videos{% endtrans %}{% endblock %}
-{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.tagline|striptags }}{% endif %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
