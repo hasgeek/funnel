@@ -103,7 +103,12 @@
       </div>
     {%- endif %}
     <div class="about__details" id="about">
-      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}About{% endtrans %}</h2>
+      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">
+        {% trans %}About{% endtrans %}
+        {% if project.view_for('edit').is_available() %}
+          <a class="mui--text-body1" href="{{ project.url_for('edit') }}" aria-label="edit project details">{% trans %}Edit details{% endtrans %} {{ faicon(icon='edit') }}</a>
+        {% endif %}
+      </h2>
       <div class="about__details__description">{{ project.description }}</div>
       {%- if project.subprojects %}
         <hr class="mui-divider">
@@ -210,7 +215,12 @@
   {%- if project.primary_venue -%}
   <div class="grid project-section" id="venue">
     <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">{% trans %}Venue{% endtrans %}</h2>
+      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">
+        {% trans %}Venue{% endtrans %}
+        {% if project.view_for('venues').is_available() %}
+          <a class="mui--text-body1" href="{{ project.url_for('venues') }}" aria-label="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>
+        {% endif %}
+      </h2>
       <div class="mui--text-body1">
         <p class="zero-bottom-margin">{{ project.primary_venue.title }}</p>
         <p class="zero-bottom-margin">{{ project.primary_venue.address1 }}</p>
