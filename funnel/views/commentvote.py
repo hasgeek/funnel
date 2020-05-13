@@ -95,7 +95,7 @@ class CommentsetView(UrlForView, ModelView):
     def new_comment(self):
         # TODO: Make this endpoint support AJAX.
 
-        if self.obj.parent is None:
+        if self.obj.parent is None or not self.obj.parent.features.post_comment():
             return redirect('/')
 
         commentform = CommentForm(model=Comment)
