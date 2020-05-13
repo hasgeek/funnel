@@ -9,13 +9,17 @@
 // ***********************************************
 
 Cypress.Commands.add('login', (route, username, password) => {
-  cy.server();
-  cy.route('POST', '**/login').as('login');
-
   cy.visit(route, { failOnStatusCode: false })
     .get('#hgnav')
     .find('.header__button')
     .click();
+  cy.fill_login_details(username, password);
+});
+
+Cypress.Commands.add('fill_login_details', (username, password) => {
+  cy.server();
+  cy.route('POST', '**/login').as('login');
+
   cy.get('#showmore').click();
   cy.get('.field-username').type(username, { log: false });
   cy.get('.field-password').type(password, { log: false });
@@ -39,9 +43,7 @@ Cypress.Commands.add('add_member', (username, role) => {
   cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
     'be.visible'
   );
-  cy.get('.select2-results__option')
-    .contains(username)
-    .click();
+  cy.get('.select2-results__option').contains(username).click();
   cy.get('.select2-results__options', { timeout: 10000 }).should('not.visible');
   cy.get(`#is_${role}`).click();
   cy.get('button')
@@ -56,7 +58,7 @@ Cypress.Commands.add('add_member', (username, role) => {
     .contains(roleString);
 });
 
-Cypress.Commands.add('checkin', participant => {
+Cypress.Commands.add('checkin', (participant) => {
   cy.server();
   cy.route('POST', '**/participants/checkin').as('checkin');
   cy.route('**/participants/json').as('participant-list');
@@ -69,7 +71,7 @@ Cypress.Commands.add('checkin', participant => {
   cy.wait('@checkin', { timeout: 15000 });
   cy.wait('@participant-list', { timeout: 20000 });
   cy.wait('@participant-list', { timeout: 20000 });
-  cy.wait('@participant-list', { timeout: 20000 }).then(xhr => {
+  cy.wait('@participant-list', { timeout: 20000 }).then((xhr) => {
     cy.get('button[data-cy="cancel-checkin"]').should('exist');
   });
 });

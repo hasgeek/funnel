@@ -2,6 +2,7 @@
 {% set title_suffix = project.title %}
 {% from "baseframe/components.html.jinja2" import faicon, alertbox %}
 {% block title %}{% trans %}Schedule{% endtrans %}{% endblock %}
+
 {% block pageheaders %}
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
