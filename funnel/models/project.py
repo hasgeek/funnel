@@ -879,9 +879,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             if crew_membership is not None:
                 roles.update(crew_membership.offered_roles())
 
-            rsvp = self.rsvp_for(actor)
-            participant = self.participants.filter_by(user=actor).one_or_none()
-            if rsvp is not None or participant is not None:
+            if (
+                self.rsvp_for(actor) is not None
+                or self.participants.filter_by(user=actor).one_or_none() is not None
+            ):
                 roles.add('attendee')
 
             if 'attendee' in roles or 'crew' in roles:
