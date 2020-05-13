@@ -6,7 +6,13 @@ from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, requires_permission, route
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    requires_permission,
+    requires_roles,
+    route,
+)
 
 from .. import app, funnelapp
 from ..forms import CommentDeleteForm, CommentForm
@@ -91,11 +97,11 @@ class CommentsetView(UrlForView, ModelView):
 
     @route('new', methods=['POST'])
     @requires_login
-    @requires_permission('new_comment')
+    @requires_roles({'parent_participant'})
     def new_comment(self):
         # TODO: Make this endpoint support AJAX.
 
-        if self.obj.parent is None or not self.obj.parent.features.comment_new():
+        if self.obj.parent is None:
             return redirect('/')
 
         commentform = CommentForm(model=Comment)
