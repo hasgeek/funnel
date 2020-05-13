@@ -27,6 +27,7 @@ RESERVED_NAMES = {
     'brands',
     'client',
     'clients',
+    'comments',
     'confirm',
     'contact',
     'contacts',

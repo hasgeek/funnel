@@ -3,6 +3,7 @@
 {%- from "macros.html.jinja2" import project_header %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{% trans %}Crew{% endtrans %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {% block contenthead %}{% endblock %}
 

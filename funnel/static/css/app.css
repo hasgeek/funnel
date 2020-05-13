@@ -1328,6 +1328,10 @@ html.touch .collapsible__body--disable {
   padding: 0;
 }
 
+.modal .mui-form .mui-select__menu {
+  z-index: 1001;
+}
+
 .modal-form {
   min-width: 100%;
   min-height: 325px;
@@ -2719,25 +2723,6 @@ html.touch .collapsible__body--disable {
   white-space: pre-wrap;
 }
 
-.comment {
-  margin: 15px 0 0;
-}
-.comment .comment--content {
-  display: inline-block;
-}
-.comment .comment--content img {
-  max-width: 100%;
-}
-.comment .comment--body {
-  margin: 10px 0 0 30px;
-}
-.comment .commenter--gravatar {
-  border-radius: 50%;
-  width: 25px;
-  vertical-align: bottom;
-  margin-right: 5px;
-}
-
 .label {
   padding: 4px 8px;
   font-size: 12px;
@@ -2889,6 +2874,45 @@ html.touch .collapsible__body--disable {
 }
 .video .video__txt {
   margin-bottom: 3px;
+}
+
+.comment {
+  margin: 15px 0 0;
+}
+.comment .comment--content {
+  display: inline-block;
+}
+.comment .comment--content img {
+  max-width: 100%;
+}
+.comment .comment--body {
+  margin: 10px 0 0 30px;
+}
+.comment .commenter--gravatar {
+  border-radius: 50%;
+  width: 25px;
+  vertical-align: bottom;
+  margin-right: 5px;
+}
+.comment .mui-btn--nostyle + .mui-btn--nostyle {
+  margin-left: 0;
+}
+.comment .badge {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.comments-form .CodeMirror {
+  border: 1px solid #c0ccda;
+}
+.comments-form .CodeMirror-focused {
+  border: 1px solid #4a90e2;
+}
+.comments-form .mui-form__fields {
+  margin-bottom: 0;
+}
+.comments-form .recaptcha-field {
+  height: 0;
 }
 
 .proposal-list-header {

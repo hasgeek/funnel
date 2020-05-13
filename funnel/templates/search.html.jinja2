@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
-{% block title %}Search{% endblock %}
-{% block description %}Search{% endblock %}
+{% block title %}{% trans %}Search{% endtrans %}{% endblock %}
+{% block description %}{% trans %}Search{% endtrans %}{% endblock %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
