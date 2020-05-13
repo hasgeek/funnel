@@ -139,7 +139,7 @@ const Schedule = {
             $.ajax({
               url: activeSession.modal_url,
               type: 'GET',
-              success: sessionHtml => {
+              success: (sessionHtml) => {
                 this.openModal(sessionHtml, backPage, pageDetails);
               },
               error() {
@@ -235,7 +235,7 @@ const Schedule = {
     scheduleApp.$mount(schedule.config.divElem);
   },
   addSessionToSlots() {
-    this.config.sessions.forEach(session => {
+    this.config.sessions.forEach((session) => {
       if (!session.room_scoped_name) {
         [session.room_scoped_name] = Object.keys(this.config.rooms);
       }
@@ -286,17 +286,21 @@ const Schedule = {
   },
   addDefaultRoom(venue) {
     this.config.rooms[venue.name] = {
-      title: venue.title,
-      venue_title: venue.title,
+      title: '',
+      venue_title: '',
     };
   },
   init(config) {
     let self = this;
     this.config = config;
     this.config.rooms = {};
-    this.config.venues.forEach(venue => {
+    if (!this.config.venues.length) {
+      // Add default Venue
+      this.config.venues = [{ title: 'Schedule', room_list: [] }];
+    }
+    this.config.venues.forEach((venue) => {
       if (venue.room_list.length) {
-        venue.room_list.forEach(room => {
+        venue.room_list.forEach((room) => {
           this.config.rooms[room.scoped_name] = room;
           this.config.rooms[room.scoped_name].venue_title = venue.title;
         });
@@ -350,7 +354,7 @@ const Schedule = {
 };
 
 $(() => {
-  window.HasGeek.ScheduleInit = config => {
+  window.HasGeek.ScheduleInit = (config) => {
     Schedule.init(config);
   };
 });
