@@ -79,6 +79,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         if self.is_usher:
             roles.add('usher')
         roles.add('crew')
+        roles.add('participant')
         return roles
 
     def roles_for(self, actor=None, anchors=()):
