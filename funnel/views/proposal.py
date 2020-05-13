@@ -88,7 +88,7 @@ def proposal_data(proposal):
             ('outline_html', proposal.outline.html),
             ('requirements_text', proposal.requirements.text),
             ('requirements_html', proposal.requirements.html),
-            ('slides', proposal.slides.url),
+            ('slides', proposal.slides.url if proposal.slides else ''),
             ('links', proposal.links),
             ('video', proposal.video),
             ('bio', proposal.bio.html),
@@ -117,6 +117,11 @@ def proposal_data_flat(proposal):
     cols = [data.get(header) for header in proposal_headers]
     cols.append(proposal.state.label.name)
     return cols
+
+
+@Proposal.features('comment_new')
+def proposal_comment_new(obj):
+    return obj.project.current_roles.participant is True
 
 
 # --- Routes ------------------------------------------------------------------
@@ -304,7 +309,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('next')
+    @route('next')  # NOQA: A003
     @requires_permission('view')
     def next(self):  # NOQA: A003
         nextobj = self.obj.getnext()

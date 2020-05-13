@@ -30,6 +30,8 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import (
     CfpForm,
+    CommentDeleteForm,
+    CommentForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
@@ -41,7 +43,17 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..jobs import import_tickets, tag_locations
-from ..models import RSVP_STATUS, Profile, Project, Proposal, Rsvp, SavedProject, db
+from ..models import (
+    RSVP_STATUS,
+    Comment,
+    Profile,
+    Project,
+    Proposal,
+    Rsvp,
+    SavedProject,
+    Voteset,
+    db,
+)
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -80,6 +92,45 @@ def project_data(project):
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
     }
+
+
+@Project.features('has_rsvp')
+def project_has_rsvp(obj):
+    return (
+        obj.schedule_state.PUBLISHED
+        and (
+            obj.boxoffice_data is None
+            or 'item_collection_id' not in obj.boxoffice_data
+            or not obj.boxoffice_data['item_collection_id']
+        )
+        and not obj.schedule_state.PAST
+    )
+
+
+@Project.features('has_tickets')
+def project_has_tickets(obj):
+    return (
+        obj.schedule_state.PUBLISHED
+        and obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
+        and not obj.schedule_state.PAST
+    )
+
+
+@Project.features('has_tickets_or_rsvp')
+def project_has_tickets_or_rsvp(obj):
+    return obj.features.has_tickets() or obj.features.has_rsvp()
+
+
+@Project.features('schedule_no_sessions')
+def project_has_no_sessions(obj):
+    return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
+
+
+@Project.features('comment_new')
+def project_comment_new(obj):
+    return obj.current_roles.participant is True
 
 
 @Profile.views('project_new')
@@ -483,6 +534,29 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
+        }
+
+    @route('comments', methods=['GET'])
+    @render_with('project_comments.html.jinja2')
+    @requires_roles({'reader'})
+    def comments(self):
+        project_save_form = SavedProjectForm()
+        comments = (
+            Comment.query.join(Voteset)
+            .filter(
+                Comment.commentset == self.obj.commentset, Comment.parent == None
+            )  # NOQA
+            .order_by(Voteset.count, Comment.created_at.asc())
+            .all()
+        )
+        commentform = CommentForm(model=Comment)
+        delcommentform = CommentDeleteForm()
+        return {
+            'project': self.obj,
+            'project_save_form': project_save_form,
+            'comments': comments,
+            'commentform': commentform,
+            'delcommentform': delcommentform,
         }
 
 

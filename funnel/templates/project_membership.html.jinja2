@@ -3,6 +3,7 @@
 {%- from "macros.html.jinja2" import project_header %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{% trans %}Crew{% endtrans %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {% block contenthead %}{% endblock %}
 
@@ -17,7 +18,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Crew{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" data-action="Back to the {{ project.title }}(crew page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Crew{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -129,7 +130,7 @@
               </div>
             </div>
             <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
-              <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">
+              <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"  data-action="close modal">
                 <svg class="fa5-icon fa5-icon--title" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#times'"></use></svg>
               </a>
               <component :is="Form"></component>

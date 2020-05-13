@@ -12,7 +12,7 @@
       {{ active_session.title }}, {{ project.title }}
     {%- endif -%}
   {%- else -%}
-    {% if g.profile %}{{ g.profile.description|striptags }}{% endif %}
+    {% if project.tagline %}{{ project.tagline }}{% endif %}
   {%- endif -%}
 {% endblock %}
 

@@ -114,6 +114,7 @@
   background-color: #856a91;
   border-radius: 3px;
   padding: 2px;
+  font-size: 12px;
 }
 
 .select2-inline {
@@ -276,6 +277,8 @@ html.touch .collapsible__body--disable {
 .animate-btn {
   display: none;
   line-height: 1;
+  font-size: 14px;
+  text-transform: inherit;
 
   .bookmarked {
     fill: #e05f26;

@@ -113,6 +113,7 @@
   background-color: #856a91;
   border-radius: 3px;
   padding: 2px;
+  font-size: 12px;
 }
 
 .select2-inline {
@@ -269,6 +270,8 @@ html.touch .collapsible__body--disable {
 .animate-btn {
   display: none;
   line-height: 1;
+  font-size: 14px;
+  text-transform: inherit;
 }
 .animate-btn .bookmarked {
   fill: #e05f26;
@@ -1328,6 +1331,10 @@ html.touch .collapsible__body--disable {
   padding: 0;
 }
 
+.modal .mui-form .mui-select__menu {
+  z-index: 1001;
+}
+
 .modal-form {
   min-width: 100%;
   min-height: 325px;
@@ -2120,7 +2127,7 @@ html.touch .collapsible__body--disable {
   right: 33px;
   z-index: 3;
 }
-.project-banner .livestream-box {
+.project-banner .project-banner__box .livestream-box {
   margin: 0;
   padding: 0;
 }
@@ -2137,8 +2144,8 @@ html.touch .collapsible__body--disable {
 .project-banner .project-banner__footer {
   display: flex;
   align-items: baseline;
-  margin: 16px 0 0;
-  padding: 0 16px;
+  margin: 15px 0 0;
+  padding: 0 15px;
 }
 .project-banner .project-banner__footer .bookmark,
 .project-banner .project-banner__footer .add-calendar,
@@ -2151,6 +2158,11 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-banner__footer .bookmark {
   padding: 0 8px 0 0;
+  height: 20px;
+}
+.project-banner .project-banner__footer .bookmark .txt {
+  position: relative;
+  top: -2px;
 }
 .project-banner .project-banner__footer .share {
   border-right: none;
@@ -2158,7 +2170,7 @@ html.touch .collapsible__body--disable {
 .project-banner .project-banner__footer .bookmark span.txt,
 .project-banner .project-banner__footer .add-calendar span.txt,
 .project-banner .project-banner__footer .share span.txt {
-  padding-right: 8px;
+  padding-right: 2px;
 }
 .project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
   margin: 0;
@@ -2166,6 +2178,9 @@ html.touch .collapsible__body--disable {
 .project-banner .project-banner__footer .mui-dropdown__menu {
   min-width: auto;
   z-index: 1003;
+}
+.project-banner .livestream-box .project-banner__footer {
+  padding: 0;
 }
 .project-banner .project-details__box {
   margin-top: 15px;
@@ -2206,10 +2221,14 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__box {
     padding: 0 15px;
   }
+  .project-banner .project-banner__footer {
+    padding: 0;
+  }
   .project-banner .project-banner__footer .bookmark,
   .project-banner .project-banner__footer .add-calendar,
   .project-banner .project-banner__footer .share {
     padding: 0 16px;
+    text-decoration: none;
   }
   .project-banner .project-banner__footer .bookmark {
     padding: 0 16px 0 0;
@@ -2217,7 +2236,10 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__footer .bookmark span.txt,
   .project-banner .project-banner__footer .add-calendar span.txt,
   .project-banner .project-banner__footer .share span.txt {
-    padding-right: 16px;
+    padding-right: 5px;
+  }
+  .project-banner .livestream-box .project-banner__footer {
+    padding: 0 15px;
   }
 }
 @media (min-width: 992px) {
@@ -2719,25 +2741,6 @@ html.touch .collapsible__body--disable {
   white-space: pre-wrap;
 }
 
-.comment {
-  margin: 15px 0 0;
-}
-.comment .comment--content {
-  display: inline-block;
-}
-.comment .comment--content img {
-  max-width: 100%;
-}
-.comment .comment--body {
-  margin: 10px 0 0 30px;
-}
-.comment .commenter--gravatar {
-  border-radius: 50%;
-  width: 25px;
-  vertical-align: bottom;
-  margin-right: 5px;
-}
-
 .label {
   padding: 4px 8px;
   font-size: 12px;
@@ -2889,6 +2892,45 @@ html.touch .collapsible__body--disable {
 }
 .video .video__txt {
   margin-bottom: 3px;
+}
+
+.comment {
+  margin: 15px 0 0;
+}
+.comment .comment--content {
+  display: inline-block;
+}
+.comment .comment--content img {
+  max-width: 100%;
+}
+.comment .comment--body {
+  margin: 10px 0 0 30px;
+}
+.comment .commenter--gravatar {
+  border-radius: 50%;
+  width: 25px;
+  vertical-align: bottom;
+  margin-right: 5px;
+}
+.comment .mui-btn--nostyle + .mui-btn--nostyle {
+  margin-left: 0;
+}
+.comment .badge {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.comments-form .CodeMirror {
+  border: 1px solid #c0ccda;
+}
+.comments-form .CodeMirror-focused {
+  border: 1px solid #4a90e2;
+}
+.comments-form .mui-form__fields {
+  margin-bottom: 0;
+}
+.comments-form .recaptcha-field {
+  height: 0;
 }
 
 .proposal-list-header {

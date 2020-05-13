@@ -6,7 +6,7 @@ from flask import request
 
 import user_agents
 
-from baseframe import _
+from baseframe import _, statsd
 from coaster.utils import buid as make_buid
 from coaster.utils import utcnow
 
@@ -14,9 +14,11 @@ from ..signals import session_revoked
 from . import BaseMixin, UuidMixin, db
 from .user import User
 
-__all__ = ['UserSession']
+__all__ = ['UserSession', 'auth_client_user_session']
 
 
+#: When a user logs into an client app, the user's session is logged against
+#: the client app in this table
 auth_client_user_session = db.Table(
     'auth_client_user_session',
     db.Model.metadata,
@@ -105,6 +107,11 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
             else:
                 self.ipaddr = request.remote_addr or ''
                 self.user_agent = str(request.user_agent.string[:250]) or ''
+
+        # Use integer id instead of uuid_b58 here because statsd documentation is
+        # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
+        statsd.set('users.active_sessions', self.id, rate=1)
+        statsd.set('users.active_users', self.user.id, rate=1)
 
     def user_agent_details(self):
         ua = user_agents.parse(self.user_agent)

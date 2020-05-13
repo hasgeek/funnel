@@ -3,7 +3,7 @@
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import embed_video_player, video_action_bar %}
-{% from "comments.html.jinja2" import commenttree %}
+{% from "comments.html.jinja2" import commenttree, commentformtemplate %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
@@ -296,35 +296,14 @@
           {{ commenttree(comments, proposal, project, csrf_form) }}
         </ul>
       {% endif %}
-      {% if not current_auth.user -%}
-        <p>
-          <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}">{% trans %}Login to leave a comment{% endtrans %}</a>
-        </p>
-      {% else -%}
-        <form method="POST" id="comment-form" action="{{ proposal.url_for('new_comment') }}" class="mui-form">
-          <div class="mui--hide">
-            <input type="hidden" name="form.id" value="newcomment"/>
-            {{ commentform.hidden_tag() }}
-          </div>
-          {{ renderfield(commentform.message, nolabel=true) }}
-          {{ renderfield(commentform.recaptcha, nolabel=true) }}
-          <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
-        </form>
-        <p id="toplevel-comment" class="mui--hide">
-          <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>
-        </p>
-        <form method="POST" id="delcomment" class="mui--hide">
-          <div class="mui--hide">
-            <input type="hidden" name="form.id" value="delcomment"/>
-            {{ delcommentform.hidden_tag() }}
-            {{ delcommentform.comment_id() }}
-          </div>
-          <p>
-            {% trans %}Really delete this comment?{% endtrans %}&nbsp;
-            <input id="comment-delete-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="{% trans %}Delete{% endtrans %}"/>
-            &nbsp;or&nbsp;<button id="comment-delete-cancel" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" href="#">{% trans %}Cancel{% endtrans %}</button>
-          </p>
-        </form>
+      {% if proposal.features.comment_new() %}
+        {{ commentformtemplate(proposal, commentform, delcommentform, current_auth) }}
+      {% else %}
+        {% if proposal.project.features.has_tickets() %}
+        <p class="mui-panel mui--bg-accent">You need to buy a ticket for this project to comment.</p>
+        {% else %}
+        <p class="mui-panel mui--bg-accent">You need to RSVP to this project to comment.</p>
+        {% endif %}
       {% endif %}
     </section>
   </div>
@@ -345,7 +324,6 @@
 <script type="text/javascript">
   $(function() {
     var proposalConfig = {};
-    proposalConfig.pageUrl = {{ request.base_url|tojson }};
     proposalConfig.videoWrapper = document.getElementById('js-embed');
     if(proposalConfig.videoWrapper) {
       proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-video-src');

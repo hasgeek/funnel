@@ -23,12 +23,12 @@
       right: 33px;
       z-index: 3;
     }
+    .livestream-box {
+      margin: 0;
+      padding: 0;
+    }
   }
 
-  .livestream-box {
-    margin: 0;
-    padding: 0;
-  }
   .profile-text {
     margin: 15px 0;
 
@@ -45,8 +45,8 @@
   .project-banner__footer {
     display: flex;
     align-items: baseline;
-    margin: 16px 0 0;
-    padding: 0 16px;
+    margin: 15px 0 0;
+    padding: 0 15px;
 
     .bookmark,
     .add-calendar,
@@ -59,6 +59,11 @@
     }
     .bookmark {
       padding: 0 8px 0 0;
+      height: 20px;
+      .txt {
+        position: relative;
+        top: -2px;
+      }
     }
     .share {
       border-right: none;
@@ -66,7 +71,7 @@
     .bookmark span.txt,
     .add-calendar span.txt,
     .share span.txt {
-      padding-right: 8px;
+      padding-right: 2px;
     }
 
     .mui-btn--nostyle + .mui-btn--nostyle {
@@ -77,6 +82,12 @@
       z-index: 1003;
     }
   }
+  .livestream-box {
+    .project-banner__footer {
+      padding: 0;
+    }
+  }
+
   .project-details__box {
     margin-top: 15px;
     position: relative;
@@ -120,10 +131,12 @@
       padding: 0 15px;
     }
     .project-banner__footer {
+      padding: 0;
       .bookmark,
       .add-calendar,
       .share {
         padding: 0 16px;
+        text-decoration: none;
       }
       .bookmark {
         padding: 0 16px 0 0;
@@ -131,7 +144,12 @@
       .bookmark span.txt,
       .add-calendar span.txt,
       .share span.txt {
-        padding-right: 16px;
+        padding-right: 5px;
+      }
+    }
+    .livestream-box {
+      .project-banner__footer {
+        padding: 0 15px;
       }
     }
   }

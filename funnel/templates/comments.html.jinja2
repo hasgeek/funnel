@@ -1,4 +1,5 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
+{% from "baseframe/forms.html.jinja2" import renderfield %}
 
 {% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
@@ -17,14 +18,10 @@
           {%- else -%}
             <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
             {%- if comment.user == document.user %}
-              <span class="chip chip--bg-accent">
-                <span class="chip__text">Proposer</span>
-              </span>
+              <span class="badge">Proposer</span>
             {% endif %}
-            {% if not comment.state.DELETED and project.review_team and comment.user in project.review_team.users %}
-              <span class="chip chip--bg-primary">
-                <span class="chip__text">Reviewer</span>
-              </span>
+            {%- if 'crew' in project.roles_for(comment.user) %}
+              <span class="badge">Crew</span>
             {% endif %}
             <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
             {%- if comment.edited_at %}
@@ -36,16 +33,17 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.uuid_b58 }}" data-delete-url="{{ document.url_for('delete_comment', comment=comment) }}" class="comment--footer">
+          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" data-delete-url="{{ comment.url_for('delete') }}" data-edit-url="{{ comment.url_for('edit') }}" data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
-              {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}">[Reply]</a>{% endif %}
+              {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Reply]</a>{% endif %}
               {% if comment.current_roles.author %}
-                <a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.uuid_b58 }}">{% trans %}[Edit]{% endtrans %}</a>
-                <a aria-label="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.uuid_b58 }}">{% trans %}[Delete]{% endtrans %}</a>
+                <a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.uuid_b58 }}" data-cy="edit">{% trans %}[Edit]{% endtrans %}</a>
+                <a aria-label="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.uuid_b58 }}" data-cy="delete">{% trans %}[Delete]{% endtrans %}</a>
               {%- endif %}
             {%- endif %}
             <a aria-label="Permalink" class="mui--text-menu mui--text-accent comment--permalink" href="#c{{ comment.uuid_b58 }}">[{% trans %}Link{% endtrans %}]</a>
             {% if comment.parent %}<a aria-label="{% trans %}Parent{% endtrans %}" class="mui--text-menu mui--text-accent comment--parent" href="#c{{ comment.parent.uuid_b58 }}">[{% trans %}Parent{% endtrans %}]</a>{% endif %}
+            <span class="loading mui--hide"></span>
           </div>
         </div>
         {% if comment.children %}
@@ -57,4 +55,36 @@
     </div>
   </li>
 {% endfor -%}
+{% endmacro %}
+
+{% macro commentformtemplate(parent, commentform, delcommentform, current_auth) %}
+  {% if not current_auth.user -%}
+    <p>
+      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}" data-cy="login-btn">{% trans %}Login to leave a comment{% endtrans %}</a>
+    </p>
+  {% else -%}
+    <form method="POST" id="comment-form" action="{{ parent.commentset.url_for('new_comment') }}" class="mui-form comments-form">
+      <div class="mui--hide">
+        <input type="hidden" name="form.id" value="newcomment"/>
+        {{ commentform.hidden_tag() }}
+      </div>
+      {{ renderfield(commentform.message, nolabel=true, css_class='message') }}
+      {{ renderfield(commentform.recaptcha, nolabel=true, css_class='recaptcha-field') }}
+      <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
+    </form>
+    <p id="toplevel-comment" class="mui--hide">
+      <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>
+    </p>
+    <form method="POST" id="delcomment" class="mui--hide">
+      <div class="mui--hide">
+        <input type="hidden" name="form.id" value="delcomment"/>
+        {{ delcommentform.hidden_tag() }}
+        {{ delcommentform.comment_id() }}
+      </div>
+      <p>
+        {% trans %}Delete this comment?{% endtrans %} <input id="comment-delete-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="{% trans %}Delete{% endtrans %}" data-cy="delete-comment"/>
+        <button id="comment-delete-cancel" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" href="#">{% trans %}Cancel{% endtrans %}</button>
+      </p>
+    </form>
+  {% endif %}
 {% endmacro %}

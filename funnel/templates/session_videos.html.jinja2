@@ -1,8 +1,8 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import project_header %}
-{% block title %}Videos{% endblock %}
-{% block description %}{{ project.title }}{% if g.profile %} &ndash; {{ g.profile.description|striptags }}{% endif %}{% endblock %}
+{% block title %}{% trans %}Videos{% endtrans %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
@@ -35,7 +35,7 @@
         {% for session in project.sessions_with_video %}
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
             <div class="video">
-              <a class="video__thumbnail {%- if not session.video.thumbnail %} video__thumnail--novideo{%- endif %}" href="{{ session.url_for() }}">
+              <a class="video__thumbnail {%- if not session.video.thumbnail %} video__thumnail--novideo{%- endif %}" href="{{ session.url_for() }}"  data-action="view session video">
                 {%- if session.video.thumbnail %}<img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">{%- endif %}
                 <div class="video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
               </a>

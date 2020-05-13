@@ -3,6 +3,7 @@
 from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 
@@ -136,7 +137,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     voteset = db.relationship(Voteset, uselist=False)
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(Commentset, uselist=False)
+    commentset = db.relationship(
+        Commentset,
+        uselist=False,
+        lazy='joined',
+        cascade='all',
+        single_parent=True,
+        backref=db.backref("project", uselist=False),
+    )
 
     parent_id = db.Column(
         None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
@@ -211,6 +219,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         order_by="Session.start_at.asc()",
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)',
     )
+
+    participant_users = with_roles(
+        association_proxy('participants', 'user'), grants={'participant'}
+    )
+    rsvp_users = with_roles(association_proxy('rsvps', 'user'), grants={'participant'})
 
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
@@ -871,7 +884,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             ).one_or_none()
             if crew_membership is not None:
                 roles.update(crew_membership.offered_roles())
-
         return roles
 
     def is_saved_by(self, user):
@@ -923,35 +935,6 @@ Profile.draft_projects_for = (
     if user
     else ()
 )
-
-
-@Project.features('has_rsvp')
-def project_has_rsvp(obj):
-    return (
-        obj.schedule_state.PUBLISHED
-        and (
-            obj.boxoffice_data is None
-            or 'item_collection_id' not in obj.boxoffice_data
-            or not obj.boxoffice_data['item_collection_id']
-        )
-        and not obj.schedule_state.PAST
-    )
-
-
-@Project.features('has_tickets')
-def project_has_tickets(obj):
-    return (
-        obj.schedule_state.PUBLISHED
-        and obj.boxoffice_data is not None
-        and 'item_collection_id' in obj.boxoffice_data
-        and obj.boxoffice_data['item_collection_id']
-        and not obj.schedule_state.PAST
-    )
-
-
-@Project.features('has_tickets_or_rsvp')
-def project_has_tickets_or_rsvp(obj):
-    return obj.features.has_tickets() or obj.features.has_rsvp()
 
 
 class ProjectRedirect(TimestampMixin, db.Model):

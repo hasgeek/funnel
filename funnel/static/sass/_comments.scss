@@ -1,0 +1,44 @@
+.comment {
+  margin: 15px 0 0;
+
+  .comment--content {
+    display: inline-block;
+  }
+
+  .comment--content img {
+    max-width: 100%;
+  }
+
+  .comment--body {
+    margin: 10px 0 0 30px;
+  }
+
+  .commenter--gravatar {
+    border-radius: 50%;
+    width: 25px;
+    vertical-align: bottom;
+    margin-right: 5px;
+  }
+  .mui-btn--nostyle + .mui-btn--nostyle {
+    margin-left: 0;
+  }
+  .badge {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+}
+
+.comments-form {
+  .CodeMirror {
+    border: 1px solid #c0ccda;
+  }
+  .CodeMirror-focused {
+    border: 1px solid #4a90e2;
+  }
+  .mui-form__fields {
+    margin-bottom: 0;
+  }
+  .recaptcha-field {
+    height: 0;
+  }
+}
