@@ -94,6 +94,45 @@ def project_data(project):
     }
 
 
+@Project.features('has_rsvp')
+def project_has_rsvp(obj):
+    return (
+        obj.schedule_state.PUBLISHED
+        and (
+            obj.boxoffice_data is None
+            or 'item_collection_id' not in obj.boxoffice_data
+            or not obj.boxoffice_data['item_collection_id']
+        )
+        and not obj.schedule_state.PAST
+    )
+
+
+@Project.features('has_tickets')
+def project_has_tickets(obj):
+    return (
+        obj.schedule_state.PUBLISHED
+        and obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
+        and not obj.schedule_state.PAST
+    )
+
+
+@Project.features('has_tickets_or_rsvp')
+def project_has_tickets_or_rsvp(obj):
+    return obj.features.has_tickets() or obj.features.has_rsvp()
+
+
+@Project.features('schedule_no_sessions')
+def project_has_no_sessions(obj):
+    return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
+
+
+@Project.features('comment_new')
+def project_comment_new(obj):
+    return obj.current_roles.participant is True
+
+
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):

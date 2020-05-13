@@ -129,6 +129,12 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             perms.add('vote_comment')
         return perms
 
+    def roles_for(self, actor=None, anchors=()):
+        roles = super().roles_for(actor, anchors)
+        if 'participant' in self.parent.roles_for(actor, anchors):
+            roles.add('parent_participant')
+        return roles
+
 
 @Commentset.views('url')
 def parent_comments_url(obj):
