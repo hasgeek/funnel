@@ -128,8 +128,8 @@ def project_has_no_sessions(obj):
     return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
 
 
-@Project.features('post_comment')
-def project_post_comment(obj):
+@Project.features('comment_new')
+def project_comment_new(obj):
     return obj.current_roles.participant is True
 
 

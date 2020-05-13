@@ -119,8 +119,8 @@ def proposal_data_flat(proposal):
     return cols
 
 
-@Proposal.features('post_comment')
-def proposal_post_comment(obj):
+@Proposal.features('comment_new')
+def proposal_comment_new(obj):
     return obj.project.current_roles.participant is True
 
 
@@ -309,7 +309,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('next')  # NOQA
+    @route('next')  # NOQA: A003
     @requires_permission('view')
     def next(self):  # NOQA: A003
         nextobj = self.obj.getnext()

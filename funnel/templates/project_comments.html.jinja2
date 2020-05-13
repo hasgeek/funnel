@@ -46,7 +46,7 @@
               {{ commenttree(comments, project.commentset, project, csrf_form) }}
             </ul>
           {% endif %}
-          {% if project.features.post_comment() %}
+          {% if project.features.comment_new() %}
             {{ commentformtemplate(project, commentform, delcommentform, current_auth) }}
           {% else %}
             {% if project.features.has_tickets() %}
