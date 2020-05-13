@@ -72,7 +72,7 @@
 {% endmacro %}
 
 {% macro project_share(project, project_save_form) %}
-  <div class="project-banner__box project-banner__footer">
+  <div class="project-banner__footer">
     <div class="bookmark">{{ saveprojectform(project, project_save_form, txt=true) }}</div>
     {% if project.schedule_state.PUBLISHED %}
       <a class="add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-body1 mui--text-light txt">{% trans %}Add to calendar{% endtrans %}</span>{{ faicon(icon='calendar-plus', baseline=false, css_class='mui--text-light') }}</a>
@@ -111,7 +111,7 @@
       <div class="grid__col-sm-12 project-banner__headline">
         <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}
           {% if project.view_for('edit_slug').is_available() %}
-            <a class="mui--text-body1" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
+            <a class="mui--text-body1" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url" data-action="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
           {% endif %}
         </h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>

@@ -218,7 +218,7 @@
       <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">
         {% trans %}Venue{% endtrans %}
         {% if project.view_for('venues').is_available() %}
-          <a class="mui--text-body1" href="{{ project.url_for('venues') }}" aria-label="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>
+          <a class="mui--text-body1" href="{{ project.url_for('venues') }}" aria-label="update venue" data-action="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>
         {% endif %}
       </h2>
       <div class="mui--text-body1">

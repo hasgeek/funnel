@@ -47,7 +47,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
+            <a class="modal__close" href="javascript:void(0);" on-click="closeModal(event)" data-action="close modal"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
           </div>
           <div class="modal__body">
             {{#if scanning}}
