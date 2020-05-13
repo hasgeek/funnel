@@ -20,7 +20,7 @@
             {%- if comment.user == document.user %}
               <span class="badge">Proposer</span>
             {% endif %}
-            {%- if project.crew %}
+            {%- if 'crew' in project.roles_for(comment.user) %}
               <span class="badge">Crew</span>
             {% endif %}
             <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
