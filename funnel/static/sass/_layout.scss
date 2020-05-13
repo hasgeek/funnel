@@ -277,6 +277,8 @@ html.touch .collapsible__body--disable {
 .animate-btn {
   display: none;
   line-height: 1;
+  font-size: 14px;
+  text-transform: inherit;
 
   .bookmarked {
     fill: #e05f26;
