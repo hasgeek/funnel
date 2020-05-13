@@ -286,8 +286,8 @@ const Schedule = {
   },
   addDefaultRoom(venue) {
     this.config.rooms[venue.name] = {
-      title: venue.title,
-      venue_title: venue.title,
+      title: '',
+      venue_title: '',
     };
   },
   init(config) {
