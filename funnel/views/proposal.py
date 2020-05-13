@@ -119,6 +119,11 @@ def proposal_data_flat(proposal):
     return cols
 
 
+@Proposal.features('comment_new')
+def proposal_comment_new(obj):
+    return obj.project.current_roles.participant is True
+
+
 # --- Routes ------------------------------------------------------------------
 class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
@@ -304,7 +309,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('next')
+    @route('next')  # NOQA: A003
     @requires_permission('view')
     def next(self):  # NOQA: A003
         nextobj = self.obj.getnext()
