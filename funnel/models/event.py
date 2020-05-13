@@ -194,7 +194,9 @@ class Participant(UuidMixin, BaseMixin, db.Model):
     user = db.relationship(User, backref=db.backref('participants', cascade='all'))
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(Project, backref=db.backref('participants', cascade='all')),
+        db.relationship(
+            Project, backref=db.backref('participants', lazy='dynamic', cascade='all')
+        ),
         read={'concierge', 'subject', 'scanner'},
     )
 
