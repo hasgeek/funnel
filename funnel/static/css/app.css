@@ -2127,7 +2127,7 @@ html.touch .collapsible__body--disable {
   right: 33px;
   z-index: 3;
 }
-.project-banner .livestream-box {
+.project-banner .project-banner__box .livestream-box {
   margin: 0;
   padding: 0;
 }
@@ -2144,8 +2144,8 @@ html.touch .collapsible__body--disable {
 .project-banner .project-banner__footer {
   display: flex;
   align-items: baseline;
-  margin: 16px 0 0;
-  padding: 0 16px;
+  margin: 15px 0 0;
+  padding: 0 15px;
 }
 .project-banner .project-banner__footer .bookmark,
 .project-banner .project-banner__footer .add-calendar,
@@ -2178,6 +2178,9 @@ html.touch .collapsible__body--disable {
 .project-banner .project-banner__footer .mui-dropdown__menu {
   min-width: auto;
   z-index: 1003;
+}
+.project-banner .livestream-box .project-banner__footer {
+  padding: 0;
 }
 .project-banner .project-details__box {
   margin-top: 15px;
@@ -2218,6 +2221,9 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__box {
     padding: 0 15px;
   }
+  .project-banner .project-banner__footer {
+    padding: 0;
+  }
   .project-banner .project-banner__footer .bookmark,
   .project-banner .project-banner__footer .add-calendar,
   .project-banner .project-banner__footer .share {
@@ -2231,6 +2237,9 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__footer .add-calendar span.txt,
   .project-banner .project-banner__footer .share span.txt {
     padding-right: 5px;
+  }
+  .project-banner .livestream-box .project-banner__footer {
+    padding: 0 15px;
   }
 }
 @media (min-width: 992px) {

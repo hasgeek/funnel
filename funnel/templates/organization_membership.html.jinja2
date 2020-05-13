@@ -90,7 +90,7 @@
               </div>
             </div>
             <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
-              <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">
+              <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"  data-action="close modal">
                 <svg class="fa5-icon fa5-icon--title" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#times'"></use></svg>
               </a>
               <component :is="Form"></component>

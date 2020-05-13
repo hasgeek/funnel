@@ -44,7 +44,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close" href="javascript:void(0);"  data-target="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
+            <a class="modal__close" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}" ><svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
             <h3 class="mui--text-title">Check in status</h3>
           </div>
           <div class="modal__body">

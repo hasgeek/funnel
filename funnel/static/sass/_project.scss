@@ -23,12 +23,12 @@
       right: 33px;
       z-index: 3;
     }
+    .livestream-box {
+      margin: 0;
+      padding: 0;
+    }
   }
 
-  .livestream-box {
-    margin: 0;
-    padding: 0;
-  }
   .profile-text {
     margin: 15px 0;
 
@@ -45,8 +45,8 @@
   .project-banner__footer {
     display: flex;
     align-items: baseline;
-    margin: 16px 0 0;
-    padding: 0 16px;
+    margin: 15px 0 0;
+    padding: 0 15px;
 
     .bookmark,
     .add-calendar,
@@ -82,6 +82,12 @@
       z-index: 1003;
     }
   }
+  .livestream-box {
+    .project-banner__footer {
+      padding: 0;
+    }
+  }
+
   .project-details__box {
     margin-top: 15px;
     position: relative;
@@ -125,6 +131,7 @@
       padding: 0 15px;
     }
     .project-banner__footer {
+      padding: 0;
       .bookmark,
       .add-calendar,
       .share {
@@ -138,6 +145,11 @@
       .add-calendar span.txt,
       .share span.txt {
         padding-right: 5px;
+      }
+    }
+    .livestream-box {
+      .project-banner__footer {
+        padding: 0 15px;
       }
     }
   }
