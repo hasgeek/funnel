@@ -137,7 +137,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise AttributeError("Unknown role")
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
-        new = type(self)(user=self.user, parent=self.parent, granted_by=self.granted_by)
+        new = type(self)(
+            user=self.user, parent_id=self.parent_id, granted_by=self.granted_by
+        )
 
         # if existing record type is INVITE, replace it with ACCEPT,
         # else, replace it with AMEND.

@@ -188,6 +188,26 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
+    def is_comment_moderator(self):
+        from .site_membership import SiteMembership
+
+        return (
+            SiteMembership.query.filter_by(
+                user=self, is_comment_moderator=True, is_active=True
+            ).one_or_none()
+            is not None
+        )
+
+    def is_user_moderator(self):
+        from .site_membership import SiteMembership
+
+        return (
+            SiteMembership.query.filter_by(
+                user=self, is_user_moderator=True, is_active=True
+            ).one_or_none()
+            is not None
+        )
+
     def merged_user(self):
         if self.status == USER_STATUS.MERGED:
             return UserOldId.get(self.uuid).user
@@ -361,7 +381,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if user and user.is_active:
             return user
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(  # NOQA: A003
         cls, buids=None, userids=None, usernames=None, defercols=False
     ):
@@ -648,7 +668,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             query = query.options(*cls._defercols)
         return query.one_or_none()
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, buids=None, names=None, defercols=False):  # NOQA: A003
         orgs = []
         if buids:
@@ -909,7 +929,7 @@ class UserEmailClaim(BaseMixin, db.Model):
             md5sum=md5sum, verification_code=verification_code
         ).one_or_none()
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, email):  # NOQA: A003
         """
         Return all UserEmailClaim instances with matching email address.
@@ -1076,7 +1096,7 @@ class UserPhoneClaim(BaseMixin, db.Model):
         """
         return cls.query.filter_by(phone=phone, user=user).one_or_none()
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, phone):  # NOQA: A003
         """
         Return all UserPhoneClaim instances with matching phone number.
