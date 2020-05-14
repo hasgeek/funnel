@@ -309,11 +309,7 @@
       {% if proposal.features.comment_new() %}
         {{ commentformtemplate(proposal, commentform, delcommentform, current_auth) }}
       {% else %}
-        {% if proposal.project.features.has_tickets() %}
-        <p class="mui-panel mui--bg-accent">You need to buy a ticket for this project to comment.</p>
-        {% else %}
-        <p class="mui-panel mui--bg-accent">You need to RSVP to this project to comment.</p>
-        {% endif %}
+        <p class="mui-panel mui--bg-accent">You need to be a participant in this project to comment</p>
       {% endif %}
     </section>
   </div>
