@@ -148,7 +148,7 @@ class CommentView(UrlForView, ModelView):
         'comment': 'uuid_b58',
     }
 
-    def loader(self, commentset, comment):
+    def loader(self, commentset, comment, profile=None):
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
