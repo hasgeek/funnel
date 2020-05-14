@@ -1,29 +1,48 @@
+
+# Root
+os: linux
+dist: bionic
 language: python
 python:
   - 3.7
-addons:
-  postgresql: '9.6'
-services:
-  - redis-server
-  - postgresql
-install:
-  - pip install -U pip wheel
-  - pip install git+https://github.com/hasgeek/flask-babelhg.git
-  - pip install -r requirements.txt
-  - pip install -r test_requirements.txt
-  - make
-  - pip install six --upgrade --ignore-installed
-before_script:
-  - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
-  - psql -c 'create database funnel_testing;' -U postgres
-  - python -c "import six; print('Six:', six.__version__)"
-script:
-  - ./runtests.sh
-  - ./runfrontendtests.sh
-after_success:
-  - coveralls
-notifications:
-  email: false
-  slack:
-    - hasgeek:HDCoMDj3T4ICB59qFFVorCG8
-    - friendsofhasgeek:3bLViYSzhfaThJovFYCVD3fX
+
+# Stages
+stages: 
+  - name: Sanity checks
+  - name: Tests
+  - name: Deploy to Dev-Test Environment
+
+# Jobs
+jobs:
+  include:
+
+    # Runs flake for pre-commit checks (Derived from coaster)
+    - name: Pre-Commit Checks
+      stage: Sanity checks
+      cache: pip
+      env:
+         CACHE_NAME=PRE_COMMIT
+      install: 
+        - pip install -U pip wheel
+        - pip install pre-commit
+      script:
+        - pre-commit run flake8 -a
+
+    # Copied over from previous default job
+    - name:  Unit Tests
+      stage: Tests
+      install: 
+        - dev-test/script/install-standard-deps.sh
+        - pip install -r test_requirements.txt
+        - make
+        - pip install six --upgrade --ignore-installed
+      before_script:
+        - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
+        - psql -c 'create database funnel_testing;' -U postgres
+        - python -c "import six; print('Six:', six.__version__)"
+      script:
+        - ./runtests.sh
+        - ./runfrontendtests.sh
+      after_success:
+        - coveralls
+
