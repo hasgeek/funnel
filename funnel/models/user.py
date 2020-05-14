@@ -188,6 +188,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
+    @property
     def is_comment_moderator(self):
         from .site_membership import SiteMembership
 
@@ -198,6 +199,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             is not None
         )
 
+    @property
     def is_user_moderator(self):
         from .site_membership import SiteMembership
 

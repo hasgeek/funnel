@@ -22,6 +22,7 @@ from coaster.views import (
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
     AccountForm,
+    CommentSearchForm,
     EmailPrimaryForm,
     NewEmailAddressForm,
     NewPhoneForm,
@@ -32,6 +33,7 @@ from ..forms import (
     VerifyPhoneForm,
 )
 from ..models import (
+    Comment,
     UserEmail,
     UserEmailClaim,
     UserExternalId,
@@ -90,6 +92,46 @@ class AccountView(ClassView):
     @render_with('account_saved.html.jinja2')
     def saved(self):
         return {'saved_projects': current_auth.user.saved_projects}
+
+    @route('siteadmin/comments', endpoint='siteadmin_comments', methods=['GET', 'POST'])
+    @requires_login
+    @render_with('siteadmin_comments.html.jinja2')
+    def siteadmin_comments(self):
+        if not (
+            current_auth.user.is_comment_moderator
+            or current_auth.user.is_user_moderator
+        ):
+            return redirect('/')
+
+        comments = []
+        comment_search_form = CommentSearchForm()
+
+        if comment_search_form.validate_on_submit():
+            query = comment_search_form.query.data
+            comments = Comment.query.filter(Comment.search_vector.match(query)).all()
+
+        return {
+            'comments': comments,
+            'comment_search_form': comment_search_form,
+        }
+
+    @route(
+        'siteadmin/comments/delete',
+        endpoint='siteadmin_comments_delete',
+        methods=['GET', 'POST'],
+    )
+    @requires_login
+    @render_with('siteadmin_comments_delete.html.jinja2')
+    def siteadmin_comments_delete(self):
+        if not (
+            current_auth.user.is_comment_moderator
+            or current_auth.user.is_user_moderator
+        ):
+            return redirect('/')
+
+        # TODO: Delete selection comments
+
+        return {}
 
 
 @route('/account')

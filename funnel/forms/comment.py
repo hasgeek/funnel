@@ -5,7 +5,12 @@ import baseframe.forms as forms
 
 from ..models import Comment
 
-__all__ = ['CommentForm', 'CommentDeleteForm']
+__all__ = [
+    'CommentForm',
+    'CommentDeleteForm',
+    'CommentModerationForm',
+    'CommentSearchForm',
+]
 
 
 @Comment.forms('main')
@@ -38,3 +43,16 @@ class CommentDeleteForm(forms.Form):
     comment_id = forms.HiddenField(
         __("Comment"), validators=[forms.validators.DataRequired()]
     )
+
+
+class CommentSearchForm(forms.Form):
+    query = forms.StringField(__("Query"), validators=[forms.validators.DataRequired()])
+
+
+class CommentModerationForm(forms.Form):
+    comments = forms.SelectField(
+        __("Comment"), validators=[forms.validators.DataRequired()]
+    )
+
+    def set_queries(self):
+        self.comments.choices = Comment.query.all()[:10]
