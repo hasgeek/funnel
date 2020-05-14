@@ -106,15 +106,25 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @declared_attr
     def __table_args__(cls):
-        return (
-            db.Index(
-                'ix_' + cls.__tablename__ + '_active',
-                cls.parent_id.name,
-                'user_id',
-                unique=True,
-                postgresql_where=db.text('revoked_at IS NULL'),
-            ),
-        )
+        if cls.parent_id is not None:
+            return (
+                db.Index(
+                    'ix_' + cls.__tablename__ + '_active',
+                    cls.parent_id.name,
+                    'user_id',
+                    unique=True,
+                    postgresql_where=db.text('revoked_at IS NULL'),
+                ),
+            )
+        else:
+            return (
+                db.Index(
+                    'ix_' + cls.__tablename__ + '_active',
+                    'user_id',
+                    unique=True,
+                    postgresql_where=db.text('revoked_at IS NULL'),
+                ),
+            )
 
     def offered_roles(self):
         """Roles offered by this membership record"""
