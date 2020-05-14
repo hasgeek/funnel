@@ -36,6 +36,10 @@ describe('Confirm proposal', function () {
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="under_evaluation"]')
       .click();
+    cy.get('[data-cy="proposal-status"]')
+      .find('button[value="confirm"]')
+      .click();
+    cy.get('[data-cy-proposal-status="Confirmed"]').should('exist');
 
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
@@ -43,11 +47,5 @@ describe('Confirm proposal', function () {
     cy.get('#comment-form').submit();
     cy.get('.comment--body').contains(proposal.comment);
     cy.get('.comment--header').contains(editor.username);
-
-    cy.get('[data-cy="proposal-status"]')
-      .find('button[value="confirm"]')
-      .click();
-
-    cy.get('[data-cy-proposal-status="Confirmed"]').should('exist');
   });
 });
