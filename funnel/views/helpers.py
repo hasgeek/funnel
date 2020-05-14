@@ -9,6 +9,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    g,
     redirect,
     request,
     session,
@@ -280,6 +281,13 @@ def cache_expiry_headers(response):
     else:
         response.headers['Cache-Control'] = 'private'
     return response
+
+
+@funnelapp.url_defaults
+def add_profile_parameter(endpoint, values):
+    if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
+        if 'profile' not in values:
+            values['profile'] = g.profile.name if g.profile else None
 
 
 def requires_login(f):
