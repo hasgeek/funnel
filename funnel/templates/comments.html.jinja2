@@ -33,7 +33,7 @@
           {% if not comment.state.DELETED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" data-delete-url="{{ comment.url_for('delete') }}" data-edit-url="{{ comment.url_for('edit') }}" data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
+          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" {% if comment.view_for('edit').is_available() %} data-delete-url="{{ comment.url_for('delete') }}" data-edit-url="{{ comment.url_for('edit') }}" {% endif %} data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
             {% if not comment.state.DELETED %}
               {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Reply]</a>{% endif %}
               {% if comment.current_roles.author %}
