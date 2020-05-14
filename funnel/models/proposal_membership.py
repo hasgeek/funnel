@@ -2,7 +2,7 @@
 
 from sqlalchemy.ext.declarative import declared_attr
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .membership import ImmutableMembershipMixin
@@ -71,13 +71,16 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 
-Proposal.active_memberships = db.relationship(
-    ProposalMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProposalMembership.proposal_id == Proposal.id, ProposalMembership.is_active
+Proposal.active_memberships = with_roles(
+    db.relationship(
+        ProposalMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProposalMembership.proposal_id == Proposal.id, ProposalMembership.is_active
+        ),
+        viewonly=True,
     ),
-    viewonly=True,
+    grants_via={'user': {'reviewer', 'presenter'}},
 )
 
 Proposal.active_reviewer_memberships = db.relationship(

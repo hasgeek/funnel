@@ -498,19 +498,12 @@ class Proposal(
 
     def roles_for(self, actor=None, anchors=()):
         roles = super(Proposal, self).roles_for(actor, anchors)
-
         if self.state.DRAFT:
             if 'reader' in roles:
                 # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
                 roles.remove('reader')
         else:
             roles.add('reader')
-
-        active_membership = self.active_memberships.filter_by(user=actor).one_or_none()
-        if active_membership is not None:
-            # this grants either `reviewer` or `speaker`
-            roles.update(active_membership.offered_roles())
-
         return roles
 
 
