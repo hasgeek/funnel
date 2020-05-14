@@ -64,8 +64,9 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
         roles = set()
         if self.is_reviewer:
             roles.add('reviewer')
-        elif self.is_speaker:
+        elif self.is_presenter:
             roles.add('presenter')
+        roles.add('participant')
         return roles
 
 
