@@ -51,9 +51,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .limit(1)
             .first()
         )
-        unscheduled_projects = (
-            projects.filter(Project.state.PUBLISHED, Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS)
-        )
+        unscheduled_projects = projects.filter(Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS).all()
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
         open_cfp_projects = (
