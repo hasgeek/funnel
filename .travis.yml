@@ -32,7 +32,7 @@ jobs:
     - name:  Unit Tests
       stage: Tests
       install: 
-        - dev-test/script/install-standard-deps.sh
+        - dev-test/scripts/install-standard-deps.sh
         - pip install -r test_requirements.txt
         - make
         - pip install six --upgrade --ignore-installed
