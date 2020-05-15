@@ -62,7 +62,7 @@
     <p>
       <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('login') }}" data-cy="login-btn">{% trans %}Login to leave a comment{% endtrans %}</a>
     </p>
-  {% else -%}
+  {% elif parent.features.comment_new() -%}
     <form method="POST" id="comment-form" action="{{ parent.commentset.url_for('new_comment') }}" class="mui-form comments-form">
       <div class="mui--hide">
         <input type="hidden" name="form.id" value="newcomment"/>
@@ -86,5 +86,7 @@
         <button id="comment-delete-cancel" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" href="#">{% trans %}Cancel{% endtrans %}</button>
       </p>
     </form>
+  {% else %}
+    <p class="mui-panel mui--bg-accent">You need to be a participant to comment.</p>
   {% endif %}
 {% endmacro %}
