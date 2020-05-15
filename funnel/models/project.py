@@ -386,6 +386,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'PUBLISHED_WITHOUT_SESSIONS',
         schedule_state.PUBLISHED,
         lambda project: project.schedule_start_at is None,
+        lambda project: project.schedule_start_at.is_(None),
         label=('published_without_sessions', __("Published without sessions"))
     )
 
