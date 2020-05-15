@@ -284,7 +284,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             db.session.commit()
             return redirect(self.obj.url_for())
         return render_form(
-            form=form, title=_("Customize the URL"), submit=_("Save changes"),
+            form=form, title=_("Customize the URL"), submit=_("Save changes")
         )
 
     @route('editlivestream', methods=['GET', 'POST'])
@@ -297,7 +297,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             db.session.commit()
             return redirect(self.obj.url_for())
         return render_form(
-            form=form, title=_("Add or edit livestream URLs"), submit=_("Save changes"),
+            form=form, title=_("Add or edit livestream URLs"), submit=_("Save changes")
         )
 
     @route('edit', methods=['GET', 'POST'])
@@ -306,11 +306,12 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_roles({'editor'})
     def edit(self):
         if request.method == 'GET':
-            # find draft if it exists
+            # Find draft if it exists
             draft_revision, initial_formdata = self.get_draft_data()
 
-            # initialize forms with draft initial formdata.
-            # if no draft exists, initial_formdata is None. wtforms ignore formdata if it's None.
+            # Initialize forms with draft initial formdata.
+            # If no draft exists, initial_formdata is None.
+            # WTForms will ignore formdata if it's None.
             form = ProjectForm(
                 obj=self.obj,
                 parent=self.obj.profile,
@@ -339,13 +340,15 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     flash(_("Your changes have been saved"), 'info')
                     tag_locations.queue(self.obj.id)
 
-                    # find and delete draft if it exists
+                    # Find and delete draft if it exists
                     if self.get_draft() is not None:
                         self.delete_draft()
                         db.session.commit()
 
                     return redirect(self.obj.url_for(), code=303)
                 else:
+                    # Reset nonce to avoid conflict with autosave
+                    form.form_nonce.data = form.form_nonce.default()
                     return render_form(
                         form=form,
                         title=_("Edit project"),
