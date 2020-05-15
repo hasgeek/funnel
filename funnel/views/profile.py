@@ -51,6 +51,15 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .limit(1)
             .first()
         )
+        unscheduled_projects = (
+            # projects with no sessions
+            projects.filter(
+                Project.state.PUBLISHED,
+                db.and_(Project.schedule_start_at) is None,
+            )
+            .order_by(Project.created_at.desc())
+            .all()
+        )
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
         open_cfp_projects = (
@@ -70,6 +79,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             'profile': self.obj.current_access(),
             'past_projects': [p.current_access() for p in past_projects],
             'all_projects': [p.current_access() for p in all_projects],
+            'unscheduled_projects': [p.current_access() for p in unscheduled_projects],
             'upcoming_projects': [p.current_access() for p in upcoming_projects],
             'open_cfp_projects': [p.current_access() for p in open_cfp_projects],
             'draft_projects': [p.current_access() for p in draft_projects],
