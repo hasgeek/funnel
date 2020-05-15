@@ -4,7 +4,7 @@
   "outline": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. \nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   "slides": "https://hasgeek.com/about",
   "preview_video": "https://www.youtube.com/watch?v=SLlSDI-N8iM",
-  "speaker_bio": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. \nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+  "speaker_bio": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ali",
   "phone": "990001234",
   "location": "Bangalore",
   "room": "Taj M G Road – Banquet hall",
@@ -12,5 +12,6 @@
   "time": "9:05",
   "email": "member-user@hasgeek.com",
   "session_video": "https://youtu.be/T0RzSqm2nfc",
-  "comment": "Please update slides with code snippets"
+  "comment": "Please update slides with code snippets",
+  "proposer_note": "Adding preview video next week"
 }

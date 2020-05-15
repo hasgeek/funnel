@@ -510,6 +510,13 @@ class Proposal(
         if active_membership is not None:
             # this grants either `reviewer` or `speaker`
             roles.update(active_membership.offered_roles())
+            roles.add('commenter')
+
+        if (
+            'participant' in self.project.roles_for(actor, anchors)
+            or actor == self.user
+        ):
+            roles.add('commenter')
 
         return roles
 

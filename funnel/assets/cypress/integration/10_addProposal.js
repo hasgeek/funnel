@@ -1,11 +1,11 @@
-describe('Add a new proposal', function() {
+describe('Add a new proposal', function () {
   const user = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  it('Add proposal', function() {
+  it('Add proposal', function () {
     cy.login('/' + profile.title, user.username, user.password);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
@@ -58,5 +58,12 @@ describe('Add a new proposal', function() {
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
     cy.get('[data-cy="edit-proposal-video"]').should('exist');
+
+    cy.get('#field-comment_message')
+      .find('.CodeMirror textarea')
+      .type(proposal.proposer_note, { force: true });
+    cy.get('#comment-form').submit();
+    cy.get('.comment--body').contains(proposal.proposer_note);
+    cy.get('.comment--header').contains(user.username);
   });
 });
