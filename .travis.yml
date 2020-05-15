@@ -17,16 +17,16 @@ jobs:
   include:
 
     # Runs flake for pre-commit checks (Derived from coaster)
-    - name: Pre-Commit Checks
-      stage: Sanity checks
-      cache: pip
-      env:
-         CACHE_NAME=PRE_COMMIT
-      install: 
-        - pip install -U pip wheel
-        - pip install pre-commit
-      script:
-        - pre-commit run flake8 -a
+    #- name: Pre-Commit Checks
+    #  stage: Sanity checks
+    #  cache: pip
+    #  env:
+    #     CACHE_NAME=PRE_COMMIT
+    #  install: 
+    #    - pip install -U pip wheel
+    #    - pip install pre-commit
+    #  script:
+    #    - pre-commit run flake8 -a
 
     # Copied over from previous default job
     - name:  Unit Tests
