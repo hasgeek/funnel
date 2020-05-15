@@ -50,9 +50,6 @@ class CommentSearchForm(forms.Form):
 
 
 class CommentModerationForm(forms.Form):
-    comments = forms.SelectField(
+    comment_id = forms.SelectField(
         __("Comment"), validators=[forms.validators.DataRequired()]
     )
-
-    def set_queries(self):
-        self.comments.choices = Comment.query.all()[:10]

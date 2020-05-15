@@ -3,37 +3,50 @@
 {% block admincontentblock %}
 
 {% if comment_search_form %}
-    {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
+  {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
 {% endif %}
 
-<form action="delete" method="post" class="form-inline">
-<table class="mui-table mui-table--bordered mui-table--responsive">
+<form action="{{ url_for('siteadmin_comments_delete') }}" method="post" class="form-inline">
+  {{ default_form.hidden_tag() }}
+  <table class="mui-table mui-table--bordered mui-table--responsive">
     <thead>
-        <tr>
-        <th>Select</th>
-        <th>{% trans %}User{% endtrans %}</th>
-        <th>{% trans %}Content{% endtrans %}</th>
-        <th>{% trans %}Actions{% endtrans %}</th>
-        </tr>
+      <tr>
+      <th><button id="btn-comments-selectall" class="mui-btn mui-btn--accent">Select all</button></th>
+      <th>{% trans %}User{% endtrans %}</th>
+      <th>{% trans %}Content{% endtrans %}</th>
+      <th>{% trans %}Actions{% endtrans %}</th>
+      </tr>
     </thead>
     <tbody class="mui--text-subhead">
-        {% for comment in comments %}
-        <tr>
-            <td data-th="#">
-                <div class="mui-checkbox">
-                    <input type="checkbox" name="comment_id" value="{{ comment.uuid_b58 }}">
-                </div>
-            </td>
-            <td data-th="User">{{ comment.user.pickername }}</td>
-            <td data-th="Content">{{ comment.message }}</td>
-            <td data-th="Actions"><button>asd</button></td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="4">{% trans %}No comment available{% endtrans %}</td>
-        </tr>
-        {% endfor %}
+      {% for comment in comments %}
+      <tr>
+        <td data-th="#">
+          <div class="mui-checkbox">
+            <input type="checkbox" class="field-comment-id" name="comment_id" value="{{ comment.uuid_b58 }}">
+          </div>
+        </td>
+        <td data-th="User">{{ comment.user.pickername }}</td>
+        <td data-th="Content">{{ comment.message }}</td>
+        <td data-th="Actions"></td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4">{% trans %}No comment available{% endtrans %}</td>
+      </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
+  <div>
+    {{ rendersubmit([("delete-comments-bulk", "Delete", '')]) }}
+  </div>
 </form>
 {% endblock admincontentblock %}
+
+{% block footerscripts %}
+  <script type="text/javascript">
+  $('#btn-comments-selectall').click(function (e) {
+    e.preventDefault();
+    $('.field-comment-id').attr('checked', true);
+  })
+  </script>
+{% endblock %}

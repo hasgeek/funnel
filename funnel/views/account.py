@@ -4,6 +4,7 @@ from flask import Markup, abort, current_app, escape, flash, redirect, request, 
 
 from baseframe import _
 from baseframe.forms import (
+    Form,
     render_delete_sqla,
     render_form,
     render_message,
@@ -107,12 +108,16 @@ class AccountView(ClassView):
         comment_search_form = CommentSearchForm()
 
         if comment_search_form.validate_on_submit():
+            comment_search_form.form_nonce.data = (
+                comment_search_form.form_nonce.default()
+            )
             query = comment_search_form.query.data
             comments = Comment.query.filter(Comment.search_vector.match(query)).all()
 
         return {
             'comments': comments,
             'comment_search_form': comment_search_form,
+            'default_form': Form(),
         }
 
     @route(
@@ -129,9 +134,13 @@ class AccountView(ClassView):
         ):
             return redirect('/')
 
-        # TODO: Delete selection comments
+        Form()
+        # if moderation_form.validate_on_submit():
+        #     print(request.form.getlist('comment_id'))
+        # else:
+        #     print(moderation_form.errors)
 
-        return {}
+        return redirect(url_for('siteadmin_comments'))
 
 
 @route('/account')
