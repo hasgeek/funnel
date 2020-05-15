@@ -14,6 +14,7 @@ $(() => {
   Utils.collapse();
   Utils.smoothScroll();
   Utils.navSearchForm();
+  Utils.scrollTabs();
   Utils.truncate();
   Utils.showTimeOnCalendar();
 
