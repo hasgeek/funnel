@@ -2,14 +2,23 @@
 
 from sqlalchemy.ext.declarative import declared_attr
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .membership import ImmutableMembershipMixin
 from .project import Project
 from .user import User
 
-__all__ = ['ProjectCrewMembership']
+__all__ = ['ProjectCrewMembership', 'project_child_role_map']
+
+# Roles in a project and their remapped names in objects attached to a project
+project_child_role_map = {
+    'editor': 'project_editor',
+    'concierge': 'project_concierge',
+    'usher': 'project_usher',
+    'crew': 'project_crew',
+    'participant': 'project_participant',
+}
 
 
 class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
@@ -93,13 +102,17 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 
-Project.active_crew_memberships = db.relationship(
-    ProjectCrewMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectCrewMembership.project_id == Project.id, ProjectCrewMembership.is_active
+Project.active_crew_memberships = with_roles(
+    db.relationship(
+        ProjectCrewMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProjectCrewMembership.project_id == Project.id,
+            ProjectCrewMembership.is_active,
+        ),
+        viewonly=True,
     ),
-    viewonly=True,
+    grants_via={'user': {'editor', 'concierge', 'usher', 'participant', 'crew'}},
 )
 
 Project.active_editor_memberships = db.relationship(
