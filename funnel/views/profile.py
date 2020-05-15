@@ -52,13 +52,8 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .first()
         )
         unscheduled_projects = (
-            # projects with no sessions
             projects.filter(
-                Project.state.PUBLISHED,
-                db.and_(Project.schedule_start_at) is None,
-            )
-            .order_by(Project.created_at.desc())
-            .all()
+                Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS)
         )
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
