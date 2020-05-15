@@ -65,15 +65,18 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
 # Add active membership relationships to Organization and User
 # Organization.active_memberships is a future possibility. For now just admin and owner
 
-Organization.active_admin_memberships = db.relationship(
-    OrganizationMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        db.remote(OrganizationMembership.organization_id) == Organization.id,
-        OrganizationMembership.is_active,
+Organization.active_admin_memberships = with_roles(
+    db.relationship(
+        OrganizationMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            db.remote(OrganizationMembership.organization_id) == Organization.id,
+            OrganizationMembership.is_active,
+        ),
+        order_by=lambda: OrganizationMembership.granted_at.asc(),
+        viewonly=True,
     ),
-    order_by=lambda: OrganizationMembership.granted_at.asc(),
-    viewonly=True,
+    grants_via={'user': {'admin', 'owner'}},
 )
 
 Organization.active_owner_memberships = db.relationship(
@@ -99,14 +102,9 @@ Organization.active_invitations = db.relationship(
 )
 
 
-Organization.owner_users = with_roles(
-    DynamicAssociationProxy('active_owner_memberships', 'user'),
-    grants={'owner', 'admin'},
-)
+Organization.owner_users = DynamicAssociationProxy('active_owner_memberships', 'user')
 
-Organization.admin_users = with_roles(
-    DynamicAssociationProxy('active_admin_memberships', 'user'), grants={'admin'}
-)
+Organization.admin_users = DynamicAssociationProxy('active_admin_memberships', 'user')
 
 
 # User.active_organization_memberships is a future possibility.

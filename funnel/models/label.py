@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
@@ -10,6 +9,7 @@ from coaster.sqlalchemy import with_roles
 from . import BaseScopedNameMixin, TSVectorType, db
 from .helpers import add_search_trigger
 from .project import Project
+from .project_membership import project_child_role_map
 from .proposal import Proposal
 
 proposal_label = db.Table(
@@ -40,9 +40,10 @@ class Label(BaseScopedNameMixin, db.Model):
     project_id = db.Column(
         None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project = db.relationship(
-        Project
-    )  # Backref is defined in the Project model with an ordering list
+    # Backref from project is defined in the Project model with an ordering list
+    project = with_roles(
+        db.relationship(Project), grants_via={None: project_child_role_map}
+    )
     # `parent` is required for :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
     parent = db.synonym('project')
 
@@ -108,16 +109,6 @@ class Label(BaseScopedNameMixin, db.Model):
 
     #: Proposals that this label is attached to
     proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
-
-    project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
-    )
-    project_concierges = with_roles(
-        association_proxy('project', 'concierges'), grants={'project_concierge'}
-    )
-    project_ushers = with_roles(
-        association_proxy('project', 'ushers'), grants={'project_usher'}
-    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
