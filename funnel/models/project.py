@@ -382,6 +382,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lambda project: db.func.utcnow() < project.schedule_start_at,
         label=('upcoming', __("Upcoming")),
     )
+    schedule_state.add_conditional_state(
+        'PUBLISHED_WITHOUT_SESSIONS',
+        schedule_state.PUBLISHED,
+        lambda project: project.schedule_start_at is None,
+        label=('published_without_sessions', __("Published without sessions"))
+    )
 
     cfp_state.add_conditional_state(
         'HAS_PROPOSALS',
