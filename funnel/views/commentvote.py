@@ -157,18 +157,18 @@ class CommentView(UrlForView, ModelView):
         return comment
 
     @route('')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view(self):
         return redirect(self.obj.views.url(), code=303,)
 
     @route('json')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view_json(self):
         return jsonify(status=True, message=self.obj.message.text)
 
     @route('edit', methods=['POST'])
     @requires_login
-    @requires_permission('edit_comment')
+    @requires_roles({'author'})
     def edit(self):
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
@@ -188,7 +188,7 @@ class CommentView(UrlForView, ModelView):
 
     @route('delete', methods=['POST'])
     @requires_login
-    @requires_permission('delete_comment')
+    @requires_roles({'author'})
     def delete(self):
         commentset = self.obj.commentset
         delcommentform = CommentDeleteForm(comment_id=self.obj.id)
@@ -203,7 +203,7 @@ class CommentView(UrlForView, ModelView):
 
     @route('voteup', methods=['POST'])
     @requires_login
-    @requires_permission('vote_comment')
+    @requires_roles({'reader'})
     def voteup(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
@@ -218,7 +218,7 @@ class CommentView(UrlForView, ModelView):
 
     @route('votedown', methods=['POST'])
     @requires_login
-    @requires_permission('vote_comment')
+    @requires_roles({'reader'})
     def votedown(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
@@ -233,7 +233,7 @@ class CommentView(UrlForView, ModelView):
 
     @route('delete_vote', methods=['POST'])
     @requires_login
-    @requires_permission('vote_comment')
+    @requires_roles({'reader'})
     def delete_vote(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
