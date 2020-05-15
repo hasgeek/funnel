@@ -9,7 +9,16 @@ from .membership import ImmutableMembershipMixin
 from .project import Project
 from .user import User
 
-__all__ = ['ProjectCrewMembership']
+__all__ = ['ProjectCrewMembership', 'project_child_role_map']
+
+# Roles in a project and their remapped names in objects attached to a project
+project_child_role_map = {
+    'editor': 'project_editor',
+    'concierge': 'project_concierge',
+    'usher': 'project_usher',
+    'crew': 'project_crew',
+    'participant': 'project_participant',
+}
 
 
 class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):

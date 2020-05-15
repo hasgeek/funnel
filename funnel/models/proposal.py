@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from werkzeug.utils import cached_property
@@ -24,6 +23,7 @@ from . import (
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import add_search_trigger
 from .project import Project
+from .project_membership import project_child_role_map
 from .user import User
 from .video import VideoMixin
 
@@ -126,10 +126,13 @@ class Proposal(
     phone = db.Column(db.Unicode(80), nullable=True)
     bio = MarkdownColumn('bio', nullable=True)
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(
-        Project,
-        primaryjoin=project_id == Project.id,
-        backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+    project = with_roles(
+        db.relationship(
+            Project,
+            primaryjoin=project_id == Project.id,
+            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+        ),
+        grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
 
@@ -198,10 +201,6 @@ class Proposal(
             ),
             nullable=False,
         )
-    )
-
-    project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
     )
 
     __table_args__ = (
