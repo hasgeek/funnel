@@ -210,8 +210,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 status=True,
                 modal_url=modal_url,
                 msg=_(
-                    "This project will not be listed as it has no sessions in the"
-                    " schedule"
+                    "This project will not be listed as it has no sessions in the "
+                    "schedule"
                 ),
             )
         return jsonify(status=True, modal_url=modal_url)
