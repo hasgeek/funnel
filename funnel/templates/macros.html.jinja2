@@ -56,7 +56,7 @@
         <input type="hidden" name="save" value="">
         <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmark">{% if txt %}<span class="mui--text-body1 mui--text-light txt">{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark', baseline=false, css_class='mui--text-light') }}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmarked">{% if txt %}<span class="mui--text-body1 mui--text-light txt">{% trans %}Unsave <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark',  baseline=false, css_class='bookmarked') }}</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmarked">{% if txt %}<span class="mui--text-body1 mui--text-light txt">{% trans %}Unsave <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark-solid',  baseline=false, css_class='bookmarked') }}</button>
       {%- endif %}
     </p>
   </form>
@@ -79,7 +79,7 @@
     {% endif %}
     <div class="mui-dropdown">
       <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead share" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><span class="mui--text-body1 mui--text-light txt">{% trans %}Share <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{{ faicon(icon='share-square', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</a>
-      {{ share_dropdown(url, title) }}
+      {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
   </div>
 {% endmacro %}
