@@ -32,10 +32,15 @@ from .schedule import schedule_data, session_data, session_list_data
 
 
 def rooms_list(project):
-    return [("", _("Select Room"))] + [
-        (room.id, "{venue} – {room}".format(venue=room.venue.title, room=room.title))
-        for room in project.rooms
-    ]
+    if project.rooms:
+        return [("", _("Select Room"))] + [
+            (
+                room.id,
+                "{venue} – {room}".format(venue=room.venue.title, room=room.title),
+            )
+            for room in project.rooms
+        ]
+    return []
 
 
 def session_form(project, proposal=None, session=None):
@@ -54,6 +59,8 @@ def session_form(project, proposal=None, session=None):
             form.title.data = proposal.title
 
     form.venue_room_id.choices = rooms_list(project)
+    if not form.venue_room_id.choices:
+        del form.venue_room_id
     if request.method == 'GET':
         if not (session or proposal):
             form.is_break.data = True
@@ -203,7 +210,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 status=True,
                 modal_url=modal_url,
                 msg=_(
-                    "This project will not be listed as it has no sessions in the schedule"
+                    "This project will not be listed as it has no sessions in the"
+                    " schedule"
                 ),
             )
         return jsonify(status=True, modal_url=modal_url)
