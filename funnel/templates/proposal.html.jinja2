@@ -306,15 +306,7 @@
           {{ commenttree(comments, proposal, project, csrf_form) }}
         </ul>
       {% endif %}
-      {% if proposal.features.comment_new() %}
-        {{ commentformtemplate(proposal, commentform, delcommentform, current_auth) }}
-      {% else %}
-        {% if proposal.project.features.has_tickets() %}
-        <p class="mui-panel mui--bg-accent">You need to buy a ticket for this project to comment.</p>
-        {% else %}
-        <p class="mui-panel mui--bg-accent">You need to RSVP to this project to comment.</p>
-        {% endif %}
-      {% endif %}
+      {{ commentformtemplate(proposal, commentform, delcommentform, current_auth) }}
     </section>
   </div>
 

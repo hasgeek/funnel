@@ -504,6 +504,10 @@ class Proposal(
                 roles.remove('reader')
         else:
             roles.add('reader')
+
+        if {'project_participant', 'speaker', 'reviewer'}.intersection(roles):
+            roles.add('commenter')
+
         return roles
 
 
