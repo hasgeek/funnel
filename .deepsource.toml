@@ -1,7 +1,12 @@
 version = 1
 
+test_patterns = [
+  "tests/**"
+]
+
 exclude_patterns = [
-  "runcypressserver.py"
+  "runcypressserver.py",
+  "**/node_modules/"
 ]
 
 [[analyzers]]
