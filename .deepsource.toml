@@ -6,7 +6,8 @@ test_patterns = [
 
 exclude_patterns = [
   "runcypressserver.py",
-  "**/node_modules/"
+  "**/node_modules/",
+  "migrations/**/*"
 ]
 
 [[analyzers]]
