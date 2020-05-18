@@ -496,21 +496,24 @@ export const Comments = {
       const cfooter = $(this).parent();
       $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
       $('#comment-form  input[name="comment_edit_id"]').val('');
-      $('#toplevel-comment').removeClass('mui--hide');
+      $('#toplevel-comment, #comment-cancel').removeClass('mui--hide');
       $('#comment-submit').val('Reply'); // i18n gotcha
       cfooter.after($('#comment-form'));
       $('#comment-form textarea').focus();
       return false;
     });
 
-    $('#toplevel-comment a').click(function () {
+    $('#toplevel-comment a, #comment-cancel').click(function () {
       $('#comment-form').attr('action', newCommentUrl);
       $('#comment-form  input[name="parent_id"]').val('');
       $('#comment-form  input[name="comment_edit_id"]').val('');
       $('#comment-submit').val('Post comment'); // i18n gotcha
       $('#comment-form .message .CodeMirror')[0].CodeMirror.setValue('');
-      $(this).parent().after($('#comment-form'));
-      $(this).parent().addClass('mui--hide');
+      $('#toplevel-comment a').parent().after($('#comment-form'));
+      $('#toplevel-comment a')
+        .parent()
+        .addClass('mui--hide');
+      $('#toplevel-comment, #comment-cancel').addClass('mui--hide');
       $('#comment-form textarea').focus();
       return false;
     });

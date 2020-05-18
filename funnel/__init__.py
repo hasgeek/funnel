@@ -279,7 +279,6 @@ funnelapp.assets.register(
     Bundle(
         assets.require('codemirror-markdown.js'),
         output='js/codemirror-markdown.packed.js',
-        filters='uglipyjs',
     ),
 )
 funnelapp.assets.register(
